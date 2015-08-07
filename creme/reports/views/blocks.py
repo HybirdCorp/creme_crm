@@ -47,7 +47,8 @@ def add_graph_instance_block(request, graph_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':   graph_form,
-                        'title': _(u'Add an instance block for <%s>') % graph,
+                        'title': _(u'Add an instance block for «%s»') % graph,
+                        'submit_label': _('Save the block'),
                        },
                        is_valid=graph_form.is_valid(),
                        reload=False,

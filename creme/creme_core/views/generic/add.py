@@ -67,7 +67,8 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
     return render(request, template, template_dict)
 
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
-                  template='creme_core/generics/blockform/add_popup2.html', link_perm=False, submit_label=_('Save')):
+                  template='creme_core/generics/blockform/add_popup2.html',
+                  link_perm=False, submit_label=_('Save')):
     """ Add models related to one CremeEntity (eg: a CremeProperty)
     @param entity_id Id of a CremeEntity.
     @param form_class Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).
@@ -104,7 +105,8 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
                       )
 
 def add_model_with_popup(request, form_class, title=None, initial=None,
-                         template='creme_core/generics/blockform/add_popup2.html', submit_label=_('Save')):
+                         template='creme_core/generics/blockform/add_popup2.html',
+                         submit_label=_('Save')):
     """
     @param title Title of the Inner Popup.
     @param initial classical 'initial' of Forms (passed when the request is a GET)

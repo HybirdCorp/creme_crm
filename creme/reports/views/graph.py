@@ -23,7 +23,7 @@ import logging
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext as _, pgettext_lazy
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import view_entity, add_to_entity, edit_related_to_entity
@@ -46,14 +46,15 @@ logger = logging.getLogger(__name__)
 @permission_required('reports')
 def add(request, report_id):
     return add_to_entity(request, report_id, ReportGraphForm,
-                         _(u'Add a graph for <%s>'),
+                         _(u'Add a graph for «%s»'),
+                         submit_label=pgettext_lazy('reports-graphs', 'Save the graph'),
                         )
 
 @login_required
 @permission_required('reports')
 def edit(request, graph_id):
     return edit_related_to_entity(request, graph_id, ReportGraph,
-                                  ReportGraphForm, _(u'Edit a graph for <%s>'),
+                                  ReportGraphForm, _(u'Edit a graph for «%s»'),
                                  )
 
 @login_required
@@ -112,7 +113,7 @@ def get_available_report_graph_types(request, ct_id):
     gtypes = _get_available_report_graph_types(ct, abscissa_field)
 
     if gtypes is None:
-        result = [{'id': '', 'text': ugettext(u'Choose an abscissa field')}] #TODO: is the translation useful ??
+        result = [{'id': '', 'text': _(u'Choose an abscissa field')}] #TODO: is the translation useful ??
     else:
         result = [{'id':   type_id,
                    'text': unicode(RGRAPH_HANDS_MAP[type_id].verbose_name),

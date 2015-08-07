@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup #, inner_popup
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
 from ..forms.fields_config import FieldsConfigAddForm, FieldsConfigEditForm
 
@@ -37,7 +37,10 @@ def portal(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def add(request):
-    return add_model_with_popup(request, FieldsConfigAddForm, _(u'New fields configuration'))
+    return add_model_with_popup(request, FieldsConfigAddForm,
+                                _(u'New fields configuration'),
+                                submit_label=_('Save the configuration'),
+                               )
 
 @login_required
 @permission_required('creme_core.can_admin')

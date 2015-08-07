@@ -267,7 +267,8 @@ class BlocksTestCase(CremeTestCase):
         try:
             html = parse_html(content)
         except Exception as e:
-            self.fail('%s\n----\n%s' % (e, content))
+            from django.utils.encoding import smart_unicode
+            self.fail(u'%s\n----\n%s' % (e, smart_unicode(content)))
 
         block_node = find_node_by_attr(html, 'table', 'id', address_block.id_)
         self.assertIsNotNone(block_node, 'Block content not found')

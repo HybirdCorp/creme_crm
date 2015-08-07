@@ -71,9 +71,10 @@ def get_subcategories(request, category_id):
 @permission_required('products')
 def add_images(request, product_id):
     return add_to_entity(request, product_id, AddImagesForm,
-                         ugettext('New images for <%s>'),
+                         ugettext(u'New images for «%s»'),
 #                         entity_class=Product,
                          entity_class=get_product_model(),
+                         submit_label=_('Link the images'),
                         )
 
 @login_required

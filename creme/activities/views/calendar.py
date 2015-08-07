@@ -43,11 +43,11 @@ from creme.persons import get_contact_model
 #from creme.persons.models import Contact
 
 from .. import get_activity_model
+from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
+        REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
 from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
 from ..models import Calendar #Activity
 from ..utils import get_last_day_of_a_month, check_activity_collisions
-from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
-        REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
 
 
 logger = logging.getLogger(__name__)
@@ -247,7 +247,9 @@ def update_activity_date(request):
 @permission_required('activities')
 def add_user_calendar(request):
     return add_model_with_popup(request, CalendarForm, title=_(u'Add a calendar'),
-                                initial={'color': Calendar.new_color()})
+                                initial={'color': Calendar.new_color()},
+                                submit_label=_('Save the calendar'),
+                               )
 
 @login_required
 @permission_required('activities')
@@ -281,7 +283,7 @@ def delete_user_calendar(request):
 def link_user_calendar(request, activity_id):
     return edit_model_with_popup(request, query_dict={'pk': activity_id},
                                  model=Activity, form_class=ActivityCalendarLinkerForm,
-                                 title_format=_(u"Change calendar of <%s>"),
+                                 title_format=_(u"Change calendar of «%s»"),
                                  #can_change=lambda activity, user: user.has_perm_to_link(activity),
                                  can_change=lambda activity, user: True,
                                 )

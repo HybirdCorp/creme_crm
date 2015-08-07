@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'GRAPHS' APP
-# Copyright (C) 2014 Hybird
+# Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i tests.py
@@ -7,41 +7,37 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Graphs 1.4\n"
+"Project-Id-Version: Creme Graphs 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-13 18:06+0200\n"
+"POT-Creation-Date: 2015-08-07 11:48+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:32
-msgid "Roots nodes of a graph"
-msgstr "Nœuds racines d'un graphe"
-
-#: blocks.py:52
-msgid "Peripheral types of relation of a graph"
-msgstr "Types de relation périphériques d'un graphe"
-
-#: creme_core_register.py:30 models/graph.py:41
+#: apps.py:29 apps.py:39 models/graph.py:46
 msgctxt "graphs"
 msgid "Graphs"
 msgstr "Graphes"
 
-#: creme_core_register.py:34
+#: apps.py:62
 msgid "Portal of graphs"
 msgstr "Portail des graphes"
 
-#: creme_core_register.py:35
+#: apps.py:63
 msgid "All graphs"
 msgstr "Liste des graphes"
 
-#: populate.py:41
-msgid "Graph view"
-msgstr "Vue de Graphe"
+#: blocks.py:34
+msgid "Roots nodes of a graph"
+msgstr "Nœuds racines d'un graphe"
 
-#: forms/graph.py:38 models/graph.py:31
+#: blocks.py:53
+msgid "Peripheral types of relation of a graph"
+msgstr "Types de relation périphériques d'un graphe"
+
+#: forms/graph.py:38 models/graph.py:33
 msgid "Types of the peripheral relations"
 msgstr "Types des relations périphériques"
 
@@ -53,38 +49,33 @@ msgstr "Fiches racines"
 msgid "Related types of relations"
 msgstr "Types de relation associés"
 
-#: models/graph.py:30
+#: models/graph.py:32
 msgctxt "graphs"
 msgid "Name of the graph"
 msgstr "Nom du graphe"
 
-#: models/graph.py:33
 # msgctxt "graphs"
+#: models/graph.py:36
 msgid "Add a graph"
 msgstr "Ajouter un graphe"
 
-#: models/graph.py:40 templates/graphs/portal.html:4
+#: models/graph.py:45 templates/graphs/portal.html:4
 msgctxt "graphs"
 msgid "Graph"
 msgstr "Graphe"
+
+#: populate.py:46
+msgid "Graph view"
+msgstr "Vue de Graphe"
 
 #: templates/graphs/portal.html:5
 msgid "Graphs portal"
 msgstr "Portail Graphes"
 
-#: templates/graphs/portal.html:7
+#: templates/graphs/portal.html:9
 msgctxt "graphs"
 msgid "List of Graphs"
 msgstr "Liste des Graphes"
-
-#: templates/graphs/view_graph.html:18
-#, python-format
-msgid "Download '%(object)s' as PNG file"
-msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
-
-#: templates/graphs/view_graph.html:18
-msgid "Download PNG"
-msgstr "Télécharger PNG"
 
 #: templates/graphs/templatetags/block_orbital_rtypes.html:6
 #, python-format
@@ -150,36 +141,46 @@ msgstr "Actions"
 msgid "No type of relation"
 msgstr "Pas de type de relation"
 
-#: templates/graphs/templatetags/block_root_nodes.html:32
+#: templates/graphs/templatetags/block_root_nodes.html:34
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
 
-#: views/graph.py:39
+#: templates/graphs/view_graph.html:7
+#, python-format
+msgid "Download '%(object)s' as PNG file"
+msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
+
+#: templates/graphs/view_graph.html:7
+msgid "Download PNG"
+msgstr "Télécharger PNG"
+
+#: views/graph.py:40
+msgctxt "graphs"
 msgid "Save the graph"
 msgstr "Enregistrer le graphe"
 
-#: views/graph.py:54
+#: views/graph.py:56
 msgid "This graph is too big!"
 msgstr "Ce graphe est trop gros !"
 
-#: views/graph.py:76
+#: views/graph.py:78
 #, python-format
-msgid "Add relation types to <%s>"
-msgstr "Ajouter des types de relation à <%s>"
+msgid "Add relation types to «%s»"
+msgstr "Ajouter des types de relation à «%s»"
 
-#: views/portal.py:32
+#: views/portal.py:31
 msgid "Number of graphs"
 msgstr "Nombre de graphe(s)"
 
-#: views/root_node.py:37
+#: views/root_node.py:38
 #, python-format
-msgid "Add root nodes to <%s>"
-msgstr "Ajouter des nœuds racines à <%s>"
+msgid "Add root nodes to «%s»"
+msgstr "Ajouter des nœuds racines à «%s»"
 
-#: views/root_node.py:43
+#: views/root_node.py:47
 #, python-format
-msgid "Edit root node for <%s>"
-msgstr "Modifier le nœud racine pour <%s>"
+msgid "Edit root node for «%s»"
+msgstr "Modifier le nœud racine pour «%s»"
 
 #~ msgid "Graph"
 #~ msgstr "Graphe"

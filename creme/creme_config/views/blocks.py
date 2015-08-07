@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse # HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.registry import creme_registry, NotRegistered
-from creme.creme_core.models.block import (BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
+from creme.creme_core.models.block import (BlockDetailviewLocation,
+        BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
+from creme.creme_core.registry import creme_registry, NotRegistered
+from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
-from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 
 from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLocationsEditForm,
         BlockPortalLocationsAddForm, BlockPortalLocationsEditForm,
@@ -41,22 +42,34 @@ from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLoca
 @login_required
 @permission_required('creme_core.can_admin')
 def add_detailview(request):
-    return add_model_with_popup(request, BlockDetailviewLocationsAddForm, _(u'New blocks configuration')) #TODO: title detail view ???
+    return add_model_with_popup(request, BlockDetailviewLocationsAddForm,
+                                _(u'New blocks configuration'),
+                                submit_label=_('Save the configuration'),
+                               ) #TODO: title detail view ???
 
 @login_required
 @permission_required('creme_core.can_admin')
 def add_portal(request):
-    return add_model_with_popup(request, BlockPortalLocationsAddForm, _(u'New blocks configuration')) #TODO: title portal ???
+    return add_model_with_popup(request, BlockPortalLocationsAddForm,
+                                _(u'New blocks configuration'),
+                                submit_label=_('Save the configuration'),
+                               ) #TODO: title portal ???
 
 @login_required
 @permission_required('creme_core.can_admin')
 def add_relation_block(request):
-    return add_model_with_popup(request, RelationBlockAddForm, _(u'New type of block'))
+    return add_model_with_popup(request, RelationBlockAddForm,
+                                _(u'New type of block'),
+                                submit_label=_('Save the block'),
+                               )
 
 @login_required
 @permission_required('creme_core.can_admin')
 def add_custom_block(request):
-    return add_model_with_popup(request, CustomBlockConfigItemCreateForm, _(u'New custom block'))
+    return add_model_with_popup(request, CustomBlockConfigItemCreateForm,
+                                _(u'New custom block'),
+                                submit_label=_('Save the block'),
+                               )
 
 @login_required
 #@permission_required('creme_config')
@@ -92,6 +105,7 @@ def edit_detailview(request, ct_id):
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  locs_form,
                         'title': title,
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=locs_form.is_valid(),
                        reload=False,
@@ -112,7 +126,7 @@ def edit_portal(request, app_name):
         except NotRegistered as e:
             raise Http404(str(e))
 
-        title = _(u'Edit portal configuration for <%s>') % app.verbose_name
+        title = _(u'Edit portal configuration for «%s»') % app.verbose_name
 
     b_locs = BlockPortalLocation.objects.filter(app_name=app_name).order_by('order')
 
@@ -131,6 +145,7 @@ def edit_portal(request, app_name):
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  locs_form,
                         'title': title,
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=locs_form.is_valid(),
                        reload=False,
@@ -150,6 +165,7 @@ def _edit_mypage(request, title, user=None):
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  locs_form,
                         'title': title,
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=locs_form.is_valid(),
                        reload=False,
@@ -172,7 +188,7 @@ def edit_mypage(request):
 def add_ctypes_2_relation_block(request, rbi_id):
     return edit_model_with_popup(request, {'id': rbi_id}, RelationBlockItem,
                                  RelationBlockItemAddCtypesForm,
-                                 _(u'New customised types for <%s>'),
+                                 _(u'New customised types for «%s»'),
                                 )
 
 @login_required
@@ -197,7 +213,8 @@ def edit_ctype_of_relation_block(request, rbi_id, ct_id):
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Edit <%s> configuration') % ctype,
+                        'title': _(u'Edit «%s» configuration') % ctype,
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -225,7 +242,7 @@ def delete_ctype_of_relation_block(request, rbi_id):
 def edit_custom_block(request, cbci_id):
     return edit_model_with_popup(request, {'id': cbci_id}, CustomBlockConfigItem,
                                  CustomBlockConfigItemEditForm,
-                                 _(u'Edit the block <%s>'),
+                                 _(u'Edit the block «%s»'),
                                 )
 
     ##No popup version
@@ -280,20 +297,28 @@ def delete_portal(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_default_mypage(request):
-    get_object_or_404(BlockMypageLocation, pk=get_from_POST_or_404(request.POST, 'id'), user=None).delete()
+    get_object_or_404(BlockMypageLocation,
+                      pk=get_from_POST_or_404(request.POST, 'id'),
+                      user=None,
+                     ).delete()
 
     return HttpResponse()
 
 @login_required
 def delete_mypage(request):
-    get_object_or_404(BlockMypageLocation, pk=get_from_POST_or_404(request.POST, 'id'), user=request.user).delete()
+    get_object_or_404(BlockMypageLocation,
+                      pk=get_from_POST_or_404(request.POST, 'id'),
+                      user=request.user,
+                     ).delete()
 
     return HttpResponse()
 
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_relation_block(request):
-    get_object_or_404(RelationBlockItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
+    get_object_or_404(RelationBlockItem,
+                      pk=get_from_POST_or_404(request.POST, 'id'),
+                     ).delete()
 
     return HttpResponse()
 

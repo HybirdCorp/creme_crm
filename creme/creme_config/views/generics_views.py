@@ -62,7 +62,7 @@ def _get_modelconf(app_config, model_name):
     raise Http404('Unknown model')
 
 def _popup_title(model_conf):
-    #TODO: creation label for all CremeModel ??
+    # TODO: creation label for all CremeModel ??
     return _('New value: %s') % model_conf.model._meta.verbose_name
 
 @login_required
@@ -88,7 +88,7 @@ def add_model_from_widget(request, app_name, model_name):
                            {'form':  form,
                             'title': _popup_title(model_conf),
                            },
-                           is_valid=form.is_valid(),
+                           is_valid=form.is_valid(), # TODO: already computed -> variable
                            reload=False,
                            delegate_reload=True,
                           )

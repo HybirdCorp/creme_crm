@@ -21,26 +21,28 @@
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
-from ..models import EmailSignature
 from ..forms.signature import SignatureForm
+from ..models import EmailSignature
 
 
 @login_required
 @permission_required('emails')
 def add(request):
-    return add_model_with_popup(request, SignatureForm, _(u'New signature'))
+    return add_model_with_popup(request, SignatureForm, _(u'New signature'),
+                                submit_label=_('Save the signature'),
+                               )
 
 @login_required
 @permission_required('emails')
 def edit(request, signature_id):
     return edit_model_with_popup(request, {'pk': signature_id}, EmailSignature, SignatureForm,
-                                 can_change=EmailSignature.can_change_or_delete
+                                 can_change=EmailSignature.can_change_or_delete,
                                 )
 
 @login_required
@@ -49,7 +51,7 @@ def delete(request):
     signature = get_object_or_404(EmailSignature, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not signature.can_change_or_delete(request.user):
-        raise PermissionDenied(_(u'You can not delete this signature (not yours)'))
+        raise PermissionDenied(ugettext(u'You can not delete this signature (not yours)'))
 
     signature.delete()
 

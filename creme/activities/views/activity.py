@@ -160,8 +160,9 @@ def add_popup(request):
         form = CalendarActivityCreateForm(start=start_date, user=request.user)
 
     return inner_popup(request, 'activities/add_popup_activity_form.html',
-                       {'form':   form,
-                        'title':  _(u'New activity'),
+                       {'form': form,
+                        'title': _(u'New activity'),
+                        'submit_label': _('Save the activity'),
                         #TODO: content_template ?? (see template)
                        },
                        is_valid=form.is_valid(),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,22 +19,24 @@
 ################################################################################
 
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
-from ..models import ToDo
 from ..forms.todo import ToDoForm
+from ..models import ToDo
 
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, ToDoForm, _(u'New Todo for <%s>'))
+    return add_to_entity(request, entity_id, ToDoForm, _(u'New Todo for «%s»'),
+                         submit_label=_('Save the todo'),
+                        )
 
 @login_required
 def edit(request, todo_id):
-    return edit_related_to_entity(request, todo_id, ToDo, ToDoForm, _(u"Todo for <%s>"))
+    return edit_related_to_entity(request, todo_id, ToDo, ToDoForm, _(u'Todo for «%s»'))
 
 @login_required
 def validate(request, todo_id):

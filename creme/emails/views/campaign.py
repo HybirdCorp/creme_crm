@@ -60,9 +60,10 @@ def listview(request):
 @permission_required('emails')
 def add_ml(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddMLForm,
-                         ugettext('New mailing lists for <%s>'),
+                         ugettext(u'New mailing lists for «%s»'),
 #                         entity_class=EmailCampaign,
                          entity_class=get_emailcampaign_model(),
+                         submit_label=_('Link the mailing lists'),
                         )
 
 @login_required

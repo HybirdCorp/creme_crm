@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.utils import get_ct_or_404 #jsonify
+from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_to_entity, list_view, inner_popup
 
@@ -45,14 +45,16 @@ from ..models import ProductLine, ServiceLine #Line
 @permission_required('billing')
 def add_multiple_product_line(request, document_id):
     return add_to_entity(request, document_id, ProductLineMultipleAddForm,
-                         _(u"Add one or more product to <%s>"), link_perm=True,
+                         _(u"Add one or more product to «%s»"), link_perm=True,
+                         submit_label=_('Save the lines'),
                         )
 
 @login_required
 @permission_required('billing')
 def add_multiple_service_line(request, document_id):
     return add_to_entity(request, document_id, ServiceLineMultipleAddForm,
-                         _(u"Add one or more service to <%s>"), link_perm=True,
+                         _(u"Add one or more service to «%s»"), link_perm=True,
+                         submit_label=_('Save the lines'),
                         )
 
 #@login_required
@@ -98,8 +100,9 @@ def add_to_catalog(request, line_id):
         form = AddToCatalogForm(request.user, line, related_item_class=related_item_class)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {'form':   form,
+                       {'form': form,
                         'title': _(u'Add this on the fly item to your catalog'),
+                        'submit_label': _('Add to the catalog'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -150,7 +153,7 @@ def multi_save_lines(request, document_id):
             for form in lineformset:
                 if form.errors:
                     instance = form.instance
-                    #we retrieve the line again because the field 'on_the_fly_item' may have been cleaned #TODO: avoid this query
+                    # We retrieve the line again because the field 'on_the_fly_item' may have been cleaned #TODO: avoid this query
 #                    on_the_fly = Line.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
                     on_the_fly = model_line.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
                                  _(u"on the fly [creation]")

@@ -36,18 +36,22 @@ from ..forms.user import (UserAddForm, UserChangePwForm, UserEditForm,
 @superuser_required
 def change_password(request, user_id):
     return edit_model_with_popup(request, {'pk': user_id}, get_user_model(),
-                                 UserChangePwForm, _(u'Change password for <%s>')
+                                 UserChangePwForm, _(u'Change password for «%s»')
                                 )
 
 @login_required
 @superuser_required
 def add(request):
-    return add_model_with_popup(request, UserAddForm, _(u'New user'))
+    return add_model_with_popup(request, UserAddForm, _(u'New user'),
+                                submit_label=_('Save the user'),
+                               )
 
 @login_required
 @superuser_required
 def add_team(request):
-    return add_model_with_popup(request, TeamCreateForm, _(u'New team'))
+    return add_model_with_popup(request, TeamCreateForm, _(u'New team'),
+                                submit_label=_('Save the team'),
+                               )
 
 @login_required
 #@permission_required('creme_config')
@@ -98,8 +102,9 @@ def delete(request, user_id):
 
     try:
         return add_model_with_popup(request, UserAssignationForm,
-                                    _(u'Delete %s and assign his files to user') % user_to_delete,
+                                    _(u'Delete «%s» and assign his files to user') % user_to_delete,
                                     initial={'user_to_delete': user_to_delete},
+                                    submit_label=_('Delete the user'),
                                    )
     except Exception:
         return HttpResponse(_(u"You can't delete this user."), status=400)

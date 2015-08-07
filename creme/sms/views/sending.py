@@ -38,7 +38,8 @@ from ..models import SMSCampaign, Sending, Message
 @permission_required('sms')
 def add(request,campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
-                         _('New sending for <%s>'), entity_class=SMSCampaign,
+                         _(u'New sending for «%s»'), entity_class=SMSCampaign,
+                         submit_label=_('Save the sending'),
                         )
 
 @login_required

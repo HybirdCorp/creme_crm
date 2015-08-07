@@ -68,7 +68,8 @@ def add(request):
 @permission_required(('billing', 'billing.add_invoice'))
 def add_related(request, target_id):
    return generic_add_related(request, target_id=target_id, form=InvoiceCreateForm,
-                              title=_(u"Add an invoice for «%s»"),
+                              title=_(u'Add an invoice for «%s»'),
+                              submit_label=_(u'Save the invoice'),
                               status_id=DEFAULT_DRAFT_INVOICE_STATUS,
                              )
 

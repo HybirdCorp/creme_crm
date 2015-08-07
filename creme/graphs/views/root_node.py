@@ -35,7 +35,7 @@ from ..models import RootNode #Graph
 @permission_required('graphs')
 def add(request, graph_id):
     return add_to_entity(request, graph_id, AddRootNodesForm,
-                         _(u'Add root nodes to <%s>'),
+                         _(u'Add root nodes to «%s»'),
                          #entity_class=Graph,
                          entity_class=get_graph_model(),
                         )
@@ -43,7 +43,9 @@ def add(request, graph_id):
 @login_required
 @permission_required('graphs')
 def edit(request, root_id):
-    return edit_related_to_entity(request, root_id, RootNode, EditRootNodeForm, _(u'Edit root node for <%s>'))
+    return edit_related_to_entity(request, root_id, RootNode, EditRootNodeForm,
+                                  _(u'Edit root node for «%s»'),
+                                 )
 
 @login_required
 @permission_required('graphs')

@@ -41,7 +41,8 @@ from creme.billing.forms.payment_information import (PaymentInformationCreateFor
 @permission_required('billing')
 def add(request, entity_id):
     return add_to_entity(request, entity_id, PaymentInformationCreateForm,
-                         _(u"New payment information in the organisation <%s>"),
+                         _(u"New payment information in the organisation «%s»"),
+                         submit_label=_('Save the payment information'),
                         )
 
 @login_required
@@ -49,7 +50,7 @@ def add(request, entity_id):
 def edit(request, payment_information_id):
     return edit_related_to_entity(request, payment_information_id,
                                   PaymentInformation, PaymentInformationEditForm,
-                                  _(u"Payment information for <%s>"),
+                                  _(u"Payment information for «%s»"),
                                  )
 
 @jsonify

@@ -66,15 +66,16 @@ def listview(request):
 @permission_required('polls')
 def add_line(request, pform_id):
     return add_to_entity(request, pform_id, PollFormLineCreateForm,
-                         _(u'New question for <%s>'),
+                         _(u'New question for «%s»'),
                          entity_class=get_pollform_model(),
+                         submit_label=_('Save the question'),
                         )
 
 @login_required
 @permission_required('polls')
 def edit_line(request, line_id):
     return edit_related_to_entity(request, line_id, PollFormLine,
-                                  PollFormLineEditForm, _(u'Question for <%s>')
+                                  PollFormLineEditForm, _(u'Question for «%s»'),
                                  )
 
 @login_required
@@ -107,25 +108,27 @@ def edit_line_conditions(request, line_id):
         raise Http404('You can not add condition to a disabled line.')
 
     return add_to_entity(request, line.pform_id, PollFormLineConditionsForm,
-                         _(u'Condition for <%s>'),
+                         _(u'Condition for «%s»'),
                          #entity_class=PollForm,
                          entity_class=get_pollform_model(),
-                         initial={'line': line}
+                         initial={'line': line},
+                         submit_label=_('Save the condition'),
                         )
 
 @login_required
 @permission_required('polls')
 def add_section(request, pform_id):
     return add_to_entity(request, pform_id, PollFormSectionCreateForm,
-                         _(u'New section for <%s>'),
+                         _(u'New section for «%s»'),
                          entity_class=get_pollform_model(),
+                         submit_label=_('Save the section'),
                         )
 
 @login_required
 @permission_required('polls')
 def edit_section(request, section_id):
     return edit_related_to_entity(request, section_id, PollFormSection,
-                                  PollFormSectionEditForm, _(u'Section for <%s>')
+                                  PollFormSectionEditForm, _(u'Section for «%s»'),
                                  )
 
 @login_required
@@ -134,10 +137,11 @@ def add_section_child(request, section_id):
     parent_section = get_object_or_404(PollFormSection, pk=section_id)
 
     return add_to_entity(request, parent_section.pform_id, PollFormSectionCreateForm,
-                         _(u'New section for <%s>'),
+                         _(u'New section for «%s»'),
                          #entity_class=PollForm,
                          entity_class=get_pollform_model(),
                          initial={'parent': parent_section},
+                         submit_label=_('Save the section'),
                         )
 
 @login_required
@@ -146,10 +150,11 @@ def add_line_to_section(request, section_id):
     section = get_object_or_404(PollFormSection, pk=section_id)
 
     return add_to_entity(request, section.pform_id, PollFormLineCreateForm,
-                         _(u'New question for <%s>'),
+                         _(u'New question for «%s»'),
                          #entity_class=PollForm,
                          entity_class=get_pollform_model(),
                          initial={'section': section},
+                         submit_label=_('Save the question'),
                         )
 
 @login_required

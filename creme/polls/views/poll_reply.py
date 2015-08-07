@@ -85,8 +85,9 @@ def add_from_pform(request, pform_id): #TODO: factorise ? (see documents.views)
     user.has_perm_to_link_or_die(pform)
 
     return add_model_with_popup(request, PollRepliesCreateForm,
-                                ugettext(u'New replies for <%s>') % pform,
+                                ugettext(u'New replies for «%s»') % pform,
                                 initial={'pform': pform},
+                                submit_label=_('Save the replies'),
                                )
 
 @login_required
@@ -99,8 +100,9 @@ def add_from_campaign(request, campaign_id): #TODO: factorise ?
     user.has_perm_to_link_or_die(campaign)
 
     return add_model_with_popup(request, PollRepliesCreateForm,
-                                ugettext(u'New replies for <%s>') % campaign,
+                                ugettext(u'New replies for «%s»') % campaign,
                                 initial={'campaign': campaign},
+                                submit_label=_('Save the replies'),
                                )
 
 @login_required
@@ -119,8 +121,9 @@ def add_from_person(request, person_id):
         raise Http404('You can only create from Contacts & Organisations')
 
     return add_model_with_popup(request, PollRepliesCreateForm,
-                                ugettext(u'New replies for <%s>') % person,
+                                ugettext(u'New replies for «%s»') % person,
                                 initial={'persons': [person]},
+                                submit_label=_('Save the replies'),
                                )
 
 @login_required
@@ -144,7 +147,8 @@ def listview(request):
 @permission_required(('polls', 'persons'))
 def link_to_person(request, person_id):
     return add_to_entity(request, person_id, PersonAddRepliesForm,
-                         ugettext('Existing replies for <%s>'), link_perm=True,
+                         ugettext(u'Existing replies for «%s»'), link_perm=True,
+                         submit_label=(u'Link to the replies'),
                         )
 
 #TODO: do this job in template instead ??
@@ -298,7 +302,7 @@ def clean(request):
     request.user.has_perm_to_change_or_die(preply)
 
     with transaction.atomic():
-        preply.lines.update(raw_answer=None, applicable=True) #avoids statistics artefacts
+        preply.lines.update(raw_answer=None, applicable=True) # Avoids statistics artefacts
         update_model_instance(preply, is_complete=False)
 
     if request.is_ajax():
@@ -320,13 +324,13 @@ def _clear_dependant_answers(tree, line_node):
 @permission_required('polls')
 def edit_line(request, preply_id, line_id):
     #return edit_related_to_entity(request, line_id, PollReplyLine,
-                                  #PollReplyLineEditForm, _(u'Answer for <%s>')
+                                  #PollReplyLineEditForm, _(u'Answer for «%s»')
                                  #)
 
-    #NB: we do not use the generic view edit_related_to_entity(), because it would
-    #    oblige us to transform PollReplyLine in a True auxiliary model
-    #    (get_related_entity() method), so the delete view could be called without
-    #    our consent
+    # NB: we do not use the generic view edit_related_to_entity(), because it would
+    #     oblige us to transform PollReplyLine in a True auxiliary model
+    #     (get_related_entity() method), so the delete view could be called without
+    #     our consent
 #    preply = get_object_or_404(PollReply, pk=preply_id)
     preply = get_object_or_404(get_pollreply_model(), pk=preply_id)
     user = request.user
@@ -358,6 +362,7 @@ def edit_line(request, preply_id, line_id):
                        {'form':  edit_form,
                         'title': ugettext(u'Answer edition'),
                         #TODO: help_text (cleared answers + conditions etc...) ??
+                        'submit_label': _('Save the modification'),
                        },
                        is_valid=edit_form.is_valid(),
                        reload=False,

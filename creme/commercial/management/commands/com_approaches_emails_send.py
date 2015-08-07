@@ -125,7 +125,7 @@ class Command(BaseCommand):
                                           ).exists():
                             continue
 
-                        emails.append(EmailMessage(_(u"[CremeCRM] The organisation <%s> seems neglected") % orga,
+                        emails.append(EmailMessage(_(u"[CremeCRM] The organisation «%s» seems neglected") % orga,
                                                    _(u"It seems you haven't created a commercial approach for "
                                                      u"the organisation «%(orga)s» since %(delay)s days.") % {
                                                             'orga':  orga,

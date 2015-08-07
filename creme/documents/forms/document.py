@@ -39,8 +39,6 @@ logger = logging.getLogger(__name__)
 
 # TODO: uncomment when form field for Folder is naturally CreatorEntityField
 #class DocumentCreateForm(CremeEntityForm):
-#    folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
-#
 #    class Meta(CremeEntityForm.Meta):
 #        model = Document
 #

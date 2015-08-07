@@ -60,9 +60,10 @@ def listview(request):
 @permission_required('emails')
 def add_attachment(request, template_id):
     return add_to_entity(request, template_id, EmailTemplateAddAttachment,
-                         ugettext('New attachments for <%s>'),
+                         ugettext(u'New attachments for «%s»'),
 #                         entity_class=EmailTemplate,
                          entity_class=get_emailtemplate_model(),
+                         submit_label=_('Save the attachments'),
                         )
 
 @login_required

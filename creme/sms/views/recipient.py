@@ -32,16 +32,18 @@ from ..forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCS
 @permission_required('sms')
 def add(request, mlist_id):
     return add_to_entity(request, mlist_id, MessagingListAddRecipientsForm,
-                         _(u'New recipients for <%s>'),
+                         _(u'New recipients for «%s»'),
 #                         entity_class=MessagingList,
                          entity_class=get_messaginglist_model(),
+                         submit_label=_('Save the recipients'),
                         )
 
 @login_required
 @permission_required('sms')
 def add_from_csv(request, mlist_id):
     return add_to_entity(request, mlist_id, MessagingListAddCSVForm,
-                         _(u'New recipients for <%s>'),
+                         _(u'New recipients for «%s»'),
 #                         entity_class=MessagingList,
                          entity_class=get_messaginglist_model(),
+                         submit_label=_('Save the recipients'),
                         )

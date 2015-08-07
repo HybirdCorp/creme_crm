@@ -60,18 +60,20 @@ def listview(request):
 @permission_required('sms')
 def add_contacts(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsForm,
-                         ugettext('New contacts for <%s>'),
+                         ugettext(u'New contacts for «%s»'),
 #                         entity_class=MessagingList,
                          entity_class=get_messaginglist_model(),
+                         submit_label=_('Link the contacts'),
                         )
 
 @login_required
 @permission_required('sms')
 def add_contacts_from_filter(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsFromFilterForm,
-                         ugettext('New contacts for <%s>'),
+                         ugettext(u'New contacts for «%s»'),
 #                         entity_class=MessagingList,
                          entity_class=get_messaginglist_model(),
+                         submit_label=_('Link the contacts'),
                         )
 
 @login_required

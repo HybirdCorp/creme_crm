@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views.generic import add_to_entity
@@ -28,4 +28,7 @@ from ..forms.commercial_approach import ComAppCreateForm
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, ComAppCreateForm, _(u"New commercial approach for <%s>"))
+    return add_to_entity(request, entity_id, ComAppCreateForm,
+                         _(u'New commercial approach for «%s»'),
+                         submit_label=_('Save the commercial approach'),
+                        )

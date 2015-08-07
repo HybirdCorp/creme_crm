@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,15 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import ButtonMenuItem
-from creme.creme_core.views.generic import add_model_with_popup, inner_popup
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_model_with_popup, inner_popup
 
 from ..forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
 
@@ -34,7 +34,10 @@ from ..forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
 @login_required
 @permission_required('creme_core.can_admin')
 def add(request):
-    return add_model_with_popup(request, ButtonMenuAddForm, _(u'New buttons configuration'))
+    return add_model_with_popup(request, ButtonMenuAddForm,
+                                _(u'New buttons configuration'),
+                                submit_label=_(u'Save the configuration'),
+                               )
 
 @login_required
 #@permission_required('creme_config')
@@ -58,13 +61,15 @@ def edit(request, ct_id):
     else:
         buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user)
 
-    title = _(u'Edit configuration for %s') % ContentType.objects.get_for_id(ct_id) if ct_id  else \
+    title = _(u'Edit configuration for «%s»') % ContentType.objects.get_for_id(ct_id) \
+            if ct_id else \
             _(u'Edit default configuration')
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  buttons_form,
                         'title': title,
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=buttons_form.is_valid(),
                        reload=False,

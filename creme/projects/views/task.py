@@ -47,9 +47,10 @@ logger = logging.getLogger(__name__)
 @permission_required(('projects', 'projects.add_projecttask'))
 def add(request, project_id):
     return add_to_entity(request, project_id, TaskCreateForm,
-                         _(u'Add a task to <%s>'),
+                         _(u'Add a task to «%s»'),
 #                         entity_class=Project,
                          entity_class=get_project_model(),
+                         submit_label=_('Save the task'),
                         )
 
 @login_required
@@ -71,7 +72,7 @@ def edit_popup(request, task_id):
     return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskEditForm)
 # TODO: ?
 #    return edit_related_to_entity(request, task_id, ProjectTask,
-#                                  TaskEditForm, _(u'Edit a task for <%s>'),
+#                                  TaskEditForm, _(u'Edit a task for «%s»'),
 #                                 )
 
 @login_required
@@ -122,9 +123,10 @@ def add_activity(request, task_id):
     user.has_perm_to_change_or_die(task) # has_perm_to_link_or_die ??
 
     return add_model_with_popup(request, RelatedActivityCreateForm,
-                                title=_(u'New activity related to <%s>') %
+                                title=_(u'New activity related to «%s»') %
                                         task.allowed_unicode(user),
                                 initial={'task': task},
+                                submit_label=_('Save the activity'),
                                )
 
 @login_required

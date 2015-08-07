@@ -20,18 +20,18 @@
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation, CremeEntity
-from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_to_entity
 
 from .. import get_activity_model
-from ..models import Activity
-from ..forms.blocks import ParticipantCreateForm, SubjectCreateForm
 from ..constants import (REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY,
         REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
+from ..forms.blocks import ParticipantCreateForm, SubjectCreateForm
+#from ..models import Activity
 
 
 Activity = get_activity_model()
@@ -40,8 +40,9 @@ Activity = get_activity_model()
 @permission_required('activities')
 def add_participant(request, activity_id):
     return add_to_entity(request, activity_id, ParticipantCreateForm,
-                         _(u'Adding participants to activity <%s>'),
+                         _(u'Adding participants to activity «%s»'),
                          entity_class=Activity, link_perm=True,
+                         submit_label=_(u'Add the participants'),
                         )
 
 @login_required
@@ -66,8 +67,9 @@ def delete_participant(request):
 @permission_required('activities')
 def add_subject(request, activity_id):
     return add_to_entity(request, activity_id, SubjectCreateForm,
-                         _(u'Adding subjects to activity <%s>'),
+                         _(u'Adding subjects to activity «%s»'),
                          entity_class=Activity, link_perm=True,
+                         submit_label=_(u'Add the subjects'),
                         )
 
 @login_required
@@ -79,7 +81,7 @@ def unlink_activity(request):
     entities = list(CremeEntity.objects.filter(pk__in=[activity_id, entity_id]))
 
     if len(entities) != 2:
-        raise Http404(_('One entity does not exist any more.'))
+        raise Http404(ugettext('One entity does not exist any more.'))
 
     has_perm = request.user.has_perm_to_unlink_or_die
 
@@ -87,7 +89,7 @@ def unlink_activity(request):
         has_perm(entity)
 
     types = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
-    for relation in Relation.objects.filter(subject_entity=entity_id, 
+    for relation in Relation.objects.filter(subject_entity=entity_id,
                                             type__in=types,
                                             object_entity=activity_id):
         relation.delete()

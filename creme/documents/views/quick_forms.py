@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-#from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views.generic import inner_popup
@@ -36,7 +36,7 @@ def add_csv_from_widget(request, count):
     if not user.has_perm_to_create(Document):
         raise PermissionDenied('You are not allowed to create a document')
 
-    #TODO : see for permission issues
+    # TODO : see for permission issues
 
     if request.method == 'POST':
         form = CSVDocumentWidgetQuickForm(user=user, data=request.POST, files=request.FILES or None, initial=None)
@@ -48,6 +48,7 @@ def add_csv_from_widget(request, count):
                            {'form':   form,
                             #'title':  _('New value'),
                             'title':  Document.creation_label,
+                            'submit_label': _('Save the document'),
                            },
                            is_valid=form.is_valid(),
                            reload=False,

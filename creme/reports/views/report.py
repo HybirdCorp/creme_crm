@@ -114,7 +114,8 @@ def link_report(request, field_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':   link_form,
-                        'title': _(u'Link of the column <%s>') % rfield,
+                        'title': _(u'Link of the column «%s»') % rfield,
+                        'submit_label': _('Link'),
                        },
                        is_valid=link_form.is_valid(),
                        reload=False,
@@ -125,8 +126,9 @@ def link_report(request, field_id):
 @permission_required('reports')
 def edit_fields(request, report_id):
     return add_to_entity(request, report_id, ReportFieldsForm,
-                         _(u'Edit columns of <%s>'),
+                         _(u'Edit columns of «%s»'),
                          entity_class=get_report_model(),
+                         submit_label=_('Save the modifications'),
                         )
 
 _order_direction = {
@@ -178,7 +180,7 @@ def set_selected(request):
         checked = False
 
     if rfield.selected != checked:
-        if checked: #Only one Field should be selected
+        if checked: # Only one Field should be selected
             report.fields.exclude(pk=rfield.pk).update(selected=False)
 
         rfield.selected = checked

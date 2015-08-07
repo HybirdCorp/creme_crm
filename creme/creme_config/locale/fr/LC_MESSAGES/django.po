@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-06 22:54+0200\n"
+"POT-Creation-Date: 2015-08-06 23:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -725,7 +725,7 @@ msgstr "%s Types de ressource configurés"
 
 #: templates/creme_config/templatetags/block_blocklocations.html:12
 #: templates/creme_config/templatetags/block_blockportallocations.html:12
-#: views/blocks.py:44 views/blocks.py:49
+#: views/blocks.py:46 views/blocks.py:54
 msgid "New blocks configuration"
 msgstr "Nouvelle configuration de blocs"
 
@@ -783,7 +783,7 @@ msgid "Home configuration"
 msgstr "Configuration de l'accueil"
 
 #: templates/creme_config/templatetags/block_button_menu.html:14
-#: views/button_menu.py:37
+#: views/button_menu.py:38
 msgid "New buttons configuration"
 msgstr "Nouvelle configuration de boutons"
 
@@ -806,6 +806,7 @@ msgid "No type of entity has custom field for the moment"
 msgstr "Aucun type de fiche n'a de champ personnalisé pour le moment"
 
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:12
+#: views/custom_fields.py:39
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
 
@@ -824,7 +825,7 @@ msgid "%s Custom blocks"
 msgstr "%s Blocs personnalisés"
 
 #: templates/creme_config/templatetags/block_customblocksconfig.html:12
-#: views/blocks.py:59
+#: views/blocks.py:70
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -846,7 +847,7 @@ msgid "No custom block for the moment"
 msgstr "Aucun bloc personnalisé pour le moment"
 
 #: templates/creme_config/templatetags/block_fields_configs.html:12
-#: views/fields_config.py:40
+#: views/fields_config.py:41
 msgid "New fields configuration"
 msgstr "Nouvelle configuration de champs"
 
@@ -934,7 +935,7 @@ msgid "Type of property"
 msgstr "Type de propriété"
 
 #: templates/creme_config/templatetags/block_property_types.html:16
-#: views/creme_property_type.py:36
+#: views/creme_property_type.py:37
 msgid "New custom type of property"
 msgstr "Nouveau type de propriété personnalisé"
 
@@ -1026,7 +1027,7 @@ msgid "%s Types of relation block created"
 msgstr "%s Types de bloc de relation créés"
 
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:12
-#: views/blocks.py:54
+#: views/blocks.py:62
 msgid "New type of block"
 msgstr "Nouveau type de bloc"
 
@@ -1129,7 +1130,7 @@ msgstr "%s Équipe"
 msgid "%s Teams"
 msgstr "%s Équipes"
 
-#: templates/creme_config/templatetags/block_teams.html:12 views/user.py:50
+#: templates/creme_config/templatetags/block_teams.html:12 views/user.py:52
 msgid "New team"
 msgstr "Nouvelle équipe"
 
@@ -1291,55 +1292,88 @@ msgstr "Voir vos réglages"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
-#: views/blocks.py:73 views/button_menu.py:61
+#: views/blocks.py:47 views/blocks.py:55 views/button_menu.py:39
+#: views/custom_fields.py:40 views/fields_config.py:42 views/search.py:38
+msgid "Save the configuration"
+msgstr "Enregistrer la configuration"
+
+#: views/blocks.py:63 views/blocks.py:71
+msgid "Save the block"
+msgstr "Enregistrer le bloc"
+
+#: views/blocks.py:86
 #, python-format
 msgid "Edit configuration for %s"
 msgstr "Modifier la configuration pour %s"
 
-#: views/blocks.py:76 views/button_menu.py:62
+#: views/blocks.py:89 views/button_menu.py:66
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
-#: views/blocks.py:106
+#: views/blocks.py:108 views/blocks.py:148 views/blocks.py:168
+#: views/blocks.py:217 views/button_menu.py:72 views/creme_property_type.py:61
+#: views/prefered_menu.py:61 views/relation_type.py:73
+msgid "Save the modifications"
+msgstr ""
+
+#: views/blocks.py:120
 msgid "Edit default portal configuration"
 msgstr "Modifier la configuration de portail par défaut"
 
-#: views/blocks.py:108
+#: views/blocks.py:122
 msgid "Edit home configuration"
 msgstr "Modifier la configuration de l'accueil"
 
-#: views/blocks.py:115
+#: views/blocks.py:129
 #, python-format
-msgid "Edit portal configuration for <%s>"
-msgstr "Modifier la configuration de portail pour <%s>"
+msgid "Edit portal configuration for «%s»"
+msgstr "Modifier la configuration de portail pour «%s»"
 
-#: views/blocks.py:162
+#: views/blocks.py:178
 msgid "Edit default \"My page\""
 msgstr "Modifier le \"Ma page\" par défaut"
 
-#: views/blocks.py:167
+#: views/blocks.py:183
 msgid "Edit \"My page\""
 msgstr "Modifier \"Ma page\""
 
-#: views/blocks.py:175
+#: views/blocks.py:191
 #, python-format
-msgid "New customised types for <%s>"
-msgstr "Nouveaux types personnalisés pour <%s>"
+msgid "New customised types for «%s»"
+msgstr "Nouveaux types personnalisés pour «%s»"
 
-#: views/blocks.py:200
+#: views/blocks.py:216
 #, python-format
-msgid "Edit <%s> configuration"
-msgstr "Modifier la configuration de <%s>"
+msgid "Edit «%s» configuration"
+msgstr "Modifier la configuration de «%s»"
 
-#: views/blocks.py:228
+#: views/blocks.py:245
 #, python-format
-msgid "Edit the block <%s>"
-msgstr "Modifier le bloc <%s>"
+msgid "Edit the block «%s»"
+msgstr "Modifier le bloc «%s»"
 
-#: views/creme_property_type.py:57 views/relation_type.py:67
+#: views/button_menu.py:64
 #, python-format
-msgid "Edit the type \"%s\""
-msgstr "Modifier le type \"%s\""
+msgid "Edit configuration for «%s»"
+msgstr "Modifier la configuration pour «%s»"
+
+#: views/creme_property_type.py:38
+msgid "Save the type of property"
+msgstr "Enregistrer le type de propriété"
+
+#: views/creme_property_type.py:60 views/relation_type.py:72
+#, python-format
+msgid "Edit the type «%s»"
+msgstr "Modifier le type «%s»"
+
+#: views/custom_fields.py:49
+#, python-format
+msgid "New custom field for «%s»"
+msgstr "Nouveau champ personnalisé pour «%s»"
+
+#: views/custom_fields.py:51
+msgid "Save the custom field"
+msgstr "Enregistrer le champ personnalisé"
 
 #: views/generics_views.py:66
 #, python-format
@@ -1351,58 +1385,86 @@ msgstr "Nouvelle valeur : %s"
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut pas être effacé à cause de ses dépendances."
 
-#: views/relation_type.py:46
+#: views/relation_type.py:42 views/relation_type.py:50
+msgid "Save the type"
+msgstr ""
+
+#: views/relation_type.py:49
 msgid "New semi-fixed type of relationship"
 msgstr "Nouveau type de relation semi-fixé"
 
 #: views/setting.py:60
 #, python-format
-msgid "Edit \"%s\""
-msgstr "Modifier \"%s\""
+msgid "Edit «%s»"
+msgstr "Modifier «%s»"
 
 #: views/user.py:39
 #, python-format
-msgid "Change password for <%s>"
-msgstr "Changer le mot de passe pour <%s>"
+msgid "Change password for «%s»"
+msgstr "Changer le mot de passe pour «%s»"
 
-#: views/user.py:89
+#: views/user.py:46
+msgid "Save the user"
+msgstr "Enregistrer l'utilisateur"
+
+#: views/user.py:53
+msgid "Save the team"
+msgstr "Enregistrer l'équipe"
+
+#: views/user.py:93
 msgid "You can't delete the current user."
 msgstr "Vous ne pouvez pas supprimer l'utilisateur courant."
 
-#: views/user.py:94
+#: views/user.py:98
 msgid "You can't delete a staff user."
 msgstr "Vous ne pouvez pas supprimer un super administrateur."
 
-#: views/user.py:101
-#, python-format
-msgid "Delete %s and assign his files to user"
-msgstr "Supprimer %s et réassigner ses fiches"
-
 #: views/user.py:105
+#, python-format
+msgid "Delete «%s» and assign his files to user"
+msgstr "Supprimer «%s» et réassigner ses fiches"
+
+#: views/user.py:107
+msgid "Delete the user"
+msgstr "Supprimer l'utilisateur"
+
+#: views/user.py:110
 msgid "You can't delete this user."
 msgstr "Vous ne pouvez pas supprimer cet utilisateur."
 
-#: views/user.py:114
+#: views/user.py:119
 msgid "You can't deactivate the current user."
 msgstr "Vous ne pouvez pas désactiver l'utilisateur courant."
 
-#: views/user.py:119
+#: views/user.py:124
 msgid "You can't deactivate a staff user."
 msgstr "Vous ne pouvez pas désactiver un super administrateur."
 
-#: views/user.py:134
+#: views/user.py:139
 msgid "You can't activate a staff user."
 msgstr "Vous ne pouvez pas activer un super administrateur."
 
-#: views/user_role.py:60
-#, python-format
-msgid "Add creddentials to <%s>"
-msgstr "Ajouter des droits à <%s>"
+#: views/user_role.py:39
+msgid "Save the role"
+msgstr "Enregistrer le rôle"
 
-#: views/user_role.py:85
+#: views/user_role.py:62
 #, python-format
-msgid "Delete role <%s>"
-msgstr "Supprimer le rôle <%s>"
+msgid "Add creddentials to «%s»"
+msgstr "Ajouter des droits à «%s»"
+
+#: views/user_role.py:63
+msgid "Add the creddentials"
+msgstr "Ajouter les droits"
+
+#: views/user_role.py:88
+#, python-format
+msgid "Delete role «%s»"
+msgstr "Supprimer le rôle «%s»"
+
+#: views/user_role.py:90
+msgid "Delete the role"
+msgstr "Supprimer le rôle"
 
 #~ msgid ""
 #~ "The username must only contain alphanumeric (a-z, A-Z, 0-9), hyphen and "
@@ -1423,9 +1485,6 @@ msgstr "Supprimer le rôle <%s>"
 
 #~ msgid "Position in the organisation"
 #~ msgstr "Statut dans la société"
-
-#~ msgid "Save the custom block"
-#~ msgstr "Enregistrer le bloc personnalisé"
 
 #~ msgid "No credential"
 #~ msgstr "Aucun droit"
@@ -1483,9 +1542,6 @@ msgstr "Supprimer le rôle <%s>"
 
 #~ msgid "Button menu configuration"
 #~ msgstr "Configuration du menu bouton"
-
-#~ msgid "Search configuration"
-#~ msgstr "Configuration de la recherche"
 
 #~ msgid "User roles configuration"
 #~ msgstr "Configuration des rôles utilisateurs"

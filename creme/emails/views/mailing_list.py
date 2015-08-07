@@ -28,10 +28,10 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
 from .. import get_mailinglist_model
-from ..models import MailingList
 from ..forms.mailing_list import (MailingListForm, AddChildForm,
         AddContactsForm, AddOrganisationsForm,
         AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
+from ..models import MailingList
 
 
 @login_required
@@ -62,45 +62,50 @@ def listview(request):
 @permission_required('emails')
 def add_contacts(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsForm,
-                         ugettext('New contacts for <%s>'),
+                         ugettext(u'New contacts for «%s»'),
 #                         entity_class=MailingList,
                          entity_class=get_mailinglist_model(),
+                         submit_label=_('Link the contacts'),
                         )
 
 @login_required
 @permission_required('emails')
 def add_contacts_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsFromFilterForm,
-                         ugettext('New contacts for <%s>'),
+                         ugettext(u'New contacts for «%s»'),
 #                         entity_class=MailingList,
                          entity_class=get_mailinglist_model(),
+                         submit_label=_('Link the contacts'),
                         )
 
 @login_required
 @permission_required('emails')
 def add_organisations(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsForm,
-                         ugettext('New organisations for <%s>'),
+                         ugettext(u'New organisations for «%s»'),
 #                         entity_class=MailingList,
                          entity_class=get_mailinglist_model(),
+                         submit_label=_('Link the organisations'),
                         )
 
 @login_required
 @permission_required('emails')
 def add_organisations_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
-                         ugettext('New organisations for <%s>'),
+                         ugettext(u'New organisations for «%s»'),
 #                         entity_class=MailingList,
                          entity_class=get_mailinglist_model(),
+                         submit_label=_('Link the organisations'),
                         )
 
 @login_required
 @permission_required('emails')
 def add_children(request, ml_id):
     return add_to_entity(request, ml_id, AddChildForm,
-                         ugettext('New child lists for <%s>'),
+                         ugettext(u'New child lists for «%s»'),
 #                         entity_class=MailingList,
                          entity_class=get_mailinglist_model(),
+                         submit_label=_('Link the mailing lists'),
                         )
 
 @login_required

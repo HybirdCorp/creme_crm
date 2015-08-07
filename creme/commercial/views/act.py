@@ -71,7 +71,7 @@ def edit_objective_pattern(request, objpattern_id):
 @permission_required('commercial')
 def detailview(request, act_id):
     return generic.view_entity(request, act_id, Act, '/commercial/act',
-                               template='creme_core/generics/view_entity.html'
+                               template='creme_core/generics/view_entity.html',
                               )
 
 @login_required
@@ -79,7 +79,7 @@ def detailview(request, act_id):
 def objective_pattern_detailview(request, objpattern_id):
     return generic.view_entity(request, objpattern_id, ActObjectivePattern,
                                '/commercial/objective_pattern',
-                               template='commercial/view_pattern.html'
+                               template='commercial/view_pattern.html',
                               )
 
 @login_required
@@ -120,8 +120,9 @@ def add_opportunity(request, act_id):
 
     return generic.inner_popup(request,
                                'creme_core/generics/blockform/add_popup2.html',
-                               {'form':   form,
-                                'title':  _(u'Add a linked opportunity'),
+                               {'form': form,
+                                'title': _(u'Add a linked opportunity'),
+                                'submit_label': _(u'Save the opportunity'),
                                },
                                is_valid=form.is_valid(),
                                reload=False,
@@ -132,9 +133,10 @@ def add_opportunity(request, act_id):
 @permission_required('commercial')
 def _add_objective(request, act_id, form_class):
     return generic.add_to_entity(request, act_id, form_class,
-                                 ugettext(u'New objective for <%s>'),
+                                 ugettext(u'New objective for «%s»'),
 #                                 entity_class=Act,
                                  entity_class=get_act_model(),
+                                 submit_label=_('Save the objective'),
                                 )
 
 def add_objective(request, act_id):
@@ -147,9 +149,10 @@ def add_objectives_from_pattern(request, act_id):
 @permission_required('commercial')
 def add_pattern_component(request, objpattern_id):
     return generic.add_to_entity(request, objpattern_id, forms.PatternComponentForm,
-                                 ugettext(u'New objective for <%s>'),
+                                 ugettext(u'New objective for «%s»'),
 #                                 entity_class=ActObjectivePattern,
                                  entity_class=get_pattern_model(),
+                                 submit_label=_('Save the objective'),
                                 )
 
 @login_required
@@ -171,6 +174,7 @@ def _add_subpattern_component(request, component_id, form_class, title):
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                                {'form':  form,
                                 'title': title % related_comp,
+                                'submit_label': _('Save the objective'),
                                },
                                is_valid=form.is_valid(),
                                reload=False,
@@ -180,13 +184,13 @@ def _add_subpattern_component(request, component_id, form_class, title):
 def add_child_pattern_component(request, component_id):
     return _add_subpattern_component(request, component_id,
                                      forms.PatternChildComponentForm,
-                                     ugettext('New child objective for <%s>'),
+                                     ugettext(u'New child objective for «%s»'),
                                     )
 
 def add_parent_pattern_component(request, component_id):
     return _add_subpattern_component(request, component_id,
                                      forms.PatternParentComponentForm,
-                                     ugettext('New parent objective for <%s>'),
+                                     ugettext(u'New parent objective for «%s»'),
                                     )
 
 @login_required
@@ -194,7 +198,7 @@ def add_parent_pattern_component(request, component_id):
 def edit_objective(request, objective_id):
     return generic.edit_related_to_entity(request, objective_id, ActObjective,
                                           forms.ObjectiveForm,
-                                          ugettext(u'Objective for <%s>'),
+                                          ugettext(u'Objective for «%s»'),
                                          )
 
 @login_required
@@ -250,6 +254,7 @@ def create_objective_entity(request, objective_id):
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':  form,
                         'title': model.creation_label,
+                        #'submit_label': model.save_label, TODO ?
                        },
                        is_valid=form.is_valid(),
                        reload=False,

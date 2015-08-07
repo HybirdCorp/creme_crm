@@ -26,8 +26,8 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
         list_view, add_model_with_popup)
 
-from ..models import Document, Folder
 from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, DocumentEditForm
+from ..models import Document, Folder
 
 
 @login_required
@@ -52,8 +52,9 @@ def add_related(request, entity_id):
     user.has_perm_to_link_or_die(Document, owner=None)
 
     return add_model_with_popup(request, RelatedDocumentCreateForm,
-                                ugettext(u'New document for <%s>') % entity,
+                                ugettext(u'New document for «%s»') % entity,
                                 initial={'entity': entity},
+                                submit_label=_('Save the document'),
                                )
 
 @login_required
