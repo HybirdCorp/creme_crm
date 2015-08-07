@@ -29,18 +29,19 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
-    inner_popup, view_entity, list_view, add_to_entity) #add_entity
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
 from creme.creme_core.utils.media import creme_media_themed_url as media_url
+from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
+    inner_popup, view_entity, list_view, add_to_entity) #add_entity
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
 from .. import get_pollreply_model
 from ..core import MultiEnumPollLineType
-from ..models import PollForm, PollReply, PollReplyLine, PollCampaign
 from ..forms.poll_reply import (PollRepliesCreateForm, PollReplyEditForm,
         PollReplyFillForm, PersonAddRepliesForm)
+from ..models import PollForm, PollReply, PollReplyLine, PollCampaign
 from ..utils import ReplySectionTree, NodeStyle
 
 
@@ -113,7 +114,8 @@ def add_from_person(request, person_id):
 
     person = person.get_real_entity()
 
-    if not isinstance(person, (Contact, Organisation)):
+#    if not isinstance(person, (Contact, Organisation)):
+    if not isinstance(person, (get_contact_model(), get_organisation_model())):
         raise Http404('You can only create from Contacts & Organisations')
 
     return add_model_with_popup(request, PollRepliesCreateForm,
