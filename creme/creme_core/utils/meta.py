@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,9 @@ from itertools import chain
 import warnings
 
 #from django.db import models
-from django.db.models import ManyToManyField, FieldDoesNotExist, DateField #Field ForeignKey
+from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist, DateField #Field
+
+from .unicode_collation import collator
 
 
 #TODO; used only in activesync
@@ -78,7 +80,7 @@ class FieldInfo(object):
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
-            #We avoid the call to __init__ and its introspection work
+            # We avoid the call to __init__ and its introspection work
             fi = FieldInfo.__new__(FieldInfo)
             fi.__fields = self.__fields[idx]
 
@@ -214,7 +216,8 @@ class ModelFieldEnumerator(object):
             if all(ffilter(field, depth) for ffilter in ffilters):
                 field_info = parents_fields + (field,)
 
-                if field.get_internal_type() in ('ForeignKey', 'ManyToManyField'): #TODO: isinstance
+#                if field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
+                if isinstance(field, (ForeignKey, ManyToManyField)):
                     if rem_depth:
                         if include_fk:
                             fields_info.append(field_info)
@@ -247,10 +250,40 @@ class ModelFieldEnumerator(object):
 
     def choices(self, printer=lambda field: unicode(field.verbose_name)):
         """@return A list of tuple (field_name, field_verbose_name)."""
-        return [('__'.join(field.name for field in fields_info),
-                 ' - '.join(chain((u'[%s]' % field.verbose_name for field in fields_info[:-1]),
-                                  [printer(fields_info[-1])]
+#        return [('__'.join(field.name for field in fields_info),
+#                 ' - '.join(chain((u'[%s]' % field.verbose_name for field in fields_info[:-1]),
+#                                  [printer(fields_info[-1])]
+#                                 )
+#                           )
+#                ) for fields_info in self
+#               ]
+        sort_key = collator.sort_key
+        sortable_choices = []
+
+        # We sort the choices by their value (alphabetical order), with first fields,
+        # then sub-fields (fields of ForeignKey/ManyToManyField), then sub-sub-fields...
+        for fields_info in self:
+            # These variable avoid ugettext/printer to be called to many times
+            fk_vnames = [unicode(field.verbose_name) for field in fields_info[:-1]]
+            terminal_vname = unicode(printer(fields_info[-1]))
+
+            # The sort key (list.sort() will compare tuples, so the first elements,
+            # then eventually the second ones etc...)
+            key = tuple(chain([len(fields_info)], # NB: ensure that fields are first, then sub-fields...
+                              (sort_key(vname) for vname in fk_vnames),
+                              [sort_key(terminal_vname)]
+                             )
+                       )
+            # A classical django choice. Eg: ('user__email', '[Owner user] - Email address')
+            choice = ('__'.join(field.name for field in fields_info),
+                      u' - '.join(chain((u'[%s]' % vname for vname in fk_vnames),
+                                        [terminal_vname]
+                                       )
                                  )
-                           )
-                ) for fields_info in self
-               ]
+                     )
+
+            sortable_choices.append((key, choice))
+
+        sortable_choices.sort(key=lambda c: c[0]) # Sort with our previously computed key
+
+        return [c[1] for c in sortable_choices] # Extract choices

@@ -92,9 +92,6 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_field_f  = fields['abscissa_field']
         is_count_f        = fields['is_count']
 
-        sort_key = collator.sort_key
-        sort_choices = lambda k: sort_key(k[1])
-
         get_fconf = FieldsConfig.LocalCache().get_4_model
         # TODO: split('__', 1) when 'count' is an aggregate operator
         ordinate_field_name, __, aggregate = instance.ordinate.rpartition('__')
@@ -108,14 +105,13 @@ class ReportGraphForm(CremeEntityForm):
                                     .filter(self._filter_abcissa_field, viewable=True) \
                                     .exclude(absc_field_excluder) \
                                     .choices()
-        abscissa_model_fields.sort(key=sort_choices)
 
         self.rtypes = rtypes = dict(RelationType.get_compatible_ones(report_ct, include_internals=True)
                                                 .values_list('id', 'predicate')
                                    )
-        sort_key = collator.sort_key
         abscissa_predicates = rtypes.items()
-        abscissa_predicates.sort(key=sort_choices)
+        sort_key = collator.sort_key
+        abscissa_predicates.sort(key=lambda k: sort_key(k[1]))
 
         abscissa_choices = [(_('Fields'),        abscissa_model_fields),
                             (_('Relationships'), abscissa_predicates),
