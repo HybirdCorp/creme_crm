@@ -20,18 +20,17 @@
 
 DATETIME_FILTER_FORMAT = '%d|%m|%Y|%H|%M|%S'
 
-#ReportField types
+# ReportField types
 RFT_FIELD      = 1
 RFT_RELATION   = 2
 RFT_FUNCTION   = 3
 RFT_CUSTOM     = 4
-#RFT_AGGREGATE  = 5
 RFT_AGG_FIELD  = 5
 RFT_AGG_CUSTOM = 6
 RFT_RELATED    = 7 #Related entities (only allowed by the model) #TODO: Used only in reports for the moment, integrate into HF?
 
 
-#ReportGraph types
+# ReportGraph types
 RGT_DAY             = 1
 RGT_MONTH           = 2
 RGT_YEAR            = 3
