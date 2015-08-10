@@ -1788,6 +1788,17 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(list(reversed(x_asc)), x_desc)
         self.assertEqual(list(reversed(y_asc)), y_desc)
 
+    def test_fetchgraphview_with_decimal_ordinate(self):
+        "Test json encoding for Graph with Decimal in fetch_graph view"
+        rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        orga1 = create_orga(name='BullFrog')
+        orga2 = create_orga(name='Maxis')
+        self._create_invoice(orga1, orga2, issuing_date='2015-10-16', total_vat=Decimal("1212.12"))
+        self._create_invoice(orga1, orga2, issuing_date='2015-10-03', total_vat=Decimal("33.24"))
+
+        self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+
     def _create_documents_rgraph(self):
         report = self._create_simple_documents_report()
         return ReportGraph.objects.create(user=self.user, report=report,
