@@ -21,7 +21,7 @@ try:
             skipIfCustomSalesOrder, skipIfCustomCreditNote)
 
     from .base import skipIfCustomGenerator
-    from ..models import RecurrentGenerator #Periodicity
+    from ..models import RecurrentGenerator
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -45,14 +45,12 @@ class RecurrentsBillingTestCase(CremeTestCase):
         cls.ADD_URL = reverse('recurrents__create_generator')
 
     def _aux_test_create(self, model, status_model, target_has_addresses=False):
-        self.login()
-        user = self.user
+        user = self.login()
         url = self.ADD_URL
         self.assertGET200(url)
 
         gen_name = 'Recurrent invoice'
         ct = ContentType.objects.get_for_model(model)
-        #periodicity = Periodicity.objects.all()[0]
         response = self.client.post(url,
                                     data={'recurrent_generator_wizard-current_step': 0,
 
@@ -60,7 +58,6 @@ class RecurrentsBillingTestCase(CremeTestCase):
                                           '0-name':             gen_name,
                                           '0-ct':               ct.id,
                                           '0-first_generation': '08-07-2014 11:00',
-                                          #'0-periodicity':      periodicity.id,
                                           '0-periodicity_0':    'months',
                                           '0-periodicity_1':    '1',
                                          }
@@ -185,15 +182,12 @@ class RecurrentsBillingTestCase(CremeTestCase):
     @skipIfNotInstalled('creme.billing')
     def test_create_credentials01(self):
         "Creation credentials for generated models"
-        self.login(is_superuser=False, allowed_apps=['persons', 'recurrents'],
-                   creatable_models=[RecurrentGenerator, Quote], #not Invoice
-                  )
+        user = self.login(is_superuser=False, allowed_apps=['persons', 'recurrents'],
+                          creatable_models=[RecurrentGenerator, Quote], #not Invoice
+                         )
 
         url = self.ADD_URL
         self.assertGET200(url)
-
-        user = self.user
-        #periodicity = Periodicity.objects.all()[0]
 
         def post(model):
             ct = ContentType.objects.get_for_model(model)
@@ -204,7 +198,6 @@ class RecurrentsBillingTestCase(CremeTestCase):
                                           '0-name':             'Recurrent billing obj',
                                           '0-ct':               ct.id,
                                           '0-first_generation': '08-07-2014 11:00',
-                                          #'0-periodicity':      periodicity.id,
                                           '0-periodicity_0':    'weeks',
                                           '0-periodicity_1':    '3',
                                          }
