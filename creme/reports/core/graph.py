@@ -114,7 +114,7 @@ class ReportGraphYCalculator(object):
                     calculator.error = _('the custom field does not exist any more.')
             else: # Regular Field
                 try:
-                    field = graph.report.ct.model_class()._meta.get_field(ordinate_col) #TODO: method model() in ReportGraph ??
+                    field = graph.model._meta.get_field(ordinate_col)
                 except FieldDoesNotExist:
                     calculator = ReportGraphYCalculator()
                     calculator.error = _('the field does not exist any more.')
@@ -187,7 +187,7 @@ class ReportGraphHand(object):
         self.ordinate_error = y_calculator.error
 
     def _listview_url_builder(self):
-        return ListViewURLBuilder(self._graph.report.ct.model_class(), self._graph.report.filter)
+        return ListViewURLBuilder(self._graph.model, self._graph.report.filter)
 
     def _fetch(self, entities, order):
         #TODO: Python3.3 version: yield from ()
@@ -245,8 +245,7 @@ class ReportGraphHand(object):
 class _RGHRegularField(ReportGraphHand):
     def __init__(self, graph):
         super(_RGHRegularField, self).__init__(graph)
-        report = graph.report
-        model = graph.report.ct.model_class() #TODO: method model() in ReportGraph ??
+        model = graph.model
 
         try:
             field = model._meta.get_field(graph.abscissa)
@@ -254,7 +253,7 @@ class _RGHRegularField(ReportGraphHand):
             field = None
             self.abscissa_error = _('the field does not exist any more.')
         else:
-            if report._fields_configs.get_4_model(model).is_field_hidden(field):
+            if graph.report._fields_configs.get_4_model(model).is_field_hidden(field):
                 self.abscissa_error = _('this field should be hidden.')
 
         self._field = field
@@ -771,7 +770,7 @@ class GraphFetcher(object):
 class RegularFieldLinkedGraphFetcher(GraphFetcher):
     def __init__(self, field_name, *args, **kwargs):
         super(RegularFieldLinkedGraphFetcher, self).__init__(*args, **kwargs)
-        model = self.graph.report.ct.model_class()
+        model = self.graph.model
         self.field_name = None
         self.verbose_volatile_column = '??'
 
@@ -800,7 +799,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
     @staticmethod
     def validate_fieldname(graph, field_name):
         try:
-            field_info = FieldInfo(graph.report.ct.model_class(), field_name)
+            field_info = FieldInfo(graph.model, field_name)
         except FieldDoesNotExist:
             return 'invalid field "%s"' % field_name
 

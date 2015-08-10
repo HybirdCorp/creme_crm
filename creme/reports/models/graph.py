@@ -106,7 +106,7 @@ class AbstractReportGraph(CremeEntity):
 
         graph = instance_block_config.entity.get_real_entity()
 
-        #TODO: use a map/registry of GraphFetcher classes
+        # TODO: use a map/registry of GraphFetcher classes
         if rfield_type == RFT_FIELD:
             fetcher = RegularFieldLinkedGraphFetcher(volatile_column, graph)
         elif rfield_type == RFT_RELATION:
@@ -118,7 +118,7 @@ class AbstractReportGraph(CremeEntity):
 
     @property
     def hand(self):
-        from ..core.graph import RGRAPH_HANDS_MAP #lazy loading
+        from ..core.graph import RGRAPH_HANDS_MAP # Lazy loading
 
         hand = self._hand
 
@@ -164,6 +164,10 @@ class AbstractReportGraph(CremeEntity):
             ibci.save()
 
         return ibci
+
+    @property
+    def model(self):
+        return self.report.ct.model_class()
 
 
 class ReportGraph(AbstractReportGraph):
