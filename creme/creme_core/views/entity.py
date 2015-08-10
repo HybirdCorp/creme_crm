@@ -38,7 +38,7 @@ from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
 from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
-from ..models import CremeEntity, EntityCredentials #CustomField
+from ..models import CremeEntity, EntityCredentials, FieldsConfig
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from ..utils.chunktools import iter_as_slices
 from ..utils.meta import ModelFieldEnumerator
@@ -52,22 +52,24 @@ logger = logging.getLogger(__name__)
 @login_required
 @jsonify
 def get_creme_entities_repr(request, entities_ids):
-    e_ids = [int(e_id) for e_id in entities_ids.split(',') if e_id] #with the url regexp we are sure that int() will work
-    entities = CremeEntity.objects.in_bulk(e_ids)
+    # With the url regexp we are sure that int() will work
+    e_ids = [int(e_id) for e_id in entities_ids.split(',') if e_id]
 
-    CremeEntity.populate_real_entities(list(entities.itervalues())) #NB: list + itervalues = Py3K ready
+    entities = CremeEntity.objects.in_bulk(e_ids)
+    CremeEntity.populate_real_entities(list(entities.itervalues())) # NB: list + itervalues = Py3K ready
 
     user = request.user
     has_perm = user.has_perm_to_view
 
     return [{'id': e_id,
-             'text': entity.get_real_entity().get_entity_summary(user) if has_perm(entity) else
+             'text': entity.get_real_entity().get_entity_summary(user)
+                     if has_perm(entity) else
                      _(u'Entity #%s (not viewable)') % e_id
             } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
                 if entity is not None
            ]
 
-#TODO: bake the result in HTML instead of ajax view ??
+# TODO: bake the result in HTML instead of ajax view ??
 @jsonify
 @login_required
 def get_info_fields(request, ct_id):
@@ -77,7 +79,7 @@ def get_info_fields(request, ct_id):
     if not issubclass(model, CremeEntity):
         raise Http404('No a CremeEntity subclass: %s' % model)
 
-    #TODO: use django.forms.models.fields_for_model ?
+    # TODO: use django.forms.models.fields_for_model ?
     form = modelform_factory(model, CremeEntityForm)(user=request.user)
     required_fields = [name for name, field in form.fields.iteritems()
                            if field.required and name != 'user'
@@ -87,95 +89,18 @@ def get_info_fields(request, ct_id):
     if len(required_fields) == 1:
         required_field = required_fields[0]
         kwargs['printer'] = lambda field: unicode(field.verbose_name) \
-                                            if field.name != required_field else \
+                                          if field.name != required_field else \
                                           _(u'%s [CREATION]') % field.verbose_name
 
-    return ModelFieldEnumerator(model).filter(viewable=True).choices(**kwargs)
+    is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
 
-
-#@login_required
-# def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and add_relations_bulk?
-#     user = request.user
-#     model    = get_ct_or_404(ct_id).model_class()
-#     entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
-# 
-#     CremeEntity.populate_real_entities(entities)
-#     entities = [entity.get_real_entity() for entity in entities]
-# 
-#     filtered = {True: [], False: []}
-#     has_perm = user.has_perm_to_change
-# 
-#     for entity in entities:
-#         filtered[has_perm(entity)].append(entity)
-# 
-#     if request.method == 'POST':
-#         form = EntitiesBulkUpdateForm(model=model,
-#                                       subjects=filtered[True],
-#                                       forbidden_subjects=filtered[False],
-#                                       user=user,
-#                                       data=request.POST,
-#                                      )
-# 
-#         if form.is_valid():
-#             form.save()
-#     else:
-#         form = EntitiesBulkUpdateForm(model=model,
-#                                       subjects=filtered[True],
-#                                       forbidden_subjects=filtered[False],
-#                                       user=user,
-#                                      )
-# 
-#     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-#                        {'form':  form,
-#                         'title': _(u'Multiple update'),
-#                        },
-#                        is_valid=form.is_valid(),
-#                        reload=False,
-#                        delegate_reload=True,
-#                       )
-
-# @login_required
-# @jsonify
-# def get_widget(request, ct_id):
-#     model      = get_ct_or_404(ct_id).model_class()
-#     GET        = request.GET
-#     field_name = get_from_GET_or_404(GET, 'field_name')
-#     entity_id  = GET.get('object_id')
-# 
-#     model_field, is_custom = EntitiesBulkUpdateForm.get_field(model, field_name)
-# 
-#     if model_field is None:
-#         raise Http404(u"The field %s.%s doesn't exist" % (model._meta.verbose_name, field_name))
-# 
-#     instance = get_object_or_404(model, pk=entity_id) if entity_id else None
-# 
-#     if instance:
-#         #TODO: factorise this credentials test ?
-#         owner = instance.get_related_entity() if hasattr(instance, 'get_related_entity') else instance
-#         request.user.has_perm_to_change_or_die(owner)
-# 
-#         is_updatable = bulk_update_registry.is_updatable(model, field_name, exclude_unique=False)
-#     else: # Bulk edition
-#         is_updatable = bulk_update_registry.is_updatable(model, field_name)
-# 
-#     # Prepare form field with custom widget if needed and initial value according to edit type
-#     if is_custom:
-#         form_field = EntitiesBulkUpdateForm.get_custom_formfield(model_field, instance)
-#     else:
-#         if not is_updatable:
-#             raise Http404(u'The field %s.%s is not editable' % (model._meta.verbose_name, field_name))
-# 
-#         form_field = EntitiesBulkUpdateForm.get_updatable_formfield(model_field, request.user, instance)
-# 
-#     return {'rendered': form_field.widget.render(name='field_value',
-#                                                  value=form_field.initial,
-#                                                  attrs={'id': 'id_field_value'},
-#                                                 ),
-#            }
+    return ModelFieldEnumerator(model).filter(viewable=True)\
+                                      .exclude(lambda f, deep: is_hidden(f))\
+                                      .choices(**kwargs)
 
 @login_required
 def clone(request):
-    #TODO: Improve credentials ?
+    # TODO: Improve credentials ?
     entity_id = get_from_POST_or_404(request.POST, 'id')
     entity    = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
@@ -194,7 +119,7 @@ def search_and_view(request):
     fields    = get_from_GET_or_404(GET, 'fields').split(',')
     value     = get_from_GET_or_404(GET, 'value')
 
-    if not value: #avoid useless queries
+    if not value: # Avoid useless queries
         raise Http404(u'Void "value" arg')
 
     user = request.user
@@ -229,7 +154,7 @@ def search_and_view(request):
             else:
                 query |= Q(**{str(field): value})
 
-        if query: #avoid useless query
+        if query: # Avoid useless query
             found = EntityCredentials.filter(user, model.objects.filter(query)).first()
 
             if found:
@@ -321,8 +246,8 @@ def select_entity_for_merge(request, entity1_id):
     user = request.user
     user.has_perm_to_view_or_die(entity1); user.has_perm_to_change_or_die(entity1)
 
-    #TODO: filter viewable & deletable entities + (manage swapping ?)
-    #TODO: change list_view_popup_from_widget code (o2m should be '1', but True works)
+    # TODO: filter viewable & deletable entities + (manage swapping ?)
+    # TODO: change list_view_popup_from_widget code (o2m should be '1', but True works)
     return list_view_popup_from_widget(request, entity1.entity_type_id, o2m=True,
                                        extra_q=~Q(pk=entity1_id)
                                       )
