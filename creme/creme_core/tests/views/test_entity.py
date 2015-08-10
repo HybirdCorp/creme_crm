@@ -51,94 +51,11 @@ class EntityViewsTestCase(ViewsTestCase):
     def _build_restore_url(self, entity):
         return '/creme_core/entity/restore/%s' % entity.id
 
-    #def test_get_fields(self):
-        #self.login()
-
-        #url = '/creme_core/entity/get_fields'
-        #ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        #response = self.assertPOST200(url, data={'ct_id': ct_id})
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
-        #content = load_json(response.content)
-        #self.assertIsInstance(content, list)
-        #self.assertEqual(5, len(content))
-
-        #fmt = u'[%s] - %s'
-        ##user_str = _('User')
-        #user_str = _('Owner user')
-        #self.assertEqual(content[0],    ['created',          _('Creation date')])
-        #self.assertEqual(content[1],    ['modified',         _('Last modification')])
-        #self.assertEqual(content[2],    ['user__username',   fmt % (user_str, _('Username'))])
-        ##self.assertEqual(content[3],    ['user__first_name', fmt % (user_str, _('first name'))])
-        #self.assertEqual(content[3][0], 'user__last_name')
-        #self.assertEqual(content[4][0], 'user__email')
-        ##self.assertEqual(content[6][0], 'user__is_team')
-
-        #response = self.assertPOST404(url, data={'ct_id': 0})
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
-        #response = self.assertPOST(400, url, data={'ct_id': 'notint'})
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
-        #response = self.assertPOST(400, url, data={'ct_id': ct_id, 'deep': 'notint'})
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
-    #def test_get_function_fields(self):
-        #self.login()
-
-        #url = '/creme_core/entity/get_function_fields'
-
-        #ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        #response = self.assertPOST200(url, data={'ct_id': ct_id})
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
-        #content = load_json(response.content)
-        #self.assertIsInstance(content, list)
-        #self.assertEqual(len(list(CremeEntity.function_fields)), len(content))
-        #self.assertIn(['get_pretty_properties', _('Properties')], content)
-
-        #response = self.assertPOST404(url, data={'ct_id': 0})
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
-        #response = self.assertPOST(400, url, data={'ct_id': 'notint'})
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
-    #def test_get_custom_fields(self):
-        #self.login()
-
-        #def get_cf(ct_id):
-            #return self.client.post('/creme_core/entity/get_custom_fields',
-                                    #data={'ct_id': ct_id}
-                                   #)
-
-        #ct = ContentType.objects.get_for_model(CremeEntity)
-        #response = get_cf(ct.id)
-        #self.assertEqual(200,               response.status_code)
-        #self.assertEqual('text/javascript', response['Content-Type'])
-        #self.assertEqual([], load_json(response.content))
-
-        #create_cf = partial(CustomField.objects.create, content_type=ct)
-        #cf1 = create_cf(name='Size',   field_type=CustomField.INT)
-        #cf2 = create_cf(name='Weight', field_type=CustomField.FLOAT)
-
-        #response = get_cf(ct.id)
-        #self.assertEqual([[cf1.id, cf1.name], [cf2.id, cf2.name]],
-                         #load_json(response.content)
-                        #)
-
-        #response = get_cf(0)
-        #self.assertEqual(404,               response.status_code)
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
-        #response = get_cf('notint')
-        #self.assertEqual(400,               response.status_code)
-        #self.assertEqual('text/javascript', response['Content-Type'])
-
     def test_json_entity_get01(self):
-        self.login()
+        user = self.login()
         url_fmt = '/creme_core/relation/entity/%s/json'
-        rei = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
-        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        nerv = Organisation.objects.create(user=user, name='Nerv')
 
         url = url_fmt % rei.id
         self.assertGET(400, url)
@@ -162,10 +79,10 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertGET(400, '/creme_core/relation/entity/%s/json' % nerv.id)
 
     def test_get_creme_entities_repr01(self):
-        self.login()
+        user = self.login()
 
         with self.assertNoException():
-            entity = CremeEntity.objects.create(user=self.user)
+            entity = CremeEntity.objects.create(user=user)
 
         response = self.assertGET200('/creme_core/entity/get_repr/%s' % entity.id)
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -180,8 +97,7 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_get_creme_entities_repr02(self):
         "Several entities, several ContentTypes, credentials"
 #        self.login(is_superuser=False, allowed_apps=['persons'])
-        self.login(is_superuser=False)
-        user = self.user
+        user = self.login(is_superuser=False)
 
         create_c = Contact.objects.create
         rei   = create_c(user=user,            first_name='Rei',   last_name='Ayanami')
@@ -210,9 +126,9 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_delete_entity01(self):
         "is_deleted=False -> trash"
-        self.login()
+        user = self.login()
 
-        entity = Organisation.objects.create(user=self.user, name='Nerv')
+        entity = Organisation.objects.create(user=user, name='Nerv')
         self.assertTrue(hasattr(entity, 'is_deleted'))
         self.assertIs(entity.is_deleted, False)
         self.assertGET200(entity.get_edit_absolute_url())
@@ -241,10 +157,10 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_delete_entity02(self):
         "is_deleted=True -> real deletion"
-        self.login()
+        user = self.login()
 
         #to get a get_lv_absolute_url() method
-        entity = Organisation.objects.create(user=self.user, name='Nerv', is_deleted=True)
+        entity = Organisation.objects.create(user=user, name='Nerv', is_deleted=True)
 
         url = self._build_delete_url(entity)
         self.assertGET404(url)
@@ -511,15 +427,16 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertStillExists(entity02)
         self.assertDoesNotExist(entity03)
 
+    def _build_test_get_info_fields_url(self, model):
+        ct = ContentType.objects.get_for_model(model)
+
+        return '/creme_core/entity/get_info_fields/%s/json' % ct.id
+
     def test_get_info_fields01(self):
         self.login()
 
-        furl = '/creme_core/entity/get_info_fields/%s/json'
-        ct = ContentType.objects.get_for_model(Contact)
-        response = self.assertGET200(furl % ct.id)
-
+        response = self.assertGET200(self._build_test_get_info_fields_url(Contact))
         json_data = load_json(response.content)
-        #print json_data
         self.assertIsInstance(json_data, list)
         self.assertTrue(all(isinstance(elt, list) for elt in json_data))
         self.assertTrue(all(len(elt) == 2 for elt in json_data))
@@ -541,10 +458,8 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_get_info_fields02(self):
         self.login()
 
-        furl = '/creme_core/entity/get_info_fields/%s/json'
-        ct = ContentType.objects.get_for_model(Organisation)
-        json_data = load_json(self.client.get(furl % ct.id).content)
-        #print json_data
+        response = self.client.get(self._build_test_get_info_fields_url(Organisation))
+        json_data = load_json(response.content)
 
         names = ['created', 'modified', 'name', 'description', 'url_site',
                  'phone', 'email', 'creation_date',  'subject_to_vat', 'capital',
@@ -558,6 +473,23 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(_(u'%s [CREATION]') % _(u'Name'), 
                          json_dict['name']
                         )
+
+    def test_get_info_fields03(self):
+        "With FieldsConfig"
+        self.login()
+
+        FieldsConfig.create(Contact,
+                            descriptions=[('birthday', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        response = self.assertGET200(self._build_test_get_info_fields_url(Contact))
+        json_data = load_json(response.content)
+        names = ['created', 'modified', 'first_name', 'last_name', 'description',
+                 'phone', 'mobile', 'email', 'url_site', 'is_a_nerd',
+                 #'birthday', #<===
+                ]
+        self.assertFalse(set(names).symmetric_difference({name for name, vname in json_data}))
+        self.assertEqual(len(names), len(json_data))
 
     def test_clone01(self):
         user = self.login()
@@ -806,9 +738,9 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertGET404(build_url('first_name', *range(1024, 1034)))
 
     def test_regular_field01(self):
-        self.login()
+        user = self.login()
 
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
         build_url = self._build_contact_url
         url = build_url('first_name', mario.id)
         response = self.assertGET200(url)
@@ -855,8 +787,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertEqual(unemployed, self.refresh(luigi).position)
 
     def test_regular_field03(self):
-        self.login()
-        user =  self.user
+        user = self.login()
 
         plumbing = Sector.objects.create(title='Plumbing')
         games    = Sector.objects.create(title='Games')
@@ -985,9 +916,9 @@ class BulkEditTestCase(_BulkEditTestCase):
         """Fix a bug with the field list when bulk editing user
         (ie: a field of the parent class CremeEntity)
         """
-        self.login()
+        user = self.login()
 
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
         build_url = self._build_contact_url
         url = build_url('user', mario.id)
         response = self.assertGET200(url)
@@ -999,38 +930,40 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertIn((build_url('first_name', mario.id), _('First name')), choices)
 
     def test_regular_field_many2many(self):
-        self.login()
+        user = self.login()
 
         categories = [MediaCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
 
-        image = self.create_image('image', self.user, categories)
-        image2 = self.create_image('image2', self.user, categories[:1])
+        image1 = self.create_image('image1', user, categories)
+        image2 = self.create_image('image2', user, categories[:1])
 
-        self.assertListEqual(list(image.categories.all()), categories)
+        self.assertListEqual(list(image1.categories.all()), categories)
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
-        url = self.build_bulkedit_url([image, image2], 'categories')
-        response = self.client.post(url, data={'field_value': [categories[0].pk, categories[2].pk]})
+        url = self.build_bulkedit_url([image1, image2], 'categories')
+        response = self.client.post(url, data={'field_value': [categories[0].pk,
+                                                               categories[2].pk,
+                                                              ],
+                                              }
+                                   )
         self.assertNoFormError(response)
 
-        image = self.refresh(image)
-        image2 = self.refresh(image2)
-
-        self.assertListEqual(list(image.categories.all()), [categories[0], categories[2]])
-        self.assertListEqual(list(image2.categories.all()), [categories[0], categories[2]])
+        expected = [categories[0], categories[2]]
+        self.assertListEqual(list(image1.categories.all()), expected)
+        self.assertListEqual(list(image2.categories.all()), expected)
 
     def test_regular_field_many2many_invalid(self):
-        self.login()
+        user = self.login()
 
         categories = [MediaCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
 
-        image = self.create_image('image', self.user, categories)
-        image2 = self.create_image('image2', self.user, categories[:1])
+        image1 = self.create_image('image1', user, categories)
+        image2 = self.create_image('image2', user, categories[:1])
 
-        self.assertListEqual(list(image.categories.all()), categories)
+        self.assertListEqual(list(image1.categories.all()), categories)
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
-        url = self.build_bulkedit_url([image, image2], 'categories')
+        url = self.build_bulkedit_url([image1, image2], 'categories')
         #invalid_pk = 12
         invalid_pk = (MediaCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
@@ -1040,10 +973,7 @@ class BulkEditTestCase(_BulkEditTestCase):
                                 }
                             )
 
-        image = self.refresh(image)
-        image2 = self.refresh(image2)
-
-        self.assertListEqual(list(image.categories.all()), categories)
+        self.assertListEqual(list(image1.categories.all()), categories)
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
     def test_custom_field01(self):
@@ -1118,10 +1048,10 @@ class BulkEditTestCase(_BulkEditTestCase):
     def test_custom_field04(self):
         self.login()
 
-        cf_str  = CustomField.objects.create(name='str',
-                                             content_type=self.contact_ct,
-                                             field_type=CustomField.STR,
-                                            )
+        cf_str = CustomField.objects.create(name='str',
+                                            content_type=self.contact_ct,
+                                            field_type=CustomField.STR,
+                                           )
         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_str.id)
 
         #Str
@@ -1321,12 +1251,12 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET(400, build_url('address__' + hidden_subfname))
 
     def test_regular_field_many2many(self):
-        self.login()
+        user = self.login()
 
         create_cat = MediaCategory.objects.create
         categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
-        image = self.create_image('image', self.user, categories)
+        image = self.create_image('image', user, categories)
         self.assertListEqual(list(image.categories.all()), categories)
 
         url = self.build_inneredit_url(image, 'categories')
@@ -1337,12 +1267,12 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertListEqual(list(image.categories.all()), [categories[0], categories[2]])
 
     def test_regular_field_many2many_invalid(self):
-        self.login()
+        user = self.login()
 
         create_cat = MediaCategory.objects.create
         categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
-        image = self.create_image('image', self.user, categories)
+        image = self.create_image('image', user, categories)
         self.assertEqual(set(image.categories.all()), set(categories))
 
         invalid_pk = 1024
@@ -1459,13 +1389,13 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET(200, url)
 
     def test_other_field_validation_error(self):
-        self.login()
+        user = self.login()
         empty_user = get_user_model().objects.create_user(username='empty',
                                                           first_name="",
                                                           last_name="",
                                                           email="",
                                                          )
-        empty_contact = Contact.objects.create(user=self.user, first_name="",
+        empty_contact = Contact.objects.create(user=user, first_name="",
                                                last_name="", is_user=empty_user,
                                               )
 
@@ -1478,13 +1408,13 @@ class InnerEditTestCase(_BulkEditTestCase):
                             )
 
     def test_both_edited_field_and_field_validation_error(self):
-        self.login()
+        user = self.login()
         empty_user = get_user_model().objects.create_user(username='empty',
                                                           first_name="",
                                                           last_name="",
                                                           email="",
                                                          )
-        empty_contact = Contact.objects.create(user=self.user, first_name="",
+        empty_contact = Contact.objects.create(user=user, first_name="",
                                                last_name="", is_user=empty_user,
                                               )
 
