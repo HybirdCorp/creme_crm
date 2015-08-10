@@ -42,51 +42,30 @@ logger = logging.getLogger(__name__)
 
 class UserMobileSyncConfigBlock(Block):
     id_           = Block.generate_id('activesync', 'user_mobile_sync')
-    #dependencies  = ()
     verbose_name  = u'Mobile synchronization configuration for a user'
     template_name = 'activesync/templatetags/block_user_mobile_sync.html'
     configurable  = False
     permission    = None
 
     def detailview_display(self, context):
-        #request = context.get('request')
         request = context['request']
-
-        #undefined = _(u"Undefined")
-        #default   = _(u"Default configuration")
-        #yes   = _(u"Yes")
-        #no    = _(u"No")
-
-        #url      = undefined
-        #domain   = undefined
-        #ssl      = undefined
-        #username = undefined
-        #password = ""
-        #sync_cal = undefined
-        #sync_con = undefined
-
-        #if request:
         user   = request.user
         sv_get = SettingValue.objects.get
 
-        #def get_setting_value(user_key, default_key=None):
         def get_setting_value(user_key_id, default_key_id=None):
             svalue = None
 
             try:
-                #svalue = sv_get(key__id=user_key, user=user)
                 svalue = sv_get(key_id=user_key_id, user=user)
             except SettingValue.DoesNotExist:
-                #if default_key:
                 if default_key_id:
                     try:
-                        #svalue = sv_get(key__id=default_key)
                         svalue = sv_get(key_id=default_key_id)
                     except SettingValue.DoesNotExist:
                         logger.warn('Activesync.UserMobileSyncConfigBlock: unfoundable SettingValue(key="%s") '
                                     '- Populate has not been runned ?! (if you are running unit tests you can '
                                     'ignore this message' % default_key_id
-                                   ) #NB useful for creme_config tests
+                                   ) # NB useful for creme_config tests
                     else:
                         svalue.default_config = True
             else:
@@ -94,68 +73,18 @@ class UserMobileSyncConfigBlock(Block):
 
             return svalue
 
-            #try:
-                #url = sv_get(key__id=USER_MOBILE_SYNC_SERVER_URL, user=user).value
-            #except SettingValue.DoesNotExist:
-                #try:
-                    #url = u"%s (%s)" % (sv_get(key__id=MAPI_SERVER_URL).value, default)
-                #except SettingValue.DoesNotExist:
-                    #pass
-        url = get_setting_value(USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL)
-
-            #try:
-                #domain = sv_get(key__id=USER_MOBILE_SYNC_SERVER_DOMAIN, user=user).value
-            #except SettingValue.DoesNotExist:
-                #try:
-                    #domain = u"%s (%s)" % (sv_get(key__id=MAPI_DOMAIN).value, default)
-                #except SettingValue.DoesNotExist:
-                    #pass
-        domain = get_setting_value(USER_MOBILE_SYNC_SERVER_DOMAIN, MAPI_DOMAIN)
-
-            #try:
-                #ssl = sv_get(key__id=USER_MOBILE_SYNC_SERVER_SSL, user=user).value
-            #except SettingValue.DoesNotExist:
-                #try:
-                    #ssl = u"%s (%s)" % (yes if sv_get(key__id=MAPI_SERVER_SSL).value else no, default)
-                #except SettingValue.DoesNotExist:
-                    #pass
-        ssl = get_setting_value(USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL)
-
-            #try:
-                #username = sv_get(key__id=USER_MOBILE_SYNC_SERVER_LOGIN, user=user).value
-            #except SettingValue.DoesNotExist:
-                #pass
-        username = get_setting_value(USER_MOBILE_SYNC_SERVER_LOGIN)
-
-            #try:
-                #password = sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value
-            #except SettingValue.DoesNotExist:
-                #pass
-        #TODO: It's the ciphered value but it's just for display. Is it a problem ?
-        password = get_setting_value(USER_MOBILE_SYNC_SERVER_PWD)
-
-            #try:
-                #sync_cal = sv_get(key__id=USER_MOBILE_SYNC_ACTIVITIES, user=user).value
-            #except SettingValue.DoesNotExist:
-                #pass
-        sync_cal = get_setting_value(USER_MOBILE_SYNC_ACTIVITIES)
-
-            #try:
-                #sync_con = sv_get(key__id=USER_MOBILE_SYNC_CONTACTS, user=user).value
-            #except SettingValue.DoesNotExist:
-                #pass
-        sync_con = get_setting_value(USER_MOBILE_SYNC_CONTACTS)
-
-        return self._render(self.get_block_template_context(context,
-                                                            url=url,
-                                                            domain=domain,
-                                                            ssl=ssl,
-                                                            username=username,
-                                                            password=password,
-                                                            sync_cal=sync_cal,
-                                                            sync_con=sync_con,
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                           )
+        return self._render(self.get_block_template_context(
+                                context,
+                                url=get_setting_value(USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL),
+                                domain=get_setting_value(USER_MOBILE_SYNC_SERVER_DOMAIN, MAPI_DOMAIN),
+                                ssl=get_setting_value(USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL),
+                                username=get_setting_value(USER_MOBILE_SYNC_SERVER_LOGIN),
+                                # TODO: It's the ciphered value but it's just for display. Is it a problem ?
+                                password=get_setting_value(USER_MOBILE_SYNC_SERVER_PWD),
+                                sync_cal=get_setting_value(USER_MOBILE_SYNC_ACTIVITIES),
+                                sync_con=get_setting_value(USER_MOBILE_SYNC_CONTACTS),
+                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                               )
                            )
 
 
@@ -168,16 +97,10 @@ class MobileSyncConfigBlock(Block):
     permission    = 'activesync.can_admin'
 
     def detailview_display(self, context):
-        #TODO: group queries ??
+        # TODO: group queries ?? hand made VS something like
+        # SettingValue.objects.bulk_per_keys(url=MAPI_SERVER_URL, domain=MAPI_DOMAIN)
+        #   => {'url': ..., 'domain': ...}   (as **kwargs for get_block_template_context())
         sv_get = SettingValue.objects.get
-
-        #Nb: Those values had been populated
-        ##server_url    = sv_get(key__id=MAPI_SERVER_URL).value
-        ##server_domain = sv_get(key__id=MAPI_DOMAIN).value
-        ##server_ssl    = sv_get(key__id=MAPI_SERVER_SSL).value
-        #server_url    = sv_get(key__id=MAPI_SERVER_URL)
-        #server_domain = sv_get(key__id=MAPI_DOMAIN)
-        #server_ssl    = sv_get(key__id=MAPI_SERVER_SSL)
         server_url    = sv_get(key_id=MAPI_SERVER_URL)
         server_domain = sv_get(key_id=MAPI_DOMAIN)
         server_ssl    = sv_get(key_id=MAPI_SERVER_SSL)

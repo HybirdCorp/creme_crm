@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-def get_ns(name):
-    """Get the namespace"""
-    ns = None
-    if name[0] == "{":
-        ns, sep, tag = name[1:].rpartition("}")
-    return ns
+# Commented on 10 august 2015
+#def get_ns(name):
+#    """Get the namespace"""
+#    ns = None
+#    if name[0] == "{":
+#        ns, sep, tag = name[1:].rpartition("}")
+#    return ns
