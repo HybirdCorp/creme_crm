@@ -27,11 +27,11 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from creme.activesync import constants as as_constants
+from .cipher import Cipher
 from .commands import FolderSync, Provision, AirSync
 from .constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
         USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_LOGIN,
         USER_MOBILE_SYNC_SERVER_PWD, USER_MOBILE_SYNC_SERVER_SSL, USER_MOBILE_SYNC_SERVER_URL)
-from .cipher import Cipher
 from .errors import (CremeActiveSyncError, SYNC_ERR_WRONG_CFG_NO_SERVER_URL,
         SYNC_ERR_WRONG_CFG_NO_LOGIN, SYNC_ERR_WRONG_CFG_NO_PWD,
         SYNC_ERR_ABORTED, SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL)
@@ -75,10 +75,10 @@ class Synchronization(object):
         self.is_user_sync_calendars = is_user_sync_calendars(user)
         self.is_user_sync_contacts  = is_user_sync_contacts(user)
 
-        #TODO: If messages will be used somewhere else activate the django messaging system
+        # TODO: If messages will be used somewhere else activate the django messaging system
         self._messages = defaultdict(list)
 
-        sv_get = SettingValue.objects.get #TODO: group the queries
+        sv_get = SettingValue.objects.get #TODO: group the queries (+ see is_user_sync_calendars/is_user_sync_contacts)
         sv_doesnotexist = SettingValue.DoesNotExist
 
         try:
