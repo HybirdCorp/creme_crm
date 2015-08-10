@@ -23,6 +23,7 @@ import warnings
 import traceback
 import sys
 from json import dumps as json_dump
+from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 #from django.db.models.query_utils import Q
@@ -137,6 +138,22 @@ def replace_related_object(old_instance, new_instance):
             m2m_mngr.add(new_instance)
             m2m_mngr.remove(old_instance)
 
+
+# MUST BE REMOVED WHEN JSON STANDARD LIB HANDLES DECIMAL
+class Number2Str(float):
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return str(self.value)
+
+
+def decimal_serializer(value):
+    if isinstance(value, Decimal):
+        return Number2Str(value)
+    raise TypeError(repr(value) + " is not JSON serializable")
+
+
 def jsonify(func):
     def _aux(*args, **kwargs):
         status = 200
@@ -157,7 +174,7 @@ def jsonify(func):
             msg = unicode(e)
             status = 400
         else:
-            msg = json_dump(rendered)
+            msg = json_dump(rendered, default=decimal_serializer)
 
         return HttpResponse(msg, content_type='text/javascript', status=status)
 
