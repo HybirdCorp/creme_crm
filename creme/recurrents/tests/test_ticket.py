@@ -21,7 +21,7 @@ try:
 
     from .base import skipIfCustomGenerator
     from ..management.commands.recurrents_gendocs import Command as GenDocsCommand
-    from ..models import RecurrentGenerator #Periodicity
+    from ..models import RecurrentGenerator
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -70,9 +70,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                             )
 
     def _get_weekly(self):
-        #return Periodicity.objects.get_or_create(value_in_days=7,
-                                                 #defaults={'name': 'Weekly'}
-                                                #)[0]
         return date_period_registry.get_period('weeks', 1)
 
     @skipIfNotInstalled('creme.tickets')
@@ -84,7 +81,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         name = 'Recurrent tickets'
-        #periodicity = Periodicity.objects.all()[0]
         response = self.client.post(url,
                                     data={'recurrent_generator_wizard-current_step': 0,
 
@@ -92,7 +88,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                           '0-name':             name,
                                           '0-ct':               self.ct.id,
                                           '0-first_generation': '11-06-2014 09:00',
-                                          #'0-periodicity':      periodicity.id,
                                           '0-periodicity_0':    'days',
                                           '0-periodicity_1':    '4',
                                          }
@@ -159,8 +154,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     def test_editview01(self):
         user = self.user
 
-        #old_per, new_per = Periodicity.objects.all()[:2]
-
         tpl1 = self._create_ticket_template(title='TicketTemplate #1')
         tpl2 = self._create_ticket_template(title='TicketTemplate #2')
 
@@ -168,7 +161,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                                 user=user,
                                                 first_generation=now(),
                                                 last_generation=None,
-                                                #periodicity=old_per,
                                                 periodicity=date_period_registry.get_period('weeks', 2),
                                                 ct=self.ct, template=tpl1,
                                                )
@@ -182,13 +174,11 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                     data={'user':             user.id,
                                           'name':             name,
                                           'first_generation': '12-06-2014 10:00',
-                                          #'periodicity':      new_per.id,
 
                                           'periodicity_0':      'months',
                                           'periodicity_1':      '1',
 
                                           # should not be used
-                                          #'ct': ContentType.objects.get_for_model(Periodicity).id,
                                           'ct': ContentType.objects.get_for_model(Priority).id,
                                           'template': tpl2.id,
                                          }
@@ -215,7 +205,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                                 user=user,
                                                 first_generation=now_value,
                                                 last_generation=now_value,
-                                                #periodicity=Periodicity.objects.all()[0],
                                                 periodicity=date_period_registry.get_period('months', 1),
                                                 ct=self.ct,
                                                 template=self._create_ticket_template(title='TicketTemplate #1'),
@@ -240,7 +229,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     @skipIfNotInstalled('creme.tickets')
     def test_listview(self):
         tpl = self._create_ticket_template()
-        #periodicity = Periodicity.objects.all()[0]
         now_value = now()
         create_gen = partial(RecurrentGenerator.objects.create, user=self.user,
                              first_generation=now_value,

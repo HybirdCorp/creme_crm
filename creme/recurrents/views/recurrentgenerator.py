@@ -27,16 +27,9 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import view_entity, list_view, edit_entity
 
-from ..forms.recurrentgenerator import RecurrentGeneratorEditForm #RecurrentGeneratorWizard
+from ..forms.recurrentgenerator import RecurrentGeneratorEditForm
 from ..models import RecurrentGenerator
 
-#_wizard = RecurrentGeneratorWizard()
-
-#@login_required
-#@permission_required('recurrents')
-#@permission_required('recurrents.add_recurrentgenerator')
-#def add(request):
-    #return _wizard(request)
 
 class RecurrentGeneratorWizard(SessionWizardView):
     template_name = 'creme_core/generics/blockform/add_wizard.html'
@@ -69,7 +62,7 @@ class RecurrentGeneratorWizard(SessionWizardView):
 
         form = None
 
-        # step can be None (see WizardView doc)
+        # Step can be None (see WizardView doc)
         if step is None:
             step = self.steps.current
 
