@@ -26,9 +26,9 @@ from django.template import RequestContext, Template
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.utils import jsonify
 from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         list_view_popup_from_widget, view_entity)
-from creme.creme_core.utils import jsonify
 
 from ..forms.image import ImageCreateForm, ImageEditForm
 from ..models import Image
@@ -37,21 +37,8 @@ from ..models import Image
 @login_required
 @permission_required(('media_managers', 'media_managers.add_image'))
 def add(request):
-    #req_get = request.GET.get
-    #kwargs = {}
-    #popup = req_get('popup')
-
-    #if popup is not None:
-        #popup = 'popup/'
-        #kwargs.update(template='creme_core/generics/blockform/add_popup.html')
-    #else:
-        #popup = ''
-
-    #return_path = '/media_managers/image/%s%%s?from_id=%s' % (popup, req_get('from_id', ''))
-
-    return add_entity(request, ImageCreateForm, #return_path,
+    return add_entity(request, ImageCreateForm,
                       extra_template_dict={'submit_label': _('Save the image')},
-                      #**kwargs
                      )
 
 @login_required
@@ -62,19 +49,9 @@ def edit(request, image_id):
 @login_required
 @permission_required('media_managers')
 def detailview(request, image_id):
-    #'size':     image_size(image, max_h=2000, max_w=500)
     return view_entity(request, image_id, Image, '/media_managers/image',
                        'media_managers/view_image.html',
                       )
-
-#@login_required
-#@permission_required('media_managers')
-#def popupview(request, image_id):
-    ##TODO : Use inner popup ?
-    #return view_entity(request, image_id, Image, '/media_managers/image',
-                       #template='media_managers/view_image_popup.html',
-                       #extra_template_dict={'from_id': request.GET.get('from_id')}
-                      #)
 
 @login_required
 @permission_required('media_managers')
@@ -106,4 +83,5 @@ def select_image_tiny_mce(request):
 def get_url(request, image_id):
     image = get_object_or_404(Image, pk=image_id)
     request.user.has_perm_to_view_or_die(image)
+
     return {'url': image.get_image_url()}

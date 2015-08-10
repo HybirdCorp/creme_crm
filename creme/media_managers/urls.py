@@ -15,5 +15,4 @@ urlpatterns = patterns('creme.media_managers.views',
     (r'^image/add$',                     'image.add'),
     (r'^image/edit/(?P<image_id>\d+)$',  'image.edit'),
     (r'^image/(?P<image_id>\d+)$',       'image.detailview'),
-    #(r'^image/popup/(?P<image_id>\d+)$', 'image.popupview'),
 )
