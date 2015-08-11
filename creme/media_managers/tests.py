@@ -9,7 +9,6 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.utils.translation import pgettext
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.gui.field_printers import field_printers_registry
