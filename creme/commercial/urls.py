@@ -2,6 +2,8 @@
 
 from django.conf.urls import patterns, url
 
+from creme.persons import contact_model_is_custom
+
 from creme.opportunities import opportunity_model_is_custom
 
 from . import act_model_is_custom, pattern_model_is_custom, strategy_model_is_custom
@@ -9,9 +11,6 @@ from . import act_model_is_custom, pattern_model_is_custom, strategy_model_is_cu
 
 urlpatterns = patterns('creme.commercial.views',
     (r'^$', 'portal.portal'),
-
-    (r'^salesmen$',     'salesman.listview'), #TODO: list_contacts + property
-    (r'^salesman/add$', 'salesman.add'),
 
     (r'^approach/add/(?P<entity_id>\d+)/$', 'commercial_approach.add'),
 
@@ -62,6 +61,12 @@ urlpatterns = patterns('creme.commercial.views',
     (r'^blocks/charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$',        'strategy.reload_charms_matrix'),
     (r'^blocks/assets_charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$', 'strategy.reload_assets_charms_matrix'),
 )
+
+if not contact_model_is_custom():
+    urlpatterns += patterns('creme.commercial.views.salesman',
+        url(r'^salesmen$',     'listview', name='commercial__list_salesmen'),
+        url(r'^salesman/add$', 'add',      name='commercial__create_salesman'),
+    )
 
 if not act_model_is_custom():
     urlpatterns += patterns('creme.commercial.views.act',
