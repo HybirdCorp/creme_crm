@@ -83,5 +83,3 @@ class MessageSucceedContactUpdate(MessageContact):
 
     def __init__(self, contact, message=u"", data=None, **kwargs):
         super(MessageSucceedContactUpdate, self).__init__(contact, message, data=data, **kwargs)
-
-    
