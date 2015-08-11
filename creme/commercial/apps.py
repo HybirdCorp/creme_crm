@@ -72,6 +72,8 @@ class CommercialConfig(CremeAppConfig):
 
         from creme.creme_core.auth import build_creation_perm as cperm
 
+        from creme.persons import get_contact_model
+
         Act      = self.Act
         Pattern  = self.Pattern
         Strategy = self.Strategy
@@ -86,8 +88,8 @@ class CommercialConfig(CremeAppConfig):
         reg_item(reverse('commercial__create_pattern'),  Pattern.creation_label,              cperm(Pattern))
 
         reg_item = creme_menu.get_app_item('persons').register_item
-        reg_item('/commercial/salesmen',     _(u'All salesmen'),   'persons')
-        reg_item('/commercial/salesman/add', _(u'Add a salesman'), 'persons.add_contact')
+        reg_item(reverse('commercial__list_salesmen'),   _(u'All salesmen'),   'persons')
+        reg_item(reverse('commercial__create_salesman'), _(u'Add a salesman'), cperm(get_contact_model()))
 
     def register_setting_key(self, setting_key_registry):
         from .setting_keys import notification_key, orga_approaches_key

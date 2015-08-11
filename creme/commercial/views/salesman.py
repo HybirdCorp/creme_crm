@@ -18,33 +18,39 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_entity, list_view
+from creme.creme_core.views.generic import list_view
 
 from creme.persons.models import Contact
+from creme.persons.views.contact import abstract_add_contact
 
-from ..forms.salesman import SalesManCreateForm
 from ..constants import PROP_IS_A_SALESMAN
+from ..forms.salesman import SalesManCreateForm
 
+
+# TODO: factorise with generic list_view (list_contacts + property) ??
+#       problem: list_view can accept to filter on a property (register a filtered view in the menu etc...)
+def abstract_list_salesmen(request, model=Contact, title=_(u'List of salesmen')):
+    return list_view(request, model,
+                     extra_dict={'list_title': title,
+                                 # TODO: button registry to change the button label
+                                 'add_url': reverse('commercial__create_salesman'),
+                                },
+                     extra_q=Q(properties__type=PROP_IS_A_SALESMAN),
+                    )
 
 @login_required
 @permission_required('persons', 'persons.add_contact')
 def add(request):
-    return add_entity(request, SalesManCreateForm, template='persons/add_contact_form.html',
-                      extra_template_dict={'submit_label': _('Save the salesman')},
-                     )
+    return abstract_add_contact(request, form=SalesManCreateForm,
+                                submit_label=_('Save the salesman'),
+                               )
 
-#TODO: factorise with generic list_view ??
-#      problem: list_view can accept to filter on a property (register a filtered view in the menu etc...)
 @login_required
 @permission_required('persons')
 def listview(request):
-    return list_view(request, Contact,
-                     extra_dict={'list_title': ugettext(u'List of salesmen'),
-                                 'add_url':    '/commercial/salesman/add',
-                                },
-                     extra_q=Q(properties__type=PROP_IS_A_SALESMAN),
-                    )
+    return abstract_list_salesmen(request)

@@ -3,10 +3,14 @@
 try:
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.persons import get_contact_model
     from creme.persons.models import Contact
+    from creme.persons.tests.base import skipIfCustomContact
 
-    from ..models import Act, ActType
-    from ..constants import *
+    from .. import get_act_model
+    from ..models import ActType #Act
+    from ..constants import (REL_SUB_SOLD_BY, REL_OBJ_SOLD_BY,
+            REL_SUB_COMPLETE_GOAL, PROP_IS_A_SALESMAN)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -23,14 +27,17 @@ class CommercialTestCase(CremeTestCase):
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
         self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
-        self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
+#        self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
+        self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [get_act_model()])
 
-        self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
+#        self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
+        self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [get_contact_model()])
 
         self.assertEqual(3, ActType.objects.count())
 
+    @skipIfCustomContact
     def test_salesman_create(self):
-        self.login()
+        user = self.login()
 
         url = self.ADD_SALESMAN_URL
         self.assertGET200(url)
@@ -38,7 +45,7 @@ class CommercialTestCase(CremeTestCase):
         first_name = 'John'
         last_name  = 'Doe'
         response = self.client.post(url, follow=True,
-                                    data={'user':       self.user.pk,
+                                    data={'user':       user.pk,
                                           'first_name': first_name,
                                           'last_name':  last_name,
                                          }
@@ -54,6 +61,7 @@ class CommercialTestCase(CremeTestCase):
 
         self.assertRedirects(response, salesman.get_absolute_url())
 
+    @skipIfCustomContact
     def test_salesman_listview01(self):
         self.login()
 
@@ -67,12 +75,13 @@ class CommercialTestCase(CremeTestCase):
         self.assertEqual(1, salesmen_page.number)
         self.assertFalse(salesmen_page.paginator.count)
 
+    @skipIfCustomContact
     def test_salesman_listview02(self):
-        self.login()
+        user = self.login()
 
         def add_salesman(first_name, last_name):
             self.client.post(self.ADD_SALESMAN_URL,
-                             data={'user':        self.user.pk,
+                             data={'user':        user.pk,
                                    'first_name': 'first_name1',
                                    'last_name':   'last_name1',
                                   }
