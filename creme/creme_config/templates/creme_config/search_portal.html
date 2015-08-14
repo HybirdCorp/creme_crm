@@ -1,6 +1,5 @@
 {% extends "creme_config/portal.html" %}
-{% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load i18n creme_core_tags creme_block %}
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
@@ -8,21 +7,19 @@
 {% endblock %}
 
 {% block before_statistics %}
-    {% comment %}{% if SHOW_HELP %}{% endcomment %}
-        <div class="help_box">
-            <table>
-                <tr>
-                    <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
-                    <td>
-                        {% trans 'Create search settings in order to make the global search faster.' %}<br/>
-                        {% trans 'Limit the number of fields per type for better performance and better results visibility.' %}<br/>
-                        {% trans 'No selected field means "All fields", and it is the same for users.' %}<br/>
-                        {% trans 'Edit a configuration to specify the search fields.' %}
-                    </td>
-                </tr>
-            </table>
-        </div>
-    {% comment %}{% endif %}{% endcomment %}
+    <div class="help_box">
+        <table>
+            <tr>
+                <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
+                <td>
+                    {% trans 'Create search settings in order to make the global search faster.' %}<br/>
+                    {% trans 'Limit the number of fields per type for better performance and better results visibility.' %}<br/>
+                    {% comment %}{% trans 'No selected field means "All fields", and it is the same for users.' %}<br/>{% endcomment %}
+                    {% trans 'Edit a configuration to specify the search fields.' %}
+                </td>
+            </tr>
+        </table>
+    </div>
     {% import_block from_app 'creme_config' named 'searchconfig' as 'searchconfig_block' %}
     {% display_block_detailview 'searchconfig_block' %}
 {% endblock %}

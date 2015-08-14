@@ -59,7 +59,8 @@ def edit(request, search_config_id):
 def delete(request):
     sci = get_object_or_404(SearchConfigItem, id=get_from_POST_or_404(request.POST, 'id'))
 
-    if sci.user is None:
+#    if sci.user is None:
+    if sci.is_default:
         raise ConflictError("You cannot delete the default configuration")
 
     sci.delete()

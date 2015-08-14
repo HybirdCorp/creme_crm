@@ -23,7 +23,8 @@
                         {% endif %}
                         <ul>
                             {% for sc_item in ctw.sc_items %}
-                                <li>{{sc_item.user|default:_("Default configuration")}}:
+                                <li>{% if sc_item.role %}{{sc_item.role}}{% elif sc_item.superuser %}<em>{% trans "Superuser" %}</em>{% else %}<em>{% trans "Default configuration" %}</em>{% endif %}:
+{% comment %}                       {{sc_item.user|default:_("Default configuration")}}:{% endcomment %}
                                     {% if sc_item.disabled %}
                                         <em>{% trans  "Research is disabled" %}</em>
                                     {% elif sc_item.all_fields %}
@@ -34,7 +35,8 @@
 
                                     {% get_line_editor at_url '/creme_config/search/edit/{{sc_item.id}}' with_perms admin_perm %}
 
-                                    {% if sc_item.user %}
+{% comment %}                       {% if sc_item.user %}{% endcomment %}
+                                    {% if not sc_item.is_default %}
                                         {% get_line_deletor at_url '/creme_config/search/delete' with_args "{'id': '{{sc_item.id}}'}" with_perms admin_perm %}
                                     {% endif %}
                                 </li>

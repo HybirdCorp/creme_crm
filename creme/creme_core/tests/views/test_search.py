@@ -5,27 +5,23 @@ try:
     import json
 
     from django.contrib.contenttypes.models import ContentType
-    #from django.test.utils import override_settings
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.gui.block import QuerysetBlock
     from creme.creme_core.models import SearchConfigItem
-
-    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class SearchViewTestCase(ViewsTestCase):
-#    CONTACT_BLOCKID = 'block_creme_core-found-persons-contact'
     CONTACT_BLOCKID = 'block_creme_core-found-creme_core-fakecontact'
+    ORGA_BLOCKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
 
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        #cls.populate('creme_config', 'creme_core')
         cls.populate('creme_core')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
@@ -39,14 +35,14 @@ class SearchViewTestCase(ViewsTestCase):
         ViewsTestCase.tearDownClass()
 
         del QuerysetBlock.page_size
-        assert QuerysetBlock.page_size #in PaginatedBlock
+        assert QuerysetBlock.page_size # In PaginatedBlock
 
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
     def _build_contacts(self):
         create_contact = partial(Contact.objects.create, user=self.user)
         self.linus = create_contact(first_name='Linus', last_name='Torvalds')
-        self.alan  = create_contact(first_name='Alan',  last_name='Cox')
+        self.alan  = create_contact(first_name='Alan',  last_name='Cox', description='Cool beard')
         self.linus2 = create_contact(first_name='Linus', last_name='Impostor', is_deleted=True)
 
     def _setup_contacts(self, disabled=False):
@@ -84,7 +80,6 @@ class SearchViewTestCase(ViewsTestCase):
             models = ctxt['models']
             blocks = ctxt['blocks']
 
-#        self.assertEqual([_('Contact')], models)
         self.assertEqual(['Test Contact'], models)
 
         self.assertIsInstance(blocks, list)
@@ -93,7 +88,9 @@ class SearchViewTestCase(ViewsTestCase):
         block = blocks[0]
         self.assertIsInstance(block, QuerysetBlock)
         self.assertIn(self.CONTACT_BLOCKID, block.id_)
-        self.assertEqual('creme_core/templatetags/block_found_entities.html', block.template_name)
+        self.assertEqual('creme_core/templatetags/block_found_entities.html',
+                         block.template_name
+                        )
 
         self.assertNotContains(response, self.linus.get_absolute_url())
 
@@ -109,7 +106,6 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertContains(response, self.linus2.get_absolute_url())
         self.assertNotContains(response, self.alan.get_absolute_url())
 
-    #@override_settings(BLOCK_SIZE=10)
     def test_search03(self):
         self.login()
         self._setup_contacts()
@@ -125,8 +121,7 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.linus.get_absolute_url())
         self.assertNotContains(response, self.linus2.get_absolute_url())
 
-#        self.assertContains(response, ' id="block_creme_core-found-persons-organisation-')
-        self.assertContains(response, ' id="block_creme_core-found-creme_core-fakeorganisation-')
+        self.assertContains(response, ' id="%s' % self.ORGA_BLOCKID)
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
@@ -182,8 +177,7 @@ class SearchViewTestCase(ViewsTestCase):
         response = self._search('cox')
         context = response.context
 
-#        self.assertContains(response, ' id="block_creme_core-found-persons-organisation-')
-        self.assertContains(response, ' id="block_creme_core-found-creme_core-fakeorganisation-')
+        self.assertContains(response, ' id="%s' % self.ORGA_BLOCKID)
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
@@ -191,10 +185,36 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.alan.get_absolute_url())
 
         vnames = {unicode(vname) for vname in context['models']}
-#        self.assertIn(_('Organisation'), vnames)
-#        self.assertNotIn(_('Contact'), vnames)
         self.assertIn(Organisation._meta.verbose_name, vnames)
         self.assertNotIn(Contact._meta.verbose_name, vnames)
+
+    def test_search08(self):
+        "Use Role's config if it exists"
+        self.login(is_superuser=False, allowed_apps=['creme_core'])
+
+        SearchConfigItem.create_if_needed(Contact, ['description'], role=self.role)
+        self._setup_contacts()
+
+        response = self._search('bear', self.contact_ct_id)
+        self.assertEqual(200, response.status_code)
+
+        self.assertNotContains(response, self.linus.get_absolute_url())
+        self.assertNotContains(response, self.linus2.get_absolute_url())
+        self.assertContains(response, self.alan.get_absolute_url())
+
+    def test_search09(self):
+        "Use Role's config if it exists (super-user)"
+        self.login()
+
+        SearchConfigItem.create_if_needed(Contact, ['description'], role='superuser')
+        self._setup_contacts()
+
+        response = self._search('bear', self.contact_ct_id)
+        self.assertEqual(200, response.status_code)
+
+        self.assertNotContains(response, self.linus.get_absolute_url())
+        self.assertNotContains(response, self.linus2.get_absolute_url())
+        self.assertContains(response, self.alan.get_absolute_url())
 
     def test_reload_block(self):
         self.login()
