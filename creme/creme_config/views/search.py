@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.conf import settings
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import SearchConfigItem
-from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
 from ..forms.search import SearchEditForm, SearchAddForm
@@ -33,28 +33,35 @@ from ..forms.search import SearchEditForm, SearchAddForm
 
 @login_required
 @permission_required('creme_core.can_admin')
-def add(request):
-    return add_model_with_popup(request, SearchAddForm, _(u'New search configuration'),
+def add(request, ct_id):
+    ctype = get_ct_or_404(ct_id)
+
+    return add_model_with_popup(request, SearchAddForm,
+                                title=_(u'New search configuration for «%s»') % ctype,
                                 submit_label=_('Save the configuration'),
+                                initial={'content_type': ctype},
                                )
 
 @login_required
 #@permission_required('creme_config')
 def portal(request):
-    return render(request, 'creme_config/search_portal.html',
-                  #{'SHOW_HELP': settings.SHOW_HELP},#todo:Context processor ?
-                 )
+    return render(request, 'creme_config/search_portal.html')
 
 @login_required
 @permission_required('creme_core.can_admin')
 def edit(request, search_config_id):
-    return edit_model_with_popup(request, {'pk': search_config_id}, SearchConfigItem, SearchEditForm)
+    return edit_model_with_popup(request, query_dict={'pk': search_config_id},
+                                 model=SearchConfigItem, form_class=SearchEditForm,
+                                )
 
 @login_required
 @permission_required('creme_core.can_admin')
 def delete(request):
-    search_cfg_id = get_from_POST_or_404(request.POST, 'id')
+    sci = get_object_or_404(SearchConfigItem, id=get_from_POST_or_404(request.POST, 'id'))
 
-    SearchConfigItem.objects.filter(id=search_cfg_id).delete()
+    if sci.user is None:
+        raise ConflictError("You cannot delete the default configuration")
+
+    sci.delete()
 
     return HttpResponse()

@@ -26,7 +26,9 @@ from creme.creme_core.models import CremeEntity
 from .popup import inner_popup
 
 
-def edit_entity(request, object_id, model, edit_form, template='creme_core/generics/blockform/edit.html'):
+def edit_entity(request, object_id, model, edit_form,
+                template='creme_core/generics/blockform/edit.html',
+               ):
     entity = get_object_or_404(model, pk=object_id)
     user = request.user
 
@@ -57,8 +59,9 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
                            submit_label=_('Save the modifications'),
                           ):
     """Edit a model related to a CremeEntity.
-    @param model A django model class that implements the method get_related_entity().
-    @param form_class Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).
+    @param model A django model class which implements the method get_related_entity().
+    @param form_class Form which __init__'s method MUST HAVE an argument called
+                      'entity' (the related CremeEntity).
     @param model title_format A format unicode with an arg (for the related entity).
     """
     auxiliary = get_object_or_404(model, pk=pk)
@@ -88,12 +91,15 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
 def edit_model_with_popup(request, query_dict, model, form_class,
                           title_format=None, can_change=None,
                           template='creme_core/generics/blockform/edit_popup.html',
-                          submit_label=_('Save the modifications')):
-    """
-    @param query_dict A dictionary that represents the query to retrieve the edited instance (eg: {'pk': 12})
-    @param model A django model class that implements the method get_related_entity().
+                          submit_label=_('Save the modifications'),
+                         ):
+    """Get & edit an instance in a inner popup.
+    @param query_dict A dictionary which represents the query to retrieve the
+                      edited instance (eg: {'pk': 12})
+    @param model A django model class which implements the method get_related_entity().
     @param model title_format A format unicode with an arg (for the edited instance).
-    @param can_change A function with instance and user as paramaters, which return a Boolean: False causes a 403 error.
+    @param can_change A function with instance and user as paramaters, which
+                      returns a Boolean: False causes a 403 error.
     """
     instance = get_object_or_404(model, **query_dict)
     user = request.user

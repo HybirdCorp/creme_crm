@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-06 23:37+0200\n"
+"POT-Creation-Date: 2015-08-13 15:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -70,31 +70,31 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: blocks.py:120
+#: blocks.py:121
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: blocks.py:134
+#: blocks.py:135
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: blocks.py:151
+#: blocks.py:152
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: blocks.py:168
+#: blocks.py:169
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: blocks.py:205
+#: blocks.py:214
 msgid "General configuration of custom fields"
 msgstr "Configuration générale des champs personnalisés"
 
-#: blocks.py:221
+#: blocks.py:230
 msgid "Custom fields configuration"
 msgstr "Configuration des champs personnalisés"
 
-#: blocks.py:240
+#: blocks.py:249
 msgid "Users configuration"
 msgstr "Configuration des utilisateurs"
 
@@ -357,22 +357,11 @@ msgid ""
 "exists."
 msgstr "Un type de relation semi-fixé avec ce type et cet objet existe déjà."
 
-#: forms/search.py:31
-#: templates/creme_config/templatetags/block_searchconfig.html:21
+#: forms/search.py:34
 msgid "User"
 msgstr "Utilisateur"
 
-#: forms/search.py:32
-#: templates/creme_config/templatetags/block_searchconfig.html:39
-msgid "All users"
-msgstr "Tous les utilisateurs"
-
-#: forms/search.py:47
-msgid "The pair search configuration/user(s) already exists !"
-msgstr "Le couple configuration de recherche/utilisateur(s) existe déjà !"
-
-#: forms/search.py:55
-#: templates/creme_config/templatetags/block_searchconfig.html:18
+#: forms/search.py:54
 msgid "Concerned fields"
 msgstr "Champs concernés"
 
@@ -542,6 +531,7 @@ msgstr "Choisissez votre fuseau horaire"
 #: templates/creme_config/property_type_portal.html:7
 #: templates/creme_config/relation_type_portal.html:7
 #: templates/creme_config/search_portal.html:7
+#: templates/creme_config/templatetags/block_searchconfig.html:13
 #: templates/creme_config/user_portal.html:6
 #: templates/creme_config/user_role_portal.html:6
 #: templates/creme_config/user_settings.html:10
@@ -691,7 +681,6 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_models.html:55
 #: templates/creme_config/templatetags/block_property_types.html:26
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:19
-#: templates/creme_config/templatetags/block_searchconfig.html:23
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:22
 #: templates/creme_config/templatetags/block_teams.html:31
 #: templates/creme_config/templatetags/block_user_roles.html:45
@@ -736,7 +725,7 @@ msgstr "Nouvelle configuration de blocs"
 #: templates/creme_config/templatetags/block_customblocksconfig.html:18
 #: templates/creme_config/templatetags/block_fields_configs.html:17
 #: templates/creme_config/templatetags/block_historyconfig.html:17
-#: templates/creme_config/templatetags/block_searchconfig.html:17
+#: templates/creme_config/templatetags/block_searchconfig.html:12
 msgid "Type"
 msgstr "Type"
 
@@ -747,7 +736,6 @@ msgstr "Type"
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:26
 #: templates/creme_config/templatetags/block_models.html:54
 #: templates/creme_config/templatetags/block_property_types.html:25
-#: templates/creme_config/templatetags/block_searchconfig.html:22
 #: templates/creme_config/templatetags/block_settings.html:12
 msgid "Edit"
 msgstr "Modifier"
@@ -755,6 +743,7 @@ msgstr "Modifier"
 #: templates/creme_config/templatetags/block_blocklocations.html:22
 #: templates/creme_config/templatetags/block_blockportallocations.html:28
 #: templates/creme_config/templatetags/block_button_menu.html:26
+#: templates/creme_config/templatetags/block_searchconfig.html:26
 msgid "Default configuration"
 msgstr "Configuration par défaut"
 
@@ -1059,20 +1048,21 @@ msgstr "Aucun type de bloc de relation créé pour le moment"
 msgid "Search"
 msgstr "Recherche"
 
-#: templates/creme_config/templatetags/block_searchconfig.html:12
-#: views/search.py:37
-msgid "New search configuration"
-msgstr "Nouvelle configuration de recherche"
+#: templates/creme_config/templatetags/block_searchconfig.html:20
+#: views/search.py:40
+#, python-format
+msgid "New search configuration for «%s»"
+msgstr "Nouvelle configuration de recherche pout «%s»"
+
+#: templates/creme_config/templatetags/block_searchconfig.html:28
+msgid "Research is disabled"
+msgstr "Recherche désactivée"
 
 #: templates/creme_config/templatetags/block_searchconfig.html:30
-msgid "<em>Research is disabled</em>"
-msgstr "<em>Recherche désactivée</em>"
+msgid "All fields"
+msgstr "Tous les champs"
 
-#: templates/creme_config/templatetags/block_searchconfig.html:32
-msgid "<em>All fields</em>"
-msgstr "<em>Tous les champs</em>"
-
-#: templates/creme_config/templatetags/block_searchconfig.html:46
+#: templates/creme_config/templatetags/block_searchconfig.html:48
 msgid "No search configuration for the moment"
 msgstr "Aucune configuration de recherche enregistrée pour le moment"
 
@@ -1293,7 +1283,7 @@ msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
 #: views/blocks.py:47 views/blocks.py:55 views/button_menu.py:39
-#: views/custom_fields.py:40 views/fields_config.py:42 views/search.py:38
+#: views/custom_fields.py:40 views/fields_config.py:42 views/search.py:41
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
@@ -1310,6 +1300,7 @@ msgstr "Modifier la configuration pour %s"
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
+# Already in creme_core
 #: views/blocks.py:108 views/blocks.py:148 views/blocks.py:168
 #: views/blocks.py:217 views/button_menu.py:72 views/creme_property_type.py:61
 #: views/prefered_menu.py:61 views/relation_type.py:73
@@ -1387,7 +1378,7 @@ msgstr "%s ne peut pas être effacé à cause de ses dépendances."
 
 #: views/relation_type.py:42 views/relation_type.py:50
 msgid "Save the type"
-msgstr ""
+msgstr "Enregistrer le type"
 
 #: views/relation_type.py:49
 msgid "New semi-fixed type of relationship"
@@ -1465,6 +1456,12 @@ msgstr "Supprimer le rôle «%s»"
 #: views/user_role.py:90
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
+
+#~ msgid "All users"
+#~ msgstr "Tous les utilisateurs"
+
+#~ msgid "The pair search configuration/user(s) already exists !"
+#~ msgstr "Le couple configuration de recherche/utilisateur(s) existe déjà !"
 
 #~ msgid ""
 #~ "The username must only contain alphanumeric (a-z, A-Z, 0-9), hyphen and "
@@ -1642,13 +1639,5 @@ msgstr "Supprimer le rôle"
 #~ msgid "Type of entity"
 #~ msgstr "Type de fiche"
 
-#~ msgid "Particular Entity/Role/Team"
-#~ msgstr "Fiche/Rôle/Équipe particulier"
-
 #~ msgid "Contacts"
 #~ msgstr "Contacts"
-
-#~ msgid "%(app_count)s Configurable type"
-#~ msgid_plural "%(app_count)s Configurable types"
-#~ msgstr[0] "%(app_count)s Type configurable"
-#~ msgstr[1] "%(app_count)s Types configurables"
