@@ -33,6 +33,7 @@ from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingV
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem,
         ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
 from creme.creme_core.registry import creme_registry
+from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
 
 #from .models import SettingValue
@@ -292,7 +293,6 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
 #                                context, ContentType.objects.filter(pk__in=ct_ids), #todo: use get_for_id instead (avoid query) ??
 #                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
 #                           ))
-
         ct_ids = set(BlockDetailviewLocation.objects.exclude(content_type=None)
                                                     .values_list('content_type_id', flat=True)
                     )
@@ -306,7 +306,6 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
                                 context, ctypes,
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
-
 
 
 class BlockPortalLocationsBlock(PaginatedBlock):
@@ -418,21 +417,12 @@ class ButtonMenuBlock(Block):
     #id_           = QuerysetBlock.generate_id('creme_config', 'button_menu')
     id_           = Block.generate_id('creme_config', 'button_menu')
     dependencies  = (ButtonMenuItem,)
-    #page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
     verbose_name  = u'Button menu configuration'
     template_name = 'creme_config/templatetags/block_button_menu.html'
     permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
     configurable  = False
 
     def detailview_display(self, context):
-        #ct_ids = ButtonMenuItem.objects.exclude(content_type=None) \
-                                       #.distinct() \
-                                       #.values_list('content_type_id', flat=True)
-
-        #return self._render(self.get_block_template_context(
-                                #context, ContentType.objects.filter(pk__in=ct_ids), #todo: use get_for_id instead (avoid query) ??
-                                #update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           #))
         buttons_map = defaultdict(list)
 
         for bmi in ButtonMenuItem.objects.order_by('order'): #TODO: meta.ordering...
@@ -456,18 +446,62 @@ class ButtonMenuBlock(Block):
                            ))
 
 
-class SearchConfigBlock(_ConfigAdminBlock):
-    id_           = _ConfigAdminBlock.generate_id('creme_config', 'searchconfig')
+#class SearchConfigBlock(_ConfigAdminBlock):
+class SearchConfigBlock(PaginatedBlock):
+#    id_           = _ConfigAdminBlock.generate_id('creme_config', 'searchconfig')
+    id_           = PaginatedBlock.generate_id('creme_config', 'searchconfig')
     dependencies  = (SearchConfigItem,)
     verbose_name  = u'Search configuration'
     template_name = 'creme_config/templatetags/block_searchconfig.html'
     order_by      = 'content_type'
+    # TODO _ConfigAdminBlock => Mixin
+    page_size    = _PAGE_SIZE * 2 # only one block
+    permission   = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    configurable = False
 
     def detailview_display(self, context):
-        return self._render(self.get_block_template_context(
-                                context, SearchConfigItem.objects.all(),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+#        return self._render(self.get_block_template_context(
+#                                context, SearchConfigItem.objects.all(),
+#                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+#                           ))
+        # NB: we wrap the ContentType instances instead of store extra data in
+        #     them because teh instances are stored in a global cache, so we do
+        #     not want to mutate them.
+        class _ContentTypeWrapper(object): # TODO: move from here ?
+            __slots__ = ('ctype', 'sc_items')
+
+            def __init__(self, ctype):
+                self.ctype = ctype
+                self.sc_items = ()
+
+        ctypes = [_ContentTypeWrapper(ctype) for ctype in creme_entity_content_types()]
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
+
+        btc = self.get_block_template_context(
+                        context, ctypes,
+                        update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                        max_conf_count=User.objects.exclude(is_team=True).count() + 1, # NB: '+ 1' is for default config
+                    )
+
+        ctypes_wrappers = btc['page'].object_list
+
+        sci_map = defaultdict(list)
+        for sci in SearchConfigItem.objects \
+                                   .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers])\
+                                   .select_related('user'):
+            sci_map[sci.content_type_id].append(sci)
+
+
+        for ctw in ctypes_wrappers:
+            ctype = ctw.ctype
+            ctw.sc_items = sc_items = sci_map.get(ctype.id) or []
+            sc_items.sort(key=lambda sci: sort_key(unicode(sci.user) if sci.user else ''))
+
+            if not sc_items or sc_items[0].user: # No default config -> we build it
+                SearchConfigItem.objects.create(content_type=ctype)
+
+        return self._render(btc)
 
 
 class HistoryConfigBlock(_ConfigAdminBlock):

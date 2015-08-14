@@ -10,20 +10,22 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeInvoice, FakeInvoiceLine)
+    from creme.creme_core.utils import creme_entity_content_types
+    from creme.creme_core.utils.unicode_collation import collator
 
-    #from creme.persons.models import Contact, Organisation
+    from ..blocks import SearchConfigBlock
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class SearchConfigTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/search/add/'
+    PORTAL_URL = '/creme_config/search/portal/'
 
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
 
-        SearchConfigItem.objects.all().delete()
+        SearchConfigItem.objects.all().delete() # TODO: backup ?
         cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
@@ -33,52 +35,88 @@ class SearchConfigTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
+    def _build_add_url(self, ctype):
+        return '/creme_config/search/add/%s' % ctype.id
+
     def _build_edit_url(self, sci):
         return '/creme_config/search/edit/%s' % sci.id
 
-    def test_portal(self):
-        self.assertGET200('/creme_config/search/portal/')
+    def _get_first_entity_ctype(self):
+        ctypes = list(creme_entity_content_types())
+        ctypes.sort(key=lambda ct: collator.sort_key(unicode(ct)))
+
+        return ctypes[0]
+
+    def test_portal01(self):
+        ctype = self._get_first_entity_ctype()
+        self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
+
+        response = self.assertGET200(self.PORTAL_URL)
+        self.assertTemplateUsed(response, 'creme_config/search_portal.html')
+        self.assertContains(response, ' id="%s"' % SearchConfigBlock.id_)
+
+        self.assertContains(response, unicode(ctype))
+
+        # Missing default configurations are built
+        sci = self.get_object_or_fail(SearchConfigItem, content_type=ctype)
+        self.assertIsNone(sci.user)
+        self.assertTrue(sci.all_fields)
+
+    def test_portal02(self):
+        "Missing default configurations are built, even when configs for users exist"
+        ctype = self._get_first_entity_ctype()
+        self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
+
+        SearchConfigItem.objects.create(content_type=ctype, user=self.user)
+
+        self.assertGET200(self.PORTAL_URL)
+        self.get_object_or_fail(SearchConfigItem, content_type=ctype, user=None)
 
     def test_add01(self):
+        user = self.user
         ct = self.ct_contact
-        self.assertEqual(0, SearchConfigItem.objects.filter(content_type=ct).count())
+        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, user=user))
 
-        url = self.ADD_URL
+        url = self._build_add_url(ct)
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'content_type': ct.id}))
+        self.assertNoFormError(self.client.post(url, data={'user': user.id}))
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))
 
         sc_item = sc_items[0]
-        self.assertIsNone(sc_item.user)
+        self.assertEqual(user, sc_item.user)
         self.assertFalse(sc_item.disabled)
 
     def test_add02(self):
-        "Unique congiguration"
-        post = partial(self.client.post, self.ADD_URL,
-                       data={'content_type': self.ct_contact.id,
-                             'user':         self.other_user.id,
-                            },
-                      )
-        self.assertNoFormError(post())
+        "Other CT, other user"
+        ct = self.ct_orga
+        other_user = self.other_user
+        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, user=other_user))
 
-        sc_items = SearchConfigItem.objects.filter(content_type=self.ct_contact)
-        self.assertEqual(1, len(sc_items))
-        self.assertEqual(self.other_user, sc_items[0].user)
-
-        self.assertFormError(post(), 'form', None,
-                             _(u'The pair search configuration/user(s) already exists !')
-                            )
+        self.assertNoFormError(self.client.post(self._build_add_url(ct),
+                                                data={'user': other_user.id},
+                                               )
+                              )
+        self.get_object_or_fail(SearchConfigItem, content_type=ct, user=other_user)
 
     def test_add03(self):
-        "Other CT"
-        ct = self.ct_orga
-        self.assertEqual(0, SearchConfigItem.objects.filter(content_type=ct).count())
-        self.assertNoFormError(self.client.post(self.ADD_URL, data={'content_type': ct.id}))
+        "Unique configuration"
+        user = self.user
+        ct = self.ct_contact
+        SearchConfigItem.objects.create(content_type=ct, user=user)
 
-        SearchConfigItem.objects.filter(content_type=ct)
-        self.assertEqual(1, SearchConfigItem.objects.filter(content_type=ct).count())
+        response = self.assertGET200(self._build_add_url(ct))
+
+        with self.assertNoException():
+            user_f = response.context['form'].fields['user']
+            choices = user_f.choices
+
+        self.assertIsNone(user_f.empty_label)
+
+        user_ids = {c[0] for c in choices}
+        self.assertIn(self.other_user.id, user_ids)
+        self.assertNotIn(user.id, user_ids)
 
     def _find_field_index(self, formfield, field_name):
         for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
@@ -164,33 +202,23 @@ class SearchConfigTestCase(CremeTestCase):
         sci = self._edit_config(url, sci, [(fname1, index1)], disabled='on')
         self.assertTrue(sci.disabled)
 
-#    @skipIfNotInstalled('creme.billing')
     def test_edit04(self):
         "Fields with 'choices' are not valid"
-#        from creme.billing.models import Line
-
         fname = 'discount_unit'
-#        mfield = Line._meta.get_field(fname)
         mfield = FakeInvoiceLine._meta.get_field(fname)
         self.assertTrue(mfield.choices)
 
-#        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(Line))
         sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(FakeInvoiceLine))
         response = self.assertGET200(self._build_edit_url(sci))
 
         with self.assertNoException():
             fields = response.context['form'].fields['fields']
 
-#        self._find_field_index(fields, 'comment')
         self._find_field_index(fields, 'item')
         self.assertNoChoice(fields, fname)
 
-#    @skipIfNotInstalled('creme.recurrents')
     def test_edit05(self):
         "Exclude DateperiodField"
-#        from creme.recurrents.models import RecurrentGenerator
-
-#        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(RecurrentGenerator))
         sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(FakeInvoice))
         response = self.assertGET200(self._build_edit_url(sci))
 
@@ -200,7 +228,15 @@ class SearchConfigTestCase(CremeTestCase):
         self._find_field_index(fields, 'name')
         self.assertNoChoice(fields, 'periodicity')
 
-    def test_delete(self):
-        sci = SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
+    def test_delete01(self):
+        sci = SearchConfigItem.create_if_needed(Contact, user=self.user,
+                                                fields=['first_name', 'last_name'],
+                                               )
         self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
         self.assertDoesNotExist(sci)
+
+    def test_delete02(self):
+        "Cannot delete the default configuration"
+        sci = SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
+        self.assertPOST409('/creme_config/search/delete', data={'id': sci.id})
+        self.assertStillExists(sci)

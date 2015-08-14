@@ -27,28 +27,27 @@ from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.models import SearchConfigItem
 
 
+CremeUser = get_user_model()
+
+
 class SearchAddForm(CremeModelForm):
-    user = ModelChoiceField(label=_(u'User'), queryset=get_user_model().objects.all(),
-                            empty_label=_(u"All users"), required=False,
+    user = ModelChoiceField(label=_(u'User'), queryset=CremeUser.objects.none(),
+                            empty_label=None,
                            )
 
     class Meta:
         model = SearchConfigItem
-        exclude = ('field_names',)
+        exclude = ('content_type', 'field_names')
 
-    def clean(self):
-        cdata = super(SearchAddForm, self).clean()
+    def __init__(self, *args, **kwargs):
+        super(SearchAddForm, self).__init__(*args, **kwargs)
+        self.instance.content_type = ct = self.initial['content_type']
 
-        #TODO: unique_together in model
-        if not self._errors and \
-           SearchConfigItem.objects.filter(content_type=cdata['content_type'],
-                                           user=cdata.get('user')
-                                          ).exists():
-            raise ValidationError(ugettext(u'The pair search configuration/user(s) already exists !'),
-                                  code='not_unique',
-                                 )
+        used_user_ids = SearchConfigItem.objects.filter(content_type=ct, user__isnull=False)\
+                                                .values_list('user', flat=True)
 
-        return cdata
+        self.fields['user'].queryset = CremeUser.objects.filter(is_team=False) \
+                                                        .exclude(pk__in=used_user_ids)
 
 
 class SearchEditForm(CremeModelForm):

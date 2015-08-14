@@ -110,7 +110,7 @@ button_menu_patterns = patterns('creme.creme_config.views.button_menu',
 
 search_patterns = patterns('creme.creme_config.views.search',
     (r'^portal/$',                        'portal'),
-    (r'^add/$',                           'add'),
+    (r'^add/(?P<ct_id>\d+)$',             'add'),
     (r'^edit/(?P<search_config_id>\d+)$', 'edit'),
     (r'^delete$',                         'delete'),
 )
