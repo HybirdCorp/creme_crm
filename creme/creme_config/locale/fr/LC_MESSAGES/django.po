@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-13 15:34+0200\n"
+"POT-Creation-Date: 2015-08-14 14:22+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -97,6 +97,11 @@ msgstr "Configuration des champs personnalisés"
 #: blocks.py:249
 msgid "Users configuration"
 msgstr "Configuration des utilisateurs"
+
+#: blocks.py:497 forms/search.py:60
+#: templates/creme_config/templatetags/block_searchconfig.html:26
+msgid "Superuser"
+msgstr "Super-utilisateur"
 
 #: forms/blocks.py:116 forms/blocks.py:364 forms/button_menu.py:39
 #: forms/custom_fields.py:75 forms/fields_config.py:38
@@ -357,11 +362,12 @@ msgid ""
 "exists."
 msgstr "Un type de relation semi-fixé avec ce type et cet objet existe déjà."
 
-#: forms/search.py:34
-msgid "User"
-msgstr "Utilisateur"
+#: forms/search.py:37 forms/user.py:51 forms/user.py:92
+#: templates/creme_config/templatetags/block_users.html:19
+msgid "Role"
+msgstr "Rôle"
 
-#: forms/search.py:54
+#: forms/search.py:80
 msgid "Concerned fields"
 msgstr "Champs concernés"
 
@@ -392,11 +398,6 @@ msgstr "Mot de passe"
 #: forms/user.py:50 forms/user.py:119
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
-
-#: forms/user.py:51 forms/user.py:92
-#: templates/creme_config/templatetags/block_users.html:19
-msgid "Role"
-msgstr "Rôle"
 
 #: forms/user.py:53 forms/user.py:93
 msgid "You must choose a role for a non-super user."
@@ -530,7 +531,7 @@ msgstr "Choisissez votre fuseau horaire"
 #: templates/creme_config/portal.html:4
 #: templates/creme_config/property_type_portal.html:7
 #: templates/creme_config/relation_type_portal.html:7
-#: templates/creme_config/search_portal.html:7
+#: templates/creme_config/search_portal.html:6
 #: templates/creme_config/templatetags/block_searchconfig.html:13
 #: templates/creme_config/user_portal.html:6
 #: templates/creme_config/user_role_portal.html:6
@@ -618,17 +619,17 @@ msgstr "Types de propriété"
 msgid "Types of relation"
 msgstr "Types de relation"
 
-#: templates/creme_config/search_portal.html:7
+#: templates/creme_config/search_portal.html:6
 msgid "Search in Creme"
 msgstr "Recherche dans Creme"
 
-#: templates/creme_config/search_portal.html:18
+#: templates/creme_config/search_portal.html:15
 msgid "Create search settings in order to make the global search faster."
 msgstr ""
 "Créez des configurations de recherche afin de rendre la recherche globale "
 "plus rapide."
 
-#: templates/creme_config/search_portal.html:19
+#: templates/creme_config/search_portal.html:16
 msgid ""
 "Limit the number of fields per type for better performance and better "
 "results visibility."
@@ -636,13 +637,7 @@ msgstr ""
 "Limitez le nombre de champs par type pour de meilleurs performances et une "
 "meilleure visibilité des résultats."
 
-#: templates/creme_config/search_portal.html:20
-msgid "No selected field means \"All fields\", and it is the same for users."
-msgstr ""
-"Aucun champ sélectionné correspond à \"Tous les champs\", il en est de même "
-"pour les utilisateurs."
-
-#: templates/creme_config/search_portal.html:21
+#: templates/creme_config/search_portal.html:19
 msgid "Edit a configuration to specify the search fields."
 msgstr "Modifiez une configuration pour spécifier des champs de recherche."
 
@@ -1054,15 +1049,15 @@ msgstr "Recherche"
 msgid "New search configuration for «%s»"
 msgstr "Nouvelle configuration de recherche pout «%s»"
 
-#: templates/creme_config/templatetags/block_searchconfig.html:28
+#: templates/creme_config/templatetags/block_searchconfig.html:30
 msgid "Research is disabled"
 msgstr "Recherche désactivée"
 
-#: templates/creme_config/templatetags/block_searchconfig.html:30
+#: templates/creme_config/templatetags/block_searchconfig.html:32
 msgid "All fields"
 msgstr "Tous les champs"
 
-#: templates/creme_config/templatetags/block_searchconfig.html:48
+#: templates/creme_config/templatetags/block_searchconfig.html:52
 msgid "No search configuration for the moment"
 msgstr "Aucune configuration de recherche enregistrée pour le moment"
 
@@ -1456,6 +1451,15 @@ msgstr "Supprimer le rôle «%s»"
 #: views/user_role.py:90
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
+
+#~ msgid ""
+#~ "No selected field means \"All fields\", and it is the same for users."
+#~ msgstr ""
+#~ "Aucun champ sélectionné correspond à \"Tous les champs\", il en est de "
+#~ "même pour les utilisateurs."
+
+#~ msgid "User"
+#~ msgstr "Utilisateur"
 
 #~ msgid "All users"
 #~ msgstr "Tous les utilisateurs"

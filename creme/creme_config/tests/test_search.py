@@ -6,7 +6,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import SearchConfigItem
+    from creme.creme_core.models import SearchConfigItem, UserRole
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeInvoice, FakeInvoiceLine)
@@ -59,7 +59,8 @@ class SearchConfigTestCase(CremeTestCase):
 
         # Missing default configurations are built
         sci = self.get_object_or_fail(SearchConfigItem, content_type=ctype)
-        self.assertIsNone(sci.user)
+        self.assertIsNone(sci.role)
+        self.assertFalse(sci.superuser)
         self.assertTrue(sci.all_fields)
 
     def test_portal02(self):
@@ -67,56 +68,77 @@ class SearchConfigTestCase(CremeTestCase):
         ctype = self._get_first_entity_ctype()
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
 
-        SearchConfigItem.objects.create(content_type=ctype, user=self.user)
+        SearchConfigItem.objects.create(content_type=ctype, superuser=True)
 
         self.assertGET200(self.PORTAL_URL)
-        self.get_object_or_fail(SearchConfigItem, content_type=ctype, user=None)
+        self.get_object_or_fail(SearchConfigItem, content_type=ctype,
+                                role=None, superuser=False,
+                               )
 
     def test_add01(self):
-        user = self.user
+        role = self.role
         ct = self.ct_contact
-        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, user=user))
+        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, role=None, superuser=True))
 
         url = self._build_add_url(ct)
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'user': user.id}))
+        self.assertNoFormError(self.client.post(url, data={'role': role.id}))
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))
 
         sc_item = sc_items[0]
-        self.assertEqual(user, sc_item.user)
+        self.assertEqual(role, sc_item.role)
+        self.assertFalse(sc_item.superuser)
         self.assertFalse(sc_item.disabled)
 
     def test_add02(self):
-        "Other CT, other user"
+        "Other CT, super users"
         ct = self.ct_orga
-        other_user = self.other_user
-        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, user=other_user))
+        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, superuser=True))
 
         self.assertNoFormError(self.client.post(self._build_add_url(ct),
-                                                data={'user': other_user.id},
+                                                data={'role': ''},
                                                )
                               )
-        self.get_object_or_fail(SearchConfigItem, content_type=ct, user=other_user)
+        self.get_object_or_fail(SearchConfigItem, content_type=ct,
+                                superuser=True, role=None,
+                               )
 
     def test_add03(self):
         "Unique configuration"
-        user = self.user
+        role = self.role
         ct = self.ct_contact
-        SearchConfigItem.objects.create(content_type=ct, user=user)
+        SearchConfigItem.objects.create(content_type=ct, role=role)
+
+        role2 = UserRole.objects.create(name='CEO')
 
         response = self.assertGET200(self._build_add_url(ct))
 
         with self.assertNoException():
-            user_f = response.context['form'].fields['user']
-            choices = user_f.choices
+            role_f = response.context['form'].fields['role']
+            choices = role_f.choices
 
-        self.assertIsNone(user_f.empty_label)
+        self.assertEqual(u'*%s*' % _(u'Superuser'), role_f.empty_label)
 
-        user_ids = {c[0] for c in choices}
-        self.assertIn(self.other_user.id, user_ids)
-        self.assertNotIn(user.id, user_ids)
+        role_ids = {c[0] for c in choices}
+        self.assertIn(role2.id, role_ids)
+        self.assertNotIn(role.id, role_ids)
+
+    def test_add04(self):
+        "Unique configuration (super-user)"
+        role = self.role
+        ct = self.ct_contact
+        SearchConfigItem.create_if_needed(Contact, role='superuser',
+                                          fields=['first_name', 'last_name'],
+                                         )
+
+        response = self.assertGET200(self._build_add_url(ct))
+
+        with self.assertNoException():
+            role_f = response.context['form'].fields['role']
+
+        self.assertIsNone(role_f.empty_label)
 
     def _find_field_index(self, formfield, field_name):
         for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
@@ -150,7 +172,9 @@ class SearchConfigTestCase(CremeTestCase):
         return sci
 
     def test_edit01(self):
-        sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
+        sci = SearchConfigItem.objects.create(content_type=self.ct_contact)
+        self.assertIsNone(sci.role)
+
         url = self._build_edit_url(sci)
         response = self.assertGET200(url)
 
@@ -170,8 +194,8 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertFalse(sci.disabled)
 
     def test_edit02(self):
-        "Other CT + user + exclude BooleanField"
-        sci = SearchConfigItem.objects.create(content_type=self.ct_orga, user=self.user)
+        "Other CT + role + exclude BooleanField"
+        sci = SearchConfigItem.objects.create(content_type=self.ct_orga, role=self.role)
         url = self._build_edit_url(sci)
         response = self.assertGET200(url)
 
@@ -190,7 +214,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_edit03(self):
         "Disabled"
-        sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
+        sci = SearchConfigItem.objects.create(content_type=self.ct_contact)
         url = self._build_edit_url(sci)
         response = self.assertGET200(url)
 
@@ -229,13 +253,21 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertNoChoice(fields, 'periodicity')
 
     def test_delete01(self):
-        sci = SearchConfigItem.create_if_needed(Contact, user=self.user,
+        sci = SearchConfigItem.create_if_needed(Contact, role=self.role,
                                                 fields=['first_name', 'last_name'],
                                                )
         self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
     def test_delete02(self):
+        "Super users"
+        sci = SearchConfigItem.create_if_needed(Contact, role='superuser',
+                                                fields=['first_name', 'last_name'],
+                                               )
+        self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
+        self.assertDoesNotExist(sci)
+
+    def test_delete03(self):
         "Cannot delete the default configuration"
         sci = SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
         self.assertPOST409('/creme_config/search/delete', data={'id': sci.id})

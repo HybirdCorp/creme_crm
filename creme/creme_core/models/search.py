@@ -18,16 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 import logging
-import warnings
 
-from django.conf import settings
+#from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import TextField, ForeignKey, BooleanField, Q, FieldDoesNotExist #PositiveIntegerField, CharField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-from ..utils.meta import FieldInfo, ModelFieldEnumerator #get_verbose_field_name
+from ..utils import find_first
+from ..utils.meta import FieldInfo, ModelFieldEnumerator
+from .auth import UserRole
 from .base import CremeModel
 from .fields import EntityCTypeForeignKey, DatePeriodField
 
@@ -56,13 +58,13 @@ class SearchField(object):
 
 class SearchConfigItem(CremeModel):
     content_type = EntityCTypeForeignKey(verbose_name=_(u'Related resource'))
-#    role         = ForeignKey(UserRole, verbose_name=_(u"Related role"), null=True) #TODO: To be done ?
-    user         = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"Related user"), null=True)
+#    user         = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"Related user"), null=True)
+    role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None)
+    superuser    = BooleanField(u'related to superusers', default=False, editable=False) # TODO: a UserRole for superusers instead ??
     disabled     = BooleanField(pgettext_lazy('creme_core-search_conf', u'Disabled?'), default=False)
-    field_names  = TextField(null=True) #Do not this field directly; use 'searchfields' property
+    field_names  = TextField(null=True) # Do not this field directly; use 'searchfields' property
 
     _searchfields = None
-    #EXCLUDED_FIELDS_TYPES = frozenset(['DateTimeField', 'DateField', 'FileField', 'ImageField'])
     EXCLUDED_FIELDS_TYPES = [models.DateTimeField, models.DateField,
                              models.FileField, models.ImageField,
                              BooleanField, models.NullBooleanField,
@@ -73,23 +75,40 @@ class SearchConfigItem(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Search')
         verbose_name_plural = _(u'Searches')
+        unique_together = ('content_type', 'role', 'superuser')
 
     def __unicode__(self):
-        return ugettext(u'Search configuration of "%(user)s" for "%(type)s"') % {
-                    'user': self.user or ugettext(u'all users'),
+#        return ugettext(u'Search configuration of "%(user)s" for "%(type)s"') % {
+#                    'user': self.user or ugettext(u'all users'),
+#                    'type': self.content_type,
+#                }
+        if self.superuser:
+            return ugettext(u'Search configuration of super-users for "%s"') % self.content_type
+
+        role = self.role
+
+        if role is None:
+            return ugettext(u'Default search configuration for "%s"') % self.content_type
+
+        return ugettext(u'Search configuration of "%(role)s" for "%(type)s"') % {
+                    'role': role,
                     'type': self.content_type,
                 }
 
     @property
     def all_fields(self):
         "@return True means that all fields are used."
-        self.searchfields #compute self._all_fields
+        self.searchfields # Computes self._all_fields
         return self._all_fields
+
+    @property
+    def is_default(self):
+        "Is default configuration ?"
+        return self.role_id is None and not self.superuser
 
     @staticmethod
     def _get_modelfields_choices(model):
         excluded = tuple(SearchConfigItem.EXCLUDED_FIELDS_TYPES)
-        #.exclude(lambda f, depth: f.get_internal_type() in excluded)
         return ModelFieldEnumerator(model, deep=1) \
                 .filter(viewable=True) \
                 .exclude(lambda f, depth: isinstance(f, excluded) or f.choices) \
@@ -101,12 +120,10 @@ class SearchConfigItem(CremeModel):
 
         for field_name in fields:
             try:
-                #verbose_name = get_verbose_field_name(model, field_name, silent=False)
                 field_info = FieldInfo(model, field_name)
             except FieldDoesNotExist as e:
                 logger.warn('%s => SearchField removed', e)
             else:
-                #sfields.append(SearchField(field_name=field_name, field_verbose_name=verbose_name))
                 sfields.append(SearchField(field_name=field_name, field_verbose_name=field_info.verbose_name))
 
         self.field_names = ','.join(sf.name for sf in sfields) or None
@@ -144,15 +161,28 @@ class SearchConfigItem(CremeModel):
         return self._get_modelfields_choices(self.content_type.model_class())
 
     @staticmethod
-    def create_if_needed(model, fields, user=None, disabled=False):
+#    def create_if_needed(model, fields, user=None, disabled=False):
+    def create_if_needed(model, fields, role=None, disabled=False):
         """Create a config item & its fields if one does not already exists.
         SearchConfigItem.create_if_needed(SomeDjangoModel, ['YourEntity_field1', 'YourEntity_field2', ..])
         @param fields Sequence of strings representing field names.
-        @param user auth.models.User instance (or None, for default configuration).
+#        @param user auth.get_user_model() instance (or None, for default configuration).
+        @param role UserRole instance; or 'superuser'; or None, for default configuration.
         @param disabled Boolean
         """
         ct = ContentType.objects.get_for_model(model)
-        sci, created = SearchConfigItem.objects.get_or_create(content_type=ct, user=user,
+#        sci, created = SearchConfigItem.objects.get_or_create(content_type=ct, user=user,
+        superuser = False
+
+        if role == 'superuser':
+            superuser = True
+            role = None
+        elif role is not None:
+            assert isinstance(role, UserRole)
+
+        sci, created = SearchConfigItem.objects.get_or_create(content_type=ct,
+                                                              role=role,
+                                                              superuser=superuser,
                                                               defaults={'disabled': disabled},
                                                              )
 
@@ -162,39 +192,49 @@ class SearchConfigItem(CremeModel):
         return sci
 
     @staticmethod
-    def get_4_model(model, user):
-        "Get the SearchConfigItem instance corresponding to the given model"
-        warnings.warn("SearchConfigItem.get_4_model() method is deprecated; use SearchConfigItem.get_4_models() instead",
-                      DeprecationWarning
-                     )
-
-        ct = ContentType.objects.get_for_model(model)
-        sc_items = SearchConfigItem.objects.filter(content_type=ct) \
-                                           .filter(Q(user=user) | Q(user__isnull=True)) \
-                                           .order_by('-user')[:1] #config of the user has higher priority than default one
-
-        return sc_items[0] if sc_items else SearchConfigItem(content_type=ct)
-
-    @staticmethod
     def get_4_models(models, user):
         "Get the SearchConfigItem instances corresponding to the given models (generator)."
         get_ct = ContentType.objects.get_for_model
         ctypes = [get_ct(model) for model in models]
-        sc_items = {sci.content_type: sci
-                        for sci in SearchConfigItem.objects
-                                                   .filter(content_type__in=ctypes)
-                                                   .filter(Q(user=user) | Q(user__isnull=True))
-                                                   .order_by('user') #config of the user has higher priority than the default one
-                   }
+
+        role_query = Q(role__isnull=True)
+        if user.is_superuser:
+            role_query |= Q(superuser=True)
+            filter_func = lambda sci: sci.superuser
+        else:
+            role = user.role
+            role_query |= Q(role=role)
+            filter_func = lambda sci: sci.role == role
+
+# TODO: use a similar way if superuser is a role
+#       (PG does not return a cool result if we do a ".order_by('role', 'superuser')")
+#        sc_items = {sci.content_type: sci
+#                        for sci in SearchConfigItem.objects
+#                                                   .filter(content_type__in=ctypes)
+#                                                   .filter(Q(user=user) | Q(user__isnull=True))
+#                                                   .order_by('user') # Config of the user has higher priority than the default one
+#                   }
+#
+#        for ctype in ctypes:
+#            yield sc_items.get(ctype) or SearchConfigItem(content_type=ctype)
+        sc_items_per_ctid = defaultdict(list)
+        for sci in SearchConfigItem.objects.filter(content_type__in=ctypes).filter(role_query):
+            sc_items_per_ctid[sci.content_type_id].append(sci)
 
         for ctype in ctypes:
-            yield sc_items.get(ctype) or SearchConfigItem(content_type=ctype)
+            #yield sc_items.get(ctype) or SearchConfigItem(content_type=ctype)
+            sc_items = sc_items_per_ctid.get(ctype.id)
 
-#class SearchField(CremeModel):
-    #field              = CharField(_(u"Field"), max_length=100)
-    #field_verbose_name = CharField(_(u"Field (long name)"), max_length=100)
-    #search_config_item = ForeignKey(SearchConfigItem, verbose_name=_(u"Associated configuration"))
-    #order              = PositiveIntegerField(_(u"Priority"))
+            if sc_items:
+                try:
+                    yield find_first(sc_items, filter_func)
+                except IndexError:
+                    yield sc_items[0]
+            else:
+                yield SearchConfigItem(content_type=ctype)
 
-    #class Meta:
-        #app_label = 'creme_core'
+    def save(self, *args, **kwargs):
+        if self.superuser and self.role_id:
+            raise ValueError('"role" must be NULL if "superuser" is True')
+
+        super(SearchConfigItem, self).save(*args, **kwargs)

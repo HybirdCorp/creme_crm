@@ -23,7 +23,7 @@ from collections import defaultdict
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
@@ -481,7 +481,8 @@ class SearchConfigBlock(PaginatedBlock):
         btc = self.get_block_template_context(
                         context, ctypes,
                         update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                        max_conf_count=User.objects.exclude(is_team=True).count() + 1, # NB: '+ 1' is for default config
+#                        max_conf_count=User.objects.exclude(is_team=True).count() + 1, # NB: '+ 1' is for default config
+                        max_conf_count=UserRole.objects.count() + 2, # NB: '+ 2' is for default config + super-users config.
                     )
 
         ctypes_wrappers = btc['page'].object_list
@@ -489,16 +490,24 @@ class SearchConfigBlock(PaginatedBlock):
         sci_map = defaultdict(list)
         for sci in SearchConfigItem.objects \
                                    .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers])\
-                                   .select_related('user'):
+                                   .select_related('role'):
+#                                   .select_related('user'):
             sci_map[sci.content_type_id].append(sci)
 
+        superusers_label = ugettext('Superuser')
 
         for ctw in ctypes_wrappers:
             ctype = ctw.ctype
             ctw.sc_items = sc_items = sci_map.get(ctype.id) or []
-            sc_items.sort(key=lambda sci: sort_key(unicode(sci.user) if sci.user else ''))
+#            sc_items.sort(key=lambda sci: sort_key(unicode(sci.user) if sci.user else ''))
+            sc_items.sort(key=lambda sci: sort_key(unicode(sci.role) if sci.role
+                                                   else superusers_label if sci.superuser
+                                                   else ''
+                                                  )
+                         )
 
-            if not sc_items or sc_items[0].user: # No default config -> we build it
+#            if not sc_items or sc_items[0].user: # No default config -> we build it
+            if not sc_items or not sc_items[0].is_default:  # No default config -> we build it
                 SearchConfigItem.objects.create(content_type=ctype)
 
         return self._render(btc)
