@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from ..models import Service
+#from ..models import Service
+from .. import get_service_model
 from .base import _BaseCreateForm, _BaseEditForm
 
+Service = get_service_model()
 
 class ServiceCreateForm(_BaseCreateForm):
     class Meta(_BaseCreateForm.Meta):
