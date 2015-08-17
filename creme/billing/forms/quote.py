@@ -24,8 +24,11 @@ from creme.creme_core.forms import CremeDateField
 
 from creme.persons.workflow import transform_target_into_prospect
 
-from ..models import Quote
+#from ..models import Quote
+from .. import get_quote_model
 from .base import BaseCreateForm, BaseEditForm
+
+Quote = get_quote_model()
 
 class QuoteCreateForm(BaseCreateForm):
     acceptation_date = CremeDateField(label=_(u"Acceptation date"), required=False)

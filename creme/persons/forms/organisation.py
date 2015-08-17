@@ -24,9 +24,11 @@ from creme.creme_core.forms import CreatorEntityField, CremeDateTimeField
 
 from creme.media_managers.models import Image
 
-from ..models import Organisation
+#from ..models import Organisation
+from .. import get_organisation_model
 from .base import _BasePersonForm
 
+Organisation = get_organisation_model()
 
 class OrganisationForm(_BasePersonForm):
     creation_date = CremeDateTimeField(label=_(u"Creation date"), required=False)

@@ -24,9 +24,12 @@
 
 from creme.persons.workflow import transform_target_into_customer
 
-from ..models import Invoice # InvoiceStatus, SettlementTerms
+#from ..models import Invoice # InvoiceStatus, SettlementTerms
+from .. import get_invoice_model
 from .base import BaseCreateForm, BaseEditForm
 
+
+Invoice = get_invoice_model()
 
 class InvoiceCreateForm(BaseCreateForm):
     #status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())

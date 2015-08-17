@@ -35,7 +35,11 @@ from creme.products.forms.fields import CategoryField
 
 from ..constants import (REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY,
         DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
-from ..models import ProductLine, ServiceLine #Line
+#from ..models import ProductLine, ServiceLine #Line
+from .. import get_service_line_model, get_product_line_model
+
+ProductLine = get_product_line_model()
+ServiceLine = get_service_line_model()
 
 
 class _LineMultipleAddForm(CremeForm):
