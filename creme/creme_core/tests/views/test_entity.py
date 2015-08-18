@@ -507,7 +507,10 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
 
     def test_clone03(self):
-        self.login(is_superuser=False, creatable_models=[ct.model_class() for ct in ContentType.objects.all()])
+        self.login(is_superuser=False,
+                   #creatable_models=[ct.model_class() for ct in ContentType.objects.all()]
+                   creatable_models=[Contact],
+                  )
         self._set_all_creds_except_one(EntityCredentials.VIEW)
 
         mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
@@ -516,7 +519,8 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_clone04(self):
 #        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'),
         user = self.login(is_superuser=False,
-                          creatable_models=[ct.model_class() for ct in ContentType.objects.all()],
+                          #creatable_models=[ct.model_class() for ct in ContentType.objects.all()],
+                          creatable_models=[Contact],
                          )
         self._set_all_creds_except_one(None)
 
