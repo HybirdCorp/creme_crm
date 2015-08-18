@@ -1296,7 +1296,7 @@ class ImportForm4CremeEntity(ImportForm):
             else:
                 if err_msg is not None:
                     self.append_error(line, err_msg, instance)
-                elif value is not None:
+                elif value is not None and value != u'':
                     CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
         # Properties -----
