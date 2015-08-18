@@ -355,12 +355,13 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         return self.get_object_or_fail(cf.get_value_class(), custom_field=cf, entity=entity)
 
     def test_csv_import_customfields01(self): 
-        "CustomField.INT & FLOAT, update, cast error"
+        "CustomField.INT, STR & FLOAT, update, cast error"
         user = self.login()
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_int = create_cf(name='Size (cm)',   field_type=CustomField.INT)
         cf_dec = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)
+        cf_str = create_cf(name='Nickname', field_type=CustomField.STR)
 
         lines = [('First name', 'Last name', 'Size', 'Weight'),
                  (u'Unchô',      u'Kan-u',   '180',    '55'),
@@ -373,6 +374,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                       last_name=lines[1][1],
                                      )
         cf_int.get_value_class()(custom_field=cf_dec, entity=kanu).set_value_n_save(Decimal('56'))
+        cf_str.get_value_class()(custom_field=cf_str, entity=kanu).set_value_n_save(u"Kan")
 
         contact_ids = list(Contact.objects.values_list('id', flat=True))
 
@@ -385,6 +387,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                               #last_name_colselect=2,
                                               key_fields=['first_name', 'last_name'],
                                               **{'custom_field_%s_colselect' % cf_int.id: 3,
+                                                 'custom_field_%s_colselect' % cf_str.id: 0,
                                                  'custom_field_%s_colselect' % cf_dec.id: 4,
                                                 }
                                              ),
@@ -401,6 +404,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         get_cf_values = self._get_cf_values
         self.assertEqual(180, get_cf_values(cf_int, kanu).value)
         self.assertEqual(Decimal('55'), get_cf_values(cf_dec, kanu).value)
+        self.assertEqual(u'Kan', get_cf_values(cf_str, kanu).value)
 
         ryubi = get_contact(2)
         self.assertEqual(155, get_cf_values(cf_int, ryubi).value)
