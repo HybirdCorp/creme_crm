@@ -209,14 +209,15 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(3, len(data))
         self.assertEqual(str(rgraph.id), data.get('graph_id'))
 
+        sectors = Sector.objects.all()
         x_asc = data.get('x')
-        self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
+        self.assertEqual([s.title for s in sectors], x_asc)
 
         y_asc = data.get('y')
         self.assertIsInstance(y_asc, list)
         self.assertEqual(len(x_asc), len(y_asc))
 #        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
-        self.assertEqual([0, '/tests/organisations?q_filter={"sector": 1}'],
+        self.assertEqual([0, '/tests/organisations?q_filter={"sector": %d}' % sectors[0].id],
                          y_asc[0]
                         )
 
@@ -943,9 +944,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
 
-        self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
+        sectors = Sector.objects.all()
+        self.assertEqual([s.title for s in sectors], x_asc)
 #        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
-        self.assertEqual([0, '/tests/organisations?q_filter={"sector": 1}'],
+        self.assertEqual([0, '/tests/organisations?q_filter={"sector": %d}' % sectors[0].id],
                          y_asc[0]
                         )
         self.assertEqual(_('the field does not exist any more.'),
@@ -965,9 +967,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
 
-        self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
+        sectors = Sector.objects.all()
+        self.assertEqual([s.title for s in sectors], x_asc)
 #        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
-        self.assertEqual([0, '/tests/organisations?q_filter={"sector": 1}'],
+        self.assertEqual([0, '/tests/organisations?q_filter={"sector": %d}' % sectors[0].id],
                          y_asc[0]
                         )
         self.assertEqual(_('the custom field does not exist any more.'),
