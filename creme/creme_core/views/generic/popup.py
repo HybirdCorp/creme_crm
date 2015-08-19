@@ -19,22 +19,17 @@
 ################################################################################
 
 from itertools import chain
-#from logging import debug
 from json import dumps as json_dump
 
 from django.http import HttpResponse
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
 
-#def inner_popup(request, template, template_dict, context_instance, is_valid=True,
-                #html=None, callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
 def inner_popup(request, template, template_dict, is_valid=True, html=None,
                 callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
-    #debug("Inner_popup for: %s", request.path)
-
-    context_instance = RequestContext(request)
+    #context_instance = RequestContext(request)
     template_dict['is_inner_popup'] = True
 
     #REQUEST = request.REQUEST
@@ -54,7 +49,8 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
 
     template_dict['persisted'] = tpl_persist
 
-    html = mark_safe(html) if html else render_to_string(template, template_dict, context_instance, *args, **kwargs)
+#    html = mark_safe(html) if html else render_to_string(template, template_dict, context_instance, *args, **kwargs)
+    html = mark_safe(html) if html else render_to_string(template, template_dict, request=request, *args, **kwargs)
 
     return HttpResponse(render_to_string('creme_core/generics/inner_popup.html',
                                          {'html':            html,
@@ -67,7 +63,9 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
                                           'persisted':       tpl_persist,
                                           'delegate_reload': delegate_reload,
                                          },
-                                         context_instance, *args, **kwargs
+                                         #context_instance,
+                                         request=request,
+                                         *args, **kwargs
                                         ),
                         content_type="text/html",
                        )

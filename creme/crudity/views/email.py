@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,15 +20,12 @@
 
 from unicodedata import normalize
 
-from django.http import Http404, HttpResponse
-#from django.shortcuts import render
 from django.conf import settings
-from django.template.context import RequestContext
+from django.http import Http404, HttpResponse
+#from django.template.context import RequestContext
 from django.template.loader import render_to_string
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-
-#from creme.persons.models.contact import Contact
 
 from ..backends.models import CrudityBackend
 from ..registry import crudity_registry
@@ -47,18 +44,13 @@ def download_email_template(request, subject):
     if backend is None:
         raise Http404(u"This backend is not registered")
 
-    #try:
-        #contact_user = Contact.objects.get(is_user=request.user)
-    #except Contact.DoesNotExist:
-        #raise Http404(u"You have no contact file")
-
     response = HttpResponse(render_to_string("crudity/create_email_template.html",
                                              {'backend': backend,
-                                              #'contact': contact_user,
                                               'contact': request.user.linked_contact,
                                               'to':      settings.CREME_GET_EMAIL,
                                              },
-                                             context_instance=RequestContext(request)
+#                                             context_instance=RequestContext(request)
+                                             request=request,
                                             ),
                             content_type="application/vnd.sealed.eml",
                            )

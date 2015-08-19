@@ -69,6 +69,5 @@ def _set_usersetting(request, form_cls, session_key):
 def set_theme(request):
     return _set_usersetting(request, UserThemeForm, 'usertheme')
 
-
 def set_timezone(request):
     return _set_usersetting(request, UserTimeZoneForm, 'usertimezone')
