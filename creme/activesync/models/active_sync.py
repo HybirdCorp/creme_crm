@@ -76,7 +76,7 @@ class CremeExchangeMapping(CremeModel):
     exchange_entity_id = CharField(u'Exchange entity pk', max_length=64, unique=True)
     synced             = BooleanField(u'Already synced on server', default=False)
     is_creme_modified  = BooleanField(u'Modified by creme?',       default=False)
-    was_deleted        = BooleanField(u'Was deleted by creme?',    default=False)#Seems redundant with is_deleted but isn't in case of TRUE_DELETE
+    was_deleted        = BooleanField(u'Was deleted by creme?',    default=False) #Seems redundant with is_deleted but isn't in case of real deletion
     user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Belongs to')
     creme_entity_repr  = CharField(u'Verbose entity representation', max_length=200, null=True, blank=True, default=u"")#IHM/User purposes
 
