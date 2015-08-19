@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-from optparse import make_option, OptionParser
+#from optparse import make_option, OptionParser
 from os import listdir
 from os.path import join, exists
 
@@ -29,31 +29,49 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     help = 'Find doublons in .po files of your project. Diverging doublons are different translations for the same key.'
-    option_list = BaseCommand.option_list + (
-                     make_option('-l', '--language', action='store', dest='language',
-                                 default='en', help='Search doublons for LANGUAGE files. '
-                                                    '[default: %default]'
-                                ),
-                     make_option('-d', '--not_diverging', action='store_true',
-                                 dest='not_diverging', default=False,
-                                 help='Display the not diverging doublons in translations too '
-                                      '(useful to see translation message that are duplicated between apps). '
-                                      '[default: %default]'
-                                ),
-                     make_option('-n', '--no_context', action='store_true',
-                                 dest='no_context', default=False,
-                                 help='Display the diverging doublons without problem (context are distinct), '
-                                      'but with some translations without context. [default: %default]'
-                                ),
+#    option_list = BaseCommand.option_list + (
+#                     make_option('-l', '--language', action='store', dest='language',
+#                                 default='en', help='Search doublons for LANGUAGE files. '
+#                                                    '[default: %default]'
+#                                ),
+#                     make_option('-d', '--not_diverging', action='store_true',
+#                                 dest='not_diverging', default=False,
+#                                 help='Display the not diverging doublons in translations too '
+#                                      '(useful to see translation message that are duplicated between apps). '
+#                                      '[default: %default]'
+#                                ),
+#                     make_option('-n', '--no_context', action='store_true',
+#                                 dest='no_context', default=False,
+#                                 help='Display the diverging doublons without problem (context are distinct), '
+#                                      'but with some translations without context. [default: %default]'
+#                                ),
+#                    )
+
+    def add_arguments(self, parser):
+        add_argument = parser.add_argument
+        add_argument('-l', '--language',
+                     action='store', dest='language', default='en',
+                     help='Search doublons for LANGUAGE files. [default: %(default)s]',
+                    )
+        add_argument('-d', '--not_diverging',
+                     action='store_true', dest='not_diverging', default=False,
+                     help='Display the not diverging doublons in translations too '
+                          '(useful to see translation message that are duplicated between apps). '
+                          '[default: %(default)s]'
+                    )
+        add_argument('-n', '--no_context',
+                     action='store_true', dest='no_context', default=False,
+                     help='Display the diverging doublons without problem (context are distinct), '
+                          'but with some translations without context. [default: %(default)s]'
                     )
 
-    def create_parser(self, prog_name, subcommand):
-        return OptionParser(prog=prog_name,
-                            usage=self.usage(subcommand),
-                            version=self.get_version(),
-                            option_list=self.option_list,
-                            conflict_handler="resolve"
-                           )
+#    def create_parser(self, prog_name, subcommand):
+#        return OptionParser(prog=prog_name,
+#                            usage=self.usage(subcommand),
+#                            version=self.get_version(),
+#                            option_list=self.option_list,
+#                            conflict_handler="resolve"
+#                           )
 
     def handle(self, *args, **options):
         try:

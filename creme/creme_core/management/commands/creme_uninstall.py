@@ -129,7 +129,7 @@ class Command(AppCommand):
         #connection = connections[options.get('database')] TODO ?
         connection = connections[DEFAULT_DB_ALIAS]
 
-# TODO: delete the tables (no possible with sql_delete since django 1.7 with app which j=have migrations)
+# TODO: delete the tables (no possible with sql_delete since django 1.7 with app which have migrations)
 #        if verbosity > 1:
 #            self.stdout.write('Trying to delete tables.\n')
 #

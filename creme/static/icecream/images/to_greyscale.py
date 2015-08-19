@@ -3,15 +3,20 @@
 # Convert all PNG images of a folder into greyscale PNG.
 
 from glob import glob
-from optparse import OptionParser
+#from optparse import OptionParser
+from argparse import ArgumentParser
 
 from PIL import Image
 
 
-parser = OptionParser()
-parser.add_option("-x", "--exclude", dest="excluded", action='append', default=[],
-                  help="exclude this file.", metavar="FILE"
-                 )
+#parser = OptionParser()
+#parser.add_option("-x", "--exclude", dest="excluded", action='append', default=[],
+#                  help="exclude this file.", metavar="FILE"
+#                 )
+parser = ArgumentParser()
+parser.add_argument('-x', '--exclude', dest='excluded', action='append', default=[],
+                    help='exclude this file.', metavar='FILE',
+                   )
 options, args = parser.parse_args()
 excluded = set(options.excluded)
 

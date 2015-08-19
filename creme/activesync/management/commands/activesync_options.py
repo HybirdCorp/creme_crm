@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from optparse import make_option, OptionParser
+#from optparse import make_option, OptionParser
 
 from django.core.management.base import BaseCommand
 
@@ -26,28 +26,39 @@ import restkit
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option("-u", "--url", action="store", dest="url"),
-        make_option("-i", "--hotmail", action="store_const", const="https://m.hotmail.com/Microsoft-Server-ActiveSync", dest="action"),
-        make_option("-g", "--google", action="store_const", const="https://m.google.com/Microsoft-Server-ActiveSync", dest="action"),
-        make_option("-v", "--verbose", action="store_const", dest="verbose", const="false"),
-    )
+#    option_list = BaseCommand.option_list + (
+#        make_option("-u", "--url", action="store", dest="url"),
+#        make_option("-i", "--hotmail", action="store_const", const="https://m.hotmail.com/Microsoft-Server-ActiveSync", dest="action"),
+#        make_option("-g", "--google", action="store_const", const="https://m.google.com/Microsoft-Server-ActiveSync", dest="action"),
+#        make_option("-v", "--verbose", action="store_const", dest="verbose", const="false"),
+#    )
 
-    def create_parser(self, prog_name, subcommand):
-        """
-        Create and return the ``OptionParser`` which will be used to
-        parse the arguments to this command.
-        """
-        return OptionParser(prog=prog_name,
-                            usage=self.usage(subcommand),
-                            version=self.get_version(),
-                            option_list=self.option_list,
-                            conflict_handler="resolve")
+    def add_arguments(self, parser):
+        add_argument = parser.add_argument
+        add_argument('-u', '--url', action='store', dest='url')
+        add_argument('-i', '--hotmail', action='store_const', dest='action',
+                     const='https://m.hotmail.com/Microsoft-Server-ActiveSync',
+                    )
+        add_argument('-g', '--google', action='store_const', dest='action',
+                     const='https://m.google.com/Microsoft-Server-ActiveSync',
+                    )
+
+#    def create_parser(self, prog_name, subcommand):
+#        """
+#        Create and return the ``OptionParser`` which will be used to
+#        parse the arguments to this command.
+#        """
+#        return OptionParser(prog=prog_name,
+#                            usage=self.usage(subcommand),
+#                            version=self.get_version(),
+#                            option_list=self.option_list,
+#                            conflict_handler="resolve")
 
     def handle(self, *args, **options):
         url = options.get('url')
         action = options.get('action')
-        verbose = options.get('verbose')
+#        verbose = options.get('verbose')
+        verbosity = int(options.get('verbosity'))
 
         if not url and not action:
             #print u"Url or action is required"
@@ -57,9 +68,10 @@ class Command(BaseCommand):
         if action:
             url = action
 
-        response=restkit.request(url, method='OPTIONS')
+        response = restkit.request(url, method='OPTIONS')
 
-        if verbose:
+#        if verbose:
+        if verbosity:
             for header in response.response.headers:
                 #print header
                 self.stdout.write(header)

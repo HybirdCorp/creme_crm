@@ -19,7 +19,7 @@
 ################################################################################
 
 import sys
-from optparse import make_option, OptionParser
+#from optparse import make_option, OptionParser
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -32,22 +32,33 @@ USER_ID = 'user_id'
 ALL_USERS = 'all_users'
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option("-u", "--user_id", action="store",      dest=USER_ID,   help="Synchronised the user with the given id"),
-        make_option("-a", "--all",     action="store_true", dest=ALL_USERS, help="Synchronise all users (incompatible with --user_id option)", default=False),
-    )
+#    option_list = BaseCommand.option_list + (
+#        make_option("-u", "--user_id", action="store",      dest=USER_ID,   help="Synchronised the user with the given id"),
+#        make_option("-a", "--all",     action="store_true", dest=ALL_USERS, help="Synchronise all users (incompatible with --user_id option)", default=False),
+#    )
 
-    def create_parser(self, prog_name, subcommand):
-        """
-        Create and return the ``OptionParser`` which will be used to
-        parse the arguments to this command.
-        """
-        return OptionParser(prog=prog_name,
-                            usage=self.usage(subcommand),
-                            version=self.get_version(),
-                            option_list=self.option_list,
-                            conflict_handler="resolve",
-                           )
+    def add_arguments(self, parser):
+        add_argument = parser.add_argument
+        add_argument('-u', '--user_id',
+                     action='store', dest=USER_ID,
+                     help='Synchronised the user with the given id',
+                    )
+        add_argument('-a', '--all',
+                     action='store_true', dest=ALL_USERS, default=False,
+                     help='Synchronise all users (incompatible with --user_id option)  [default: %(default)s]',
+                    )
+
+#    def create_parser(self, prog_name, subcommand):
+#        """
+#        Create and return the ``OptionParser`` which will be used to
+#        parse the arguments to this command.
+#        """
+#        return OptionParser(prog=prog_name,
+#                            usage=self.usage(subcommand),
+#                            version=self.get_version(),
+#                            option_list=self.option_list,
+#                            conflict_handler="resolve",
+#                           )
 
     def _exit(self, msg):
         self.stderr.write(msg)
