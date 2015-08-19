@@ -1,4 +1,4 @@
-{% load cycle from future %}{% load i18n %}
+{% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to link object as obj_link_perm %}{% has_perm_to link ct.model_class as contact_link_perm %}{% has_perm_to unlink object as unlink_perm %}
 {% with hidden_count=hidden_fields|length %}{% with colspan=5|sub:hidden_count %}
