@@ -134,7 +134,10 @@ def replace_related_object(old_instance, new_instance):
             setattr(rel_object, field_name, new_instance)
             rel_object.save()
 
-    for rel_objects in old_instance._meta.get_all_related_many_to_many_objects():
+#    for rel_objects in old_instance._meta.get_all_related_many_to_many_objects():
+    for rel_objects in (f for f in old_instance._meta.get_fields(include_hidden=True)
+                            if f.many_to_many and f.auto_created
+                       ):
         field_name = rel_objects.field.name
 
         for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():

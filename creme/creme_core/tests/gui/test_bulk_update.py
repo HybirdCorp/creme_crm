@@ -243,7 +243,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         bulk_update_registry = self.bulk_update_registry
         bulk_update_registry.register(Contact)
 
-        zipcode_field = Address._meta.get_field_by_name('zipcode')[0]
+        zipcode_field = Address._meta.get_field('zipcode')
         #self.assertEqual(zipcode_field, bulk_update_registry.get_field(Contact, 'billing_address__zipcode'))
         self.assertEqual(zipcode_field, bulk_update_registry.get_field(Contact, 'address__zipcode'))
         self.assertEqual(zipcode_field, bulk_update_registry.get_field(Address, 'zipcode'))

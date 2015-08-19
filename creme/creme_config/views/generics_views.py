@@ -165,9 +165,10 @@ def edit_model(request, app_name, model_name, object_id):
 @POST_only
 def swap_order(request, app_name, model_name, object_id, offset):
     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
-    fields = model._meta.get_all_field_names()
+#    fields = model._meta.get_all_field_names()
 
-    if 'order' not in fields:
+#    if 'order' not in fields:
+    if not any(f.name == 'order' for f in model._meta.get_fields()):
         raise Http404('Invalid model (no "user" field)')
 
     if model._meta.ordering[0] != 'order':

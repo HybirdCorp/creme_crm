@@ -148,7 +148,8 @@ def search_and_view(request):
 
         for field in fields:
             try:
-                model._meta.get_field_by_name(field)
+#                model._meta.get_field_by_name(field)
+                model._meta.get_field(field)
             except FieldDoesNotExist:
                 pass
             else:
