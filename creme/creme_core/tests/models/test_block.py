@@ -48,9 +48,18 @@ class BlockTestCase(CremeTestCase):
     def tearDownClass(cls):
         CremeTestCase.tearDownClass()
 
-        BlockDetailviewLocation.objects.bulk_create(cls._bdl_backup)
-        BlockPortalLocation.objects.bulk_create(cls._bpl_backup)
-        BlockMypageLocation.objects.bulk_create(cls._bml_backup)
+        BlockDetailviewLocation.objects.all().delete()
+        BlockPortalLocation.objects.all().delete()
+        BlockMypageLocation.objects.all().delete()
+
+        for model, backup in [(BlockDetailviewLocation, cls._bdl_backup),
+                              (BlockPortalLocation,     cls._bpl_backup),
+                              (BlockMypageLocation,     cls._bml_backup),
+                             ]:
+            try:
+                model.objects.bulk_create(backup)
+            except Exception as e:
+                print('CremeBlockTagsTestCase: test-data backup problem with model=%s (%s)' % (model, e))
 
     def test_populate(self):
         #self.populate('creme_core')

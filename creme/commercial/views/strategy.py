@@ -20,12 +20,13 @@
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import RequestContext
+#from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.views import generic
+from creme.creme_core.views.blocks import build_context
 
 from creme.persons import get_organisation_model
 #from creme.persons.models import Organisation
@@ -230,9 +231,10 @@ def set_segment_category(request, strategy_id):
 def _reload_matrix(request, strategy_id, orga_id, block):
     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
 
-    context = RequestContext(request)
-    context['orga']     = orga
-    context['strategy'] = strategy
+#    context = RequestContext(request)
+#    context['orga']     = orga
+#    context['strategy'] = strategy
+    context = build_context(request, orga=orga, strategy=strategy)
 
     return [(block.id_, block.detailview_display(context))]
 

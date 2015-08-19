@@ -99,53 +99,59 @@ class FieldInfo(object):
         return u' - '.join(unicode(field.verbose_name) for field in self.__fields)
 
 
-def get_model_field_info(model, field_name, silent=True):
-    """ For a field_name 'att1__att2__att3', it returns the list of dicts
-        [
-         {'field': django.db.models.fields.related.ForeignKey for model.att1, 'model': YourModelClass for model.att1},
-         {'field': django.db.models.fields.related.ForeignKey for model.att2, 'model': YourModelClass for model.att2},
-         {'field': django.db.models.fields.FieldClass for model.att3,         'model': None},
-        ]
-    """
-    warnings.warn("get_model_field_info() method is deprecated; Use FieldInfo class instead",
-                  DeprecationWarning
-                 )
-    subfield_names = field_name.split('__')
-    info = []
+#def get_model_field_info(model, field_name, silent=True):
+#    """ For a field_name 'att1__att2__att3', it returns the list of dicts
+#        [
+#         {'field': django.db.models.fields.related.ForeignKey for model.att1, 'model': YourModelClass for model.att1},
+#         {'field': django.db.models.fields.related.ForeignKey for model.att2, 'model': YourModelClass for model.att2},
+#         {'field': django.db.models.fields.FieldClass for model.att3,         'model': None},
+#        ]
+#    """
+#    warnings.warn("get_model_field_info() method is deprecated; Use FieldInfo class instead",
+#                  DeprecationWarning
+#                 )
+#    subfield_names = field_name.split('__')
+#    info = []
+#
+#    try:
+#        for subfield_name in subfield_names[:-1]:
+#            field = model._meta.get_field(subfield_name)
+#            model = field.rel.to
+#            info.append({'field': field, 'model': model})
+#
+#        field = model._meta.get_field(subfield_names[-1])
+#        #todo: isinstance() ?? ManyToManyField too ??
+#        model = None if not field.get_internal_type() == 'ForeignKey' else field.rel.to
+#        info.append({'field': field, 'model': model})
+#    except (AttributeError, FieldDoesNotExist) as e:
+#        if not silent:
+#            raise FieldDoesNotExist(e)
+#
+#    return info
 
-    try:
-        for subfield_name in subfield_names[:-1]:
-            field = model._meta.get_field(subfield_name)
-            model = field.rel.to
-            info.append({'field': field, 'model': model})
+#def get_verbose_field_name(model, field_name, separator=" - ", silent=True):
+#    """ For a field_name 'att1__att2__att3' it returns
+#        att1_verbose_name - att2_verbose_name - att3_verbose_name
+#        - is the default separator
+#    """
+#    warnings.warn("get_verbose_field_name() method is deprecated; Use FieldInfo class instead",
+#                  DeprecationWarning
+#                 )
+#    fields = get_model_field_info(model, field_name, silent)
+#    return separator.join([unicode(f['field'].verbose_name) for f in fields])
 
-        field = model._meta.get_field(subfield_names[-1])
-        #TODO: isinstance() ?? ManyToManyField too ??
-        model = None if not field.get_internal_type() == 'ForeignKey' else field.rel.to
-        info.append({'field': field, 'model': model})
-    except (AttributeError, FieldDoesNotExist) as e:
-        if not silent:
-            raise FieldDoesNotExist(e)
-
-    return info
-
-#TODO: rename to 'get_field_verbose_name'
-def get_verbose_field_name(model, field_name, separator=" - ", silent=True):
-    """ For a field_name 'att1__att2__att3' it returns
-        att1_verbose_name - att2_verbose_name - att3_verbose_name
-        - is the default separator
-    """
-    warnings.warn("get_verbose_field_name() method is deprecated; Use FieldInfo class instead",
-                  DeprecationWarning
-                 )
-    fields = get_model_field_info(model, field_name, silent)
-    return separator.join([unicode(f['field'].verbose_name) for f in fields])
-
-def get_related_field(model, related_field_name):
-    #TODO: use find_first
-    for related_field in model._meta.get_all_related_objects():
-        if related_field.var_name == related_field_name:
-            return related_field
+#def get_related_field(model, related_field_name):
+#    for related_field in model._meta.get_all_related_objects():
+#        if related_field.var_name == related_field_name:
+#            return related_field
+## Possible django1.8 implementation:
+##    for f in model._meta.get_fields():
+##        #if (f.one_to_many or f.one_to_one) and f.auto_created and \
+##           #f.name == related_field_name:
+##        #if (f.one_to_many or f.one_to_one) and \
+##            #f.related_model._meta.model_name == related_field_name: # XXX: UGLY ! collisons are possible
+##        if (f.one_to_many or f.one_to_one) and f.name == related_field_name:
+##            return f
 
 def is_date_field(field):
     #return isinstance(field, (models.DateTimeField, models.DateField))

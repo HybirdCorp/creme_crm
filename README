@@ -34,6 +34,9 @@ DEPENDENCIES:
         - creme.crudity:
             - lcab (if you want Infopath forms exports and your server doesn't run on Windows)
 
+        - creme.recurrents:
+            - django-formtools 1.0
+
 RECOMMENDATIONS:
 It's recommended to use a database engine that supports transactions.
 

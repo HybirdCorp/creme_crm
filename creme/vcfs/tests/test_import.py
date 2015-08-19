@@ -981,7 +981,8 @@ END:VCARD""" % name
         self.assertEqual(orga.name,                  org)
         self.assertEqual(orga.phone,                 vobj.tel.value)
         self.assertEqual(orga.email,                 vobj.email.value)
-        self.assertEqual(orga.url_site,              'http://www.work.com/')
+#        self.assertEqual(orga.url_site,              'http://www.work.com/')
+        self.assertEqual(orga.url_site,              'http://www.work.com')
         self.assertEqual(billing_address.name,       org)
         self.assertEqual(billing_address.address,    ' '.join([adr.box, adr.street]))
         self.assertEqual(billing_address.city,       adr.city)
@@ -1119,7 +1120,8 @@ PHOTO:""" \
 
         # url_site='http://www.url.com/' and not url_site=url_site because URLField add 'http://' and '/'
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name,
-                                url_site='http://www.url.com/',
+#                                url_site='http://www.url.com/',
+                                url_site='http://www.url.com',
                                )
 
     @skipIfCustomContact

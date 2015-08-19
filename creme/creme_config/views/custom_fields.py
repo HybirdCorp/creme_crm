@@ -20,12 +20,13 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
 from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
+from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
 from ..blocks import custom_fields_block
@@ -60,7 +61,7 @@ def portal(request):
 #@permission_required('creme_config')
 def view(request, ct_id):
     ct = get_ct_or_404(ct_id)
-    #TODO: test app creds ??
+    # TODO: test app creds ??
 
     return render(request, 'creme_config/custom_fields/view.html', {'content_type': ct})
 
@@ -95,7 +96,8 @@ def delete(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def reload_block(request, ct_id):
-    context = RequestContext(request)
-    context['content_type'] = get_ct_or_404(ct_id)
+#    context = RequestContext(request)
+#    context['content_type'] = get_ct_or_404(ct_id)
+    context = build_context(request, content_type=get_ct_or_404(ct_id))
 
     return [(custom_fields_block.id_, custom_fields_block.detailview_display(context))]

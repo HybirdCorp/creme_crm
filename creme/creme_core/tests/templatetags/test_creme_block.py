@@ -25,6 +25,12 @@ except Exception as e:
 
 class CremeBlockTagsTestCase(CremeTestCase):
     @classmethod
+    def _clean_db(cls):
+        BlockDetailviewLocation.objects.all().delete()
+        BlockPortalLocation.objects.all().delete()
+        BlockMypageLocation.objects.all().delete()
+
+    @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core')
@@ -33,17 +39,21 @@ class CremeBlockTagsTestCase(CremeTestCase):
         cls._bpl_backup = list(BlockPortalLocation.objects.all())
         cls._bml_backup = list(BlockMypageLocation.objects.all())
 
-        BlockDetailviewLocation.objects.all().delete()
-        BlockPortalLocation.objects.all().delete()
-        BlockMypageLocation.objects.all().delete()
+        cls._clean_db()
 
     @classmethod
     def tearDownClass(cls):
         CremeTestCase.tearDownClass()
+        cls._clean_db()
 
-        BlockDetailviewLocation.objects.bulk_create(cls._bdl_backup)
-        BlockPortalLocation.objects.bulk_create(cls._bpl_backup)
-        BlockMypageLocation.objects.bulk_create(cls._bml_backup)
+        for model, backup in [(BlockDetailviewLocation, cls._bdl_backup),
+                              (BlockPortalLocation,     cls._bpl_backup),
+                              (BlockMypageLocation,     cls._bml_backup),
+                             ]:
+            try:
+                model.objects.bulk_create(backup)
+            except Exception:
+                print('CremeBlockTagsTestCase: test-data backup problem with model=%s' % model)
 
     def setUp(self):
         self.login()

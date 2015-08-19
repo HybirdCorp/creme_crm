@@ -25,13 +25,14 @@ from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required#, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
+from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 
@@ -222,12 +223,19 @@ def reload_block(request, ct_id):
 
     request.user.has_perm_to_admin_or_die(app_name)
 
-    context = RequestContext(request)
-    context.update({
-            'model':      model,
-#            'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
-            'model_name': config_registry.get_app(app_name).get_model_conf(model=model).name_in_url,
-            'app_name':   app_name,
-        })
+#    context = RequestContext(request)
+#    context.update({
+#            'model':      model,
+##            'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
+#            'model_name': config_registry.get_app(app_name).get_model_conf(model=model).name_in_url,
+#            'app_name':   app_name,
+#        })
+    context = build_context(request,
+                           model=model,
+                           model_name=config_registry.get_app(app_name)
+                                                     .get_model_conf(model=model)
+                                                     .name_in_url,
+                           app_name=app_name,
+                          )
 
     return [(generic_models_block.id_, generic_models_block.detailview_display(context))]

@@ -22,6 +22,7 @@ class SearchConfigTestCase(CremeTestCase):
     @classmethod
     def tearDownClass(cls):
         CremeTestCase.tearDownClass()
+        SearchConfigItem.objects.all().delete()
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
     def test_create_if_needed01(self):

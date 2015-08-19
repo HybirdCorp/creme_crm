@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,12 +21,13 @@
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_list_or_404
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_ct_or_404, jsonify
+from creme.creme_core.views import blocks as blocks_views
 
 from ..blocks import WaitingActionBlock
 from ..models import WaitingAction
@@ -90,7 +91,8 @@ def reload(request, ct_id, backend_subject):
         raise Http404()
 
     block = WaitingActionBlock(backend)
-    ctx = RequestContext(request)
+#    ctx = RequestContext(request)
+    ctx = blocks_views.build_context(request)
 
     return [(block.id_, block.detailview_display(ctx))]
 
@@ -129,7 +131,8 @@ def _fetch(user):
 def fetch(request, template="crudity/waiting_actions.html",
           ajax_template="crudity/frags/ajax/waiting_actions.html",
           extra_tpl_ctx=None, extra_req_ctx=None):
-    context = RequestContext(request)
+#    context = RequestContext(request)
+    context = blocks_views.build_context(request)
 
     if extra_req_ctx:
         context.update(extra_req_ctx)
@@ -145,9 +148,12 @@ def fetch(request, template="crudity/waiting_actions.html",
         }
 
     if extra_tpl_ctx:
-        tpl_dict.update(extra_tpl_ctx)
+#        tpl_dict.update(extra_tpl_ctx)
+        context.update(extra_tpl_ctx) #TODO: remove one argument between extra_req_ctx & extra_tpl_ctx
 
     if request.is_ajax():
-        return HttpResponse(render_to_string(ajax_template, tpl_dict, context_instance=context))
+#        return HttpResponse(render_to_string(ajax_template, tpl_dict, context_instance=context))
+        return HttpResponse(render_to_string(ajax_template, context))
 
-    return render_to_response(template, tpl_dict, context_instance=context)
+#    return render_to_response(template, tpl_dict, context_instance=context)
+    return render_to_response(template, context)

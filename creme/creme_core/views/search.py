@@ -23,7 +23,7 @@ from time import time
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.shortcuts import render
 from django.utils.translation import ugettext as _, ungettext
 
@@ -33,6 +33,7 @@ from ..gui.block import QuerysetBlock
 from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
 from ..utils import get_ct_or_404, jsonify
+from .blocks import build_context
 
 
 MIN_RESEARCH_LENGTH = 3
@@ -163,4 +164,5 @@ def reload_block(request, block_id, research):
     model = ctype.model_class()
     block = FoundEntitiesBlock(Searcher([model], user), model, research, user, id=block_id)
 
-    return [(block.id_, block.detailview_display(RequestContext(request)))]
+#    return [(block.id_, block.detailview_display(RequestContext(request)))]
+    return [(block.id_, block.detailview_display(build_context(request)))]

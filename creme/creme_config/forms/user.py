@@ -112,6 +112,11 @@ class UserEditForm(CremeModelForm):
 
         return role
 
+    def save(self, *args, **kwargs):
+        # NB: needed with django 1.8 when we reset to 'None' (the value seems skipped) => is it a bug ??
+        self.instance.role = self.cleaned_data['role']
+        return super(UserEditForm, self).save(*args, **kwargs)
+
 
 #TODO: see django.contrib.auth.forms.PasswordChangeForm
 class UserChangePwForm(CremeForm):

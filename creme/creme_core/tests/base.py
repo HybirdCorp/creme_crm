@@ -503,6 +503,16 @@ class _CremeTestCase(object):
 
         return url
 
-class CremeTestCase(_CremeTestCase, TestCase): pass
 
-class CremeTransactionTestCase(_CremeTestCase, TransactionTestCase): pass
+class CremeTestCase(_CremeTestCase, TestCase):
+    @classmethod
+    def setUpClass(cls):
+        TestCase.setUpClass()
+        _CremeTestCase.setUpClass()
+
+
+class CremeTransactionTestCase(_CremeTestCase, TransactionTestCase):
+    @classmethod
+    def setUpClass(cls):
+        TransactionTestCase.setUpClass()
+        _CremeTestCase.setUpClass()

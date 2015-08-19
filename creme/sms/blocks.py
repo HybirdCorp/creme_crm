@@ -106,16 +106,6 @@ class MessagesBlock(QuerysetBlock):
                                                             update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk
                                                             ))
 
-    ##Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
-    #@jsonify
-    #def detailview_ajax(self, request, entity_id):
-        #context = RequestContext(request)
-        #context.update({
-                #'object': Sending.objects.get(id=entity_id),
-            #})
-
-        #return [(self.id_, self.detailview_display(context))]
-
 
 class SendingsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'sendings')

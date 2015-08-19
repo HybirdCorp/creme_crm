@@ -42,13 +42,20 @@ class GuiTestCase(CremeTestCase):
     def test_last_viewed_items(self):
 #        settings.MAX_LAST_ITEMS = MAX_LAST_ITEMS = 5
         settings.MAX_LAST_ITEMS = 5
-        self.login()
+        user = self.login()
 
         class FakeRequest(object):
-            def __init__(self):
-                sessions = Session.objects.all()
-                assert 1 == len(sessions)
-                self.session = sessions[0].get_decoded()
+#            def __init__(self):
+#                sessions = Session.objects.all()
+#                assert 1 == len(sessions)
+#                self.session = sessions[0].get_decoded()
+            def __init__(this):
+                user_id = str(user.id)
+                sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
+                                if d.get('_auth_user_id') == user_id
+                           ]
+                self.assertEqual(1, len(sessions))
+                this.session = sessions[0]
 
         def get_items():
             #with self.assertNoException():

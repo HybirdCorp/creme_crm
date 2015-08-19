@@ -940,6 +940,7 @@ class UserTestCase(CremeTestCase):
 class UserSettingsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core')
 
     def setUp(self):
@@ -981,25 +982,36 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
 
     def test_get_user_theme02(self):
+        user = self.user
+
         class FakeRequest(object):
-            def __init__(self):
-                sessions = Session.objects.all()
-                assert 1 == len(sessions)
-                self.session = sessions[0].get_decoded()
+#            def __init__(self):
+#                sessions = Session.objects.all()
+#                assert 1 == len(sessions)
+#                self.session = sessions[0].get_decoded()
+            def __init__(this):
+                user_id = str(user.id)
+                sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
+                                if d.get('_auth_user_id') == user_id
+                           ]
+                self.assertEqual(1, len(sessions))
+                this.session = sessions[0]
 
         def get_theme():
+            request = FakeRequest()
+
             try:
-                theme = FakeRequest().session['usertheme']
+                theme = request.session['usertheme']
             except Exception:
                 theme = None
 
             return theme
 
-        self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME))
+        self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
         self.assertIsNone(get_theme())
 
         self.client.get('/')
-        self.get_object_or_fail(SettingValue, user=self.user, key_id=USER_THEME_NAME)
+        self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
         self.assertEqual(settings.DEFAULT_THEME, get_theme())
 
     def test_change_timezone01(self):

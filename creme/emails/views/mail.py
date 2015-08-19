@@ -22,13 +22,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import Template, Context
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import jsonify, get_from_POST_or_404
-from creme.creme_core.views import generic
+from creme.creme_core.views import generic, blocks as blocks_views
 
 from creme.crudity.views.actions import fetch
 
@@ -121,7 +121,8 @@ def waiting(request):
 @jsonify
 @permission_required('emails')
 def reload_sync_blocks(request):
-    ctx = RequestContext(request)
+#    ctx = RequestContext(request)
+    ctx = blocks_views.build_context(request)
 
     return [(mail_waiting_sync_block.id_, mail_waiting_sync_block.detailview_display(ctx)),
             (mail_spam_sync_block.id_,    mail_spam_sync_block.detailview_display(ctx))

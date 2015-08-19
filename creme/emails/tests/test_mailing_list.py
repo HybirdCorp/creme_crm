@@ -25,6 +25,7 @@ __all__ = ('MailingListsTestCase',)
 @skipIfCustomMailingList
 class MailingListsTestCase(_EmailsTestCase):
     def setUp(self):
+        super(MailingListsTestCase, self).setUp()
         self.login()
 
     def test_create(self):

@@ -41,6 +41,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     @classmethod
     def tearDownClass(cls):
         ViewsTestCase.tearDownClass()
+        HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
 
     def assertCellsEqual(self, cells1, cells2):
