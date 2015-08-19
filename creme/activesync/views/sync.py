@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,10 @@
 ################################################################################
 
 from django.conf import settings
-from django.http import HttpResponse
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
-from django.template.loader import render_to_string
+#from django.http import HttpResponse
+from django.shortcuts import render # render_to_response
+#from django.template.context import RequestContext
+#from django.template.loader import render_to_string
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 
@@ -65,12 +65,16 @@ def main_sync(request):
             'ACTIVE_SYNC_DEBUG': settings.ACTIVE_SYNC_DEBUG,
         }
 
-    context = RequestContext(request)
+#    context = RequestContext(request)
 
     if request.is_ajax():
-        return HttpResponse(render_to_string('activesync/frags/ajax/main_sync.html',
-                                             tpl_dict, context_instance=context,
-                                            )
-                           )
+#        return HttpResponse(render_to_string('activesync/frags/ajax/main_sync.html',
+#                                             tpl_dict,
+#                                             context_instance=context,
+#                                            )
+#                           )
+        #TODO: template in a var
+        return render(request, 'activesync/frags/ajax/main_sync.html', tpl_dict)
 
-    return render_to_response('activesync/main_sync.html', tpl_dict, context_instance=context)
+#    return render_to_response('activesync/main_sync.html', tpl_dict, context_instance=context)
+    return render(request, 'activesync/main_sync.html', tpl_dict)

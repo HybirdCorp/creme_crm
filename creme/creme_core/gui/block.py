@@ -24,7 +24,7 @@ import logging
 
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.template.loader import get_template
-from django.template import Context
+#from django.template import Context
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -117,7 +117,8 @@ class Block(object):
         return u'block_%s-%s' % (app_name, name)
 
     def _render(self, template_context):
-        return get_template(self.template_name).render(Context(template_context))
+#        return get_template(self.template_name).render(Context(template_context))
+        return get_template(self.template_name).render(template_context)
 
     def _simple_detailview_display(self, context):
         """Helper method to build a basic detailview_display() method for classes that inherit Block."""

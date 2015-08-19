@@ -110,11 +110,17 @@ class HeaderNode(TemplateNode):
         self.collapsable = collapsable
 
     def render(self, context):
-        context['content'] = self.nodelist.render(context)
-        context['colspan'] = self.colspan.eval(context)
-        context['class']   = 'collapser' if self.collapsable.eval(context) else ''
+#        context['content'] = self.nodelist.render(context)
+#        context['colspan'] = self.colspan.eval(context)
+#        context['class']   = 'collapser' if self.collapsable.eval(context) else ''
+#
+#        return self.header_tpl.render(context)
+        h_context = context.flatten()
+        h_context['content'] = self.nodelist.render(context)
+        h_context['colspan'] = self.colspan.eval(context)
+        h_context['class']   = 'collapser' if self.collapsable.eval(context) else ''
 
-        return self.header_tpl.render(context)
+        return self.header_tpl.render(h_context)
 
 #-------------------------------------------------------------------------------
 
@@ -230,12 +236,18 @@ class LineCreatorNode(TemplateNode):
         self.label_var = label_var
 
     def render(self, context):
-#        context['action_url'] = self.url_tpl.render(context)
-        context['action_url'] = self.url_var.eval(context)
-        context['label']      = self.label_var.eval(context)
-        context['line_perm']  = self.perm_var.eval(context)
+##        context['action_url'] = self.url_tpl.render(context)
+#        context['action_url'] = self.url_var.eval(context)
+#        context['label']      = self.label_var.eval(context)
+#        context['line_perm']  = self.perm_var.eval(context)
+#
+#        return self.template.render(context)
+        l_context = context.flatten()
+        l_context['action_url'] = self.url_var.eval(context)
+        l_context['label']      = self.label_var.eval(context)
+        l_context['line_perm']  = self.perm_var.eval(context)
 
-        return self.template.render(context)
+        return self.template.render(l_context)
 
 @register.tag(name="get_line_adder")
 def do_line_adder(parser, token):
@@ -299,14 +311,23 @@ class LineRelatorNode(TemplateNode):
         self.is_multiple  = is_multiple
 
     def render(self, context):
-        context['subject_id']   = self.subject_var.eval(context).id
-        context['rtype_id']     = self.rtype_id_var.eval(context)
-        context['ct_id']        = self.ctype_id_var.eval(context)
-        context['label']        = self.label_var.eval(context)
-        context['line_perm']    = self.perm_var.eval(context)
-        context['is_multiple']  = self.is_multiple
+#        context['subject_id']   = self.subject_var.eval(context).id
+#        context['rtype_id']     = self.rtype_id_var.eval(context)
+#        context['ct_id']        = self.ctype_id_var.eval(context)
+#        context['label']        = self.label_var.eval(context)
+#        context['line_perm']    = self.perm_var.eval(context)
+#        context['is_multiple']  = self.is_multiple
+#
+#        return self.template.render(context)
+        r_context = context.flatten()
+        r_context['subject_id']   = self.subject_var.eval(context).id
+        r_context['rtype_id']     = self.rtype_id_var.eval(context)
+        r_context['ct_id']        = self.ctype_id_var.eval(context)
+        r_context['label']        = self.label_var.eval(context)
+        r_context['line_perm']    = self.perm_var.eval(context)
+        r_context['is_multiple']  = self.is_multiple
 
-        return self.template.render(context)
+        return self.template.render(r_context)
 
 
 #TAGS: "get_line_deletor" & "get_line_unlinker" ----------------------------------
@@ -361,12 +382,18 @@ class LineSuppressorNode(TemplateNode):
         self.perm_var = perm_var
 
     def render(self, context):
-#        context['action_url'] = self.url_tpl.render(context)
-        context['action_url'] = self.url_var.eval(context)
-        context['post_args']  = self.args_tpl.render(context)
-        context['line_perm']  = self.perm_var.eval(context)
+##        context['action_url'] = self.url_tpl.render(context)
+#        context['action_url'] = self.url_var.eval(context)
+#        context['post_args']  = self.args_tpl.render(context)
+#        context['line_perm']  = self.perm_var.eval(context)
+#
+#        return self.template.render(context)
+        s_context = context.flatten()
+        s_context['action_url'] = self.url_var.eval(context)
+        s_context['post_args']  = self.args_tpl.render(context)
+        s_context['line_perm']  = self.perm_var.eval(context)
 
-        return self.template.render(context)
+        return self.template.render(s_context)
 
 @register.tag(name="get_line_deletor")
 def do_line_deletor(parser, token):
@@ -434,13 +461,21 @@ class RegularFieldEditorNode(TemplateNode):
         #TODO: factorise with other code that manage auxiliary entities
         owner = instance.get_related_entity() if hasattr(instance, 'get_related_entity') else instance
 
-        context['object']    = instance
-        context['ct_id']     = ContentType.objects.get_for_model(instance).pk #TODO: instance.entity_type_id ??
-        context['edit_perm'] = context['user'].has_perm_to_change(owner)
+#        context['object']    = instance
+#        context['ct_id']     = ContentType.objects.get_for_model(instance).pk #TODO: instance.entity_type_id ??
+#        context['edit_perm'] = context['user'].has_perm_to_change(owner)
+#
+#        self._update_context(context, field, instance)
+#
+#        return get_template(self.template_name).render(context)
+        e_context = context.flatten()
+        e_context['object']    = instance
+        e_context['ct_id']     = ContentType.objects.get_for_model(instance).pk #TODO: instance.entity_type_id ??
+        e_context['edit_perm'] = e_context['user'].has_perm_to_change(owner)
 
-        self._update_context(context, field, instance)
+        self._update_context(e_context, field, instance)
 
-        return get_template(self.template_name).render(context)
+        return get_template(self.template_name).render(e_context)
 
 class CustomFieldEditorNode(RegularFieldEditorNode):
     def _update_context(self, context, field, instance):
@@ -513,11 +548,16 @@ class LineEditorNode(TemplateNode):
         self.perm_var = perm_var
 
     def render(self, context):
-        #context['edit_url'] = self.url_tpl.render(context)
-        context['edit_url'] = self.edit_url_var.eval(context)
-        context['edit_line_perm'] = self.perm_var.eval(context)
+#        #context['edit_url'] = self.url_tpl.render(context)
+#        context['edit_url'] = self.edit_url_var.eval(context)
+#        context['edit_line_perm'] = self.perm_var.eval(context)
+#
+#        return self.template.render(context)
+        e_context = context.flatten()
+        e_context['edit_url'] = self.edit_url_var.eval(context)
+        e_context['edit_line_perm'] = self.perm_var.eval(context)
 
-        return self.template.render(context)
+        return self.template.render(e_context)
 
 #-------------------------------------------------------------------------------
 _LISTVIEW_BUTTON_RE = compile_re(r'with_ct_id (.*?) with_label (.*?) with_q_filter (.*?)$')
@@ -550,11 +590,17 @@ class ListViewButtonNode(TemplateNode):
         self.q_filter_var = q_filter_var
 
     def render(self, context):
-        context['ct_id']    = self.ctype_id_var.eval(context)
-        context['label']    = self.label_var.eval(context)
-        context['q_filter'] = self.q_filter_var.eval(context) or {}
+#        context['ct_id']    = self.ctype_id_var.eval(context)
+#        context['label']    = self.label_var.eval(context)
+#        context['q_filter'] = self.q_filter_var.eval(context) or {}
+#
+#        return self.template.render(context)
+        b_context = context.flatten()
+        b_context['ct_id']    = self.ctype_id_var.eval(context)
+        b_context['label']    = self.label_var.eval(context)
+        b_context['q_filter'] = self.q_filter_var.eval(context) or {}
 
-        return self.template.render(context)
+        return self.template.render(b_context)
 
 #-------------------------------------------------------------------------------
 #TODO: Django 1.4 => can use keyword :)
@@ -639,7 +685,8 @@ class BlockDetailViewerNode(TemplateNode):
     def render(self, context):
         block = BlocksManager.get(context).pop_group(self.alias)[0]
 
-        return block.detailview_display(context)
+#        return block.detailview_display(context)
+        return block.detailview_display(context.flatten())
         #detailview_display = getattr(block, 'detailview_display', None)
         #return detailview_display(context) if detailview_display else \
                #"THIS BLOCK CAN'T BE DISPLAY ON DETAILVIEW (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
@@ -753,7 +800,8 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
             yield detailview_display(context)
 
     def render(self, context):
-        return ''.join(op for op in self.block_outputs(context))
+#        return ''.join(op for op in self.block_outputs(context))
+        return ''.join(op for op in self.block_outputs(context.flatten()))
 
 # PORTAL BLOCKS ----------------------------------------------------------------
 
@@ -844,7 +892,9 @@ class PortalBlocksDisplayerNode(TemplateNode):
                 yield "THIS BLOCK CAN'T BE DISPLAY ON PORTAL (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
 
     def render(self, context):
-        return ''.join(op for op in self.block_outputs(context))
+#        return ''.join(op for op in self.block_outputs(context))
+        return ''.join(op for op in self.block_outputs(context.flatten()))
+
 
 # HOME & MYPAGE BLOCKS ---------------------------------------------------------
 
@@ -896,7 +946,8 @@ class HomeBlocksDisplayerNode(TemplateNode):
                 yield self.BAD_CONF_MSG % block.id_
 
     def render(self, context):
-        return ''.join(op for op in self.block_outputs(context))
+#        return ''.join(op for op in self.block_outputs(context))
+        return ''.join(op for op in self.block_outputs(context.flatten()))
 
 
 @register.tag(name="display_mypage_blocks")
@@ -982,5 +1033,6 @@ class BlocksDisplayerNode(TemplateNode):
             yield block.detailview_display(context)
 
     def render(self, context):
-        return ''.join(op for op in self.block_outputs(context))
+#        return ''.join(op for op in self.block_outputs(context))
+        return ''.join(op for op in self.block_outputs(context.flatten()))
 

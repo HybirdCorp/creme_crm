@@ -120,7 +120,9 @@ def get_button_menu(context):
                                 .order_by('order') \
                                 .values_list('button_id', flat=True)
 
-    context['buttons'] = [button.render(context) for button in button_registry.get_buttons(bmi, entity)]
+#    context['buttons'] = [button.render(context) for button in button_registry.get_buttons(bmi, entity)]
+    button_ctxt = context.flatten()
+    context['buttons'] = [button.render(button_ctxt) for button in button_registry.get_buttons(bmi, entity)]
 
     return context
 

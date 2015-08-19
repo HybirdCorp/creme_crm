@@ -24,7 +24,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
@@ -120,7 +120,8 @@ def delete(request):
             return_msg = _(u'"%s" can not be deleted because of its dependencies.') % efilter
             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
                                            {'objects': e.args[1][:25], 'user': request.user},
-                                           context_instance=RequestContext(request),
+#                                           context_instance=RequestContext(request),
+                                           request=request,
                                           )
         else:
             return_msg = _(u'Filter sucessfully deleted')

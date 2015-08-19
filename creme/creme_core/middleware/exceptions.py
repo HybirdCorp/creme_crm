@@ -23,7 +23,7 @@ import logging
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.shortcuts import render
-from django.template import RequestContext
+#from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_unicode
 
@@ -51,12 +51,19 @@ class Beautiful403Middleware(object):
             if request.is_ajax(): #TODO: use protected_objects ??
                 return HttpResponse(msg, content_type='text/javascript', status=403)
 
+#            return HttpResponseForbidden(render_to_string('creme_core/forbidden.html',
+#                                                          RequestContext(request,
+#                                                                         {'error_message':     msg,
+#                                                                          'protected_objects': protected_objects,
+#                                                                         },
+#                                                                        )
+#                                                         )
+#                                        )
             return HttpResponseForbidden(render_to_string('creme_core/forbidden.html',
-                                                          RequestContext(request,
-                                                                         {'error_message':     msg,
-                                                                          'protected_objects': protected_objects,
-                                                                         },
-                                                                        )
+                                                          {'error_message':     msg,
+                                                           'protected_objects': protected_objects,
+                                                          },
+                                                          request=request,
                                                          )
                                         )
 

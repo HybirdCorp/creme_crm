@@ -33,7 +33,7 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist, EmailField
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
@@ -131,7 +131,8 @@ class InfopathFormField(object):
 
     def _get_element(self, element_type):
         template_name = _ELEMENT_TEMPLATE.get(self.model_field.__class__)(element_type)
-        return render_to_string(template_name, {'field': self}, context_instance=RequestContext(self.request)) if template_name is not None else None
+#        return render_to_string(template_name, {'field': self}, context_instance=RequestContext(self.request)) if template_name is not None else None
+        return render_to_string(template_name, {'field': self}, request=self.request) if template_name is not None else None
 
     def _get_xsd_element(self):
         return self._get_element("xsd")
@@ -142,7 +143,12 @@ class InfopathFormField(object):
     def _get_validation(self):#TODO: Could be cool to match django validators
         validation = []
         if isinstance(self.model_field, EmailField):
-            validation.append(render_to_string("crudity/infopath/create_template/frags/validation/email_field.xml", {'field': self}, context_instance=RequestContext(self.request)))
+#            validation.append(render_to_string("crudity/infopath/create_template/frags/validation/email_field.xml", {'field': self}, context_instance=RequestContext(self.request)))
+            validation.append(render_to_string('crudity/infopath/create_template/frags/validation/email_field.xml',
+                                               {'field': self}, request=self.request,
+                                              )
+                             )
+
         return validation
 
     def _get_editing(self):
@@ -168,12 +174,19 @@ class InfopathFormField(object):
         elif isinstance(model_field, models.ManyToManyField):
             template_name = "crudity/infopath/create_template/frags/editing/m2m_field.xml"
 
-        return render_to_string(template_name, tpl_dict, context_instance=RequestContext(self.request)) if template_name is not None else None
+#        return render_to_string(template_name, tpl_dict, context_instance=RequestContext(self.request)) if template_name is not None else None
+        return render_to_string(template_name, tpl_dict, request=self.request) if template_name is not None else None
 
     def get_view_element(self):
         template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH % self.model_field.get_internal_type()
         try:
-            return render_to_string(template_name, {'field': self, 'choices': self._get_choices()}, context_instance=RequestContext(self.request))
+#            return render_to_string(template_name, {'field': self, 'choices': self._get_choices()}, context_instance=RequestContext(self.request))
+            return render_to_string(template_name,
+                                    {'field': self,
+                                     'choices': self._get_choices(),
+                                    },
+                                    request=self.request,
+                                   )
         except TemplateDoesNotExist:
             return ""
 
@@ -280,7 +293,8 @@ class InfopathFormBuilder(object):
                                                     {'file_name': "%s.xsn" % self.backend.subject,
                                                      'backend_path':backend_path,
                                                     },
-                                                    context_instance=RequestContext(request)
+#                                                    context_instance=RequestContext(request)
+                                                    request=request,
                                                    )
 
                 ddf_path = path_join(backend_path, "create_cab.ddf")
@@ -289,7 +303,8 @@ class InfopathFormBuilder(object):
 
                 cabify_content = render_to_string("crudity/infopath/create_template/cabify.bat",
                                                   {'ddf_path': ddf_path},
-                                                  context_instance=RequestContext(request)
+#                                                  context_instance=RequestContext(request)
+                                                  request=request,
                                                  )
 
                 cabify_path = path_join(backend_path, "cabify.bat")
@@ -331,7 +346,8 @@ class InfopathFormBuilder(object):
                                  'to':              settings.CREME_GET_EMAIL,
                                  'password':        self.backend.password,
                                 },
-                                context_instance=RequestContext(request),
+#                                context_instance=RequestContext(request),
+                                request=request,
                                )
 
     def _render_myschema_xsd(self, request):
@@ -339,7 +355,8 @@ class InfopathFormBuilder(object):
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
                                 },
-                                context_instance=RequestContext(request),
+#                                context_instance=RequestContext(request),
+                                request=request,
                                )
 
     def _render_template_xml(self, request):
@@ -348,7 +365,8 @@ class InfopathFormBuilder(object):
                                  'form_urn':        self.urn,
                                  'fields':          self.fields,
                                 },
-                                context_instance=RequestContext(request),
+#                                context_instance=RequestContext(request),
+                                request=request,
                                )
 
     def _render_upgrade_xsl(self, request):
@@ -356,7 +374,8 @@ class InfopathFormBuilder(object):
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
                                 },
-                                context_instance=RequestContext(request),
+#                                context_instance=RequestContext(request),
+                                request=request,
                                )
 
     def _render_view_xsl(self, request):
@@ -366,5 +385,6 @@ class InfopathFormBuilder(object):
                                  'fields':          self.fields,
                                  'form_title':      u"%s %s" % (_(u"Create"), backend.model._meta.verbose_name),
                                 },
-                                context_instance=RequestContext(request),
+#                                context_instance=RequestContext(request),
+                                request=request,
                                )
