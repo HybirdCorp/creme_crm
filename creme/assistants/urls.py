@@ -1,24 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns
+from django.conf.urls import url
 
-urlpatterns = patterns('creme.assistants.views',
-    (r'^memo/add/(?P<entity_id>\d+)/$', 'memo.add'),
-    (r'^memo/edit/(?P<memo_id>\d+)/$',  'memo.edit'),
+from .views import memo, alert, todo, action, user_message
 
-    (r'^alert/add/(?P<entity_id>\d+)/$',     'alert.add'),
-    (r'^alert/edit/(?P<alert_id>\d+)/$',     'alert.edit'),
-    (r'^alert/validate/(?P<alert_id>\d+)/$', 'alert.validate'),
 
-    (r'^todo/add/(?P<entity_id>\d+)/$',    'todo.add'),
-    (r'^todo/edit/(?P<todo_id>\d+)/$',     'todo.edit'),
-    (r'^todo/validate/(?P<todo_id>\d+)/$', 'todo.validate'),
+urlpatterns = [
+    url(r'^memo/add/(?P<entity_id>\d+)/$', memo.add),
+    url(r'^memo/edit/(?P<memo_id>\d+)/$',  memo.edit),
 
-    (r'^action/add/(?P<entity_id>\d+)/$',      'action.add'),
-    (r'^action/edit/(?P<action_id>\d+)/$',     'action.edit'),
-    (r'^action/validate/(?P<action_id>\d+)/$', 'action.validate'),
+    url(r'^alert/add/(?P<entity_id>\d+)/$',     alert.add),
+    url(r'^alert/edit/(?P<alert_id>\d+)/$',     alert.edit),
+    url(r'^alert/validate/(?P<alert_id>\d+)/$', alert.validate),
 
-    (r'^message/add/$',                    'user_message.add'),
-    (r'^message/add/(?P<entity_id>\d+)/$', 'user_message.add_to_entity'),
-    (r'^message/delete$',                  'user_message.delete'),
-)
+    url(r'^todo/add/(?P<entity_id>\d+)/$',    todo.add),
+    url(r'^todo/edit/(?P<todo_id>\d+)/$',     todo.edit),
+    url(r'^todo/validate/(?P<todo_id>\d+)/$', todo.validate),
+
+    url(r'^action/add/(?P<entity_id>\d+)/$',      action.add),
+    url(r'^action/edit/(?P<action_id>\d+)/$',     action.edit),
+    url(r'^action/validate/(?P<action_id>\d+)/$', action.validate),
+
+    url(r'^message/add/$',                    user_message.add),
+    url(r'^message/add/(?P<entity_id>\d+)/$', user_message.add_to_entity),
+    url(r'^message/delete$',                  user_message.delete),
+]

@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns
+from django.conf.urls import url
+
+from .views import actions, history, infopath, email
 
 
-urlpatterns = patterns('creme.crudity.views',
-    (r'^waiting_actions$',          'actions.fetch'),
-    (r'^waiting_actions/delete$',   'actions.delete'),
-    (r'^waiting_actions/validate$', 'actions.validate'),
+urlpatterns = [
+    url(r'^waiting_actions$',          actions.fetch),
+    url(r'^waiting_actions/delete$',   actions.delete),
+    url(r'^waiting_actions/validate$', actions.validate),
 
-    (r'^waiting_actions_blocks/block_crudity-(?P<ct_id>\d+)-(?P<backend_subject>\w+)/reload$', 'actions.reload'),
+    url(r'^waiting_actions_blocks/block_crudity-(?P<ct_id>\d+)-(?P<backend_subject>\w+)/reload$', actions.reload),
 
-    (r'^history$',                                           'history.history'),
-    (r'^history_block/block_crudity-(?P<ct_id>\d+)/reload$', 'history.reload'),
+    url(r'^history$',                                           history.history),
+    url(r'^history_block/block_crudity-(?P<ct_id>\d+)/reload$', history.reload),
 
-    (r'^infopath/create_form/(?P<subject>\w+)$', 'infopath.create_form'),
+    url(r'^infopath/create_form/(?P<subject>\w+)$', infopath.create_form),
 
-    (r'^download_email_template/(?P<subject>\w+)$', 'email.download_email_template'),
-)
+    url(r'^download_email_template/(?P<subject>\w+)$', email.download_email_template),
+]
