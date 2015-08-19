@@ -126,6 +126,28 @@ class CreditNoteTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
+    def test_createview03(self):
+        "Credit note in a negative Invoice -> a bigger negative Invoice"
+        user = self.user
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+
+        create_line = partial(ProductLine.objects.create, user=user)
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("-100"))
+
+
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("1"))
+
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                               )
+
+        invoice = self.refresh(invoice)
+        expected_total = Decimal('-101')
+        self.assertEqual(expected_total, invoice.total_no_vat)
+
+    @skipIfCustomInvoice
+    @skipIfCustomProductLine
     def test_unlink_from_invoice(self):
         user = self.user
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]

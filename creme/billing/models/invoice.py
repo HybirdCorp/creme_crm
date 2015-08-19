@@ -23,8 +23,8 @@ from django.db.models import ForeignKey, PROTECT, SET_NULL
 from django.utils.translation import ugettext_lazy as _
 
 from creme.persons.workflow import transform_target_into_customer
-
 from .. import get_template_base_model
+from ..constants import DEFAULT_DECIMAL
 from .base import Base
 #from .templatebase import TemplateBase
 from .other_models import InvoiceStatus, SettlementTerms
@@ -45,6 +45,18 @@ class AbstractInvoice(Base):
 #        app_label = "billing"
         verbose_name = _(u'Invoice')
         verbose_name_plural = _(u'Invoices')
+
+    def _get_total(self):
+        lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()
+        if lines_total < 0 or creditnotes_total < lines_total:
+            return lines_total - creditnotes_total
+        return DEFAULT_DECIMAL
+
+    def _get_total_with_tax(self):
+        lines_total_with_tax, creditnotes_total = self._get_lines_total_n_creditnotes_total_with_tax()
+        if lines_total_with_tax < 0 or creditnotes_total < lines_total_with_tax:
+            return lines_total_with_tax - creditnotes_total
+        return DEFAULT_DECIMAL
 
     def get_absolute_url(self):
 #        return "/billing/invoice/%s" % self.id

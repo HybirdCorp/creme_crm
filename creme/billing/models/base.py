@@ -216,21 +216,27 @@ class Base(CremeEntity):
     def get_service_lines_total_price_inclusive_of_tax(self):
         return round_to_2(sum(l.get_price_inclusive_of_tax(self) for l in self.service_lines))
 
+    def _get_lines_total_n_creditnotes_total(self):
+        creditnotes_total = sum(credit_note.total_no_vat for credit_note in self.get_credit_notes())
+        lines_total = self.get_service_lines_total_price_exclusive_of_tax() \
+                + self.get_product_lines_total_price_exclusive_of_tax()
+        return lines_total, creditnotes_total
+
+    def _get_lines_total_n_creditnotes_total_with_tax(self):
+        creditnotes_total = sum(credit_note.total_vat for credit_note in self.get_credit_notes())
+        lines_total_with_tax = self.get_service_lines_total_price_inclusive_of_tax() \
+                         + self.get_product_lines_total_price_inclusive_of_tax()
+        return lines_total_with_tax, creditnotes_total
+
     def _get_total(self):
-        total_credits = sum(credit_note.total_no_vat for credit_note in self.get_credit_notes())
-        total = self.get_service_lines_total_price_exclusive_of_tax() \
-                + self.get_product_lines_total_price_exclusive_of_tax() \
-                - total_credits
+        lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()
         #return DEFAULT_DECIMAL if total < DEFAULT_DECIMAL else total
-        return max(DEFAULT_DECIMAL, total)
+        return max(DEFAULT_DECIMAL, lines_total - creditnotes_total)
 
     def _get_total_with_tax(self):
-        total_credits = sum(credit_note.total_vat for credit_note in self.get_credit_notes())
-        total_with_tax = self.get_service_lines_total_price_inclusive_of_tax() \
-                         + self.get_product_lines_total_price_inclusive_of_tax() \
-                         - total_credits
+        lines_total_with_tax, creditnotes_total = self._get_lines_total_n_creditnotes_total_with_tax()
         #return DEFAULT_DECIMAL if total_with_tax < DEFAULT_DECIMAL else total_with_tax
-        return max(DEFAULT_DECIMAL, total_with_tax)
+        return max(DEFAULT_DECIMAL, lines_total_with_tax - creditnotes_total)
 
     def _pre_save_clone(self, source):
         if self.generate_number_in_create:
