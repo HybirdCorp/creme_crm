@@ -79,6 +79,21 @@ class LineTestCase(_BillingTestCase):
 
         self.assertEqual(invoice.get_absolute_url(), line0.get_absolute_url())
 
+    @skipIfCustomProduct
+    def test_lines_with_negatives_values(self):
+        user = self.login()
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        quote = self.create_quote_n_orgas('Quote001')[0]
+        unit_price = Decimal('-50.0')
+        product_name = 'on the fly product'
+        create_pline = partial(ProductLine.objects.create, user=user, on_the_fly_item=product_name,
+                               unit_price=unit_price, unit=''
+                               )
+        create_pline(related_document=quote)
+        create_pline(related_document=invoice)
+        self.assertEqual(Decimal('-50.0'), invoice.total_vat)
+        self.assertEqual(Decimal('0'), quote.total_vat)
+
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_listviews(self):
