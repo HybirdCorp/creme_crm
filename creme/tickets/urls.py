@@ -1,25 +1,30 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from . import ticket_model_is_custom, tickettemplate_model_is_custom
+from .views import portal
 
 
-urlpatterns = patterns('creme.tickets.views',
-    (r'^$', 'portal.portal'),
-)
+urlpatterns = [
+    url(r'^$', portal.portal),
+]
 
 if not ticket_model_is_custom():
-    urlpatterns += patterns('creme.tickets.views.ticket',
-        url(r'^tickets$',                        'listview',   name='tickets__list_tickets'),
-        url(r'^ticket/add$',                     'add',        name='tickets__create_ticket'),
-        url(r'^ticket/edit/(?P<ticket_id>\d+)$', 'edit',       name='tickets__edit_ticket'),
-        url(r'^ticket/(?P<ticket_id>\d+)$',      'detailview', name='tickets__view_ticket'),
-    )
+    from .views import ticket
+
+    urlpatterns += [
+        url(r'^tickets$',                        ticket.listview,   name='tickets__list_tickets'),
+        url(r'^ticket/add$',                     ticket.add,        name='tickets__create_ticket'),
+        url(r'^ticket/edit/(?P<ticket_id>\d+)$', ticket.edit,       name='tickets__edit_ticket'),
+        url(r'^ticket/(?P<ticket_id>\d+)$',      ticket.detailview, name='tickets__view_ticket'),
+    ]
 
 if not tickettemplate_model_is_custom():
-    urlpatterns += patterns('creme.tickets.views.template',
-        url(r'^templates$',                          'listview',   name='tickets__list_templates'),
-        url(r'^template/edit/(?P<template_id>\d+)$', 'edit',       name='tickets__edit_template'),
-        url(r'^template/(?P<template_id>\d+)$',      'detailview', name='tickets__view_template'),
-    )
+    from .views import template
+
+    urlpatterns += [
+        url(r'^templates$',                          template.listview,   name='tickets__list_templates'),
+        url(r'^template/edit/(?P<template_id>\d+)$', template.edit,       name='tickets__edit_template'),
+        url(r'^template/(?P<template_id>\d+)$',      template.detailview, name='tickets__view_template'),
+    ]

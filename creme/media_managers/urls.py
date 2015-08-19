@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns
+from django.conf.urls import url
+
+from .views import portal, image
 
 
-urlpatterns = patterns('creme.media_managers.views',
-    (r'^$', 'portal.portal_media_managers'),
+urlpatterns = [
+    url(r'^$', portal.portal_media_managers),
 
-    (r'^images$',                          'image.listview'),
-    (r'^images/popup$',                    'image.listview_popup'), # NB: for TinyMCE selection
-    (r'^images/(?P<image_id>\d+)/get_url', 'image.get_url'), #TODO: 'images' -> 'image' ??
+    url(r'^images$',                          image.listview),
+    url(r'^images/popup$',                    image.listview_popup), # NB: for TinyMCE selection
+    url(r'^images/(?P<image_id>\d+)/get_url', image.get_url), #TODO: 'images' -> 'image' ??
 
-    (r'^tiny_mce/image$',                'image.select_image_tiny_mce'),
+    url(r'^tiny_mce/image$',                image.select_image_tiny_mce),
 
-    (r'^image/add$',                     'image.add'),
-    (r'^image/edit/(?P<image_id>\d+)$',  'image.edit'),
-    (r'^image/(?P<image_id>\d+)$',       'image.detailview'),
-)
+    url(r'^image/add$',                     image.add),
+    url(r'^image/edit/(?P<image_id>\d+)$',  image.edit),
+    url(r'^image/(?P<image_id>\d+)$',       image.detailview),
+]
