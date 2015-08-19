@@ -123,7 +123,11 @@ def replace_related_object(old_instance, new_instance):
                              new_instance=new_instance,
                             ) # send_robust() ??
 
-    for rel_objects in old_instance._meta.get_all_related_objects():
+#    for rel_objects in old_instance._meta.get_all_related_objects():
+    for rel_objects in (f for f in old_instance._meta.get_fields()
+                            #if (f.one_to_many or f.one_to_one) and f.auto_created
+                            if f.one_to_many
+                       ):
         field_name = rel_objects.field.name
 
         for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():

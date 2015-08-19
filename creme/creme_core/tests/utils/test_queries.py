@@ -32,6 +32,7 @@ class QueriesTestCase(CremeTestCase):
     @classmethod
     def tearDownClass(cls):
         CremeTestCase.tearDownClass()
+        Civility.objects.all().delete()
         Civility.objects.bulk_create(cls._civ_backup)
 
     def test_get_first_or_None01(self):

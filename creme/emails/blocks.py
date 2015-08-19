@@ -19,13 +19,13 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.template.context import RequestContext #
+#from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import Relation #, CremeEntity
 from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
-from creme.creme_core.utils import jsonify #
+#from creme.creme_core.utils import jsonify
 
 from creme.persons.models import Contact, Organisation
 
@@ -232,10 +232,10 @@ class _SynchronizationMailsBlock(CrudityQuerysetBlock):
     order_by      = '-reception_date'
     configurable  = False
 
-    @jsonify
-    def detailview_ajax(self, request):
-        context = RequestContext(request)
-        return [(self.id_, self.detailview_display(context))]
+#    @jsonify
+#    def detailview_ajax(self, request):
+#        context = RequestContext(request)
+#        return [(self.id_, self.detailview_display(context))]
 
 
 class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
@@ -255,7 +255,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
             waiting_mails = waiting_mails.filter(user=context['user'])
 
         return self._render(self.get_block_template_context(context, waiting_mails,
-                                                            update_url='/emails/sync_blocks/reload'
+                                                            update_url='/emails/sync_blocks/reload',
                                                            ))
 
 
@@ -277,7 +277,7 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
             waiting_mails = waiting_mails.filter(user=context['user'])
 
         return self._render(self.get_block_template_context(context, waiting_mails,
-                                                            update_url='/emails/sync_blocks/reload'
+                                                            update_url='/emails/sync_blocks/reload',
                                                            ))
 
 

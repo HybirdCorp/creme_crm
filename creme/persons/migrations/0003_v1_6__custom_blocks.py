@@ -24,8 +24,9 @@ def convert_old_blocks(apps, schema_editor):
 
     create_cbci = get_model('creme_core', 'CustomBlockConfigItem').objects.create
 
+    # NB: queries crash with ContentType instance (?!) => use ID
     try:
-        bdl = BlockDetailviewLocation.objects.get(content_type=contact_ctype,
+        bdl = BlockDetailviewLocation.objects.get(content_type=contact_ctype.id,
                                                   block_id=MODELBLOCK_ID,
                                                  )
     except BlockDetailviewLocation.DoesNotExist:
@@ -52,7 +53,7 @@ def convert_old_blocks(apps, schema_editor):
         bdl.save()
 
     try:
-        bdl = BlockDetailviewLocation.objects.get(content_type=contact_ctype,
+        bdl = BlockDetailviewLocation.objects.get(content_type=contact_ctype.id,
                                                   block_id='block_%s-%s' % ('persons', 'contact_coordinates'),
                                                  )
     except BlockDetailviewLocation.DoesNotExist:
@@ -73,7 +74,7 @@ def convert_old_blocks(apps, schema_editor):
         bdl.save()
 
     try:
-        bdl = BlockDetailviewLocation.objects.get(content_type=orga_ctype,
+        bdl = BlockDetailviewLocation.objects.get(content_type=orga_ctype.id,
                                                   block_id=MODELBLOCK_ID,
                                                  )
     except BlockDetailviewLocation.DoesNotExist:
@@ -106,7 +107,7 @@ def convert_old_blocks(apps, schema_editor):
         bdl.save()
 
     try:
-        bdl = BlockDetailviewLocation.objects.get(content_type=orga_ctype,
+        bdl = BlockDetailviewLocation.objects.get(content_type=orga_ctype.id,
                                                   block_id='block_%s-%s' % ('persons', 'orga_coordinates'),
                                                  )
     except BlockDetailviewLocation.DoesNotExist:

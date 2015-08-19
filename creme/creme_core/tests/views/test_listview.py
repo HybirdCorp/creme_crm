@@ -48,6 +48,7 @@ class ListViewTestCase(ViewsTestCase):
     @classmethod
     def tearDownClass(cls):
         ViewsTestCase.tearDownClass()
+        Civility.objects.all().delete()
         Civility.objects.bulk_create(cls._civ_backup)
 
     def setUp(self):

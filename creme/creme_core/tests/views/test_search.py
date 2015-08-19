@@ -37,6 +37,7 @@ class SearchViewTestCase(ViewsTestCase):
         del QuerysetBlock.page_size
         assert QuerysetBlock.page_size # In PaginatedBlock
 
+        SearchConfigItem.objects.all().delete()
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
     def _build_contacts(self):

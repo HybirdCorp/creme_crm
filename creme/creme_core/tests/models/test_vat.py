@@ -21,6 +21,7 @@ class VatTestCase(CremeTestCase):
     @classmethod
     def tearDownClass(cls):
         CremeTestCase.tearDownClass()
+        Vat.objects.all().delete()
         Vat.objects.bulk_create(cls._vat_backup)
 
     def test_create01(self):

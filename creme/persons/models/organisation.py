@@ -27,9 +27,9 @@ from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerF
 from django.utils.translation import ugettext_lazy as _ # ugettext
 #from django.core.exceptions import ValidationError
 
+from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import PhoneField
-from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from creme.media_managers.models import Image
 
@@ -47,8 +47,7 @@ class AbstractOrganisation(CremeEntity):
                                .set_tags(optional=True)
     fax            = CharField(_(u'Fax'), max_length=100, blank=True, null=True)\
                               .set_tags(optional=True)
-    email          = EmailField(_(u'Email address'), max_length=100 , blank=True, null=True)\
-                               .set_tags(optional=True)
+    email          = EmailField(_(u'Email address'), blank=True, null=True).set_tags(optional=True)
     url_site       = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)\
                              .set_tags(optional=True)
     sector         = ForeignKey(Sector, verbose_name=_(u'Sector'),

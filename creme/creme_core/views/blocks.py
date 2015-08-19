@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,19 +22,30 @@ from functools import partial
 import logging
 
 from django.core.exceptions import PermissionDenied
-from django.template import RequestContext
+#from django.template import RequestContext
+from django.template.context import make_context
+from django.template.engine import Engine
 from django.shortcuts import get_object_or_404
 
 from ..auth.decorators import login_required
+from ..blocks import relations_block
 from ..gui.block import block_registry, str2list, BlocksManager
 from ..models import CremeEntity
 from ..models.block import BlockState
 from ..utils import jsonify, get_ct_or_404 #, get_from_POST_or_404
-from ..blocks import relations_block
 
 
 logger = logging.getLogger(__name__)
 
+def build_context(request, **kwargs):
+    context = make_context({}, request)
+
+    for processor in Engine.get_default().template_context_processors:
+        context.update(processor(request))
+
+    context.update(kwargs) # Updated _after_ processors in order to avoid shadowing
+
+    return context.flatten()
 
 def _get_depblock_ids(request, block_id):
     ids = [block_id]
@@ -64,8 +75,8 @@ def _build_blocks_render(request, block_id, blocks_manager, block_render_functio
     for block in blocks:
         blocks_manager.add_group(block.id_, block)
 
-    #Blocks are iterated twice for knowing all imported blocks when rendering
-    #Used for caching states notably...
+    # Blocks are iterated twice for knowing all imported blocks when rendering
+    # Used for caching states notably...
     for block in blocks:
         block_render = block_render_function(block)
 
@@ -89,8 +100,9 @@ def reload_detailview(request, block_id, entity_id):
 
     request.user.has_perm_to_view_or_die(entity)
 
-    context = RequestContext(request)
-    context['object'] = entity
+#    context = RequestContext(request)
+#    context['object'] = entity
+    context = build_context(request, object=entity)
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context),
                                 partial(_render_detail, context=context)
@@ -99,7 +111,8 @@ def reload_detailview(request, block_id, entity_id):
 @login_required
 @jsonify
 def reload_home(request, block_id):
-    context = RequestContext(request)
+#    context = RequestContext(request)
+    context = build_context(request)
 
     def render_home(block):
         fun = getattr(block, 'home_display', None)
@@ -114,7 +127,8 @@ def reload_home(request, block_id):
 @login_required
 @jsonify
 def reload_portal(request, block_id, ct_ids):
-    context = RequestContext(request)
+#    context = RequestContext(request)
+    context = build_context(request)
     ct_ids = str2list(ct_ids)
     app_labels = {get_ct_or_404(ct_id).model_class()._meta.app_label for ct_id in ct_ids}
 
@@ -144,10 +158,10 @@ def reload_basic(request, block_id):
     eg: permission = "creme_config.can_admin"
     'permission = None' means 'no permission required' ; use with caution :)
     """
-    context = RequestContext(request)
-    blocks_manager = BlocksManager.get(context)
+#    context = RequestContext(request)
+    context = build_context(request)
 
-    return _build_blocks_render(request, block_id, blocks_manager,
+    return _build_blocks_render(request, block_id, BlocksManager.get(context),
                                 partial(_render_detail, context=context),
                                 check_permission=True
                                )
@@ -159,8 +173,9 @@ def reload_relations_block(request, entity_id, relation_type_ids=''):
 
     request.user.has_perm_to_view_or_die(entity)
 
-    context = RequestContext(request)
-    context['object'] = entity
+#    context = RequestContext(request)
+#    context['object'] = entity
+    context = build_context(request, object=entity)
 
     blocks_manager = BlocksManager.get(context)
     blocks_manager.used_relationtypes_ids = (rtype_id for rtype_id in relation_type_ids.split(',') if rtype_id)

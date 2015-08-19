@@ -52,10 +52,20 @@ class BlocksConfigTestCase(CremeTestCase):
     def tearDownClass(cls):
         CremeTestCase.tearDownClass()
 
-        BlockDetailviewLocation.objects.bulk_create(cls._bdl_backup)
-        BlockPortalLocation.objects.bulk_create(cls._bpl_backup)
-        BlockMypageLocation.objects.bulk_create(cls._bml_backup)
-        RelationBlockItem.objects.bulk_create(cls._rbi_backup)
+        BlockDetailviewLocation.objects.all().delete()
+        BlockPortalLocation.objects.all().delete()
+        BlockMypageLocation.objects.all().delete()
+        RelationBlockItem.objects.all().delete()
+
+        for model, backup in [(BlockDetailviewLocation, cls._bdl_backup),
+                              (BlockPortalLocation,     cls._bpl_backup),
+                              (BlockMypageLocation,     cls._bml_backup),
+                              (RelationBlockItem,       cls._rbi_backup),
+                             ]:
+            try:
+                model.objects.bulk_create(backup)
+            except Exception:
+                print('CremeBlockTagsTestCase: test-data backup problem with model=%s' % model)
 
     def setUp(self):
         self.login()

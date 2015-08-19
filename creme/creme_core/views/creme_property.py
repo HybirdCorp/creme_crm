@@ -21,7 +21,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
-from django.template import RequestContext
+#from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _, ungettext
 
 #TODO: move them to creme_core ?
@@ -32,7 +32,7 @@ from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
 from ..gui.block import QuerysetBlock, Block
 from ..models import CremeEntity, CremePropertyType
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
-from .blocks import _get_depblock_ids # TODO: make public ??
+from .blocks import _get_depblock_ids, build_context # TODO: make _get_depblock_ids public ??
 from .generic import inner_popup, add_to_entity as generic_add_to_entity
 
 #TODO: Factorise with views in creme_config
@@ -292,8 +292,9 @@ def reload_block(request, ptype_id, block_id):
     block_renders = []
     ctypes = ptype.subject_ctypes.all()
 
-    context = RequestContext(request)
-    context['object'] = ptype
+#    context = RequestContext(request)
+#    context['object'] = ptype
+    context = build_context(request, object=ptype)
 
     for b_id in _get_depblock_ids(request, block_id):
         if b_id == PropertyTypeInfoBlock.id_:

@@ -172,14 +172,29 @@ class AbstractReport(CremeEntity):
     @staticmethod
     def get_related_fields_choices(model):
         allowed_related_fields = model.allowed_related #TODO: can we just use the regular introspection (+ field tags ?) instead
-        meta = model._meta
-        related_fields = chain(meta.get_all_related_objects(),
-                               meta.get_all_related_many_to_many_objects()
-                              )
+#        meta = model._meta
+#        related_fields = chain(meta.get_all_related_objects(),
+#                               meta.get_all_related_many_to_many_objects()
+#                              )
+#
+#        return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))
+#                    for related_field in related_fields
+#                        if related_field.var_name in allowed_related_fields
+#               ]
 
-        return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))
-                    for related_field in related_fields
-                        if related_field.var_name in allowed_related_fields
+        # TODO: factorise (creme_core.utils.meta ?)
+        # NB: https://docs.djangoproject.com/en/1.8/ref/models/meta/#migrating-from-the-old-api
+        get_fields = model._meta.get_fields
+        related_fields = (f for f in get_fields()
+                                if (f.one_to_many or f.one_to_one) and f.auto_created
+                         )
+        m2m_fields = (f for f in get_fields(include_hidden=True)
+                            if f.many_to_many and f.auto_created
+                     )
+
+        return [(f.name, unicode(f.related_model._meta.verbose_name))
+                    for f in chain(related_fields, m2m_fields)
+                        if f.name in allowed_related_fields
                ]
 
 

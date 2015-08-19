@@ -20,10 +20,11 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import render # render_to_response
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_ct_or_404, jsonify
+from creme.creme_core.views.blocks import build_context
 
 from ..blocks import HistoryBlock
 from ..registry import crudity_registry
@@ -55,4 +56,5 @@ def history(request):
 @permission_required('crudity')
 def reload(request, ct_id):
     block = HistoryBlock(get_ct_or_404(ct_id))
-    return [(block.id_, block.detailview_display(RequestContext(request)))]
+#    return [(block.id_, block.detailview_display(RequestContext(request)))]
+    return [(block.id_, block.detailview_display(build_context(request)))]

@@ -19,10 +19,11 @@
 ################################################################################
 
 from django.shortcuts import render, get_object_or_404
-from django.template import RequestContext
+#from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.utils import jsonify
 
@@ -62,7 +63,8 @@ def detailview(request, sending_id):
 @login_required
 @permission_required('emails')
 def reload_block_mails(request, sending_id):
-    context = RequestContext(request)
+    #context = RequestContext(request)
+    context = build_context(request)
     context['object'] = _get_sending(request, sending_id)
 
     return [(mails_block.id_, mails_block.detailview_display(context))]

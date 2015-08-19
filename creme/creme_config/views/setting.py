@@ -20,12 +20,13 @@
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.template import RequestContext
+#from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.models import SettingValue
 from creme.creme_core.utils import jsonify
+from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.generic import inner_popup
 
 from ..blocks import settings_block
@@ -69,7 +70,8 @@ def edit(request, svalue_id):
 def reload_block(request, app_name):
     request.user.has_perm_to_admin_or_die(app_name)
 
-    context = RequestContext(request)
-    context['app_name'] =  app_name
+#    context = RequestContext(request)
+#    context['app_name'] =  app_name
+    context = build_context(request, app_name=app_name)
 
     return [(settings_block.id_, settings_block.detailview_display(context))]

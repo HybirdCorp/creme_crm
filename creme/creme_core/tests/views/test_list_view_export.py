@@ -57,6 +57,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
     @classmethod
     def tearDownClass(cls):
         ViewsTestCase.tearDownClass()
+        HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
 
     def _build_hf_n_contacts(self):

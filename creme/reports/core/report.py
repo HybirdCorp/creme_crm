@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import CremeEntity, RelationType, CustomField
-from creme.creme_core.utils.meta import FieldInfo, get_related_field
+from creme.creme_core.utils.meta import FieldInfo # get_related_field
 
 from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
         RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
@@ -501,7 +501,8 @@ class RHRelated(ReportHand):
     verbose_name = _(u'Related field')
 
     def __init__(self, report_field):
-        related_field = get_related_field(report_field.model, report_field.name)
+#        related_field = get_related_field(report_field.model, report_field.name)
+        related_field = self._get_related_field(report_field.model, report_field.name)
 
         if not related_field:
             raise ReportHand.ValueError('Invalid related field: "%s"' % report_field.name)
@@ -510,15 +511,22 @@ class RHRelated(ReportHand):
         self._attr_name = related_field.get_accessor_name()
 
         super(RHRelated, self).__init__(report_field,
-                                        title=unicode(related_field.model._meta.verbose_name),
+#                                        title=unicode(related_field.model._meta.verbose_name),
+                                        title=unicode(related_field.related_model._meta.verbose_name),
                                         support_subreport=True,
                                        )
+
+    def _get_related_field(self, model, related_field_name):
+        for f in model._meta.get_fields():
+            if (f.one_to_many or f.one_to_one) and f.name == related_field_name:
+                return f
 
     def _get_related_instances(self, entity, user):
         return getattr(entity, self._attr_name).filter(is_deleted=False)
 
     def get_linkable_ctypes(self):
-        return (ContentType.objects.get_for_model(self._related_field.model),)
+#        return (ContentType.objects.get_for_model(self._related_field.model),)
+        return (ContentType.objects.get_for_model(self._related_field.related_model),)
 
 
 class ExpandableLine(object):

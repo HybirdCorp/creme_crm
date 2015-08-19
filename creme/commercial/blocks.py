@@ -80,6 +80,7 @@ class ApproachesBlock(QuerysetBlock):
 #        if isinstance(entity, Organisation) and \
         if isinstance(entity, get_organisation_model()) and \
            not SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+            # TODO: regroup the queries
             managers_ids      = entity.get_managers().values_list('id', flat=True)
             employees_ids     = entity.get_employees().values_list('id', flat=True)
             opportunities_ids = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS,
@@ -89,8 +90,7 @@ class ApproachesBlock(QuerysetBlock):
 
             approaches = CommercialApproach.objects.filter(ok_or_in_futur=False,
                                                            entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
-                                                          ) \
-                                                   .select_related('creme_entity')
+                                                          )
         else:
             approaches = CommercialApproach.get_approaches(pk)
 

@@ -20,12 +20,13 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template import RequestContext
+#from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.views.blocks import build_context
+from creme.creme_core.views.generic import add_to_entity
 
 from ..blocks import messages_block
 from ..forms.message import SendingCreateForm
@@ -105,11 +106,6 @@ def delete_message(request, id):
     #return HttpResponseRedirect('/sms/campaign/sending/%s' % message.sending_id)
     return redirect(campaign)
 
-#@login_required
-#@permission_required('sms')
-#def reload_block_messages(request, id):
-    #return messages_block.detailview_ajax(request, id)
-
 #Useful method because EmailSending is not a CremeEntity (should be ?)
 @jsonify
 @login_required
@@ -118,7 +114,8 @@ def reload_block_messages(request, id):
     sending  = get_object_or_404(Sending, pk=id)
     request.user.has_perm_to_view_or_die(sending.campaign)
 
-    context = RequestContext(request)
-    context['object'] = sending
+#    context = RequestContext(request)
+#    context['object'] = sending
+    context = build_context(request, object=sending)
 
     return [(messages_block.id_, messages_block.detailview_display(context))]

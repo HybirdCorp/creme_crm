@@ -69,8 +69,7 @@ class AbstractContact(CremeEntity):
     sector      = ForeignKey(Sector, verbose_name=_(u'Line of business'),
                              blank=True, null=True, on_delete=SET_NULL,
                             ).set_tags(optional=True)
-    email       = EmailField(_(u'Email address'), max_length=100, blank=True, null=True)\
-                            .set_tags(optional=True)
+    email       = EmailField(_(u'Email address'), blank=True, null=True).set_tags(optional=True)
     url_site    = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)\
                           .set_tags(optional=True)
     language    = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),

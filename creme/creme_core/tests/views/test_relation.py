@@ -46,6 +46,7 @@ class RelationViewsTestCase(ViewsTestCase):
         return '/creme_core/relation/entity/%s/rtypes/json' % entity.id
 
     def test_get_ctypes_of_relation01(self):
+        'No sort'
         self.login()
 
         rtype = RelationType.create(('test-subject__JSP01_3', u'is a customer of', [Contact]),
@@ -60,10 +61,14 @@ class RelationViewsTestCase(ViewsTestCase):
 
         json_data = load_json(response.content)
         get_ct = ContentType.objects.get_for_model
-        self.assertEqual(json_data, [[get_ct(Contact).id,      Contact._meta.verbose_name],
-                                     [get_ct(Organisation).id, Organisation._meta.verbose_name],
-                                    ]
-                        )
+#        self.assertEqual(json_data, [[get_ct(Contact).id,      Contact._meta.verbose_name],
+#                                     [get_ct(Organisation).id, Organisation._meta.verbose_name],
+#                                    ]
+#                        )
+        self.assertIsInstance(json_data, list)
+        self.assertEqual(2, len(json_data))
+        self.assertIn([get_ct(Contact).id,      unicode(Contact._meta.verbose_name)],      json_data)
+        self.assertIn([get_ct(Organisation).id, unicode(Organisation._meta.verbose_name)], json_data)
 
 #    @skipIfNotInstalled('creme.tickets')
     def test_get_ctypes_of_relation02(self):

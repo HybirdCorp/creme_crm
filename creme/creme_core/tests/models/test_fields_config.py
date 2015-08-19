@@ -15,6 +15,11 @@ except Exception as e:
 
 
 class FieldsConfigTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core')
+
     def test_create01(self):
         h_field1 = 'phone'
         h_field2 = 'mobile'
