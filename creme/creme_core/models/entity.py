@@ -363,10 +363,12 @@ class CremeEntity(CremeAbstractEntity):
         if not entities:
             return
 
-        get_field = entities[0]._meta.get_field_by_name
+#        get_field = entities[0]._meta.get_field_by_name
+        get_field = entities[0]._meta.get_field
 
         for fname in field_names:
-            field = get_field(fname)[0]
+#            field = get_field(fname)[0]
+            field = get_field(fname)
 
             if isinstance(field, ForeignKey):
                 ids = set()

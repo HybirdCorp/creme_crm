@@ -69,9 +69,9 @@ def _add_tags_to_fields():
     # optional
     Field._cremetag_optional = False
 
-    #TODO: could become useless with HeaderFilter refactoring, that ignores
-    #      by default the sub fields of FK. (to be continued...)
-    #ContentType hooking
+    # TODO: could become useless with HeaderFilter refactoring, that ignores
+    #       by default the sub fields of FK. (to be continued...)
+    # ContentType hooking
     get_ct_field = ContentType._meta.get_field
 #    for fname in ('name', 'app_label', 'model'):
     for fname in ('app_label', 'model'):

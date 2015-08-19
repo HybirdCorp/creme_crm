@@ -56,7 +56,10 @@ class CremeModel(Model):
         for m2m_field in self._meta.many_to_many:
             getattr(self, m2m_field.name).clear()
 
-        for related_m2m_field in self._meta.get_all_related_many_to_many_objects():
+#        for related_m2m_field in self._meta.get_all_related_many_to_many_objects():
+        for related_m2m_field in (f for f in self._meta.get_fields(include_hidden=True)
+                                    if f.many_to_many and f.auto_created
+                                 ):
             getattr(self, related_m2m_field.get_accessor_name()).clear()
 
         self._pre_delete()

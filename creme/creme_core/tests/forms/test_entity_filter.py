@@ -345,18 +345,18 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_choicetypes(self):
         "Field choice types"
         field_choicetype = FieldConditionWidget.field_choicetype
-        get_field = Contact._meta.get_field_by_name
+        get_field = Contact._meta.get_field
 
-        self.assertEqual(field_choicetype(get_field('civility')[0]), 'enum__null')
+        self.assertEqual(field_choicetype(get_field('civility')), 'enum__null')
 
-        self.assertEqual(field_choicetype(get_field('birthday')[0]), 'date__null')
-        self.assertEqual(field_choicetype(get_field('created')[0]),  'date')
+        self.assertEqual(field_choicetype(get_field('birthday')), 'date__null')
+        self.assertEqual(field_choicetype(get_field('created')),  'date')
 
-        #self.assertEqual(field_choicetype(get_field('billing_address')[0]),  'fk__null')
-        self.assertEqual(field_choicetype(get_field('address')[0]),  'fk__null')
+        #self.assertEqual(field_choicetype(get_field('billing_address')),  'fk__null')
+        self.assertEqual(field_choicetype(get_field('address')),  'fk__null')
 
-        self.assertEqual(field_choicetype(get_field('user')[0]),     'user')
-        self.assertEqual(field_choicetype(get_field('is_user')[0]),  'user__null')
+        self.assertEqual(field_choicetype(get_field('user')),     'user')
+        self.assertEqual(field_choicetype(get_field('is_user')),  'user__null')
 
 #     def test_ok02(self):
 #         "ISEMPTY -> boolean"

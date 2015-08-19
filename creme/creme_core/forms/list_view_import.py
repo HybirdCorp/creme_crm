@@ -792,7 +792,8 @@ class RelationExtractorField(MultiRelationEntityField):
             try:
                 ct = ContentType.objects.get_for_id(ctype_pk)
                 model = ct.model_class()
-                model._meta.get_field_by_name(searchfield)
+#                model._meta.get_field_by_name(searchfield)
+                model._meta.get_field(searchfield)
             except ContentType.DoesNotExist:
                 raise ValidationError(self.error_messages['ctypedoesnotexist'],
                                       params={'ctype': ctype_pk},

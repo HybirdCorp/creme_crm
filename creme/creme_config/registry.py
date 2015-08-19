@@ -60,11 +60,9 @@ class ModelConfig(object):
     def model_form(self):
         if self._form_class is None:
             model = self.model
-            #get_field_by_name = model._meta.get_field_by_name
             get_field = model._meta.get_field
 
             try:
-                #get_field_by_name('is_custom')
                 get_field('is_custom')
             except FieldDoesNotExist:
                 exclude = None
@@ -74,7 +72,6 @@ class ModelConfig(object):
             self._form_class = form_class = modelform_factory(model, form=CremeModelForm, exclude=exclude)
 
             try:
-                #get_field_by_name('order')
                 order_field = get_field('order')
             except FieldDoesNotExist:
                 pass
