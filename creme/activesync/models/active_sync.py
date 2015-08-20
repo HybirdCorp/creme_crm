@@ -23,7 +23,7 @@ import pickle
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (Model, IntegerField, BooleanField, CharField,
-        TextField, DateTimeField, ForeignKey)
+        TextField, DateTimeField, ForeignKey, OneToOneField)
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -102,7 +102,8 @@ class CremeExchangeMapping(CremeModel):
 
 
 class CremeClient(CremeModel):
-    user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Assigned to', unique=True)
+#    user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Assigned to', unique=True)
+    user               = OneToOneField(settings.AUTH_USER_MODEL, verbose_name=u'Assigned to')
     client_id          = CharField(u'Creme Client ID',   max_length=32,  default=generate_guid, unique=True)
     policy_key         = CharField(u'Last policy key',   max_length=200, default=0)
     sync_key           = CharField(u'Last sync key',     max_length=200, default=None, blank=True, null=True)
@@ -181,14 +182,14 @@ def _empty_dump():
 class UserSynchronizationHistory(CremeModel):
     user           = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'user')
     entity_repr    = CharField(u'Entity', max_length=200, default=None, blank=True, null=True)#Saving the representation of the entity in case it was deleted
-    entity_pk      = IntegerField(u'Entity pk', max_length=50, blank=True, null=True)#Saving the pk of the entity
+    entity_pk      = IntegerField(u'Entity pk', blank=True, null=True) #Saving the pk of the entity
     #entity_ct      = ForeignKey(ContentType, verbose_name=u'What', null=True, blank=True)
     entity_ct      = CTypeForeignKey(verbose_name=u'What', null=True, blank=True)
     created        = CreationDateTimeField(_('Creation date'), default=now)
     #entity_changes = TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
     entity_changes = TextField(_(u'Entity changes'), default=_empty_dump)
-    type           = IntegerField(u'', max_length=1, choices=USER_HISTORY_TYPE)
-    where          = IntegerField(u'', max_length=1, choices=USER_HISTORY_WHERE)
+    type           = IntegerField(u'', choices=USER_HISTORY_TYPE) # TODO: SmallPositiveInteger ?
+    where          = IntegerField(u'', choices=USER_HISTORY_WHERE) # TODO: SmallPositiveInteger ?
 
     _entity = None
 
@@ -311,7 +312,7 @@ class AS_Folder(CremeModel):
     server_id    = CharField(u'Server id',    max_length=200)#Folder id on server
     parent_id    = CharField(u'Server id',    max_length=200, blank=True, null=True)#Parent id of this folder on the server
     display_name = CharField(u'Display name', max_length=200, default="")
-    type         = IntegerField(u'Type',      max_length=2)
+    type         = IntegerField(u'Type') # TODO: SmallPositiveInteger ??
     sync_key     = CharField(u'sync key',     max_length=200, default=None, blank=True, null=True)
     as_class     = CharField(u'class',        max_length=25, default=None, blank=True, null=True)
     entity_id    = CharField(u'Entity id',    max_length=200, default=None, blank=True, null=True)#A reference to something in Creme (currently used for Calendars mapping)

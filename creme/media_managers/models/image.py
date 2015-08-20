@@ -47,7 +47,7 @@ class Image(CremeEntity):
                              upload_to='upload/images', max_length=500)
     categories  = ManyToManyField(MediaCategory, verbose_name=_(u'Categories'),
                                   related_name="Image_media_category_set",
-                                  blank=True, null=True,
+                                  blank=True, # null=True,
                                  )
 
     creation_label = _('Add an image')

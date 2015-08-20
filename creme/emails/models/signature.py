@@ -31,7 +31,7 @@ class EmailSignature(CremeModel):
     name   = CharField(_(u'Name'), max_length=100)
     user   = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
     body   = TextField(_(u'Body'))
-    images = ManyToManyField(Image, verbose_name=_(u'Images'), blank=True, null=True)
+    images = ManyToManyField(Image, verbose_name=_(u'Images'), blank=True) # null=True
 
     def __unicode__(self):
         return self.name

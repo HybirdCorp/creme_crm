@@ -53,9 +53,11 @@ class AbstractActivity(CremeEntity):
     sub_type      = ForeignKey(ActivitySubType, verbose_name=_(u'Activity sub-type'),
                                blank=True, null=True, on_delete=SET_NULL,
                               )
-    status        = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True, on_delete=SET_NULL)
+    status        = ForeignKey(Status, verbose_name=_(u'Status'),
+                               blank=True, null=True, on_delete=SET_NULL,
+                              )
     calendars     = ManyToManyField(Calendar, verbose_name=_(u'Calendars'),
-                                    blank=True, null=True, editable=False,
+                                    blank=True, editable=False, #null=True
                                    )
     is_all_day    = BooleanField(_(u'All day?'), blank=True, default=False)
     busy          = BooleanField(_(u'Busy?'), default=False)

@@ -143,7 +143,7 @@ class Migration(migrations.Migration):
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 #('evaluated_orgas', models.ManyToManyField(to='persons.Organisation', null=True, editable=False)),
-                ('evaluated_orgas', models.ManyToManyField(to=settings.PERSONS_ORGANISATION_MODEL, null=True, editable=False)),
+                ('evaluated_orgas', models.ManyToManyField(to=settings.PERSONS_ORGANISATION_MODEL, editable=False)),
             ],
             options={
                 'swappable': 'COMMERCIAL_STRATEGY_MODEL',

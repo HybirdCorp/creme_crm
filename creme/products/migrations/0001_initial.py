@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
                 ('web_site', models.CharField(max_length=100, null=True, verbose_name='Web Site', blank=True)),
                 ('category', models.ForeignKey(verbose_name='Category', to='products.Category')),
                 ('sub_category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
-                ('images', models.ManyToManyField(related_name='ProductImages_set', null=True, verbose_name='Images', to='media_managers.Image', blank=True)),
+                ('images', models.ManyToManyField(related_name='ProductImages_set', verbose_name='Images', to='media_managers.Image', blank=True)), # null=True
             ],
             options={
                 'swappable': 'PRODUCTS_PRODUCT_MODEL',
@@ -80,7 +80,7 @@ class Migration(migrations.Migration):
                 ('web_site', models.CharField(max_length=100, null=True, verbose_name='Web Site', blank=True)),
                 ('category', models.ForeignKey(verbose_name='Category', to='products.Category')),
                 ('sub_category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
-                ('images', models.ManyToManyField(related_name='ServiceImages_set', null=True, verbose_name='Images', to='media_managers.Image', blank=True)),
+                ('images', models.ManyToManyField(related_name='ServiceImages_set', verbose_name='Images', to='media_managers.Image', blank=True)), # null=True
             ],
             options={
                 'swappable': 'PRODUCTS_SERVICE_MODEL',

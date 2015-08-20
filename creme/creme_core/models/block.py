@@ -25,8 +25,8 @@ import logging
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
-        PositiveSmallIntegerField, BooleanField, TextField)
+from django.db.models import (CharField, TextField, ForeignKey, OneToOneField,
+        PositiveIntegerField, PositiveSmallIntegerField, BooleanField)
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 
@@ -197,7 +197,8 @@ post_save.connect(BlockMypageLocation._copy_default_config, sender=settings.AUTH
 
 class RelationBlockItem(CremeModel):
     block_id       = CharField(_(u"Block ID"), max_length=100, editable=False) #TODO: not really useful (can be retrieved with type)
-    relation_type  = ForeignKey(RelationType, verbose_name=_(u"Related type of relationship"), unique=True)
+#    relation_type  = ForeignKey(RelationType, verbose_name=_(u"Related type of relationship"), unique=True)
+    relation_type  = OneToOneField(RelationType, verbose_name=_(u"Related type of relationship"))
     json_cells_map = TextField(editable=False, null=True) #TODO: JSONField
 
     _cells_map = None

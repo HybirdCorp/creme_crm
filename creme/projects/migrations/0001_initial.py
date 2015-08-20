@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
                 ('activity_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to=settings.ACTIVITIES_ACTIVITY_MODEL)),
                 ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
                 #('parent_tasks', models.ManyToManyField(related_name='children_set', null=True, editable=False, to='projects.ProjectTask', blank=True)),
-                ('parent_tasks', models.ManyToManyField(related_name='children_set', null=True, editable=False, to=settings.PROJECTS_TASK_MODEL, blank=True)),
+                ('parent_tasks', models.ManyToManyField(related_name='children_set', editable=False, to=settings.PROJECTS_TASK_MODEL)), # null=True, blank=True
                 #('project', models.ForeignKey(related_name='tasks_set', editable=False, to='projects.Project', verbose_name='Project')),
                 ('project', models.ForeignKey(related_name='tasks_set', editable=False, to=settings.PROJECTS_PROJECT_MODEL, verbose_name='Project')),
                 ('tstatus', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Task situation', to='projects.TaskStatus')),

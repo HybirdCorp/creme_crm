@@ -41,7 +41,7 @@ else:
         categories  = models.ManyToManyField(FakeImageCategory,
                                              verbose_name=_(u'Categories'),
                                              related_name='+',
-                                             blank=True, null=True,
+                                             blank=True, #null=True,
                                             )
         exif_date   = models.DateField(_(u"Exif date"), blank=True, null=True)\
                             .set_tags(optional=True)
@@ -165,7 +165,7 @@ else:
         email           = models.EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
         url_site        = models.URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
         languages       = models.ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
-                                                 blank=True, null=True,
+                                                 blank=True, #null=True,
                                                 )
         address         = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
                                             blank=True, null=True,  editable=False,

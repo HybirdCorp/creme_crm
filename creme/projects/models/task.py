@@ -59,7 +59,8 @@ class AbstractProjectTask(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100)
     project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False) #TODO: null = False ?
-    parent_tasks = ManyToManyField('self', blank=True, null=True, symmetrical=False,
+    parent_tasks = ManyToManyField('self', symmetrical=False,
+#                                   blank=True, null=True,
                                    related_name='children_set', editable=False, #TODO; rename children ?
                                   )
     start        = DateTimeField(_(u'Start'), blank=True, null=True)
