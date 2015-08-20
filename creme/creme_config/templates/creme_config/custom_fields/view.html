@@ -6,7 +6,7 @@
     {% has_perm_to access 'creme_config' as conf_perm %}
     {% if conf_perm %}<a href="/creme_config/">{% trans "Configuration" %} > </a>{% endif %}
     <a href="/creme_config/custom_fields/portal/">{% trans "Custom fields" %} > </a>
-    Resource: {{content_type}}
+    {% trans "Resource" %}: {{content_type}}
 {% endblock %}
 
 {% block before_statistics %}
