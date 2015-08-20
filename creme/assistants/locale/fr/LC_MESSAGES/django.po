@@ -2,13 +2,13 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i "tests/*"
+# > django-admin.py makemessages -l fr -i "tests/*"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-06 23:14+0200\n"
+"POT-Creation-Date: 2015-08-20 17:41+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -175,6 +175,10 @@ msgstr "Description"
 #: models/alert.py:38
 msgid "Validated"
 msgstr "Validée"
+
+#: models/alert.py:39 models/todo.py:37
+msgid "Notification sent"
+msgstr "Notification envoyéé"
 
 #: models/alert.py:51 templates/assistants/block_alerts.html:6
 msgid "Alert"
