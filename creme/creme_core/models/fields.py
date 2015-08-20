@@ -23,7 +23,7 @@ from json import loads as jsonloads, dumps as jsondumps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
-        PositiveIntegerField, ForeignKey, SET, SubfieldBase, Max)
+        PositiveIntegerField, ForeignKey, SET, Max) #SubfieldBase
 from django.utils.timezone import now
 
 from ..utils.date_period import date_period_registry, DatePeriod
@@ -53,16 +53,24 @@ class DurationField(CharField):
 
 
 class DatePeriodField(TextField): #TODO: inherit from a JSONField
-    __metaclass__ = SubfieldBase
+#    __metaclass__ = SubfieldBase
 
     def to_python(self, value):
-        if not value:
+        if not value: # if value is None: ??
             return None
 
         if isinstance(value, basestring):
             return date_period_registry.deserialize(jsonloads(value))
 
+        # DatePeriod instance
         return value
+
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return None
+
+        # 'basestring' instance
+        return date_period_registry.deserialize(jsonloads(value))
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if value is None:
