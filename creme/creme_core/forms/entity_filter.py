@@ -591,6 +591,7 @@ class DateFieldsConditionsField(_ConditionsField):
         """@param date_dict dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
         return date_format(date(**date_dict), 'DATE_FORMAT') if date_dict else ''
 
+    # TODO : factorise with RegularFieldsConditionsField
     def _value_to_jsonifiable(self, value):
         dicts = []
         format = self._format_date
@@ -598,7 +599,10 @@ class DateFieldsConditionsField(_ConditionsField):
         for condition in value:
             get = condition.decoded_value.get
 
-            dicts.append({'field':  condition.name,
+            field = self._fields[condition.name][-1]
+            field_entry = {'name': condition.name, 'type': 'daterange' if not field.null else 'daterange__null'}
+
+            dicts.append({'field':  field_entry,
                           'range': {'type':  get('name', ''),
                                     'start': format(get('start')),
                                     'end':   format(get('end'))
@@ -822,7 +826,20 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         return DateCustomFieldsConditionsWidget(self._cfields.iteritems())
 
     def _value_to_jsonifiable(self, value):
-        return DateFieldsConditionsField._value_to_jsonifiable(self, value)
+        dicts = []
+        format = self._format_date
+
+        for condition in value:
+            get = condition.decoded_value.get
+
+            dicts.append({'field': int(condition.name),
+                          'range': {'type':  get('name', ''),
+                                    'start': format(get('start')),
+                                    'end':   format(get('end'))
+                                   }
+                         })
+
+        return dicts
 
     def _clean_custom_field(self, entry):
         cfield_id = self.clean_value(entry, 'field', int)
