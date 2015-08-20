@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from os.path import join, split
 import shutil
 
 from creme.creme_core.forms import CremeEntityForm
-#from creme.creme_core.forms.widgets import UploadedFileWidget #TODO: still useful ??
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from ..models import Image
@@ -33,15 +33,16 @@ logger = logging.getLogger(__name__)
 
 
 class _ImageForm(CremeEntityForm):
-    class Meta:
+#    class Meta:
+    class Meta(CremeEntityForm.Meta):
         model = Image
-        exclude = CremeEntityForm.Meta.exclude
+#        exclude = CremeEntityForm.Meta.exclude
+        widgets = {
+            'categories': UnorderedMultipleChoiceWidget,
+        }
 
     #def __init__(self, *args, **kwargs):
         #super(_ImageForm, self).__init__(*args, **kwargs)
-
-        #if str(self.instance.image) != '':
-            #self.fields['image'].widget = UploadedFileWidget()
 
 
 class ImageCreateForm(_ImageForm):

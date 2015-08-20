@@ -27,7 +27,6 @@ from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_model
-#from creme.creme_core.forms.widgets import UploadedFileWidget
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.creme_core.utils import ellipsis
 
@@ -59,7 +58,6 @@ class DocumentCreateForm(_DocumentBaseForm):
 
 class DocumentEditForm(CremeEntityForm):
     folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
-    #filedata = CharField(required=False, widget=UploadedFileWidget)
 
     class Meta(CremeEntityForm.Meta):
         model = Document
