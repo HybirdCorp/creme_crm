@@ -36,7 +36,7 @@ class Alert(CremeModel):
     title               = CharField(max_length=200)
     description         = TextField(_(u'Description'), blank=True, null=True)
     is_validated        = BooleanField(_('Validated'), editable=False, default=False)
-    reminded            = BooleanField(editable=False, default=False) #need by creme_core.core.reminder
+    reminded            = BooleanField(_(u'Notification sent'), editable=False, default=False) #need by creme_core.core.reminder
     trigger_date        = DateTimeField(_(u"Trigger date"))
 
     #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)

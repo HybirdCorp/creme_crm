@@ -34,7 +34,7 @@ class ToDo(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
     is_ok         = BooleanField(_("Done ?"), editable=False, default=False)
     #has_deadline  = BooleanField(editable=False)
-    reminded      = BooleanField(editable=False, default=False) #need by creme_core.core.reminder
+    reminded      = BooleanField(_(u'Notification sent'), editable=False, default=False) #need by creme_core.core.reminder
     description   = TextField(_(u'Description'), blank=True, null=True)
     creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
