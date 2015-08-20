@@ -70,10 +70,12 @@ class Reminder(object):
                    ]
 
         try:
-            connection = get_connection()
-            connection.open()
-            connection.send_messages(messages)
-            connection.close()
+#            connection = get_connection()
+#            connection.open()
+#            connection.send_messages(messages)
+#            connection.close()
+            with get_connection() as connection:
+                connection.send_messages(messages)
         except Exception:
             logger.exception('Reminder.send_mails() failed')
 

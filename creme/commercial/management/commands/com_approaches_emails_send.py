@@ -138,10 +138,12 @@ class Command(BaseCommand):
                 #TODO: factorise commands which send emails
                 if emails:
                     try:
-                        connection = get_connection()
-                        connection.open()
-                        connection.send_messages(emails)
-                        connection.close()
+#                        connection = get_connection()
+#                        connection.open()
+#                        connection.send_messages(emails)
+#                        connection.close()
+                        with get_connection() as connection:
+                            connection.send_messages(emails)
 
                         #logger.info(u"Emails sended")
                         self.stdout.write('Emails sended')

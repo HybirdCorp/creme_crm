@@ -167,6 +167,8 @@ class EmailSending(CremeModel):
         if not one_mail_sent:
             return SENDING_STATE_ERROR
 
+        #TODO: close the connection ??
+
 
 class LightWeightEmail(_Email):
     """Used by campaigns.

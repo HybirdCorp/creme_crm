@@ -116,13 +116,15 @@ class UserMessage(CremeModel):
                         for msg in usermessages if msg.recipient.email
                    ]
 
-        try:
-            connection = get_connection()
-            connection.open()
+#        try:
+#            connection = get_connection()
+#            connection.open()
+#            connection.send_messages(messages)
+#            connection.close()
+#        except Exception, e: # wtf ??
+#            raise e
+        with get_connection() as connection:
             connection.send_messages(messages)
-            connection.close()
-        except Exception, e: #TODO: wtf ??
-            raise e
 
         for msg in usermessages:
             msg.email_sent = True
