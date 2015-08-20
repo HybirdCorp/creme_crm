@@ -48,8 +48,8 @@ logger = logging.getLogger(__name__)
 class UserRole(Model):
     name              = CharField(_(u'Name'), max_length=100) # TODO: unique=True
     #superior         = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
-    creatable_ctypes  = ManyToManyField(ContentType, null=True, verbose_name=_(u'Creatable resources'), related_name='roles_allowing_creation')
-    exportable_ctypes = ManyToManyField(ContentType, null=True, verbose_name=_(u'Exportable resources'), related_name='roles_allowing_export')
+    creatable_ctypes  = ManyToManyField(ContentType, verbose_name=_(u'Creatable resources'),  related_name='roles_allowing_creation') # null=True,
+    exportable_ctypes = ManyToManyField(ContentType, verbose_name=_(u'Exportable resources'), related_name='roles_allowing_export')   # null=True,
     raw_allowed_apps  = TextField(default='') #use 'allowed_apps' property
     raw_admin_4_apps  = TextField(default='') #use 'admin_4_apps' property
 

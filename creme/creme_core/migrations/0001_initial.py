@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                 ('text', models.CharField(unique=True, max_length=200)),
                 ('is_custom', models.BooleanField(default=False)),
                 ('is_copiable', models.BooleanField(default=True)),
-                ('subject_ctypes', models.ManyToManyField(related_name='subject_ctypes_creme_property_set', null=True, to='contenttypes.ContentType', blank=True)),
+                ('subject_ctypes', models.ManyToManyField(related_name='subject_ctypes_creme_property_set', to='contenttypes.ContentType', blank=True)), # null=True
             ],
             options={
                 'ordering': ('text',),
@@ -402,10 +402,10 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=False)),
                 ('is_copiable', models.BooleanField(default=True)),
                 ('predicate', models.CharField(max_length=100, verbose_name='Predicate')),
-                ('object_ctypes', models.ManyToManyField(related_name='relationtype_objects_set', null=True, to='contenttypes.ContentType', blank=True)),
-                ('object_properties', models.ManyToManyField(related_name='relationtype_objects_set', null=True, to='creme_core.CremePropertyType', blank=True)),
-                ('subject_ctypes', models.ManyToManyField(related_name='relationtype_subjects_set', null=True, to='contenttypes.ContentType', blank=True)),
-                ('subject_properties', models.ManyToManyField(related_name='relationtype_subjects_set', null=True, to='creme_core.CremePropertyType', blank=True)),
+                ('subject_ctypes',     models.ManyToManyField(related_name='relationtype_subjects_set', to='contenttypes.ContentType',     blank=True)), # null=True
+                ('object_ctypes',      models.ManyToManyField(related_name='relationtype_objects_set',  to='contenttypes.ContentType',     blank=True)), # null=True
+                ('subject_properties', models.ManyToManyField(related_name='relationtype_subjects_set', to='creme_core.CremePropertyType', blank=True)), # null=True
+                ('object_properties',  models.ManyToManyField(related_name='relationtype_objects_set',  to='creme_core.CremePropertyType', blank=True)), # null=True
                 ('symmetric_type', models.ForeignKey(blank=True, to='creme_core.RelationType', null=True)),
             ],
             options={
@@ -509,8 +509,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('raw_allowed_apps', models.TextField(default=b'')),
                 ('raw_admin_4_apps', models.TextField(default=b'')),
-                ('creatable_ctypes', models.ManyToManyField(related_name='roles_allowing_creation', null=True, verbose_name='Creatable resources', to='contenttypes.ContentType')),
-                ('exportable_ctypes', models.ManyToManyField(related_name='roles_allowing_export', null=True, verbose_name='Exportable resources', to='contenttypes.ContentType')),
+                ('creatable_ctypes', models.ManyToManyField(related_name='roles_allowing_creation', verbose_name='Creatable resources', to='contenttypes.ContentType')), # null=True
+                ('exportable_ctypes', models.ManyToManyField(related_name='roles_allowing_export', verbose_name='Exportable resources', to='contenttypes.ContentType')), # null=True
             ],
             options={},
             bases=(models.Model,),
@@ -709,7 +709,7 @@ class Migration(migrations.Migration):
                     ('sector', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
                     #('is_user', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
                     ('is_user', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to='auth.User', null=True, verbose_name='Related user')),
-                    ('languages', models.ManyToManyField(to='creme_core.Language', null=True, verbose_name='Spoken language(s)', blank=True)),
+                    ('languages', models.ManyToManyField(to='creme_core.Language', verbose_name='Spoken language(s)', blank=True)), # null=True
                     ('image', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Photograph', blank=True, to='creme_core.FakeImage', null=True)),
                 ],
                 options={

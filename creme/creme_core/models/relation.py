@@ -49,10 +49,10 @@ class RelationType(CremeModel):
     id = CharField(primary_key=True, max_length=100) #NB: convention: 'app_name-foobar'
                                                      #BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
 
-    subject_ctypes     = ManyToManyField(ContentType,       blank=True, null=True, related_name='relationtype_subjects_set')
-    object_ctypes      = ManyToManyField(ContentType,       blank=True, null=True, related_name='relationtype_objects_set')
-    subject_properties = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_subjects_set')
-    object_properties  = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_objects_set')
+    subject_ctypes     = ManyToManyField(ContentType,       blank=True, related_name='relationtype_subjects_set') # null=True
+    object_ctypes      = ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')  # null=True
+    subject_properties = ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_subjects_set') # null=True
+    object_properties  = ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_objects_set')  # null=True
 
     is_internal = BooleanField(default=False) # if True, the relations with this type can not be created/deleted directly by the users.
     is_custom   = BooleanField(default=False) # if True, the RelationType can ot be deleted (in creme_config).

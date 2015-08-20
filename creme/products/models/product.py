@@ -53,7 +53,7 @@ class AbstractProduct(CremeEntity):
     sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
                                    on_delete=PROTECT,
                                   )
-    images            = ManyToManyField(Image, blank=True, null=True,
+    images            = ManyToManyField(Image, blank=True, # null=True,
                                         verbose_name=_(u'Images'),
                                         related_name='ProductImages_set',
                                        )

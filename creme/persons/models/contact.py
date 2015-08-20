@@ -73,7 +73,7 @@ class AbstractContact(CremeEntity):
     url_site    = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)\
                           .set_tags(optional=True)
     language    = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
-                                  blank=True, null=True, editable=False,
+                                  blank=True, editable=False, # null=True,
                                  ).set_tags(viewable=False) # TODO: remove this field
 #    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
     billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,

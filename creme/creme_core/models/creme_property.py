@@ -31,7 +31,7 @@ from .entity import CremeEntity
 class CremePropertyType(CremeModel):
     id             = CharField(primary_key=True, max_length=100)
     text           = CharField(max_length=200, unique=True)
-    subject_ctypes = ManyToManyField(ContentType, blank=True, null=True, related_name='subject_ctypes_creme_property_set')
+    subject_ctypes = ManyToManyField(ContentType, blank=True, related_name='subject_ctypes_creme_property_set')
     is_custom      = BooleanField(default=False) #TODO: editable=False ??
     is_copiable    = BooleanField(default=True)  # if True, the properties with this type can be copied (ie when cloning or converting an entity)
 

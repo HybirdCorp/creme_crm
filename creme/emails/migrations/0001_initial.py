@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('body', models.TextField(verbose_name='Body')),
-                ('images', models.ManyToManyField(to='media_managers.Image', null=True, verbose_name='Images', blank=True)),
+                ('images', models.ManyToManyField(to='media_managers.Image', verbose_name='Images', blank=True)), # null=True
                 #('user', models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL)),
                 ('user', models.ForeignKey(verbose_name='User', to='auth.User')),
             ],

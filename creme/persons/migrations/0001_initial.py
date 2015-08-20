@@ -131,7 +131,7 @@ class Migration(migrations.Migration):
                 ('is_user', models.ForeignKey(related_name='related_contact', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to='auth.User', null=True, verbose_name='Related user')),
                 ('position', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Position', blank=True, to='persons.Position', null=True)),
                 ('sector', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Line of business', blank=True, to='persons.Sector', null=True)),
-                ('language', models.ManyToManyField(verbose_name='Spoken language(s)', null=True, editable=False, to='creme_core.Language', blank=True)),
+                ('language', models.ManyToManyField(verbose_name='Spoken language(s)', editable=False, to='creme_core.Language', blank=True)), # null=True
             ],
             options={
                 'swappable': 'PERSONS_CONTACT_MODEL',

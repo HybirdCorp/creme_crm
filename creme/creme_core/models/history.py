@@ -27,7 +27,7 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
-        ForeignKey, SET_NULL, FieldDoesNotExist) #DateTimeField
+        ForeignKey, OneToOneField, SET_NULL, FieldDoesNotExist) #DateTimeField
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -734,7 +734,8 @@ def _log_deletion(sender, instance, **kwargs):
 
 
 class HistoryConfigItem(Model):
-    relation_type = ForeignKey(RelationType, unique=True)
+#    relation_type = ForeignKey(RelationType, unique=True)
+    relation_type = OneToOneField(RelationType)
 
     class Meta:
         app_label = 'creme_core'

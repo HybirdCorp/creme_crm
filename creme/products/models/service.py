@@ -49,7 +49,7 @@ class AbstractService(CremeEntity):
     web_site          = CharField(_(u'Web Site'), max_length=100,
                                   blank=True, null=True,
                                  ).set_tags(optional=True)
-    images            = ManyToManyField(Image, blank=True, null=True,
+    images            = ManyToManyField(Image, blank=True, # null=True,
                                         verbose_name=_(u'Images'),
                                         related_name='ServiceImages_set',
                                        )

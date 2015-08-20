@@ -53,7 +53,8 @@ class AbstractStrategy(CremeEntity):
 #    evaluated_orgas = ManyToManyField(Organisation, null=True, editable=False)
     evaluated_orgas = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL,
                                       verbose_name=_(u'Evaluated organisation(s)'),
-                                      null=True, editable=False,
+#                                      null=True,
+                                      editable=False,
                                      )
 
     creation_label = _('Add a strategy')

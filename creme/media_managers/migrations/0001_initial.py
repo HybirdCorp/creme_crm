@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('height', models.CharField(verbose_name='Height', max_length=50, null=True, editable=False, blank=True)),
                 ('width', models.CharField(verbose_name='Width', max_length=50, null=True, editable=False, blank=True)),
                 ('image', models.ImageField(height_field=b'height', upload_to=b'upload/images', width_field=b'width', max_length=500, verbose_name='Image')),
-                ('categories', models.ManyToManyField(related_name='Image_media_category_set', null=True, verbose_name='Categories', to='media_managers.MediaCategory', blank=True)),
+                ('categories', models.ManyToManyField(related_name='Image_media_category_set', verbose_name='Categories', to='media_managers.MediaCategory', blank=True)), # null=True
             ],
             options={
                 'ordering': ('name',),
