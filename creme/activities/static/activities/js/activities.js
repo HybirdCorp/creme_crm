@@ -348,8 +348,6 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
             creme.dialogs.form(creation_url, {reloadOnSuccess: true}, data).open({width: '80%'});
         },
         eventRender: function(event, element, view) {
-            var container = element.find('a');
-
             if (event.type) {
                 var eventType = $('<span>').addClass('fc-event-type').text (event.type);
                 var eventTime = element.find ('.fc-event-time');
@@ -361,12 +359,12 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
 
                     eventType.insertAfter(eventTime);
                 } else {
-                    container.prepend(eventType);
+                    element.find('.fc-event-inner').prepend(eventType);
                 }
             }
 
-            container.css('background-color', event.calendar_color);
-            creme.activities.calendar.chooseForeground(container, event.calendar_color);
+            element.css('background-color', event.calendar_color);
+            creme.activities.calendar.chooseForeground(element, event.calendar_color);
         },
         eventDragStart: function(calEvent, domEvent, ui, view) {},
         eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
