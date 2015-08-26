@@ -27,27 +27,27 @@ creme.ajax.Backend = function(options) {
 creme.ajax.Backend.prototype = {
     get:function(url, data, on_success, on_error, options)
     {
-        var opts = $.extend({}, this.options, options);
+        var opts = $.extend({method: 'GET'}, this.options, options);
 
         if (opts.debug)
             console.log('creme.ajax.Backend > GET', url, ' > data:', data, ', options:', opts);
 
-        creme.ajax.json.send(url, data, on_success, on_error, opts.sync, "GET", opts);
+        creme.ajax.jqueryAjaxSend(url, data, on_success, on_error, opts);
     },
 
     post:function(url, data, on_success, on_error, options)
     {
-        var opts = $.extend({}, this.options, options);
+        var opts = $.extend({method: 'POST'}, this.options, options, true);
 
         if (opts.debug)
             console.log('creme.ajax.Backend > POST', url, ' > data:', data, ', options:', opts);
 
-        creme.ajax.json.send(url, data, on_success, on_error, opts.sync, "POST", opts);
+        creme.ajax.jqueryAjaxSend(url, data, on_success, on_error, opts);
     },
 
     submit:function(form, on_success, on_error, options)
     {
-        var opts = $.extend({}, this.options, options);
+        var opts = $.extend({}, this.options, options, true);
 
         if (opts.debug)
             console.log('creme.ajax.Backend > SUBMIT', form.attr('action'), '> options:', opts);
@@ -103,6 +103,29 @@ creme.ajax.AjaxResponse = function(status, data, xhr) {
     };
 };
 
+// Code from https://docs.djangoproject.com/en/1.7/ref/contrib/csrf/#ajax
+creme.ajax.cookieAttr = function(name) {
+    var cookieValue = null;
+
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+creme.ajax.cookieCSRF = function() {
+    return creme.ajax.cookieAttr('csrftoken');
+}
+
 creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
 {
     var form_action = form.attr('action');
@@ -110,6 +133,8 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
     var options = options || {};
 
     form.attr('action', options.action || form_action);
+
+
 
     function parse_response_status(responseText) {
         if (responseText === "") {
@@ -144,5 +169,43 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
     };
 
     submit_options = $.extend({}, submit_options, options, true);
+
+    if ($('input[name="csrfmiddlewaretoken"]', form).length === 0) {
+        submit_options.headers = $.extend(options.headers || {}, {'X-CSRFToken': this.csrfHeaders()});
+    }
+
     $(form).ajaxSubmit(submit_options);
 }
+
+// TODO : This code is duplicated from creme.ajax.json.send and will replace it in the future
+// TODO : replace success_cb/error_cb by listeners.
+creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options)
+{
+    var csrf = creme.ajax.cookieCSRF();
+    var options = options || {};
+
+    var ajax_options = $.extend({
+        async:    !options.sync,
+        type:     options.method || 'GET',
+        url:      url,
+        data:     data !== undefined ? data : '',
+        dataType: "json",
+        success: function(data, textStatus) {
+            if (Object.isFunc(success_cb)) {
+                success_cb(data, textStatus);
+            }
+        },
+        error: function(req, textStatus, errorThrown) {
+            if (Object.isFunc(error_cb)) {
+                error_cb(req.responseText, creme.ajax.json._handleSendError(req, textStatus, errorThrown));
+            }
+        }
+    }, options);
+
+    if (Object.isEmpty(csrf) === false) {
+        ajax_options.headers = $.extend(options.headers || {}, {'X-CSRFToken': creme.ajax.cookieCSRF()});
+    }
+
+    $.ajax(ajax_options);
+}
+
