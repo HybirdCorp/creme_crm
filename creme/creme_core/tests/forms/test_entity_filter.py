@@ -14,7 +14,7 @@ try:
 #    from creme.creme_core.forms.entity_filter import *
     from creme.creme_core.models import (RelationType, CremePropertyType,
             EntityFilter, EntityFilterCondition, FieldsConfig,
-            CustomField, CustomFieldEnumValue)
+            CustomField, CustomFieldEnumValue, Language)
 
 #    from creme.persons.models import Organisation, Contact, Civility
 except Exception as e:
@@ -140,6 +140,19 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                      )[0]
         self.assertEqual(err.messages[0],
                          unicode([_(u'Select a valid choice. That choice is not one of the available choices.')])
+                        )
+
+    def test_clean_invalid_many2many_id(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        err = self.assertFieldRaises(ValidationError, clean,
+                                     self.CONDITION_FIELD_JSON_FMT % {
+                                             'operator': EntityFilterCondition.EQUALS,
+                                             'name':     'languages',
+                                             'value':    '"12445"',
+                                         }
+                                     )[0]
+        self.assertEqual(err.messages[0],
+                         unicode([_('Select a valid choice. %(value)s is not one of the available choices.') % {'value': 12445}])
                         )
 
     def test_iequals_condition(self):
@@ -339,6 +352,71 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual({'operator': operator,
                           'values':   [str(v) for v in values],
                          },
+                         condition.decoded_value
+                        )
+
+    def test_many2many(self):
+        "ManyToMany field"
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        name = 'languages'
+        value = Language.objects.all()[0].pk
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    value,
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(name,                            condition.name)
+        self.assertEqual({'operator': operator, 'values': [str(value)]},
+                         condition.decoded_value
+                        )
+
+    def test_multiple_many2many_as_list(self):
+        "ManyToMany field"
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        name = 'languages'
+        values = Language.objects.all().values_list('pk', flat=True)
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    json_encode([str(v) for v in values]),
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(name,                            condition.name)
+        self.assertEqual({'operator': operator,
+                          'values': [str(v) for v in values]},
+                         condition.decoded_value
+                        )
+
+    def test_multiple_many2many_as_string(self):
+        "ManyToMany field"
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        name = 'languages'
+        values = Language.objects.all().values_list('pk', flat=True)
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    '"' + ','.join(str(v) for v in values) + '"',
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(name,                            condition.name)
+        self.assertEqual({'operator': operator,
+                          'values': [str(v) for v in values]},
                          condition.decoded_value
                         )
 
@@ -917,19 +995,27 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         ct = ContentType.objects.get_for_model(Contact)
         create_cfield = partial(CustomField.objects.create, content_type=ct)
-        self.cfield_int   = create_cfield(name='Size',   field_type=CustomField.INT)
-        self.cfield_bool  = create_cfield(name='Valid',  field_type=CustomField.BOOL)
-        self.cfield_str   = create_cfield(name='Name',   field_type=CustomField.STR)
-        self.cfield_date  = create_cfield(name='Date',   field_type=CustomField.DATETIME)
-        self.cfield_float = create_cfield(name='Number', field_type=CustomField.FLOAT)
-        self.cfield_enum  = create_cfield(name='Enum',   field_type=CustomField.ENUM)
+        self.cfield_int       = create_cfield(name='Size',      field_type=CustomField.INT)
+        self.cfield_bool      = create_cfield(name='Valid',     field_type=CustomField.BOOL)
+        self.cfield_str       = create_cfield(name='Name',      field_type=CustomField.STR)
+        self.cfield_date      = create_cfield(name='Date',      field_type=CustomField.DATETIME)
+        self.cfield_float     = create_cfield(name='Number',    field_type=CustomField.FLOAT)
+        self.cfield_enum      = create_cfield(name='Enum',      field_type=CustomField.ENUM)
+        self.cfield_multienum = create_cfield(name='MultiEnum', field_type=CustomField.MULTI_ENUM)
 
         create_evalue = partial(CustomFieldEnumValue.objects.create,
                                 custom_field=self.cfield_enum,
                                )
         self.cfield_enum_A = create_evalue(value='A')
-        create_evalue(value='B')
-        create_evalue(value='C')
+        self.cfield_enum_B = create_evalue(value='B')
+        self.cfield_enum_C = create_evalue(value='C')
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create,
+                                custom_field=self.cfield_multienum,
+                               )
+        self.cfield_multienum_F = create_evalue(value='F')
+        self.cfield_multienum_G = create_evalue(value='G')
+        self.cfield_multienum_H = create_evalue(value='H')
 
     def _get_allowed_types(self, operator):
         return ' '.join(EntityFilterCondition._OPERATOR_MAP[operator].allowed_fieldtypes)
@@ -937,21 +1023,21 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_frompython_custom_int(self):
         EQUALS = EntityFilterCondition.EQUALS
         field = CustomFieldsConditionsField(model=Contact)
-        condition = EntityFilterCondition.build_4_customfield(self.cfield_int, EQUALS, 150)
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_int, EQUALS, [150])
         data = field._value_to_jsonifiable([condition])
 
-        self.assertEqual([{'field': {'id': self.cfield_int.id, 'type': 'number'},
+        self.assertEqual([{'field': {'id': self.cfield_int.id, 'type': 'number__null'},
                            'operator': {'id': EQUALS,
                                         'types': self._get_allowed_types(EQUALS),
                                        },
-                            'value': 150,
+                            'value': '150',
                            }
                          ], data)
 
     def test_frompython_custom_string(self):
         EQUALS = EntityFilterCondition.EQUALS
         field = CustomFieldsConditionsField(model=Contact)
-        condition = EntityFilterCondition.build_4_customfield(self.cfield_str, EQUALS, 'abc')
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_str, EQUALS, ['abc'])
         data = field._value_to_jsonifiable([condition])
 
         self.assertEqual([{'field': {'id': self.cfield_str.id, 'type': 'string'},
@@ -965,28 +1051,28 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_frompython_custom_bool(self):
         EQUALS = EntityFilterCondition.EQUALS
         field = CustomFieldsConditionsField(model=Contact)
-        condition = EntityFilterCondition.build_4_customfield(self.cfield_bool, EQUALS, False)
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_bool, EQUALS, [False])
         data = field._value_to_jsonifiable([condition])
 
-        self.assertEqual([{'field': {'id': self.cfield_bool.id, 'type': 'boolean'},
+        self.assertEqual([{'field': {'id': self.cfield_bool.id, 'type': 'boolean__null'},
                             'operator': {'id': EQUALS,
                                          'types': self._get_allowed_types(EQUALS),
                                         },
-                            'value': False,
+                            'value': u'False',
                           }
                          ], data)
 
     def test_frompython_custom_enum(self):
         EQUALS = EntityFilterCondition.EQUALS
         field = CustomFieldsConditionsField(model=Contact)
-        condition = EntityFilterCondition.build_4_customfield(self.cfield_enum, EQUALS, self.cfield_enum_A.id)
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_enum, EQUALS, [self.cfield_enum_A.id])
         data = field._value_to_jsonifiable([condition])
 
-        self.assertEqual([{'field': {'id': self.cfield_enum.id, 'type': 'enum'},
+        self.assertEqual([{'field': {'id': self.cfield_enum.id, 'type': 'enum__null'},
                             'operator': {'id': EQUALS,
                                          'types': self._get_allowed_types(EQUALS),
                                         },
-                            'value': self.cfield_enum_A.id,
+                            'value': unicode(self.cfield_enum_A.id),
                           }
                          ], data)
 
@@ -1011,7 +1097,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                                        )
 
         self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-                                        '[{"operator": {"id": "%(operator)s"}, "value": %(value)s}]' % {
+                                        '[{"operator": {"id": "%(operator)s"}, "value": [%(value)s]}]' % {
                                             'operator': EntityFilterCondition.EQUALS,
                                             'value': 170
                                         }
@@ -1059,7 +1145,149 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_int.id), condition.name)
         self.assertEqual({'operator': operator,
                           'rname': 'customfieldinteger',
-                          'value': unicode(value),
+                          'value': [unicode(value)],
+                         },
+                         condition.decoded_value
+                        )
+
+    def test_clean_enum(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        value = str(self.cfield_enum_A.pk)
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                'field':    self.cfield_enum.id,
+                                'operator': operator,
+                                'value':    value,
+                            }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_enum.id), condition.name)
+        self.assertEqual({'operator': operator,
+                          'rname': 'customfieldenum',
+                          'value': [value],
+                         },
+                         condition.decoded_value
+                        )
+
+    def test_clean_enum_as_string(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                'field':    self.cfield_enum.id,
+                                'operator': operator,
+                                'value':    '"' + ','.join([str(self.cfield_enum_A.pk),
+                                                            str(self.cfield_enum_B.pk)
+                                                           ]) + '"',
+                            }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_enum.id), condition.name)
+        self.assertEqual({'operator': operator,
+                          'rname': 'customfieldenum',
+                          'value': [str(self.cfield_enum_A.pk),
+                                    str(self.cfield_enum_B.pk)
+                                   ],
+                         },
+                         condition.decoded_value
+                        )
+
+    def test_clean_enum_as_list(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                'field':    self.cfield_enum.id,
+                                'operator': operator,
+                                'value':    [self.cfield_enum_A.pk,
+                                             self.cfield_enum_B.pk
+                                            ],
+                            }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_enum.id), condition.name)
+        self.assertEqual({'operator': operator,
+                          'rname': 'customfieldenum',
+                          'value': [str(self.cfield_enum_A.pk),
+                                    str(self.cfield_enum_B.pk)],
+                         },
+                         condition.decoded_value
+                        )
+
+    def test_clean_multienum(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        value = str(self.cfield_multienum_F.pk)
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                'field':    self.cfield_multienum.id,
+                                'operator': operator,
+                                'value':    value,
+                            }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_multienum.id), condition.name)
+        self.assertEqual({'operator': operator,
+                          'rname': 'customfieldmultienum',
+                          'value': [value],
+                         },
+                         condition.decoded_value
+                        )
+
+    def test_clean_multienum_as_string(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                'field':    self.cfield_multienum.id,
+                                'operator': operator,
+                                'value':    '"' + ','.join([str(self.cfield_multienum_F.pk),
+                                                            str(self.cfield_multienum_H.pk)
+                                                           ]) + '"',
+                            }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_multienum.id), condition.name)
+        self.assertEqual({'operator': operator,
+                          'rname': 'customfieldmultienum',
+                          'value': [str(self.cfield_multienum_F.pk),
+                                    str(self.cfield_multienum_H.pk)
+                                   ],
+                         },
+                         condition.decoded_value
+                        )
+
+    def test_clean_multienum_as_list(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                'field':    self.cfield_multienum.id,
+                                'operator': operator,
+                                'value':    [self.cfield_multienum_F.pk,
+                                             self.cfield_multienum_H.pk],
+                            }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_multienum.id), condition.name)
+        self.assertEqual({'operator': operator,
+                          'rname': 'customfieldmultienum',
+                          'value': [str(self.cfield_multienum_F.pk),
+                                    str(self.cfield_multienum_H.pk)
+                                   ],
                          },
                          condition.decoded_value
                         )
@@ -1078,7 +1306,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         condition = conditions[0]
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(str(self.cfield_str.id),               condition.name)
-        self.assertEqual({'operator': operator, 'rname': 'customfieldstring', 'value': u''},
+        self.assertEqual({'operator': operator, 'rname': 'customfieldstring', 'value': []},
                          condition.decoded_value
                         )
 
