@@ -231,7 +231,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(str(custom_field.id),                  condition.name)
-        self.assertEqual({'operator': cfield_operator, 'rname': 'customfieldinteger', 'value': unicode(cfield_value)},
+        self.assertEqual({'operator': cfield_operator, 'rname': 'customfieldinteger', 'value': [unicode(cfield_value)]},
                          condition.decoded_value
                         )
 
@@ -660,7 +660,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
         cf_cond = EntityFilterCondition.build_4_customfield(custom_field=custom_field,
                                                             operator=EntityFilterCondition.ICONTAINS,
-                                                            value='Ed',
+                                                            value=['Ed'],
                                                            )
         datecf_cond = EntityFilterCondition.build_4_datecustomfield(custom_field=datecfield,
                                                                     start=date(year=2010, month=1, day=1),
@@ -776,7 +776,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(str(custom_field.id),                  condition.name)
         self.assertEqual({'operator': cfield_operator,
                           'rname':    'customfieldstring',
-                          'value':    unicode(cfield_value),
+                          'value':    [unicode(cfield_value)],
                          },
                          condition.decoded_value
                         )

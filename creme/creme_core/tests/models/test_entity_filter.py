@@ -1676,7 +1676,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create('test-filter01', name='Small', model=Contact, is_custom=True)
         cond = EntityFilterCondition.build_4_customfield(custom_field=custom_field,
                                                          operator=EntityFilterCondition.LTE,
-                                                         value=155
+                                                         value=[155]
                                                         )
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, cond.type)
 
@@ -1702,7 +1702,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                             custom_field=custom_field01,
                                                             operator=EntityFilterCondition.GTE,
-                                                            value=155
+                                                            value=[155]
                                                            )
                                                  ]
                                      )
@@ -1721,8 +1721,23 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                         custom_field=custom_field,
                                                         operator=EntityFilterCondition.CONTAINS_NOT,
-                                                        value='00'
+                                                        value=['00']
                                                        )
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', exclude=True))
+
+        # Old filter format compatibility
+        cfield_rname = custom_field.get_value_class().get_related_name()
+        efilter = EntityFilter.create('test-filter01-old', name='not 00', model=Contact,
+                                      conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                                                                        name=str(custom_field.id),
+                                                                        value=EntityFilterCondition.encode_value({
+                                                                            'operator': EntityFilterCondition.CONTAINS_NOT,
+                                                                            'value': '00',
+                                                                            'rname': cfield_rname,
+                                                                        })
+                                                                       )
                                                  ],
                                      )
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', exclude=True))
@@ -1749,12 +1764,36 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create('test-filter01', name='Not so small but light', model=Contact,
                                       conditions=[build_cond(custom_field=custom_field01,
                                                              operator=EntityFilterCondition.GTE,
-                                                             value=155
+                                                             value=[155]
                                                             ),
                                                   build_cond(custom_field=custom_field02,
                                                              operator=EntityFilterCondition.LTE,
-                                                             value=100
+                                                             value=[100]
                                                             ),
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, [asuka.id])
+
+        # Old filter format compatibility
+        cfield01_rname = custom_field01.get_value_class().get_related_name()
+        cfield02_rname = custom_field02.get_value_class().get_related_name()
+        efilter = EntityFilter.create('test-filter01-old', name='Not so small but light', model=Contact,
+                                      conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                                                                        name=str(custom_field01.id),
+                                                                        value=EntityFilterCondition.encode_value({
+                                                                            'operator': EntityFilterCondition.GTE,
+                                                                            'value': 155,
+                                                                            'rname': cfield01_rname,
+                                                                        })
+                                                                       ),
+                                                  EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                                                                        name=str(custom_field02.id),
+                                                                        value=EntityFilterCondition.encode_value({
+                                                                            'operator': EntityFilterCondition.LTE,
+                                                                            'value': 100,
+                                                                            'rname': cfield02_rname,
+                                                                        })
+                                                                       )
                                                  ],
                                      )
         self.assertExpectedFiltered(efilter, Contact, [asuka.id])
@@ -1777,8 +1816,23 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                             custom_field=custom_field,
                                                             operator=EntityFilterCondition.LTE,
-                                                            value='40'
+                                                            value=['40']
                                                         ),
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, [ed.id, rei.id])
+
+        # Old filter format compatibility
+        cfield_rname = custom_field.get_value_class().get_related_name()
+        efilter = EntityFilter.create('test-filter01-old', name='<= 40', model=Contact,
+                                      conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                                                                        name=str(custom_field.id),
+                                                                        value=EntityFilterCondition.encode_value({
+                                                                            'operator': EntityFilterCondition.LTE,
+                                                                            'value': '40',
+                                                                            'rname': cfield_rname,
+                                                                        })
+                                                                       )
                                                  ],
                                      )
         self.assertExpectedFiltered(efilter, Contact, [ed.id, rei.id])
@@ -1803,11 +1857,55 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                          custom_field=custom_field,
                                                          operator=EntityFilterCondition.EQUALS,
-                                                         value=eva00.id, #TODO: "value=eva00"
+                                                         value=[eva00.id], #TODO: "value=eva00"
                                                         ),
                                                  ],
                                      )
         self.assertExpectedFiltered(efilter, Contact, [rei.id])
+
+        # Old filter format compatibility
+        cfield_rname = custom_field.get_value_class().get_related_name()
+        efilter = EntityFilter.create('test-filter01-old', name='Eva-00', model=Contact,
+                                      conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                                                                        name=str(custom_field.id),
+                                                                        value=EntityFilterCondition.encode_value({
+                                                                            'operator': EntityFilterCondition.EQUALS,
+                                                                            'value': eva00.id,
+                                                                            'rname': cfield_rname,
+                                                                        })
+                                                                       )
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, [rei.id])
+
+    def test_customfield_enum_multiple(self):
+        "ENUM"
+        rei = self.contacts['rei']
+        asuka = self.contacts['asuka']
+        shinji = self.contacts['shinji']
+
+        custom_field = CustomField.objects.create(name='Eva', content_type=self.contact_ct, field_type=CustomField.ENUM)
+        create_evalue = CustomFieldEnumValue.objects.create
+        eva00 = create_evalue(custom_field=custom_field, value='Eva-00')
+        eva01 = create_evalue(custom_field=custom_field, value='Eva-01')
+        eva02 = create_evalue(custom_field=custom_field, value='Eva-02')
+
+        klass = custom_field.get_value_class()
+        klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
+        klass(custom_field=custom_field, entity=asuka).set_value_n_save(eva02.id)
+        klass(custom_field=custom_field, entity=shinji).set_value_n_save(eva01.id)
+
+        self.assertEqual(3, CustomFieldEnum.objects.count())
+
+        efilter = EntityFilter.create('test-filter01', name='Eva-00', model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_customfield(
+                                                         custom_field=custom_field,
+                                                         operator=EntityFilterCondition.EQUALS,
+                                                         value=[eva00.id, eva02.id], #TODO: "value=eva00"
+                                                        ),
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, [rei.id, asuka.id])
 
     def test_customfield07(self): #BOOL
         rei = self.contacts['rei']
@@ -1822,7 +1920,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                             custom_field=custom_field,
                                                             operator=EntityFilterCondition.EQUALS,
-                                                            value=True,
+                                                            value=[True],
                                                            ),
                                                  ]
                                      )
@@ -1834,8 +1932,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create('test-filter01', name='Small', model=Contact, is_custom=True)
         build = EntityFilterCondition.build_4_customfield
-        efilter.set_conditions([build(custom_field=custom_field01, operator=EntityFilterCondition.LTE, value=155),
-                                build(custom_field=custom_field02, operator=EntityFilterCondition.LTE, value=155),
+        efilter.set_conditions([build(custom_field=custom_field01, operator=EntityFilterCondition.LTE, value=[155]),
+                                build(custom_field=custom_field02, operator=EntityFilterCondition.LTE, value=[155]),
                                ])
 
         custom_field01.delete()
@@ -1855,7 +1953,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                          custom_field=custom_field,
                                                          operator=EntityFilterCondition.ISEMPTY,
-                                                         value=True
+                                                         value=[True]
                                                         ),
                                                  ]
                                      )
@@ -1865,7 +1963,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                          custom_field=custom_field,
                                                          operator=EntityFilterCondition.ISEMPTY,
-                                                         value=False,
+                                                         value=[False],
                                                         ),
                                                  ]
                                      )
@@ -1888,7 +1986,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                          custom_field=custom_field,
                                                          operator=EntityFilterCondition.ISEMPTY,
-                                                         value=True,
+                                                         value=[True],
                                                         ),
                                                  ]
                                       )
@@ -1899,7 +1997,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                          custom_field=custom_field,
                                                          operator=EntityFilterCondition.ISEMPTY,
-                                                         value=False
+                                                         value=[False]
                                                         ),
                                                  ],
                                      )
@@ -1917,7 +2015,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                             custom_field=custom_field,
                                                             operator=EntityFilterCondition.ISEMPTY,
-                                                            value=True,
+                                                            value=[True],
                                                            )
                                                  ],
                                      )
@@ -1927,7 +2025,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       conditions=[EntityFilterCondition.build_4_customfield(
                                                         custom_field=custom_field,
                                                         operator=EntityFilterCondition.ISEMPTY,
-                                                        value=False,
+                                                        value=[False],
                                                        ),
                                                  ],
                                      )

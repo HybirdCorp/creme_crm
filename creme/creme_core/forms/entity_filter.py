@@ -243,9 +243,10 @@ class CustomFieldConditionWidget(FieldConditionWidget):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        pinput.add_dselect('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
-                           '/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs,
-                          )
+        pinput.add_input('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+                          widget=DynamicSelectMultiple,
+                          url='/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs,
+                        )
         pinput.add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
                          NullableDateRangeSelect, attrs={'auto': False},
                         )
@@ -267,10 +268,16 @@ class CustomFieldConditionWidget(FieldConditionWidget):
     def customfield_rname_choicetype(value):
         type = value[len('customfield'):]
 
-        if type in ('integer', 'double', 'float'):
-            return 'number'
+        if type == 'string':
+            return 'string'
 
-        return type
+        if type in ('integer', 'double', 'float'):
+            return 'number__null'
+
+        if type in ('enum', 'multienum'):
+            return 'enum__null'
+
+        return type + '__null'
 
 
 class DateCustomFieldsConditionsWidget(SelectorList):
@@ -720,11 +727,14 @@ class CustomFieldsConditionsField(_ConditionsField):
             operator_id = search_info['operator']
             operator = EntityFilterCondition._OPERATOR_MAP.get(operator_id)
 
-            field_entry = {'id': int(condition.name), 'type': customfield_rname_choicetype(search_info['rname'])}
+            field_type = customfield_rname_choicetype(search_info['rname'])
+            field_entry = {'id': int(condition.name), 'type': field_type}
+
+            value = u','.join(unicode(v) for v in search_info['value'])
 
             dicts.append({'field':    field_entry,
                           'operator': {'id': operator_id, 'types': ' '.join(operator.allowed_fieldtypes)},
-                          'value':    search_info['value'],
+                          'value':    value,
                          })
 
         return dicts
@@ -763,7 +773,12 @@ class CustomFieldsConditionsField(_ConditionsField):
         if isinstance(operator_class, _ConditionBooleanOperator):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
         else:
-            values = clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',')
+            if entry is not None and isinstance(entry.get('value'), list):
+                values = clean_value(entry, 'value', list, required_error_key='invalidvalue')
+            else:
+                values = clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',')
+
+            values = [v for v in values if v]
 
         return operator, values
 
@@ -778,7 +793,7 @@ class CustomFieldsConditionsField(_ConditionsField):
                 operator, values = clean_operator_n_values(entry)
                 conditions.append(build_condition(custom_field=clean_cfield(entry),
                                                   operator=operator,
-                                                  value=values[0]
+                                                  value=values
                                                  )
                                  )
         except EntityFilterCondition.ValueError as e:

@@ -29,7 +29,8 @@ import warnings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (Model, CharField, TextField, BooleanField,
-        PositiveSmallIntegerField, ForeignKey, Q)
+        PositiveSmallIntegerField, ForeignKey, Q, ManyToManyField)
+
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
@@ -690,6 +691,7 @@ class _ConditionOperator(object):
         if not field.__class__ in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
             clean = field.formfield().clean
             variable = None
+            is_multiple = isinstance(field, ManyToManyField)
 
             for value in values:
                 variable = EntityFilter.get_variable(value)
@@ -697,7 +699,7 @@ class _ConditionOperator(object):
                 if variable is not None:
                     variable.validate(field, value)
                 else:
-                    clean(value)
+                    clean([value] if is_multiple else value)
 
         return values
 
@@ -863,17 +865,25 @@ class EntityFilterCondition(Model):
         if custom_field.field_type == CustomField.BOOL and operator != EntityFilterCondition.EQUALS:
             raise EntityFilterCondition.ValueError('build_4_customfield(): BOOL type is only compatible with EQUALS operator')
 
+        if not isinstance(value, (list, tuple)):
+            raise EntityFilterCondition.ValueError('build_4_customfield(): value is not an array')
+
         cf_value_class = custom_field.get_value_class()
 
         try:
             if operator == EntityFilterCondition.ISEMPTY:
                 operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
-                operator_obj.validate_field_values(None, [value])
+                value = operator_obj.validate_field_values(None, value)
+            elif custom_field.field_type == CustomField.MULTI_ENUM:
+                clean_value = cf_value_class.get_formfield(custom_field, None).clean
+                value = [unicode(clean_value([v])[0]) for v in value]
             else:
-                cf_value_class.get_formfield(custom_field, None).clean(value)
+                clean_value = cf_value_class.get_formfield(custom_field, None).clean
+                value = [unicode(clean_value(v)) for v in value]
         except Exception as e:
             raise EntityFilterCondition.ValueError(str(e))
 
+        # TODO: migration that replace single value by arrays of values.
         value = {'operator': operator,
                  'value':    value,
                  'rname':    cf_value_class.get_related_name(),
@@ -1054,14 +1064,26 @@ class EntityFilterCondition(Model):
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
         related_name = search_info['rname']
         fname = '%s__value' % related_name
+        resolve = EntityFilter.resolve_variable
+        values = search_info['value']
+
+        # HACK : compatibility code thats convert old filters values into array.
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+
+        values = [resolve(value, user) for value in values]
 
         if isinstance(operator, _IsEmptyOperator):
-            query = Q(**{'%s__isnull' % related_name: search_info['value']})
+            query = Q(**{'%s__isnull' % related_name: values[0]})
         else:
-            query = Q(**{'%s__custom_field' % related_name: int(self.name),
-                         operator.key_pattern % fname:      search_info['value'],
-                        }
-                     )
+            query = Q(**{'%s__custom_field' % related_name: int(self.name)})
+            key = operator.key_pattern % fname
+            filter = Q()
+
+            for value in values:
+                filter |= Q(**{key: value})
+
+            query &= filter
 
         if operator.exclude:
             query.negate()
