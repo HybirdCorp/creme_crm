@@ -14,7 +14,8 @@ try:
 #    from creme.creme_core.forms.entity_filter import *
     from creme.creme_core.models import (RelationType, CremePropertyType,
             EntityFilter, EntityFilterCondition, FieldsConfig,
-            CustomField, CustomFieldEnumValue, Language)
+            CustomField, CustomFieldEnumValue, Language,
+            CremeEntity)
 
 #    from creme.persons.models import Organisation, Contact, Civility
 except Exception as e:
@@ -425,16 +426,23 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         field_choicetype = FieldConditionWidget.field_choicetype
         get_field = Contact._meta.get_field
 
-        self.assertEqual(field_choicetype(get_field('civility')), 'enum__null')
+        civility_field = get_field('civility')
+        self.assertTrue(civility_field.get_tag('enumerable'))
+        self.assertFalse(issubclass(civility_field.rel.to, CremeEntity))
+        self.assertEqual(field_choicetype(civility_field), 'enum__null')
 
         self.assertEqual(field_choicetype(get_field('birthday')), 'date__null')
         self.assertEqual(field_choicetype(get_field('created')),  'date')
 
-        #self.assertEqual(field_choicetype(get_field('billing_address')),  'fk__null')
         self.assertEqual(field_choicetype(get_field('address')),  'fk__null')
 
         self.assertEqual(field_choicetype(get_field('user')),     'user')
         self.assertEqual(field_choicetype(get_field('is_user')),  'user__null')
+
+        image_field = get_field('image')
+        self.assertTrue(image_field.get_tag('enumerable'))
+        self.assertTrue(issubclass(image_field.rel.to, CremeEntity))
+        self.assertEqual(field_choicetype(image_field),    'fk__null')
 
 #     def test_ok02(self):
 #         "ISEMPTY -> boolean"
