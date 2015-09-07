@@ -130,14 +130,19 @@ class FieldConditionWidget(ChainedInput):
 
         if subfield is not None:
             category = field.verbose_name
+            choice_type = FieldConditionWidget.field_choicetype(subfield)
             choice_label = u'[%s] - %s' % (category, subfield.verbose_name)
-            choice_value = {'name': name, 'type': FieldConditionWidget.field_choicetype(subfield)}
-        else:
-            choice_label = field.verbose_name
-            choice_value = {'name': name, 'type': FieldConditionWidget.field_choicetype(field)}
+            choice_value = {'name': name, 'type': choice_type}
 
-        if choice_value['type'] in EntityFilterCondition._FIELDTYPES_RELATED:
-            choice_value['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
+            if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
+                choice_value['ctype'] = ContentType.objects.get_for_model(subfield.rel.to).id
+        else:
+            choice_type = FieldConditionWidget.field_choicetype(field)
+            choice_label = field.verbose_name
+            choice_value = {'name': name, 'type': choice_type}
+
+            if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
+                choice_value['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
 
         return category, (json.dumps(choice_value), choice_label)
 
@@ -161,7 +166,7 @@ class FieldConditionWidget(ChainedInput):
             if issubclass(field.rel.to, get_user_model()):
                 return 'user' + isnull
 
-            if field.get_tag('enumerable'):
+            if not issubclass(field.rel.to, CremeEntity) and field.get_tag('enumerable'):
                 return 'enum' + isnull
 
             return 'fk' + isnull
