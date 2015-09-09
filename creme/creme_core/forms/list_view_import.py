@@ -1141,7 +1141,8 @@ class ImportForm(CremeModelForm):
 
                 if key_fields:
                     try:
-                        instance = model_class.objects.get(**dict((fname, extr_value) 
+                        instance = model_class.objects.exclude(is_deleted=True) \
+                                                      .get(**dict((fname, extr_value) 
 #                                                                    for fname, extr_value in extr_values
                                                                     for fname, extr_value, __ in extr_values
                                                                         if fname in key_fields
