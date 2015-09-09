@@ -1211,9 +1211,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
                                 'field':    self.cfield_enum.id,
                                 'operator': operator,
-                                'value':    [self.cfield_enum_A.pk,
-                                             self.cfield_enum_B.pk
-                                            ],
+                                'value':    '[' + ','.join([str(self.cfield_enum_A.pk),
+                                                            str(self.cfield_enum_B.pk)
+                                                           ]) + ']',
                             }
                           )
         self.assertEqual(1, len(conditions))
@@ -1282,8 +1282,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
                                 'field':    self.cfield_multienum.id,
                                 'operator': operator,
-                                'value':    [self.cfield_multienum_F.pk,
-                                             self.cfield_multienum_H.pk],
+                                'value':    '[' + ','.join([str(self.cfield_multienum_F.pk),
+                                                            str(self.cfield_multienum_H.pk)
+                                                           ]) + ']',
                             }
                           )
         self.assertEqual(1, len(conditions))
