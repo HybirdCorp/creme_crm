@@ -637,7 +637,7 @@ class Migration(migrations.Migration):
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     #('description', models.TextField(null=True, verbose_name='Description', blank=True)),
-                    #('filedata', models.FileField(upload_to=b'upload/documents', max_length=500, verbose_name='File')),
+                    ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File')),
                     ('folder', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Folder', to='creme_core.FakeFolder')),
                 ],
                 options={
@@ -666,6 +666,7 @@ class Migration(migrations.Migration):
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                     ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File')),
                     ('categories', models.ManyToManyField(related_name='+', null=True, verbose_name='Categories', to='creme_core.FakeImageCategory', blank=True)),
                     ('exif_date', models.DateField(null=True, verbose_name='Exif date', blank=True)),
                 ],

@@ -27,7 +27,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelDateField,
         IntegerField as ModelIntegerField, FloatField as ModelFloatField,
-        DecimalField as ModelDecimalField, BooleanField as ModelBooleanField)
+        DecimalField as ModelDecimalField, BooleanField as ModelBooleanField,
+        FileField as ModelFileField)
 from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
 #from django.forms.utils import ErrorList
@@ -45,7 +46,8 @@ from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import (Label, DynamicInput, SelectorList, ChainedInput,
         EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect,
-        DynamicSelect, DynamicSelectMultiple, PolymorphicInput, CremeRadioSelect, NullableDateRangeSelect)
+        DynamicSelect, DynamicSelectMultiple, PolymorphicInput, CremeRadioSelect,
+        NullableDateRangeSelect)
 
 
 TRUE = 'true'
@@ -384,23 +386,27 @@ class RegularFieldsConditionsField(_ConditionsField):
         'invalidoperator': _(u"This operator is invalid."),
         'invalidvalue':    _(u"This value is invalid."),
     }
+    excluded_fields = (ModelFileField,)
 
     _non_hiddable_fnames = ()
 
 #    def _build_related_fields(self, field, fields):
 #        fname = field.name
 #        related_model = field.rel.to #todo: inline
+#        excluded = self.excluded_fields
 #
 #        if field.get_tag('enumerable'): #and not issubclass(related_model, CremeEntity):
 #            fields[field.name] = [field]
 #
 #        for subfield in related_model._meta.fields:
-#            if subfield.get_tag('viewable') and not is_date_field(subfield):
+#            if subfield.get_tag('viewable') and not is_date_field(subfield) \
+#               and not isinstance(subfield, excluded):
 #                fields['%s__%s' % (fname, subfield.name)] =  [field, subfield]
     def _build_related_fields(self, field, fields, fconfigs):
         fname = field.name
         related_model = field.rel.to
         field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
+        excluded = self.excluded_fields
 
         if field.get_tag('enumerable') and not field_hidden:
             fields[field.name] = [field]
@@ -409,7 +415,8 @@ class RegularFieldsConditionsField(_ConditionsField):
         non_hiddable_fnames = self._non_hiddable_fnames
 
         for subfield in related_model._meta.fields:
-            if subfield.get_tag('viewable') and not is_date_field(subfield):
+            if subfield.get_tag('viewable') and not is_date_field(subfield) \
+               and not isinstance(subfield, excluded):
                 full_name = '%s__%s' % (fname, subfield.name)
 
                 if not (field_hidden or is_sfield_hidden(subfield)) or \
@@ -423,10 +430,12 @@ class RegularFieldsConditionsField(_ConditionsField):
         non_hiddable_fnames = self._non_hiddable_fnames
         fconfigs = FieldsConfig.LocalCache()
         is_field_hidden = fconfigs.get_4_model(model).is_field_hidden
+        excluded = self.excluded_fields
 
         # TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
         for field in model._meta.fields:
-            if field.get_tag('viewable') and not is_date_field(field):
+            if field.get_tag('viewable') and not is_date_field(field) \
+               and not isinstance(field, excluded):
 #                if field.get_internal_type() == 'ForeignKey': #todo: if isinstance(field, ModelForeignKey)
 #                    self._build_related_fields(field, fields)
 #                else:

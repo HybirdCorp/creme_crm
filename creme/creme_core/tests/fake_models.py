@@ -61,7 +61,7 @@ else:
     class FakeDocument(CremeEntity):
         title       = models.CharField(_(u'Title'), max_length=100)
 #        description = models.TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
-#        filedata    = models.FileField(_(u'File'), max_length=500, upload_to='upload/documents')
+        filedata    = models.FileField(_(u'File'), max_length=100, upload_to='upload/creme_core-tests')
         folder      = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
 
 #        creation_label = _('Add a document')
@@ -103,8 +103,11 @@ else:
         name        = models.CharField(_(u'Name'), max_length=100, blank=True, null=True)
         description = models.TextField(_(u'Description'), blank=True, null=True)\
                             .set_tags(optional=True)
-    #    image       = ImageField(_('Image'), height_field='height', width_field='width',
-    #                             upload_to='upload/images', max_length=500)
+#        image       = ImageField(_('Image'), height_field='height', width_field='width',
+#                                 upload_to='upload/images', max_length=500)
+        filedata    = models.FileField(_(u'File'), max_length=100, editable=False,
+                                       upload_to='upload/creme_core-tests',
+                                      )
         categories  = models.ManyToManyField(FakeImageCategory,
                                              verbose_name=_(u'Categories'),
                                              related_name='+',
@@ -113,7 +116,7 @@ else:
         exif_date   = models.DateField(_(u"Exif date"), blank=True, null=True)\
                             .set_tags(optional=True)
 
-    #    creation_label = _('Add an image')
+#        creation_label = _('Add an image')
 
         class Meta:
             app_label = 'creme_core'
@@ -124,15 +127,15 @@ else:
         def __unicode__(self):
             return self.name
 
-    #    def get_absolute_url(self):
-    #        return "/media_managers/image/%s" % self.id
+#        def get_absolute_url(self):
+#            return "/media_managers/image/%s" % self.id
 
         @staticmethod
         def get_lv_absolute_url():
             return '/tests/images'
 
-    #    def get_edit_absolute_url(self):
-    #        return "/media_managers/image/edit/%s" % self.id
+#        def get_edit_absolute_url(self):
+#            return "/media_managers/image/edit/%s" % self.id
 
 
     class FakeCivility(CremeModel):
