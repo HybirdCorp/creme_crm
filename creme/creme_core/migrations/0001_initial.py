@@ -603,6 +603,51 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
+                name='FakeFolderCategory',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Folder category',
+                    'verbose_name_plural': 'Test Folder categories',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
+                name='FakeFolder',
+                fields=[
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                    ('title', models.CharField(max_length=100, verbose_name='Title')),
+                    #('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    ('category', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Category', blank=True, to='creme_core.FakeFolderCategory', null=True)), #related_name='folder_category_set'
+                    #('folder', models.ForeignKey(related_name='parent_folder_set', verbose_name='Parent folder', blank=True, to='creme_core.FakeFolder', null=True)),
+                ],
+                options={
+                    'ordering': ('title',),
+                    'verbose_name': 'Test Folder',
+                    'verbose_name_plural': 'Test Folders',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+            migrations.CreateModel(
+                name='FakeDocument',
+                fields=[
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                    ('title', models.CharField(max_length=100, verbose_name='Title')),
+                    #('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    #('filedata', models.FileField(upload_to=b'upload/documents', max_length=500, verbose_name='File')),
+                    ('folder', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Folder', to='creme_core.FakeFolder')),
+                ],
+                options={
+                    'ordering': ('title',),
+                    'verbose_name': 'Test Document',
+                    'verbose_name_plural': 'Test Documents',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+            migrations.CreateModel(
                 name='FakeImageCategory',
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),

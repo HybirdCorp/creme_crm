@@ -42,7 +42,7 @@ try:
 #        from creme.opportunities.models import Opportunity, SalesPhase
 #        from creme.opportunities.constants import REL_SUB_EMIT_ORGA
 
-    from .fake_models import FakeFolder as Folder, FakeDocument as Document
+    from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document
 
     from .. import report_model_is_custom, rgraph_model_is_custom
     from ..constants import RFT_FIELD # RFT_AGG_FIELD RFT_RELATION

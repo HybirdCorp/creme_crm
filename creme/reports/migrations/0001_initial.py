@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
     if settings.TESTS_ON:
         operations.extend([
             migrations.CreateModel(
-                name='FakeFolder',
+                name='FakeReportsFolder',
                 fields=[
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                     ('title', models.CharField(unique=True, max_length=100, verbose_name='Title')),
@@ -86,23 +86,23 @@ class Migration(migrations.Migration):
                 ],
                 options={
                     'ordering': ('title',),
-                    'verbose_name': 'Test Folder',
-                    'verbose_name_plural': 'Test Folders',
+                    'verbose_name': 'Test (reports) Folder',
+                    'verbose_name_plural': 'Test (reports) Folders',
                 },
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
-                name='FakeDocument',
+                name='FakeReportsDocument',
                 fields=[
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
-                    ('folder', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Folder', to='reports.FakeFolder')),
+                    ('folder', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Folder', to='reports.FakeReportsFolder')),
                 ],
                 options={
                     'ordering': ('title',),
-                    'verbose_name': 'Test Document',
-                    'verbose_name_plural': 'Test Documents',
+                    'verbose_name': 'Test (reports) Document',
+                    'verbose_name_plural': 'Test (reports) Documents',
                 },
                 bases=('creme_core.cremeentity',),
             ),

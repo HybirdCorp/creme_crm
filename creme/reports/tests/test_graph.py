@@ -33,7 +33,7 @@ try:
 #        from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
     from .base import BaseReportsTestCase, skipIfCustomReport, skipIfCustomRGraph
-    from .fake_models import FakeFolder as Folder, FakeDocument as Document
+    from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document
 
     from ..blocks import ReportGraphBlock
     from ..core.graph import ListViewURLBuilder

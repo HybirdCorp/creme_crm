@@ -19,6 +19,73 @@ else:
     from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
 
 
+    class FakeFolderCategory(CremeModel):
+        name      = models.CharField(_(u'Category name'), max_length=100, unique=True)
+#        is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+
+        def __unicode__(self):
+            return self.name
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = u'Test Folder category'
+            verbose_name_plural = u'test Folder categories'
+            ordering = ('name',)
+
+
+    class FakeFolder(CremeEntity):
+        title     = models.CharField(_(u'Title'), max_length=100)
+#        description   = models.TextField(_(u'Description'), null=True, blank=True).set_tags(optional=True)
+#        parent = models.ForeignKey('self', verbose_name=_(u'Parent folder'),
+#                                   blank=True, null=True, related_name='children',
+#                                  )
+        category  = models.ForeignKey(FakeFolderCategory, verbose_name=_(u'Category'),
+                                      blank=True, null=True, on_delete=models.SET_NULL,
+                                      #related_name='folder_category_set',
+                                     )
+
+#        allowed_related = CremeEntity.allowed_related | {'document'}
+#        creation_label = _('Add a folder')
+
+        class Meta:
+            app_label = 'creme_core'
+#            unique_together = ('title', 'folder', 'category')
+            verbose_name = u'Test Folder'
+            verbose_name_plural = u'Test Folders'
+            ordering = ('title',)
+
+        def __unicode__(self):
+            return self.title
+
+
+    class FakeDocument(CremeEntity):
+        title       = models.CharField(_(u'Title'), max_length=100)
+#        description = models.TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
+#        filedata    = models.FileField(_(u'File'), max_length=500, upload_to='upload/documents')
+        folder      = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
+
+#        creation_label = _('Add a document')
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Document'
+            verbose_name_plural = u'Test Documents'
+            ordering = ('title',)
+
+        def __unicode__(self):
+            return u'%s - %s' % (self.folder, self.title)
+
+#        def get_absolute_url(self):
+#           return "/documents/document/%s" % self.id
+
+        @staticmethod
+        def get_lv_absolute_url():
+            return '/tests/documents'
+
+#        def get_edit_absolute_url(self):
+#            return "/documents/document/edit/%s" % self.id
+
+
     class FakeImageCategory(CremeModel):
         name = models.CharField(_(u'Name'), max_length=100)
 
