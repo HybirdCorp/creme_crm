@@ -926,6 +926,39 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                         )
         self.assertEqual(rei, error.instance)
 
+    def test_import_with_update03(self):
+        "Ignore trashed entities"
+        user = self.login()
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+
+        c = Contact.objects.create(user=user, last_name=last_name, first_name='Lei')
+        c.trash()
+
+        count = Contact.objects.count()
+
+        doc = self._build_csv_doc([(last_name, first_name)])
+        response = self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.lv_import_data, document=doc.id,
+                                              user=user.id,
+                                              key_fields=['last_name'],
+                                              last_name_colselect=1,
+                                              first_name_colselect=2,
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual(1, form.lines_count)
+        self.assertEqual(1, form.imported_objects_count)
+        self.assertEqual(0, form.updated_objects_count)
+
+        self.assertEqual(count + 1, Contact.objects.count())
+        self.get_object_or_fail(Contact, last_name=last_name, first_name=first_name)
+
     #def test_import_with_updateXX(self): TODO: test search on FK ? exclude them ??
 
     def test_fields_config(self):
