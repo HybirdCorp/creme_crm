@@ -11,7 +11,8 @@ try:
 
     from .base import ViewsTestCase
     from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeCivility as Civility)
+            FakeOrganisation as Organisation, FakeCivility as Civility,
+            FakeImage as Image, FakeDocument as Document)
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             EntityFilterVariable, CustomField, RelationType, CremePropertyType)
 
@@ -638,6 +639,53 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = post(subfilter1, subfilter2)
         self.assertNoFormError(response)
         self.get_object_or_fail(EntityFilter, name=name)
+
+    def test_non_filterable_fields01(self):
+        "FileFields cannot be filtered"
+        self.login()
+
+        with self.assertNoException():
+            Document._meta.get_field('filedata')
+
+        ct = ContentType.objects.get_for_model(Document)
+        response = self.assertPOST200(self._build_add_url(ct),
+                                      follow=True,
+                                      data={'name':              'Filter 01',
+                                            'use_or':            'False',
+                                            'fields_conditions': self.FIELDS_CONDS_FMT % {
+                                                                        'operator': EntityFilterCondition.IEQUALS,
+                                                                        'name':     'filedata',
+                                                                        'value':    '"foobar"',
+                                                                    },
+                                            }
+                                    )
+        self.assertFormError(response, 'form', 'fields_conditions',
+                             _(u"This field is invalid with this model.")
+                            )
+
+    def test_non_filterable_fields02(self):
+        "FileFields cannot be filtered (sub-field version)"
+        self.login()
+
+        with self.assertNoException():
+            #Image._meta.get_field('image')
+            Image._meta.get_field('filedata')
+
+        response = self.assertPOST200(self._build_add_url(self.ct_contact),
+                                      follow=True,
+                                      data={'name':              'Filter 01',
+                                            'use_or':            'False',
+                                            'fields_conditions': self.FIELDS_CONDS_FMT % {
+                                                                        'operator': EntityFilterCondition.IEQUALS,
+                                                                        #'name':     'image__image',
+                                                                        'name':     'image__filedata',
+                                                                        'value':    '"foobar"',
+                                                                    },
+                                            }
+                                    )
+        self.assertFormError(response, 'form', 'fields_conditions',
+                             _(u"This field is invalid with this model.")
+                            )
 
     def test_edit01(self):
         self.login()
