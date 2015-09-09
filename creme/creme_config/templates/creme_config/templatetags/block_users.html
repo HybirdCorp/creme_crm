@@ -1,14 +1,13 @@
-{% load i18n %}
-{% load creme_block creme_core_tags %}
-{% with has_perm=user.is_superuser current_user_id=user.id %}
+{% load i18n creme_block creme_core_tags %}
+{% with has_perm=user.is_superuser current_user_id=user.id colspan=11 %}{% trans 'Superuser' as superuser_label %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=11 %}
+    {% get_block_header colspan=colspan %}
         <th class="label">{% get_block_title  _('%s User') _('%s Users') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
-            <th class="block_header_line_light" colspan="11">
+            <th class="block_header_line_light" colspan="{{colspan}}">
                 {% get_line_adder at_url '/creme_config/user/add/' with_label _("New user") with_perms has_perm %}
             </th>
         </tr>
@@ -16,9 +15,9 @@
             {% get_column_header _("User name") 'username' %}
             {% get_column_header _('Last name') 'last_name' %}
             {% get_column_header _('First name') 'first_name' %}
-            <th class="block_header_line_light">{% trans "Role" %}</th>
+            {% get_column_header _("Role") 'role__name' %}{% comment %}<th class="block_header_line_light">{% trans "Role" %}</th>{% endcomment %}
             {% get_column_header _('Email address') 'email' %}
-            {% get_column_header _('Super-user ?') 'is_superuser' %}
+{% comment %}{% get_column_header _('Super-user ?') 'is_superuser' %}{% endcomment %}
             {% get_column_header _('Active ?') 'is_active' %}
             {% get_column_header _('Last login') 'last_login' %}
             {% get_column_header _("Date joined") 'date_joined' %}
@@ -30,9 +29,9 @@
                 <td class="{{row_color}}">{{user.username}}</td>
                 <td class="{{row_color}}">{{user.last_name}}</td>
                 <td class="{{row_color}}">{{user.first_name}}</td>
-                <td class="{{row_color}}">{{user.role|default:''}}</td>
+                <td class="{{row_color}}">{% comment %}{{user.role|default:''}}{% endcomment %}{% if user.role %}{{user.role}}{% else %}<em>{{superuser_label}}</em>{% endif %}</td>
                 <td class="{{row_color}}">{{user.email}}</td>
-                <td class="{{row_color}}">{{user.is_superuser|yesno:_('Yes,No')}}</td>
+{% comment %}   <td class="{{row_color}}">{{user.is_superuser|yesno:_('Yes,No')}}</td>{% endcomment %}
                 <td class="{{row_color}}">
                     <input{% if user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff  or user.id == current_user_id %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/creme_config/user/activate/{{user.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="user_{{user.id}}" value="false">{% trans "Yes" %}
                     <input{% if not user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff or user.id == current_user_id %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/creme_config/user/deactivate/{{user.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="user_{{user.id}}" value="true">{% trans "No" %}
@@ -55,6 +54,6 @@
             </tr>
         {% endfor %}
     </tbody>
-    {% get_block_footer 11 %}
+    {% get_block_footer colspan %}
 </table>
 {% endwith %}
