@@ -1055,6 +1055,51 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
+    def test_search_relations02(self):
+        "2 searches at the same time"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        bebop     = create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
+        redtail   = create_orga(name='Redtail')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        spike = create_contact(first_name='Spike', last_name='Spiegel')
+        faye  = create_contact(first_name='Faye',  last_name='Spiegel')
+        jet   = create_contact(first_name='Jet',   last_name='Black')
+
+        create_rtype = RelationType.create
+        rtype1 = create_rtype(('test-subject_piloted', 'is piloted by'),
+                              ('test-object_piloted',  'pilots'),
+                             )[0]
+        rtype2 = create_rtype(('test-subject_repaired', 'is repaired by'),
+                              ('test-object_repaired',  'repairs'),
+                             )[0]
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=swordfish, object_entity=spike, type=rtype1)
+        create_rel(subject_entity=redtail,   object_entity=faye,  type=rtype1)
+        create_rel(subject_entity=bebop,     object_entity=jet,   type=rtype1)
+
+        create_rel(subject_entity=swordfish, object_entity=jet, type=rtype2)
+        create_rel(subject_entity=bebop,     object_entity=jet, type=rtype2)
+
+        hf = self._build_hf(EntityCellRelation(rtype=rtype1),
+                            EntityCellRelation(rtype=rtype2),
+                           )
+
+        response = self.assertPOST200(self.url,
+                                      data={'hfilter': hf.id, '_search': 1,
+                                            'relation-%s' % rtype1.pk: 'Jet',
+                                            'relation-%s' % rtype2.pk: 'Jet',
+                                           }
+                                     )
+        content = self._get_lv_content(response)
+        self.assertIn(bebop.name, content)
+        self.assertNotIn(swordfish.name, content)
+        self.assertNotIn(redtail.name,   content)
+
     def test_search_customfield01(self):
         "INT"
         user = self.login()
