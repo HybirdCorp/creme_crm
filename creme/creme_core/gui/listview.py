@@ -163,6 +163,7 @@ class ListViewState(object):
     #TODO: 'filter_string' -> remove from Cell, or put all the research logic in Cells...
     def get_q_with_research(self, model, cells):
         query = Q()
+        rel_searches = []
         cf_searches = defaultdict(list)
 
         for item in self.research:
@@ -185,7 +186,8 @@ class ListViewState(object):
 
                 query &= Q(**condition)
             elif isinstance(cell, EntityCellRelation):
-                query &= Relation.filter_in(model, cell.relation_type, value[0])
+#                query &= Relation.filter_in(model, cell.relation_type, value[0])
+                rel_searches.append((cell.relation_type, value[0]))
             elif isinstance(cell, EntityCellFunctionField):
                 if cell.has_a_filter:
                     query &= cell.function_field.filter_in_result(value[0])
@@ -193,6 +195,26 @@ class ListViewState(object):
                 cf = cell.custom_field
                 cf_searches[cf.field_type].append((cf, cell.filter_string, value))
 
+        # NB: If we search on several RelationType at the same time, we have to
+        # build auxiliary queries, because the ORM will join with the Relation
+        # table only once (& so the resut will be empty, because one value
+        # cannot match several searches).
+        if rel_searches:
+            if len(rel_searches) == 1: # we can optimize these case
+                rtype, value = rel_searches[0]
+                query &= Relation.filter_in(model, rtype, value)
+            else:
+                for rtype, value in rel_searches:
+                    # TODO: factorise with Relation.filter_in()
+                    # TODO: make a set() intersection on Python-side ??
+                    query &= Q(pk__in=Relation.objects
+                                              .filter(type=rtype,
+                                                      object_entity__header_filter_search_field__icontains=value,
+                                                     )
+                                              .values_list('subject_entity', flat=True)
+                              )
+
+        # NB: same remark but with CustomField tables : a type (INT, DATE...) == a DB table.
         for field_type, searches in cf_searches.iteritems():
             if len(searches) == 1:
                 cf, pattern, value = searches[0]
