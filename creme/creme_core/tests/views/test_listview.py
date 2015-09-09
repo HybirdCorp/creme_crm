@@ -13,7 +13,9 @@ try:
             FakeImage as Image, FakeImageCategory as ImageCategory,
             FakeActivity as Activity, FakeActivityType as ActivityType,
             FakeEmailCampaign as EmailCampaign, FakeMailingList as MailingList,
-            FakeCivility as Civility, FakeSector as Sector)
+            FakeCivility as Civility, FakeSector as Sector,
+            FakeDocument as Document,
+            FakeFolder as Folder, FakeFolderCategory as FolderCategory)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
@@ -789,7 +791,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(sf_alpha.name,   content)
         self.assertNotIn(redtail.name,    content)
 
-    def test_search_fk(self):
+    def test_search_fk01(self):
         user = self.login()
 
         create_civ = Civility.objects.create
@@ -872,6 +874,56 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(spike.last_name, content)
         self.assertNotIn(faye.last_name,  content)
         self.assertIn(ed.last_name,       content)
+
+    def test_search_fk02(self):
+        "Search on a subfield which is a FK too"
+        user = self.login()
+
+        create_cat = FolderCategory.objects.create
+        cat1 = create_cat(name='Maps')
+        cat2 = create_cat(name='Blue prints')
+
+        create_folder = partial(Folder.objects.create, user=user)
+        folder1 = create_folder(title='Earth maps', category=cat1)
+        folder2 = create_folder(title='Mars maps',  category=cat1)
+        folder3 = create_folder(title='Ships',      category=cat2)
+        folder4 = create_folder(title="Faye's pix")
+
+        create_doc = partial(Document.objects.create, user=user)
+        doc1 = create_doc(title='Japan map',   folder=folder1)
+        doc2 = create_doc(title='Mars city 1', folder=folder2)
+        doc3 = create_doc(title='Swordfish',   folder=folder3)
+        doc4 = create_doc(title='Money!!.jpg', folder=folder4)
+
+        build_cell = partial(EntityCellRegularField.build, model=Document)
+        hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=Document,
+                                 cells_desc=[build_cell(name='title'),
+                                             build_cell(name='folder__category'),
+                                            ],
+                                )
+
+        response = self.assertPOST200(Document.get_lv_absolute_url(),
+                                      data={'hfilter': hf.id, '_search': 1,
+                                            'regular_field-folder__category': cat1.id,
+                                           }
+                                     )
+        content = self._get_lv_content(response)
+        self.assertIn(doc1.title, content)
+        self.assertIn(doc2.title, content)
+        self.assertNotIn(doc3.title, content)
+        self.assertNotIn(doc4.title, content)
+
+        # '*is empty*'
+        response = self.assertPOST200(Document.get_lv_absolute_url(),
+                                      data={'hfilter': hf.id, '_search': 1,
+                                            'regular_field-folder__category': 'NULL',
+                                           }
+                                     )
+        content = self._get_lv_content(response)
+        self.assertNotIn(doc1.title, content)
+        self.assertNotIn(doc2.title, content)
+        self.assertNotIn(doc3.title, content)
+        self.assertIn(doc4.title, content)
 
 #    @skipIfNotInstalled('creme.emails')
     def test_search_m2mfields01(self):

@@ -14,7 +14,8 @@ try:
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, CustomField, CustomFieldEnumValue
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeContact as Contact
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeDocument as Document)
 
     #from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -321,6 +322,13 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual('image__created__range', cell.filter_string)
 
     def test_build_4_field07(self):
+        "ForeignKey subfield is a FK"
+        cell = EntityCellRegularField.build(model=Document, name='folder__category')
+
+        self.assertTrue(cell.has_a_filter)
+        self.assertEqual('folder__category', cell.filter_string)
+
+    def test_build_4_field08(self):
         "ManyToMany"
 #        cell = EntityCellRegularField.build(model=Contact, name='language')
         cell = EntityCellRegularField.build(model=Contact, name='languages')

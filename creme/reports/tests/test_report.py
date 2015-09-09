@@ -50,7 +50,7 @@ try:
 #        from creme.emails.models import EmailCampaign, MailingList
 
     from .base import BaseReportsTestCase, skipIfCustomReport
-    from .fake_models import FakeFolder as Folder, FakeDocument as Document
+    from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document
 
     from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
             RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
@@ -1117,7 +1117,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         f_name = 'title'
 #        rel_name = 'document'
-        rel_name = 'fakedocument'
+        rel_name = 'fakereportsdocument'
         response = self.client.post(self._build_editfields_url(report),
                                     data={'columns': 'regular_field-%(rfield)s,related-%(related)s' % {
                                                             'rfield':  f_name,
@@ -1135,7 +1135,7 @@ class ReportTestCase(BaseReportsTestCase):
         column = columns[1]
         self.assertEqual(rel_name,      column.name)
 #        self.assertEqual(_('Document'), column.title)
-        self.assertEqual('Test Document', column.title)
+        self.assertEqual('Test (reports) Document', column.title)
         self.assertEqual(2,             column.order)
         self.assertEqual(RFT_RELATED,   column.type)
         self.assertFalse(column.selected)
@@ -1348,7 +1348,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
 
 #        self.assertEqual([('document', _(u'Document'))],
-        self.assertEqual([('fakedocument', u'Test Document')],
+        self.assertEqual([('fakereportsdocument', u'Test (reports) Document')],
                          Report.get_related_fields_choices(Folder)
                         )
 
@@ -1359,7 +1359,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_field = partial(Field.objects.create, report=folder_report)
         rfield1 = create_field(name='title',    type=RFT_FIELD,   order=1)
 #        rfield2 = create_field(name='document', type=RFT_RELATED, order=2)
-        rfield2 = create_field(name='fakedocument', type=RFT_RELATED, order=2)
+        rfield2 = create_field(name='fakereportsdocument', type=RFT_RELATED, order=2)
 
         self.assertGET409(self._build_linkreport_url(rfield1)) #not a RFT_RELATION Field
 
@@ -2015,7 +2015,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.folder_report = create_report(name="Report on folders", ct=self.ct_folder)
         create_field(report=self.folder_report, name='title',    order=1)
 #        create_field(report=self.folder_report, name='document', order=2,
-        create_field(report=self.folder_report, name='fakedocument', order=2,
+        create_field(report=self.folder_report, name='fakereportsdocument', order=2,
                      type=RFT_RELATED, sub_report=self.doc_report, selected=select_doc_report or False,
                     )
 

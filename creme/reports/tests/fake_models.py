@@ -11,16 +11,16 @@ else:
     from creme.creme_core.models import CremeEntity
 
 
-    class FakeFolder(CremeEntity):
+    class FakeReportsFolder(CremeEntity):
         title         = CharField(_(u'Title'), max_length=100, unique=True)
         description   = TextField(_(u'Description'), null=True, blank=True)
 
-        allowed_related = CremeEntity.allowed_related | {'fakedocument'}
+        allowed_related = CremeEntity.allowed_related | {'fakereportsdocument'}
 
         class Meta:
             app_label = 'reports'
-            verbose_name = u'Test Folder'
-            verbose_name_plural = u'Test Folders'
+            verbose_name = u'Test (reports) Folder'
+            verbose_name_plural = u'Test (reports) Folders'
             ordering = ('title',)
 
         def __unicode__(self):
@@ -30,17 +30,17 @@ else:
             return "/reports/tests/folder/%s" % self.id
 
 
-    class FakeDocument(CremeEntity):
+    class FakeReportsDocument(CremeEntity):
         title       = CharField(_(u'Title'), max_length=100)
         description = TextField(_(u'Description'), blank=True, null=True)
 #        filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-        folder      = ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=PROTECT)
+        folder      = ForeignKey(FakeReportsFolder, verbose_name=_(u'Folder'), on_delete=PROTECT)
 
 
         class Meta:
             app_label = 'reports'
-            verbose_name = 'Test Document'
-            verbose_name_plural = u'Test Documents'
+            verbose_name = 'Test (reports) Document'
+            verbose_name_plural = u'Test (reports) Documents'
             ordering = ('title',)
 
         def __unicode__(self):

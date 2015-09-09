@@ -9,11 +9,11 @@ from ..tests import fake_models
 @login_required
 @permission_required('reports')
 def folder_detailview(request, folder_id):
-    return view_entity(request, folder_id, fake_models.FakeFolder,
+    return view_entity(request, folder_id, fake_models.FakeReportsFolder,
                        '/reports/tests/folder',
                       )
 
 @login_required
 @permission_required('reports')
 def document_listview(request):
-    return list_view(request, fake_models.FakeDocument)
+    return list_view(request, fake_models.FakeReportsDocument)

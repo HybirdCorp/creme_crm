@@ -192,8 +192,12 @@ class EntityCellRegularField(EntityCell):
             else:
                 field = field_info[1] #The sub-field is considered as the main field
 
+                if isinstance(field, ForeignKey):
+                    pattern = '%s' # TODO '%s__exact' ?
+
             if isinstance(field, ManyToManyField):
                 sortable = False
+
         if isinstance(field, (DateField, DateTimeField)):
             pattern = "%s__range" #TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):

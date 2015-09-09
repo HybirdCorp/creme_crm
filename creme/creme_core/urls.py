@@ -128,6 +128,11 @@ if settings.TESTS_ON:
     from .tests import fake_views
 
     urlpatterns += [
+        url(r'^tests/documents$',                  fake_views.document_listview),
+        #(r'^tests/document/add$',                  'document_add'),
+        #(r'^tests/document/edit/(?P<doc_id>\d+)$', 'document_edit'),
+        #(r'^tests/document/(?P<doc_id>\d+)$',      'document_detailview'),
+
         url(r'^tests/images$',                     fake_views.image_listview),
         #(r'^tests/image/add$',                    'image_add'),
         #(r'^tests/image/edit/(?P<image_id>\d+)$', 'image_edit'),
