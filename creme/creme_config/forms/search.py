@@ -57,7 +57,7 @@ class SearchAddForm(CremeModelForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = u'*%s*' % _(u'Superuser') # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = u'*%s*' % ugettext(u'Superuser') # NB: browser can ignore <em> tag in <option>...
 
 #        self.fields['user'].queryset = CremeUser.objects.filter(is_team=False) \
 #                                                        .exclude(pk__in=used_user_ids)
@@ -73,7 +73,6 @@ class SearchAddForm(CremeModelForm):
             self.instance.superuser = True
 
         return super(SearchAddForm, self).save(*args, **kwargs)
-
 
 
 class SearchEditForm(CremeModelForm):

@@ -92,7 +92,8 @@ class UserTestCase(CremeTestCase):
                                           'first_name':   first_name,
                                           'last_name':    last_name,
                                           'email':        email,
-                                          'is_superuser': True,
+#                                          'is_superuser': True,
+                                          'role':         '',
                                           'organisation': orga.id,
                                           'relation':     REL_SUB_EMPLOYED_BY,
                                          }
@@ -153,7 +154,8 @@ class UserTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         user = self.get_object_or_fail(User, username=username)
-        self.assertEqual(role,     user.role)
+        self.assertEqual(role, user.role)
+        self.assertFalse(user.is_superuser)
 
         self.assertTrue(user.has_perm_to_view(orga))
 
@@ -171,7 +173,7 @@ class UserTestCase(CremeTestCase):
                                       data={'username':     'deunan',
                                             'password_1':   password,
                                             'password_2':   password,
-                                            'is_superuser': True,
+#                                            'is_superuser': True,
                                            }
                                       )
 
@@ -199,7 +201,7 @@ class UserTestCase(CremeTestCase):
                                       'first_name':   'Deunan',
                                       'last_name':    'Knut',
                                       'email':        'd.knut@eswat.ol',
-                                      'is_superuser': False,
+#                                      'is_superuser': False,
                                       'organisation': orga.id,
                                       'relation':     REL_SUB_EMPLOYED_BY,
                                      }
@@ -219,7 +221,7 @@ class UserTestCase(CremeTestCase):
                                     data={'username':     username,
                                           'password_1':   password,
                                           'password_2':   password,
-                                          'is_superuser': True,
+#                                          'is_superuser': True,
                                           'organisation': orga.id,
                                           'relation':     REL_SUB_MANAGES,
                                          }
@@ -228,28 +230,28 @@ class UserTestCase(CremeTestCase):
                              _("This value may contain only letters, numbers and @/./+/-/_ characters.")
                             )
 
-    @skipIfNotCremeUser
-    def test_create06(self):
-        "Common user without role"
-        user = self.login()
-
-        orga = Organisation.objects.create(user=user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-
-        username = 'deunan'
-        password = 'password'
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'username':     username,
-                                          'password_1':   password,
-                                          'password_2':   password,
-                                          'is_superuser': False,
-                                          'organisation': orga.id,
-                                          'relation':     REL_SUB_MANAGES,
-                                         }
-                                   )
-        self.assertFormError(response, 'form', 'role', 
-                             _(u"Choose a role or set superuser status to 'True'.")
-                            )
+#    @skipIfNotCremeUser
+#    def test_create06(self):
+#        "Common user without role"
+#        user = self.login()
+#
+#        orga = Organisation.objects.create(user=user, name='Olympus')
+#        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+#
+#        username = 'deunan'
+#        password = 'password'
+#        response = self.client.post(self.ADD_URL, follow=True,
+#                                    data={'username':     username,
+#                                          'password_1':   password,
+#                                          'password_2':   password,
+#                                          'is_superuser': False,
+#                                          'organisation': orga.id,
+#                                          'relation':     REL_SUB_MANAGES,
+#                                         }
+#                                   )
+#        self.assertFormError(response, 'form', 'role', 
+#                             _(u"Choose a role or set superuser status to 'True'.")
+#                            )
 
     @skipIfNotCremeUser
     def test_create07(self):
@@ -265,7 +267,7 @@ class UserTestCase(CremeTestCase):
                 'first_name':   'Deunan',
                 'last_name':    'Knut',
                 'email':        'd.knut@eswat.ol',
-                'is_superuser': True,
+#                'is_superuser': True,
                 'organisation': orga.id,
                 'relation':     REL_SUB_EMPLOYED_BY,
                }
@@ -308,7 +310,7 @@ class UserTestCase(CremeTestCase):
                                             'first_name':   user.first_name,
                                             'last_name':    user.last_name,
                                             'email':        'd.knut@eswat.ol',
-                                            'is_superuser': True,
+#                                            'is_superuser': True,
                                             'organisation': orga.id,
                                             'relation':     REL_SUB_EMPLOYED_BY,
                                            }
@@ -320,36 +322,37 @@ class UserTestCase(CremeTestCase):
                                 }
                             )
 
-    @skipIfNotCremeUser
-    def test_create09(self):
-        self.login()
-
-        orga = Organisation.objects.create(user=self.user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-
-        username = 'deunan'
-        password = 'password'
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'username':     username,
-                                          'password_1':   password,
-                                          'password_2':   password,
-                                          'first_name':   'Deunan',
-                                          'last_name':    'Knut',
-                                          'email':        'd.knut@eswat.ol',
-                                          'is_superuser': True,
-                                          'role':         self.role.id, # <==
-                                          'organisation': orga.id,
-                                          'relation':     REL_SUB_EMPLOYED_BY,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        user = self.get_object_or_fail(User, username=username)
-        self.assertTrue(user.is_superuser)
-        self.assertIsNone(user.role)
+#    @skipIfNotCremeUser
+#    def test_create09(self):
+#        self.login()
+#
+#        orga = Organisation.objects.create(user=self.user, name='Olympus')
+#        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+#
+#        username = 'deunan'
+#        password = 'password'
+#        response = self.client.post(self.ADD_URL, follow=True,
+#                                    data={'username':     username,
+#                                          'password_1':   password,
+#                                          'password_2':   password,
+#                                          'first_name':   'Deunan',
+#                                          'last_name':    'Knut',
+#                                          'email':        'd.knut@eswat.ol',
+#                                          'is_superuser': True,
+#                                          'role':         self.role.id, # <==
+#                                          'organisation': orga.id,
+#                                          'relation':     REL_SUB_EMPLOYED_BY,
+#                                         }
+#                                   )
+#        self.assertNoFormError(response)
+#
+#        user = self.get_object_or_fail(User, username=username)
+#        self.assertTrue(user.is_superuser)
+#        self.assertIsNone(user.role)
  
     @skipIfNotCremeUser
-    def test_create12(self):
+#    def test_create12(self):
+    def test_create09(self):
         "Internal relationships are forbidden."
         user = self.login()
 
@@ -369,7 +372,7 @@ class UserTestCase(CremeTestCase):
                                             'first_name':   'Deunan',
                                             'last_name':    'Knut',
                                             'email':        'd.knut@eswat.ol',
-                                            'is_superuser': True,
+#                                            'is_superuser': True,
                                             'organisation': orga.id,
                                             'relation':     rtype.id,
                                            }
@@ -417,11 +420,12 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(last_name,  other_user.last_name)
         self.assertEqual(email,      other_user.email)
         self.assertEqual(role2,      other_user.role)
+        self.assertFalse(other_user.is_superuser)
 
         briareos = self.refresh(briareos) #refresh cache
         self.assertFalse(other_user.has_perm_to_view(briareos))
 
-        #contact is synced
+        # Contact is synced
         deunan = self.refresh(deunan)
         self.assertEqual(first_name,  deunan.first_name)
         self.assertEqual(last_name,   deunan.last_name)
@@ -447,6 +451,7 @@ class UserTestCase(CremeTestCase):
 
     @skipIfNotCremeUser
     def test_edit03(self):
+        "Logged as regular user"
         user = self.login_not_as_superuser()
 
         role1 = UserRole(name='Master')
@@ -483,21 +488,23 @@ class UserTestCase(CremeTestCase):
         url = self._build_edit_url(other_user.id)
         self.assertGET200(url)
 
-        response = self.client.post(url, follow=True, data={'is_superuser': ''})
-        self.assertFormError(response, 'form', 'role',
-                             _(u"Choose a role or set superuser status to 'True'.")
-                            )
+#        response = self.client.post(url, follow=True, data={'is_superuser': ''})
+#        self.assertFormError(response, 'form', 'role',
+#                             _(u"Choose a role or set superuser status to 'True'.")
+#                            )
 
         response = self.client.post(url, follow=True,
-                                    data={'is_superuser': 'on',
-                                          'role':         role.id,
+                                    data={
+#                                          'is_superuser': 'on',
+#                                          'role':         role.id,
+                                           'role': '',
                                          },
                                    )
         self.assertNoFormError(response)
 
         other_user = self.refresh(other_user)
-        self.assertTrue(other_user.is_superuser)
         self.assertIsNone(other_user.role)
+        self.assertTrue(other_user.is_superuser)
 
     @skipIfNotCremeUser
     def test_change_password01(self):

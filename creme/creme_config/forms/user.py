@@ -50,27 +50,33 @@ class UserAddForm(CremeModelForm):
     password_2   = CharField(label=_('Confirm password'), min_length=6, widget=PasswordInput())
     role         = ModelChoiceField(label=_('Role'), required=False,
                                     queryset=UserRole.objects.all(),
-                                    help_text=_('You must choose a role for a non-super user.'),
+#                                    help_text=_('You must choose a role for a non-super user.'),
                                    )
 
-    error_messages = {
-        'no_role': _(u"Choose a role or set superuser status to 'True'."),
-    }
+#    error_messages = {
+#        'no_role': _(u"Choose a role or set superuser status to 'True'."),
+#    }
 
     class Meta:
         model = CremeUser
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_superuser', 'role')
+        fields = ('username', 'first_name', 'last_name', 'email', 'role') # 'is_superuser'
 
-    def clean_role(self):
-        cleaned_data = self.cleaned_data
-        role = cleaned_data['role']
+    def __init__(self, *args, **kwargs):
+        super(UserAddForm, self).__init__(*args, **kwargs)
 
-        if cleaned_data.get('is_superuser', False):
-            role = None
-        elif not role:
-            raise ValidationError(self.error_messages['no_role'], code='no_role')
+        # NB: browser can ignore <em> tag in <option>...
+        self.fields['role'].empty_label = u'*%s*' % ugettext(u'Superuser')
 
-        return role
+#    def clean_role(self):
+#        cleaned_data = self.cleaned_data
+#        role = cleaned_data['role']
+#
+#        if cleaned_data.get('is_superuser', False):
+#            role = None
+#        elif not role:
+#            raise ValidationError(self.error_messages['no_role'], code='no_role')
+#
+#        return role
 
     def clean(self):
         cleaned = super(UserAddForm, self).clean()
@@ -82,7 +88,9 @@ class UserAddForm(CremeModelForm):
         return cleaned
 
     def save(self, *args, **kwargs):
-        self.instance.set_password(self.cleaned_data['password_1'])
+        instance = self.instance
+        instance.is_superuser = (instance.role is None) # TODO: remove field CremeUser.is_superuser ??
+        instance.set_password(self.cleaned_data['password_1'])
 
         return super(UserAddForm, self).save(*args, **kwargs)
 
@@ -90,31 +98,40 @@ class UserAddForm(CremeModelForm):
 #TODO: factorise with UserAddForm
 class UserEditForm(CremeModelForm):
     role = ModelChoiceField(label=_(u"Role"), queryset=UserRole.objects.all(), required=False,
-                            help_text=_(u"You must choose a role for a non-super user."),
+#                            help_text=_(u"You must choose a role for a non-super user."),
                            )
 
-    error_messages = {
-        'no_role': _(u"Choose a role or set superuser status to 'True'."),
-    }
+#    error_messages = {
+#        'no_role': _(u"Choose a role or set superuser status to 'True'."),
+#    }
 
     class Meta:
         model = CremeUser
-        fields = ('first_name', 'last_name', 'email', 'is_superuser', 'role')
+        fields = ('first_name', 'last_name', 'email', 'role') # 'is_superuser'
 
-    def clean_role(self):
-        cleaned_data = self.cleaned_data
-        role = cleaned_data['role']
+    def __init__(self, *args, **kwargs):
+        super(UserEditForm, self).__init__(*args, **kwargs)
 
-        if cleaned_data.get('is_superuser', False):
-            role = None
-        elif not role:
-            raise ValidationError(self.error_messages['no_role'], code='no_role')
+        # NB: browser can ignore <em> tag in <option>...
+        self.fields['role'].empty_label = u'*%s*' % ugettext(u'Superuser')
 
-        return role
+#    def clean_role(self):
+#        cleaned_data = self.cleaned_data
+#        role = cleaned_data['role']
+#
+#        if cleaned_data.get('is_superuser', False):
+#            role = None
+#        elif not role:
+#            raise ValidationError(self.error_messages['no_role'], code='no_role')
+#
+#        return role
 
     def save(self, *args, **kwargs):
+        instance = self.instance
         # NB: needed with django 1.8 when we reset to 'None' (the value seems skipped) => is it a bug ??
-        self.instance.role = self.cleaned_data['role']
+        instance.role = role = self.cleaned_data['role']
+        instance.is_superuser = (role is None)
+
         return super(UserEditForm, self).save(*args, **kwargs)
 
 
