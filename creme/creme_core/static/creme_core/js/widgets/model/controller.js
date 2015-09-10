@@ -87,18 +87,16 @@ creme.model.CollectionController = creme.component.Component.sub({
 creme.model.SelectionController = creme.component.Component.sub({
     _init_: function()
     {
-        var self = this;
-
-        this._events = new creme.component.EventHandler();
+        var events = this._events = new creme.component.EventHandler();
         this.selectionFilter(null);
 
         this._modelListeners = {
             'add remove': function(event, data) {
-                              self._events.trigger('change', [], this);
+                              events.trigger('change', [], this);
                           },
             'update': function(event, data, start, end, previous, action) {
                           if (action !== 'select') {
-                              self._events.trigger('change', [], this);
+                              events.trigger('change', [], this);
                           }
                       }
         };

@@ -370,6 +370,10 @@ span.ui-creme-datepicker-trigger {
             transition: none;
 }
 
+.checklist-header a:hover {
+    cursor: pointer;
+}
+
 .checklist-header a[disabled] {
     opacity: 0.5;
     text-decoration: none;
@@ -409,6 +413,8 @@ span.ui-creme-datepicker-trigger {
     padding-top:2px;
     padding-bottom:2px;
 
+    -webkit-transform: translate3d(0,0,0); /* HACK : fix performance issues with some chrome versions */
+
     -webkit-column-break-inside: avoid;
        -moz-column-break-inside: avoid;
         -ms-column-break-inside: avoid;
@@ -445,6 +451,12 @@ span.ui-creme-datepicker-trigger {
             column-width: 370px;
 }
 
+.ui-creme-checklistselect:not([less]) .checklist-body {
+    max-height: 250px;
+    overflow-y: auto;
+    clear: both;
+}
+
 .checklist-content .checkbox-field input[type=checkbox] {
     margin-left: 4px;
     margin-bottom: 0px;
@@ -457,7 +469,6 @@ span.ui-creme-datepicker-trigger {
     max-width: 180px;
     cursor: default;
 
-    display: flex;
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -481,6 +492,10 @@ span.ui-creme-datepicker-trigger {
     max-width: 370px;
 }
 
+.checklist-content.wide .checkbox-helptext {
+    max-width: 370px;
+}
+
 .checkbox-field.disabled .checkbox-label {
     opacity: 0.5;
 }
@@ -489,6 +504,40 @@ span.ui-creme-datepicker-trigger {
     -webkit-box-sizing: border-box;
        -moz-box-sizing: border-box;
             box-sizing: border-box;
+}
+
+.checklist-content.less .checkbox-field.more {
+    position: absolute;
+    top: 0;
+    left: -1000;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.checklist-footer {
+    text-align: center;
+}
+
+.checklist-footer a {
+    color: #777;
+    background-color: none;
+    vertical-align: middle;
+    text-shadow: none;
+
+    -webkit-transition: none;
+       -moz-transition: none;
+         -o-transition: none;
+        -ms-transition: none;
+            transition: none;
+}
+
+.checklist-footer a:hover {
+    cursor: pointer;
+}
+
+.checklist-footer .checklist-toggle-less:not(.is-active) {
+    display: none;
 }
 
 .ui-creme-checklistselect select.ui-creme-input {
