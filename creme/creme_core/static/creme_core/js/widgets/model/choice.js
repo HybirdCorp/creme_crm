@@ -247,7 +247,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
     },
 
     selectItem: function(target, item, data, previous, index) {
-        $('input[type="checkbox"]', item).get()[0].checked = data.selected;
+        $('input[type="checkbox"]', item).prop('checked', data.selected);
     },
 
     items: function(target) {

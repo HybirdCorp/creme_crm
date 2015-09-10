@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.forms import ModelMultipleChoiceField
+from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import RelationType
@@ -28,12 +29,15 @@ from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from ..models import RootNode
 
+class RelationTypeMultipleChoiceField(ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return smart_unicode(obj.predicate)
 
 class AddRootNodesForm(CremeForm):
     entities       = MultiGenericEntityField(label=_(u'Root entities'))
-    relation_types = ModelMultipleChoiceField(label=_('Related types of relations'),
-                                              queryset=RelationType.objects.all(),
-                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'))
+    relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
+                                                     queryset=RelationType.objects.all(),
+                                                     widget=UnorderedMultipleChoiceWidget)
 
     def __init__(self, entity, *args, **kwargs):
         super(AddRootNodesForm, self).__init__(*args, **kwargs)
@@ -54,9 +58,9 @@ class AddRootNodesForm(CremeForm):
 
 
 class EditRootNodeForm(CremeModelForm):
-    relation_types = ModelMultipleChoiceField(label=_('Related types of relations'),
-                                              queryset=RelationType.objects.all(),
-                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'))
+    relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
+                                                     queryset=RelationType.objects.all(),
+                                                     widget=UnorderedMultipleChoiceWidget)
 
     class Meta:
         model = RootNode

@@ -21,6 +21,18 @@
                 selected = Object.isNone(selected) ? [] : (Array.isArray(selected) ? selected : [selected]);
                 $('.selection-count', $(this).parent()).html(selected.length ? '%d items selected'.format(selected.length) : '');
             });
+
+            $('#bench-reload').click(function() {
+                var select = $('#bench-selector').creme().widget();
+                var count = parseInt($('#bench-count-input').val());
+                var data = [];
+
+                for (var i = 1; i <= count; ++i) {
+                    data.push({value: i, label: 'item-' + i, help: 'item', visible: true, selected: false});
+                }
+
+                select.model().reset(data);
+            })
         });
     </script>
 {% endblock %}
@@ -45,7 +57,9 @@
                 <a class="checklist-check-all">Tout sélectionner</a> | 
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
-            <ul class="checklist-content"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content"></ul>
+            </div>
         </div>
     </li>
     <li>
@@ -67,7 +81,9 @@
                 <a class="checklist-check-all">Tout sélectionner</a> | 
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
-            <ul class="checklist-content"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content"></ul>
+            </div>
         </div>
     </li>
     <li>
@@ -89,7 +105,9 @@
                 <a class="checklist-check-all">Tout sélectionner</a> | 
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
-            <ul class="checklist-content"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content"></ul>
+            </div>
         </div>
     </li>
     <li>
@@ -111,7 +129,9 @@
                 <a class="checklist-check-all">Tout sélectionner</a> | 
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
-            <ul class="checklist-content"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content"></ul>
+            </div>
         </div>
     </li>
     <li>
@@ -134,12 +154,14 @@
                 <a class="checklist-check-all">Tout sélectionner</a> | 
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
-            <ul class="checklist-content wide"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content wide"></ul>
+            </div>
         </div>
     </li>
     <li>
         <h3>No group - filter</h3>
-        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" less="5">
             <select class="ui-creme-input" multiple>
                 <option value='activities-object_activity_subject' help='Activité'>a pour sujet</option>
                 <option value='activities-object_linked_2_activity' help='Activité'>relié à</option>
@@ -174,12 +196,14 @@
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="filter">
             </div>
-            <ul class="checklist-content filter wide"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content filter wide"></ul>
+            </div>
         </div>
     </li>
     <li>
         <h3>No group - search</h3>
-        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" less="5">
             <select class="ui-creme-input" multiple>
                 <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
                 <option value='activities-object_linked_2_activity'>(activité) relié à</option>
@@ -204,7 +228,12 @@
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="search">
             </div>
-            <ul class="checklist-content search wide"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content search wide"></ul>
+            </div>
+            <div class="checklist-footer">
+                <a class="checklist-toggle-less">More</a>
+            </div>
         </div>
     </li>
     <li>
@@ -231,7 +260,9 @@
                 <a class="checklist-check-all">Tout sélectionner</a> | 
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
-            <ul class="checklist-content filter wide"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content filter wide"></ul>
+            </div>
         </div>
     </li>
     <li>
@@ -266,12 +297,14 @@
                 <a class="checklist-check-all">Tout sélectionner</a> | 
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
-            <ul class="checklist-content filter wide"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content filter wide"></ul>
+            </div>
         </div>
     </li>
     <li>
         <h3>Groups - filtered</h3>
-        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" less>
             <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
@@ -314,12 +347,17 @@
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="filter">
             </div>
-            <ul class="checklist-content filter wide"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content filter wide"></ul>
+            </div>
+            <div class="checklist-footer">
+                <a class="checklist-toggle-less">More</a>
+            </div>
         </div>
     </li>
     <li>
         <h3>Groups - search</h3>
-        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" less>
             <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
@@ -350,12 +388,17 @@
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="search">
             </div>
-            <ul class="checklist-content search wide"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content search wide"></ul>
+            </div>
+            <div class="checklist-footer">
+                <a class="checklist-toggle-less">More</a>
+            </div>
         </div>
     </li>
     <li>
-        <h3>Bench</h3>
-        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+        <h3>Bench&nbsp;<button id="bench-reload">Reload</button><input type="number" value="250" id="bench-count-input"></input></h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" id="bench-selector">
             <select class="ui-creme-input" multiple>
                 {% for index in 250|xrange:1 %}
                 <option value='{{index}}' help="item">{{index|format:"item-%s"}}</option>
@@ -367,7 +410,9 @@
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="search">
             </div>
-            <ul class="checklist-content search"></ul>
+            <div class="checklist-body">
+                <ul class="checklist-content search"></ul>
+            </div>
         </div>
     </li>
 </ul>

@@ -765,10 +765,11 @@ class ColorPickerWidget(TextInput):
 
 
 class UnorderedMultipleChoiceWidget(SelectMultiple, EnchancedSelectOptions):
-    def __init__(self, attrs=None, choices=(), columntype='', filtertype=None):
+    def __init__(self, attrs=None, choices=(), columntype='', filtertype=None, viewless=None):
         super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
         self.columntype = columntype
         self.filtertype = filtertype
+        self.viewless = viewless
 
     def render_option(self, selected_choices, option_value, option_label):
         return self.render_enchanced_option(selected_choices, option_value, option_label)
@@ -786,14 +787,17 @@ class UnorderedMultipleChoiceWidget(SelectMultiple, EnchancedSelectOptions):
                                         body=self._render_body(attrs, filtertype),
                                         header=self._render_header(attrs, filtertype, count),
                                         counter=self._render_counter(attrs, filtertype),
+                                        viewless=self._render_viewless(attrs, self.viewless),
+                                        footer=self._render_footer(attrs, self.viewless),
                                         input=input)
 
         return mark_safe(
-u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
+u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
     %(input)s
     %(counter)s
     %(header)s
     %(body)s
+    %(footer)s
 </div>""" % context)
 
     def _choice_count(self):
@@ -811,8 +815,22 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
 
         return 'filter'
 
+    def _render_viewless(self, attrs, viewless):
+        if not viewless:
+            return ''
+
+        return 'less' if viewless is True else 'less="%s"' % viewless
+
     def _render_counter(self, attrs, filtertype):
-        return '<span class="checklist-counter"></span>' if filtertype == "filter" else ''
+        return '<span class="checklist-counter"></span>'
+
+    def _render_footer(self, attrs, viewless):
+        if not viewless:
+            return ''
+
+        return '<div class="checklist-footer">'\
+               '    <a class="checklist-toggle-less">%s</a>'\
+               '</div>' % _(u'More')
 
     def _render_header(self, attrs, filtertype, count):
         has_checkall = attrs.get('checkall', True) and count > 2
@@ -836,7 +854,7 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
                }
 
     def _render_body(self, attrs, filtertype):
-        return '<ul class="checklist-content %s %s"></ul>' % (filtertype or '', self.columntype)
+        return '<div class="checklist-body"><ul class="checklist-content %s %s"></ul></div>' % (filtertype or '', self.columntype)
 
 
 class OrderedMultipleChoiceWidget(SelectMultiple):
