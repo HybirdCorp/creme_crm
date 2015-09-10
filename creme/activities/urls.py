@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^$', portal.portal),
 
     url(r'^activities/(?P<ids>([\d][,]*)+)/ical$', activity.download_ical),
-    url(r'^type/(?P<type_id>[\w-]+)/json$',        activity.get_types),
+    url(r'^type/(?P<type_id>[\w-]*)/json$',        activity.get_types),
 
     # Blocks
     url(r'^activity/(?P<activity_id>\d+)/participant/add$', blocks.add_participant),

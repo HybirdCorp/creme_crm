@@ -3,6 +3,7 @@
 try:
     from datetime import datetime, date, time # timedelta
     from functools import partial
+    from json import loads as json_loads
 
     #from django.contrib.auth.models import User
     from django.contrib.auth import get_user_model
@@ -164,6 +165,20 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_portal(self):
         self.login()
         self.assertGET200('/activities/')
+
+    def test_get_subtypes(self):
+        self.login()
+        self.assertGET404(self.GET_TYPES % 'unknown')
+
+        # empty
+        response = self.assertGET200(self.GET_TYPES % '')
+        self.assertListEqual([], json_loads(response.content))
+
+        # valid type
+        response = self.assertGET200(self.GET_TYPES % ACTIVITYTYPE_TASK)
+        self.assertListEqual(list(ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).order_by('id').values_list('id', 'name')),
+                             json_loads(response.content)
+                            )
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
