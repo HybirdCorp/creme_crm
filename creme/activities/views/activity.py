@@ -238,6 +238,9 @@ def download_ical(request, ids):
 @jsonify
 @login_required
 def get_types(request, type_id):
+    if not type_id:
+        return []
+
     get_object_or_404(ActivityType, pk=type_id)
     return list(ActivitySubType.objects.filter(type=type_id)
                                        .order_by('id')

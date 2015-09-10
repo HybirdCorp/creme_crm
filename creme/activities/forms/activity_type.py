@@ -87,14 +87,17 @@ class ActivityTypeField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, types=None, *args, **kwargs):
+    def __init__(self, types=None, empty_label=u'---------', *args, **kwargs):
+        self.empty_label = empty_label
+
         super(ActivityTypeField, self).__init__(*args, **kwargs)
         self.types = types if types is not None else ActivityType.objects.all()
 
     def _create_widget(self):
-        return ActivityTypeWidget(((atype.pk, unicode(atype)) for atype in self.types),
-                                  attrs={'reset': not self.required},
-                                 )
+        options = tuple((atype.pk, unicode(atype)) for atype in self.types)
+        options = ((None, self.empty_label),) + options
+
+        return ActivityTypeWidget(options, attrs={'reset': not self.required},)
 #        return ActivityTypeWidget(self._get_types_options(self._get_types_objects()),
 #                                  attrs={'reset':False, 'direction':ChainedInput.VERTICAL})
 
@@ -111,6 +114,9 @@ class ActivityTypeField(JSONField):
         clean = self.clean_value
         type_pk  = clean(data, 'type', str)
         subtype_pk = clean(data, 'sub_type', str, required=False)
+
+        if not type_pk and self.required:
+            raise ValidationError(self.error_messages['required'])
 
         try:
             atype = self.types.get(pk=type_pk)
