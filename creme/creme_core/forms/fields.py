@@ -19,8 +19,10 @@
 ################################################################################
 
 from future_builtins import map
+
 from collections import defaultdict
 from copy import deepcopy
+from functools import partial
 from itertools import chain
 from json import loads as json_load, dumps as json_dump
 from re import compile as compile_re
@@ -239,9 +241,11 @@ class GenericEntityField(JSONField):
     value_type = dict
 
 #    def __init__(self, models=None, autocomplete=False, *args, **kwargs):
-    def __init__(self, models=(), autocomplete=False, *args, **kwargs):
+    def __init__(self, models=(), autocomplete=False, creator=True, user=None, *args, **kwargs):
         super(GenericEntityField, self).__init__(*args, **kwargs)
+        self._creator = creator
         self._autocomplete = autocomplete
+        self._user = user
         self.allowed_models = models
 
     @property
@@ -263,6 +267,15 @@ class GenericEntityField(JSONField):
         self._build_widget()
 
     @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        self._build_widget()
+
+    @property
     def autocomplete(self):
         return self._autocomplete
 
@@ -271,27 +284,79 @@ class GenericEntityField(JSONField):
         self._autocomplete = autocomplete
         self._build_widget()
 
+    @property
+    def creator(self):
+        return self._creator
+
+    @creator.setter
+    def creator(self, creator):
+        self._creator = creator
+        self._build_widget()
+
     def _create_widget(self):
-        return CTEntitySelector(self._get_ctypes_options(self.get_ctypes()),
-                                attrs={'reset': not self.required},
-                               )
+        widget = CTEntitySelector(self._get_ctypes_options(self.get_ctypes()),
+                                  attrs={'reset': False},
+                                 )
+        self._update_actions(widget)
+        return widget
+
+    def _update_actions(self, widget):
+        if not self.required:
+            clear_label = _(u'Clear')
+            widget.actions.add_action('reset', clear_label,
+                                      title=clear_label, action='reset', value=''
+                                     )
+
+        if self.creator:
+            widget.actions.add_action('create', _(u'Add'),
+                                      url='${ctype.create}',
+                                      title='${ctype.create_label}',
+                                     )
+
+    def _has_quickform(self, model):
+        from creme.creme_core.gui import quickforms_registry
+        return quickforms_registry.get_form(model) is not None
+
+    def _create_url(self, user, ctype):
+        model = ctype.model_class()
+
+        if self._has_quickform(model) and user is not None and user.has_perm_to_create(model):
+            return '/creme_core/quickforms/from_widget/%s/add/1' % ctype.pk
+
+        return ''
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, CremeEntity):
-            ctype = value.entity_type_id
+            ctype_id = value.entity_type_id
+            ctype = value.entity_type
             pk = value.id
         else:
             #ctype = value['ctype']
             #pk = value['entity']
             return value
 
-        return {'ctype': ctype, 'entity': pk}
+        ctype_create_url = self._create_url(self.user, ctype)
+
+        return {'ctype': {
+                    'id': ctype_id,
+                    'create': ctype_create_url,
+                    'create_label': unicode(ctype.model_class().creation_label),
+                },
+                'entity': pk
+               }
 
     def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
         required = self.required
 
-        ctype_pk  = clean_value(data, 'ctype',  int, required, 'ctyperequired')
+        # Compatibility with older format.
+        if data and isinstance(data.get('ctype'), dict):
+            ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
+            ctype_pk  = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
+        else:
+            warnings.warn('GenericEntityField: old format "ctype": id entry is deprecated.')
+            ctype_pk  = clean_value(data, 'ctype', int, required, 'ctyperequired')
+
         entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
 
         return self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
@@ -305,7 +370,13 @@ class GenericEntityField(JSONField):
         raise ValidationError(self.error_messages['ctypenotallowed'], code='ctypenotallowed')
 
     def _get_ctypes_options(self, ctypes):
-        return ((ctype.pk, unicode(ctype)) for ctype in ctypes)
+        create_url = partial(self._create_url, self.user)
+        return ((json_dump({'id': ctype.pk,
+                            'create': create_url(ctype),
+                            'create_label': unicode(ctype.model_class().creation_label),
+                           }),
+                 unicode(ctype)
+                ) for ctype in ctypes)
 
     def get_ctypes(self):
         get_ct = ContentType.objects.get_for_model
@@ -319,12 +390,24 @@ class MultiGenericEntityField(GenericEntityField):
     value_type = list
 
 #    def __init__(self, models=None, autocomplete=False, unique=True, *args, **kwargs):
-    def __init__(self, models=(), autocomplete=False, unique=True, *args, **kwargs):
-        super(MultiGenericEntityField, self).__init__(models, autocomplete, *args, **kwargs)
+    def __init__(self, models=(), autocomplete=False, unique=True, creator=True, user=None, *args, **kwargs):
+        super(MultiGenericEntityField, self).__init__(models, autocomplete, creator, user, *args, **kwargs)
         self.unique = unique
 
     def _create_widget(self):
-        return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True))
+        selector = CTEntitySelector(self._get_ctypes_options(self.get_ctypes()),
+                                    multiple=True,
+                                    attrs={'reset': False}
+                                   )
+        self._update_actions(selector)
+        return SelectorList(selector)
+
+    def _update_actions(self, widget):
+        if self.creator:
+            widget.actions.add_action('create', _(u'Add'),
+                                      url='${ctype.create}',
+                                      title='${ctype.create_label}',
+                                     )
 
     def _value_to_jsonifiable(self, value):
         return list(map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value))
@@ -338,7 +421,14 @@ class MultiGenericEntityField(GenericEntityField):
 
         #group entity PKs by ctype, in order to make efficient queries
         for entry in data:
-            ctype_pk = clean_value(entry, 'ctype', int, required=False)
+            # Compatibility with older format.
+            if data and isinstance(entry.get('ctype'), dict):
+                ctype_choice = clean_value(entry, 'ctype', dict, required=False)
+                ctype_pk  = clean_value(ctype_choice, 'id', int, required=False)
+            else:
+                warnings.warn('MultiGenericEntityField: old format "ctype": id entry is deprecated.')
+                ctype_pk  = clean_value(entry, 'ctype', int, required=False)
+
             if not ctype_pk:
                 continue
 
@@ -644,10 +734,10 @@ class CreatorEntityField(JSONField):
     }
     value_type = int
 
-    def __init__(self, model=None, q_filter=None, create_action_url=None, *args, **kwargs):
+    def __init__(self, model=None, q_filter=None, create_action_url=None, user=None, *args, **kwargs):
         super(CreatorEntityField, self).__init__(*args, **kwargs)
         self._model = model
-        self._user = None
+        self._user = user
         self._create_action_url = create_action_url
         self.q_filter = q_filter
 
@@ -709,7 +799,8 @@ class CreatorEntityField(JSONField):
         self._clear_actions()
 
         if not self.required:
-            self._add_action('reset', _(u'Clear'), title=_(u'Clear'), action='reset', value='')
+            clear_label = _(u'Clear')
+            self._add_action('reset', clear_label, title=clear_label, action='reset', value='')
 
         if self._q_filter is not None and self._create_action_url is None:
             return

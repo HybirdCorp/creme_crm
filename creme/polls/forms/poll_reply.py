@@ -245,6 +245,7 @@ class InnerEditPersonForm(BulkDefaultEditForm):
         person_field = GenericEntityField(label=_(u'Person who filled'),
                                           required=False,
                                           models=[Organisation, Contact],
+                                          user=user
                                          )
 
         if not is_bulk:
