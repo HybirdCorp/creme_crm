@@ -210,6 +210,7 @@ class ActionButtonList(Widget):
 
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value
+        attrs = attrs or {}
 
         context = widget_render_context('ui-creme-actionbuttonlist', attrs)
         context['delegate'] = self.delegate.render(name, value, attrs)
@@ -537,9 +538,22 @@ class EntitySelector(TextInput):
 class CTEntitySelector(ChainedInput):
     def __init__(self, content_types, attrs=None, multiple=False, autocomplete=False):
         super(CTEntitySelector, self).__init__(attrs)
+        field_attrs = {'auto': False, 'datatype': 'json'}
 
-        self.add_dselect("ctype", options=content_types, attrs={'auto': False, 'autocomplete': True} if autocomplete else {'auto': False})
-        self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple':multiple})
+        if autocomplete:
+            field_attrs['autocomplete'] = True
+
+        self.add_dselect("ctype", options=content_types, attrs=field_attrs)
+
+        self._actions = ActionButtonList(delegate=EntitySelector(content_type='${ctype.id}',
+                                                                 attrs={'auto': False, 'multiple':multiple}
+                                                                )
+                                        )
+        self.add_input("entity", widget=self._actions)
+
+    @property
+    def actions(self):
+        return self._actions
 
 
 class RelationSelector(ChainedInput):
