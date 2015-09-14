@@ -361,8 +361,9 @@ creme.lv_widget.initialize = function(options, dialog) {
             var e = (window.event) ? window.event : e;
             var key= (window.event) ? e.keyCode : e.which;
 
-            if (key == 13)
+            if (key === 13) {
                 $(input.form).list_view('getSubmit')(input, extra_data);
+            }
 
             return true;
         }
