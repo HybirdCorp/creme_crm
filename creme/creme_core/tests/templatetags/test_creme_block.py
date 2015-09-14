@@ -15,8 +15,8 @@ try:
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
     from creme.creme_core.models import (RelationType, Relation,
-        BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-        InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
+            BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
+            InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
 
 #    from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -56,7 +56,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                 print('CremeBlockTagsTestCase: test-data backup problem with model=%s' % model)
 
     def setUp(self):
-        self.login()
+#        self.login()
 
         self.factory = RequestFactory()
 
@@ -68,6 +68,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
         return request
 
     def test_import_n_display_block(self):
+        self.login()
+
         blockstr = '<div>FOOBAR</div>'
         name = 'CremeBlockTagsTestCase__import_n_display_block'
 
@@ -90,6 +92,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.assertEqual(blockstr, render.strip())
 
     def test_import_n_display_block_on_portal(self):
+        self.login()
+
         blockstr = '<div>FOOBAR</div>'
         name = 'CremeBlockTagsTestCase__import_n_display_block_on_portal'
 
@@ -117,7 +121,10 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.assertEqual(ct_ids, block1.ct_ids)
 
     def test_import_n_display_on_detail_from_conf01(self):
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        "Default configuration"
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Xing')
 
         class TestBlock(Block):
             verbose_name = u'Testing purpose'
@@ -166,7 +173,10 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def test_import_n_display_on_detail_from_conf02(self):
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        "ContentType configuration (overload the default one)"
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Xing')
 
         class TestBlock(Block):
             verbose_name = u'Testing purpose'
@@ -214,11 +224,119 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def test_import_n_display_on_detail_from_conf03(self):
+        "Configuration for super-users (overload the default one)"
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Xing')
+
+        class TestBlock(Block):
+            verbose_name = u'Testing purpose'
+            self.blockstr = None
+
+            def detailview_display(self, context):
+                return self.blockstr
+
+        blocks = []
+
+        gen_id = TestBlock.generate_id
+        for i, zone in enumerate(BlockDetailviewLocation.ZONES, start=1):
+            block_class = type('TestBlock_%s' % i, (TestBlock,),
+                               {'id_':      gen_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf03_%s' % i),
+                                'blockstr': '<p>BLOCK#%s</p>' % i,
+                               }
+                              )
+            block = block_class()
+            blocks.append(block)
+
+            BlockDetailviewLocation.create(block_id=block.id_, order=i, zone=zone,
+                                           model=Organisation, role='superuser',
+                                          )
+
+        BlockDetailviewLocation.create(block_id=blocks[0].id_, order=1, model=Organisation,
+                                       zone=BlockDetailviewLocation.BOTTOM,
+                                      ) # Default conf for the CT should be ignored
+        self.assertEqual(5, BlockDetailviewLocation.objects.count())
+
+        block_registry.register(*blocks)
+
+        with self.assertNoException():
+            template = Template("{% load creme_block %}"
+                                "{% import_detailview_blocks %}"
+                                "<div>{% display_detailview_blocks top %}</div>"
+                                "<div>{% display_detailview_blocks left %}</div>"
+                                "<div>{% display_detailview_blocks right %}</div>"
+                                "<div>{% display_detailview_blocks bottom %}</div>"
+                               )
+            render = template.render(RequestContext(self._build_request(), {'object': orga}))
+
+        self.assertEqual('<div><p>BLOCK#1</p></div>'
+                         '<div><p>BLOCK#2</p></div>'
+                         '<div><p>BLOCK#3</p></div>'
+                         '<div><p>BLOCK#4</p></div>',
+                         render.strip()
+                        )
+
+    def test_import_n_display_on_detail_from_conf04(self):
+        "Configuration for a role (overload the default one)"
+        user = self.login(is_superuser=False)
+
+        orga = Organisation.objects.create(user=user, name='Xing')
+
+        class TestBlock(Block):
+            verbose_name = u'Testing purpose'
+            self.blockstr = None
+
+            def detailview_display(self, context):
+                return self.blockstr
+
+        blocks = []
+
+        gen_id = TestBlock.generate_id
+        for i, zone in enumerate(BlockDetailviewLocation.ZONES, start=1):
+            block_class = type('TestBlock_%s' % i, (TestBlock,),
+                               {'id_':      gen_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf04_%s' % i),
+                                'blockstr': '<p>BLOCK#%s</p>' % i,
+                               }
+                              )
+            block = block_class()
+            blocks.append(block)
+
+            BlockDetailviewLocation.create(block_id=block.id_, order=i, zone=zone,
+                                           model=Organisation, role=self.role,
+                                          )
+
+        BlockDetailviewLocation.create(block_id=blocks[0].id_, order=1, model=Organisation,
+                                       zone=BlockDetailviewLocation.BOTTOM,
+                                      ) # Default conf should be ignored
+        self.assertEqual(5, BlockDetailviewLocation.objects.count())
+
+        block_registry.register(*blocks)
+
+        with self.assertNoException():
+            template = Template("{% load creme_block %}"
+                                "{% import_detailview_blocks %}"
+                                "<div>{% display_detailview_blocks top %}</div>"
+                                "<div>{% display_detailview_blocks left %}</div>"
+                                "<div>{% display_detailview_blocks right %}</div>"
+                                "<div>{% display_detailview_blocks bottom %}</div>"
+                               )
+            render = template.render(RequestContext(self._build_request(), {'object': orga}))
+
+        self.assertEqual('<div><p>BLOCK#1</p></div>'
+                         '<div><p>BLOCK#2</p></div>'
+                         '<div><p>BLOCK#3</p></div>'
+                         '<div><p>BLOCK#4</p></div>',
+                         render.strip()
+                        )
+
+    def test_import_n_display_on_detail_from_conf05(self):
         "InstanceBlock dependencies"
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Xing')
 
         class OrgaInfoBlock(Block):
-            id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf03')
+            id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf05')
             verbose_name = u'Testing purpose'
             dependencies = (Organisation,)
 
@@ -289,15 +407,17 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def _aux_test_import_n_display_relationblock(self, cells=()):
+        user = self.login()
+
         rt = RelationType.create(('test-subject_monitored', 'is monitored by'),
                                  ('test-object_monitored',  'monitors'),
                                 )[0]
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         nerv  = create_orga(name='Nerv')
         seele = create_orga(name='Seele', email='contact@seele.jp')
 
-        Relation.objects.create(subject_entity=nerv, type=rt, object_entity=seele, user=self.user)
+        Relation.objects.create(subject_entity=nerv, type=rt, object_entity=seele, user=user)
 
         rbi = RelationBlockItem(
                         block_id='specificblock_creme_config-test-subfoo',
@@ -342,7 +462,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.assertIn(seele.email, render)
 
     def test_import_n_display_customblock(self):
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Xing')
         cbci = CustomBlockConfigItem.objects.create(
                     id='tests-organisations01', name='General',
                     content_type=ContentType.objects.get_for_model(Organisation),
@@ -366,7 +488,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.assertIn(orga.name, render)
 
     def test_import_n_display_on_portal_from_conf01(self):
-        Organisation.objects.create(user=self.user, name='Xing')
+        user = self.login()
+
+        Organisation.objects.create(user=user, name='Xing')
 
         class TestBlock(SimpleBlock):
             verbose_name = u'Testing purpose'
@@ -407,7 +531,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def test_import_n_display_on_portal_from_conf02(self):
-        Organisation.objects.create(user=self.user, name='Xing')
+        user = self.login()
+
+        Organisation.objects.create(user=user, name='Xing')
 
         class TestBlock(SimpleBlock):
             verbose_name = u'Testing purpose'
@@ -454,7 +580,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def test_import_n_display_on_home_from_conf(self):
-        Organisation.objects.create(user=self.user, name='Xing')
+        user = self.login()
+
+        Organisation.objects.create(user=user, name='Xing')
 
         class TestBlock(SimpleBlock):
             verbose_name = u'Testing purpose'
@@ -493,8 +621,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def test_import_n_display_on_mypage_from_conf(self):
-        user = self.user
-        Organisation.objects.create(user=self.user, name='Xing')
+        user = self.login()
+
+        Organisation.objects.create(user=user, name='Xing')
 
         class TestBlock(SimpleBlock):
             verbose_name = u'Testing purpose'
@@ -533,6 +662,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def test_import_n_display_blocks(self):
+        self.login()
+
         class FooBlock1(Block):
             id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_blocks_1')
             verbose_name = u'Testing purpose'
@@ -561,6 +692,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.assertEqual('<div>FOO</div><div>BAR</div>', render.strip())
 
     def test_get_blocks_dependencies(self):
+        self.login()
+
         class TestBlock(Block):
             verbose_name = u'Testing purpose'
 
@@ -603,6 +736,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.assertIn('creme.utils.getBlocksDeps', render)
 
     def test_get_block_reload_uri(self):
+        self.login()
+
         with self.assertNoException():
             template = Template('{% load creme_block %}{% get_block_reload_uri %}')
             render = template.render(RequestContext(self._build_request(),
@@ -618,6 +753,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def test_get_block_relation_reload_uri(self):
+        self.login()
+
         class FooBlock1(SimpleBlock):
             id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_1')
             dependencies = (Contact,)

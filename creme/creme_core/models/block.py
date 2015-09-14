@@ -33,6 +33,7 @@ from django.utils.translation import ugettext_lazy as _
 from ..constants import (SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
         SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID)
 from ..utils import creme_entity_content_types
+from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
@@ -50,6 +51,8 @@ logger = logging.getLogger(__name__)
 
 class BlockDetailviewLocation(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
+    role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None)
+    superuser    = BooleanField(u'related to superusers', default=False, editable=False) # TODO: a UserRole for superusers instead ??
     block_id     = CharField(max_length=100)
     order        = PositiveIntegerField()
     zone         = PositiveSmallIntegerField()
@@ -66,25 +69,42 @@ class BlockDetailviewLocation(CremeModel):
         ordering = ('order',)
 
     def __repr__(self):
-        return 'BlockDetailviewLocation(id=%s, content_type_id=%s, block_id=%s, order=%s, zone=%s)' % (
-                self.id, self.content_type_id, self.block_id, self.order, self.zone
+        return 'BlockDetailviewLocation(id=%s, content_type_id=%s, role=%s, block_id=%s, order=%s, zone=%s)' % (
+                self.id, self.content_type_id,
+                'superuser' if self.superuser else self.role,
+                self.block_id, self.order, self.zone,
             )
 
     @staticmethod
-    def create(block_id, order, zone, model=None): #TODO: rename 'create_if_needed'
-        ct = ContentType.objects.get_for_model(model) if model else None
+    def create(block_id, order, zone, model=None, role=None): # TODO: rename 'create_if_needed'
+        """Create an instance of BlockDetailviewLocation, but if only if the related
+        block is not already on the configuration.
+        @param zone Value in BlockDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
+        @param model A class inheriting CremeEntity ; None means default configuration.
+        @param role Can be None (ie: 'Default configuration'), a UserRole instance,
+                    or the string 'superuser'.
+        """
+        kwargs = {'role': None, 'superuser': False}
 
-        #TODO: get_or_create()
-        try:
-            loc = BlockDetailviewLocation.objects.get(content_type=ct, block_id=block_id)
-        except Exception:
-            loc = BlockDetailviewLocation.objects.create(content_type=ct, block_id=block_id, order=order, zone=zone)
+        if role:
+            if model is None:
+                raise ValueError('The default configuration cannot have a related role.')
 
-        return loc
+            if role == 'superuser':
+                kwargs['superuser'] = True
+            else:
+                kwargs['role'] = role
+
+        return BlockDetailviewLocation.objects.get_or_create(
+                    content_type=ContentType.objects.get_for_model(model) if model else None,
+                    block_id=block_id,
+                    defaults={'order': order, 'zone': zone},
+                    **kwargs
+                )[0]
 
     @staticmethod
-    def create_4_model_block(order, zone, model=None):
-        return BlockDetailviewLocation.create(MODELBLOCK_ID, order, zone, model)
+    def create_4_model_block(order, zone, model=None, role=None):
+        return BlockDetailviewLocation.create(MODELBLOCK_ID, order, zone, model, role)
 
     @staticmethod
     def id_is_4_model(block_id):
@@ -121,7 +141,7 @@ class BlockPortalLocation(CremeModel):
             )
 
     @staticmethod
-    def create(block_id, order, app_name=''):
+    def create(block_id, order, app_name=''): # TODO: rename create_or_update ?
         try:
             loc = BlockPortalLocation.objects.get(app_name=app_name, block_id=block_id)
         except Exception:
@@ -168,7 +188,7 @@ class BlockMypageLocation(CremeModel):
                     logger.warn('Can not create block config for this user: %s (if it is the first user, do not worry because it is normal)' % instance)
 
     @staticmethod
-    def create(block_id, order, user=None):
+    def create(block_id, order, user=None): # TODO: rename create_or_update ?
         try:
             loc = BlockMypageLocation.objects.get(user=user, block_id=block_id)
         except Exception:
@@ -182,10 +202,7 @@ class BlockMypageLocation(CremeModel):
     @property
     def block_verbose_name(self):
         from creme.creme_core.gui.block import block_registry
-        #try:
-            #return block_registry[self.block_id].verbose_name
-        #except:
-            #return '???'
+
         return block_registry.get_blocks((self.block_id,))[0].verbose_name
 
 
@@ -236,9 +253,12 @@ class RelationBlockItem(CremeModel):
             rbi = RelationBlockItem.objects.get(relation_type=relation_type_id)
         except RelationBlockItem.DoesNotExist:
             from creme.creme_core.gui.block import SpecificRelationsBlock
-            rbi = RelationBlockItem.objects.create(block_id=SpecificRelationsBlock.generate_id('creme_config', relation_type_id),
-                                                   relation_type_id=relation_type_id
-                                                  )
+            rbi = RelationBlockItem.objects.create(
+                        block_id=SpecificRelationsBlock.generate_id('creme_config',
+                                                                    relation_type_id,
+                                                                   ),
+                        relation_type_id=relation_type_id,
+                    )
 
         return rbi
 
@@ -348,7 +368,9 @@ class InstanceBlockConfigItem(CremeModel):
                       of the same Block class and the same CremeEntity instance.
         """
         if key and any((c in key) for c in ('#', '@', '&', ':', ' ')):
-            raise ValueError('InstanceBlockConfigItem.generate_id: usage of a forbidden character in key "%s"' % key)
+            raise ValueError('InstanceBlockConfigItem.generate_id: usage of a '
+                             'forbidden character in key "%s"' % key
+                            )
 
         return u'%s|%s-%s' % (block_class.id_, entity.id, key)
 
@@ -451,19 +473,12 @@ class BlockState(CremeModel):
         try:
             return BlockState.objects.get(block_id=block_id, user=user)
         except BlockState.DoesNotExist:
-            #states = SettingValue.objects.filter(key__in=[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS])
             states = {sv.key_id: sv.value
                         for sv in SettingValue.objects.filter(key_id__in=[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
                                                                           SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
                                                                          ]
                                                              )
                      }
-
-            #todo: optimisation does not work
-            #is_default_open             = states.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
-            #is_default_fields_displayed = states.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
-
-            #return BlockState(block_id=block_id, is_open=is_default_open, show_empty_fields=is_default_fields_displayed, user=user)
 
             return BlockState(block_id=block_id, user=user,
                               is_open=states[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN],
@@ -479,8 +494,6 @@ class BlockState(CremeModel):
         """
         states = {}
 
-        #is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
-        #is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value#TODO: Method for get_default_states?
         get_sv = SettingValue.objects.get #TODO: group queries ??
         is_default_open             = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
         is_default_fields_displayed = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value #TODO: Method for get_default_states?
@@ -488,8 +501,11 @@ class BlockState(CremeModel):
         for state in BlockState.objects.filter(block_id__in=block_ids, user=user):
             states[state.block_id] = state
 
-        block_state = partial(BlockState, is_open=is_default_open, show_empty_fields=is_default_fields_displayed, user=user)
-        for block_id in set(block_ids) - set(states.keys()):#Blocks with unset state
+        block_state = partial(BlockState, is_open=is_default_open, user=user,
+                              show_empty_fields=is_default_fields_displayed,
+                             )
+
+        for block_id in set(block_ids) - set(states.keys()): # Blocks with unset state
             states[block_id] = block_state(block_id=block_id)
 
         return states

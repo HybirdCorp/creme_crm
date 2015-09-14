@@ -1,34 +1,128 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase # skipIfNotInstalled
+    from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeAddress as Address, FakeImage as Image,
             FakeActivity as Activity, FakeEmailCampaign as EmailCampaign)
-    from creme.creme_core.blocks import history_block
+    from creme.creme_core.blocks import (relations_block, properties_block,
+            history_block, customfields_block)
     from creme.creme_core.constants import MODELBLOCK_ID
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
-    from creme.creme_core.models import RelationType, CustomField, FieldsConfig
+    from creme.creme_core.models import RelationType, CustomField, FieldsConfig, UserRole
     from creme.creme_core.models.block import *
 
     from creme.creme_config.blocks import(BlockDetailviewLocationsBlock,
         BlockPortalLocationsBlock, BlockDefaultMypageLocationsBlock,
         RelationBlocksConfigBlock, InstanceBlocksConfigBlock, CustomBlocksConfigBlock)
-
-    #from creme.documents.models import Folder, Document
-
-    #from creme.persons.models import Contact, Organisation  #need CremeEntity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
+# Test Blocks ------------------------------------------------------------------
+class CompleteBlock(Block):
+    id_           = Block.generate_id('creme_config', 'testblockconfig_complete')
+    verbose_name  = u'Testing purpose'
 
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context))
+
+    def home_display(self, context):
+        return '<table id="%s"></table>' % self.id_
+
+    def portal_display(self, context, ct_ids):
+        return '<table id="%s"></table>' % self.id_
+
+
+class HomePortalBlock(Block):
+    id_           = Block.generate_id('creme_config', 'testblockconfig_home_portal')
+    verbose_name  = u'Testing purpose'
+
+    #def detailview_display(self, context): NO
+
+    def home_display(self, context):
+        return '<table id="%s"></table>' % self.id_
+
+    def portal_display(self, context, ct_ids):
+        return '<table id="%s"></table>' % self.id_
+
+
+class PortalOnlyBlock1(Block):
+    id_           = Block.generate_id('creme_config', 'testblockconfig_portal_only_1')
+    verbose_name  = u'Testing purpose'
+
+    def portal_display(self, context, ct_ids):
+        return '<table id="%s"></table>' % self.id_
+
+
+class PortalOnlyBlock2(Block):
+    id_           = Block.generate_id('creme_config', 'testblockconfig_portal_only_2')
+    verbose_name  = u'Testing purpose'
+    configurable  = False # <----
+
+    def portal_display(self, context, ct_ids):
+        return '<table id="%s"></table>' % self.id_
+
+
+class PortalOnlyBlock3(Block):
+    id_           = Block.generate_id('creme_config', 'testblockconfig_portal_only_3')
+    verbose_name  = u'Testing purpose'
+    target_apps   = ('persons', 'billing')
+
+    def portal_display(self, context, ct_ids):
+        return '<table id="%s"></table>' % self.id_
+
+
+class PortalOnlyBlock4(Block):
+    id_           = Block.generate_id('creme_config', 'testblockconfig_portal_only_4')
+    verbose_name  = u'Testing purpose'
+    target_apps   = ('billing', 'documents')
+
+    def portal_display(self, context, ct_ids):
+        return '<table id="%s"></table>' % self.id_
+
+
+class HomeOnlyBlock(Block):
+    id_           = Block.generate_id('creme_config', 'testblockconfig_home_only')
+    verbose_name  = u'Testing purpose'
+
+    #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
+    #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+
+    def home_display(self, context):
+        return '<table id="%s"></table>' % self.id_
+
+
+class DetailviewInstanceBlock(Block):
+    id_ = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_detail_instance')
+
+    def __init__(self, instance_block_config_item):
+        self.ibci = instance_block_config_item
+
+    def detailview_display(self, context):
+        return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
+
+
+class PortalInstanceBlock(Block):
+    id_ = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_portal_instance')
+    verbose_name  = u'Testing purpose'
+
+    def __init__(self, instance_block_config_item):
+        self.ibci = instance_block_config_item
+
+    def portal_display(self, context, ct_ids):
+        return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
+
+
+# Test case --------------------------------------------------------------------
 class BlocksConfigTestCase(CremeTestCase):
-    ADD_DT_URL     = '/creme_config/blocks/detailview/add/'
+#    ADD_DT_URL     = '/creme_config/blocks/detailview/add/'
     DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'
 
     @classmethod
@@ -47,6 +141,22 @@ class BlocksConfigTestCase(CremeTestCase):
 
         cls.populate('creme_core')
         #cls.autodiscover()
+
+        # TODO: unregister in tearDownClass()
+        cls.complete_block     = b1 = CompleteBlock()
+        cls.home_portal_block  = b2 = HomePortalBlock()
+
+        cls.portal_only_block1 = b3 = PortalOnlyBlock1()
+        cls.portal_only_block2 = b4 = PortalOnlyBlock2()
+        cls.portal_only_block3 = b5 = PortalOnlyBlock3()
+        cls.portal_only_block4 = b6 = PortalOnlyBlock4()
+
+        cls.home_only_block = b7 = HomeOnlyBlock()
+
+        block_registry.register(b1, b2, b3, b4, b5, b6, b7)
+
+        block_registry.register_4_instance(DetailviewInstanceBlock)
+        block_registry.register_4_instance(PortalInstanceBlock)
 
     @classmethod
     def tearDownClass(cls):
@@ -70,8 +180,17 @@ class BlocksConfigTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
-    def _build_editdetail_url(self, ct=None):
-        return '/creme_config/blocks/detailview/edit/%s' % (ct.id if ct else 0)
+    def _build_adddetail_url(self, ct):
+        return '/creme_config/blocks/detailview/add/%s' % ct.id
+
+    def _build_editdetail_url(self, ct=None, role=None, superuser=False):
+#        return '/creme_config/blocks/detailview/edit/%s' % (ct.id if ct else 0)
+        return '/creme_config/blocks/detailview/edit/%(ctype)s/%(role)s' % {
+                    'ctype': ct.id if ct else 0,
+                    'role':  'superuser' if superuser else
+                             role.id if role
+                             else 'default',
+                }
 
     def _build_rblock_addctypes_url(self, rbi):
         return '/creme_config/blocks/relation_block/add_ctypes/%s' % rbi.id
@@ -83,41 +202,6 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def _build_customblock_edit_url(self, cbc_item):
         return '/creme_config/blocks/custom/edit/%s' % cbc_item.id
-
-    def test_portal(self):
-        response = self.assertGET200('/creme_config/blocks/portal/')
-
-        fmt = 'id="%s"'
-        self.assertContains(response, fmt % BlockDetailviewLocationsBlock.id_)
-        self.assertContains(response, fmt % BlockPortalLocationsBlock.id_)
-        self.assertContains(response, fmt % BlockDefaultMypageLocationsBlock.id_)
-        self.assertContains(response, fmt % RelationBlocksConfigBlock.id_)
-        self.assertContains(response, fmt % InstanceBlocksConfigBlock.id_)
-        self.assertContains(response, fmt % CustomBlocksConfigBlock.id_)
-
-    def test_add_detailview(self):
-        url = self.ADD_DT_URL
-        self.assertGET200(url)
-
-        ct = ContentType.objects.get_for_model(Contact)
-        self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
-
-        self.assertNoFormError(self.client.post(url, data={'ctype': ct.id}))
-
-        b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
-        self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
-        self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
-                          BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
-                         },
-                         {bl.zone for bl in b_locs}
-                        )
-
-        response = self.client.get(url)
-
-        with self.assertNoException():
-            ctypes = response.context['form'].fields['ctype'].ctypes
-
-        self.assertNotIn(ct, ctypes)
 
     def _find_field_index(self, formfield, name):
         for i, (fname, fvname) in enumerate(formfield.choices):
@@ -138,37 +222,22 @@ class BlocksConfigTestCase(CremeTestCase):
 
         self.fail('No "%s" in locations' % block_id)
 
-    def test_edit_detailview01(self):
-        self.assertGET404(self._build_editdetail_url(ContentType.objects.get_for_model(Contact)))
+    def test_portal(self):
+        response = self.assertGET200('/creme_config/blocks/portal/')
 
-    def test_edit_detailview02(self):
+        fmt = 'id="%s"'
+        self.assertContains(response, fmt % BlockDetailviewLocationsBlock.id_)
+        self.assertContains(response, fmt % BlockPortalLocationsBlock.id_)
+        self.assertContains(response, fmt % BlockDefaultMypageLocationsBlock.id_)
+        self.assertContains(response, fmt % RelationBlocksConfigBlock.id_)
+        self.assertContains(response, fmt % InstanceBlocksConfigBlock.id_)
+        self.assertContains(response, fmt % CustomBlocksConfigBlock.id_)
+
+    def _aux_test_add_detailview(self, role=None, superuser=False):
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
-        self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
-
-        class FoobarBlock1(Block):
-            id_           = Block.generate_id('creme_config', 'test_edit_detailview02_1')
-            verbose_name  = u'Testing purpose'
-
-            def detailview_display(self, context):     return self._render(self.get_block_template_context(context))
-            def home_display(self, context):           return '<table id="%s"></table>' % self.id_
-            def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-
-        class FoobarBlock2(Block):
-            id_           = Block.generate_id('creme_config', 'test_edit_detailview02_2')
-            verbose_name  = u'Testing purpose'
-
-            #def detailview_display(self, context):    NO
-            def home_display(self, context):           return '<table id="%s"></table>' % self.id_
-            def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-
-        foobar_block1 = FoobarBlock1()
-        foobar_block2 = FoobarBlock2()
-        block_registry.register(foobar_block1, foobar_block2)
-
-        url = self._build_editdetail_url(ct)
+        url = self._build_adddetail_url(ct)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -180,8 +249,145 @@ class BlocksConfigTestCase(CremeTestCase):
 
         blocks = list(block_registry.get_compatible_blocks(model))
         self.assertGreaterEqual(len(blocks), 5)
-        self._find_field_index(top_field, foobar_block1.id_)
-        self._assertNotInChoices(top_field, foobar_block2.id_, 'Block has no detailview_display() method')
+        self._find_field_index(top_field, self.complete_block.id_)
+
+        block_top_id1   = blocks[0].id_
+        block_top_id2   = blocks[1].id_
+        block_left_id1  = blocks[2].id_
+        block_left_id2  = MODELBLOCK_ID
+        block_right_id  = blocks[3].id_
+        block_bottom_id = blocks[4].id_
+
+        block_top_index1   = self._find_field_index(top_field, block_top_id1)
+        block_top_index2   = self._find_field_index(top_field, block_top_id2)
+        block_left_index1  = self._find_field_index(left_field, block_left_id1)
+        block_left_index2  = self._find_field_index(left_field, block_left_id2)
+        block_right_index  = self._find_field_index(right_field, block_right_id)
+        block_bottom_index = self._find_field_index(bottom_field, block_bottom_id)
+
+        response = self.client.post(url,
+                                    data={'role': role.id if role else '',
+
+                                          'top_check_%s' % block_top_index1: 'on',
+                                          'top_value_%s' % block_top_index1: block_top_id1,
+                                          'top_order_%s' % block_top_index1: 1,
+
+                                          'top_check_%s' % block_top_index2: 'on',
+                                          'top_value_%s' % block_top_index2: block_top_id2,
+                                          'top_order_%s' % block_top_index2: 2,
+
+                                          'left_check_%s' % block_left_index1: 'on',
+                                          'left_value_%s' % block_left_index1: block_left_id1,
+                                          'left_order_%s' % block_left_index1: 1,
+
+                                          'left_check_%s' % block_left_index2: 'on',
+                                          'left_value_%s' % block_left_index2: block_left_id2,
+                                          'left_order_%s' % block_left_index2: 2,
+
+                                          'right_check_%s' % block_right_index: 'on',
+                                          'right_value_%s' % block_right_index: block_right_id,
+                                          'right_order_%s' % block_right_index: 1,
+
+                                          'bottom_check_%s' % block_bottom_index: 'on',
+                                          'bottom_value_%s' % block_bottom_index: block_bottom_id,
+                                          'bottom_order_%s' % block_bottom_index: 1,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        b_locs = BlockDetailviewLocation.objects.filter(content_type=ct, role=role, superuser=superuser)
+        filter_locs = lambda zone: [bl for bl in b_locs if bl.zone == zone]
+
+        locations = filter_locs(BlockDetailviewLocation.TOP)
+        self.assertEqual(2, len(locations))
+        self.assertEqual(1, self._find_location(block_top_id1, locations).order)
+        self.assertEqual(2, self._find_location(block_top_id2, locations).order)
+
+        locations = filter_locs(BlockDetailviewLocation.LEFT)
+        self.assertEqual(2, len(locations))
+        self.assertEqual(1, self._find_location(block_left_id1, locations).order)
+        self.assertEqual(2, self._find_location(block_left_id2, locations).order)
+
+        locations = filter_locs(BlockDetailviewLocation.RIGHT)
+        self.assertEqual(1, len(locations))
+        self.assertEqual(1, self._find_location(block_right_id, locations).order)
+
+        locations = filter_locs(BlockDetailviewLocation.BOTTOM)
+        self.assertEqual(1, len(locations))
+        self.assertEqual(1, self._find_location(block_bottom_id, locations).order)
+
+    def test_add_detailview01(self):
+        self._aux_test_add_detailview(role=self.role, superuser=False)
+
+    def test_add_detailview02(self):
+        self._aux_test_add_detailview(role=None, superuser=True)
+
+    def test_add_detailview03(self):
+        "Used roles are not proposed anymore"
+        model = Contact
+        ct = ContentType.objects.get_for_model(model)
+        url = self._build_adddetail_url(ct)
+
+        role1 = self.role
+        role2 = UserRole.objects.create(name='Viewer')
+
+        def get_choices():
+            response = self.assertGET200(url)
+
+            with self.assertNoException():
+                return list(response.context['form'].fields['role'].choices)
+
+        choices = get_choices()
+        self.assertIn(('', u'*%s*' % _('Superuser')), choices)
+        self.assertIn((role1.id, role1.name), choices)
+        self.assertIn((role2.id, role2.name), choices)
+
+        # Role ------------
+        blocks = list(block_registry.get_compatible_blocks(model))
+        self.assertGreaterEqual(len(blocks), 5, blocks)
+
+        create_loc = partial(BlockDetailviewLocation.objects.create, content_type=ct, order=1)
+        create_loc(role=role1, block_id=blocks[0].id_, zone=BlockDetailviewLocation.TOP)
+        create_loc(role=role1, block_id=blocks[1].id_, zone=BlockDetailviewLocation.LEFT)
+        create_loc(role=role1, block_id=blocks[2].id_, zone=BlockDetailviewLocation.RIGHT)
+        create_loc(role=role1, block_id=blocks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
+
+        choices = get_choices()
+        self.assertIn(('', u'*%s*' % _('Superuser')), choices)
+        self.assertIn((role2.id, role2.name), choices)
+        self.assertNotIn((role1.id, role1.name), choices)
+
+        # Superuser ------------
+        create_loc(superuser=True, block_id=blocks[0].id_, zone=BlockDetailviewLocation.TOP)
+        create_loc(superuser=True, block_id=blocks[1].id_, zone=BlockDetailviewLocation.LEFT)
+        create_loc(superuser=True, block_id=blocks[2].id_, zone=BlockDetailviewLocation.RIGHT)
+        create_loc(superuser=True, block_id=blocks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
+
+        choices = get_choices()
+        self.assertIn((role2.id, role2.name), choices)
+        self.assertNotIn((role1.id, role1.name), choices)
+        self.assertNotIn(('', u'*%s*' % _('Superuser')), choices)
+
+    def _aux_test_edit_detailview(self, role=None, superuser=False):
+        model = Contact
+        ct = ContentType.objects.get_for_model(model)
+
+        url = self._build_editdetail_url(ct, role, superuser)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            top_field    = fields['top']
+            left_field   = fields['left']
+            right_field  = fields['right']
+            bottom_field = fields['bottom']
+
+        blocks = list(block_registry.get_compatible_blocks(model))
+        self.assertGreaterEqual(len(blocks), 5)
+        self._find_field_index(top_field, self.complete_block.id_)
+        self._assertNotInChoices(top_field, self.home_portal_block.id_,
+                                 'Block has no detailview_display() method'
+                                )
 
         block_top_id1   = blocks[0].id_
         block_top_id2   = blocks[1].id_
@@ -225,27 +431,62 @@ class BlocksConfigTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
+        b_locs = BlockDetailviewLocation.objects.filter(content_type=ct, role=role,
+                                                        superuser=superuser,
+                                                       )
+        filter_locs = lambda zone: [bl for bl in b_locs if bl.zone == zone]
 
-        locations = [b_loc for b_loc in b_locs if b_loc.zone == BlockDetailviewLocation.TOP]
+        locations = filter_locs(BlockDetailviewLocation.TOP)
         self.assertEqual(2, len(locations))
         self.assertEqual(1, self._find_location(block_top_id1, locations).order)
         self.assertEqual(2, self._find_location(block_top_id2, locations).order)
 
-        locations = [b_loc for b_loc in b_locs if b_loc.zone == BlockDetailviewLocation.LEFT]
+        locations = filter_locs(BlockDetailviewLocation.LEFT)
         self.assertEqual(2, len(locations))
         self.assertEqual(1, self._find_location(block_left_id1, locations).order)
         self.assertEqual(2, self._find_location(block_left_id2, locations).order)
 
-        locations = [b_loc for b_loc in b_locs if b_loc.zone == BlockDetailviewLocation.RIGHT]
+        locations = filter_locs(BlockDetailviewLocation.RIGHT)
         self.assertEqual(1, len(locations))
         self.assertEqual(1, self._find_location(block_right_id, locations).order)
 
-        locations = [b_loc for b_loc in b_locs if b_loc.zone == BlockDetailviewLocation.BOTTOM]
+        locations = filter_locs(BlockDetailviewLocation.BOTTOM)
         self.assertEqual(1, len(locations))
         self.assertEqual(1, self._find_location(block_bottom_id, locations).order)
 
+    def test_edit_detailview01(self):
+        "Default configuration of a ContentType"
+        model = Contact
+        ct = ContentType.objects.get_for_model(model)
+        block_id = list(block_registry.get_compatible_blocks(model))[0].id_
+
+        # These blocks should not be modified
+        create_loc = partial(BlockDetailviewLocation.objects.create,
+                             content_type=ct, order=1, block_id=block_id,
+                             zone=BlockDetailviewLocation.TOP,
+                            )
+        b_loc1 = create_loc(role=self.role)
+        b_loc2 = create_loc(superuser=True)
+
+        self._aux_test_edit_detailview(role=None, superuser=False)
+
+        b_loc1 = self.refresh(b_loc1)
+        self.assertEqual(self.role, b_loc1.role)
+        self.assertEqual(block_id, b_loc1.block_id)
+
+        b_loc2 = self.refresh(b_loc2)
+        self.assertTrue(b_loc2.superuser)
+        self.assertEqual(block_id, b_loc2.block_id)
+
+    def test_edit_detailview02(self):
+        "Configuration for a role"
+        self._aux_test_edit_detailview(role=self.role, superuser=False)
+
     def test_edit_detailview03(self):
+        "Configuration for superusers"
+        self._aux_test_edit_detailview(role=None, superuser=True)
+
+    def test_edit_detailview04(self):
         "When no block -> fake block"
         model = Contact
         ct = ContentType.objects.get_for_model(model)
@@ -253,11 +494,11 @@ class BlocksConfigTestCase(CremeTestCase):
         blocks = list(block_registry.get_compatible_blocks(model))
         self.assertGreaterEqual(len(blocks), 5, blocks)
 
-        create_loc = BlockDetailviewLocation.objects.create
-        create_loc(content_type=ct, block_id=blocks[0].id_, order=1, zone=BlockDetailviewLocation.TOP)
-        create_loc(content_type=ct, block_id=blocks[1].id_, order=1, zone=BlockDetailviewLocation.LEFT)
-        create_loc(content_type=ct, block_id=blocks[2].id_, order=1, zone=BlockDetailviewLocation.RIGHT)
-        create_loc(content_type=ct, block_id=blocks[3].id_, order=1, zone=BlockDetailviewLocation.BOTTOM)
+        create_loc = partial(BlockDetailviewLocation.objects.create, content_type=ct, order=1)
+        create_loc(block_id=blocks[0].id_, zone=BlockDetailviewLocation.TOP)
+        create_loc(block_id=blocks[1].id_, zone=BlockDetailviewLocation.LEFT)
+        create_loc(block_id=blocks[2].id_, zone=BlockDetailviewLocation.RIGHT)
+        create_loc(block_id=blocks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
 
         url = self._build_editdetail_url(ct)
         response = self.assertGET200(url)
@@ -298,46 +539,57 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(1, self._find_location(block_top_id1, locations).order)
         self.assertEqual(2, self._find_location(block_top_id2, locations).order)
 
-        def blocks_info(zone):
-            return [(bl.block_id, bl.order) for bl in b_locs if bl.zone == zone]
+        blocks_info = lambda zone: [(bl.block_id, bl.order) for bl in b_locs if bl.zone == zone]
 
         self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.LEFT))
         self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.RIGHT))
         self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.BOTTOM))
 
-    def test_edit_detailview04(self):
-        "Default conf"
-        BlockDetailviewLocation.objects.filter(content_type=None).delete()
-        url = self._build_editdetail_url()
-        self.assertGET404(url)
+    def test_edit_detailview05(self):
+        "Default conf + no empty configuration"
+#        BlockDetailviewLocation.objects.filter(content_type=None).delete()
 
-        blocks = list(block_registry.get_compatible_blocks(model=None))
-        self.assertGreaterEqual(len(blocks), 5, blocks)
+        self.assertGET404(self._build_editdetail_url(ct=None, role=self.role))
 
-        create_loc = BlockDetailviewLocation.objects.create
-        create_loc(block_id=blocks[0].id_, order=1, zone=BlockDetailviewLocation.TOP)
-        create_loc(block_id=blocks[1].id_, order=1, zone=BlockDetailviewLocation.LEFT)
-        create_loc(block_id=blocks[2].id_, order=1, zone=BlockDetailviewLocation.RIGHT)
-        create_loc(block_id=blocks[3].id_, order=1, zone=BlockDetailviewLocation.BOTTOM)
-
+        url = self._build_editdetail_url(ct=None)
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={}))
+
+        response = self.assertPOST200(url, data={})
+        self.assertFormError(response, 'form', None,
+                             _(u'Your configuration is empty !')
+                            )
+
+        blocks = list(block_registry.get_compatible_blocks(None))
+        self.assertGreaterEqual(len(blocks), 1, blocks)
+        block_id = blocks[0].id_
+
+        with self.assertNoException():
+            top_field = response.context['form'].fields['top']
+
+        index = self._find_field_index(top_field, block_id)
+        response = self.client.post(url,
+                                    data={'top_check_%s' % index: 'on',
+                                          'top_value_%s' % index: block_id,
+                                          'top_order_%s' % index: 1,
+                                         }
+                                   )
+        self.assertNoFormError(response)
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=None)
-        self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
-        self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
-                          BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
-                         },
-                         {bl.zone for bl in b_locs}
-                        )
+        blocks_info = lambda zone: [(bl.block_id, bl.order) for bl in b_locs if bl.zone == zone]
 
-    def test_edit_detailview05(self):
+        self.assertEqual([(block_id, 1)], blocks_info(BlockDetailviewLocation.TOP))
+        self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.LEFT))
+        self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.RIGHT))
+        self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.BOTTOM))
+
+    def test_edit_detailview06(self):
         "Post one block several times -> validation error"
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
-        self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
+#        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
+#        self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
 
         url = self._build_editdetail_url(ct)
         response = self.assertGET200(url)
@@ -377,12 +629,12 @@ class BlocksConfigTestCase(CremeTestCase):
         post(evil_block.id_, evil_block.verbose_name)
         post(MODELBLOCK_ID, _('Information on the entity'))
 
-    def test_edit_detailview06(self):
+    def test_edit_detailview07(self):
         "Instance block, relationtype block"
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
+#        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
 
         rtype = RelationType.objects.all()[0]
         rtype_block_id = SpecificRelationsBlock.generate_id('test', 'foobar')
@@ -390,23 +642,10 @@ class BlocksConfigTestCase(CremeTestCase):
 
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
-        class FoobarInstanceBlock(Block):
-            id_ = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_edit_detailview06')
-
-            def __init__(self, instance_block_config_item):
-                self.ibci = instance_block_config_item
-
-            def detailview_display(self, context):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
-                                self.id_, self.ibci.entity
-                            ) #useless :)
-
-        instance_block_id = InstanceBlockConfigItem.generate_id(FoobarInstanceBlock, naru, '')
+        instance_block_id = InstanceBlockConfigItem.generate_id(DetailviewInstanceBlock, naru, '')
         InstanceBlockConfigItem.objects.create(block_id=instance_block_id,
                                                entity=naru, verbose='All stuffes',
                                               )
-
-        block_registry.register_4_instance(FoobarInstanceBlock)
 
         response = self.assertGET200(self._build_editdetail_url(ct))
 
@@ -422,11 +661,87 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertPOST404(self.DEL_DETAIL_URL, data={'id': 0})
 
     def test_delete_detailview02(self):
-        ct = ContentType.objects.get_for_model(Contact)
-        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
+        "Default ContentType configuration"
+        get_ct = ContentType.objects.get_for_model
+        ct = get_ct(Contact)
+#        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
+
+        create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
+                             content_type=ct, zone=BlockDetailviewLocation.TOP,
+                            )
+        locs = [create_bdl(block_id=relations_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.LEFT,   block_id=properties_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.RIGHT,  block_id=customfields_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.BOTTOM, block_id=history_block.id_),
+               ]
+
+        locs_2 = [create_bdl(block_id=relations_block.id_, role=self.role),
+                  create_bdl(block_id=relations_block.id_, superuser=True),
+                  create_bdl(block_id=relations_block.id_, content_type=get_ct(Organisation)),
+                 ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id})
-        self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
+        self.assertFalse(BlockDetailviewLocation.objects.filter(id__in=[l.id for l in locs]))
+        self.assertEqual(len(locs_2),
+                         BlockDetailviewLocation.objects.filter(id__in=[l.id for l in locs_2])
+                                                        .count()
+                        )
+
+    def test_delete_detailview03(self):
+        "Role configuration"
+        get_ct = ContentType.objects.get_for_model
+        ct = get_ct(Contact)
+        role = self.role
+
+        create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
+                             content_type=ct, zone=BlockDetailviewLocation.TOP,
+                             role=role,
+                            )
+        locs = [create_bdl(block_id=relations_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.LEFT,   block_id=properties_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.RIGHT,  block_id=customfields_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.BOTTOM, block_id=history_block.id_),
+               ]
+
+        locs_2 = [create_bdl(block_id=relations_block.id_, role=None),
+                  create_bdl(block_id=relations_block.id_, superuser=True),
+                  create_bdl(block_id=relations_block.id_, content_type=get_ct(Organisation)),
+                 ]
+
+        self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': role.id})
+        self.assertFalse(BlockDetailviewLocation.objects.filter(id__in=[l.id for l in locs]))
+        self.assertEqual(len(locs_2),
+                         BlockDetailviewLocation.objects.filter(id__in=[l.id for l in locs_2])
+                                                        .count()
+                        )
+
+    def test_delete_detailview04(self):
+        "Superuser configuration"
+        get_ct = ContentType.objects.get_for_model
+        ct = get_ct(Organisation)
+        role = self.role
+
+        create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
+                             content_type=ct, zone=BlockDetailviewLocation.TOP,
+                             superuser=True,
+                            )
+        locs = [create_bdl(block_id=relations_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.LEFT,   block_id=properties_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.RIGHT,  block_id=customfields_block.id_),
+                create_bdl(zone=BlockDetailviewLocation.BOTTOM, block_id=history_block.id_),
+               ]
+
+        locs_2 = [create_bdl(block_id=relations_block.id_, role=self.role),
+                  create_bdl(block_id=relations_block.id_, superuser=False),
+                  create_bdl(block_id=relations_block.id_, content_type=get_ct(Contact)),
+                 ]
+
+        self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': 'superuser'})
+        self.assertFalse(BlockDetailviewLocation.objects.filter(id__in=[l.id for l in locs]))
+        self.assertEqual(len(locs_2),
+                         BlockDetailviewLocation.objects.filter(id__in=[l.id for l in locs_2])
+                                                        .count()
+                        )
 
     def test_add_portal(self):
         url = '/creme_config/blocks/portal/add/'
@@ -460,64 +775,15 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_edit_portal02(self):
         app_name = 'persons'
 
-        class FoobarBlock1(Block):
-            id_           = Block.generate_id('creme_config', 'test_edit_portal02_1')
-            verbose_name  = u'Testing purpose'
-
-            ##NB: only portal_display() method
-            #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
-            #def home_display(self, context): return '<table id="%s"></table>' % self.id_
-
-            def portal_display(self, context, ct_ids):
-                return '<table id="%s"></table>' % self.id_
-
-        class FoobarBlock2(Block):
-            id_           = Block.generate_id('creme_config', 'test_edit_portal02_2')
-            verbose_name  = u'Testing purpose'
-            configurable  = False # <----
-
-            def portal_display(self, context, ct_ids):
-                return '<table id="%s"></table>' % self.id_
-
-        class FoobarBlock3(Block):
-            id_           = Block.generate_id('creme_config', 'test_edit_portal02_3')
-            verbose_name  = u'Testing purpose'
-            target_apps   = (app_name, 'billing') # <-- OK
-
-            def portal_display(self, context, ct_ids):
-                return '<table id="%s"></table>' % self.id_
-
-        class FoobarBlock4(Block):
-            id_           = Block.generate_id('creme_config', 'test_edit_portal02_4')
-            verbose_name  = u'Testing purpose'
-            target_apps   = ('billing', 'documents') # <-- KO
-
-            def portal_display(self, context, ct_ids):
-                return '<table id="%s"></table>' % self.id_
-
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
-        class FoobarInstanceBlock(Block):
-            id_ = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_edit_portal02')
-            verbose_name  = u'Testing purpose'
-
-            def __init__(self, instance_block_config_item):
-                self.ibci = instance_block_config_item
-
-            def portal_display(self, context, ct_ids):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
-                                self.id_, self.ibci.entity
-                            ) #useless :)
-
-        instance_block_id = InstanceBlockConfigItem.generate_id(FoobarInstanceBlock, naru, '')
+        instance_block_id = InstanceBlockConfigItem.generate_id(PortalInstanceBlock, naru, '')
         InstanceBlockConfigItem.objects.create(block_id=instance_block_id, entity=naru, verbose='All stuffes')
 
-        foobar_block1 = FoobarBlock1()
-        foobar_block2 = FoobarBlock2()
-        foobar_block3 = FoobarBlock3()
-        foobar_block4 = FoobarBlock4()
-        block_registry.register(foobar_block1, foobar_block2, foobar_block3, foobar_block4)
-        block_registry.register_4_instance(FoobarInstanceBlock)
+        block1 = self.portal_only_block1
+        block2 = self.portal_only_block2; assert not block2.configurable
+        block3 = self.portal_only_block3; assert app_name in block3.target_apps
+        block4 = self.portal_only_block4; assert app_name not in block4.target_apps
 
         self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
@@ -530,10 +796,10 @@ class BlocksConfigTestCase(CremeTestCase):
 
         choices = blocks_field.choices
         self.assertGreaterEqual(len(choices), 2)
-        self._find_field_index(blocks_field, foobar_block1.id_)
-        self._assertNotInChoices(blocks_field, foobar_block2.id_, 'Block is not configurable')
-        self._find_field_index(blocks_field, foobar_block3.id_)
-        self._assertNotInChoices(blocks_field, foobar_block4.id_, 'Block is not compatible with this app')
+        self._find_field_index(blocks_field, block1.id_)
+        self._assertNotInChoices(blocks_field, block2.id_, 'Block is not configurable')
+        self._find_field_index(blocks_field, block3.id_)
+        self._assertNotInChoices(blocks_field, block4.id_, 'Block is not compatible with this app')
         self._find_field_index(blocks_field, instance_block_id)
 
         block_id1 = choices[0][0]
@@ -571,9 +837,9 @@ class BlocksConfigTestCase(CremeTestCase):
         app_name = 'persons'
         blocks = self._get_blocks_4_portal()
 
-        create_loc = BlockPortalLocation.objects.create
-        create_loc(app_name=app_name, block_id=blocks[0].id_, order=1)
-        create_loc(app_name=app_name, block_id=blocks[1].id_, order=2)
+        create_loc = partial(BlockPortalLocation.objects.create, app_name=app_name)
+        create_loc(block_id=blocks[0].id_, order=1)
+        create_loc(block_id=blocks[1].id_, order=2)
 
         url = '/creme_config/blocks/portal/edit/%s' % app_name
         response = self.assertGET200(url)
@@ -599,9 +865,9 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertGET404(url)
 
         blocks = self._get_blocks_4_portal()
-        create_loc = BlockPortalLocation.objects.create
-        create_loc(app_name='', block_id=blocks[0].id_, order=1)
-        create_loc(app_name='', block_id=blocks[1].id_, order=2)
+        create_loc = partial(BlockPortalLocation.objects.create, app_name='')
+        create_loc(block_id=blocks[0].id_, order=1)
+        create_loc(block_id=blocks[1].id_, order=2)
 
         self.assertGET200(url)
 
@@ -618,29 +884,16 @@ class BlocksConfigTestCase(CremeTestCase):
         "Home -> use 'home_display' method"
         app_name = 'creme_core'
 
-        #self.assertTrue(BlockPortalLocation.objects.filter(app_name=app_name).exists())
         BlockPortalLocation.create(block_id=history_block.id_, order=8, app_name=app_name)
 
-        class FoobarBlock(Block):
-            id_           = Block.generate_id('creme_config', 'test_edit_portal05')
-            verbose_name  = u'Testing purpose'
-
-            ##NB: only 'home_display' method
-            #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
-            #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-
-            def home_display(self, context):
-                return '<table id="%s"></table>' % self.id_
-
-        foobar_block = FoobarBlock()
-        block_registry.register(foobar_block)
+        block = self.home_only_block
 
         response = self.assertGET200('/creme_config/blocks/portal/edit/%s' % app_name)
 
         with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
 
-        self._find_field_index(blocks_field, foobar_block.id_)
+        self._find_field_index(blocks_field, block.id_)
 
     def test_edit_portal06(self):
         "Edit portal of unknown app"
@@ -657,7 +910,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_delete_home(self):
         "Can not delete home conf"
-        #TODO: use a helper method ??
+        # TODO: use a helper method ??
         app_name = 'creme_core'
         blocks = [block for block_id, block in  block_registry
                             if hasattr(block, 'home_display')
@@ -783,7 +1036,6 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_add_relationblock_ctypes01(self):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-#                                 ('test-objfoo', 'object_predicate', [Contact, Organisation, Document]),
                                   ('test-objfoo', 'object_predicate', [Contact, Organisation, Activity]),
                                 )[0]
 
@@ -801,9 +1053,7 @@ class BlocksConfigTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertIn(get_ct(Contact),      choices)
         self.assertIn(get_ct(Organisation), choices)
-#        self.assertIn(get_ct(Document),     choices)
         self.assertIn(get_ct(Activity),     choices)
-#        self.assertNotIn(get_ct(Folder),    choices)
         self.assertNotIn(get_ct(Image),    choices)
 
         self.assertNoFormError(self.client.post(
@@ -812,23 +1062,20 @@ class BlocksConfigTestCase(CremeTestCase):
         ))
 
         rb_item = self.refresh(rb_item)
-#        self.assertIsNone(rb_item.get_cells(get_ct(Document)))
         self.assertIsNone(rb_item.get_cells(get_ct(Activity)))
         self.assertEqual([], rb_item.get_cells(get_ct(Contact)))
         self.assertEqual([], rb_item.get_cells(get_ct(Organisation)))
 
-        #used CTypes should not be proposed
+        # Used CTypes should not be proposed
         response = self.assertGET200(url)
 
         with self.assertNoException():
             choices = response.context['form'].fields['ctypes'].ctypes
 
-#        self.assertIn(get_ct(Document),        choices) #compatible & not used
-        self.assertIn(get_ct(Activity),        choices) #compatible & not used
-#        self.assertNotIn(get_ct(Folder),       choices) #still not compatible
-        self.assertNotIn(get_ct(Image),       choices) #still not compatible
-        self.assertNotIn(get_ct(Contact),      choices) #used
-        self.assertNotIn(get_ct(Organisation), choices) #used
+        self.assertIn(get_ct(Activity),        choices) # compatible & not used
+        self.assertNotIn(get_ct(Image),        choices) # still not compatible
+        self.assertNotIn(get_ct(Contact),      choices) # used
+        self.assertNotIn(get_ct(Organisation), choices) # used
 
     def test_add_relationblock_ctypes02(self):
         "All ContentTypes allowed"
@@ -850,7 +1097,6 @@ class BlocksConfigTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertIn(get_ct(Contact),      choices)
         self.assertIn(get_ct(Organisation), choices)
-#        self.assertIn(get_ct(Document),     choices)
         self.assertIn(get_ct(Activity),     choices)
 
         self.assertNoFormError(self.client.post( url, data={'ctypes': [get_ct(Contact).id]}))
@@ -859,14 +1105,14 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertIsNone(rb_item.get_cells(get_ct(Organisation)))
         self.assertEqual([], rb_item.get_cells(get_ct(Contact)))
 
-        #used CTypes should not be proposed
+        # Used CTypes should not be proposed
         response = self.assertGET200(url)
 
         with self.assertNoException():
             choices = response.context['form'].fields['ctypes'].ctypes
 
-        self.assertNotIn(get_ct(Contact),   choices) #used
-        self.assertIn(get_ct(Organisation), choices) #not used
+        self.assertNotIn(get_ct(Contact),   choices) # used
+        self.assertIn(get_ct(Organisation), choices) # not used
 
     def test_edit_relationblock_ctypes01(self):
         ct = ContentType.objects.get_for_model(Contact)
@@ -951,11 +1197,8 @@ class BlocksConfigTestCase(CremeTestCase):
         post('civility', error=False)
         post('civility__shortcut', error=False)
 
-#    @skipIfNotInstalled('creme.emails')
     def test_edit_relationblock_ctypes03(self):
         "Validation errors with M2M"
-#        from creme.emails.models import EmailCampaign
-
         rb_item = RelationBlockItem(
                 block_id='specificblock_creme_config-test-subfoo',
                 relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
@@ -1075,7 +1318,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         url = url_fmt % rb_item.id
         data = {'id': ct.id}
-        self.assertGET404(url, data=data) #only POST
+        self.assertGET404(url, data=data) # only POST
 
         self.assertPOST200(url, data=data)
         self.assertIsNone(self.refresh(rb_item).get_cells(ct))
@@ -1097,19 +1340,10 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_delete_instanceblock(self):
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
-        class FoobarInstanceBlock(Block):
-            id_ = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_delete_instanceblock')
-
-            def __init__(self, instance_block_config_item):
-                self.ibci = instance_block_config_item
-
-            def detailview_display(self, context):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity) #useless :)
-
-
-        ibi = InstanceBlockConfigItem.objects.create(block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock, naru, ''),
-                                                     entity=naru, verbose='All stuffes'
-                                                    )
+        ibi = InstanceBlockConfigItem.objects.create(
+                    block_id=InstanceBlockConfigItem.generate_id(DetailviewInstanceBlock, naru, ''),
+                    entity=naru, verbose='All stuffes',
+                )
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
         self.assertPOST200('/creme_config/blocks/instance_block/delete', data={'id': ibi.id})
         self.assertDoesNotExist(ibi)

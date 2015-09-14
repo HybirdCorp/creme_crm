@@ -2,35 +2,60 @@
 {% load creme_core_tags creme_block %}
 {% has_perm_to admin 'creme_core' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
-    {% get_block_header colspan=3 %}
+    {% get_block_header colspan=2 %}
         <th class="label">{% get_block_title _('%s Configured type of resource') _('%s Configured types of resource') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <tr class="header toolbar">
-            <th class="block_header_line_light" colspan="3">
-                {% get_line_adder at_url '/creme_config/blocks/detailview/add/' with_label _("New blocks configuration") with_perms admin_perm %}
-            </th>
-        </tr>
         <tr class="header">
             <th class="block_header_line_light">{% trans "Type" %}</th>
-            <th class="block_header_line_light action">{% trans "Edit" %}</th>
-            <th class="block_header_line_light action">{% trans "Delete" %}</th>
+            <th class="block_header_line_light">{% trans "Configuration" %}</th>
         </tr>
         <tr class="content">{% comment %} ONLY IF PAGE==1 ?? {% endcomment %}{% cycle row_color %}
             <td class="{{row_color}}">{% trans "Default configuration" %}</td>
-            <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/blocks/detailview/edit/0' with_perms admin_perm %}</td>
-            <td class="{{row_color}}"></td>
+            <td class="{{row_color}}">
+                {% blocktrans count count=default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                {% get_line_editor at_url '/creme_config/blocks/detailview/edit/0/default' with_perms admin_perm %}
+            </td>
         </tr>
         {% if page.paginator.count %}
-            {% for ct in page.object_list %}{% cycle row_color %}
-                <tr class="content">
-                    <td class="{{row_color}}">{{ct}}</td>
-                    <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}' with_perms admin_perm %}</td>
-                    <td class="{{row_color}} action">{% get_line_deletor at_url '/creme_config/blocks/detailview/delete' with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %}</td>
-                </tr>
+            {% for ctw in page.object_list %}{% cycle row_color %}
+                {% with ct=ctw.ctype %}
+                    <tr class="content">
+                        <td class="{{row_color}} blocks-conf-ctype">{{ct}}</td>
+                        <td class="{{row_color}} blocks-conf-info">
+                            {% if ctw.locations_info|length < max_conf_count %}
+                                {% get_line_adder at_url '/creme_config/blocks/detailview/add/{{ct.id}}' with_label _('Add for a role') with_perms admin_perm %}
+                            {% endif %}
+                            <ul>
+                                {% with block_count=ctw.default_count %}
+                                    <li>
+                                        <em>{{ct|format:_("Default configuration for «%s»")}}</em> :
+                                        {% if block_count %}
+                                            {% blocktrans count count=block_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                                        {% else %}
+                                            <em>{% trans "(uses the default blocks configuration)" %}</em>
+                                        {% endif %}
+                                        {% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}/default' with_perms admin_perm %}
+                                        {% if block_count %}
+                                            {% get_line_deletor at_url '/creme_config/blocks/detailview/delete' with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %}
+                                        {% endif %}
+                                    </li>
+                                {% endwith %}
+                                {% for role_arg, role_label, block_count in ctw.locations_info %}
+                                    <li>
+                                        {% if role_arg == 'superuser' %}<em>{{role_label}}</em>{% else %}{{role_label}}{% endif %} :
+                                        {% blocktrans count count=block_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                                        {% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}/{{role_arg}}' with_perms admin_perm %}
+                                        {% get_line_deletor at_url '/creme_config/blocks/detailview/delete' with_args "{'id': '{{ct.id}}', 'role': '{{role_arg}}'}" with_perms admin_perm %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                {% endwith %}
             {% endfor %}
         {% endif %}
     </tbody>
-    {% get_block_footer 3 %}
+    {% get_block_footer 2 %}
 </table>

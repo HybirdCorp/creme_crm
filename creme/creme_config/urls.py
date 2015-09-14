@@ -75,8 +75,10 @@ custom_fields_patterns = [
 blocks_patterns = [
     url(r'^portal/$', blocks.portal),
 
-    url(r'^detailview/add/$',                blocks.add_detailview),
-    url(r'^detailview/edit/(?P<ct_id>\d+)$', blocks.edit_detailview),
+#    url(r'^detailview/add/$',                blocks.add_detailview),
+    url(r'^detailview/add/(?P<ct_id>\d+)$',  blocks.add_detailview),
+#    url(r'^detailview/edit/(?P<ct_id>\d+)$', blocks.edit_detailview),
+    url(r'^detailview/edit/(?P<ct_id>\d+)/(?P<role>\w+)$', blocks.edit_detailview),
     url(r'^detailview/delete$',              blocks.delete_detailview),
 
     url(r'^portal/add/$',                   blocks.add_portal),

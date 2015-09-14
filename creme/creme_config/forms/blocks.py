@@ -26,14 +26,14 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.constants import MODELBLOCK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
-from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
 from creme.creme_core.forms.fields import EntityCTypeChoiceField, MultiEntityCTypeChoiceField
 from creme.creme_core.forms.header_filter import EntityCellsField
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget, DynamicSelect
 from creme.creme_core.gui.block import block_registry, SpecificRelationsBlock
-from creme.creme_core.models import (RelationType, CremeEntity,
-    BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-    RelationBlockItem, CustomBlockConfigItem)
+from creme.creme_core.models import (RelationType, CremeEntity, UserRole,
+        BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
+        RelationBlockItem, CustomBlockConfigItem)
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
@@ -57,9 +57,6 @@ class BlockLocationsField(MultipleChoiceField):
 class _BlockLocationsForm(CremeForm):
     def _build_portal_locations_field(self, app_name, field_name, block_locations):
         blocks = self.fields[field_name]
-#        blocks.choices = [(block.id_, block.verbose_name)
-#                            for block in block_registry.get_compatible_portal_blocks(app_name)
-#                         ]
         choices = [(block.id_, unicode(block.verbose_name))
                         for block in block_registry.get_compatible_portal_blocks(app_name)
                   ]
@@ -69,8 +66,9 @@ class _BlockLocationsForm(CremeForm):
         blocks.choices = choices
         blocks.initial = [bl.block_id for bl in block_locations]
 
-    #TODO: use transaction ???
-    def _save_locations(self, location_model, location_builder, blocks_partitions, old_locations=()):
+    def _save_locations(self, location_model, location_builder, blocks_partitions,
+                        old_locations=(), role=None, superuser=False,
+                       ):
         # At least 1 block per zone (even if it can be fake block)
         needed = sum(len(block_ids) or 1 for block_ids in blocks_partitions.itervalues())
         lendiff = needed - len(old_locations)
@@ -87,52 +85,21 @@ class _BlockLocationsForm(CremeForm):
         store_it = iter(locations_store)
 
         for zone, block_ids in blocks_partitions.iteritems():
-            if not block_ids: #No block for this zone -> fake block_id
+            if not block_ids: # No block for this zone -> fake block_id
                 block_ids = ('',)
 
             for order, block_id in enumerate(block_ids, start=1):
                 location = store_it.next()
                 location.block_id = block_id
                 location.order    = order
-                location.zone     = zone #NB: BlockPortalLocation has not 'zone' attr, but we do not care ! :)
+                location.zone     = zone # NB: BlockPortalLocation has not 'zone' attr, but we do not care ! :)
+                location.role     = role # NB: idem with 'role'
+                location.superuser = superuser # NB: idem with 'superuser'
 
                 location.save()
 
 
 class _BlockDetailviewLocationsForm(_BlockLocationsForm):
-    def _save_detail_locations(self, ct, old_locations=(), top=(), left=(), right=(), bottom=()):
-        self._save_locations(BlockDetailviewLocation,
-                             lambda: BlockDetailviewLocation(content_type=ct),
-                             {BlockDetailviewLocation.TOP:    top,
-                              BlockDetailviewLocation.LEFT:   left,
-                              BlockDetailviewLocation.RIGHT:  right,
-                              BlockDetailviewLocation.BOTTOM: bottom,
-                             },
-                             old_locations
-                            )
-
-
-class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
-    ctype = EntityCTypeChoiceField(label=_(u'Related resource'),
-                                   widget=DynamicSelect(attrs={'autocomplete': True}))
-
-    def __init__(self, *args, **kwargs):
-        super(BlockDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
-
-        #TODO: factorise (ButtonMenuAddForm etc...)
-        used_ct_ids = set(BlockDetailviewLocation.objects
-                                                 .exclude(content_type=None)
-                                                 .distinct()
-                                                 .values_list('content_type_id', flat=True)
-                         )
-        ct_field = self.fields['ctype']
-        ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
-
-    def save(self, *args, **kwargs):
-        self._save_detail_locations(self.cleaned_data['ctype'])
-
-
-class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
     top    = BlockLocationsField(label=_(u'Blocks to display on top'))
     left   = BlockLocationsField(label=_(u'Blocks to display on left side'))
     right  = BlockLocationsField(label=_(u'Blocks to display on right side'))
@@ -140,6 +107,7 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
 
     error_messages = {
         'duplicated_block': _(u'The following block should be displayed only once: «%(block)s»'),
+        'empty_config':     _(u'Your configuration is empty !'),
     }
 
     _ZONES = (('top',    BlockDetailviewLocation.TOP),
@@ -148,14 +116,15 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
               ('bottom', BlockDetailviewLocation.BOTTOM)
              )
 
-    def __init__(self, ct, block_locations, *args, **kwargs):
-        super(BlockDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
-        self.ct = ct
-        self.locations = block_locations
+    def __init__(self, *args, **kwargs):
+        super(_BlockDetailviewLocationsForm, self).__init__(*args, **kwargs)
+        self.ct   = ct   = self.initial['content_type']
+        self.role = None
+        self.superuser = False
+        self.locations = ()
 
         self.modelblock_vname = modelblock_vname = ugettext('Information on the entity')
         choices = [(MODELBLOCK_ID, modelblock_vname)]
-#        choices.extend((block.id_, block.verbose_name)
         choices.extend((block.id_, unicode(block.verbose_name))
                            for block in block_registry.get_compatible_blocks(model=ct.model_class() if ct else None)
                       )
@@ -166,12 +135,10 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
         fields = self.fields
 
         for fname, zone in self._ZONES:
-            block_ids = fields[fname]
-            block_ids.initial = [bl.block_id for bl in block_locations if bl.zone == zone]
-            block_ids.choices = choices
+            fields[fname].choices = choices
 
     def clean(self):
-        cdata = super(BlockDetailviewLocationsEditForm, self).clean()
+        cdata = super(_BlockDetailviewLocationsForm, self).clean()
         all_block_ids = set()
 
         for block_id in chain(cdata['top'], cdata['left'], cdata['right'], cdata['bottom']):
@@ -186,13 +153,77 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
 
             all_block_ids.add(block_id)
 
+        if not all_block_ids:
+            raise ValidationError(self.error_messages['empty_config'],
+                                  code='empty_config',
+                                 )
+
         return cdata
 
     def save(self, *args, **kwargs):
         cdata = self.cleaned_data
-        self._save_detail_locations(self.ct, self.locations,
-                                    cdata['top'], cdata['left'], cdata['right'], cdata['bottom']
-                                   )
+
+        self._save_locations(BlockDetailviewLocation,
+                             lambda: BlockDetailviewLocation(content_type=self.ct),
+                             {BlockDetailviewLocation.TOP:    cdata['top'],
+                              BlockDetailviewLocation.LEFT:   cdata['left'],
+                              BlockDetailviewLocation.RIGHT:  cdata['right'],
+                              BlockDetailviewLocation.BOTTOM: cdata['bottom'],
+                             },
+                             old_locations=self.locations,
+                             role=self.role, superuser=self.superuser,
+                            )
+
+
+class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
+    role = ModelChoiceField(label=_(u'Role'), queryset=UserRole.objects.none(),
+                            empty_label=None, required=False,
+                           )
+
+    #class Meta:
+        #fields = ('role', 'top', 'left', 'right', 'bottom')
+    # TODO: manage Meta.fields in '*'
+    blocks = FieldBlockManager(('general', _(u'Configuration'), ('role', 'top', 'left', 'right', 'bottom')))
+
+    def __init__(self, *args, **kwargs):
+        super(BlockDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
+
+        role_f = self.fields['role']
+        used_role_ids = set(BlockDetailviewLocation.objects.filter(content_type=self.ct)
+                                                   .exclude(role__isnull=True, superuser=False)
+                                                   .values_list('role', flat=True)
+                           )
+
+        try:
+            used_role_ids.remove(None)
+        except KeyError:
+            role_f.empty_label = u'*%s*' % ugettext(u'Superuser') # NB: browser can ignore <em> tag in <option>...
+
+        role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
+
+    def save(self, *args, **kwargs):
+        self.role      = role = self.cleaned_data['role']
+        self.superuser = (role is None)
+        super(BlockDetailviewLocationsAddForm, self).save(*args, **kwargs)
+
+
+class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
+    def __init__(self, *args, **kwargs):
+        super(BlockDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
+        initial = self.initial
+        self.role      = role      = initial['role']
+        self.superuser = superuser = initial['superuser']
+
+        self.locations = locations = \
+            BlockDetailviewLocation.objects.filter(content_type=self.ct,
+                                                   role=role, superuser=superuser,
+                                                  ) \
+                                           .order_by('order')
+
+        fields = self.fields
+
+        for fname, zone in self._ZONES:
+            fields[fname].initial = [bl.block_id for bl in locations if bl.zone == zone]
 
 
 class _BlockPortalLocationsForm(_BlockLocationsForm):
@@ -206,7 +237,8 @@ class _BlockPortalLocationsForm(_BlockLocationsForm):
 
 class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
     app_name = ChoiceField(label=_(u'Related application'), choices=(),
-                           widget=DynamicSelect(attrs={'autocomplete': True}))
+                           widget=DynamicSelect(attrs={'autocomplete': True}),
+                          )
 
     def __init__(self, *args, **kwargs):
         super(BlockPortalLocationsAddForm, self).__init__(*args, **kwargs)
@@ -256,13 +288,14 @@ class BlockMypageLocationsForm(_BlockLocationsForm):
         self._save_locations(BlockMypageLocation,
                              lambda: BlockMypageLocation(user=self.owner),
                              {1: self.cleaned_data['blocks']}, #1 is a "nameless" zone
-                             self.locations
+                             self.locations,
                             )
 
 
 class RelationBlockAddForm(CremeModelForm):
     relation_type = ModelChoiceField(RelationType.objects, empty_label=None,
-                                     widget=DynamicSelect(attrs={'autocomplete': True}))
+                                     widget=DynamicSelect(attrs={'autocomplete': True}),
+                                    )
 
     class Meta(CremeModelForm.Meta):
         model = RelationBlockItem
@@ -362,7 +395,8 @@ class RelationBlockItemEditCtypeForm(CremeModelForm):
 
 class CustomBlockConfigItemCreateForm(CremeModelForm):
     ctype = EntityCTypeChoiceField(label=_(u'Related resource'),
-                                   widget=DynamicSelect(attrs={'autocomplete': True}))
+                                   widget=DynamicSelect(attrs={'autocomplete': True}),
+                                  )
 
     class Meta(CremeModelForm.Meta):
         model = CustomBlockConfigItem

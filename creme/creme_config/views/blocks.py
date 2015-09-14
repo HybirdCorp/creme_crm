@@ -24,7 +24,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models.block import (BlockDetailviewLocation,
+from creme.creme_core.models.block import (UserRole, BlockDetailviewLocation,
         BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
 from creme.creme_core.registry import creme_registry, NotRegistered
@@ -41,11 +41,14 @@ from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLoca
 
 @login_required
 @permission_required('creme_core.can_admin')
-def add_detailview(request):
+def add_detailview(request, ct_id):
+    ctype = get_ct_or_404(ct_id)
+
     return add_model_with_popup(request, BlockDetailviewLocationsAddForm,
-                                _(u'New blocks configuration'),
+                                title=_(u'New block configuration for «%s»') % ctype,
                                 submit_label=_('Save the configuration'),
-                               ) #TODO: title detail view ???
+                                initial={'content_type': ctype},
+                               )
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -78,39 +81,51 @@ def portal(request):
 
 @login_required
 @permission_required('creme_core.can_admin')
-def edit_detailview(request, ct_id):
+def edit_detailview(request, ct_id, role):
+    if role == 'default':
+        role_obj = None
+        superuser = False
+    elif role == 'superuser':
+        role_obj = None
+        superuser = True
+    else:
+        try:
+            role_id = int(role)
+        except ValueError:
+            raise Http404('Role must be "default", "superuser" or an integer')
+
+        role_obj = get_object_or_404(UserRole, id=role_id)
+        superuser = False
+
     ct_id = int(ct_id)
 
     if ct_id:
         ct = ContentType.objects.get_for_id(ct_id)
-        title = _(u'Edit configuration for %s') % ct
-    else: #ct_id == 0
+
+        if superuser:
+            title = _(u'Edit configuration of super-users for «%s»') % ct
+        elif role_obj:
+            title = _(u'Edit configuration of «%(role)s» for «%(type)s»') % {
+                            'role': role_obj,
+                            'type': ct,
+                        }
+        else:
+            title = _(u'Edit default configuration for «%s»') % ct
+    else: # ct_id == 0
+        if role != 'default':
+            raise Http404('You can only edit "default" role with default config')
+
         ct = None
         title = _(u'Edit default configuration')
 
-    b_locs = BlockDetailviewLocation.objects.filter(content_type=ct).order_by('order')
-
-    if not b_locs: #TODO: a default config must exist (it works for now because there is always 'assistants' app)
-        raise Http404('This configuration does not exist (any more ?)')
-
-    if request.method == 'POST':
-        locs_form = BlockDetailviewLocationsEditForm(ct=ct, block_locations=b_locs, user=request.user, data=request.POST)
-
-        if locs_form.is_valid():
-            locs_form.save()
-    else:
-        locs_form = BlockDetailviewLocationsEditForm(ct=ct, block_locations=b_locs, user=request.user)
-
-    return inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  locs_form,
-                        'title': title,
-                        'submit_label': _('Save the modifications'),
-                       },
-                       is_valid=locs_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return add_model_with_popup(request, BlockDetailviewLocationsEditForm,
+                                initial={'content_type': ct,
+                                         'role': role_obj, 'superuser': superuser,
+                                        },
+                                title=title,
+                                template='creme_core/generics/blockform/edit_popup.html',
+                                submit_label=_('Save the configuration'),
+                               )
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -245,40 +260,31 @@ def edit_custom_block(request, cbci_id):
                                  _(u'Edit the block «%s»'),
                                 )
 
-    ##No popup version
-    #cbci = get_object_or_404(CustomBlockConfigItem, id=cbci_id)
-
-    #if request.method == 'POST':
-        #POST = request.POST
-        #cbci_form = CustomBlockConfigItemEditForm(user=request.user, data=POST, instance=cbci)
-
-        #if cbci_form.is_valid():
-            #cbci_form.save()
-
-            #return HttpResponseRedirect('/creme_config/blocks/portal/')
-
-        #cancel_url = POST.get('cancel_url')
-    #else:
-        #cbci_form = CustomBlockConfigItemEditForm(user=request.user, instance=cbci)
-        #cancel_url = request.META.get('HTTP_REFERER')
-
-    #return render(request, 'creme_core/generics/blockform/edit.html',
-                  #{'form': cbci_form,
-                   #'object': cbci,
-                   #'cancel_url': cancel_url,
-                   #'submit_label': _('Save the custom block'),
-                  #}
-                 #)
-
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_detailview(request):
-    ct_id = get_from_POST_or_404(request.POST, 'id', int)
+    POST = request.POST
+    ct_id = get_from_POST_or_404(POST, 'id', int)
 
     if not ct_id:
         raise Http404('Default config can not be deleted')
 
-    BlockDetailviewLocation.objects.filter(content_type=ct_id).delete()
+    role_id = None
+    superuser = False
+
+    role = POST.get('role')
+    if role:
+        if role == 'superuser':
+            superuser = True
+        else:
+            try:
+                role_id = int(role)
+            except ValueError:
+                raise Http404('"role" argument must be "superuser" or an integer')
+
+    BlockDetailviewLocation.objects.filter(content_type=ct_id,
+                                           role=role_id, superuser=superuser,
+                                          ).delete()
 
     return HttpResponse()
 
