@@ -50,7 +50,7 @@
                              "option", "serializeMe", "ensureSelection",
                              "getSubmit", "getKdSubmit",
                              "setSubmit", "setKdSubmit",
-                             "setReloadUrl", "getReloadUrl"];
+                             "setReloadUrl", "getReloadUrl", "isLoading"];
 
         if (isMethodCall && $.inArray(options, publicMethods) > -1) {
                 var instance = $.data(this[0], 'list_view');
@@ -73,6 +73,7 @@
                 me.afterSubmit      = ($.isFunction(opts.afterSubmit))      ? opts.afterSubmit      : false;
                 me.submitHandler    = ($.isFunction(opts.submitHandler))    ? opts.submitHandler    : false;
                 me.kd_submitHandler = ($.isFunction(opts.kd_submitHandler)) ? opts.kd_submitHandler : false;
+                me.is_loading = false;
 
                 /*me.user_page          = opts.user_page;
                 me.selected_rows      = opts.selected_rows;
@@ -132,6 +133,10 @@
 
                 this.getReloadUrl = function() {
                     return me.reload_url;
+                }
+
+                this.isLoading = function() {
+                    return me.is_loading;
                 }
 
                 /***************** Helpers ****************************/
@@ -333,6 +338,10 @@
                 }
 
                 this.handleSubmit = function(form, options, target, extra_data) {
+                    if (me.is_loading) {
+                        return;
+                    } 
+
                     var data = this.serializeMe();
                     if(typeof(extra_data)!="undefined") {
                         data = $.extend(data, extra_data);
@@ -355,6 +364,7 @@
                     }
 
                     this.disableEvents();
+                    me.is_loading = true;
 
                     //We get a previous beforeComplete user callback if exists
                     var previousCallback = null;
@@ -364,6 +374,7 @@
 
                     options['beforeComplete'] = function(request, status) {
                         //Calling our beforeComplete callback
+                        me.is_loading = false;
                         self.list_view('enableEvents');
                         //Then user callback
                         if(previousCallback) previousCallback(request, status);
