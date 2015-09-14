@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = '1.6 alpha'
+__version__ = '1.6 beta'
 
 # FIX DJANGO 1.8.X #############################################################
 # There's a bug with Django 1.8 migration code, which crashes with
