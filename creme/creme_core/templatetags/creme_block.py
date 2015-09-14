@@ -732,17 +732,28 @@ class DetailviewBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
         entity = context['object']
-        locs = BlockDetailviewLocation.objects.filter(Q(content_type=None) | Q(content_type=entity.entity_type)) \
+        user = context['user']
+        is_superuser = user.is_superuser
+        role = user.role
+
+        role_q = Q(role=None, superuser=True) if is_superuser else Q(role=role, superuser=False)
+        locs = BlockDetailviewLocation.objects.filter(Q(content_type=None) |
+                                                      Q(content_type=entity.entity_type)
+                                                     ) \
+                                              .filter(role_q | Q(role=None, superuser=False)) \
                                               .order_by('order')
 
-        #we fallback to the default config is there is no config for this content type.
-        locs = [loc for loc in locs if loc.content_type_id is not None] or locs
+        # We fallback to the default config is there is no config for this content type.
+        locs = [loc for loc in locs
+                    #if loc.content_type_id is not None # NB: useless as long as default conf cannot have a related role
+                    if loc.superuser == is_superuser and loc.role == role
+               ] or [loc for loc in locs if loc.content_type_id is not None] or locs
         loc_map = defaultdict(list)
 
         for loc in locs:
             block_id = loc.block_id
 
-            if block_id: #populate scripts can leave void block ids
+            if block_id: # Populate scripts can leave void block ids
                 if BlockDetailviewLocation.id_is_4_model(block_id):
                     block_id = block_registry.get_block_4_object(entity).id_
 

@@ -293,19 +293,66 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
 #                                context, ContentType.objects.filter(pk__in=ct_ids), #todo: use get_for_id instead (avoid query) ??
 #                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
 #                           ))
-        ct_ids = set(BlockDetailviewLocation.objects.exclude(content_type=None)
-                                                    .values_list('content_type_id', flat=True)
-                    )
-        get_ct = ContentType.objects.get_for_id
-        ctypes = [get_ct(ct_id) for ct_id in ct_ids]
+        # NB: we wrap the ContentType instances instead of store extra data in
+        #     them because teh instances are stored in a global cache, so we do
+        #     not want to mutate them.
+        class _ContentTypeWrapper(object): # TODO: move from here ?
+            __slots__ = ('ctype', 'locations_info', 'default_count')
 
+            def __init__(self, ctype):
+                self.ctype = ctype
+                self.default_count = 0
+                self.locations_info = () # List of tuples (role_arg, role_label, block_count)
+                                         # with role_arg == role.id or 'superuser'
+
+        # TODO: factorise with SearchConfigBlock ?
+        ctypes = [_ContentTypeWrapper(ctype) for ctype in creme_entity_content_types()]
         sort_key = collator.sort_key
-        ctypes.sort(key=lambda ct: sort_key(unicode(ct)))
+        ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
 
-        return self._render(self.get_block_template_context(
-                                context, ctypes,
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+        btc = self.get_block_template_context(
+                        context, ctypes,
+                        update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                        max_conf_count=UserRole.objects.count() + 1, # NB: '+ 1' is for super-users config.
+                    )
+
+        ctypes_wrappers = btc['page'].object_list
+
+        block_counts = defaultdict(lambda: defaultdict(int)) # block_counts[content_type.id][(role_id, superuser)] -> count
+        role_ids = set()
+
+        for bdl in BlockDetailviewLocation.objects \
+                                          .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers]):
+            if bdl.block_id: # do not count the 'place-holder' (empty block IDs which mean "no-block for this zone")
+                role_id = bdl.role_id
+                block_counts[bdl.content_type_id][(role_id, bdl.superuser)] += 1
+                role_ids.add(role_id)
+
+        role_names = dict(UserRole.objects.filter(id__in=role_ids).values_list('id', 'name'))
+        superusers_label = ugettext('Superuser') # TODO: cached_lazy_ugettext
+
+        for ctw in ctypes_wrappers:
+            count_per_role = block_counts[ctw.ctype.id]
+            ctw.default_count = count_per_role.pop((None, False), 0)
+
+            ctw.locations_info = locations_info = []
+            for (role_id, superuser), block_count in count_per_role.iteritems():
+                if superuser:
+                    role_arg = 'superuser'
+                    role_label = superusers_label
+                else:
+                    role_arg = role_id
+                    role_label = role_names[role_id]
+
+                locations_info.append((role_arg, role_label, block_count))
+
+            locations_info.sort(key=lambda t: sort_key(t[1])) # sort by role label
+
+        btc['default_count'] = BlockDetailviewLocation.objects.filter(content_type=None,
+                                                                      role=None, superuser=False,
+                                                                     ).count()
+
+        return self._render(btc)
 
 
 class BlockPortalLocationsBlock(PaginatedBlock):

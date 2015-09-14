@@ -14,13 +14,13 @@
     border-radius: 4px;
 }
 
-/* Search config */
-.search-conf-ctype {
+/* Search/Blocks config */
+.search-conf-ctype, .blocks-conf-ctype {
     vertical-align: top;
 /*     font-weight: bolder; */
 }
 
-.search-conf-info ul {
+.search-conf-info ul, .blocks-conf-info ul {
     list-style: outside none none;
     margin: 0;
     padding: 0;

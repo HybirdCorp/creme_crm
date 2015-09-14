@@ -15,7 +15,7 @@ try:
             customfields_block, history_block)
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
     from creme.creme_core.gui.block import Block
-    from creme.creme_core.models import (BlockDetailviewLocation,
+    from creme.creme_core.models import (BlockDetailviewLocation, UserRole,
             BlockPortalLocation, BlockMypageLocation,
             CremeEntity, InstanceBlockConfigItem,
             RelationBlockItem, RelationType, CustomBlockConfigItem)
@@ -86,6 +86,7 @@ class BlockTestCase(CremeTestCase):
         self.assertIn(block_id, {bml.block_id for bml in self._bml_backup if bml.user is None})
 
     def test_create_detailview01(self):
+        "Default configuration"
         order = 25
         zone = BlockDetailviewLocation.TOP
         block_id = relations_block.id_
@@ -97,6 +98,7 @@ class BlockTestCase(CremeTestCase):
         self.assertEqual(zone,     loc.zone)
 
     def test_create_detailview02(self):
+        "For a ContentType"
         self.assertFalse(BlockDetailviewLocation.config_exists(Contact))
 
         order = 4
@@ -112,18 +114,102 @@ class BlockTestCase(CremeTestCase):
         self.assertTrue(BlockDetailviewLocation.config_exists(Contact))
 
     def test_create_detailview03(self):
+        "Do not create if already exists (in any zone/order)"
         block_id = properties_block.id_
         order = 5
         zone = BlockDetailviewLocation.RIGHT
-        BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone, model=Contact)
-        BlockDetailviewLocation.create(block_id=block_id, order=4, zone=BlockDetailviewLocation.LEFT, model=Contact)
 
-        locs = BlockDetailviewLocation.objects.filter(block_id=block_id, content_type=ContentType.objects.get_for_model(Contact))
+        create_bdl = partial(BlockDetailviewLocation.create, block_id=block_id, model=Contact)
+        create_bdl(order=order, zone=zone)
+        create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
+
+        locs = BlockDetailviewLocation.objects.filter(
+                    block_id=block_id,
+                    content_type=ContentType.objects.get_for_model(Contact),
+                )
         self.assertEqual(1, len(locs))
 
         loc = locs[0]
         self.assertEqual(order, loc.order)
         self.assertEqual(zone,  loc.zone)
+
+    def test_create_detailview04(self):
+        "For a Role"
+        role = UserRole.objects.create(name='Viewer')
+
+        block_id = properties_block.id_
+        order = 5
+        zone = BlockDetailviewLocation.RIGHT
+
+        create_bdl = partial(BlockDetailviewLocation.create, block_id=block_id,
+                             model=Contact, role=role,
+                            )
+        create_bdl(order=order, zone=zone)
+        create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
+
+        locs = BlockDetailviewLocation.objects.filter(
+                    block_id=block_id,
+                    content_type=ContentType.objects.get_for_model(Contact),
+                    role=role, superuser=False,
+                )
+        self.assertEqual(1, len(locs))
+
+        loc = locs[0]
+        self.assertEqual(order, loc.order)
+        self.assertEqual(zone,  loc.zone)
+
+        # Do not avoid default configuration creation
+        count = BlockDetailviewLocation.objects.count()
+        zone = BlockDetailviewLocation.BOTTOM
+        loc = create_bdl(order=order, zone=zone,
+                        role=None
+                       )
+        self.assertEqual(count + 1, BlockDetailviewLocation.objects.count())
+        self.assertEqual(zone,  loc.zone)
+        self.assertIsNone(loc.role)
+        self.assertFalse(loc.superuser)
+
+    def test_create_detailview05(self):
+        "For super-users"
+        block_id = properties_block.id_
+        order = 5
+        zone = BlockDetailviewLocation.RIGHT
+
+        create_bdl = partial(BlockDetailviewLocation.create, block_id=block_id,
+                             model=Contact, role='superuser',
+                            )
+        create_bdl(order=order, zone=zone)
+        create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
+
+        locs = BlockDetailviewLocation.objects.filter(
+                    block_id=block_id,
+                    content_type=ContentType.objects.get_for_model(Contact),
+                    role=None, superuser=True,
+                )
+        self.assertEqual(1, len(locs))
+
+        loc = locs[0]
+        self.assertEqual(order, loc.order)
+        self.assertEqual(zone,  loc.zone)
+
+        # Do not avoid default configuration creation
+        count = BlockDetailviewLocation.objects.count()
+        zone = BlockDetailviewLocation.BOTTOM
+        loc = create_bdl(order=order, zone=zone,
+                        role=None
+                       )
+        self.assertEqual(count + 1, BlockDetailviewLocation.objects.count())
+        self.assertEqual(zone,  loc.zone)
+        self.assertIsNone(loc.role)
+        self.assertFalse(loc.superuser)
+
+    def test_create_detailview06(self):
+        "Default configuration cannot have a related role"
+        with self.assertRaises(ValueError):
+            BlockDetailviewLocation.create(block_id=properties_block.id_,
+                                           order=5, zone=BlockDetailviewLocation.RIGHT,
+                                           model=None, role='superuser', # <==
+                                          )
 
     def test_create_4_model_block01(self):
         order = 5
@@ -135,21 +221,38 @@ class BlockTestCase(CremeTestCase):
 
         loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.id)
         self.assertEqual('modelblock', loc.block_id)
+        self.assertEqual(model,        loc.content_type.model_class())
         self.assertEqual(order,        loc.order)
         self.assertEqual(zone,         loc.zone)
 
-    def test_create_4_model_block02(self): #model = None
-        loc = BlockDetailviewLocation.create_4_model_block(order=8, zone=BlockDetailviewLocation.BOTTOM, model=None)
+    def test_create_4_model_block02(self):
+        "model = None"
+        loc = BlockDetailviewLocation.create_4_model_block(
+                    order=8, zone=BlockDetailviewLocation.BOTTOM, model=None,
+                )
         self.assertEqual(1, BlockDetailviewLocation.objects.count())
         self.assertEqual('modelblock', loc.block_id)
         self.assertIsNone(loc.content_type)
+
+    def test_create_4_model_block03(self):
+        "With a Role"
+        role = UserRole.objects.create(name='Viewer')
+        loc = BlockDetailviewLocation.create_4_model_block(
+                    model=Contact, role=role,
+                    order=8, zone=BlockDetailviewLocation.BOTTOM,
+                )
+        self.assertEqual(1, BlockDetailviewLocation.objects.count())
+        self.assertEqual('modelblock', loc.block_id)
+        self.assertEqual(role, loc.role)
 
     def test_create_empty_detailview_config01(self):
         self.assertEqual(0, BlockDetailviewLocation.objects.count())
 
         BlockDetailviewLocation.create_empty_config()
         locs = BlockDetailviewLocation.objects.all()
-        self.assertEqual([('', 1, None)] * 4, [(bl.block_id, bl.order, bl.content_type) for bl in locs])
+        self.assertEqual([('', 1, None)] * 4,
+                         [(bl.block_id, bl.order, bl.content_type) for bl in locs]
+                        )
         self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
                          },
@@ -186,13 +289,17 @@ class BlockTestCase(CremeTestCase):
         order = 25
         block_id = history_block.id_
         loc = BlockPortalLocation.create(app_name=app_name, block_id=block_id, order=order)
-        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name=app_name, block_id=block_id, order=order)
+        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name=app_name,
+                                block_id=block_id, order=order,
+                               )
 
     def test_create_portal02(self):
         order = 10
         block_id = history_block.id_
         loc = BlockPortalLocation.create(block_id=block_id, order=order)
-        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name='', block_id=block_id, order=order)
+        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name='',
+                                block_id=block_id, order=order,
+                               )
 
     def test_create_portal03(self):
         app_name = 'billing'
@@ -238,7 +345,9 @@ class BlockTestCase(CremeTestCase):
         order = 25
         block_id = history_block.id_
         loc = BlockMypageLocation.create(user=user, block_id=block_id, order=order)
-        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=user, block_id=block_id, order=order)
+        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=user,
+                                block_id=block_id, order=order,
+                               )
 
         self.assertEqual(_('History'), unicode(loc.block_verbose_name))
 
@@ -246,7 +355,9 @@ class BlockTestCase(CremeTestCase):
         order = 10
         block_id = history_block.id_
         loc = BlockMypageLocation.create(block_id=block_id, order=order)
-        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None, block_id=block_id, order=order)
+        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None,
+                                block_id=block_id, order=order,
+                               )
 
     def test_create_mypage03(self):
         block_id = history_block.id_
@@ -254,7 +365,9 @@ class BlockTestCase(CremeTestCase):
 
         order = 10
         loc = BlockMypageLocation.create(block_id=block_id, order=order)
-        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None, block_id=block_id, order=order)
+        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None,
+                                block_id=block_id, order=order,
+                               )
 
     def test_mypage_new_user(self):
         block_id = history_block.id_
