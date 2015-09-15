@@ -83,14 +83,14 @@ class SearchConfigItem(CremeModel):
 #                    'type': self.content_type,
 #                }
         if self.superuser:
-            return ugettext(u'Search configuration of super-users for "%s"') % self.content_type
+            return ugettext(u'Search configuration of super-users for «%s»') % self.content_type
 
         role = self.role
 
         if role is None:
-            return ugettext(u'Default search configuration for "%s"') % self.content_type
+            return ugettext(u'Default search configuration for «%s»') % self.content_type
 
-        return ugettext(u'Search configuration of "%(role)s" for "%(type)s"') % {
+        return ugettext(u'Search configuration of «%(role)s» for «%(type)s»') % {
                     'role': role,
                     'type': self.content_type,
                 }
