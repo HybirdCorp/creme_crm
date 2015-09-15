@@ -67,22 +67,28 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
         return initial
 
-    def _save_address(self, entity1, entity2, attr_name, cleaned_data, prefix):
+    def _save_address(self, entity1, entity2, attr_name, cleaned_data, prefix, name):
 #        address = getattr(entity1, attr_name)
         address = getattr(entity1, attr_name, None)
+        empty = True
         was_none = False
 
         if address is None:
-            address = getattr(entity2, attr_name) or Address()
+            address = getattr(entity2, attr_name) or Address(name=name)
             address.owner = entity1
             was_none = True
 
 #        for fname in _FIELD_NAMES:
         for fname in self._address_field_names:
 #            setattr(address, fname, cleaned_data[prefix + fname])
-            setattr(address, fname, cleaned_data.get(prefix + fname))
+            value = cleaned_data.get(prefix + fname)
+            setattr(address, fname, value)
 
-        if address:
+            if value:
+                empty = False
+
+#        if address:
+        if not empty: # We do not use Address.__nonzero__() because we ignore the address' name.
             address.save()
             setattr(entity1, attr_name, address)
             return was_none, ()
@@ -97,8 +103,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         super(_PersonMergeForm, self)._post_entity1_update(entity1, entity2, cleaned_data)
         save_address = self._save_address
 
-        must_save1, to_del1 = save_address(entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX)
-        must_save2, to_del2 = save_address(entity1, entity2, 'shipping_address', cleaned_data, _SHIP_PREFIX)
+        must_save1, to_del1 = save_address(entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX, _('Billing address'))
+        must_save2, to_del2 = save_address(entity1, entity2, 'shipping_address', cleaned_data, _SHIP_PREFIX, _('Shipping address'))
 
         if must_save1 or must_save2:
             entity1.save()
@@ -106,11 +112,17 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         for address in chain(to_del1, to_del2):
             address.delete()
 
-#TODO: can we build the form once instead of build it each time ??
-#TODO: factorise with csv_import.py ?
+# TODO: can we build the form once instead of build it each time ??
+# TODO: factorise with lv_import.py ?
 #def get_merge_form_builder():
 def get_merge_form_builder(model):
-    address_field_names = Address.info_field_names() # _FIELD_NAMES
+    address_field_names = list(Address.info_field_names()) # _FIELD_NAMES
+    # TODO: factorise with lv_import.py
+    try:
+       address_field_names.remove('name')
+    except ValueError:
+       pass
+
     attrs = {'_address_field_names': address_field_names}
 
     get_field = Address._meta.get_field

@@ -3,7 +3,6 @@
 try:
     from functools import partial
 
-    #from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
@@ -273,8 +272,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                  city='Red city', state='North', zipcode='111',
                                  country='Mars', department='Dome #12',
                                  owner=bebop,
-                                 #content_type=ContentType.objects.get_for_model(Organisation),
-                                 #object_id=bebop.id
                                 )
         bebop.billing_address  = create_address(name='Hideout #1')
         bebop.shipping_address = create_address(name='Hideout #2')
@@ -337,7 +334,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
+                           EntityCredentials.DELETE | EntityCredentials.UNLINK, # Not 'LINK'
                      set_type=SetCredentials.ESET_ALL
                     )
         create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
@@ -473,10 +470,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            f_baddr = response.context['form'].fields['billaddr_name']
+            b_city_f = response.context['form'].fields['billaddr_city']
 
-        self.assertFalse(f_baddr.required)
-        self.assertEqual([bill_addr01.name,  bill_addr02.name,  bill_addr01.name], f_baddr.initial)
+        self.assertFalse(b_city_f.required)
+        self.assertEqual([bill_addr01.city,  bill_addr02.city,  bill_addr01.city], b_city_f.initial)
 
         response = self.client.post(url, follow=True,
                                     data={'user_1':      user.id,
@@ -487,7 +484,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'name_2':      orga02.name,
                                           'name_merged': orga01.name,
 
-                                           #Billing address
+                                           # Billing address
                                           'billaddr_address_1':      bill_addr01.address,
                                           'billaddr_address_2':      bill_addr02.address,
                                           'billaddr_address_merged': bill_addr01.address,
@@ -516,7 +513,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'billaddr_department_2':      bill_addr02.department,
                                           'billaddr_department_merged': 'Merged department',
 
-                                          #Shipping address
+                                          # Shipping address
                                           'shipaddr_address_1':      ship_addr01.address,
                                           'shipaddr_address_2':      ship_addr02.address,
                                           'shipaddr_address_merged': ship_addr01.address,
@@ -599,7 +596,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'name_2':      orga02.name,
                                           'name_merged': orga01.name,
 
-                                           #Billing address
+                                           # Billing address
                                           'billaddr_name_1':      '',
                                           'billaddr_name_2':      '',
                                           'billaddr_name_merged': 'Merged name',
@@ -645,7 +642,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         address = addresses[0]
         self.assertEqual(orga01.billing_address, address)
-        self.assertEqual('Merged name',          address.name)
+#        self.assertEqual('Merged name',          address.name)
+        self.assertEqual(_('Billing address'),   address.name)
         self.assertEqual('Merged address',       address.address)
         self.assertEqual('Merged PO box',        address.po_box)
         self.assertEqual('Merged city',          address.city)
@@ -685,7 +683,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'name_2':      orga02.name,
                                           'name_merged': orga01.name,
 
-                                           #Billing address
+                                           # Billing address
                                           'billaddr_name_1':      '',
                                           'billaddr_name_2':      '',
                                           'billaddr_name_merged': '',
@@ -747,9 +745,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             fields = response.context['form'].fields
 
-        self.assertIn('billaddr_name', fields)
+        self.assertNotIn('billaddr_name', fields) # exclusion is hard-coded
         self.assertIn('billaddr_city', fields)
-        self.assertNotIn('billaddr_po_box', fields)
+        self.assertIn('billaddr_country', fields)
+        self.assertNotIn('billaddr_po_box', fields) # exclusion by configuration
 
     @skipIfCustomAddress
     def test_merge05(self):
@@ -895,8 +894,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         create_address = partial(Address.objects.create,
                                  address='XXX', country=country,
                                  owner=bebop,
-                                 #object_id=bebop.id,
-                                 #content_type=ContentType.objects.get_for_model(Organisation),
                                 )
         bebop.billing_address  = addr1 = create_address(name='Hideout #1', city=city1)
         bebop.shipping_address = addr2 = create_address(name='Hideout #2', city=city2)

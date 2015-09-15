@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.models import CremeEntity
 
-from .address import AddressForm
+from .address import UnnamedAddressForm as AddressForm
 
 
 logger = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ class _BasePersonForm(CremeEntityForm):
 
         self.initial.update(initial)
 
-    def _save_address(self, addr_fieldname):
+    def _save_address(self, addr_fieldname, verbose_name):
         instance = self.instance
         save_instance = False
         address = getattr(instance, addr_fieldname)
@@ -92,6 +92,7 @@ class _BasePersonForm(CremeEntityForm):
             if address is not None:
                 addr_form.save()
             elif addr_form.instance: # Do not save empty address
+                addr_form.instance.name = unicode(verbose_name)
                 setattr(instance, addr_fieldname, addr_form.save())
                 save_instance = True
         else:
@@ -101,10 +102,10 @@ class _BasePersonForm(CremeEntityForm):
 
     def save(self, *args, **kwargs):
         instance = super(_BasePersonForm, self).save(*args, **kwargs)
-        change4billing  = self._save_address(_BILLING_ADDRESS_FIELD)
-        change4shipping = self._save_address(_SHIPPING_ADDRESS_FIELD)
+        change4billing  = self._save_address(_BILLING_ADDRESS_FIELD,  _('Billing address'))
+        change4shipping = self._save_address(_SHIPPING_ADDRESS_FIELD, _('Shipping address'))
 
         if change4billing or change4shipping:
-            instance.save() # Saved twice because of bidirectionnal pk (TODO: change ??)
+            instance.save() # Saved twice because of bidirectionnal pk
 
         return instance

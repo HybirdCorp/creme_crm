@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _
+
 from creme.creme_core.forms import CremeModelForm
 
 from ..models import Address
@@ -36,12 +38,21 @@ class AddressForm(CremeModelForm):
         return super(AddressForm, self).save(*args, **kwargs)
 
 
-class _FieldAddressForm(AddressForm):
+class UnnamedAddressForm(AddressForm):
+    class Meta(AddressForm.Meta):
+        exclude = ('name',)
+
+
+class _FieldAddressForm(UnnamedAddressForm):
     field_name = 'OVERLOAD'
+    verbose_name = 'OVERLOAD'
 
     def save(self, *args, **kwargs):
+        address = self.instance
+        address.name = unicode(self.verbose_name)
+
         entity = self._entity
-        address = super(_FieldAddressForm, self).save(*args, **kwargs)
+        super(_FieldAddressForm, self).save(*args, **kwargs)
 
         setattr(entity, self.field_name, address)
         entity.save() #TODO: with django 1.5: save only one field
@@ -51,7 +62,9 @@ class _FieldAddressForm(AddressForm):
 
 class BillingAddressForm(_FieldAddressForm):
     field_name = 'billing_address'
+    verbose_name = _(u'Billing address')
 
 
 class ShippingAddressForm(_FieldAddressForm):
     field_name = 'shipping_address'
+    verbose_name = _(u'Shipping address')

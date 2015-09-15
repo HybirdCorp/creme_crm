@@ -70,9 +70,6 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         #return reverse('persons__create_related_contact', args=(orga_id, rtype_id)) \
                #+ '?callback_url=' + url
     def _build_addrelated_uri(self, orga_id, rtype_id=None, url='/'):
-        #return reverse('persons__create_related_contact',
-                       #kwargs={'orga_id': orga_id, 'rtype_id': rtype_id},
-                      #) + '?callback_url=' + url
         kwargs = {'orga_id': orga_id}
 
         if rtype_id:
@@ -100,7 +97,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                          unicode(build_contact(first_name=first_name))
                         )
 
-        captain = Civility.objects.create(title='Captain') #no shortcut
+        captain = Civility.objects.create(title='Captain') # No shortcut
         self.assertEqual(_('%(first_name)s %(last_name)s') % {
                                 'first_name': first_name,
                                 'last_name':  last_name,
@@ -154,8 +151,20 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         first_name = 'Spike'
         b_address = 'In the Bebop.'
         s_address = 'In the Bebop (bis).'
+
+        url = reverse('persons__create_contact')
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('billing_address-address', fields)
+        self.assertIn('shipping_address-address', fields)
+        self.assertNotIn('billing_address-name', fields)
+        self.assertNotIn('shipping_address-name', fields)
+
 #        response = self.client.post(self.ADD_URL, follow=True,
-        response = self.client.post(reverse('persons__create_contact'), follow=True,
+        response = self.client.post(url, follow=True,
                                     data={'user':                     user.pk,
                                           'first_name':               first_name,
                                           'last_name':                'Spiegel',
@@ -166,11 +175,15 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name)
-        self.assertIsNotNone(contact.billing_address)
-        self.assertEqual(b_address, contact.billing_address.address)
+        billing_address = contact.billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(b_address,            billing_address.address)
+        self.assertEqual(_('Billing address'), billing_address.name)
 
-        self.assertIsNotNone(contact.shipping_address)
-        self.assertEqual(s_address, contact.shipping_address.address)
+        shipping_address = contact.shipping_address
+        self.assertIsNotNone(shipping_address)
+        self.assertEqual(s_address,             shipping_address.address)
+        self.assertEqual(_('Shipping address'), shipping_address.name)
 
         self.assertContains(response, b_address)
         self.assertContains(response, s_address)
@@ -423,7 +436,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                             set_type=SetCredentials.ESET_OWN,
                            )
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK, # Not 'LINK'
                  )
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -943,7 +956,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name)
         orga1 = create_orga(user=user)
-        create_orga(user=self.other_user) #can not be linked by user
+        create_orga(user=self.other_user) # Can not be linked by user
 
         first_name = 'Faye'
         last_name = 'Valentine'
@@ -1068,11 +1081,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                      state="BA1 - State", country="BA1 - Country",
                                      owner=contact01,
                                     )
-        #NB: no shipping address for contact01
+        # NB: no shipping address for contact01
         contact01.billing_address = bill_addr01
         contact01.save()
 
-        #NB: no billing address for contact02
+        # NB: no billing address for contact02
         ship_addr02 = create_address(name="Shipping address 02",
                                      address="SA2 - Address", po_box="SA2 - PO box",
                                      zipcode="SA2 - Zip code", city="SA2 - City",
@@ -1089,9 +1102,14 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         context = self.client.get(url).context
 
         with self.assertNoException():
-            f_baddr = context['form'].fields['billaddr_address']
+            fields = context['form'].fields
+            f_baddr = fields['billaddr_address']
 
+        self.assertIn('billaddr_city', fields)
+        self.assertIn('shipaddr_city', fields)
         self.assertEqual([bill_addr01.address, '', bill_addr01.address], f_baddr.initial)
+        self.assertNotIn('billaddr_name', fields)
+        self.assertNotIn('shipaddr_name', fields)
 
         response = self.client.post(url, follow=True,
                                     data={'user_1':      user.id,
@@ -1180,6 +1198,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         billing_address = contact01.billing_address
         self.assertEqual(bill_addr01,         billing_address)
+        self.assertEqual(bill_addr01.name,    billing_address.name)
         self.assertEqual(bill_addr01.address, billing_address.address)
         self.assertEqual('Merged PO box',     billing_address.po_box)
         self.assertEqual('Merged city',       billing_address.city)
@@ -1191,6 +1210,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         shipping_address = contact01.shipping_address
         self.assertEqual(ship_addr02,           shipping_address)
         self.assertEqual(contact01,             shipping_address.owner)
+        self.assertEqual(ship_addr02.name,      shipping_address.name)
         self.assertEqual('Merged PO box 2',     shipping_address.po_box)
         self.assertEqual('Merged city 2',       shipping_address.city)
         self.assertEqual('Merged state 2',      shipping_address.state)
@@ -1231,7 +1251,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'last_name_2':      contact02.last_name,
                                           'last_name_merged': contact01.last_name,
 
-                                           #Billing address
+                                           # Billing address
                                           'billaddr_name_1':      '',
                                           'billaddr_name_2':      '',
                                           'billaddr_name_merged': '',
@@ -1264,7 +1284,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'billaddr_department_2':      '',
                                           'billaddr_department_merged': '',
 
-                                          #Shipping address
+                                          # Shipping address
                                           'shipaddr_name_1':      '',
                                           'shipaddr_name_2':      ship_addr02.name,
                                           'shipaddr_name_merged': '',
