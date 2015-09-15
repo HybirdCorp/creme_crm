@@ -120,7 +120,14 @@ class AddressTestCase(CremeTestCase):
 
 #        url = '/persons/address/add/billing/%s' % orga.id
         url = reverse('persons__create_billing_address', args=(orga.id,))
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('city',    fields)
+        self.assertIn('address', fields)
+        self.assertNotIn('name', fields)
 
         addr_value = '21 jump street'
         city = 'Atlantis'
@@ -137,7 +144,8 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(city,       address.city)
         self.assertEqual(addr_value, address.address)
         self.assertEqual('',         address.po_box)
-        self.assertEqual('',         address.name)
+#        self.assertEqual('',         address.name)
+        self.assertEqual(_(u'Billing address'), address.name)
 
         self.assertEqual(address, self.refresh(orga).billing_address)
 
@@ -163,7 +171,8 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(country,    address.country)
         self.assertEqual(addr_value, address.address)
         self.assertEqual('',         address.zipcode)
-        self.assertEqual('',         address.name)
+#        self.assertEqual('',         address.name)
+        self.assertEqual(_(u'Shipping address'), address.name)
 
         self.assertEqual(address, self.refresh(orga).shipping_address)
 
