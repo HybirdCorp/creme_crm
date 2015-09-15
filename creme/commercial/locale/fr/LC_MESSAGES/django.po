@@ -2,14 +2,14 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i "tests/*" -i "migrations/*"
+# > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-06 23:22+0200\n"
+"POT-Creation-Date: 2015-09-15 13:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -29,35 +29,35 @@ msgstr ""
 "Tous les participants (sauf les utilisateurs), les sujets et fiches reliées "
 "seront liés à une démarche commerciale"
 
-#: apps.py:28 apps.py:42 models/strategy.py:64
+#: apps.py:28 apps.py:42 models/strategy.py:65
 msgid "Commercial strategy"
 msgstr "Plan commercial"
 
-#: apps.py:79
+#: apps.py:81
 msgid "Portal of commercial strategy"
 msgstr "Portail de la stratégie commerciale"
 
-#: apps.py:80
+#: apps.py:82
 msgid "All market segments"
 msgstr "Lister les segments de marché"
 
-#: apps.py:81
+#: apps.py:83
 msgid "All commercial actions"
 msgstr "Lister les actions commerciales"
 
-#: apps.py:83
+#: apps.py:85
 msgid "All strategies"
 msgstr "Lister les plans commerciaux"
 
-#: apps.py:85
+#: apps.py:87
 msgid "All objective patterns"
 msgstr "Lister les modèles d'objectif"
 
-#: apps.py:89
+#: apps.py:91
 msgid "All salesmen"
 msgstr "Lister les commerciaux"
 
-#: apps.py:90
+#: apps.py:92
 msgid "Add a salesman"
 msgstr "Ajouter un commercial"
 
@@ -65,15 +65,15 @@ msgstr "Ajouter un commercial"
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
-#: blocks.py:140 models/strategy.py:334
+#: blocks.py:140 models/strategy.py:335
 msgid "Market segment descriptions"
 msgstr "descriptions de segment de marché"
 
-#: blocks.py:160 models/strategy.py:367
+#: blocks.py:160 models/strategy.py:368
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: blocks.py:180 models/strategy.py:402
+#: blocks.py:180 models/strategy.py:403
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
@@ -147,20 +147,20 @@ msgstr "Un segment avec ce nom existe déjà"
 msgid "A property with the name «%(name)s» already exists"
 msgstr "Une propriété avec le nom «%(name)s» existe déjà"
 
-#: forms/market_segment.py:93
+#: forms/market_segment.py:95
 msgid "Choose a segment to replace by"
 msgstr "Choisissez un segment par lequel remplacer"
 
 #: forms/strategy.py:79 models/act.py:150 models/act.py:210 models/act.py:275
-#: models/market_segment.py:28 models/strategy.py:52 models/strategy.py:360
-#: models/strategy.py:395
+#: models/market_segment.py:28 models/strategy.py:52 models/strategy.py:361
+#: models/strategy.py:396
 #: templates/commercial/templatetags/block_assets.html:16
 #: templates/commercial/templatetags/block_charms.html:16
 #: templates/commercial/templatetags/block_evalorgas.html:16
 #: templates/commercial/templatetags/block_objectives.html:16
 #: templates/commercial/templatetags/block_opportunities.html:20
 #: templates/commercial/templatetags/block_segment_info.html:17
-#: templates/commercial/templatetags/block_segments.html:16
+#: templates/commercial/templatetags/block_segments.html:15
 msgid "Name"
 msgstr "Nom"
 
@@ -299,7 +299,7 @@ msgid "Commercial approach"
 msgstr "Démarche Commerciale"
 
 #: models/market_segment.py:33
-#: templates/commercial/templatetags/block_segments.html:5
+#: templates/commercial/templatetags/block_segments.html:4
 msgid "Market segment"
 msgstr "Segment de marché"
 
@@ -316,43 +316,43 @@ msgstr "est du segment \"%s\""
 msgid "Evaluated organisation(s)"
 msgstr "Société(s) évaluée(s)"
 
-#: models/strategy.py:59
+#: models/strategy.py:60
 msgid "Add a strategy"
 msgstr "Ajouter un plan commercial"
 
-#: models/strategy.py:65
+#: models/strategy.py:66
 msgid "Commercial strategies"
 msgstr "Plans commerciaux"
 
-#: models/strategy.py:326
+#: models/strategy.py:327
 #: templates/commercial/templatetags/block_segment_info.html:18
 msgid "Product"
 msgstr "Produit"
 
-#: models/strategy.py:327
+#: models/strategy.py:328
 msgctxt "commercial-4p"
 msgid "Place"
 msgstr "Distribution"
 
-#: models/strategy.py:328
+#: models/strategy.py:329
 #: templates/commercial/templatetags/block_segment_info.html:21
 msgid "Price"
 msgstr "Prix"
 
-#: models/strategy.py:329
+#: models/strategy.py:330
 #: templates/commercial/templatetags/block_segment_info.html:22
 msgid "Promotion"
 msgstr "Publicité"
 
-#: models/strategy.py:333
+#: models/strategy.py:334
 msgid "Market segment description"
 msgstr "Description de segment de marché"
 
-#: models/strategy.py:366
+#: models/strategy.py:367
 msgid "Commercial asset"
 msgstr "Atout commercial"
 
-#: models/strategy.py:401
+#: models/strategy.py:402
 msgid "Segment charm"
 msgstr "Attrait de segment"
 
@@ -376,27 +376,31 @@ msgstr "est remplie grace à"
 msgid "is a salesman"
 msgstr "est un commercial"
 
-#: populate.py:70
+#: populate.py:71
+msgid "All the organisations"
+msgstr "Toutes les sociétés"
+
+#: populate.py:75
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: populate.py:70
+#: populate.py:75
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:70
+#: populate.py:75
 msgid "Demo"
 msgstr "Démo"
 
-#: populate.py:75
+#: populate.py:80
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:81
+#: populate.py:86
 msgid "Strategy view"
 msgstr "Vue de stratégie"
 
-#: populate.py:84
+#: populate.py:89
 msgid "Objective pattern view"
 msgstr "Vue de Modèle d'objectif"
 
@@ -512,7 +516,7 @@ msgstr "Nouvel atout commercial"
 #: templates/commercial/templatetags/block_charms.html:17
 #: templates/commercial/templatetags/block_objectives.html:20
 #: templates/commercial/templatetags/block_segment_info.html:23
-#: templates/commercial/templatetags/block_segments.html:17
+#: templates/commercial/templatetags/block_segments.html:16
 msgid "Actions"
 msgstr "Actions"
 
@@ -533,7 +537,7 @@ msgstr "Segments"
 #: templates/commercial/templatetags/block_assets_matrix.html:26
 #: templates/commercial/templatetags/block_charms_matrix.html:26
 #: templates/commercial/templatetags/block_segment_info.html:40
-#: templates/commercial/templatetags/block_segments.html:33
+#: templates/commercial/templatetags/block_segments.html:32
 msgid "No market segment for the moment"
 msgstr "Aucun segment de marché enregistré pour le moment"
 
@@ -757,19 +761,19 @@ msgid "No related opportunity for the moment"
 msgstr "Aucune opportunité liée pour le moment"
 
 #: templates/commercial/templatetags/block_segment_info.html:6
-#: templates/commercial/templatetags/block_segments.html:5
+#: templates/commercial/templatetags/block_segments.html:4
 #, python-format
 msgid "%s Market segment"
 msgstr "%s Segment de marché"
 
 #: templates/commercial/templatetags/block_segment_info.html:6
-#: templates/commercial/templatetags/block_segments.html:5
+#: templates/commercial/templatetags/block_segments.html:4
 #, python-format
 msgid "%s Market segments"
 msgstr "%s Segments de marché"
 
 #: templates/commercial/templatetags/block_segment_info.html:9
-#: templates/commercial/templatetags/block_segments.html:8
+#: templates/commercial/templatetags/block_segments.html:7
 msgid "New segment"
 msgstr "Nouveau segment"
 
@@ -781,7 +785,7 @@ msgstr "Ajouter des segments existants"
 msgid "Place"
 msgstr "Distribution"
 
-#: templates/commercial/templatetags/block_segments.html:26
+#: templates/commercial/templatetags/block_segments.html:25
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -859,7 +863,7 @@ msgstr "Enregistrer la démarche commerciale"
 msgid "New market segment"
 msgstr "Nouveau segment de marché"
 
-#: views/market_segment.py:43 views/strategy.py:71 views/strategy.py:81
+#: views/market_segment.py:43 views/strategy.py:72 views/strategy.py:82
 msgid "Save the market segment"
 msgstr "Enregistrer le segment de marché"
 
@@ -867,16 +871,16 @@ msgstr "Enregistrer le segment de marché"
 msgid "You can't delete the last segment."
 msgstr "Vous ne pouvez pas supprimer le dernier segment."
 
-#: views/market_segment.py:68
+#: views/market_segment.py:71
 #, python-format
 msgid "Delete and replace «%s»"
 msgstr "Supprimer et remplacer «%s»"
 
-#: views/market_segment.py:70
+#: views/market_segment.py:73
 msgid "Replace"
 msgstr "Remplacer"
 
-#: views/market_segment.py:74
+#: views/market_segment.py:77
 msgid "You can't delete this segment."
 msgstr "Vous ne pouvez pas supprimer ce segment."
 
@@ -889,65 +893,65 @@ msgid "Number of commercial strategies"
 msgstr "Nombre de plans commerciaux"
 
 #: views/salesman.py:37
-msgid "Save the salesman"
-msgstr "Enregistrer le commercial"
-
-#: views/salesman.py:46
 msgid "List of salesmen"
 msgstr "Liste des commerciaux"
 
-#: views/strategy.py:44
+#: views/salesman.py:50
+msgid "Save the salesman"
+msgstr "Enregistrer le commercial"
+
+#: views/strategy.py:45
 msgid "Save the strategy"
 msgstr "Enregistrer le plan commercial"
 
-#: views/strategy.py:68 views/strategy.py:78
+#: views/strategy.py:69 views/strategy.py:79
 #, python-format
 msgid "New market segment for «%s»"
 msgstr "Nouveau segment pour «%s»"
 
-#: views/strategy.py:88
+#: views/strategy.py:89
 #, python-format
 msgid "New commercial asset for «%s»"
 msgstr "Nouvel atout pour «%s»"
 
-#: views/strategy.py:91
+#: views/strategy.py:92
 msgid "Save the commercial asset"
 msgstr "Enregistrer l'action commerciale"
 
-#: views/strategy.py:98
+#: views/strategy.py:99
 #, python-format
 msgid "New segment charm for «%s»"
 msgstr "Nouvel attrait pour «%s»"
 
-#: views/strategy.py:101
+#: views/strategy.py:102
 msgid "Save the segment charm"
 msgstr "Enregistrer l'attrait de segment"
 
-#: views/strategy.py:108
+#: views/strategy.py:109
 #, python-format
 msgid "New organisation(s) for «%s»"
 msgstr "Nouvelle(s) société(s) pour «%s»"
 
-#: views/strategy.py:111
+#: views/strategy.py:112
 msgid "Link the organisation(s)"
 msgstr "Lier les sociétés"
 
-#: views/strategy.py:118
+#: views/strategy.py:119
 #, python-format
 msgid "Segment for «%s»"
 msgstr "Segment pour «%s»"
 
-#: views/strategy.py:125
+#: views/strategy.py:126
 #, python-format
 msgid "Asset for «%s»"
 msgstr "Atout pour «%s»"
 
-#: views/strategy.py:132
+#: views/strategy.py:133
 #, python-format
 msgid "Charm for «%s»"
 msgstr "Attrait pour «%s»"
 
-#: views/strategy.py:170
+#: views/strategy.py:171
 #, python-format
 msgid ""
 "This organisation «%(orga)s» is not (no more ?) evaluated by the strategy "

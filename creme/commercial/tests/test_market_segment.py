@@ -10,7 +10,7 @@ try:
     from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import Strategy
+    from ..models import Strategy, MarketSegment
     from .base import CommercialBaseTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -21,6 +21,12 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
     def _build_delete_url(self, segment):
         return '/commercial/market_segment/delete/%s' % segment.id
+
+    def test_unique_segment_with_ptype(self):
+        segment = self.get_object_or_fail(MarketSegment, property_type=None)
+
+        with self.assertRaises(ValueError):
+            MarketSegment.objects.create(name='Foobar', property_type=None)
 
     def test_create01(self):
         url = self.ADD_SEGMENT_URL
@@ -124,6 +130,21 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
                          segment.property_type.text
                         )
 
+    def test_edit05(self):
+        "Edit the segment with property_type=NULL"
+        segment = self.get_object_or_fail(MarketSegment, property_type=None)
+        ptype_count = CremePropertyType.objects.count()
+
+        name = 'All the corporations'
+        self.assertNoFormError(self.client.post(segment.get_edit_absolute_url(),
+                                                data={'name': name},
+                                               )
+                              )
+
+        segment = self.refresh(segment)
+        self.assertEqual(name, segment.name)
+        self.assertEqual(ptype_count, CremePropertyType.objects.count())
+
     @skipIfCustomOrganisation
     def test_segment_delete01(self):
         strategy = Strategy.objects.create(user=self.user, name='Producers')
@@ -159,7 +180,8 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
     def test_segment_delete02(self):
         "Cannot delete if there is only one segment"
-        segment = self._create_segment('Industry')
+#        segment = self._create_segment('Industry')
+        segment = self.get_object_or_fail(MarketSegment, property_type=None)
 
         self.assertGET409(self._build_delete_url(segment))
 
@@ -207,3 +229,37 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertEqual(expected, ptypes(orga1)) # Only one property, not 2 (with the same type)
         self.assertEqual(expected, ptypes(orga2))
         self.assertEqual(expected, ptypes(orga3))
+
+    def test_segment_delete06(self):
+        "Cannot delete the segment with property_type=NULL"
+        segment = self.get_object_or_fail(MarketSegment, property_type=None)
+        self._create_segment('Industry') # We add this segment to not try to delete the last one.
+
+        self.assertGET409(self._build_delete_url(segment))
+
+    @skipIfCustomOrganisation
+    def test_segment_delete07(self):
+        "We replace with the segment with property_type=NULL"
+        strategy = Strategy.objects.create(user=self.user, name='Producers')
+        desc = self._create_segment_desc(strategy, 'Producer')
+        segment1 = desc.segment
+        old_ptype = segment1.property_type
+
+        orga = Organisation.objects.create(user=self.user, name='NHK')
+        prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
+
+        rtype = RelationType.create(
+                    ('commercial-subject_test_segment_delete7', 'has produced',         [Organisation], [old_ptype]),
+                    ('commercial-object_test_segment_delete7',  'has been produced by', [Organisation]),
+                   )[0]
+
+        segment2 = self.get_object_or_fail(MarketSegment, property_type=None)
+        self.assertPOST200(self._build_delete_url(segment1), data={'to_segment': segment2.id})
+        self.assertDoesNotExist(segment1)
+        self.assertDoesNotExist(old_ptype)
+
+        desc = self.assertStillExists(desc)
+        self.assertEqual(segment2, desc.segment)
+
+        self.assertDoesNotExist(prop)
+        self.assertFalse(rtype.subject_properties.all())

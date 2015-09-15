@@ -26,7 +26,7 @@ from creme.creme_core.models import CremeModel, CremePropertyType
 
 class MarketSegment(CremeModel):
     name          = CharField(_(u"Name"), max_length=100) #TODO: unique ?
-    property_type = ForeignKey(CremePropertyType, editable=False).set_tags(viewable=False)
+    property_type = ForeignKey(CremePropertyType, null=True, editable=False).set_tags(viewable=False)
 
     class Meta:
         app_label = "commercial"
@@ -42,3 +42,15 @@ class MarketSegment(CremeModel):
     @staticmethod
     def generate_property_text(segment_name):
         return ugettext(u'is in the segment "%s"') % segment_name
+
+    def save(self, *args, **kwargs):
+        if self.property_type is None:
+            qs = MarketSegment.objects.filter(property_type=None)
+
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+
+            if qs.exists():
+                raise ValueError('Only one MarketSegment with property_type=NULL is allowed.')
+
+        super(MarketSegment, self).save(*args, **kwargs)
