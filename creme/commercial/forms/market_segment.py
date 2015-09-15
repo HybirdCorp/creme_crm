@@ -30,7 +30,7 @@ from creme.creme_core.utils import replace_related_object
 from ..models import MarketSegment
 
 
-#TODO: save/check unicity only if name has changed
+# TODO: save/check unicity only if name has changed
 class MarketSegmentForm(CremeModelForm):
     error_messages = {
         'duplicated_name':     _(u'A segment with this name already exists'),
@@ -74,10 +74,12 @@ class MarketSegmentForm(CremeModelForm):
         instance = self.instance
 
         # TODO: move to MarketSegment.save() ?
-        if instance.pk: #edition
+        if instance.pk: # Edition
             ptype = instance.property_type
-            ptype.text = self.ptype_text
-            ptype.save()
+
+            if ptype: # NB: there is _one_ segment with no related PropertyType
+                ptype.text = self.ptype_text
+                ptype.save()
         else:
             # is_custom=False ==> CremePropertyType won't be deletable
             instance.property_type = CremePropertyType.create('commercial-segment',
@@ -103,7 +105,7 @@ class SegmentReplacementForm(CremeForm):
     def save(self, *args, **kwargs):
         segment_2_delete = self.segment_2_delete
         replacing_segment = self.cleaned_data['to_segment']
-        mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
+        mutex = Mutex.get_n_lock('commercial-replace_segment')
 
         try:
             with atomic():
@@ -111,7 +113,10 @@ class SegmentReplacementForm(CremeForm):
                 segment_2_delete.delete()
 
                 ptype_2_delete = segment_2_delete.property_type
-                replace_related_object(ptype_2_delete, replacing_segment.property_type)
+
+                if replacing_segment.property_type is not None:
+                    replace_related_object(ptype_2_delete, replacing_segment.property_type)
+
                 ptype_2_delete.delete()
         finally:
             mutex.release()

@@ -8,7 +8,7 @@ try:
     from creme.persons.tests.base import skipIfCustomContact
 
     from .. import get_act_model
-    from ..models import ActType #Act
+    from ..models import ActType, MarketSegment #Act
     from ..constants import (REL_SUB_SOLD_BY, REL_OBJ_SOLD_BY,
             REL_SUB_COMPLETE_GOAL, PROP_IS_A_SALESMAN)
 except Exception as e:
@@ -34,6 +34,8 @@ class CommercialTestCase(CremeTestCase):
         self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [get_contact_model()])
 
         self.assertEqual(3, ActType.objects.count())
+
+        self.get_object_or_fail(MarketSegment, property_type=None)
 
     @skipIfCustomContact
     def test_salesman_create(self):

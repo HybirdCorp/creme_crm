@@ -67,6 +67,11 @@ class Populator(BasePopulator):
         CremePropertyType.create(PROP_IS_A_SALESMAN, _(u'is a salesman'), [Contact])
 
 
+        MarketSegment.objects.get_or_create(property_type=None,
+                                            defaults={'name': _(u'All the organisations')},
+                                           )
+
+
         for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
             create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
 

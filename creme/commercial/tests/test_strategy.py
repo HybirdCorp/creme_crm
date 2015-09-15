@@ -624,7 +624,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self._set_segment_category(strategy, segment_desc, orga, 2)
 
         self.assertEqual(1, Strategy.objects.count())
-        self.assertEqual(1, MarketSegment.objects.count())
+        self.assertEqual(2, MarketSegment.objects.count()) # 1 + 'All the organisations'
         self.assertEqual(1, MarketSegmentDescription.objects.count())
         self.assertEqual(1, CommercialAsset.objects.count())
         self.assertEqual(1, MarketSegmentCharm.objects.count())
@@ -634,7 +634,7 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         strategy.delete()
         self.assertEqual(0, Strategy.objects.count())
-        self.assertEqual(1, MarketSegment.objects.count())
+        self.assertEqual(2, MarketSegment.objects.count())
         self.assertEqual(0, MarketSegmentDescription.objects.count())
         self.assertEqual(0, CommercialAsset.objects.count())
         self.assertEqual(0, MarketSegmentCharm.objects.count())
@@ -647,14 +647,14 @@ class StrategyTestCase(CommercialBaseTestCase):
         segment_desc = self._create_segment_desc(strategy, 'People')
 
         self.assertEqual(1, strategy.segment_info.count())
-        self.assertEqual(1, MarketSegment.objects.count())
+        self.assertEqual(2, MarketSegment.objects.count()) # 1 + 'All the organisations'
 
         ct = ContentType.objects.get_for_model(MarketSegmentDescription)
         self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
                          data={'id': segment_desc.id}
                         )
         self.assertEqual(0, strategy.segment_info.count())
-        self.assertEqual(1, MarketSegment.objects.count())
+        self.assertEqual(2, MarketSegment.objects.count())
 
     @skipIfCustomOrganisation
     def test_segment_unlink02(self):

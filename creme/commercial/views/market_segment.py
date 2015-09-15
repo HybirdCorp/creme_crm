@@ -63,6 +63,9 @@ def delete(request, segment_id):
 
     segment = get_object_or_404(MarketSegment, id=segment_id)
 
+    if segment.property_type is None:
+        raise ConflictError(u"You can't delete this specific segment.")
+
     try:
         return add_model_with_popup(request, SegmentReplacementForm,
                                     _(u'Delete and replace «%s»') % segment,
