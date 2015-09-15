@@ -29,8 +29,30 @@ from creme.creme_core.models import SearchConfigItem, UserRole
 
 #CremeUser = get_user_model()
 
+class _SearchForm(CremeModelForm):
+    fields = MultipleChoiceField(label=_(u'Concerned fields'), required=False,
+                                 choices=(), widget=OrderedMultipleChoiceWidget,
+                                )
 
-class SearchAddForm(CremeModelForm):
+    class Meta:
+        model = SearchConfigItem
+#        exclude = ('content_type', 'user', 'field_names')
+        exclude = ('content_type', 'role', 'field_names')
+
+    def __init__(self, *args, **kwargs):
+        super(_SearchForm, self).__init__(*args, **kwargs)
+
+        self.fields['fields'].choices = self._get_instance().get_modelfields_choices()
+
+    def _get_instance(self):
+        return self.instance
+
+    def save(self, *args, **kwargs):
+        self.instance.searchfields = self.cleaned_data['fields']
+        return super(_SearchForm, self).save(*args, **kwargs)
+
+
+class SearchAddForm(_SearchForm):
 #    user = ModelChoiceField(label=_(u'User'), queryset=CremeUser.objects.none(),
 #                            empty_label=None,
 #                           )
@@ -38,20 +60,18 @@ class SearchAddForm(CremeModelForm):
                             empty_label=None, required=False,
                            )
 
-    class Meta:
-        model = SearchConfigItem
+    class Meta(_SearchForm.Meta):
         exclude = ('content_type', 'field_names')
 
     def __init__(self, *args, **kwargs):
         super(SearchAddForm, self).__init__(*args, **kwargs)
-        self.instance.content_type = ct = self.initial['content_type']
-
 #        used_user_ids = SearchConfigItem.objects.filter(content_type=ct, user__isnull=False)\
 #                                                .values_list('user', flat=True)
         role_f = self.fields['role']
-        used_role_ids = set(SearchConfigItem.objects.filter(content_type=ct)
-                                                .exclude(role__isnull=True, superuser=False)
-                                                .values_list('role', flat=True)
+        used_role_ids = set(SearchConfigItem.objects
+                                            .filter(content_type=self.instance.content_type)
+                                            .exclude(role__isnull=True, superuser=False)
+                                            .values_list('role', flat=True)
                            )
 
         try:
@@ -62,6 +82,12 @@ class SearchAddForm(CremeModelForm):
 #        self.fields['user'].queryset = CremeUser.objects.filter(is_team=False) \
 #                                                        .exclude(pk__in=used_user_ids)
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
+
+    def _get_instance(self):
+        instance = self.instance
+        instance.content_type = self.initial['content_type']
+
+        return instance
 
     # NB: we could manage the possible/unlikely race condition with 'unique_together'
     # in SearchConfigItem.Meta, but it only leads to IntegrityError, recovered
@@ -75,24 +101,8 @@ class SearchAddForm(CremeModelForm):
         return super(SearchAddForm, self).save(*args, **kwargs)
 
 
-class SearchEditForm(CremeModelForm):
-    fields = MultipleChoiceField(label=_(u'Concerned fields'), required=False,
-                                 choices=(), widget=OrderedMultipleChoiceWidget,
-                                )
-
-    class Meta:
-        model = SearchConfigItem
-#        exclude = ('content_type', 'user', 'field_names')
-        exclude = ('content_type', 'role', 'field_names')
-
+class SearchEditForm(_SearchForm):
     def __init__(self, *args, **kwargs):
         super(SearchEditForm, self).__init__(*args, **kwargs)
-        instance = self.instance
 
-        fields_f = self.fields['fields']
-        fields_f.choices = instance.get_modelfields_choices()
-        fields_f.initial = [sf.name for sf in instance.searchfields]
-
-    def save(self, *args, **kwargs):
-        self.instance.searchfields = self.cleaned_data['fields']
-        return super(SearchEditForm, self).save(*args, **kwargs)
+        self.fields['fields'].initial = [sf.name for sf in self.instance.searchfields]

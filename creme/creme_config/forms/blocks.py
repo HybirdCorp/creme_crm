@@ -118,7 +118,7 @@ class _BlockDetailviewLocationsForm(_BlockLocationsForm):
 
     def __init__(self, *args, **kwargs):
         super(_BlockDetailviewLocationsForm, self).__init__(*args, **kwargs)
-        self.ct   = ct   = self.initial['content_type']
+        self.ct   = ct = self.initial['content_type']
         self.role = None
         self.superuser = False
         self.locations = ()
