@@ -35,11 +35,23 @@ class SearchConfigTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
+    def assertNoChoice(self, formfield, field_name):
+        for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
+            if f_field_name == field_name:
+                self.fail(field_name + ' in choices')
+
     def _build_add_url(self, ctype):
         return '/creme_config/search/add/%s' % ctype.id
 
     def _build_edit_url(self, sci):
         return '/creme_config/search/edit/%s' % sci.id
+
+    def _find_field_index(self, formfield, field_name):
+        for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
+            if f_field_name == field_name:
+                return i
+
+        self.fail('No "%s" in field' % field_name)
 
     def _get_first_entity_ctype(self):
         ctypes = list(creme_entity_content_types())
@@ -81,8 +93,29 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, role=None, superuser=True))
 
         url = self._build_add_url(ct)
-        self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'role': role.id}))
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields['fields']
+
+        self.assertFalse(fields.initial)
+
+        fname = 'last_name'
+        index = self._find_field_index(fields, fname)
+
+        self._find_field_index(fields, 'first_name')
+        self._find_field_index(fields, 'civility__title')
+        self.assertNoChoice(fields, 'birthday')
+
+        self.assertNoFormError(self.client.post(url,
+                                                data={'role': role.id,
+
+                                                      'fields_check_%s' % index: 'on',
+                                                      'fields_value_%s' % index: fname,
+                                                      'fields_order_%s' % index: 1,
+                                                     },
+                                               )
+                              )
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))
@@ -91,6 +124,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual(role, sc_item.role)
         self.assertFalse(sc_item.superuser)
         self.assertFalse(sc_item.disabled)
+        self.assertEqual([fname], [sf.name for sf in sc_item.searchfields])
 
     def test_add02(self):
         "Other CT, super users"
@@ -101,9 +135,10 @@ class SearchConfigTestCase(CremeTestCase):
                                                 data={'role': ''},
                                                )
                               )
-        self.get_object_or_fail(SearchConfigItem, content_type=ct,
-                                superuser=True, role=None,
-                               )
+        sc_item = self.get_object_or_fail(SearchConfigItem, content_type=ct,
+                                          superuser=True, role=None,
+                                         )
+        self.assertTrue(sc_item.all_fields)
 
     def test_add03(self):
         "Unique configuration"
@@ -140,18 +175,6 @@ class SearchConfigTestCase(CremeTestCase):
 
         self.assertIsNone(role_f.empty_label)
 
-    def _find_field_index(self, formfield, field_name):
-        for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
-            if f_field_name == field_name:
-                return i
-
-        self.fail('No "%s" in field' % field_name)
-
-    def assertNoChoice(self, formfield, field_name):
-        for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
-            if f_field_name == field_name:
-                self.fail(field_name + ' in choices')
-
     def _edit_config(self, url, sci, names_indexes, disabled=''):
         data = {'disabled': disabled}
         names = []
@@ -172,7 +195,7 @@ class SearchConfigTestCase(CremeTestCase):
         return sci
 
     def test_edit01(self):
-        sci = SearchConfigItem.objects.create(content_type=self.ct_contact)
+        sci = SearchConfigItem.create_if_needed(Contact, fields=['first_name'])
         self.assertIsNone(sci.role)
 
         url = self._build_edit_url(sci)
@@ -180,6 +203,8 @@ class SearchConfigTestCase(CremeTestCase):
 
         with self.assertNoException():
             fields = response.context['form'].fields['fields']
+
+        self.assertEqual(['first_name'], fields.initial)
 
         fname1 = 'first_name'
         index1 = self._find_field_index(fields, fname1)
