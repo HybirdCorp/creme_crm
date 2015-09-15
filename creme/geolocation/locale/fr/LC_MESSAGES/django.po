@@ -2,13 +2,13 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i "migrations/*" -i "tests/*"
+# > django-admin.py makemessages -l fr -i "migrations/*" -i "tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 1.5\n"
+"Project-Id-Version: Creme Reports 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-26 11:01+0100\n"
+"POT-Creation-Date: 2015-09-14 18:11+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,21 +16,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: blocks.py:85
+#: apps.py:28 apps.py:37
+msgid "Geolocation"
+msgstr "Géolocalisation"
+
+#: blocks.py:90
 msgid "Maps"
 msgstr "Cartes"
 
-#: blocks.py:102
+#: blocks.py:107
 msgid "Maps By Filter"
 msgstr "Cartes par filtre"
 
-#: blocks.py:119
+#: blocks.py:124
 msgid "Around this address"
 msgstr "Autour de cette adresse"
-
-#: creme_core_register.py:31
-msgid "Geolocation"
-msgstr "Géolocalisation"
 
 #: models.py:48
 msgid "Not localized"
@@ -44,56 +44,56 @@ msgstr "Localisation manuelle"
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
 
-#: models.py:54 models.py:65
+#: models.py:55 models.py:66
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:55 models.py:170
+#: models.py:56 models.py:171
 msgid "Latitude"
 msgstr "Latitude"
 
-#: models.py:56 models.py:171
+#: models.py:57 models.py:172
 msgid "Longitude"
 msgstr "Longitude"
 
-#: models.py:57
+#: models.py:58
 msgid "Is this marker draggable in maps ?"
 msgstr "Ce curseur peut-il être déplacé ?"
 
-#: models.py:58
+#: models.py:59
 msgid "Geocoded from address ?"
 msgstr "Géolocalisé à partir de l'adresse ?"
 
-#: models.py:59
+#: models.py:60
 msgctxt "geolocation"
 msgid "Status"
 msgstr "Statut"
 
-#: models.py:66
+#: models.py:67
 msgid "Addresses"
 msgstr "Adresses"
 
-#: models.py:166
+#: models.py:167
 msgid "Name of the town"
 msgstr "Nom de la ville"
 
-#: models.py:167
+#: models.py:168
 msgid "Slugified name of the town"
 msgstr "Nom normalisé de la ville"
 
-#: models.py:168
+#: models.py:169
 msgid "Zip code"
 msgstr "Code postal"
 
-#: models.py:169
+#: models.py:170
 msgid "Country"
 msgstr "Pays"
 
-#: models.py:175
+#: models.py:176
 msgid "Town"
 msgstr "Ville"
 
-#: models.py:176
+#: models.py:177
 msgid "Towns"
 msgstr "Villes"
 
@@ -103,14 +103,6 @@ msgid "Maximum distance to find neighbours in meters, default %(default)s m."
 msgstr ""
 "Distance maximale pour trouver des voisins en mètres, par défaut %(default)s "
 "m."
-
-#: utils.py:69
-msgid "Billing address"
-msgstr "Adresse de facturation"
-
-#: utils.py:72
-msgid "Shipping address"
-msgstr "Adresse de livraison"
 
 #: templates/geolocation/templatetags/block_persons_filters_google_map.html:10
 #: templates/geolocation/templatetags/block_persons_google_map.html:9
@@ -130,7 +122,7 @@ msgid "No address defined for now"
 msgstr "Aucune adresse enregistrée pour le moment"
 
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:13
-msgid "Arround this place"
+msgid "Around this place"
 msgstr "Autour de ce lieu"
 
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:20
@@ -167,6 +159,14 @@ msgid "%(distance).1f Km"
 msgid_plural "%(distance).1f Km"
 msgstr[0] "%(distance).1f Km"
 msgstr[1] "%(distance).1f Km"
+
+#: utils.py:70
+msgid "Billing address"
+msgstr "Adresse de facturation"
+
+#: utils.py:73
+msgid "Shipping address"
+msgstr "Adresse de livraison"
 
 #~ msgid "No matching location"
 #~ msgstr "Non localisé"
