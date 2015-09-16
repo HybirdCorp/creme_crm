@@ -138,11 +138,12 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
 
 class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
-    DATA_FORMAT = '{"ctype": {"create": "%s", "id": %s}, "entity": %s}'
-    CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s}, "entity": %s}'
+    DATA_FORMAT = '{"ctype": {"create": "%s", "id": %s, "create_label": "%s"}, "entity": %s}'
+    CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s, "create_label": "%s"}, "entity": %s}'
 
     def build_field_data(self, ctype_id, entity):
-        return self.CREATE_DATA_FORMAT % (ctype_id, ctype_id, entity)
+        label = ContentType.objects.get(pk=ctype_id).model_class().creation_label
+        return self.CREATE_DATA_FORMAT % (ctype_id, ctype_id, label, entity)
 
     def test_models_ctypes(self):
         get_ct = ContentType.objects.get_for_model
@@ -181,13 +182,20 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact()
         field = GenericEntityField(models=[Organisation, Contact, Document])
 
-        self.assertEqual(self.DATA_FORMAT % (self.QUICKFORM_URL % 12, 12, 1),
-                         field.from_python({"ctype": {"create": self.QUICKFORM_URL % 12, "id" : 12}, "entity": 1}))
+        self.assertEqual(self.DATA_FORMAT % (self.QUICKFORM_URL % 12, 12, "Add", 1),
+                         field.from_python({"ctype": {"create": self.QUICKFORM_URL % 12, 
+                                                      "id" : 12,
+                                                      "create_label": "Add",
+                                                     },
+                                            "entity": 1
+                                           }))
 
         # no user info
         self.assertEqual(self.DATA_FORMAT % ('',
                                              contact.entity_type_id,
-                                             contact.pk),
+                                             unicode(Contact.creation_label),
+                                             contact.pk,
+                                            ),
                          field.from_python(contact)
                         )
 
@@ -230,7 +238,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact()
         self.assertFieldValidationError(GenericEntityField, 'ctypenotallowed',
                                         GenericEntityField(models=[Organisation, Document]).clean,
-                                        self.DATA_FORMAT % ('', contact.entity_type_id, contact.id)
+                                        self.build_field_data(contact.entity_type_id, contact.id)
                                        )
 
     def test_clean_unknown_entity(self):
@@ -239,7 +247,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         ct_id = ContentType.objects.get_for_model(Document).id #not Contact !!
         self.assertFieldValidationError(GenericEntityField, 'doesnotexist',
                                         GenericEntityField(models=[Organisation, Contact, Document]).clean,
-                                        self.DATA_FORMAT % ('', ct_id, contact.pk)
+                                        self.build_field_data(ct_id, contact.pk)
                                        )
 
     def test_clean_deleted_entity(self):
@@ -247,14 +255,14 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact(is_deleted=True)
         self.assertFieldValidationError(GenericEntityField, 'doesnotexist',
                                         GenericEntityField(models=[Organisation, Contact, Document]).clean,
-                                        self.DATA_FORMAT % ('', contact.entity_type_id, contact.pk)
+                                        self.build_field_data(contact.entity_type_id, contact.pk)
                                        )
 
     def test_clean_entity(self):
         self.login()
         contact = self.create_contact()
         field = GenericEntityField(models=[Organisation, Contact, Document])
-        self.assertEqual(contact, field.clean(self.DATA_FORMAT % ('', contact.entity_type_id, contact.pk)))
+        self.assertEqual(contact, field.clean(self.build_field_data(contact.entity_type_id, contact.pk)))
 
     def test_clean_entity_old_format(self):
         self.login()
@@ -302,11 +310,12 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
-    DATA_FORMAT = '{"ctype": {"create": "%s", "id": %s}, "entity": %s}'
-    CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s}, "entity": %s}'
+    DATA_FORMAT = '{"ctype": {"create": "%s", "id": %s, "create_label": "%s"}, "entity": %s}'
+    CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s, "create_label": "%s"}, "entity": %s}'
 
     def build_field_entry_data(self, ctype_id, entity):
-        return self.CREATE_DATA_FORMAT % (ctype_id, ctype_id, entity)
+        label = ContentType.objects.get(pk=ctype_id).model_class().creation_label
+        return self.CREATE_DATA_FORMAT % (ctype_id, ctype_id, label, entity)
 
     def test_models_ctypes(self):
         get_ct = ContentType.objects.get_for_model
@@ -330,15 +339,15 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiGenericEntityField(models=[Organisation, Contact, Document])
         self.assertEqual('[' + ', '.join((self.build_field_entry_data(12, 1),
                                           self.build_field_entry_data(14, 5))) + ']',
-                         field.from_python([{'ctype': {'id': 12, 'create': self.QUICKFORM_URL % 12}, 'entity': 1},
-                                            {'ctype': {'id': 14, 'create': self.QUICKFORM_URL % 14}, 'entity': 5},
+                         field.from_python([{'ctype': {'id': 12, 'create': self.QUICKFORM_URL % 12, 'create_label': 'Ajouter'}, 'entity': 1},
+                                            {'ctype': {'id': 14, 'create': self.QUICKFORM_URL % 14, 'create_label': 'Ajouter'}, 'entity': 5},
                                            ]
                                           )
                         )
 
         # no user
-        self.assertEqual('[' + ', '.join((self.DATA_FORMAT % ('', contact.entity_type_id, contact.pk),
-                                          self.DATA_FORMAT % ('', orga.entity_type_id, orga.pk))) + ']',
+        self.assertEqual('[' + ', '.join((self.DATA_FORMAT % ('', contact.entity_type_id, Contact.creation_label, contact.pk),
+                                          self.DATA_FORMAT % ('', orga.entity_type_id, Organisation.creation_label, orga.pk))) + ']',
                          field.from_python([contact, orga])
                         )
 
