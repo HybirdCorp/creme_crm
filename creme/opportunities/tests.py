@@ -17,7 +17,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
-            CremeProperty, SetCredentials, Currency, SettingValue)
+            CremeProperty, SetCredentials, Currency, SettingValue, FieldsConfig)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
 
@@ -974,7 +974,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
 
     @skipIfCustomOrganisation
-    def test_get_weighted_sales(self):
+    def test_get_weighted_sales01(self):
         self.login()
 
         opportunity = self._create_opportunity_n_organisations()[0]
@@ -990,6 +990,49 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opportunity.chance_to_win   =  10
         self.assertEqual(100, opportunity.get_weighted_sales())
         self.assertEqual('100.0', funf(opportunity).for_html())
+
+    @skipIfCustomOrganisation
+    def test_get_weighted_sales02(self):
+        "With field 'estimated_sales' hidden with FieldsConfig"
+        self.login()
+
+        FieldsConfig.create(Opportunity,
+                            descriptions=[('estimated_sales', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        opportunity = self._create_opportunity_n_organisations()[0]
+        funf = opportunity.function_fields.get('get_weighted_sales')
+
+        with self.assertNumQueries(1):
+            w_sales = opportunity.get_weighted_sales()
+
+        self.assertEqual(_(u'Error: «Estimated sales» is hidden'), w_sales)
+
+        with self.assertNumQueries(0):
+            opportunity.get_weighted_sales()
+
+    @skipIfCustomOrganisation
+    def test_get_weighted_sales03(self):
+        "With field 'chance_to_win' hidden with FieldsConfig"
+        self.login()
+
+        FieldsConfig.create(Opportunity,
+                            descriptions=[('chance_to_win', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        opportunity1 = self._create_opportunity_n_organisations()[0]
+        opportunity2 = self._create_opportunity_n_organisations()[0]
+
+        funf = opportunity1.function_fields.get('get_weighted_sales')
+
+        with self.assertNumQueries(1):
+            funf.populate_entities([opportunity1, opportunity2])
+
+        with self.assertNumQueries(0):
+            w_sales = opportunity1.get_weighted_sales()
+            opportunity2.get_weighted_sales()
+
+        self.assertEqual(_(u'Error: «% of chance to win» is hidden'), w_sales)
 
     def test_delete_currency(self):
         user = self.login()

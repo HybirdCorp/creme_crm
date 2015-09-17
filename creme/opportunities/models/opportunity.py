@@ -32,7 +32,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import FunctionField
-from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
+from creme.creme_core.models import (CremeEntity, CremeModel, Relation,
+        FieldsConfig, Currency, Vat)
 from creme.creme_core.models.fields import BasicAutoField
 
 from creme.persons import get_contact_model, get_organisation_model
@@ -51,6 +52,14 @@ from ..constants import *
 class _TurnoverField(FunctionField):
     name         = "get_weighted_sales"
     verbose_name = _(u"Weighted sales")
+
+    @classmethod
+    def populate_entities(cls, entities):
+        # TODO: remove when FieldsConfig cache has been added.
+        fc = FieldsConfig.get_4_model(entities[0].__class__)
+
+        for entity in entities:
+            entity._fconfig_cache = fc
 
 
 class SalesPhase(CremeModel):
@@ -85,17 +94,34 @@ class Origin(CremeModel):
 #class Opportunity(CremeEntity):
 class AbstractOpportunity(CremeEntity):
     name                  = CharField(_(u"Name of the opportunity"), max_length=100)
-    reference             = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
-    estimated_sales       = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
-    made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
-    currency              = ForeignKey(Currency, verbose_name=_(u'Currency'), default=DEFAULT_CURRENCY_PK, on_delete=PROTECT)
-    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'), on_delete=PROTECT)
-    chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
-    expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)
-    closing_date          = DateField(_(u'Actual closing date'), blank=True, null=True)
-    origin                = ForeignKey(Origin, verbose_name=_(u'Origin'), blank=True, null=True, on_delete=SET_NULL)
-    description           = TextField(_(u'Description'), blank=True, null=True)
-    first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)
+    reference             = CharField(_(u"Reference"), max_length=100,
+                                      blank=True, null=True,
+                                     ).set_tags(optional=True)
+    estimated_sales       = PositiveIntegerField(_(u'Estimated sales'),
+                                                 blank=True, null=True,
+                                                ).set_tags(optional=True)
+    made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)\
+                                                .set_tags(optional=True)
+    currency              = ForeignKey(Currency, verbose_name=_(u'Currency'),
+                                       default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
+                                      )
+    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'),
+                                       on_delete=PROTECT,
+                                      )
+    chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"),
+                                                 blank=True, null=True,
+                                                ).set_tags(optional=True)
+    expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)\
+                                     .set_tags(optional=True)
+    closing_date          = DateField(_(u'Actual closing date'), blank=True, null=True)\
+                                     .set_tags(optional=True)
+    origin                = ForeignKey(Origin, verbose_name=_(u'Origin'),
+                                       blank=True, null=True, on_delete=SET_NULL,
+                                      ).set_tags(optional=True)
+    description           = TextField(_(u'Description'), blank=True, null=True)\
+                                     .set_tags(optional=True)
+    first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)\
+                                     .set_tags(optional=True)
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField())
     creation_label = _('Add an opportunity')
@@ -103,6 +129,8 @@ class AbstractOpportunity(CremeEntity):
     _opp_emitter = None
     _opp_target  = None
     _opp_target_rel = None
+
+    _fconfig_cache = None
 
     class Meta:
         abstract = True
@@ -150,7 +178,23 @@ class AbstractOpportunity(CremeEntity):
 #        return "/opportunities/opportunities"
         return reverse('opportunities__list_opportunities')
 
+    def __get_fieldsconfig(self):
+        fc = self._fconfig_cache
+
+        if fc is None:
+            self._fconfig_cache = fc = FieldsConfig.get_4_model(self.__class__)
+
+        return fc
+
     def get_weighted_sales(self):
+        is_hidden = self.__get_fieldsconfig().is_fieldname_hidden
+
+        if is_hidden('estimated_sales'):
+            return ugettext(u'Error: «Estimated sales» is hidden')
+
+        if is_hidden('chance_to_win'):
+            return ugettext(ur'Error: «% of chance to win» is hidden')
+
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 
     def get_total(self):
