@@ -342,7 +342,7 @@ class QuerysetBlock(PaginatedBlock):
 
 
 class SpecificRelationsBlock(QuerysetBlock):
-    dependencies  = (Relation,) #NB: (Relation, CremeEntity) but useless
+    dependencies  = (Relation,) # NB: (Relation, CremeEntity) but useless
     order_by      = 'type'
     verbose_name  = _(u'Relationships')
     template_name = 'creme_core/templatetags/block_specific_relations.html'
@@ -371,23 +371,24 @@ class SpecificRelationsBlock(QuerysetBlock):
         relation_type = config_item.relation_type
         btc = self.get_block_template_context(
                     context,
-                    entity.relations.filter(type=relation_type).select_related('type', 'object_entity'),
+                    entity.relations.filter(type=relation_type)
+                                    .select_related('type', 'object_entity'),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                     relation_type=relation_type,
                    )
         relations = btc['page'].object_list
         entities_by_ct = defaultdict(list)
 
-        Relation.populate_real_object_entities(relations) #DB optimisation
+        Relation.populate_real_object_entities(relations) # DB optimisation
 
         for relation in relations:
             entity = relation.object_entity.get_real_entity()
             entity.srb_relation_cache = relation
             entities_by_ct[entity.entity_type_id].append(entity)
 
-        groups = [] #list of tuples (entities_with_same_ct, headerfilter_items)
-        unconfigured_group = [] #entities that do not have a customised columns setting
-        colspan = 1 #unconfigured_group has one column
+        groups = [] # List of tuples (entities_with_same_ct, headerfilter_items)
+        unconfigured_group = [] # Entities that do not have a customised columns setting
+        colspan = 1 # Unconfigured_group has one column
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, entities in entities_by_ct.iteritems():
@@ -397,12 +398,12 @@ class SpecificRelationsBlock(QuerysetBlock):
                 groups.append((entities, cells))
                 colspan = max(colspan, len(cells))
             else:
-                unconfigured_group.append((entities, None))
+                unconfigured_group.extend(entities)
 
-        groups.extend(unconfigured_group) #unconfigured_group must be at the end
+        groups.append((unconfigured_group, None)) # Unconfigured_group must be at the end
 
         btc['groups'] = groups
-        btc['colspan'] = colspan + 1 # add one because of 'Unlink' column
+        btc['colspan'] = colspan + 1 # Add one because of 'Unlink' column
 
         return self._render(btc)
 
