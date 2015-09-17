@@ -2,21 +2,21 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i "tests/*" -i "migrations/*"
+# > django-admin.py makemessages -l fr -i "tests/*"
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-06 23:11+0200\n"
+"POT-Creation-Date: 2015-09-17 22:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 apps.py:40 models/activity.py:74
+#: apps.py:28 apps.py:40 models/activity.py:78
 #: templates/activities/portal.html:6
 msgid "Activities"
 msgstr "Activités"
@@ -30,15 +30,15 @@ msgstr "Portail des activités"
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: apps.py:87 buttons.py:48 constants.py:23
+#: apps.py:87 constants.py:23
 msgid "Add a meeting"
 msgstr "Ajouter un rendez-vous"
 
-#: apps.py:88 buttons.py:54
+#: apps.py:88
 msgid "Add a phone call"
 msgstr "Ajouter un appel téléphonique"
 
-#: apps.py:89 buttons.py:60 constants.py:22
+#: apps.py:89 constants.py:22
 msgid "Add a task"
 msgstr "Ajouter une tâche"
 
@@ -83,6 +83,22 @@ msgstr "Activités passées"
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
 
+#: buttons.py:38
+msgid "Add a related activity"
+msgstr "Ajouter une activité liée"
+
+#: buttons.py:50
+msgid "Add a related meeting"
+msgstr "Ajouter un rendez-vous lié"
+
+#: buttons.py:56
+msgid "Add a related phone call"
+msgstr "Ajouter un appel téléphonique lié"
+
+#: buttons.py:62
+msgid "Add a related task"
+msgstr "Ajouter une tâche liée"
+
 #: constants.py:24
 msgid "Add a phonecall"
 msgstr "Ajouter un appel téléphonique"
@@ -99,7 +115,7 @@ msgstr "Ajouter un salon"
 msgid "Add a demo"
 msgstr "Ajouter une démo"
 
-#: forms/activity.py:58 forms/activity_type.py:151 forms/lv_import.py:569
+#: forms/activity.py:58 forms/activity_type.py:157 forms/lv_import.py:569
 msgid "Type"
 msgstr "Type"
 
@@ -262,15 +278,15 @@ msgstr "Ce type cause une erreur de contrainte"
 msgid "Sub-type is required."
 msgstr "Le sous-type est obligatoire"
 
-#: forms/activity_type.py:145
+#: forms/activity_type.py:151
 msgid "The type of an indisponibility cannot be changed."
 msgstr "Le type d'une indisponibilité ne peut pas être modifié."
 
-#: forms/activity_type.py:163
+#: forms/activity_type.py:169
 msgid "Beware !"
 msgstr "Attention !"
 
-#: forms/activity_type.py:165
+#: forms/activity_type.py:171
 #, python-format
 msgid ""
 "The type of %s activity cannot be changed because it is an indisponibility."
@@ -425,46 +441,46 @@ msgstr "Bilan"
 msgid "Activity place"
 msgstr "Lieu de l'activité"
 
-#: models/activity.py:49
+#: models/activity.py:51
 msgid "Duration (in hour)"
 msgstr "Durée (en heures)"
 
-#: models/activity.py:50
+#: models/activity.py:52
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: models/activity.py:53
+#: models/activity.py:55
 msgid "Activity sub-type"
 msgstr "Sous-type d'activité"
 
-#: models/activity.py:56
+#: models/activity.py:58
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:57 models/calendar.py:45
+#: models/activity.py:61 models/calendar.py:45
 #: templates/activities/calendar.html:4
 #: templates/activities/templatetags/block_related_calendar.html:12
 #: templates/activities/templatetags/block_user_calendars.html:8
 msgid "Calendars"
 msgstr "Calendriers"
 
-#: models/activity.py:60
+#: models/activity.py:64
 msgid "All day?"
 msgstr "Jour entier ?"
 
-#: models/activity.py:61
+#: models/activity.py:65
 msgid "Busy?"
 msgstr "Occupé ?"
 
-#: models/activity.py:63
+#: models/activity.py:67
 msgid "Floating type"
 msgstr "Type flottant"
 
-#: models/activity.py:68
+#: models/activity.py:72
 msgid "Add an activity"
 msgstr "Ajouter une activité"
 
-#: models/activity.py:73
+#: models/activity.py:77
 msgid "Activity"
 msgstr "Activité"
 
