@@ -38,7 +38,7 @@ class AbstractProduct(CremeEntity):
     code              = IntegerField(_(u'Code'), default=0)
     description       = CharField(_(u'Description'), max_length=200)
     unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
-    unit              = CharField(_(u'Unit'), max_length=100, blank=True)
+    unit              = CharField(_(u'Unit'), max_length=100, blank=True).set_tags(optional=True)
     quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True) \
                                     .set_tags(optional=True)
     weight            = DecimalField(_(u'Weight'), max_digits=8, decimal_places=2,
