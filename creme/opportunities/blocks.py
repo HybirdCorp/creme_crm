@@ -126,7 +126,8 @@ class ResponsiblesBlock(_LinkedStuffBlock):
         return entity.get_responsibles().select_related('civility')
 
 
-class TargettingOpportunitiesBlock(_LinkedStuffBlock):
+#class TargettingOpportunitiesBlock(_LinkedStuffBlock):
+class TargettingOpportunitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
     dependencies  = (Relation, Opportunity)
     relation_type_deps = (REL_OBJ_TARGETS, )
@@ -136,11 +137,30 @@ class TargettingOpportunitiesBlock(_LinkedStuffBlock):
 
     _ct = _get_ct(Opportunity)
 
-    def _get_queryset(self, entity):
-        #TODO: filter deleted ??
-        return Opportunity.objects.filter(relations__object_entity=entity.id,
-                                          relations__type=REL_SUB_TARGETS,
-                                         )
+#    def _get_queryset(self, entity):
+#        #todo: filter deleted ??
+#        return Opportunity.objects.filter(relations__object_entity=entity.id,
+#                                          relations__type=REL_SUB_TARGETS,
+#                                         )
+    def detailview_display(self, context):
+        entity = context['object']
+        is_hidden = context['fields_configs'].get_4_model(Opportunity).is_fieldname_hidden
+
+        return self._render(self.get_block_template_context(
+                                context,
+                                # TODO: filter deleted ??
+                                Opportunity.objects.filter(relations__object_entity=entity.id,
+                                                           relations__type=REL_SUB_TARGETS,
+                                                          ),
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                predicate_id=self.relation_type_deps[0],
+                                ct=self._ct,
+                                hidden_fields={fname
+                                                for fname in ('estimated_sales', 'made_sales')
+                                                    if is_hidden(fname)
+                                              },
+                               )
+                           )
 
 
 class OppTotalBlock(SimpleBlock):
