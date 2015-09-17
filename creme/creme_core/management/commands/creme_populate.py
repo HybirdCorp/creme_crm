@@ -45,14 +45,16 @@ def _checked_app_label(app_label, app_labels):
 class BasePopulator(object):
     dependencies = [] #eg ['appname1', 'appname2']
 
-    def __init__(self, verbosity, app, all_apps, options):
+    def __init__(self, verbosity, app, all_apps, options, stdout, style):
         self.verbosity = verbosity
         self.app = app
         self.options = options
+        self.stdout = stdout
+        self.style  = style
         self.build_dependencies(all_apps)
 
     def __repr__(self):
-        return '<Populator(%s)>' % (self.app)
+        return '<Populator(%s)>' % self.app
 
     def build_dependencies(self, apps_set):
         deps = []
@@ -61,7 +63,9 @@ class BasePopulator(object):
             try:
                 deps.append(_checked_app_label(dep, apps_set))
             except CommandError as e:
-                self.stdout.write('BEWARE: ignored dependencies "%s", %s' % (dep, e))
+                self.stdout.write('BEWARE: ignored dependencies "%s", %s' % (dep, e),
+                                  self.style.NOTICE,
+                                 )
 
         self.dependencies = deps
 
@@ -107,7 +111,7 @@ class Command(BaseCommand):
                 try:
                     populator = self._get_populate_module(app) \
                                     .populate \
-                                    .Populator(verbosity, app, all_apps, options)
+                                    .Populator(verbosity, app, all_apps, options, self.stdout, self.style)
                 except ImportError as e:
                     if verbosity >= 1:
                         self.stdout.write('disable populate for "%s": %s' % (app, e))

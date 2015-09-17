@@ -209,6 +209,8 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         self.populator = Populator(verbosity=3, app='geolocation',
                                    all_apps=frozenset(('creme_core', 'persons')),
                                    options={'verbosity': 3},
+                                   stdout=None, # TODO: fake stdout ?
+                                   style=None, #TODO: fake style ?
                                   )
 
     def assertTown(self, town, **kwargs):

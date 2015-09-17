@@ -19,7 +19,7 @@
 ################################################################################
 
 from decimal import Decimal
-import logging
+#import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -32,7 +32,7 @@ from .models import *
 from .setting_keys import block_opening_key, block_showempty_key, currency_symbol_key
 from .utils import create_if_needed
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -49,7 +49,7 @@ class Populator(BasePopulator):
 
         User = get_user_model()
 
-        #TODO: if not already_populated  ??
+        # TODO: if not already_populated  ??
         try:
             root = User.objects.get(pk=1)
         except User.DoesNotExist:
@@ -61,12 +61,17 @@ class Populator(BasePopulator):
             root.set_password(password)
             root.save()
 
-            logger.info('A super-user has been created with login="%(login)s" and password="%(password)s".' % {
-                            'login':    login,
-                            'password': password,
-                        })
+            if self.verbosity:
+                self.stdout.write('A super-user has been created with login="%(login)s"'
+                                  ' and password="%(password)s".' % {
+                                        'login':    login,
+                                        'password': password,
+                                    },
+                                  self.style.NOTICE,
+                                 )
         else:
-            #User created by 'syncdb' is a staff user, which is annoying when there is only one user (he cannot own any entity)
+            # TODO: useless with django 1.8 ??
+            # User created by 'syncdb' is a staff user, which is annoying when there is only one user (he cannot own any entity)
             if root.is_staff and User.objects.count() == 1:
                 root.is_staff = False
                 root.save()
