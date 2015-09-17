@@ -49,12 +49,18 @@ class EventType(CremeModel):
 class AbstractEvent(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
     type        = ForeignKey(EventType, verbose_name=_(u'Type'), on_delete=PROTECT)
-    description = TextField(_(u'Description'), blank=True)
-    place       = CharField(pgettext_lazy('events', u'Place'), max_length=100, blank=True)
+    description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
+    place       = CharField(pgettext_lazy('events', u'Place'), max_length=100,
+                            blank=True,
+                           ).set_tags(optional=True)
     start_date  = DateTimeField(_(u'Start date'))
-    end_date    = DateTimeField(_(u'End date'), blank=True, null=True)
-    budget      = DecimalField(_(u'Budget (€)'), max_digits=10, decimal_places=2, blank=True, null=True)
-    final_cost  = DecimalField(_(u'Final cost (€)'), max_digits=10, decimal_places=2, blank=True, null=True)
+    end_date    = DateTimeField(_(u'End date'), blank=True, null=True).set_tags(optional=True)
+    budget      = DecimalField(_(u'Budget (€)'), max_digits=10, decimal_places=2,
+                               blank=True, null=True,
+                              ).set_tags(optional=True)
+    final_cost  = DecimalField(_(u'Final cost (€)'), max_digits=10, decimal_places=2,
+                               blank=True, null=True,
+                              ).set_tags(optional=True)
 
     creation_label = _('Add an event')
 
