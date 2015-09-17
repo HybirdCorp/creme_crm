@@ -41,8 +41,8 @@ class AbstractService(CremeEntity):
     sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
                                    on_delete=PROTECT,
                                   )
-    countable         = BooleanField(_(u'Countable'), default=False)
-    unit              = CharField(_(u'Unit'), max_length=100, blank=True)
+    countable         = BooleanField(_(u'Countable'), default=False).set_tags(optional=True)
+    unit              = CharField(_(u'Unit'), max_length=100, blank=True).set_tags(optional=True)
     quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True) \
                                     .set_tags(optional=True)
     unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
