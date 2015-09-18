@@ -24,8 +24,9 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models.block import (UserRole, BlockDetailviewLocation,
-        BlockPortalLocation, BlockMypageLocation,
+from creme.creme_core.gui import block_registry
+from creme.creme_core.models.block import (CremeEntity, UserRole,
+        BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
 from creme.creme_core.registry import creme_registry, NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
@@ -39,10 +40,22 @@ from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLoca
         CustomBlockConfigItemCreateForm, CustomBlockConfigItemEditForm)
 
 
+def _get_configurable_ctype(ctype_id):
+    ctype = get_ct_or_404(ctype_id)
+    model = ctype.model_class()
+
+    if not issubclass(model, CremeEntity):
+        raise Http404('This model is not a CremeEntity.')
+
+    if block_registry.is_model_invalid(model):
+        raise Http404('This model cannot have a detailview configuration.')
+
+    return ctype
+
 @login_required
 @permission_required('creme_core.can_admin')
 def add_detailview(request, ct_id):
-    ctype = get_ct_or_404(ct_id)
+    ctype = _get_configurable_ctype(ct_id)
 
     return add_model_with_popup(request, BlockDetailviewLocationsAddForm,
                                 title=_(u'New block configuration for «%s»') % ctype,
@@ -100,7 +113,7 @@ def edit_detailview(request, ct_id, role):
     ct_id = int(ct_id)
 
     if ct_id:
-        ct = ContentType.objects.get_for_id(ct_id)
+        ct = _get_configurable_ctype(ct_id)
 
         if superuser:
             title = _(u'Edit configuration of super-users for «%s»') % ct

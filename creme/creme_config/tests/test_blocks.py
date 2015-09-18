@@ -9,7 +9,8 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeAddress as Address, FakeImage as Image,
-            FakeActivity as Activity, FakeEmailCampaign as EmailCampaign)
+            FakeActivity as Activity, FakeEmailCampaign as EmailCampaign, FakeInvoiceLine)
+    from creme.creme_core.registry import creme_registry
     from creme.creme_core.blocks import (relations_block, properties_block,
             history_block, customfields_block)
     from creme.creme_core.constants import MODELBLOCK_ID
@@ -368,6 +369,17 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertNotIn((role1.id, role1.name), choices)
         self.assertNotIn(('', u'*%s*' % _('Superuser')), choices)
 
+    def test_add_detailview04(self):
+        "Un-configurable models"
+        get_ct = ContentType.objects.get_for_model
+
+        build_url = self._build_adddetail_url
+        self.assertGET404(build_url(get_ct(Address))) # Not a CremeEntity
+
+        model = FakeInvoiceLine
+        self.assertIn(model, creme_registry.iter_entity_models())
+        self.assertGET404(build_url(get_ct(model)))
+
     def _aux_test_edit_detailview(self, role=None, superuser=False):
         model = Contact
         ct = ContentType.objects.get_for_model(model)
@@ -655,6 +667,13 @@ class BlocksConfigTestCase(CremeTestCase):
         choices = [block_id for block_id, block_name in top_field.choices]
         self.assertIn(rtype_block_id,    choices)
         self.assertIn(instance_block_id, choices)
+
+    def test_edit_detailview08(self):
+        "Invalid models"
+        build_url = self._build_editdetail_url
+        get_ct = ContentType.objects.get_for_model
+        self.assertGET404(build_url(get_ct(Address)))
+        self.assertGET404(build_url(get_ct(FakeInvoiceLine)))
 
     def test_delete_detailview01(self):
         "Can not delete default conf"
@@ -1350,11 +1369,18 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertDoesNotExist(loc)
 
     def test_add_customblock(self):
-        url = '/creme_config/blocks/custom/add/'
-        self.assertGET200(url)
-
-        ct = ContentType.objects.get_for_model(Contact)
+        get_ct = ContentType.objects.get_for_model
+        ct = get_ct(Contact)
         self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=ct))
+
+        url = '/creme_config/blocks/custom/add/'
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            ctypes = response.context['form'].fields['ctype'].ctypes
+
+        self.assertIn(ct, ctypes)
+        self.assertNotIn(get_ct(FakeInvoiceLine), ctypes)
 
         name = 'Regular info'
         self.assertNoFormError(self.client.post(url,

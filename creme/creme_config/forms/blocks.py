@@ -20,6 +20,7 @@
 
 from itertools import chain
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
 from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -400,6 +401,16 @@ class CustomBlockConfigItemCreateForm(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = CustomBlockConfigItem
+
+    def __init__(self, *args, **kwargs):
+        super(CustomBlockConfigItemCreateForm, self).__init__(*args, **kwargs)
+        # TODO: add an 'exclude' argument in creme_entity_content_types() ??
+        get_for_model = ContentType.objects.get_for_model
+        is_invalid = block_registry.is_model_invalid
+        self.fields['ctype'].ctypes = (get_for_model(model)
+                                           for model in creme_registry.iter_entity_models()
+                                              if not is_invalid(model)
+                                      )
 
     def save(self, *args, **kwargs):
         instance = self.instance

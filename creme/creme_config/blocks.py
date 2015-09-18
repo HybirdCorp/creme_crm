@@ -26,7 +26,7 @@ from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.setting_key import setting_key_registry
-from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
+from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, block_registry
 from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
         CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig, CustomField,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
@@ -306,7 +306,15 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
                                          # with role_arg == role.id or 'superuser'
 
         # TODO: factorise with SearchConfigBlock ?
-        ctypes = [_ContentTypeWrapper(ctype) for ctype in creme_entity_content_types()]
+        # TODO: factorise with CustomBlockConfigItemCreateForm , add a method in block_registry ?
+#        ctypes = [_ContentTypeWrapper(ctype) for ctype in creme_entity_content_types()]
+        get_ct = ContentType.objects.get_for_model
+        is_invalid = block_registry.is_model_invalid
+        ctypes = [_ContentTypeWrapper(get_ct(model))
+                      for model in creme_registry.iter_entity_models()
+                          if not is_invalid(model)
+                 ]
+
         sort_key = collator.sort_key
         ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
 
