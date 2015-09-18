@@ -25,10 +25,10 @@ import sys
 from json import dumps as json_dump
 from decimal import Decimal
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 #from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
-from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 

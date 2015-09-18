@@ -565,6 +565,7 @@ class _BlockRegistry(object):
         self._blocks = {}
         self._object_blocks = {}
         self._instance_block_classes = {}
+        self._invalid_models = set()
 
     def register(self, *blocks):
         setdefault = self._blocks.setdefault
@@ -573,14 +574,25 @@ class _BlockRegistry(object):
             if setdefault(block.id_, block) is not block:
                 raise _BlockRegistry.RegistrationError("Duplicated block's id: %s" % block.id_)
 
-    def register_4_instance(self, *block_classes): #TODO: factorise
+    def register_4_instance(self, *block_classes): # TODO: factorise
         setdefault = self._instance_block_classes.setdefault
 
         for block_class in block_classes:
             if setdefault(block_class.id_, block_class) is not block_class:
                 raise _BlockRegistry.RegistrationError("Duplicated block's id: %s" % block_class.id_)
 
-    def register_4_model(self, model, block): #TODO: had an 'overload' arg ??
+    def register_invalid_models(self, *models):
+        """Register some models which cannot have a blocks configuration for
+        their detailviews (eg: they have no detailview, or they are not 'classical' ones).
+        @param models Classes inheriting CremeEntity.
+        """
+        add = self._invalid_models.add
+
+        for model in models:
+            assert issubclass(model, CremeEntity)
+            add(model)
+
+    def register_4_model(self, model, block): # TODO: had an 'overload' arg ??
 #        ct = ContentType.objects.get_for_model(model)
 #        block.id_ = self._generate_modelblock_id(ct)
         block.id_ = self._generate_modelblock_id(model)
@@ -751,6 +763,10 @@ class _BlockRegistry(object):
             if hasattr(block, method_name) and \
                (not block.target_apps or app_name in block.target_apps):
                 yield block
+
+    def is_model_invalid(self, model):
+        "See register_invalid_model"
+        return model in self._invalid_models
 
 
 block_registry = _BlockRegistry()

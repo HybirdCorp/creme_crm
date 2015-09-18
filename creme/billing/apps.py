@@ -64,6 +64,7 @@ class BillingConfig(CremeAppConfig):
             block_registry.register_4_model(model, BillingBlock())
 
         block_registry.register(*block_list)
+        block_registry.register_invalid_models(self.ProductLine, self.ServiceLine)
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import PaymentInformation
