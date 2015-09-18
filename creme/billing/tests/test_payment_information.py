@@ -21,9 +21,12 @@ class PaymentInformationTestCase(_BillingTestCase):
         #_BillingTestCase.setUp(self)
         self.login()
 
+    def _build_add_url(self, orga):
+        return '/billing/payment_information/add/%s' % orga.id
+
     def test_createview01(self):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
-        url = '/billing/payment_information/add/%s' % organisation.id
+        url = self._build_add_url(organisation)
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'user': self.user.pk,
@@ -43,7 +46,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
         first_pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1", is_default=True)
 
-        url = '/billing/payment_information/add/%s' % organisation.id
+        url = self._build_add_url(organisation)
         self.assertGET200(url)
 
         response = self.client.post(url, data={'user':       self.user.pk,
@@ -60,6 +63,10 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         second_pi.delete()
         self.assertIs(True, first_pi.is_default)
+
+    def test_createview03(self):
+        "Related is not an organisation"
+        self.assertGET404(self._build_add_url(self.user.linked_contact))
 
     def test_editview01(self):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")

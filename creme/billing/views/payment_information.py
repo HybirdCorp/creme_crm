@@ -25,16 +25,18 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import jsonify
-from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
+
+from creme.persons import get_organisation_model
 
 from creme.billing import (get_invoice_model, get_quote_model,
         get_sales_order_model, get_credit_note_model, get_template_base_model)
 #from creme.billing.models import (PaymentInformation, Invoice, Quote, SalesOrder,
 #        CreditNote, TemplateBase) #Base
-from creme.billing.models import PaymentInformation
 from creme.billing.forms.payment_information import (PaymentInformationCreateForm,
         PaymentInformationEditForm)
+from creme.billing.models import PaymentInformation
 
 
 @login_required
@@ -42,6 +44,7 @@ from creme.billing.forms.payment_information import (PaymentInformationCreateFor
 def add(request, entity_id):
     return add_to_entity(request, entity_id, PaymentInformationCreateForm,
                          _(u"New payment information in the organisation «%s»"),
+                         entity_class=get_organisation_model(),
                          submit_label=_('Save the payment information'),
                         )
 
