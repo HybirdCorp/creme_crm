@@ -648,6 +648,17 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
+                name='FakeFileComponent',
+                fields=[
+                    ('filedata', models.FileField(null=True, upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File', blank=True)),
+                ],
+                options={
+                    'verbose_name': 'Test File component',
+                    'verbose_name_plural': 'Test File components',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
                 name='FakeImageCategory',
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),

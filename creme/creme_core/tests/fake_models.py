@@ -86,6 +86,18 @@ else:
 #            return "/documents/document/edit/%s" % self.id
 
 
+    class FakeFileComponent(CremeModel):
+        filedata = models.FileField(_(u'File'), max_length=100,
+                                    upload_to='upload/creme_core-tests',
+                                    null=True, blank=True,
+                                   )
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = u'Test File component'
+            verbose_name_plural = u'Test File components'
+
+
     class FakeImageCategory(CremeModel):
         name = models.CharField(_(u'Name'), max_length=100)
 

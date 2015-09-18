@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from os.path import exists
     from decimal import Decimal
     from functools import partial
 
     #from django.contrib.auth.models import User
+    from django.core.files.base import ContentFile
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.deletion import ProtectedError
     from django.utils.timezone import now
@@ -13,7 +15,7 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeCivility as Civility,
-            FakeImage as Image, FakeImageCategory as MediaCategory)
+            FakeImage as Image, FakeImageCategory as MediaCategory, FakeFileComponent)
     from creme.creme_core.models import *
     from creme.creme_core.core.function_field import (FunctionField,
             FunctionFieldResult, FunctionFieldResultsList)
@@ -289,6 +291,20 @@ class EntityTestCase(CremeTestCase):
 
         self.assertRaises(ProtectedError, ce1.delete)
         self.assertRaises(ProtectedError, ce2.delete)
+
+    def test_delete_clean_filefield01(self):
+        "Deleting a model with a filefield also deletes related file"
+        embed_doc = FakeFileComponent.objects.create()
+        embed_doc.filedata.save("salade.txt", ContentFile("salade"), save=True)
+        filepath = embed_doc.filedata.path
+        self.assertTrue(exists(filepath))
+        self.assertNoException(embed_doc.delete)
+        self.assertFalse(exists(filepath))
+
+    def test_delete_clean_filefield02(self):
+        "Handle empty filefield + model clean & deletion"
+        embed_doc = FakeFileComponent.objects.create()
+        self.assertNoException(embed_doc.delete)
 
     def test_functionfields(self):
         with self.assertNoException():

@@ -87,7 +87,7 @@ class CremeModel(Model):
 #                raise
         file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
                         for field in chain(self._meta.fields, self._meta.many_to_many)
-                            if isinstance(field, FileField)
+                            if isinstance(field, FileField) and getattr(self, field.name)
                       ] if self._delete_files else None
 
         try:
