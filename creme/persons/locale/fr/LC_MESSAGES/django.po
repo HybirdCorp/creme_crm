@@ -2,14 +2,14 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i "tests/*" -i "migrations/*"
+# > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-07 10:51+0200\n"
+"POT-Creation-Date: 2015-09-18 18:33+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -104,45 +104,47 @@ msgstr "Transformer en fournisseur"
 msgid "Add a related contact"
 msgstr "Ajouter un contact lié"
 
-#: forms/base.py:44 forms/lv_import.py:88 forms/lv_import.py:127
-#: forms/merge.py:136 models/contact.py:81 models/organisation.py:78
+#: forms/address.py:65 forms/base.py:44 forms/base.py:105
+#: forms/lv_import.py:88 forms/lv_import.py:127 forms/merge.py:106
+#: forms/merge.py:148 models/contact.py:83 models/organisation.py:77
 #: templates/persons/templatetags/block_address.html:18
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:45 forms/lv_import.py:89 forms/lv_import.py:128
-#: forms/merge.py:137 models/contact.py:87 models/organisation.py:84
+#: forms/address.py:70 forms/base.py:45 forms/base.py:106
+#: forms/lv_import.py:89 forms/lv_import.py:128 forms/merge.py:107
+#: forms/merge.py:149 models/contact.py:89 models/organisation.py:83
 #: templates/persons/templatetags/block_address.html:19
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:38 models/contact.py:96
-#: templates/persons/templatetags/block_contact.html:63
+#: forms/contact.py:42 models/contact.py:98
+#: templates/persons/templatetags/block_contact.html:68
 msgid "Birthday"
 msgstr "Anniversaire"
 
-#: forms/contact.py:39
+#: forms/contact.py:43
 msgid "Image"
 msgstr "Image"
 
-#: forms/contact.py:41
+#: forms/contact.py:45
 #: templates/persons/templatetags/block_orga_coordinates.html:5
 msgid "Coordinates"
 msgstr "Coordonnées"
 
-#: forms/contact.py:56
+#: forms/contact.py:60
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
-#: forms/contact.py:56
+#: forms/contact.py:60
 msgid "No one"
 msgstr "Aucune"
 
-#: forms/contact.py:70
+#: forms/contact.py:74
 msgid "Relation type"
 msgstr "Type de relation"
 
-#: forms/contact.py:76
+#: forms/contact.py:80
 msgid "Status in the organisation"
 msgstr "Statut dans la société"
 
@@ -150,47 +152,47 @@ msgstr "Statut dans la société"
 msgid "Can not merge 2 Contacts which represent some users."
 msgstr "Impossible de fusionner 2 Contacts représentant des utilisateurs"
 
-#: forms/organisation.py:32
+#: forms/organisation.py:34
 #: templates/persons/templatetags/block_contact.html:14
 #: templates/persons/templatetags/block_organisation.html:14
 msgid "Creation date"
 msgstr "Date de création"
 
-#: forms/organisation.py:33 models/organisation.py:94
+#: forms/organisation.py:35 models/organisation.py:93
 #: templates/persons/templatetags/block_organisation.html:100
 #: templates/persons/view_organisation.html:7
 msgid "Logo"
 msgstr "Logo"
 
-#: forms/quick.py:36 models/organisation.py:107
+#: forms/quick.py:39 models/organisation.py:106
 msgid "Organisation"
 msgstr "Société"
 
-#: forms/quick.py:37
+#: forms/quick.py:40
 msgid "If no organisation is found, a new one will be created."
 msgstr "Si aucune société ne porte ce nom, une fiche société sera aussi créée."
 
-#: forms/quick.py:41
+#: forms/quick.py:44
 msgid "You are not allowed to create an Organisation."
 msgstr "Vous n'êtes pas autorisé à créer une Société."
 
-#: forms/quick.py:42
+#: forms/quick.py:45
 msgid "No linkable Organisation found."
 msgstr "Aucune Société liable n'a été trouvée."
 
-#: forms/quick.py:43
+#: forms/quick.py:46
 msgid "Several Organisations with this name have been found."
 msgstr "Plusieurs Sociétés avec ce nom ont été trouvées."
 
-#: forms/quick.py:63
+#: forms/quick.py:66
 msgid "You are not allowed to link with a Contact"
 msgstr "Vous n'êtes pas autorisé à lier avec un Contact"
 
-#: forms/quick.py:64
+#: forms/quick.py:67
 msgid "You are not allowed to link with an Organisation"
 msgstr "Vous n'êtes pas autorisé à lier avec une Société"
 
-#: forms/quick.py:66
+#: forms/quick.py:69
 msgid "Enter the name of an existing Organisation."
 msgstr "Entrez le nom d'une société existante"
 
@@ -241,8 +243,8 @@ msgstr "Nom"
 msgid "First name"
 msgstr "Prénom"
 
-#: models/contact.py:57 models/organisation.py:90
-#: templates/persons/templatetags/block_contact.html:73
+#: models/contact.py:57 models/organisation.py:89
+#: templates/persons/templatetags/block_contact.html:78
 #: templates/persons/templatetags/block_organisation.html:90
 msgid "Description"
 msgstr "Description"
@@ -267,146 +269,150 @@ msgstr "Fax"
 msgid "Position"
 msgstr "Fonction"
 
-#: models/contact.py:69 models/other_models.py:66
+#: models/contact.py:69 templates/persons/templatetags/block_contact.html:49
+msgid "Detailed position"
+msgstr "Fonction détaillée"
+
+#: models/contact.py:72 models/other_models.py:66
 #: templates/persons/templatetags/block_organisation.html:39
 msgid "Line of business"
 msgstr "Secteur d'activités"
 
-#: models/contact.py:72 models/organisation.py:50
+#: models/contact.py:75 models/organisation.py:50
 #: templates/persons/templatetags/block_contact_coordinates.html:29
 #: templates/persons/templatetags/block_orga_coordinates.html:24
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/contact.py:74 models/organisation.py:52
+#: models/contact.py:76 models/organisation.py:51
 #: templates/persons/templatetags/block_contact_coordinates.html:34
 #: templates/persons/templatetags/block_orga_coordinates.html:29
 msgid "Web Site"
 msgstr "Site Web"
 
-#: models/contact.py:76
+#: models/contact.py:78
 msgid "Spoken language(s)"
 msgstr "Langue(s) parlée(s)"
 
-#: models/contact.py:91 templates/persons/templatetags/block_contact.html:55
+#: models/contact.py:93 templates/persons/templatetags/block_contact.html:60
 msgid "Related user"
 msgstr "Utilisateur associé"
 
-#: models/contact.py:95
+#: models/contact.py:97
 msgctxt "persons-is_user"
 msgid "None"
 msgstr "Aucun"
 
-#: models/contact.py:97
+#: models/contact.py:99
 msgid "Photograph"
 msgstr "Photo du contact"
 
-#: models/contact.py:106
+#: models/contact.py:108
 msgid "Add a contact"
 msgstr "Ajouter un contact"
 
-#: models/contact.py:112 templates/persons/portal.html:5
+#: models/contact.py:114 templates/persons/portal.html:5
 msgid "Contact"
 msgstr "Contact"
 
-#: models/contact.py:113
+#: models/contact.py:115
 msgid "Contacts"
 msgstr "Contacts"
 
-#: models/contact.py:120
+#: models/contact.py:122
 #, python-format
 msgid "%(civility)s %(first_name)s %(last_name)s"
 msgstr "%(civility)s %(first_name)s %(last_name)s"
 
-#: models/contact.py:128
+#: models/contact.py:130
 #, python-format
 msgid "%(first_name)s %(last_name)s"
 msgstr "%(first_name)s %(last_name)s"
 
-#: models/contact.py:138
+#: models/contact.py:140
 msgid "A user is associated with this contact."
 msgstr "Un utilisateur est relié à ce contact."
 
-#: models/contact.py:145
+#: models/contact.py:147
 msgid "This Contact is related to a user and must have a first name."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 
-#: models/contact.py:148
+#: models/contact.py:150
 msgid "This Contact is related to a user and must have an e-mail address."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir une adresse e-mail."
 
-#: models/contact.py:239 populate.py:144
+#: models/contact.py:241 populate.py:144
 msgid "N/A"
 msgstr "NC"
 
-#: models/contact.py:240
+#: models/contact.py:242
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"
 
-#: models/organisation.py:54
+#: models/organisation.py:53
 #: templates/persons/templatetags/block_contact.html:39
 msgid "Sector"
 msgstr "Secteur"
 
-#: models/organisation.py:57
+#: models/organisation.py:56
 #: templates/persons/templatetags/block_organisation.html:44
 msgid "Capital"
 msgstr "Capital"
 
-#: models/organisation.py:59
+#: models/organisation.py:58
 #: templates/persons/templatetags/block_organisation.html:49
 msgid "SIREN"
 msgstr "SIREN"
 
-#: models/organisation.py:61
+#: models/organisation.py:60
 #: templates/persons/templatetags/block_organisation.html:54
 msgid "NAF code"
 msgstr "Code NAF"
 
-#: models/organisation.py:63
+#: models/organisation.py:62
 #: templates/persons/templatetags/block_organisation.html:59
 msgid "SIRET"
 msgstr "SIRET"
 
-#: models/organisation.py:65
+#: models/organisation.py:64
 #: templates/persons/templatetags/block_organisation.html:64
 msgid "RCS/RM"
 msgstr "RCS/RM"
 
-#: models/organisation.py:67
+#: models/organisation.py:66
 msgid "VAT number"
 msgstr "Numéro TVA"
 
-#: models/organisation.py:69
+#: models/organisation.py:68
 #: templates/persons/templatetags/block_organisation.html:74
 msgid "Subject to VAT"
 msgstr "Assujetti à la TVA"
 
-#: models/organisation.py:70 models/other_models.py:79
+#: models/organisation.py:69 models/other_models.py:79
 #: templates/persons/templatetags/block_organisation.html:34
 msgid "Legal form"
 msgstr "Forme juridique"
 
-#: models/organisation.py:73
+#: models/organisation.py:72
 #: templates/persons/templatetags/block_organisation.html:29
 msgid "Staff size"
 msgstr "Effectif"
 
-#: models/organisation.py:88
+#: models/organisation.py:87
 #: templates/persons/templatetags/block_organisation.html:85
 msgid "Annual revenue"
 msgstr "Revenu annuel"
 
-#: models/organisation.py:91
+#: models/organisation.py:90
 #: templates/persons/templatetags/block_organisation.html:95
 msgid "Date of creation of the organisation"
 msgstr "Date de création de la société"
 
-#: models/organisation.py:101
+#: models/organisation.py:100
 msgid "Add an organisation"
 msgstr "Ajouter une société"
 
-#: models/organisation.py:108
+#: models/organisation.py:107
 msgid "Organisations"
 msgstr "Sociétés"
 
@@ -630,7 +636,7 @@ msgstr "Coordonnées de la société"
 msgid "Contact information"
 msgstr "Informations sur le contact"
 
-#: populate.py:280
+#: populate.py:281
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
@@ -684,12 +690,12 @@ msgstr "Informations"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: templates/persons/templatetags/block_contact.html:49
+#: templates/persons/templatetags/block_contact.html:54
 #: templates/persons/templatetags/block_organisation.html:79
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
-#: templates/persons/templatetags/block_contact.html:68
+#: templates/persons/templatetags/block_contact.html:73
 msgid "Photo"
 msgstr "Photo"
 
@@ -850,7 +856,7 @@ msgstr "Ajouter l'adresse de livraison pour «%s»"
 msgid "Address for «%s»"
 msgstr "Adresse pour «%s»"
 
-#: views/contact.py:39
+#: views/contact.py:38 views/contact.py:47
 msgid "Save the contact"
 msgstr "Enregistrer le contact"
 

@@ -66,6 +66,9 @@ class AbstractContact(CremeEntity):
     position    = ForeignKey(Position, verbose_name=_(u'Position'),
                              blank=True, null=True, on_delete=SET_NULL,
                             ).set_tags(optional=True)
+    full_position = CharField(_(u'Detailed position'), max_length=500,
+                              blank=True, null=True,
+                             ).set_tags(optional=True)
     sector      = ForeignKey(Sector, verbose_name=_(u'Line of business'),
                              blank=True, null=True, on_delete=SET_NULL,
                             ).set_tags(optional=True)

@@ -269,6 +269,7 @@ class Populator(BasePopulator):
                                                 build_cell(Contact, 'last_name'),
                                                 build_cell(Contact, 'sector'),
                                                 build_cell(Contact, 'position'),
+                                                build_cell(Contact, 'full_position'),
                                                 build_cell(Contact, 'user'),
                                                 build_cell(Contact, 'is_user'),
                                                 build_cell(Contact, 'birthday'),

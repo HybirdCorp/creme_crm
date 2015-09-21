@@ -48,6 +48,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             'mobile_colselect':      0,
             'fax_colselect':         0,
             'position_colselect':    0,
+            'full_position_colselect': 0,
             'sector_colselect':      0,
             'email_colselect':       0,
             'url_site_colselect':    0,
