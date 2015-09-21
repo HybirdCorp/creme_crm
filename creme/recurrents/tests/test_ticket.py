@@ -272,7 +272,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(1, len(new_tickets))
 
         ticket = new_tickets[0]
-        self.assertEqual(u'%s %s #1' % (tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
+#        self.assertEqual(u'%s %s #1' % (tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
+        self.assertEqual(u'%s %s' % (tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
                          ticket.title
                         )
 

@@ -105,10 +105,14 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
             retr_ticket = response.context['object']
 
         self.assertIsInstance(retr_ticket, Ticket)
-        self.assertEqual(priority,     retr_ticket.priority)
-        self.assertEqual(criticity,    retr_ticket.criticity)
-        self.assertEqual(title,        retr_ticket.title)
-        self.assertEqual(description,  retr_ticket.description)
+        self.assertEqual(priority,    retr_ticket.priority)
+        self.assertEqual(criticity,   retr_ticket.criticity)
+        self.assertEqual(title,       retr_ticket.title)
+        self.assertEqual(description, retr_ticket.description)
+
+        self.assertEqual(u'#%s - %s' % (ticket.number, title),
+                         unicode(retr_ticket)
+                        )
 
     def test_detailview02(self):
         self.login()
@@ -127,11 +131,13 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         description = 'Test description'
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
+        number = 1024
         data = {'user':         self.user.pk,
                 'title':        title,
                 'description':  description,
                 'priority':     priority.id,
                 'criticity':    criticity.id,
+                'number':       number, # should not be used
                }
         response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
@@ -146,6 +152,9 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(criticity,    ticket.criticity)
         self.assertEqual(OPEN_PK,      ticket.status_id)
 
+        self.assertTrue(ticket.number)
+        self.assertNotEqual(number, ticket.number)
+
         self.assertFalse(ticket.closing_date)
         self.assertFalse(ticket.get_resolving_duration())
 
@@ -156,13 +165,33 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRedirects(response, ticket.get_absolute_url())
 
-        response = self.assertPOST200(url, follow=True, data=data)
-        self.assertFormError(response, 'form', 'title',
-                             _(u"%(model_name)s with this %(field_label)s already exists.") %  {
-                                    'model_name': _(u'Ticket'),
-                                    'field_label': _(u'Title'),
-                                }
-                            )
+#        response = self.assertPOST200(url, follow=True, data=data)
+#        self.assertFormError(response, 'form', 'title',
+#                             _(u"%(model_name)s with this %(field_label)s already exists.") %  {
+#                                    'model_name': _(u'Ticket'),
+#                                    'field_label': _(u'Title'),
+#                                }
+#                            )
+
+    def test_number(self):
+        user = self.login()
+
+        self.assertFalse(TicketNumber.objects.all())
+
+        create_ticket= partial(Ticket.objects.create, user=user,
+                               priority= Priority.objects.all()[0],
+                               criticity= Criticity.objects.all()[0],
+                              )
+        ticket1 = create_ticket(title='Test ticket #1')
+        numbers1 = TicketNumber.objects.all()
+        self.assertEqual(1, len(numbers1))
+        self.assertEqual(numbers1[0].id, ticket1.number)
+
+        ticket2 = create_ticket(title='Test ticket #2')
+        self.assertNotEqual(ticket1.number, ticket2.number)
+
+        numbers2 = TicketNumber.objects.all()
+        self.assertEqual(1, len(numbers2))
 
     def test_get_resolving_duration01(self):
         "Resolving duration witk CLOSED_PK + closing_date=None (eg: CSV import)"
@@ -328,23 +357,23 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRedirects(response, Ticket.get_lv_absolute_url())
 
     def test_clone01(self):
-        "Title remains unique"
-        user = self.login()
-        title = 'ticket'
-        ticket = Ticket.objects.create(user=user, title=title, description="d",
-                                       status=Status.objects.get(pk=OPEN_PK),
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
-        stack = [ticket]
-        stack_append = stack.append
-
-        for i in xrange(100):
-            clone = ticket.clone()
-            self.assertNotEqual(stack[-1].title, clone.title)
-            stack_append(clone)
-
-    def test_clone02(self):
+#        "Title remains unique"
+#        user = self.login()
+#        title = 'ticket'
+#        ticket = Ticket.objects.create(user=user, title=title, description="d",
+#                                       status=Status.objects.get(pk=OPEN_PK),
+#                                       priority=Priority.objects.all()[0],
+#                                       criticity=Criticity.objects.all()[0],
+#                                      )
+#        stack = [ticket]
+#        stack_append = stack.append
+#
+#        for i in xrange(100):
+#            clone = ticket.clone()
+#            self.assertNotEqual(stack[-1].title, clone.title)
+#            stack_append(clone)
+#
+#    def test_clone02(self):
         "The cloned ticket is open"
         user = self.login()
 
@@ -363,6 +392,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNotNone(ticket.closing_date)
 
         clone = ticket.clone()
+        self.assertEqual(ticket.title, clone.title)
         self.assertEqual(status_open, clone.status)
         self.assertIsNone(clone.closing_date)
 
@@ -509,37 +539,37 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(create_ticket(status=get_status(pk=CLOSED_PK)).get_html_attrs(context))
 
 
-@skipIfCustomTicket
-class TicketTestUniqueCase(CremeTransactionTestCase):
-    def test_unique_title(self):
-        self.populate('tickets')
-        self.login()
-
-        title       = 'Test ticket'
-        description = 'Test description %s'
-
-        with self.assertNoException():
-            Ticket.objects.create(user=self.user,
-                                  title=title,
-                                  description=description % 1,
-                                  priority=Priority.objects.all()[0],
-                                  criticity=Criticity.objects.all()[0],
-                                 )
-
-        try:
-            Ticket.objects.create(user=self.user,
-                                  title=title, # <====
-                                  description=description % 2,
-                                  priority=Priority.objects.all()[1],
-                                  criticity=Criticity.objects.all()[1],
-                                 )
-            transaction.commit()
-        except IntegrityError:
-            transaction.rollback()
-        else:
-            self.fail('IntegrityError not raised')
-
-        self.assertEqual(1, Ticket.objects.count())
+#@skipIfCustomTicket
+#class TicketTestUniqueCase(CremeTransactionTestCase):
+#    def test_unique_title(self):
+#        self.populate('tickets')
+#        self.login()
+#
+#        title       = 'Test ticket'
+#        description = 'Test description %s'
+#
+#        with self.assertNoException():
+#            Ticket.objects.create(user=self.user,
+#                                  title=title,
+#                                  description=description % 1,
+#                                  priority=Priority.objects.all()[0],
+#                                  criticity=Criticity.objects.all()[0],
+#                                 )
+#
+#        try:
+#            Ticket.objects.create(user=self.user,
+#                                  title=title, # <====
+#                                  description=description % 2,
+#                                  priority=Priority.objects.all()[1],
+#                                  criticity=Criticity.objects.all()[1],
+#                                 )
+#            transaction.commit()
+#        except IntegrityError:
+#            transaction.rollback()
+#        else:
+#            self.fail('IntegrityError not raised')
+#
+#        self.assertEqual(1, Ticket.objects.count())
 
 
 @skipIfCustomTicketTemplate

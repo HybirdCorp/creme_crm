@@ -68,7 +68,8 @@ class Populator(BasePopulator):
 
         create_hf = HeaderFilter.create
         create_hf(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket,
-                  cells_desc=[(EntityCellRegularField, {'name': 'title'}),
+                  cells_desc=[(EntityCellRegularField, {'name': 'number'}),
+                              (EntityCellRegularField, {'name': 'title'}),
                               (EntityCellRegularField, {'name': 'status'}),
                               (EntityCellRegularField, {'name': 'priority'}),
                               (EntityCellRegularField, {'name': 'criticity'}),
@@ -84,7 +85,11 @@ class Populator(BasePopulator):
                  )
 
 
-        SearchConfigItem.create_if_needed(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
+        SearchConfigItem.create_if_needed(Ticket,
+                                          ['title', 'number', 'description',
+                                           'status__name', 'priority__name', 'criticity__name',
+                                          ]
+                                         )
 
 
         if not already_populated:
