@@ -95,7 +95,9 @@ class ActivityTypeField(JSONField):
 
     def _create_widget(self):
         options = tuple((atype.pk, unicode(atype)) for atype in self.types)
-        options = ((None, self.empty_label),) + options
+
+        if len(options) > 1 or not self.required:
+            options = ((None, self.empty_label),) + options
 
         return ActivityTypeWidget(options, attrs={'reset': not self.required},)
 #        return ActivityTypeWidget(self._get_types_options(self._get_types_objects()),
