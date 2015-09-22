@@ -28,17 +28,23 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.models import Relation
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
+from creme.documents import get_folder_model, get_document_model
 from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS #DOCUMENTS_FROM_EMAILS_NAME
-from creme.documents.models import Document, Folder, FolderCategory
+from creme.documents.models import FolderCategory #Document, Folder
 
 from creme.crudity.backends.models import CrudityBackend
 from creme.crudity.inputs.base import CrudityInput
 from creme.crudity.inputs.email import CreateEmailInput
 from creme.crudity.models import History
 
+from . import get_entityemail_model
 from .blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
 from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
-from .models import EntityEmail
+#from .models import EntityEmail
+
+Folder      = get_folder_model()
+Document    = get_document_model()
+EntityEmail = get_entityemail_model()
 
 
 class EntityEmailBackend(CrudityBackend):

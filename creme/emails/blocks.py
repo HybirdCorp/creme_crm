@@ -27,9 +27,11 @@ from creme.creme_core.models import Relation #, CremeEntity
 from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
 #from creme.creme_core.utils import jsonify
 
-from creme.persons.models import Contact, Organisation
+from creme.documents import get_document_model
+#from creme.documents.models import Document
 
-from creme.documents.models import Document
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
 from creme.crudity.blocks import CrudityQuerysetBlock
 
@@ -40,6 +42,9 @@ from .constants import *
 from .models import EmailSignature, EmailRecipient, EmailSending, LightWeightEmail
 
 
+Document      = get_document_model()
+Contact       = get_contact_model()
+Organisation  = get_organisation_model()
 EmailCampaign = get_emailcampaign_model()
 EntityEmail   = get_entityemail_model()
 MailingList   = get_mailinglist_model()

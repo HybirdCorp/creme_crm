@@ -34,16 +34,24 @@ from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntity
 #from creme.creme_core.forms.widgets import TinyMCEEditor
 from creme.creme_core.forms.validators import validate_linkable_entities
 
-from creme.documents.models import Document
+from creme.documents import get_document_model
+#from creme.documents.models import Document
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
+from .. import get_entityemail_model, get_emailtemplate_model
 from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
-from ..models import EntityEmail, EmailTemplate
+#from ..models import EntityEmail, EmailTemplate
 from ..forms.utils import validate_images_in_html
 
 
 logger = logging.getLogger(__name__)
+Document      = get_document_model()
+Contact       = get_contact_model()
+Organisation  = get_organisation_model()
+EntityEmail   = get_entityemail_model()
+EmailTemplate = get_emailtemplate_model()
 
 
 class EntityEmailForm(CremeEntityForm):

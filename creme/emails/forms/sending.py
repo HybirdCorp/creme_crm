@@ -30,8 +30,9 @@ from django.utils.translation import ugettext_lazy as _ # ugettext
 from creme.creme_core.models import SettingValue
 from creme.creme_core.forms import CremeModelForm, CreatorEntityField, CremeDateTimeField
 
+from .. import get_emailtemplate_model
 from ..constants import MAIL_STATUS_NOTSENT, SETTING_EMAILCAMPAIGN_SENDER
-from ..models import EmailTemplate
+#from ..models import EmailTemplate
 from ..models.sending import (EmailSending, LightWeightEmail,
         SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED)
 
@@ -42,7 +43,8 @@ logger = logging.getLogger(__name__)
 class SendingCreateForm(CremeModelForm):
     sender       = EmailField(label=_(u"Sender address"))
     type         = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
-    template     = CreatorEntityField(label=_(u'Email template'), model=EmailTemplate)
+#    template     = CreatorEntityField(label=_(u'Email template'), model=EmailTemplate)
+    template     = CreatorEntityField(label=_(u'Email template'), model=get_emailtemplate_model())
     sending_date = CremeDateTimeField(label=_(u"Sending date"), required=False,
                                       help_text=_(u"Required only of the sending is deferred."))
     hour         = IntegerField(label=_("Sending hour"), required=False, min_value=0, max_value=23)
