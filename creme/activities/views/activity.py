@@ -42,8 +42,11 @@ from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING,
         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..forms.activity import (ActivityCreateForm, IndisponibilityCreateForm,
         RelatedActivityCreateForm, CalendarActivityCreateForm, ActivityEditForm)
-from ..models import Activity, ActivityType, ActivitySubType
+from ..models import ActivityType, ActivitySubType #Activity
 from ..utils import get_ical
+
+
+Activity = get_activity_model()
 
 
 def _add_activity(request, form_class,
@@ -226,9 +229,8 @@ def listview(request, type_id=None):
 @permission_required('activities')
 def download_ical(request, ids):
     #TODO: is_deleted=False ??
-#    activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
-    activities = EntityCredentials.filter(queryset=get_activity_model().objects.filter(pk__in=ids.split(',')),
-                                          user=request.user
+    activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
+                                          user=request.user,
                                          )
     response = HttpResponse(get_ical(activities), content_type="text/calendar")
     response['Content-Disposition'] = "attachment; filename=Calendar.ics"

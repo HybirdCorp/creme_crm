@@ -44,7 +44,8 @@ from creme.persons import get_contact_model
 
 from creme.assistants.models import Alert
 
-from ..models import ActivityType, Activity, Calendar, ActivitySubType
+from .. import get_activity_model
+from ..models import ActivityType, Calendar, ActivitySubType #Activity
 from ..constants import *
 from ..utils import check_activity_collisions
 from .activity_type import ActivityTypeField
@@ -52,6 +53,7 @@ from .activity_type import ActivityTypeField
 
 logger = logging.getLogger(__name__)
 Contact = get_contact_model()
+Activity = get_activity_model()
 
 
 class _ActivityForm(CremeEntityForm):
