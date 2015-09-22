@@ -38,7 +38,11 @@ from .. import get_product_line_model, get_service_line_model
 #from ..constants import PRODUCT_LINE_TYPE
 from ..forms.line import (ProductLineMultipleAddForm, ServiceLineMultipleAddForm,
         LineEditForm, AddToCatalogForm)
-from ..models import ProductLine, ServiceLine #Line
+#from ..models import ProductLine, ServiceLine #Line
+
+
+ProductLine = get_product_line_model()
+ServiceLine = get_service_line_model()
 
 
 @login_required
@@ -80,9 +84,9 @@ def add_to_catalog(request, line_id):
     line = get_object_or_404(CremeEntity, pk=line_id).get_real_entity()
 
     #TODO: method in Line instead ?
-    if isinstance(line, get_product_line_model()):
+    if isinstance(line, ProductLine):
         related_item_class = get_product_model()
-    elif isinstance(line, get_service_line_model()):
+    elif isinstance(line, ServiceLine):
         related_item_class = get_service_model()
     else:
         raise Http404('This entity is not a billing line')
@@ -111,10 +115,8 @@ def add_to_catalog(request, line_id):
 
 
 LINE_FORMSET_PREFIX = {
-#    ProductLine : 'product_line_formset',
-#    ServiceLine : 'service_line_formset',
-    get_product_line_model(): 'product_line_formset',
-    get_service_line_model(): 'service_line_formset',
+    ProductLine : 'product_line_formset',
+    ServiceLine : 'service_line_formset',
 }
 
 @POST_only

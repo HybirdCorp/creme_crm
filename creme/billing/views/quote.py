@@ -23,9 +23,13 @@ from django.utils.translation import ugettext_lazy as _ # ugettext
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
-from creme.billing.models import Quote
-from creme.billing.forms.quote import QuoteCreateForm, QuoteEditForm
-from creme.billing.views.workflow import generic_add_related #_add_with_relations
+from .. import get_quote_model
+from ..forms.quote import QuoteCreateForm, QuoteEditForm
+#from ..models import Quote
+from ..views.workflow import generic_add_related #_add_with_relations
+
+
+Quote = get_quote_model()
 
 
 @login_required

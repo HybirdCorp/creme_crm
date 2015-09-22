@@ -21,8 +21,12 @@
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import edit_entity, list_view, view_entity
 
-from creme.billing.forms.templatebase import TemplateBaseEditForm
-from creme.billing.models import TemplateBase
+from .. import get_template_base_model
+from ..forms.templatebase import TemplateBaseEditForm
+#from ..models import TemplateBase
+
+
+TemplateBase = get_template_base_model()
 
 
 @login_required

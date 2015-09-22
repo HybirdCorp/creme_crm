@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,48 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.utils.translation import ugettext_lazy as _
-
-#from creme.creme_config.forms.fields import CreatorModelChoiceField
-
 from creme.persons.workflow import transform_target_into_customer
 
-#from ..models import Invoice # InvoiceStatus, SettlementTerms
+#from ..models import Invoice
 from .. import get_invoice_model
 from .base import BaseCreateForm, BaseEditForm
 
 
 Invoice = get_invoice_model()
 
-class InvoiceCreateForm(BaseCreateForm):
-    #status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())
-    #payment_type = CreatorModelChoiceField(label=_(u'Settlement terms'), queryset=SettlementTerms.objects.all(), required=False)
 
+class InvoiceCreateForm(BaseCreateForm):
     class Meta(BaseCreateForm.Meta):
         model = Invoice
-
-    #def __init__(self, *args, **kwargs):
-        #super(InvoiceCreateForm, self).__init__(*args, **kwargs)
-        #user = self.user
-        #self.fields['status'].user = user
-        #self.fields['payment_type'].user = user
 
     def save(self, *args, **kwargs):
         instance = super(InvoiceCreateForm, self).save(*args, **kwargs)
         cleaned_data = self.cleaned_data
-        transform_target_into_customer(cleaned_data['source'], cleaned_data['target'], instance.user)
+        transform_target_into_customer(cleaned_data['source'],
+                                       cleaned_data['target'],
+                                       instance.user,
+                                      )
+
         return instance
 
 
 class InvoiceEditForm(BaseEditForm):
-    #status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())
-    #payment_type = CreatorModelChoiceField(label=_(u'Settlement terms'), queryset=SettlementTerms.objects.all(), required=False)
-
     class Meta(BaseEditForm.Meta):
         model = Invoice
-
-    #def __init__(self, *args, **kwargs):
-        #super(InvoiceEditForm, self).__init__(*args, **kwargs)
-        #user = self.user
-        #self.fields['status'].user = user
-        #self.fields['payment_type'].user = user

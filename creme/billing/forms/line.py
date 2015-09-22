@@ -25,18 +25,19 @@ from django.forms import (ModelChoiceField, TypedChoiceField, DecimalField,
         ValidationError, TextInput, Textarea)
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import Relation, Vat
 from creme.creme_core.forms import CremeForm, FieldBlockManager, CremeModelWithUserForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.models import Relation, Vat
 
 from creme.products import get_service_model, get_product_model
 from creme.products.forms.fields import CategoryField
 
+from .. import get_service_line_model, get_product_line_model
 from ..constants import (REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY,
         DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
 #from ..models import ProductLine, ServiceLine #Line
-from .. import get_service_line_model, get_product_line_model
+
 
 ProductLine = get_product_line_model()
 ServiceLine = get_service_line_model()
@@ -80,67 +81,6 @@ class _LineMultipleAddForm(CremeForm):
                                                  )
 
 
-# class _LineOnTheFlyForm(CremeModelForm):
-#     sub_category = CategoryField(label=_(u'Sub-category'), required=False)
-#     vat_value    = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
-#                                     initial=Vat.get_default_vat(), required=True,
-#                                    )
-#
-#     blocks = FieldBlockManager(
-#         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price', 'unit',
-#                                                     'discount', 'discount_unit', 'total_discount', 'vat_value']),
-#         ('additionnal', _(u'Additional features'), ['has_to_register_as', 'sub_category'])
-#     )
-#
-#     class Meta:
-#         exclude = ('related_item', 'user')
-#
-#     def __init__(self, entity, *args, **kwargs):
-#         super(_LineOnTheFlyForm, self).__init__(*args, **kwargs)
-#         self.instance.related_document  = entity
-#
-#         fields = self.fields
-#         fields['total_discount'].help_text = ugettext(u'Check if you want to apply the discount to the total line. If not it will be applied on the unit price.')
-# #        fields['unit'].required = True
-#
-#         if not self.user.has_perm_to_create(self._get_related_item_class()):
-#             has_to_register_as = fields['has_to_register_as']
-#             has_to_register_as.help_text = ugettext(u'You are not allowed to create this entity')
-#             has_to_register_as.widget.attrs  = {'disabled': True}
-#
-#             fields['sub_category'].widget.attrs = {'disabled': True}
-#
-#     def _get_related_item_class(self):
-#         raise NotImplementedError
-#
-#     def clean_has_to_register_as(self):
-#         create_item = self.cleaned_data.get('has_to_register_as', False)
-#
-#         if create_item and not self.user.has_perm_to_create(self._get_related_item_class()):
-#             raise ValidationError(ugettext(u'You are not allowed to create this entity'))
-#
-#         return create_item
-#
-#     def save(self, *args, **kwargs):
-#         get_data = self.cleaned_data.get
-#
-#         if get_data('has_to_register_as'):
-#             sub_category = get_data('sub_category')
-#             item = self._get_related_item_class().objects.create(name=get_data('on_the_fly_item', ''),
-#                                                                  user=self.user, #TODO: can chose the owner of the product
-#                                                                  unit_price=get_data('unit_price', 0),
-#                                                                  unit=get_data('unit', ''),
-#                                                                  category=sub_category.category,
-#                                                                  sub_category=sub_category,
-#                                                                 )
-#
-#             instance = self.instance
-#             instance.related_item = item
-#             instance.on_the_fly_item = None
-#
-#         return super(_LineOnTheFlyForm, self).save(*args, **kwargs)
-
-
 class ProductLineMultipleAddForm(_LineMultipleAddForm):
     items = MultiCreatorEntityField(label=_(u'Products'), model=get_product_model())
 
@@ -165,38 +105,9 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
         return ServiceLine
 
 
-# class ProductLineOnTheFlyForm(_LineOnTheFlyForm):
-#     has_to_register_as = BooleanField(label=_(u"Save as product ?"), required=False,
-#                                       help_text=_(u"Here you can save a on-the-fly Product as a true Product ; in this case, category and sub-category are required."))
-#
-#     class Meta(_LineOnTheFlyForm.Meta):
-#         model = ProductLine
-#
-#     def _get_related_item_class(self):
-#         return Product
-#
-#
-# class ServiceLineOnTheFlyForm(_LineOnTheFlyForm):
-#     has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
-#                                       help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category and sub-category are required."))
-#
-#     class Meta(_LineOnTheFlyForm.Meta):
-#         model = ServiceLine
-#
-#     def _get_related_item_class(self):
-#         return Service
-
-
-# commented on 23/07/2013 because this type of edit no longer exists for lines
-# class LineEditForm(CremeModelForm):
-#     class Meta:
-#         model = Line
-#         fields = ('comment',)
-
-
-#NB: model (ie: _meta.model) is set later, because this class is only used as base class
+# NB: model (ie: _meta.model) is set later, because this class is only used as base class
 class LineEditForm(CremeModelWithUserForm):
-    #TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
+    # TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
     vat_value = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
                                  required=True, #TODO: remove when null=False in the model
                                  empty_label=None,
@@ -240,7 +151,7 @@ class LineEditForm(CremeModelWithUserForm):
         #vat_f.required = True
         fields['vat_value'].initial = Vat.get_default_vat()
 
-    #TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount (refactor the template too)
+    # TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount (refactor the template too)
     def clean(self):
         cdata = super(LineEditForm, self).clean()
 
