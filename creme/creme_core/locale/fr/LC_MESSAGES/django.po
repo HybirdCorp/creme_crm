@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-14 17:49+0200\n"
+"POT-Creation-Date: 2015-09-22 12:17+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -909,7 +909,7 @@ msgstr "Seconde(s)"
 msgid "Relationship block: %s"
 msgstr "Bloc de relation: %s"
 
-#: gui/block.py:622
+#: gui/block.py:635
 msgid "Unknow type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
@@ -1495,10 +1495,15 @@ msgstr "Est vide"
 msgid "Range"
 msgstr "Intervalle"
 
-#: models/fields_config.py:81
+#: models/fields_config.py:82
 #, python-format
 msgid "Configuration of %s"
 msgstr "Configuration de %s"
+
+#: models/fields_config.py:160
+#, python-format
+msgid "Warning: the app «%(app)s» need the field «%(field)s»."
+msgstr "Attention: l'app «%(app)s» a besoin du champ «%(field)s»."
 
 #: models/header_filter.py:74
 msgid "Name of the view"
@@ -1730,35 +1735,35 @@ msgstr "possède"
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:80
+#: populate.py:85
 msgid "Euro"
 msgstr "Euro"
 
-#: populate.py:80
+#: populate.py:85
 msgid "€"
 msgstr "€"
 
-#: populate.py:80
+#: populate.py:85
 msgid "EUR"
 msgstr "EUR"
 
-#: populate.py:84
+#: populate.py:89
 msgid "United States dollar"
 msgstr "Dollar américain"
 
-#: populate.py:84
+#: populate.py:89
 msgid "$"
 msgstr "$"
 
-#: populate.py:84
+#: populate.py:89
 msgid "USD"
 msgstr "USD"
 
-#: populate.py:87
+#: populate.py:92
 msgid "French"
 msgstr "Français"
 
-#: populate.py:88
+#: populate.py:93
 msgid "English"
 msgstr "Anglais"
 

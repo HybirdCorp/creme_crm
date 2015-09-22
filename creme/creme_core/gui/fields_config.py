@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 from itertools import chain
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 
 from ..models import CremeEntity
@@ -33,6 +35,8 @@ class FieldsConfigRegistry(object):
     """
     def __init__(self):
         self._extra_models = set()
+        # Structure: [model][field_name] -> set of app_labels
+        self._needed_fields = defaultdict(lambda: defaultdict(set))
 
     @property
     def ctypes(self):
@@ -44,9 +48,19 @@ class FieldsConfigRegistry(object):
                                       )
                )
 
+    def get_needing_apps(self, model, field_name):
+        for app_label in self._needed_fields[model][field_name]:
+            yield apps.get_app_config(app_label)
+
     def register(self, model):
         assert not issubclass(model, CremeEntity)
         self._extra_models.add(model)
+
+    def register_needed_fields(self, app_label, model, *field_names):
+        model_fields = self._needed_fields[model]
+
+        for field_name in field_names:
+            model_fields[field_name].add(app_label)
 
 
 fields_config_registry = FieldsConfigRegistry()

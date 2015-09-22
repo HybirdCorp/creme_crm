@@ -11,7 +11,8 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials
+    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig
+    from creme.creme_core.forms.widgets import Label
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -314,6 +315,92 @@ class EntityEmailTestCase(_EmailsTestCase):
                             )
         self.assertFormError(response, 'form', 'o_recipients',
                              _(u"Some entities are not linkable: %s") % orga01
+                            )
+
+    def test_createview07(self):
+        "No recipent"
+        user = self.login()
+        c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
+        response = self.assertPOST200(self._build_send_url(c),
+                                      data={'user':         user.id,
+                                            'sender':       user.linked_contact.email,
+                                            'c_recipients': '[]',
+                                            'o_recipients': '[]',
+                                            'subject':      'Under arrest',
+                                            'body':         'Freeze !',
+                                            'body_html':    '<p>Freeze !</p>',
+                                           }
+                                     )
+        self.assertFormError(response, 'form', None,
+                             _(u'Select at least a Contact or an Organisation')
+                            )
+
+    @skipIfCustomContact
+    def test_createview08(self):
+        "'FieldsConfig: Contact.email is hidden"
+        user = self.login()
+        fconf = FieldsConfig.create(Contact,
+                                    descriptions=[('email', {FieldsConfig.HIDDEN: True})]
+                                   )
+
+        c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
+
+        url = self._build_send_url(c)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            recip_field = response.context['form'].fields['c_recipients']
+
+        self.assertIsInstance(recip_field.widget, Label)
+        self.assertEqual(_(u'Beware: the field «Email address» is hidden ; please contact your administrator.'),
+                         recip_field.initial
+                        )
+
+        response = self.assertPOST200(url,
+                                      data={'user':         user.id,
+                                            'sender':       user.linked_contact.email,
+                                            'c_recipients': '[%d]' % c.id, # should not be used
+                                            'subject':      'Under arrest',
+                                            'body':         'Freeze !',
+                                            'body_html':    '<p>Freeze !</p>',
+                                           }
+                                     )
+        self.assertFormError(response, 'form', None,
+                             _(u'Select at least a Contact or an Organisation')
+                            )
+
+    @skipIfCustomOrganisation
+    def test_createview09(self):
+        "'FieldsConfig: Organisation.email is hidden"
+        user = self.login()
+        fconf = FieldsConfig.create(Organisation,
+                                    descriptions=[('email', {FieldsConfig.HIDDEN: True})]
+                                   )
+
+        orga = Organisation.objects.create(user=user, name='Venus gate')
+
+        url = self._build_send_url(orga)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            recip_field = response.context['form'].fields['o_recipients']
+
+        self.assertIsInstance(recip_field.widget, Label)
+        self.assertEqual(_(u'Beware: the field «Email address» is hidden ; please contact your administrator.'),
+                         recip_field.initial
+                        )
+
+        response = self.assertPOST200(url,
+                                      data={'user':         user.id,
+                                            'sender':       user.linked_contact.email,
+                                            'o_recipients': '[%d]' % orga.id, # should not be used
+                                            'subject':      'Under arrest',
+                                            'body':         'Freeze !',
+                                            'body_html':    '<p>Freeze !</p>',
+                                           }
+                                     )
+        self.assertFormError(response, 'form', None,
+                             _(u'Select at least a Contact or an Organisation')
                             )
 
     @skipIfCustomEmailTemplate

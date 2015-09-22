@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 from json import loads as jsonloads, dumps as jsondumps
 import logging
 
@@ -144,6 +145,24 @@ class FieldsConfig(CremeModel):
         self.raw_descriptions = jsondumps(
                 self._check_descriptions(self.content_type.model_class(), value)[1]
             )
+
+    @property
+    def errors_on_hidden(self):
+        """Are some hidden fields needed ?
+        @return List of unicode strings.
+        """
+        from ..gui.fields_config import fields_config_registry
+
+        get_apps = partial(fields_config_registry.get_needing_apps,
+                           model=self.content_type.model_class(),
+                          )
+        # TODO: cached_lazy_ugettext
+        msg = _(u'Warning: the app «%(app)s» need the field «%(field)s».')
+
+        return [msg % {'app': app.verbose_name, 'field': field.verbose_name}
+                    for field in self.hidden_fields
+                        for app in get_apps(field_name=field.name)
+               ]
 
     def _get_hidden_field_names(self):
         excluded = self._excluded_fnames
