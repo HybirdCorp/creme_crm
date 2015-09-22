@@ -1,6 +1,6 @@
 {% extends "creme_core/generics/portal.html" %}
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
+{% block page_title %}{% trans "Configuration" %} - {% endblock %}
 {% block logo %}<img src="{% creme_media_url 'images/config_64.png' %}" alt="{% trans "Configuration" %}"/>{% endblock %}
 {% block title %}{% trans "Creme configuration portal" %}{% endblock %}
 {% block header_link %}{% endblock %}
