@@ -26,10 +26,12 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core.forms import CremeModelForm
 
 from creme.persons.forms.quick import ContactQuickForm
-from creme.persons.models import Organisation
+#from creme.persons.models import Organisation
+from creme.persons import get_organisation_model
 
 from .models import MobileFavorite
 
+Organisation = get_organisation_model()
 
 class MobileAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
