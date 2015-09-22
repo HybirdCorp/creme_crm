@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme.creme_core.models import SettingValue
+    from django.utils.translation import ugettext as _
+
+    from creme.creme_core.models import SettingValue, FieldsConfig
 
     from creme.persons import get_contact_model, get_organisation_model
+    from creme.persons.tests.base import skipIfCustomContact
 
     from .. import get_entityemail_model
     from ..constants import (REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED,
@@ -31,3 +34,22 @@ class EmailsTestCase(_EmailsTestCase):
     def test_portal(self):
         self.login()
         self.assertGET200('/emails/')
+
+    @skipIfCustomContact
+    def test_fieldconfigs_warning(self):
+        "If Contact/Organisation.email is hidden => warning"
+        self.login()
+
+        fconf = FieldsConfig.create(get_contact_model())
+        self.assertEqual([], fconf.errors_on_hidden)
+
+        fconf.descriptions = [('email', {FieldsConfig.HIDDEN: True})]
+        fconf.save()
+        fconf = self.refresh(fconf)
+        self.assertEqual([_(u'Warning: the app «%(app)s» need the field «%(field)s».') % {
+                                'app':   _(u'Emails'),
+                                'field': _(u'Email address'),
+                            }
+                         ],
+                         fconf.errors_on_hidden
+                        )

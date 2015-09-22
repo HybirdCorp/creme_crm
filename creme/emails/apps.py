@@ -67,6 +67,13 @@ class EmailsConfig(CremeAppConfig):
 
         button_registry.register(entityemail_link_button)
 
+    def register_fields_config(self, fields_config_registry):
+        from creme.persons import get_contact_model, get_organisation_model
+
+        reg_fields = fields_config_registry.register_needed_fields
+        reg_fields('emails', get_contact_model(),      'email')
+        reg_fields('emails', get_organisation_model(), 'email')
+
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register
         reg_icon(self.EntityEmail,   'images/email_%(size)s.png')
@@ -80,7 +87,7 @@ class EmailsConfig(CremeAppConfig):
         from creme.creme_core.auth import build_creation_perm as cperm
 
         ECampaign = self.EmailCampaign
-        MList        = self.MailingList
+        MList     = self.MailingList
         ETemplate = self.EmailTemplate
         reg_item = creme_menu.register_app ('emails', '/emails/').register_item
         reg_item('/emails/',                         _(u'Portal of emails'),    'emails')

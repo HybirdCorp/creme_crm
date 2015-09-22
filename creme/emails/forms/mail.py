@@ -23,16 +23,17 @@ import logging
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.forms.fields import EmailField, BooleanField, IntegerField #CharField
+from django.forms.fields import EmailField, BooleanField, IntegerField, CharField
 from django.forms.widgets import HiddenInput
 #from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-from creme.creme_core.models.relation import Relation
+
+from creme.creme_core.models import Relation, FieldsConfig
 from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
-#from creme.creme_core.forms.widgets import TinyMCEEditor
 from creme.creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.forms.widgets import Label #TinyMCEEditor
 
 from creme.documents import get_document_model
 #from creme.documents.models import Document
@@ -102,7 +103,23 @@ class EntityEmailForm(CremeEntityForm):
         if contact.email:
             self.fields['sender'].initial = contact.email
 
+        def finalize_recipient_field(name, model):
+            if FieldsConfig.get_4_model(model).is_fieldname_hidden('email'):
+                self.fields[name] = CharField(
+                        label=self.fields[name].label,
+                        required=False, widget=Label,
+                        initial=ugettext(u'Beware: the field «Email address» is hidden ;'
+                                        ' please contact your administrator.'
+                                        ),
+                    )
+
+        finalize_recipient_field('c_recipients', Contact)
+        finalize_recipient_field('o_recipients', Organisation)
+
     def _clean_recipients(self, field_name):
+        if isinstance(self.fields[field_name].widget, Label):
+            return []
+
         recipients = self.cleaned_data.get(field_name) or []
         user = self.user
 
