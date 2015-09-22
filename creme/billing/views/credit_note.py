@@ -26,10 +26,14 @@ from creme.creme_core.models import Relation
 from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         view_entity, add_to_entity, edit_model_with_popup)
 
-from creme.billing.constants import REL_OBJ_CREDIT_NOTE_APPLIED
-from creme.billing.forms.credit_note import (CreditNoteCreateForm,
+from .. import get_credit_note_model
+from ..constants import REL_OBJ_CREDIT_NOTE_APPLIED
+from ..forms.credit_note import (CreditNoteCreateForm,
         CreditNoteEditForm, CreditNotePopupEditForm, CreditNoteRelatedForm)
-from creme.billing.models import CreditNote
+#from creme.billing.models import CreditNote
+
+
+CreditNote = get_credit_note_model()
 
 
 @login_required

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,9 @@ from creme.persons.workflow import transform_target_into_prospect
 from .. import get_quote_model
 from .base import BaseCreateForm, BaseEditForm
 
+
 Quote = get_quote_model()
+
 
 class QuoteCreateForm(BaseCreateForm):
     acceptation_date = CremeDateField(label=_(u"Acceptation date"), required=False)
@@ -36,10 +38,13 @@ class QuoteCreateForm(BaseCreateForm):
     class Meta(BaseCreateForm.Meta):
         model = Quote
 
-    def save(self):
-        instance = super(QuoteCreateForm, self).save()
+    def save(self, *args, **kwargs):
+        instance = super(QuoteCreateForm, self).save(*args, **kwargs)
         cleaned_data = self.cleaned_data
-        transform_target_into_prospect(cleaned_data['source'], cleaned_data['target'], instance.user)
+        transform_target_into_prospect(cleaned_data['source'],
+                                       cleaned_data['target'],
+                                       instance.user,
+                                      )
 
         return instance
 

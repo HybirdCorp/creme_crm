@@ -30,13 +30,13 @@ from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from creme.persons import get_organisation_model
 
-from creme.billing import (get_invoice_model, get_quote_model,
+from .. import (get_invoice_model, get_quote_model,
         get_sales_order_model, get_credit_note_model, get_template_base_model)
 #from creme.billing.models import (PaymentInformation, Invoice, Quote, SalesOrder,
 #        CreditNote, TemplateBase) #Base
-from creme.billing.forms.payment_information import (PaymentInformationCreateForm,
+from ..forms.payment_information import (PaymentInformationCreateForm,
         PaymentInformationEditForm)
-from creme.billing.models import PaymentInformation
+from ..models import PaymentInformation
 
 
 @login_required

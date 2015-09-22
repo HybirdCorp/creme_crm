@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.contrib.contenttypes.models import ContentType
 #from django.forms.widgets import HiddenInput
 
-from ..models import TemplateBase
+from .. import get_template_base_model
+#from ..models import TemplateBase
 from .base import BaseEditForm, copy_or_create_address, first_managed_orga_id
 
 
@@ -31,7 +32,8 @@ class _TemplateBaseForm(BaseEditForm):
     status = ChoiceField(label=_(u'Status'), choices=())
 
     class Meta:
-        model = TemplateBase
+#        model = TemplateBase
+        model = get_template_base_model()
         exclude = BaseEditForm.Meta.exclude + ('ct', 'status_id')
 
     def _build_status_field(self, billing_ct):
@@ -39,13 +41,15 @@ class _TemplateBaseForm(BaseEditForm):
         status_field = self.fields['status']
 
         status_field.label   = ugettext(u'Status of %s') % meta.verbose_name
-        status_field.choices = [(status.id, unicode(status)) for status in meta.get_field('status').rel.to.objects.all()]
+        status_field.choices = [(status.id, unicode(status))
+                                    for status in meta.get_field('status').rel.to.objects.all()
+                               ]
 
         return status_field
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.instance.status_id = self.cleaned_data['status']
-        return super(_TemplateBaseForm, self).save()
+        return super(_TemplateBaseForm, self).save(*args, **kwargs)
 
 
 class TemplateBaseEditForm(_TemplateBaseForm):

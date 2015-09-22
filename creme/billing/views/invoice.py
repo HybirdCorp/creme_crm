@@ -30,10 +30,14 @@ from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         view_entity) #add_model_with_popup
 
-from creme.billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
-from creme.billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
-from creme.billing.models import Invoice, InvoiceStatus
-from creme.billing.views.workflow import generic_add_related #_add_with_relations
+from .. import get_invoice_model
+from ..constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
+from ..forms.invoice import InvoiceCreateForm, InvoiceEditForm
+from ..models import InvoiceStatus #Invoice
+from ..views.workflow import generic_add_related #_add_with_relations
+
+
+Invoice = get_invoice_model()
 
 
 @login_required

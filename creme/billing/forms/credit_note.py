@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,13 @@ from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.base import CremeModelForm, CremeForm
 from creme.creme_core.models.relation import Relation
 
+from .. import get_credit_note_model
 from ..constants import REL_SUB_BILL_RECEIVED, REL_OBJ_CREDIT_NOTE_APPLIED
-from ..models import CreditNote
+#from ..models import CreditNote
 from .base import BaseCreateForm, BaseEditForm
+
+
+CreditNote = get_credit_note_model()
 
 
 class CreditNoteCreateForm(BaseCreateForm):

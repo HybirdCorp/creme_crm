@@ -22,11 +22,11 @@ import warnings
 
 from django.shortcuts import get_object_or_404
 
-from creme.creme_core.models.entity import CremeEntity
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import add_model_with_popup
 
 
-#TODO: get the billing model in order to avoid a query
+# TODO: get the billing model in order to avoid a query
 def _add_with_relations(request, target_id, source_id, form, title, status_id=None):
     warnings.warn("billing.views.workflow._add_with_relations() is deprecated ; "
                   "use billing.views.workflow.generic_add_related() instead.",
