@@ -31,7 +31,10 @@ from .. import get_mailinglist_model
 from ..forms.mailing_list import (MailingListForm, AddChildForm,
         AddContactsForm, AddOrganisationsForm,
         AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
-from ..models import MailingList
+#from ..models import MailingList
+
+
+MailingList = get_mailinglist_model()
 
 
 @login_required
@@ -63,8 +66,7 @@ def listview(request):
 def add_contacts(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsForm,
                          ugettext(u'New contacts for «%s»'),
-#                         entity_class=MailingList,
-                         entity_class=get_mailinglist_model(),
+                         entity_class=MailingList,
                          submit_label=_('Link the contacts'),
                         )
 
@@ -73,8 +75,7 @@ def add_contacts(request, ml_id):
 def add_contacts_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsFromFilterForm,
                          ugettext(u'New contacts for «%s»'),
-#                         entity_class=MailingList,
-                         entity_class=get_mailinglist_model(),
+                         entity_class=MailingList,
                          submit_label=_('Link the contacts'),
                         )
 
@@ -83,8 +84,7 @@ def add_contacts_from_filter(request, ml_id):
 def add_organisations(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsForm,
                          ugettext(u'New organisations for «%s»'),
-#                         entity_class=MailingList,
-                         entity_class=get_mailinglist_model(),
+                         entity_class=MailingList,
                          submit_label=_('Link the organisations'),
                         )
 
@@ -93,8 +93,7 @@ def add_organisations(request, ml_id):
 def add_organisations_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
                          ugettext(u'New organisations for «%s»'),
-#                         entity_class=MailingList,
-                         entity_class=get_mailinglist_model(),
+                         entity_class=MailingList,
                          submit_label=_('Link the organisations'),
                         )
 
@@ -103,8 +102,7 @@ def add_organisations_from_filter(request, ml_id):
 def add_children(request, ml_id):
     return add_to_entity(request, ml_id, AddChildForm,
                          ugettext(u'New child lists for «%s»'),
-#                         entity_class=MailingList,
-                         entity_class=get_mailinglist_model(),
+                         entity_class=MailingList,
                          submit_label=_('Link the mailing lists'),
                         )
 
@@ -112,8 +110,7 @@ def add_children(request, ml_id):
 @permission_required('emails')
 def _delete_aux(request, ml_id, deletor):
     subobject_id = get_from_POST_or_404(request.POST, 'id')
-#    ml = get_object_or_404(MailingList, pk=ml_id)
-    ml = get_object_or_404(get_mailinglist_model(), pk=ml_id)
+    ml = get_object_or_404(MailingList, pk=ml_id)
 
     request.user.has_perm_to_change_or_die(ml)
 

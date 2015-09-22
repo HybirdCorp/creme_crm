@@ -26,9 +26,16 @@ from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
 from creme.creme_core.models import EntityFilter
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
-from ..models import MailingList
+from .. import get_mailinglist_model
+#from ..models import MailingList
+
+
+MailingList   = get_mailinglist_model()
+Contact       = get_contact_model()
+Organisation  = get_organisation_model()
 
 
 class MailingListForm(CremeEntityForm):

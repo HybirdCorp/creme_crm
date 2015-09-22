@@ -31,18 +31,19 @@ from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.widgets import TinyMCEEditor
 
-from creme.documents.models import Document
+from creme.documents import get_document_model
+#from creme.documents.models import Document
 
-from ..models import EmailTemplate
+from .. import get_emailtemplate_model
+#from ..models import EmailTemplate
 from .utils import validate_images_in_html
 
 
 logger = logging.getLogger(__name__)
+Document = get_document_model()
 
 TEMPLATES_VARS = {'last_name', 'first_name', 'civility', 'name'}
-
 _TEMPLATES_VARS_4_HELP = u' '.join('{{%s}}' % var for var in TEMPLATES_VARS)
-
 _help_text = lazy((lambda: ugettext(u'You can use variables: %s') % _TEMPLATES_VARS_4_HELP), unicode)
 
 
@@ -56,7 +57,8 @@ class EmailTemplateForm(CremeEntityForm):
     }
 
     class Meta(CremeEntityForm.Meta):
-        model = EmailTemplate
+#        model = EmailTemplate
+        model = get_emailtemplate_model()
 
     def _clean_body(self, body):
         invalid_vars = []

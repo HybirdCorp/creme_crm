@@ -28,8 +28,11 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
 from .. import get_emailtemplate_model
-from ..models import EmailTemplate
+#from ..models import EmailTemplate
 from ..forms.template import EmailTemplateForm, EmailTemplateAddAttachment
+
+
+EmailTemplate = get_emailtemplate_model()
 
 
 @login_required
@@ -61,8 +64,7 @@ def listview(request):
 def add_attachment(request, template_id):
     return add_to_entity(request, template_id, EmailTemplateAddAttachment,
                          ugettext(u'New attachments for «%s»'),
-#                         entity_class=EmailTemplate,
-                         entity_class=get_emailtemplate_model(),
+                         entity_class=EmailTemplate,
                          submit_label=_('Save the attachments'),
                         )
 
@@ -70,8 +72,7 @@ def add_attachment(request, template_id):
 @permission_required('emails')
 def delete_attachment(request, template_id):
     attachment_id = get_from_POST_or_404(request.POST, 'id')
-#    template = get_object_or_404(EmailTemplate, pk=template_id)
-    template = get_object_or_404(get_emailtemplate_model(), pk=template_id)
+    template = get_object_or_404(EmailTemplate, pk=template_id)
 
     request.user.has_perm_to_change_or_die(template)
 

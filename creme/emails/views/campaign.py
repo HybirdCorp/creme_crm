@@ -29,7 +29,10 @@ from creme.creme_core.utils import get_from_POST_or_404
 
 from .. import get_emailcampaign_model
 from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddMLForm
-from ..models import EmailCampaign
+#from ..models import EmailCampaign
+
+
+EmailCampaign = get_emailcampaign_model()
 
 
 @login_required
@@ -61,8 +64,7 @@ def listview(request):
 def add_ml(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddMLForm,
                          ugettext(u'New mailing lists for «%s»'),
-#                         entity_class=EmailCampaign,
-                         entity_class=get_emailcampaign_model(),
+                         entity_class=EmailCampaign,
                          submit_label=_('Link the mailing lists'),
                         )
 
@@ -70,8 +72,7 @@ def add_ml(request, campaign_id):
 @permission_required('emails')
 def delete_ml(request, campaign_id):
     ml_id    = get_from_POST_or_404(request.POST, 'id')
-#    campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
-    campaign = get_object_or_404(get_emailcampaign_model(), pk=campaign_id)
+    campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
 
     request.user.has_perm_to_change_or_die(campaign)
 
