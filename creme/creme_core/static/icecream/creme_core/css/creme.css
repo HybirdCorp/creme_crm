@@ -1018,7 +1018,7 @@ div#sub_content > div:nth-child(3) {
 }
 
 /* Toggle view */
-.buttons a.view_more{
+.buttons a.view_more {
     min-width: 0;
     background-image: url("icecream/images/view_more_22.png");
     background-repeat: no-repeat;

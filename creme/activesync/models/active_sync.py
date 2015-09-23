@@ -52,7 +52,7 @@ USER_HISTORY_TYPE_VERBOSE = dict(USER_HISTORY_TYPE)
 
 USER_HISTORY_TYPE_IMG = {
     CREATE: "images/add_22.png",
-    UPDATE: "images/edit_22.png",
+    UPDATE: "images/edit_22_button.png",
     DELETE: "images/delete_22.png",
 }
 

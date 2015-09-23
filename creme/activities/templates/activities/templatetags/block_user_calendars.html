@@ -35,7 +35,7 @@
                     <td class="{{row_color}}">{% print_field object=calendar field='is_public' %}</td>
                     <td class="{{row_color}} action">
                         <a onclick="creme.blocks.form('/activities/calendar/{{calendar.id}}/edit', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
-                            {% trans "Edit calendar" as img_title %}<img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{{img_title}}" title="{{img_title}}"/>
+                            {% trans "Edit calendar" as img_title %}<img src="{% creme_media_url 'images/edit_22_button.png' %}" border="0" alt="{{img_title}}" title="{{img_title}}"/>
                         </a>
                     </td>
                     <td class="{{row_color}} action">
