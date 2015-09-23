@@ -19,6 +19,7 @@
 ################################################################################
 
 from datetime import timedelta # datetime
+from functools import partial
 
 from django.db.models.query_utils import Q
 from django.http import Http404
@@ -36,11 +37,15 @@ from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.forms.contact import ContactForm
 from creme.persons.forms.organisation import OrganisationForm
 
-from creme.activities.models import Activity, Calendar
+from creme.activities import get_activity_model
 from creme.activities.constants import (ACTIVITYTYPE_PHONECALL,
         ACTIVITYSUBTYPE_PHONECALL_INCOMING, ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         STATUS_IN_PROGRESS,
         REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY)
+from creme.activities.models import Calendar #Activity
+
+
+Activity = get_activity_model()
 
 
 def _build_phonecall(user, entity_id, calltype_id, title_format):
@@ -54,14 +59,14 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
     entity = entity.get_real_entity()
     now_value = now()
     pcall = Activity.objects.create(user=user,
-                                     title=title_format % entity,
-                                     type_id=ACTIVITYTYPE_PHONECALL,
-                                     description=_(u'Automatically created by CTI'),
-                                     status_id=STATUS_IN_PROGRESS,
-                                     sub_type_id=calltype_id,
-                                     start=now_value,
-                                     end=now_value + timedelta(minutes=5),
-                                    )
+                                    title=title_format % entity,
+                                    type_id=ACTIVITYTYPE_PHONECALL,
+                                    description=_(u'Automatically created by CTI'),
+                                    status_id=STATUS_IN_PROGRESS,
+                                    sub_type_id=calltype_id,
+                                    start=now_value,
+                                    end=now_value + timedelta(minutes=5),
+                                   )
 
     pcall.calendars.add(Calendar.get_user_default_calendar(user))
 
@@ -81,11 +86,11 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
         raise Http404('An activities RelationType does not exists !!')
 
     user_contact = user.linked_contact
-    rel_create = Relation.objects.create
+    rel_create = partial(Relation.objects.create, object_entity=pcall, user=user)
 
     if entity.pk != user_contact.pk:
-        rel_create(subject_entity=user_contact, type=rtypes_map[caller_rtype], object_entity=pcall, user=user)
-    rel_create(subject_entity=entity, type=rtypes_map[entity_rtype], object_entity=pcall, user=user)
+        rel_create(subject_entity=user_contact, type=rtypes_map[caller_rtype])
+    rel_create(subject_entity=entity, type=rtypes_map[entity_rtype])
 
     return pcall
 
@@ -95,7 +100,7 @@ def create_phonecall_as_caller(request):
     pcall = _build_phonecall(request.user,
                              get_from_POST_or_404(request.POST, 'entity_id'),
                              ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                             _(u'Call to %s')
+                             _(u'Call to %s'),
                             )
 
     return u'%s<br/><a href="%s">%s</a>' % (
@@ -134,7 +139,7 @@ def respond_to_a_call(request):
 def add_contact(request, number):
     return add_entity(request, ContactForm,
                       template="persons/add_contact_form.html",
-                      extra_initial={'phone': number}
+                      extra_initial={'phone': number},
                      )
 
 @login_required
@@ -142,7 +147,7 @@ def add_contact(request, number):
 def add_orga(request, number):
     return add_entity(request, OrganisationForm,
                       template="persons/add_organisation_form.html",
-                      extra_initial={'phone': number}
+                      extra_initial={'phone': number},
                      )
 
 @login_required
