@@ -25,7 +25,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import list_view
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 from creme.persons.views.contact import abstract_add_contact
 
 from ..constants import PROP_IS_A_SALESMAN
@@ -34,7 +35,7 @@ from ..forms.salesman import SalesManCreateForm
 
 # TODO: factorise with generic list_view (list_contacts + property) ??
 #       problem: list_view can accept to filter on a property (register a filtered view in the menu etc...)
-def abstract_list_salesmen(request, model=Contact, title=_(u'List of salesmen')):
+def abstract_list_salesmen(request, model=get_contact_model(), title=_(u'List of salesmen')):
     return list_view(request, model,
                      extra_dict={'list_title': title,
                                  # TODO: button registry to change the button label

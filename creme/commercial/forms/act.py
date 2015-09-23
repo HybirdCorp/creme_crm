@@ -20,14 +20,18 @@
 
 from math import ceil
 
-from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ModelChoiceField, IntegerField, CharField
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm
 from creme.creme_core.forms.fields import CremeDateTimeField, FilteredEntityTypeField
 from creme.creme_core.forms.widgets import Label
 
-from ..models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
+from .. import get_act_model, get_pattern_model
+from ..models import ActObjective, ActObjectivePatternComponent # Act, ActObjectivePattern
+
+
+ActObjectivePattern = get_pattern_model()
 
 
 class ActForm(CremeEntityForm):
@@ -35,12 +39,13 @@ class ActForm(CremeEntityForm):
     due_date = CremeDateTimeField(label=_(u"Due date"))
 
     class Meta(CremeEntityForm.Meta):
-        model = Act
+#        model = Act
+        model = get_act_model()
 
 
 class ObjectiveForm(CremeModelForm):
     entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
-                                              empty_label=_(u'Do not count entity')
+                                              empty_label=_(u'Do not count entity'),
                                              ) #TODO: help text ???
 
     class Meta:
@@ -118,7 +123,7 @@ class ObjectivePatternForm(CremeEntityForm):
 
 class _PatternComponentForm(CremeModelForm):
     entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
-                                              empty_label=_(u'Do not count entity')
+                                              empty_label=_(u'Do not count entity'),
                                              ) #TODO: help text ???
     success_rate    = IntegerField(label=_(u'Success rate'), min_value=1, max_value=100,
                                    help_text=_(u'Percentage of success')
@@ -127,9 +132,6 @@ class _PatternComponentForm(CremeModelForm):
     class Meta:
         model = ActObjectivePatternComponent
         fields = '__all__'
-
-    #def __init__(self, *args, **kwargs):
-        #super(_PatternComponentForm, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         instance = self.instance

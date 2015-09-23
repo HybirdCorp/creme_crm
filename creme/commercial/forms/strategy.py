@@ -22,20 +22,22 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms import CharField
 from django.forms.utils import ValidationError
 
-from creme.creme_core.models import CremePropertyType
 from creme.creme_core.forms import (CremeForm, CremeModelForm, CremeEntityForm,
         FieldBlockManager, MultiCreatorEntityField)
+from creme.creme_core.models import CremePropertyType
 
 from creme.persons import get_organisation_model
 #from creme.persons.models import Organisation
 
-from ..models import (Strategy, MarketSegment, MarketSegmentDescription,
-        CommercialAsset, MarketSegmentCharm)
+from .. import get_strategy_model
+from ..models import (MarketSegment, MarketSegmentDescription,
+        CommercialAsset, MarketSegmentCharm) # Strategy
 
 
 class StrategyForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-        model = Strategy
+#        model = Strategy
+        model = get_strategy_model()
 
 
 class _AuxForm(CremeModelForm):
@@ -89,7 +91,7 @@ class _SegmentForm(_AuxForm):
         model = MarketSegmentDescription
         exclude = _AuxForm.Meta.exclude + ('segment',)
 
-    #TODO: factorise with market_segment.MarketSegmentForm
+    # TODO: factorise with market_segment.MarketSegmentForm
     def clean_name(self):
         name = self.cleaned_data['name']
         ptype_text = MarketSegment.generate_property_text(name)
@@ -122,8 +124,8 @@ class SegmentEditForm(_SegmentForm):
         super(SegmentEditForm, self).__init__(*args, **kwargs)
         self.fields['name'].initial = self.instance.segment.name
 
-    def save(self):
-        seginfo = super(SegmentEditForm, self).save()
+    def save(self, *args, **kwargs):
+        seginfo = super(SegmentEditForm, self).save(*args, **kwargs)
         name = self.cleaned_data['name']
 
         segment = seginfo.segment
@@ -138,11 +140,11 @@ class SegmentEditForm(_SegmentForm):
 
 
 class SegmentCreateForm(_SegmentForm):
-    def save(self):
+    def save(self, *args, **kwargs):
         segment_desc = self.instance
         name = self.cleaned_data['name']
 
-        #TODO: factorise with market_segment.MarketSegmentForm ???
+        # TODO: factorise with market_segment.MarketSegmentForm ???
         # is_custom=False ==> CremePropertyType won't be deletable
         ptype = CremePropertyType.create('commercial-segment',
                                          MarketSegment.generate_property_text(name),
@@ -150,7 +152,7 @@ class SegmentCreateForm(_SegmentForm):
                                         )
 
         segment_desc.segment = MarketSegment.objects.create(name=name, property_type=ptype)
-        super(SegmentCreateForm, self).save()
+        super(SegmentCreateForm, self).save(*args, **kwargs)
 
         return segment_desc
 

@@ -21,10 +21,10 @@
 #import logging
 
 from django.conf import settings
-from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel # CremeEntity
 from creme.creme_core.models.fields import CreationDateTimeField
