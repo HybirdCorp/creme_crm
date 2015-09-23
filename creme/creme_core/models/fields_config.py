@@ -28,13 +28,14 @@ from django.utils.translation import ugettext as _
 
 from ..core.entity_cell import EntityCellRegularField
 from .base import CremeModel
-from .fields import CTypeForeignKey
+from .fields import CTypeOneToOneField #CTypeForeignKey
 
 logger = logging.getLogger(__name__)
 
 
 class FieldsConfig(CremeModel):
-    content_type     = CTypeForeignKey(editable=False, primary_key=True) #verbose_name=_(u'Related type') #TODO: OneToOne
+#    content_type     = CTypeForeignKey(editable=False, primary_key=True)
+    content_type     = CTypeOneToOneField(editable=False, primary_key=True) #verbose_name=_(u'Related type')
     raw_descriptions = TextField(editable=False) # null=True  #TODO: JSONField ?
 
     HIDDEN = 'hidden'

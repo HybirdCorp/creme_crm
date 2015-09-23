@@ -23,13 +23,13 @@ from json import loads as jsonloads, dumps as jsondumps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
-        PositiveIntegerField, ForeignKey, SET, Max) #SubfieldBase
+        PositiveIntegerField, OneToOneField, ForeignKey, SET, Max) #SubfieldBase
 from django.utils.timezone import now
 
 from ..utils.date_period import date_period_registry, DatePeriod
 
-#TODO: add a form field ?? (validation)
-#TODO: fix the max_lenght value ?,
+# TODO: add a form field ?? (validation)
+# TODO: fix the max_lenght value ?,
 class PhoneField(CharField):
     pass
 #    def south_field_triple(self):
@@ -40,7 +40,7 @@ class PhoneField(CharField):
 #
 #        return (field_class, args, kwargs)
 
-#TODO: Make a real api for this
+# TODO: Make a real api for this
 class DurationField(CharField):
     pass
 #    def south_field_triple(self):
@@ -87,7 +87,7 @@ class DatePeriodField(TextField): #TODO: inherit from a JSONField
         defaults = {'form_class': DatePeriodFormField}
         defaults.update(kwargs)
 
-        #Beware we do not call TextField.formfield because it overload 'widget'
+        # Beware we do not call TextField.formfield because it overload 'widget'
         # (we could define the 'widget' key in 'defaults'...)
         return super(TextField, self).formfield(**defaults)
 
@@ -145,7 +145,6 @@ class CremeUserForeignKey(ForeignKey):
 #        return (field_class, args, kwargs)
 
 
-
 class CTypeForeignKey(ForeignKey):
     def __init__(self, **kwargs):
         kwargs['to'] = ContentType
@@ -156,13 +155,13 @@ class CTypeForeignKey(ForeignKey):
         return ContentType.objects.get_for_id(ct_id) if ct_id else None
 
     def __set__(self, instance, value):
-        #TODO: accept model directly + get_for_model() ??
+        # TODO: accept model directly + get_for_model() ??
         setattr(instance, self.attname, value.id if value else value)
 
     def contribute_to_class(self, cls, name):
         super(CTypeForeignKey, self).contribute_to_class(cls, name)
 
-        #Connect self as the descriptor for this field (thx to GenericForeignKey code)
+        # Connect self as the descriptor for this field (thx to GenericForeignKey code)
         setattr(cls, name, self)
 
     def deconstruct(self):
@@ -171,7 +170,7 @@ class CTypeForeignKey(ForeignKey):
 
         return name, path, args, kwargs
 
-    #TODO: factorise
+    # TODO: factorise
     def get_internal_type(self):
         return "ForeignKey"
 
@@ -187,13 +186,13 @@ class CTypeForeignKey(ForeignKey):
         defaults = {'form_class': CTypeChoiceField}
         defaults.update(kwargs)
 
-        #Beware we don't call super(CTypeForeignKey, self).formfield(**defaults)
-        #to avoid useless/annoying 'queryset' arg
+        # Beware we don't call super(CTypeForeignKey, self).formfield(**defaults)
+        # to avoid useless/annoying 'queryset' arg
         return super(ForeignKey, self).formfield(**defaults)
 
 
 class EntityCTypeForeignKey(CTypeForeignKey):
-    #TODO: assert that it is a CremeEntity instance ??
+    # TODO: assert that it is a CremeEntity instance ??
     #def __set__(self, instance, value):
         #setattr(instance, self.attname, value.id if value else value)
 
@@ -202,6 +201,45 @@ class EntityCTypeForeignKey(CTypeForeignKey):
         defaults = {'form_class': EntityCTypeChoiceField}
         defaults.update(kwargs)
         return super(EntityCTypeForeignKey, self).formfield(**defaults)
+
+# TODO: factorise with CTypeForeignKey
+class CTypeOneToOneField(OneToOneField):
+    def __init__(self, **kwargs):
+        kwargs['to'] = ContentType
+        super(CTypeOneToOneField, self).__init__(**kwargs)
+
+    def __get__(self, instance, instance_type=None):
+        ct_id = getattr(instance, self.attname)
+        return ContentType.objects.get_for_id(ct_id) if ct_id else None
+
+    def __set__(self, instance, value):
+        # TODO: accept model directly + get_for_model() ??
+        setattr(instance, self.attname, value.id if value else value)
+
+    def contribute_to_class(self, cls, name):
+        super(CTypeOneToOneField, self).contribute_to_class(cls, name)
+
+        # Connect self as the descriptor for this field (thx to GenericForeignKey code)
+        setattr(cls, name, self)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(CTypeOneToOneField, self).deconstruct()
+        #kwargs.pop('to', None)
+
+        return name, path, args, kwargs
+
+    def get_internal_type(self):
+#        return "ForeignKey"
+        return "OneToOneField"
+
+    def formfield(self, **kwargs):
+        from ..forms.fields import CTypeChoiceField
+        defaults = {'form_class': CTypeChoiceField}
+        defaults.update(kwargs)
+
+        # Beware we don't call super(CTypeOneToOneField, self).formfield(**defaults)
+        # to avoid useless/annoying 'queryset' arg
+        return super(OneToOneField, self).formfield(**defaults)
 
 
 class BasicAutoField(PositiveIntegerField):

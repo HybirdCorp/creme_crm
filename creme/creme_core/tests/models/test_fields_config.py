@@ -170,3 +170,17 @@ class FieldsConfigTestCase(CremeTestCase):
         fconf = self.refresh(fconf)
         self.assertEqual(1, len(jsonloads(fconf.raw_descriptions)))
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
+
+    def test_ct_cache(self):
+        model = FakeContact
+        ContentType.objects.get_for_model(model) # ensure that ContentType is filled
+
+        fconf = FieldsConfig.create(model,
+                                    descriptions=[('last_name', {FieldsConfig.HIDDEN: True})],
+                                   )
+        fconf = self.refresh(fconf)
+
+        with self.assertNumQueries(0):
+            ct = fconf.content_type
+
+        self.assertEqual(FakeContact, ct.model_class())
