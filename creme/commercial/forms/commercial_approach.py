@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from datetime import datetime
-
 from creme.creme_core.forms import CremeModelForm
 
 from ..models import CommercialApproach
@@ -28,16 +26,7 @@ from ..models import CommercialApproach
 class ComAppCreateForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = CommercialApproach
-        #fields = ('title', 'description')
 
     def __init__(self, entity, *args, **kwargs):
         super(ComAppCreateForm, self).__init__(*args, **kwargs)
-        #self._entity = entity
         self.instance.creme_entity = entity
-
-    #def save(self):
-        #instance = self.instance
-        #instance.creation_date = datetime.today()
-        #instance.creme_entity = self._entity
-
-        #return super(ComAppCreateForm, self).save()
