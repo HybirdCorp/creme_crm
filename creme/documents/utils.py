@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+##    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,21 +20,30 @@
 
 from django.utils.translation import ugettext as _
 
-from .models import Folder
+from . import get_folder_model
+#from .models import Folder
 
 
 def get_csv_folder_or_create(user):
-    title = _(u'CSV Documents')
-
-    #TODO: get_or_create + defaults
-    try:
-        folder = Folder.objects.get(title=title)
-    except Folder.DoesNotExist:
-        folder = Folder.objects.create(title=title,
-                                       description=_(u'Folder containing all the CSV documents used when importing data'),
-                                       parent_folder=None,
-                                       category=None,
-                                       user=user,
-                                      )
-
-    return folder
+#    title = _(u'CSV Documents')
+#
+#    #todo: get_or_create + defaults
+#    try:
+#        folder = Folder.objects.get(title=title)
+#    except Folder.DoesNotExist:
+#        folder = Folder.objects.create(title=title,
+#                                       description=_(u'Folder containing all the CSV documents used when importing data'),
+#                                       parent_folder=None,
+#                                       category=None,
+#                                       user=user,
+#                                      )
+#
+#    return folder
+    return get_folder_model().objects.get_or_create(
+                title=_(u'CSV Documents'),
+                defaults={'description':   _(u'Folder containing all the CSV documents used when importing data'),
+                          'parent_folder': None,
+                          'category':      None,
+                          'user':          user,
+                         },
+            )[0]
