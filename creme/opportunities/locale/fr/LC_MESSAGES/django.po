@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-17 14:58+0200\n"
+"POT-Creation-Date: 2015-09-23 16:43+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -68,9 +68,9 @@ msgstr "Bons de commande liés à l'opportunité"
 msgid "Invoices linked to the opportunity"
 msgstr "Factures liées à l'opportunité"
 
-#: buttons.py:28
-msgid "Add an opportunity linked to an organisation"
-msgstr "Ajouter une opportunité liée à une société"
+#: buttons.py:29
+msgid "Add a linked opportunity"
+msgstr "Ajouter une opportunité reliée"
 
 #: forms/lv_import.py:37
 #: templates/opportunities/templatetags/block_target.html:5
@@ -608,6 +608,11 @@ msgstr "Total HT"
 msgid "Total (inclusive of tax)"
 msgstr "Total TTC"
 
+#: templates/opportunities/templatetags/button_linked_opp.html:5
+#, python-format
+msgid "Create an opportunity which targets «%(object)s»"
+msgstr "Créer une opportunité qui cible «%(object)s»"
+
 #: templates/opportunities/templatetags/button_linked_opp.html:10
 msgid "forbidden"
 msgstr "interdit"
@@ -624,6 +629,9 @@ msgstr "Nouvelle opportunité liée à «%s»"
 #: views/portal.py:36
 msgid "Number of opportunities"
 msgstr "Nombre d'opportunité(s)"
+
+#~ msgid "Add an opportunity linked to an organisation"
+#~ msgstr "Ajouter une opportunité liée à une société"
 
 #~ msgid "Default value"
 #~ msgstr "Valeur par défaut"
