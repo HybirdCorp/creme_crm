@@ -26,14 +26,19 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
         list_view, add_model_with_popup)
 
+from .. import get_folder_model, get_document_model
 from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, DocumentEditForm
-from ..models import Document, Folder
+#from ..models import Document, Folder
+
+
+Document = get_document_model()
 
 
 @login_required
 @permission_required(('documents', 'documents.add_document'))
 def add(request):
-    folder = Folder.objects.first()
+#    folder = Folder.objects.first()
+    folder = get_folder_model().objects.first()
 
     return add_entity(request, DocumentCreateForm,
                       #extra_initial={'folder': Folder.objects.first()}, # TODO: uncomment when CreatorEntityField can be initialized with instance..

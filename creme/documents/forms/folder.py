@@ -25,7 +25,11 @@ from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.fields import CreatorEntityField
 
-from ..models import Folder
+from .. import get_folder_model
+#from ..models import Folder
+
+
+Folder = get_folder_model()
 
 
 class _FolderForm(CremeEntityForm):

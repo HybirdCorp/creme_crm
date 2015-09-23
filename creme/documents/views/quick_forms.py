@@ -25,8 +25,12 @@ from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views.generic import inner_popup
 from creme.creme_core.views.quick_forms import json_quickform_response
 
+from .. import get_document_model
 from ..forms.quick import CSVDocumentWidgetQuickForm
-from ..models import Document
+#from ..models import Document
+
+
+Document = get_document_model()
 
 
 @login_required
@@ -39,15 +43,17 @@ def add_csv_from_widget(request, count):
     # TODO : see for permission issues
 
     if request.method == 'POST':
-        form = CSVDocumentWidgetQuickForm(user=user, data=request.POST, files=request.FILES or None, initial=None)
+        form = CSVDocumentWidgetQuickForm(user=user, data=request.POST,
+                                          files=request.FILES or None,
+                                          initial=None,
+                                         )
     else:
         form = CSVDocumentWidgetQuickForm(user=user, initial=None)
 
     if request.method == 'GET' or not form.is_valid():
         return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
-                           {'form':   form,
-                            #'title':  _('New value'),
-                            'title':  Document.creation_label,
+                           {'form':         form,
+                            'title':        Document.creation_label,
                             'submit_label': _('Save the document'),
                            },
                            is_valid=form.is_valid(),

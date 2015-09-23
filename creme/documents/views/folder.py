@@ -28,11 +28,13 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity
 from creme.creme_core.views.generic.listview import list_view
 
+from .. import get_folder_model
 from ..forms.folder import FolderForm, ChildFolderForm
-from ..models import Folder
+#from ..models import Folder
 
 
 logger = logging.getLogger(__name__)
+Folder = get_folder_model()
 
 
 @login_required

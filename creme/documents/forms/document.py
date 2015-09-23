@@ -30,11 +30,14 @@ from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.creme_core.utils import ellipsis
 
-from ..models import FolderCategory, Folder, Document
+from .. import get_folder_model, get_document_model
 from ..constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
+from ..models import FolderCategory # Folder, Document
 
 
 logger = logging.getLogger(__name__)
+Folder   = get_folder_model()
+Document = get_document_model()
 
 # TODO: uncomment when form field for Folder is naturally CreatorEntityField
 #class DocumentCreateForm(CremeEntityForm):

@@ -23,8 +23,12 @@ from os import path
 from creme.creme_core.forms.base import CremeModelWithUserForm # CremeEntityForm
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from ..models import Document
+from .. import get_document_model
+#from ..models import Document
 from ..utils import get_csv_folder_or_create
+
+
+Document = get_document_model()
 
 
 class DocumentQuickForm(CremeModelWithUserForm):
