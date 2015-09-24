@@ -36,10 +36,10 @@ try:
     from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document
 
     from ..blocks import ReportGraphBlock
-    from ..core.graph import ListViewURLBuilder
     from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR,
             RGT_CUSTOM_RANGE, RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH,
             RGT_YEAR, RGT_RANGE, RGT_FK, RFT_FIELD, RFT_RELATION)
+    from ..core.graph import ListViewURLBuilder
     from ..models import Field, Report, ReportGraph
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -778,7 +778,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertNoFormError(response)
 
         rgraph = self.refresh(rgraph)
-        self.assertEqual(hidden_fname,         rgraph.abscissa)
+        self.assertEqual(hidden_fname, rgraph.abscissa)
 
         hand = rgraph.hand
         self.assertEqual(_(u"Expiration date"), hand.verbose_abscissa)
@@ -805,6 +805,38 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          ],
                          aggrfields_choices
                         )
+
+    def test_editview06(self):
+        "'days' field is emptied when useless"
+        report = self._create_simple_organisations_report()
+
+        days = 15
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"Number of orga(s) created / %s days" % days,
+                                            abscissa='creation_date',
+                                            type=RGT_RANGE, days=days,
+                                            is_count=True,
+                                            chart='barchart',
+                                           )
+
+        graph_type = RGT_MONTH
+        response = self.client.post(self._build_edit_url(rgraph),
+                                    data={'user':              rgraph.user.pk,
+                                          'name':              rgraph.name,
+                                          'abscissa_field':    rgraph.abscissa,
+                                          'abscissa_group_by': graph_type,
+                                          'days':              days, # <= should not be used
+                                          'aggregate':         '',
+                                          'is_count':          'on',
+                                          'aggregate_field':   '',
+                                          'chart':             rgraph.chart,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        rgraph = self.refresh(rgraph)
+        self.assertEqual(graph_type, rgraph.type)
+        self.assertIsNone(rgraph.days)
 
     def test_fetch_with_fk_01(self):
         "Count"
