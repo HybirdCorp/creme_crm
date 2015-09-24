@@ -87,6 +87,9 @@ def _basic_printer(field, val, user):
         # NB: django way for '_get_FIELD_display()' methods => would a linear search be faster ?
         val = dict(field.flatchoices).get(val, val)
 
+    if val is None:
+        return ''
+
     return val
 
 #def _fk_printer(field, val):
