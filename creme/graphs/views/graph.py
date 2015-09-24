@@ -30,7 +30,10 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
 
 from .. import get_graph_model
 from ..forms.graph import GraphForm, AddRelationTypesForm
-from ..models import Graph
+#from ..models import Graph
+
+
+Graph = get_graph_model()
 
 
 @login_required
@@ -43,8 +46,7 @@ def add(request):
 @login_required
 @permission_required('graphs')
 def dl_png(request, graph_id):
-#    graph = get_object_or_404(Graph, pk=graph_id)
-    graph = get_object_or_404(get_graph_model(), pk=graph_id)
+    graph = get_object_or_404(Graph, pk=graph_id)
     user  = request.user
 
     user.has_perm_to_view_or_die(graph)
@@ -76,16 +78,14 @@ def listview(request):
 def add_relation_types(request, graph_id):
     return add_to_entity(request, graph_id, AddRelationTypesForm,
                          _(u'Add relation types to «%s»'),
-#                         entity_class=Graph,
-                         entity_class=get_graph_model(),
+                         entity_class=Graph,
                         )
 
 @login_required
 @permission_required('graphs')
 def delete_relation_type(request, graph_id):
     rtypes_id = get_from_POST_or_404(request.POST, 'id')
-#    graph     = get_object_or_404(Graph, pk=graph_id)
-    graph     = get_object_or_404(get_graph_model(), pk=graph_id)
+    graph     = get_object_or_404(Graph, pk=graph_id)
 
     request.user.has_perm_to_change_or_die(graph)
     graph.orbital_relation_types.remove(rtypes_id)

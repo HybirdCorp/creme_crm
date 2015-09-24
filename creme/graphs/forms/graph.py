@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,28 +25,30 @@ from creme.creme_core.models import RelationType
 from creme.creme_core.forms import CremeForm, CremeEntityForm
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
-from ..models import Graph
+from .. import get_graph_model
+#from ..models import Graph
 
 
 class GraphForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-        model = Graph
+#        model = Graph
+        model = get_graph_model()
         exclude = CremeEntityForm.Meta.exclude + ('orbital_relation_types', )
 
 
 class AddRelationTypesForm(CremeForm):
     relation_types = ModelMultipleChoiceField(label=_('Types of the peripheral relations'),
                                               queryset=RelationType.objects.all(),
-                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'))
+                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'),
+                                             )
 
     def __init__(self, entity, *args, **kwargs):
         super(AddRelationTypesForm, self).__init__(*args, **kwargs)
         self.graph = entity
-
-        self.fields['relation_types'].queryset = RelationType.objects.exclude(pk__in=entity.orbital_relation_types.all())
+        self.fields['relation_types'].queryset = \
+            RelationType.objects.exclude(pk__in=entity.orbital_relation_types.all())
 
     def save(self):
-        relation_types = self.graph.orbital_relation_types
+        add_rtype = self.graph.orbital_relation_types.add
         for rtype in self.cleaned_data['relation_types']:
-            relation_types.add(rtype)
-
+            add_rtype(rtype)
