@@ -326,6 +326,9 @@ class ReportGraphForm(CremeEntityForm):
         else:
             raise ValidationError('Unknown graph type')
 
+        if cleaned_data.get('days') and abscissa_group_by not in (RGT_RANGE, RGT_CUSTOM_RANGE):
+            cleaned_data['days'] = None
+
         if get_data('aggregate_field'):
             if not field_aggregation_registry.get(get_data('aggregate')):
                 #self.errors['aggregate'] = ErrorList([ugettext(u'This field is required if you choose a field to aggregate.')])
