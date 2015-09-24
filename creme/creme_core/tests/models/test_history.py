@@ -321,6 +321,33 @@ about this fantastic animation studio."""
                       vmodifs[0]
                      )
 
+    def test_edition07(self):
+        "New value is None: berbose prints ''"
+        old_capital = 1000
+        gainax = Organisation.objects.create(user=self.user, name='Gainax', capital=old_capital)
+        old_count = HistoryLine.objects.count()
+
+        gainax = self.refresh(gainax)
+        gainax.capital = None
+        gainax.save()
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(gainax.id,    hline.entity.id)
+        self.assertEqual(TYPE_EDITION, hline.type)
+        self.assertEqual([['capital', old_capital, None]], hline.modifications)
+
+        vmodifs = hline.get_verbose_modifications(self.user)
+        self.assertEqual(1, len(vmodifs))
+        self.assertEqual(self.FSTRING_3_VALUES % {'field':    _(u'Capital'),
+                                                  'oldvalue': old_capital,
+                                                  'value':    '', # <== not None
+                                                 },
+                         vmodifs[0]
+                        )
+
     def test_deletion01(self):
         old_count = HistoryLine.objects.count()
         gainax = Organisation.objects.create(user=self.other_user, name='Gainax')
