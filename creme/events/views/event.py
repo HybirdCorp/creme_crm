@@ -36,10 +36,11 @@ from creme.persons import get_contact_model
 from .. import get_event_model
 from ..constants import *
 from ..forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
-from ..models import Event, EventType
+from ..models import EventType #Event
 
 
 Contact = get_contact_model()
+Event   = get_event_model()
 
 @login_required
 @permission_required(('events', 'events.add_event'))
@@ -205,9 +206,7 @@ _FILTER_RELATIONTYPES = (REL_SUB_IS_INVITED_TO,
 @permission_required('events')
 #@permission_required('persons') ????
 def list_contacts(request, event_id):
-#    event = get_object_or_404(Event, pk=event_id)
-    event = get_object_or_404(get_event_model(), pk=event_id)
-
+    event = get_object_or_404(Event, pk=event_id)
     request.user.has_perm_to_view_or_die(event)
 
     return list_view(request, Contact,
@@ -222,8 +221,7 @@ def list_contacts(request, event_id):
 @login_required
 @permission_required('events')
 def link_contacts(request, event_id):
-#    return edit_entity(request, event_id, Event, AddContactsToEventForm)
-    return edit_entity(request, event_id, get_event_model(), AddContactsToEventForm)
+    return edit_entity(request, event_id, Event, AddContactsToEventForm)
 
 def _get_status(request, valid_status):
     status_str = get_from_POST_or_404(request.POST, 'status')
@@ -239,8 +237,7 @@ def _get_status(request, valid_status):
     return status
 
 def _get_event_n_contact(event_id, contact_id, user):
-#    event   = get_object_or_404(Event, pk=event_id)
-    event   = get_object_or_404(get_event_model(), pk=event_id)
+    event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)
 
     has_perm_or_die = user.has_perm_to_link_or_die
@@ -275,8 +272,7 @@ def set_presence_status(request, event_id, contact_id):
 @login_required
 @permission_required(('events', 'opportunities', 'opportunities.add_opportunity'))
 def add_opportunity(request, event_id, contact_id):
-#    event   = get_object_or_404(Event, pk=event_id)
-    event   = get_object_or_404(get_event_model(), pk=event_id)
+    event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)
 
     request.user.has_perm_to_link_or_die(event)

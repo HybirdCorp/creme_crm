@@ -35,7 +35,8 @@ from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
 
 from creme.opportunities.forms.opportunity import OpportunityCreateForm
 
-from ..models import Event
+from .. import get_event_model
+#from ..models import Event
 from ..constants import *
 
 
@@ -44,7 +45,8 @@ class EventForm(CremeEntityForm):
     end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)#TODO: start_date > end_date ?
 
     class Meta(CremeEntityForm.Meta):
-        model = Event
+#        model = Event
+        model = get_event_model()
 
 
 _SYMMETRICS = {

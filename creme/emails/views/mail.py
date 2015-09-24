@@ -38,7 +38,7 @@ from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM,
         MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING)
 from ..forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
 from ..forms.template import TEMPLATES_VARS
-from ..models import LightWeightEmail, EntityEmail
+from ..models import LightWeightEmail # EntityEmail
 
 
 EntityEmail = get_entityemail_model()
