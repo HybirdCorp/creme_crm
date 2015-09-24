@@ -26,8 +26,12 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import (add_entity, add_model_with_popup,
         edit_entity, view_entity, list_view)
 
+from .. import get_opportunity_model
 from ..forms.opportunity import OpportunityCreateForm, OpportunityEditForm
-from ..models import Opportunity, SalesPhase
+from ..models import SalesPhase #Opportunity
+
+
+Opportunity = get_opportunity_model()
 
 
 @login_required
