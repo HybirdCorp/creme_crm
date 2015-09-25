@@ -23,8 +23,9 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
+from .. import get_address_model
 from ..forms.address import AddressForm, BillingAddressForm, ShippingAddressForm
-from ..models import Address
+#from ..models import Address
 
 
 @login_required
@@ -54,6 +55,7 @@ def add_shipping(request, entity_id):
 @login_required
 @permission_required('persons')
 def edit(request, address_id):
-    return edit_related_to_entity(request, address_id, Address, AddressForm,
+#    return edit_related_to_entity(request, address_id, Address, AddressForm,
+    return edit_related_to_entity(request, address_id, get_address_model(), AddressForm,
                                   _(u'Address for «%s»'),
                                  )

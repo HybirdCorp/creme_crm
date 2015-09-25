@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,11 +28,12 @@ from creme.media_managers.models import Image
 from .. import get_organisation_model
 from .base import _BasePersonForm
 
-Organisation = get_organisation_model()
 
+# TODO: these 2  fields should be generated automatically...
 class OrganisationForm(_BasePersonForm):
     creation_date = CremeDateTimeField(label=_(u"Creation date"), required=False)
     image         = CreatorEntityField(label=_(u"Logo"), required=False, model=Image)
 
     class Meta(_BasePersonForm.Meta):
-        model = Organisation
+#        model = Organisation
+        model = get_organisation_model()

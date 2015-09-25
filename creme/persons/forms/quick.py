@@ -28,12 +28,14 @@ from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation
 
+from .. import get_contact_model, get_organisation_model
 from ..constants import REL_SUB_EMPLOYED_BY
 #from ..models import Contact, Organisation
-from .. import get_contact_model, get_organisation_model
+
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()
+
 
 class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore custom fields
     organisation = CharField(label=_(u"Organisation"), required=False,

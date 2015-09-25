@@ -28,6 +28,7 @@ def transform_target_into_prospect(source, target, user):
     Be careful target is subject of REL_SUB_PROSPECT relation and source is
     object of relation.
     """
+    # TODO: get_or_create
     if not Relation.objects.filter(subject_entity=target, type=REL_SUB_PROSPECT, object_entity=source).exists():
         Relation.objects.create(subject_entity=target,
                                 type_id=REL_SUB_PROSPECT,

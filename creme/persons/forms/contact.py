@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ModelChoiceField
 from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.forms import CreatorEntityField, CremeDateTimeField
 from creme.creme_core.forms.validators import validate_linkable_model
@@ -30,13 +30,14 @@ from creme.creme_core.models import RelationType, Relation
 
 from creme.media_managers.models import Image
 
-
 #from ..models import Organisation, Contact
 from .. import get_contact_model, get_organisation_model
 from .base import _BasePersonForm
 
+
 Contact = get_contact_model()
 Organisation = get_organisation_model()
+
 
 class ContactForm(_BasePersonForm):
     birthday = CremeDateTimeField(label=_('Birthday'), required=False) #TODO: hook django to use our widget directly...
