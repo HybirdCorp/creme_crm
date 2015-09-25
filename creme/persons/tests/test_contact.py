@@ -14,7 +14,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms.widgets import Label, TextInput
     from creme.creme_core.gui.quick_forms import quickforms_registry
-    from creme.creme_core.models import RelationType, Relation, SetCredentials
+    from creme.creme_core.models import RelationType, Relation, SetCredentials, FieldsConfig
 
     from creme.media_managers.models import Image
 
@@ -293,6 +293,48 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(last_name,  user.last_name)
         self.assertEqual(email,      user.email)
 
+    def test_editview04(self):
+        "Contact is a user + emails is hidden (crashed)"
+        user = self.login()
+        contact = self.get_object_or_fail(Contact, is_user=user)
+
+        FieldsConfig.create(Contact,
+                            descriptions=[('email', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        url = contact.get_edit_absolute_url()
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertNotIn('email', fields)
+
+        last_name  = user.last_name
+        first_name = user.first_name
+        email = user.email
+        description = 'First contact user'
+        response = self.client.post(url, follow=True,
+                                    data={'user':       user.id,
+                                          'last_name':  last_name,
+                                          'first_name': first_name,
+                                          'email':      'useless@dontcare.org',
+                                          'description': description,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        contact = self.refresh(contact)
+        self.assertEqual(first_name,  contact.first_name)
+        self.assertEqual(last_name,   contact.last_name)
+        self.assertEqual(email,       contact.email) # <= no change
+        self.assertEqual(description, contact.description)
+
+        user = self.refresh(user)
+        self.assertEqual(first_name, user.first_name)
+        self.assertEqual(last_name,  user.last_name)
+        self.assertEqual(email,      user.email) # <= no change
+
     def test_is_user01(self):
         "Property 'linked_contact'"
         user = self.login()
@@ -306,11 +348,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         user = self.refresh(user) #clean cache
 
         with self.assertNumQueries(1):
-            #rel_contact1 = 
             user.linked_contact
 
         with self.assertNumQueries(0):
-            #rel_contact2 = 
             user.linked_contact
 
     def test_is_user02(self):

@@ -54,7 +54,10 @@ class ContactForm(_BasePersonForm):
         if self.instance.is_user_id:
             fields = self.fields
             fields['first_name'].required = True
-            fields['email'].required = True
+
+            email_f = fields.get('email')
+            if email_f is not None:
+                email_f.required = True
 
 
 class RelatedContactForm(ContactForm):
