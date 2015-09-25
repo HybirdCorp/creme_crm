@@ -24,7 +24,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme.creme_core.models import SearchConfigItem, UserRole
+from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
+from creme.creme_core.utils.collections import OrderedSet
 
 
 #CremeUser = get_user_model()
@@ -38,14 +39,6 @@ class _SearchForm(CremeModelForm):
         model = SearchConfigItem
 #        exclude = ('content_type', 'user', 'field_names')
         exclude = ('content_type', 'role', 'field_names')
-
-    def __init__(self, *args, **kwargs):
-        super(_SearchForm, self).__init__(*args, **kwargs)
-
-        self.fields['fields'].choices = self._get_instance().get_modelfields_choices()
-
-    def _get_instance(self):
-        return self.instance
 
     def save(self, *args, **kwargs):
         self.instance.searchfields = self.cleaned_data['fields']
@@ -65,11 +58,15 @@ class SearchAddForm(_SearchForm):
 
     def __init__(self, *args, **kwargs):
         super(SearchAddForm, self).__init__(*args, **kwargs)
+        instance = self.instance
+        instance.content_type = self.initial['content_type']
+        self.fields['fields'].choices = instance.get_modelfields_choices()
+
 #        used_user_ids = SearchConfigItem.objects.filter(content_type=ct, user__isnull=False)\
 #                                                .values_list('user', flat=True)
         role_f = self.fields['role']
         used_role_ids = set(SearchConfigItem.objects
-                                            .filter(content_type=self.instance.content_type)
+                                            .filter(content_type=instance.content_type)
                                             .exclude(role__isnull=True, superuser=False)
                                             .values_list('role', flat=True)
                            )
@@ -82,12 +79,6 @@ class SearchAddForm(_SearchForm):
 #        self.fields['user'].queryset = CremeUser.objects.filter(is_team=False) \
 #                                                        .exclude(pk__in=used_user_ids)
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
-
-    def _get_instance(self):
-        instance = self.instance
-        instance.content_type = self.initial['content_type']
-
-        return instance
 
     # NB: we could manage the possible/unlikely race condition with 'unique_together'
     # in SearchConfigItem.Meta, but it only leads to IntegrityError, recovered
@@ -104,5 +95,17 @@ class SearchAddForm(_SearchForm):
 class SearchEditForm(_SearchForm):
     def __init__(self, *args, **kwargs):
         super(SearchEditForm, self).__init__(*args, **kwargs)
+        instance = self.instance
+        selected_fnames = [sf.name for sf in instance.searchfields]
+        # TODO: work with Fields instead of Field names + split()...
+        not_hiddable_fnames = OrderedSet(fname.split('__', 1)[0] for fname in selected_fnames)
+        is_hidden = FieldsConfig.get_4_model(instance.content_type.model_class()).is_fieldname_hidden
 
-        self.fields['fields'].initial = [sf.name for sf in self.instance.searchfields]
+        def keep_choice(fname):
+            return not is_hidden(c[0].split('__', 1)[0]) or fname in not_hiddable_fnames
+
+        fields_f = self.fields['fields']
+        fields_f.choices = [c for c in self.instance.get_modelfields_choices()
+                                if keep_choice(c[0].split('__', 1)[0])
+                           ]
+        fields_f.initial = selected_fnames
