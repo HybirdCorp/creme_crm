@@ -8,9 +8,9 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
-    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation, FakeSector
     from creme.creme_core.gui.block import QuerysetBlock
-    from creme.creme_core.models import SearchConfigItem
+    from creme.creme_core.models import SearchConfigItem, FieldsConfig
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -41,13 +41,19 @@ class SearchViewTestCase(ViewsTestCase):
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
     def _build_contacts(self):
+        sector = FakeSector.objects.create(title='Linux dev')
+
         create_contact = partial(Contact.objects.create, user=self.user)
-        self.linus = create_contact(first_name='Linus', last_name='Torvalds')
-        self.alan  = create_contact(first_name='Alan',  last_name='Cox', description='Cool beard')
-        self.linus2 = create_contact(first_name='Linus', last_name='Impostor', is_deleted=True)
+        self.linus  = create_contact(first_name='Linus',  last_name='Torvalds')
+        self.alan   = create_contact(first_name='Alan',   last_name='Cox',      description='Cool beard')
+        self.linus2 = create_contact(first_name='Linus',  last_name='Impostor', is_deleted=True)
+        self.andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
 
     def _setup_contacts(self, disabled=False):
-        SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'], disabled=disabled)
+        SearchConfigItem.create_if_needed(Contact,
+                                          ['first_name', 'last_name', 'sector__title'],
+                                          disabled=disabled,
+                                         )
         self._build_contacts()
 
     def _setup_orgas(self):
@@ -96,7 +102,7 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.linus.get_absolute_url())
 
     def test_search02(self):
-        "Deleted entities are found too"
+        "Find result in field & sub-field ; deleted entities are found too"
         self.login()
         self._setup_contacts()
 
@@ -104,7 +110,8 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertContains(response, self.linus.get_absolute_url())
-        self.assertContains(response, self.linus2.get_absolute_url())
+        self.assertContains(response, self.linus2.get_absolute_url()) # deleted
+        self.assertContains(response, self.andrew.get_absolute_url()) # in sector__title
         self.assertNotContains(response, self.alan.get_absolute_url())
 
     def test_search03(self):
@@ -216,6 +223,66 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.linus.get_absolute_url())
         self.assertNotContains(response, self.linus2.get_absolute_url())
         self.assertContains(response, self.alan.get_absolute_url())
+
+    def test_search10(self):
+        "With FieldsConfig"
+        user = self.login()
+
+        hidden_fname1 = 'description'
+        hidden_fname2 = 'sector'
+        SearchConfigItem.create_if_needed(Contact,
+                                          ['first_name', 'last_name',
+                                           hidden_fname1,
+                                           hidden_fname2 + '__title',
+                                          ],
+                                         )
+
+        sector = FakeSector.objects.create(title='Linux dev')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        linus  = create_contact(first_name='Linus',  last_name='Torvalds', description="Alan's friend")
+        alan   = create_contact(first_name='Alan',   last_name='Cox',      description="Linus' friend")
+        andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
+
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                         ]
+                           )
+
+        response = self._search('Linu', self.contact_ct_id)
+        self.assertEqual(200, response.status_code)
+
+        self.assertContains(response, linus.get_absolute_url())
+        self.assertNotContains(response, alan.get_absolute_url())
+        self.assertNotContains(response, andrew.get_absolute_url())
+
+        self.assertContains(response, _('First name'))
+        self.assertContains(response, _('Last name'))
+        self.assertNotContains(response, _('Description'))
+        self.assertNotContains(response, _('Sector'))
+
+    def test_search11(self):
+        "With FieldsConfig: all fields are hidden"
+        user = self.login()
+
+        hidden_fname = 'description'
+        SearchConfigItem.create_if_needed(Contact, [hidden_fname])
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
+                           )
+        self._build_contacts()
+
+        response = self._search('Cool', self.contact_ct_id)
+        self.assertEqual(200, response.status_code)
+
+        self.assertNotContains(response, self.linus.get_absolute_url())
+        self.assertNotContains(response, self.alan.get_absolute_url())
+        self.assertNotContains(response, self.andrew.get_absolute_url())
+
+        self.assertContains(response,
+                            _('It seems that all fields are hidden. Ask your administrator to fix the configuration.')
+                           )
 
     def test_reload_block(self):
         self.login()

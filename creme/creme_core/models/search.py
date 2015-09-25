@@ -37,6 +37,7 @@ from .fields import EntityCTypeForeignKey, DatePeriodField
 logger = logging.getLogger(__name__)
 
 
+# TODO: store FieldInfo too/instead (see Searcher + creme_config form)
 class SearchField(object):
     __slots__ = ('__name', '__verbose_name')
 

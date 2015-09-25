@@ -20,26 +20,29 @@
 
 from django.db.models.query import Q
 
-from ..models import SearchConfigItem
+from ..models import SearchConfigItem, FieldsConfig
 
 
 class Searcher(object):
     def __init__(self, models, user):
-        self._search_map = {sci.content_type.model_class(): sci.searchfields
-                                for sci in SearchConfigItem.get_4_models(models, user)
-                                    if not sci.disabled
-                           }
+        get_fconf = FieldsConfig.LocalCache().get_4_model # TODO: get_4_models() ?
+        self._search_map = search_map = {}
 
-    #def _build_query(self, research, fields, is_or=True):
+        for sci in SearchConfigItem.get_4_models(models, user):
+            if not sci.disabled:
+                model = sci.content_type.model_class()
+                is_hidden = get_fconf(model).is_fieldname_hidden
+                # TODO: work with FieldInfo instead of strings + split() (see creme_config too)
+                search_map[model] = [sfield
+                                        for sfield in sci.searchfields
+                                            if not is_hidden(sfield.name.split('__', 1)[0])
+                                    ]
+
     def _build_query(self, research, fields): #TODO: inline ??
         "Build a Q with all params fields"
         result_q = Q()
 
         for f in fields:
-            #if is_or:
-                #result_q |= q
-            #else:
-                #result_q &= q
             result_q |= Q(**{'%s__icontains' % f.name: research})
 
         return result_q
@@ -56,11 +59,12 @@ class Searcher(object):
         """Return the models which fields contain the wanted value.
         @param model Class inheriting django.db.Model (CremeEntity)
         @param research Searched string.
-        @return Queryset on model.
+        @return Queryset on model or None ; None means 'All fields are hidden'.
         """
         searchfields = self.get_fields(model)
 
         assert searchfields is not None # search on a disabled model ?
 
-        return model.objects.filter(self._build_query(research, searchfields)) \
-                            .distinct()
+        # TODO: distint() only if there is a JOIN...
+        return model.objects.filter(self._build_query(research, searchfields)).distinct() \
+               if searchfields else None

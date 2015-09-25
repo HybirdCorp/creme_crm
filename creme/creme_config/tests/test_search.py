@@ -6,7 +6,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import SearchConfigItem, UserRole
+    from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeInvoice, FakeInvoiceLine)
@@ -52,6 +52,11 @@ class SearchConfigTestCase(CremeTestCase):
                 return i
 
         self.fail('No "%s" in field' % field_name)
+
+    def _assertNotInChoices(self, formfield, field_name):
+        for f_field_name, f_field_vname in formfield.choices:
+            if f_field_name == field_name:
+                self.fail('"%s" found in choices' % field_name)
 
     def _get_first_entity_ctype(self):
         ctypes = list(creme_entity_content_types())
@@ -276,6 +281,63 @@ class SearchConfigTestCase(CremeTestCase):
 
         self._find_field_index(fields, 'name')
         self.assertNoChoice(fields, 'periodicity')
+
+    def test_edit06(self):
+        "With FieldsConfig"
+        model = Contact
+        hidden_fname1 = 'description'
+        hidden_fname2 = 'position'
+        FieldsConfig.create(model,
+                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                         ]
+                           )
+        sci = SearchConfigItem.create_if_needed(model, fields=['first_name'])
+
+        response = self.assertGET200(self._build_edit_url(sci))
+
+        with self.assertNoException():
+            fields_f = response.context['form'].fields['fields']
+
+        self.assertEqual(['first_name'], fields_f.initial)
+
+        self._find_field_index(fields_f, 'first_name')
+        self._find_field_index(fields_f, 'civility__title')
+
+        self._assertNotInChoices(fields_f, hidden_fname1)
+        self._assertNotInChoices(fields_f, 'position__title')
+
+    def test_edit07(self):
+        "With FieldsConfig + selected hidden fields"
+        model = Contact
+        hidden_fname1 = 'description'
+        hidden_fname2 = 'position'
+        hidden_sub_fname2 = hidden_fname2 + '__title'
+        sci = SearchConfigItem.create_if_needed(model,
+                                                fields=['first_name',
+                                                        hidden_fname1,
+                                                        hidden_sub_fname2,
+                                                       ]
+                                               )
+
+        FieldsConfig.create(model,
+                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                         ]
+                           )
+
+        response = self.assertGET200(self._build_edit_url(sci))
+
+        with self.assertNoException():
+            fields_f = response.context['form'].fields['fields']
+
+        self.assertEqual(['first_name', hidden_fname1, hidden_sub_fname2],
+                         fields_f.initial
+                        )
+
+        self._find_field_index(fields_f, 'first_name')
+        self._find_field_index(fields_f, hidden_fname1)
+        self._find_field_index(fields_f, hidden_sub_fname2)
 
     def test_delete01(self):
         sci = SearchConfigItem.create_if_needed(Contact, role=self.role,

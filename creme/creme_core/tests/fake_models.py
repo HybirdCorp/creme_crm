@@ -240,10 +240,10 @@ else:
                                     ).set_tags(optional=True)
         position        = models.ForeignKey(FakePosition, verbose_name=_(u'Position'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
-                                           )
+                                           ).set_tags(optional=True)
         sector          = models.ForeignKey(FakeSector, verbose_name=_(u'Line of business'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
-                                           )
+                                           ).set_tags(optional=True)
         email           = models.EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
         url_site        = models.URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
         languages       = models.ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),

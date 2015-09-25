@@ -17,20 +17,26 @@
             </th>
         {% end_get_block_header %}
         <tbody {% comment %}class="collapsable" TODO ??{% endcomment %}>
-            <tr class="header">
-                <th class="block_header_line_dark action">{% trans 'Action' %}</th>
-                {% for sfield in sfields %}
-                    <th class="block_header_line_dark">{{sfield}}</th>
-                {% endfor %}
-            </tr>
-            {% for entity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                <tr class="content">
-                    <td class="{{row_color}} action"><a href="{{entity.get_absolute_url}}" {% if entity.is_deleted %}class="is_deleted"{% endif %}>{% trans 'Go to the page' %}</a></td>
+            {% if sfields %}
+                <tr class="header">
+                    <th class="block_header_line_dark action">{% trans 'Action' %}</th>
                     {% for sfield in sfields %}
-                        <td class="{{row_color}} search_result">{% print_field object=entity field=sfield.name %}</td>
+                        <th class="block_header_line_dark">{{sfield}}</th>
                     {% endfor %}
                 </tr>
-            {% endfor %}
+                {% for entity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                    <tr class="content">
+                        <td class="{{row_color}} action"><a href="{{entity.get_absolute_url}}" {% if entity.is_deleted %}class="is_deleted"{% endif %}>{% trans 'Go to the page' %}</a></td>
+                        {% for sfield in sfields %}
+                            <td class="{{row_color}} search_result">{% print_field object=entity field=sfield.name %}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr class="content empty">
+                    <td class="block_line_dark">{% trans "It seems that all fields are hidden. Ask your administrator to fix the configuration." %}</td>
+                </tr>
+            {% endif %}
         </tbody>
         {% get_block_footer colspan %}
     </table>

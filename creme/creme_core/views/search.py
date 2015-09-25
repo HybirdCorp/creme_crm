@@ -81,9 +81,15 @@ class FoundEntitiesBlock(QuerysetBlock):
         verbose_name = meta.verbose_name
         research = self.research
         searcher = self.searcher
+        results = searcher.search(model, research)
+
+        if results is None:
+            qs = model.objects.all()[:1] # HACK: ensures that the block is displayed (with a strange title anyway...)
+        else:
+            qs = EntityCredentials.filter(self.user, results)
+
         btc = self.get_block_template_context(
-                    context,
-                    EntityCredentials.filter(self.user, searcher.search(model, research)),
+                    context, qs,
                     update_url='/creme_core/search/reload_block/%s/%s' % (self.id_, research),
                     sfields=searcher.get_fields(model),
                     ctype=self.ctype, #if the model is inserted in the context, the template call it and create an instance...
@@ -101,18 +107,13 @@ class FoundEntitiesBlock(QuerysetBlock):
 
 @login_required
 def search(request):
-    #post_get = request.POST.get
-    #research = post_get('research')
-    #ct_id    = post_get('ct_id')
     GET_get = request.GET.get
     research = GET_get('research')
     ct_id    = GET_get('ct_id')
 
-    t_ctx   = {}
-    models  = []
-    #results = []
-    #total   = 0
-    blocks  = []
+    t_ctx  = {}
+    models = []
+    blocks = []
 
     if not research:
         t_ctx['error_message'] = _(u"Empty search…")
@@ -126,23 +127,11 @@ def search(request):
             models.append(get_ct_or_404(ct_id).model_class())
 
         user = request.user
-        #filter_viewable = partial(EntityCredentials.filter, user=user)
         searcher = Searcher(models, user)
-
-        #for model in models:
-            #entities = filter_viewable(queryset=searcher.search(model, research))
-            #total += len(entities)
-            #results.append({'model':    model,
-                            #'sfields':  searcher.get_fields(model),
-                            #'entities': entities,
-                           #}
-                          #)
 
         models = list(searcher.models) # remove disabled models
         blocks.extend(FoundEntitiesBlock(searcher, model, research, user) for model in models)
 
-    #t_ctx['total'] = total
-    #t_ctx['results'] = results
     t_ctx['research'] = research
     t_ctx['models'] = [model._meta.verbose_name for model in models]
     t_ctx['blocks'] = blocks
