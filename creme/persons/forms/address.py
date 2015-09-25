@@ -22,12 +22,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
 
-from ..models import Address
+from .. import get_address_model
+#from ..models import Address
 
 
 class AddressForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
-        model = Address
+#        model = Address
+        model = get_address_model()
 
     def __init__(self, entity, *args, **kwargs):
         super(AddressForm, self).__init__(*args, **kwargs)

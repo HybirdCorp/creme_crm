@@ -29,8 +29,11 @@ from creme.creme_core.models import RelationType
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from .. import get_contact_model, get_organisation_model
-from ..models import Contact # Organisation
+#from ..models import Contact # Organisation
 from ..forms.contact import RelatedContactForm, ContactForm
+
+
+Contact = get_contact_model()
 
 
 def abstract_add_contact(request, form=ContactForm,
@@ -52,7 +55,6 @@ def abstract_add_related_contact(request, orga_id, rtype_id,
     user.has_perm_to_link_or_die(linked_orga)
     user.has_perm_to_view_or_die(linked_orga) #displayed in the form....
 
-    Contact = get_contact_model()
     user.has_perm_to_link_or_die(Contact)
 
     initial = {'linked_orga': linked_orga}

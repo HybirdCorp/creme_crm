@@ -28,7 +28,10 @@ from creme.creme_core.views.generic import add_entity, edit_entity, view_entity,
 from .. import get_organisation_model
 from ..constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 from ..forms.organisation import OrganisationForm
-from ..models import Organisation
+#from ..models import Organisation
+
+
+Organisation = get_organisation_model()
 
 
 @login_required
@@ -59,9 +62,11 @@ def listview(request):
 
 def abstract_list_my_leads_my_customers(request):
     # TODO: use a constant for 'persons-hf_leadcustomer' ??
-    return list_view(request, get_organisation_model(), hf_pk='persons-hf_leadcustomer',
+    return list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
                      extra_dict={'list_title': ugettext(u'List of my suspects / prospects / customers')},
-                     extra_q=Q(relations__type__in=[REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT],
+                     extra_q=Q(relations__type__in=(REL_SUB_CUSTOMER_SUPPLIER,
+                                                    REL_SUB_PROSPECT, REL_SUB_SUSPECT,
+                                                   ),
                                relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME,
                               )
                     )
