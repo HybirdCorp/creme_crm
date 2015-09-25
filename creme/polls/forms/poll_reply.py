@@ -35,8 +35,12 @@ from creme.creme_core.forms.widgets import Label
 
 from creme.persons.models import Contact, Organisation
 
-from .. import get_pollreply_model
-from ..models import PollForm, PollReply, PollCampaign
+from .. import get_pollcampaign_model, get_pollform_model, get_pollreply_model
+#from ..models import PollForm, PollReply, PollCampaign
+
+
+PollCampaign = get_pollcampaign_model()
+PollReply    = get_pollreply_model()
 
 
 class PollRepliesCreateForm(CremeForm):
@@ -44,7 +48,9 @@ class PollRepliesCreateForm(CremeForm):
                                 queryset=get_user_model().objects.filter(is_staff=False),
                                )
     name     = CharField(label=_(u'Name'), required=True)
-    campaign = CreatorEntityField(label=pgettext_lazy('polls', u'Related campaign'), model=PollCampaign, required=False)
+    campaign = CreatorEntityField(label=pgettext_lazy('polls', u'Related campaign'),
+                                  model=PollCampaign, required=False,
+                                 )
     number   = IntegerField(label=_(u'Number of replies'), initial=1, min_value=1, required=False)
     persons  = MultiGenericEntityField(label=_(u'Persons who filled'), required=False,
                                         models=[Organisation, Contact],
@@ -52,7 +58,8 @@ class PollRepliesCreateForm(CremeForm):
                                                      '(and "Number of replies" will be ignored)'
                                                    )
                                       )
-    pform    = CreatorEntityField(label=_(u'Related form'), model=PollForm)
+#    pform    = CreatorEntityField(label=_(u'Related form'), model=PollForm)
+    pform    = CreatorEntityField(label=_(u'Related form'), model=get_pollform_model())
 
     def __init__(self, *args, **kwargs):
         super(PollRepliesCreateForm, self).__init__(*args, **kwargs)

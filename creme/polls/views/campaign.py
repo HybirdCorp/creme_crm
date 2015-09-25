@@ -23,8 +23,12 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import view_entity, add_entity, edit_entity, list_view
 
+from .. import get_pollcampaign_model
 from ..forms.campaign import PollCampaignForm
-from ..models import PollCampaign
+#from ..models import PollCampaign
+
+
+PollCampaign = get_pollcampaign_model()
 
 
 @login_required

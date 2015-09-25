@@ -34,8 +34,11 @@ from .. import get_pollform_model
 from ..forms.poll_form import (PollFormForm, PollFormLineCreateForm, PollFormLineEditForm,
         PollFormSectionCreateForm, PollFormSectionEditForm,
         PollFormLineConditionsForm)
-from ..models import PollForm, PollFormSection, PollFormLine
+from ..models import PollFormSection, PollFormLine #PollForm
 from ..utils import StatsTree, NodeStyle #TODO: templatetag instead ?
+
+
+PollForm = get_pollform_model()
 
 
 @login_required
@@ -67,7 +70,7 @@ def listview(request):
 def add_line(request, pform_id):
     return add_to_entity(request, pform_id, PollFormLineCreateForm,
                          _(u'New question for «%s»'),
-                         entity_class=get_pollform_model(),
+                         entity_class=PollForm,
                          submit_label=_('Save the question'),
                         )
 
@@ -109,8 +112,7 @@ def edit_line_conditions(request, line_id):
 
     return add_to_entity(request, line.pform_id, PollFormLineConditionsForm,
                          _(u'Condition for «%s»'),
-                         #entity_class=PollForm,
-                         entity_class=get_pollform_model(),
+                         entity_class=PollForm,
                          initial={'line': line},
                          submit_label=_('Save the condition'),
                         )
@@ -120,7 +122,7 @@ def edit_line_conditions(request, line_id):
 def add_section(request, pform_id):
     return add_to_entity(request, pform_id, PollFormSectionCreateForm,
                          _(u'New section for «%s»'),
-                         entity_class=get_pollform_model(),
+                         entity_class=PollForm,
                          submit_label=_('Save the section'),
                         )
 
@@ -138,8 +140,7 @@ def add_section_child(request, section_id):
 
     return add_to_entity(request, parent_section.pform_id, PollFormSectionCreateForm,
                          _(u'New section for «%s»'),
-                         #entity_class=PollForm,
-                         entity_class=get_pollform_model(),
+                         entity_class=PollForm,
                          initial={'parent': parent_section},
                          submit_label=_('Save the section'),
                         )
@@ -151,8 +152,7 @@ def add_line_to_section(request, section_id):
 
     return add_to_entity(request, section.pform_id, PollFormLineCreateForm,
                          _(u'New question for «%s»'),
-                         #entity_class=PollForm,
-                         entity_class=get_pollform_model(),
+                         entity_class=PollForm,
                          initial={'section': section},
                          submit_label=_('Save the question'),
                         )
@@ -160,8 +160,7 @@ def add_line_to_section(request, section_id):
 @login_required
 @permission_required('polls')
 def stats(request, pform_id):
-#    pform = get_object_or_404(PollForm, pk=pform_id)
-    pform = get_object_or_404(get_pollform_model(), pk=pform_id)
+    pform = get_object_or_404(PollForm, pk=pform_id)
 
     return render(request, 'polls/stats.html',
                   {'nodes': StatsTree(pform),

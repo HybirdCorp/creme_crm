@@ -29,15 +29,17 @@ from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm
 from creme.creme_core.forms.fields import ListEditionField
 from creme.creme_core.utils import find_first, update_model_instance
 
-from ..core import  PollLineType
-from ..models import PollForm, PollFormSection, PollFormLine, PollFormLineCondition
+from .. import get_pollform_model
+from ..core import PollLineType
+from ..models import PollFormSection, PollFormLine, PollFormLineCondition #PollForm
 from ..utils import SectionTree
 from .fields import PollFormLineConditionsField
 
 
 class PollFormForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-        model = PollForm
+#        model = PollForm
+        model = get_pollform_model()
 
 
 class PollFormSectionEditForm(CremeModelForm):
