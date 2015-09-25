@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2014  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,16 +23,18 @@ from itertools import count
 
 from creme.creme_core.utils import int_2_roman
 
+from . import get_pollform_model, get_pollreply_model
 #from .core import PollLineType
-from .models import (PollForm, PollFormSection, PollFormLine,
-                     PollReply, PollReplySection, PollReplyLine)
+from .models import PollFormSection, PollFormLine, PollReplySection, PollReplyLine #PollForm PollReply
 
 
 #TODO move to core.section_tree.py ??
 
 _CLASS_MAPPING = {
-        PollForm:  ('pform',  PollFormSection, PollFormLine),
-        PollReply: ('preply', PollReplySection, PollReplyLine),
+#        PollForm:  ('pform',  PollFormSection, PollFormLine),
+#        PollReply: ('preply', PollReplySection, PollReplyLine),
+        get_pollform_model():  ('pform',  PollFormSection, PollFormLine),
+        get_pollreply_model(): ('preply', PollReplySection, PollReplyLine),
     }
 
 

@@ -37,17 +37,19 @@ from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
 from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Contact, Organisation
 
-from .. import get_pollreply_model
+from .. import get_pollform_model, get_pollreply_model
 from ..core import MultiEnumPollLineType
 from ..forms.poll_reply import (PollRepliesCreateForm, PollReplyEditForm,
         PollReplyFillForm, PersonAddRepliesForm)
-from ..models import PollForm, PollReply, PollReplyLine, PollCampaign
+from ..models import PollReplyLine, PollCampaign # PollForm, PollReply
 from ..utils import ReplySectionTree, NodeStyle
 
 
 logger = logging.getLogger(__name__)
+PollReply = get_pollreply_model()
 
-#TODO: change url (reply->replies or add_several ??)
+
+# TODO: change url (reply->replies or add_several ??)
 @login_required
 @permission_required(('polls', 'polls.add_pollreply'))
 def add(request):
@@ -78,7 +80,8 @@ def add(request):
 @login_required
 @permission_required(('polls', 'polls.add_pollreply'))
 def add_from_pform(request, pform_id): #TODO: factorise ? (see documents.views)
-    pform = get_object_or_404(PollForm, pk=pform_id)
+#    pform = get_object_or_404(PollForm, pk=pform_id)
+    pform = get_object_or_404(get_pollform_model(), pk=pform_id)
     user = request.user
 
     user.has_perm_to_view_or_die(pform)
@@ -151,7 +154,7 @@ def link_to_person(request, person_id):
                          submit_label=(u'Link to the replies'),
                         )
 
-#TODO: do this job in template instead ??
+# TODO: do this job in template instead ??
 def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
         answer = pgettext('polls', u'N/A')
@@ -319,7 +322,7 @@ def _clear_dependant_answers(tree, line_node):
         update_model_instance(dep_line_node, raw_answer=None)
         _clear_dependant_answers(tree, dep_line_node)
 
-#TODO: if not line's type.editable ??
+# TODO: if not line's type.editable ??
 @login_required
 @permission_required('polls')
 def edit_line(request, preply_id, line_id):
@@ -355,7 +358,7 @@ def edit_line(request, preply_id, line_id):
                 edit_form.save()
                 _clear_dependant_answers(tree, line_node)
                 update_model_instance(preply, is_complete=not bool(tree.next_question_to_answer))
-    else: #GET
+    else: # GET
         edit_form = PollReplyFillForm(line_node=line_node, user=user)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',

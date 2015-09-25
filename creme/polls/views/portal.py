@@ -29,8 +29,8 @@ from .. import get_pollform_model, get_pollreply_model
 
 
 def portal(request):
-    PollForm     = get_pollform_model()
-    PollReply    = get_pollreply_model()
+    PollForm  = get_pollform_model()
+    PollReply = get_pollreply_model()
     stats = ((_('Number of forms'),   PollForm.objects.count()),
              (_('Number of replies'), PollReply.objects.count()),
             )
