@@ -27,7 +27,10 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
 from .. import get_service_model
 from ..forms.base import AddImagesForm
 from ..forms.service import ServiceCreateForm, ServiceEditForm
-from ..models import Service
+#from ..models import Service
+
+
+Service = get_service_model()
 
 
 @login_required
@@ -59,7 +62,6 @@ def listview(request):
 def add_images(request, service_id):
     return add_to_entity(request, service_id, AddImagesForm,
                          ugettext(u'New images for «%s»'),
-#                         entity_class=Service,
-                         entity_class=get_service_model(),
+                         entity_class=Service,
                          submit_label=_('Link the images'),
                         )
