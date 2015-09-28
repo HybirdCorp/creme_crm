@@ -38,10 +38,12 @@ from creme.activities.models import Activity
 from .. import get_project_model, get_task_model
 from ..constants import REL_SUB_PART_AS_RESOURCE, REL_SUB_LINKED_2_PTASK
 from ..forms.task import TaskCreateForm, TaskEditForm, TaskAddParentForm, RelatedActivityCreateForm, RelatedActivityEditForm
-from ..models import ProjectTask #Project
+#from ..models import ProjectTask #Project
 
 
 logger = logging.getLogger(__name__)
+ProjectTask = get_task_model()
+
 
 @login_required
 @permission_required(('projects', 'projects.add_projecttask'))
@@ -78,8 +80,7 @@ def edit_popup(request, task_id):
 @login_required
 @permission_required('projects')
 def add_parent(request, task_id):
-#    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskAddParentForm)
-    return edit_model_with_popup(request, {'pk': task_id}, get_task_model(), TaskAddParentForm)
+    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskAddParentForm)
 
 #@login_required
 #@permission_required('projects')
@@ -103,8 +104,7 @@ def add_parent(request, task_id):
 def delete_parent(request):
     POST = request.POST
     parent_id = get_from_POST_or_404(POST, 'parent_id')
-#    task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
-    task = get_object_or_404(get_task_model(), pk=get_from_POST_or_404(POST, 'id'))
+    task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
     user = request.user
 
     #user.has_perm_to_change_or_die(task.project) #beware: modify block_tasks.html template if uncommented....
