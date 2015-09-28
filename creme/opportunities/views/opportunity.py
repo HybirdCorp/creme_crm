@@ -53,7 +53,7 @@ def add_to(request, ce_id, inner_popup=False):
     # Target/emitter relationships are internal (they are mandatory
     # and can be seen as ForeignKeys).
 
-    initial = {'target': '{"ctype":"%s","entity":"%s"}' % (centity.entity_type_id, centity.id), #TODO: This is not an easy way to init the field...
+    initial = {'target': OpportunityCreateForm(user).fields['target'].from_python(centity), #TODO: This is not an easy way to init the field...
                'sales_phase': SalesPhase.objects.first(),
               }
 
