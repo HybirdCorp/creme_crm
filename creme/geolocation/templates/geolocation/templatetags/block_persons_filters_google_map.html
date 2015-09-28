@@ -1,7 +1,7 @@
 {% load i18n creme_block %}
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
-        new creme.geolocation.AddressesBlock($('#block_persons_filters-geolocation'));
+        new creme.geolocation.AddressesBlock($('#{{block_name}}'));
     });
 </script>
 
