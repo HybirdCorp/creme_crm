@@ -29,8 +29,12 @@ from formtools.wizard.views import SessionWizardView
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import view_entity, list_view, edit_entity
 
+from .. import get_rgenerator_model
 from ..forms.recurrentgenerator import RecurrentGeneratorEditForm
-from ..models import RecurrentGenerator
+#from ..models import RecurrentGenerator
+
+
+RecurrentGenerator = get_rgenerator_model()
 
 
 class RecurrentGeneratorWizard(SessionWizardView):
