@@ -174,6 +174,30 @@ creme.activities.calendar.chooseForeground = function(target, bgColor) {
 }
 
 creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+    creme.ajax.query('/activities/calendar/activity/update', {action: 'POST'},
+                     {id: event.id,
+                      start: event.start.getTime(),
+                      end: event.end.getTime(),
+                      allDay: allDay
+                     })
+              .onFail(function(event, data, error) {
+                  if (error.status == 403) {
+                      creme.dialogs.warning(gettext("You do not have permission, the change will not be saved.")).open();
+                  } else if (error.status == 409) {
+                      creme.dialogs.warning(unescape(data)).open();
+                  } else if (error.status >= 300 || error.status == 0) {
+                      creme.dialogs.warning(gettext("Error, please reload the page.")).open();
+                  }
+                  revertFunc();
+               })
+              .onStart(function() {
+                  creme.activities.calendar.loading(false);
+               })
+              .onComplete(function() {
+                  creme.activities.calendar.loading(true);
+                  creme.activities.calendar.resizeSidebar();
+               }).start();
+/*
     $.ajax({
         type: "POST",
         url: "/activities/calendar/activity/update",
@@ -201,6 +225,7 @@ creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDa
             creme.activities.calendar.resizeSidebar();
         },
     });
+*/
 }
 
 creme.activities.calendar.resizeSidebar = function() {
@@ -211,11 +236,6 @@ creme.activities.calendar.resizeSidebar = function() {
     var sidebarMargin = parseInt(sidebar.css('margin-top'));
 
     sidebar.css('height', (calendarHeight - sidebarMargin) + 'px');
-}
-
-creme.activities.calendar.positionNavigationWidget = function() {
-    var titleWidth = $('.fc-header-left').width();
-    $('.fc-header-center table').css ('left', '-' + titleWidth + 'px');
 }
 
 // creme.activities.calendar.fullCalendar = function(events_url) {
@@ -299,7 +319,6 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
                 success: function(events) {
                     callback(events);
                     creme.activities.calendar.resizeSidebar();
-                    creme.activities.calendar.positionNavigationWidget();
                 }
             });
         },
