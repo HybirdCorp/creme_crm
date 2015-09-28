@@ -1,8 +1,8 @@
 {% load i18n creme_core_tags creme_block geolocation %}
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
-        var block = new creme.geolocation.PersonsNeighborhoodBlock($('#block_whoisarround-geolocation'), {{radius}});
-        $('#block_persons-geolocation').bind('block-geoaddress-location', function(event, address, mark) {
+        var block = new creme.geolocation.PersonsNeighborhoodBlock($('#{{block_name}}'), {{radius}});
+        $('#{{maps_blockid}}').bind('block-geoaddress-location', function(event, address, mark) {
             block.sourcePosition(address, mark.position);
         });
     });

@@ -109,7 +109,7 @@ class PersonsFiltersMapsBlock(_MapBlock):
 
 class WhoisAroundMapsBlock(_MapBlock):
 #    id_           = Block.generate_id('whoisarround', 'geolocation')
-    id_           = Block.generate_id('geolocation', 'google_whoisarround')
+    id_           = Block.generate_id('geolocation', 'google_whoisaround')
     dependencies  = (Address, GeoAddress,)
     verbose_name  = _(u'Around this address')
     template_name = 'geolocation/templatetags/block_persons_neighbours_map.html'
@@ -136,6 +136,7 @@ class WhoisAroundMapsBlock(_MapBlock):
                                 radius=get_setting(NEIGHBOURHOOD_DISTANCE,
                                                    DEFAULT_SEPARATING_NEIGHBOURS,
                                                   ),
+                                maps_blockid=PersonsMapsBlock.id_,
                                )
                            )
 
