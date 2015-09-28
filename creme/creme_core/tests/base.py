@@ -66,8 +66,8 @@ class _CremeTestCase(object):
                                 RuntimeWarning, r'django\.db\.models\.fields',
                                )
 
-        from .fake_creme_core_register import register
-        register()
+        from .fake_apps import ready
+        ready()
 
     def tearDown(self):
         if not getattr(self, 'clean_files_in_teardown', False):

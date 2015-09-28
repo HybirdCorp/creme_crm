@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# TODO: rename ?? (fake_apps.py + ready() ??)
-
 already_runned = False
 
-def register():
+def ready():
     global already_runned
 
     if already_runned:
