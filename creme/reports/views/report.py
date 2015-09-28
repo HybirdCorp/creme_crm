@@ -33,10 +33,11 @@ from creme.creme_core.views.generic import (add_entity, edit_entity,
 from .. import get_report_model
 from ..forms.report import (ReportCreateForm, ReportEditForm,
         LinkFieldToReportForm, ReportFieldsForm)
-from ..models import Report, Field
+from ..models import Field # Report
 
 
 logger = logging.getLogger(__name__)
+Report = get_report_model()
 
 
 @login_required
@@ -71,7 +72,7 @@ def listview(request):
 def unlink_report(request):
     field = get_object_or_404(Field, pk=get_from_POST_or_404(request.POST, 'field_id'))
 
-    #TODO: odd credentials ?! (only edit on field.report ??)
+    # TODO: odd credentials ?! (only edit on field.report ??)
     has_perm_or_die = request.user.has_perm_to_unlink_or_die
     has_perm_or_die(field.report)
 
@@ -127,7 +128,7 @@ def link_report(request, field_id):
 def edit_fields(request, report_id):
     return add_to_entity(request, report_id, ReportFieldsForm,
                          _(u'Edit columns of «%s»'),
-                         entity_class=get_report_model(),
+                         entity_class=Report,
                          submit_label=_('Save the modifications'),
                         )
 
@@ -159,8 +160,7 @@ def change_field_order(request):
 
     return HttpResponse("", status=200, content_type="text/javascript")
 
-
-#TODO: jsonify ?
+# TODO: jsonify ?
 @login_required
 @permission_required('reports')
 def set_selected(request):
@@ -187,4 +187,3 @@ def set_selected(request):
         rfield.save()
 
     return HttpResponse(content_type="text/javascript")
-

@@ -34,10 +34,11 @@ from creme.creme_core.models.fields import MoneyField
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
+from .. import get_rgraph_model
 from ..constants import (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
         RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 from ..core.graph import RGRAPH_HANDS_MAP
-from ..models.graph import ReportGraph
+#from ..models.graph import ReportGraph
 from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
 
@@ -77,7 +78,8 @@ class ReportGraphForm(CremeEntityForm):
             )
 
     class Meta(CremeEntityForm.Meta):
-        model = ReportGraph
+#        model = ReportGraph
+        model = get_rgraph_model()
 
     def __init__(self, entity, *args, **kwargs):
         super(ReportGraphForm, self).__init__(*args, **kwargs)

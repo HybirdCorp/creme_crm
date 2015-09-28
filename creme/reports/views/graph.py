@@ -35,11 +35,12 @@ from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_
         RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK)
 from ..core.graph import RGRAPH_HANDS_MAP
 from ..forms.graph import ReportGraphForm
-from ..models import ReportGraph
+#from ..models import ReportGraph
 from ..report_chart_registry import report_chart_registry
 
 
 logger = logging.getLogger(__name__)
+ReportGraph = get_rgraph_model()
 
 
 @login_required
@@ -65,7 +66,7 @@ def detailview(request, graph_id):
                        extra_template_dict={'report_charts': report_chart_registry},
                       )
 
-#TODO: use prefix ?? (rfield-, ctield-, rtype-)
+# TODO: use prefix ?? (rfield-, ctield-, rtype-)
 def _get_available_report_graph_types(ct, name):
     model = ct.model_class()
 
@@ -93,7 +94,7 @@ def _get_available_report_graph_types(ct, name):
             except RelationType.DoesNotExist:
                 logger.debug('get_available_report_graph_types(): "%s" is not a field or a RelationType id', name)
             else:
-                #TODO: check compatible ??
+                # TODO: check compatible ??
                 return (RGT_RELATION,)
     else:
         if isinstance(field, (DateField, DateTimeField)):
@@ -104,7 +105,7 @@ def _get_available_report_graph_types(ct, name):
 
         logger.debug('get_available_report_graph_types(): "%s" is not a valid field for abscissa', name)
 
-#TODO: can be factorised with ReportGraphForm (use ReportGraphHand)
+# TODO: can be factorised with ReportGraphForm (use ReportGraphHand)
 @jsonify
 #@permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
@@ -131,8 +132,7 @@ def _check_order(order):
 def fetch_graph(request, graph_id, order):
     _check_order(order)
 
-#    x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(order=order)
-    x, y = get_object_or_404(get_rgraph_model(), pk=graph_id).fetch(order=order)
+    x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(order=order)
 
     return {'x': x, 'y': y, 'graph_id': graph_id} #TODO: graph_id useful ??
 
@@ -143,8 +143,7 @@ def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order)
 
     instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id) #TODO: rename
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-#    x, y = ReportGraph.get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
-    x, y = get_rgraph_model().get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
+    x, y = ReportGraph.get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
 
-    #TODO: send error too ?
+    # TODO: send error too ?
     return {'x': x, 'y': y}

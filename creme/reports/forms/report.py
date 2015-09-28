@@ -42,14 +42,15 @@ from creme.creme_core.models import HeaderFilter, EntityFilter
 from creme.creme_core.registry import export_backend_registry
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field #get_date_fields
 
+from .. import get_report_model
 from ..constants import (RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION,
         RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
-from ..models import Report, Field
+from ..models import Field # Report
 from ..report_aggregation_registry import field_aggregation_registry
-#from ..utils import encode_datetime
 
 
 #logger = logging.getLogger(__name__)
+Report = get_report_model()
 
 
 # NB: No need to validate (only built by form that does validation for us).
