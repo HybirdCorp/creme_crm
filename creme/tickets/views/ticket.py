@@ -23,8 +23,12 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
+from .. import get_ticket_model
 from ..forms.ticket import TicketCreateForm, TicketEditForm
-from ..models import Ticket, Priority, Criticity
+from ..models import Priority, Criticity #Ticket
+
+
+Ticket = get_ticket_model()
 
 
 @login_required
