@@ -24,8 +24,8 @@ from json import dumps as encode_json
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext, ugettext_lazy as _
 
-from creme.creme_core.models import EntityFilter
 from creme.creme_core.gui.block import Block
+from creme.creme_core.models import EntityFilter
 
 from creme.persons import get_contact_model, get_organisation_model, get_address_model
 #from creme.persons.models import Contact, Organisation, Address
@@ -44,20 +44,6 @@ Address      = get_address_model()
 class _MapBlock(Block):
     dependencies  = (Address,) 
 
-    #def get_efilters(self, model):
-        #return EntityFilter.objects.filter(entity_type=ContentType.objects.get_for_model(model))
-
-    #def get_filter_choices(self, *models):
-        #choices = []
-
-        #for model in models:
-            #title = ugettext(model._meta.verbose_name_plural)
-            #model_choices = [(efilter.id, u'%s - %s' % (title, efilter.name)) for efilter in self.get_efilters(model)]
-
-            #if model_choices:
-                #choices.append((title, model_choices))
-
-        #return choices
     def get_filter_choices(self, user, *models):
         choices = []
         get_ct = ContentType.objects.get_for_model
@@ -85,8 +71,10 @@ class _MapBlock(Block):
                                                   .select_related('geoaddress')
                ]
 
+
 class PersonsMapsBlock(_MapBlock):
-    id_           = Block.generate_id('persons', 'geolocation')
+#    id_           = Block.generate_id('persons', 'geolocation')
+    id_           = Block.generate_id('geolocation', 'detail_google_maps')
     verbose_name  = _(u'Maps')
     template_name = 'geolocation/templatetags/block_persons_google_map.html'
     target_ctypes = (Contact, Organisation)
@@ -103,24 +91,26 @@ class PersonsMapsBlock(_MapBlock):
 
 
 class PersonsFiltersMapsBlock(_MapBlock):
-    id_           = Block.generate_id('persons_filters', 'geolocation')
+#    id_           = Block.generate_id('persons_filters', 'geolocation')
+    id_           = Block.generate_id('geolocation', 'filtered_google_maps')
     verbose_name  = _(u'Maps By Filter')
     template_name = 'geolocation/templatetags/block_persons_filters_google_map.html'
 
     def home_display(self, context):
-        #address_filters = self.get_filter_choices(Contact, Organisation)
-        address_filters = self.get_filter_choices(context['user'], Contact, Organisation)
-
-        btc = self.get_block_template_context(context,
-                                              update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                              address_filters=address_filters,
-                                             )
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                                context,
+                                update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                address_filters=self.get_filter_choices(context['user'],
+                                                                        Contact, Organisation,
+                                                                       ),
+                               )
+                           )
 
 
 class WhoisAroundMapsBlock(_MapBlock):
+#    id_           = Block.generate_id('whoisarround', 'geolocation')
+    id_           = Block.generate_id('geolocation', 'google_whoisarround')
     dependencies  = (Address, GeoAddress,)
-    id_           = Block.generate_id('whoisarround', 'geolocation')
     verbose_name  = _(u'Around this address')
     template_name = 'geolocation/templatetags/block_persons_neighbours_map.html'
     target_ctypes = (Contact, Organisation)
@@ -135,18 +125,19 @@ class WhoisAroundMapsBlock(_MapBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        addresses = self.get_addresses_as_dict(entity)
-        #address_filters = self.get_filter_choices(Contact, Organisation)
-        address_filters = self.get_filter_choices(context['user'], Contact, Organisation)
 
-        btc = self.get_block_template_context(
-                    context,
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    address_filters=address_filters,
-                    radius=get_setting(NEIGHBOURHOOD_DISTANCE, DEFAULT_SEPARATING_NEIGHBOURS),
-                    ref_addresses=addresses,
-                   )
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                                context,
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                ref_addresses=self.get_addresses_as_dict(entity),
+                                address_filters=self.get_filter_choices(context['user'],
+                                                                        Contact, Organisation,
+                                                                       ),
+                                radius=get_setting(NEIGHBOURHOOD_DISTANCE,
+                                                   DEFAULT_SEPARATING_NEIGHBOURS,
+                                                  ),
+                               )
+                           )
 
 
 persons_maps_block        = PersonsMapsBlock()
