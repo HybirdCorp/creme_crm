@@ -28,9 +28,10 @@ from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.generic import add_to_entity
 
+from .. import get_smscampaign_model
 from ..blocks import messages_block
 from ..forms.message import SendingCreateForm
-from ..models import SMSCampaign, Sending, Message
+from ..models import Sending, Message # SMSCampaign
 #from creme.sms.webservice.samoussa import SamoussaBackEnd
 #from creme.sms.webservice.backend import WSException
 
@@ -39,7 +40,9 @@ from ..models import SMSCampaign, Sending, Message
 @permission_required('sms')
 def add(request,campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
-                         _(u'New sending for «%s»'), entity_class=SMSCampaign,
+                         _(u'New sending for «%s»'),
+                         #entity_class=SMSCampaign,
+                         entity_class=get_smscampaign_model(),
                          submit_label=_('Save the sending'),
                         )
 
@@ -106,7 +109,7 @@ def delete_message(request, id):
     #return HttpResponseRedirect('/sms/campaign/sending/%s' % message.sending_id)
     return redirect(campaign)
 
-#Useful method because EmailSending is not a CremeEntity (should be ?)
+# Useful method because EmailSending is not a CremeEntity (should be ?)
 @jsonify
 @login_required
 @permission_required('sms')

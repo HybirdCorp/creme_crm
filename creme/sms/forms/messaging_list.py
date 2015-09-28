@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,14 +26,20 @@ from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.models import EntityFilter
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
-from ..models import MessagingList
+from .. import get_messaginglist_model
+#from ..models import MessagingList
+
+
+Contact = get_contact_model()
 
 
 class MessagingListForm(CremeEntityForm):
     class Meta:
-        model = MessagingList
+#        model = MessagingList
+        model = get_messaginglist_model()
         fields = ('user', 'name')
 
 
@@ -49,7 +55,7 @@ class AddContactsForm(CremeForm):
     def save(self):
         contacts = self.messaging_list.contacts
 
-        #TODO: check if email if ok ????
+        # TODO: check if email if ok ????
         for contact in self.cleaned_data['recipients']:
             contacts.add(contact)
 
@@ -78,7 +84,7 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
         if efilter:
             new_persons = efilter.filter(new_persons)
 
-        #TODO: check if phone number is ok ????
+        # TODO: check if phone number is ok ????
         for person in new_persons:
             persons.add(person)
 

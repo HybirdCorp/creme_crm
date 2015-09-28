@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,13 +27,15 @@ from creme.creme_core.utils import chunktools
 from creme.creme_core.forms import CremeForm, FieldBlockManager
 #from creme.creme_core.forms.fields import AjaxFileField
 
-from creme.sms.models.recipient import Recipient
-from creme.sms.forms.fields import PhoneListField, PhoneField
+from ..forms.fields import PhoneListField, PhoneField
+from ..models.recipient import Recipient
 
 
 class MessagingListAddRecipientsForm(CremeForm):
     # TODO : see for phonelist widget
-    recipients = PhoneListField(widget=Textarea(), label=_(u'Recipients'), help_text=_(u'One phone number per line'))
+    recipients = PhoneListField(widget=Textarea(), label=_(u'Recipients'),
+                                help_text=_(u'One phone number per line'),
+                               )
 
     blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
@@ -44,7 +46,11 @@ class MessagingListAddRecipientsForm(CremeForm):
     def save(self):
         messaging_list = self.messaging_list
         recipients = self.cleaned_data['recipients']
-        existing   = frozenset(Recipient.objects.filter(messaging_list=messaging_list, phone__in=recipients).values_list('phone', flat=True))
+        existing   = frozenset(Recipient.objects.filter(messaging_list=messaging_list,
+                                                        phone__in=recipients,
+                                                       )
+                                                .values_list('phone', flat=True)
+                              )
 
         create = Recipient.objects.create
 
@@ -52,9 +58,12 @@ class MessagingListAddRecipientsForm(CremeForm):
             if number not in existing:
                 create(messaging_list=messaging_list, phone=number)
 
+
 _HELP = _(u"A text file where each line contains digits (which can be separated by space characters).\n"
-"Only digits are used and empty lines are ignored.\n"
-"Examples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'")
+          u"Only digits are used and empty lines are ignored.\n"
+          u"Examples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'"
+         )
+
 
 class MessagingListAddCSVForm(CremeForm):
     recipients = FileField(label=_(u'Recipients'), help_text=_HELP)
@@ -64,7 +73,9 @@ class MessagingListAddCSVForm(CremeForm):
         self.messaging_list = entity
 
     def save(self):
-        targets = chunktools.iter_splitchunks(self.cleaned_data['recipients'].chunks(), '\n', PhoneField.filternumbers)
+        targets = chunktools.iter_splitchunks(self.cleaned_data['recipients'].chunks(),
+                                              '\n', PhoneField.filternumbers,
+                                             )
 
         for numbers in chunktools.iter_as_chunk(targets, 256):
             self._save_numbers(numbers)
@@ -75,7 +86,11 @@ class MessagingListAddCSVForm(CremeForm):
 
         messaging_list = self.messaging_list
         create  = Recipient.objects.create
-        duplicates = frozenset(Recipient.objects.filter(phone__in=numbers, messaging_list=messaging_list).values_list('phone', flat=True))
+        duplicates = frozenset(Recipient.objects.filter(phone__in=numbers,
+                                                        messaging_list=messaging_list,
+                                                       )
+                                                .values_list('phone', flat=True)
+                              )
 
         for number in numbers:
             if number not in duplicates and number:
