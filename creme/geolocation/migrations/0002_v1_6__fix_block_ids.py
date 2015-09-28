@@ -14,7 +14,7 @@ def update_block_ids(apps, schema_editor):
     BlockDetailviewLocation.objects.filter(block_id=generate_id('persons', 'geolocation')) \
                                    .update(block_id=generate_id('geolocation', 'detail_google_maps'))
     BlockDetailviewLocation.objects.filter(block_id=generate_id('whoisarround', 'geolocation')) \
-                                   .update(block_id=generate_id('geolocation', 'google_whoisarround'))
+                                   .update(block_id=generate_id('geolocation', 'google_whoisaround'))
 
     old_id = generate_id('persons_filters', 'geolocation')
     new_id = generate_id('geolocation', 'filtered_google_maps')
