@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
@@ -104,7 +105,7 @@ class HistoryBlock(QuerysetBlock):
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
 
         for hline in hlines:
-            hline.entity = entities_map.get(hline.entity_id) #should not happen (means that entity does not exist anymore) but...
+            hline.entity = entities_map.get(hline.entity_id) # Should not happen (means that entity does not exist anymore) but...
 
     @staticmethod
     def _populate_users(hlines, user):
@@ -121,6 +122,15 @@ class HistoryBlock(QuerysetBlock):
         for hline in hlines:
             hline.user = users.get(hline.username)
 
+    @staticmethod
+    def _populate_perms(hlines, user):
+        for hline in hlines:
+            # NB: we cannot knwo the owner of the entity if it has been deleted.
+            #     So its representation (line.entity_repr) & its modifications
+            #     will be viewable even if the entity was not viewable before its deletion...
+            entity = hline.entity
+            hline.can_be_viewed = user.has_perm_to_view(entity) if entity is not None else True
+
     def detailview_display(self, context):
         pk = context['object'].pk
         btc = self.get_block_template_context(
@@ -128,8 +138,12 @@ class HistoryBlock(QuerysetBlock):
                     HistoryLine.objects.filter(entity=pk),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
                    )
+        hlines = btc['page'].object_list
 
-        self._populate_users(btc['page'].object_list, context['request'].user)
+        self._populate_users(hlines, context['request'].user)
+
+        for hline in hlines:
+            hline.can_be_viewed = True # All lines are referencing context['object'], which can be viewed.
 
         return self._render(btc)
 
@@ -138,12 +152,14 @@ class HistoryBlock(QuerysetBlock):
                     context,
                     HistoryLine.objects.filter(entity_ctype__in=ct_ids),
                     update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    HIDDEN_VALUE=settings.HIDDEN_VALUE,
                    )
         hlines = btc['page'].object_list
         user = context['request'].user
 
         self._populate_related_real_entities(hlines, user)
         self._populate_users(hlines, user)
+        self._populate_perms(hlines, user)
 
         return self._render(btc)
 
@@ -152,12 +168,14 @@ class HistoryBlock(QuerysetBlock):
                     context,
                     HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL)),
                     update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    HIDDEN_VALUE=settings.HIDDEN_VALUE,
                    )
         hlines = btc['page'].object_list
         user = context['request'].user
 
         self._populate_related_real_entities(hlines, user)
         self._populate_users(hlines, user)
+        self._populate_perms(hlines, user)
 
         return self._render(btc)
 
