@@ -465,7 +465,7 @@ CREME_CORE_CSS = ('main.css',
 
                     #APPS
                     'creme_config/css/creme_config.css',
-                    'activities/css/fullcalendar.css',
+                    'activities/css/fullcalendar-1.6.7.css',
                     'activities/css/activities.css',
                     'persons/css/persons.css',
                  )

@@ -209,10 +209,9 @@ def update_activity_date(request):
     act_id          = POST['id']
     start_timestamp = POST['start']
     end_timestamp   = POST['end']
-    is_all_day = POST.get('allDay')
+    is_all_day      = POST.get('allDay')
 
-    if is_all_day is not None:
-        is_all_day = bool(jsonloads(is_all_day))
+    is_all_day = is_all_day.lower() == 'true' if is_all_day else False
 
     activity = Activity.objects.get(pk=act_id)
     request.user.has_perm_to_change_or_die(activity)

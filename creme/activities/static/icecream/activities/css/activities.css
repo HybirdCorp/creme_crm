@@ -166,6 +166,18 @@
     display: none;
 }
 
+.calendar .fc-header .fc-header-title {
+    position: relative;
+    width: 100%;
+    left: -320px; 
+}
+
+.calendar .fc-header .fc-header-center {
+    text-align: left;
+    position: relative;
+    left: -263px;
+}
+
 /* calendar - end */
 
 /* calendar header widget repositioning */
