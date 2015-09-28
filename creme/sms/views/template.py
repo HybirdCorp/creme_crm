@@ -21,8 +21,12 @@
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
+from .. import get_messagetemplate_model
 from ..forms.template import TemplateCreateForm, TemplateEditForm
-from ..models import MessageTemplate
+#from ..models import MessageTemplate
+
+
+MessageTemplate = get_messagetemplate_model()
 
 
 @login_required
@@ -40,7 +44,9 @@ def edit(request, template_id):
 @login_required
 @permission_required('sms')
 def detailview(request, template_id):
-    return view_entity(request, template_id, MessageTemplate, '/sms/template', 'sms/view_template.html')
+    return view_entity(request, template_id, MessageTemplate, '/sms/template',
+                       'sms/view_template.html',
+                      )
 
 @login_required
 @permission_required('sms')

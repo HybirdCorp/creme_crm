@@ -25,13 +25,15 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 
+from .. import get_messagetemplate_model
 from ..encoding import gsm_encoded_content, SMS_MAX_LENGTH
-from ..models import MessageTemplate
+#from ..models import MessageTemplate
 
 
 _FORBIDEN = u"^ { } \\ [ ~ ] | €" #TODO: given by the backend ??
 _HELP = _(u"""Message with a maximum of 160 characters.
  Beware, the header matters (+ 3 characters) and the following characters count double: %s""") % _FORBIDEN
+MessageTemplate = get_messagetemplate_model()
 
 
 class TemplateCreateForm(CremeEntityForm):

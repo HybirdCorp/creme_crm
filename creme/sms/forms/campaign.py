@@ -24,11 +24,18 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 
-from ..models import SMSCampaign, MessagingList
+from .. import get_smscampaign_model, get_messaginglist_model
+#from ..models import SMSCampaign, MessagingList
+
+
+SMSCampaign   = get_smscampaign_model()
+MessagingList = get_messaginglist_model()
 
 
 class CampaignCreateForm(CremeEntityForm):
-    lists = MultiCreatorEntityField(label=_(u'Related messaging lists'), required=False, model=MessagingList)
+    lists = MultiCreatorEntityField(label=_(u'Related messaging lists'),
+                                    required=False, model=MessagingList,
+                                   )
 
     class Meta(CremeEntityForm.Meta):
         model = SMSCampaign

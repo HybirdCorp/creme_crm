@@ -20,7 +20,7 @@
 
 from urllib import urlencode
 from urllib2 import (HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler,
-                     build_opener, Request, URLError, HTTPError, HTTPRedirectHandler)
+        build_opener, Request, URLError, HTTPError, HTTPRedirectHandler)
 
 
 class WSException(Exception):
@@ -74,7 +74,7 @@ class WSBackEnd(object):
 
             self.opener.open(url)
 
-            # remove this. (urllib2 ugly code !)
+            # remove this. (urllib2 ugly code !)
             #install_opener(self.opener)
 
             self.connected = True
@@ -103,7 +103,7 @@ class WSBackEnd(object):
             raise WSException('Not connected')
 
         try:
-            # get from urllib2 ugly code ! (see urllib2.urlopen())
+            # get from urllib2 ugly code ! (see urllib2.urlopen())
             return self.opener.open(request)
         except HTTPError, err:
             if err.code is not code:
