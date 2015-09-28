@@ -42,7 +42,10 @@ from creme.activities.utils import check_activity_collisions
 
 from .. import get_task_model
 from ..constants import REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
-from ..models import ProjectTask, Resource
+from ..models import Resource #ProjectTask
+
+
+ProjectTask = get_task_model()
 
 
 def _link_contact_n_activity(contact, activity, user):
@@ -156,8 +159,7 @@ class TaskAddParentForm(CremeForm):
     parents = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
 
     class Meta:
-#        model = ProjectTask
-        model = get_task_model()
+        model = ProjectTask
 
     def __init__(self, instance, *args, **kwargs):
         super(TaskAddParentForm, self).__init__(*args, **kwargs)
