@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from functools import partial
-
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
-    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+    from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeInvoice, FakeInvoiceLine)
     from creme.creme_core.utils import creme_entity_content_types
@@ -167,7 +165,6 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_add04(self):
         "Unique configuration (super-user)"
-        role = self.role
         ct = self.ct_contact
         SearchConfigItem.create_if_needed(Contact, role='superuser',
                                           fields=['first_name', 'last_name'],

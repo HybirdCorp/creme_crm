@@ -25,7 +25,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.forms import BooleanField, ModelChoiceField, ModelMultipleChoiceField
 #from django.forms.utils import ErrorList
-from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
+from django.utils.translation import ugettext_lazy as _, ungettext # ugettext
 
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField

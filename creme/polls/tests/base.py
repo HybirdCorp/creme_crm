@@ -23,9 +23,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PollsAppTestCase', )
-
-
 def skipIfCustomPollCampaign(test_func):
     return skipIf(skip_pollcampaign_tests, 'Custom PollCampaign model in use')(test_func)
 

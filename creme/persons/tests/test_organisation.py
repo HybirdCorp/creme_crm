@@ -149,9 +149,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_createview03(self):
         "FieldsConfig on Address sub-fields"
         user = self.login()
-        fconf = FieldsConfig.create(Address,
-                                    descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
-                                   )
+        FieldsConfig.create(Address,
+                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                           )
 
         response = self.assertGET200(reverse('persons__create_organisation'))
 
@@ -202,10 +202,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_createview04(self):
         "FieldsConfig on 'billing_address' FK field"
-        user = self.login()
-        fconf = FieldsConfig.create(Organisation,
-                                    descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
-                                   )
+        self.login()
+        FieldsConfig.create(Organisation,
+                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                           )
 
         response = self.assertGET200(reverse('persons__create_organisation'))
 
@@ -732,9 +732,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_merge04(self):
         "FieldsConfig on Address sub-field"
         user = self.login()
-        fconf = FieldsConfig.create(Address,
-                                    descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
-                                   )
+        FieldsConfig.create(Address,
+                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                           )
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -755,9 +755,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         "FieldsConfig on 'billing_address' FK field"
         user = self.login()
 
-        fconf = FieldsConfig.create(Organisation,
-                                    descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
-                                   )
+        FieldsConfig.create(Organisation,
+                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                           )
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -790,9 +790,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         "FieldsConfig on 'shipping_address' FK field"
         user = self.login()
 
-        fconf = FieldsConfig.create(Organisation,
-                                    descriptions=[('shipping_address', {FieldsConfig.HIDDEN: True})],
-                                   )
+        FieldsConfig.create(Organisation,
+                            descriptions=[('shipping_address', {FieldsConfig.HIDDEN: True})],
+                           )
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -934,9 +934,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_csv_import03(self):
         "FieldsConfig on Address sub-field"
         user = self.login()
-        fconf = FieldsConfig.create(Address,
-                                    descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
-                                   )
+        FieldsConfig.create(Address,
+                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                           )
 
         name = 'Nerv'
         city = 'Tokyo'
@@ -962,9 +962,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_csv_import04(self):
         "FieldsConfig on 'billing_address' FK field"
         user = self.login()
-        fconf = FieldsConfig.create(Organisation,
-                                    descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
-                                   )
+        FieldsConfig.create(Organisation,
+                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                           )
 
         name = 'Nerv'
         doc = self._build_csv_doc([(name, 'Tokyo', 'ABC123')])

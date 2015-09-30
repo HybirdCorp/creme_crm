@@ -39,7 +39,8 @@ class AddRelatedActivityButton(Button):
     activity_type = None #None means type is not fixed
 
     def render(self, context):
-        context['activity_type'] = atype = self.activity_type
+#        atype =
+        context['activity_type'] = self.activity_type
 #        context['verbose_name'] = Activity.get_creation_title(atype)
         context['verbose_name'] = self.verbose_name
         return super(AddRelatedActivityButton, self).render(context)

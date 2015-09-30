@@ -23,7 +23,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         return '/commercial/market_segment/delete/%s' % segment.id
 
     def test_unique_segment_with_ptype(self):
-        segment = self.get_object_or_fail(MarketSegment, property_type=None)
+        self.get_object_or_fail(MarketSegment, property_type=None)
 
         with self.assertRaises(ValueError):
             MarketSegment.objects.create(name='Foobar', property_type=None)
@@ -200,7 +200,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
     @skipIfCustomOrganisation
     def test_segment_delete05(self):
         "Avoid CremeProperty duplicates"
-        strategy = Strategy.objects.create(user=self.user, name='Producers')
+        Strategy.objects.create(user=self.user, name='Producers')
 
         segment1 = self._create_segment('Robots')
         segment2 = self._create_segment('Mechas')

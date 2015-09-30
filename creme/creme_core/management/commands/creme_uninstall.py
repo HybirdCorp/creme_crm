@@ -21,9 +21,9 @@
 #from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import AppCommand, CommandError
-from django.core.management.color import no_style
-from django.core.management.sql import sql_delete
-from django.db import connections, transaction, DEFAULT_DB_ALIAS
+#from django.core.management.color import no_style
+#from django.core.management.sql import sql_delete
+#from django.db import connections, transaction, DEFAULT_DB_ALIAS
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.models import CremeEntity, PreferedMenuItem, SettingValue
@@ -126,9 +126,9 @@ class Command(AppCommand):
                                'Sadly you have to solve this problem manually before re-run this command.' % e
                               )
 
-        #connection = connections[options.get('database')] TODO ?
-        connection = connections[DEFAULT_DB_ALIAS]
-
+#        #connection = connections[options.get('database')] TODO ?
+#        connection = connections[DEFAULT_DB_ALIAS]
+#
 # TODO: delete the tables (no possible with sql_delete since django 1.7 with app which have migrations)
 #        if verbosity > 1:
 #            self.stdout.write('Trying to delete tables.\n')

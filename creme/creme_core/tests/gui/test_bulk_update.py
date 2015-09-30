@@ -6,7 +6,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from ..base import CremeTestCase, skipIfNotInstalled
+    from ..base import CremeTestCase # skipIfNotInstalled
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeAddress as Address,
             FakeImage as Image, FakeActivity)

@@ -10,13 +10,13 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
-    from django.db import transaction
-    from django.db.utils import IntegrityError
+#    from django.db import transaction
+#    from django.db.utils import IntegrityError
     from django.test.utils import override_settings
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _
+#    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
+    from creme.creme_core.tests.base import CremeTestCase # CremeTransactionTestCase
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import RelationType, HeaderFilter
     from creme.creme_core.templatetags.creme_date import timedelta_pprint
@@ -521,7 +521,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
         get_status = Status.objects.get
         create_ticket = partial(Ticket, #.objects.create,
-                                user=self.user,
+                                user=user,
                                 title='My ticket',
                                 description='Test description',
                                 status=get_status(pk=OPEN_PK),

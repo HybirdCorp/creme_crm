@@ -10,7 +10,7 @@ try:
     from .base import ViewsTestCase, CSVImportBaseTestCaseMixin, skipIfNoXLSLib
     from ..fake_models import (FakeContact as Contact, FakeEmailCampaign,
             FakeOrganisation as Organisation, FakeAddress as Address,
-            FakeCivility as Civility, FakePosition as Position, FakeSector as Sector)
+            FakePosition as Position, FakeSector as Sector)
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue)
     from creme.creme_core.utils import update_model_instance

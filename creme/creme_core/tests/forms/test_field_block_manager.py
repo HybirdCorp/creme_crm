@@ -5,7 +5,7 @@ try:
 
     from ..fake_forms import FakeContactForm
     from ..base import CremeTestCase
-    from creme.creme_core.forms.base import FieldBlockManager
+#    from creme.creme_core.forms.base import FieldBlockManager
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

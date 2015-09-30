@@ -19,7 +19,7 @@
 ################################################################################
 
 #from django.contrib.auth import get_user_model
-from django.forms import ModelChoiceField, MultipleChoiceField, ValidationError
+from django.forms import ModelChoiceField, MultipleChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeModelForm

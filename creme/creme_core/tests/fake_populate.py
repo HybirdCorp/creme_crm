@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from ..models import HeaderFilter
+from ..models import HeaderFilter, RelationType
 from ..core.entity_cell import EntityCellRegularField
 
 from .fake_models import *

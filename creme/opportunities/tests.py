@@ -1001,7 +1001,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                            )
 
         opportunity = self._create_opportunity_n_organisations()[0]
-        funf = opportunity.function_fields.get('get_weighted_sales')
 
         with self.assertNumQueries(1):
             w_sales = opportunity.get_weighted_sales()

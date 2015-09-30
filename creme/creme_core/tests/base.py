@@ -10,7 +10,6 @@ import warnings
 from django.test import TestCase, TransactionTestCase
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import BaseFormSet
 from django.utils.timezone import utc, get_current_timezone, make_aware
@@ -18,7 +17,7 @@ from django.utils.timezone import utc, get_current_timezone, make_aware
 from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..utils.xml_utils import xml_diff, XMLDiffError
-from ..registry import creme_registry
+#from ..registry import creme_registry
 #from .. import autodiscover
 
 #from creme.media_managers.models import Image

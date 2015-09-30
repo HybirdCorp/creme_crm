@@ -19,7 +19,7 @@
 ################################################################################
 
 #from .. import autodiscover
-from ..registry import creme_registry, NotRegistered as AppNotRegistered
+#from ..registry import creme_registry, NotRegistered as AppNotRegistered
 from ..utils import bool_from_str
 
 

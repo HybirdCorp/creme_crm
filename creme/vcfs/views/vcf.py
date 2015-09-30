@@ -27,7 +27,7 @@ from creme.creme_core.auth.decorators import permission_required, login_required
 from creme.creme_core.utils import get_from_POST_or_404
 
 from creme.persons import get_contact_model
-from creme.persons.models import Contact
+#from creme.persons.models import Contact
 
 from ..forms.vcf import VcfForm, VcfImportForm
 from ..vcfgenerator import VcfGenerator
