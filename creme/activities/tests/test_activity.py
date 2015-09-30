@@ -506,7 +506,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview12(self):
         "Teams are not allowed as participants"
         user = self.login()
-        activity = self._create_meeting()
+        #activity = self._create_meeting()
 
         create_user = get_user_model().objects.create
         musashi = create_user(username='musashi', first_name='Musashi',
@@ -2075,7 +2075,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self.ADD_POPUP_URL
         #today = datetime.today().replace(second=0, microsecond=0)
-        today = make_naive(now().replace(second=0, microsecond=0), get_current_timezone()) #beurkk
+        #today = make_naive(now().replace(second=0, microsecond=0), get_current_timezone()) #beurkk
  
         response = self.assertGET200(url)
 
@@ -2297,7 +2297,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertTrue(content.endswith('END:VCALENDAR'))
 
     def test_clone01(self):
-        user = self.login()
+        self.login()
 
         activity1 = self._create_meeting()
         activity2 = activity1.clone()

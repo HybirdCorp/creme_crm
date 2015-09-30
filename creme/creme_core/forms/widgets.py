@@ -911,7 +911,7 @@ u"""</tbody></table>
 
         selected.sort(key=lambda i: i[0])
 
-        return [val for order, val in selected]
+        return [val for _order, val in selected]
 
 
 class Label(TextInput):

@@ -40,7 +40,7 @@ try:
             RGT_CUSTOM_RANGE, RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH,
             RGT_YEAR, RGT_RANGE, RGT_FK, RFT_FIELD, RFT_RELATION)
     from ..core.graph import ListViewURLBuilder
-    from ..models import Field, Report, ReportGraph
+    from ..models import Report, ReportGraph #Field
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -2345,18 +2345,18 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
-                                              name=u"Number of organisation created / %s day(s)" % 1,
-                                              abscissa='creation_date',
-                                              type=RGT_RANGE, days=1,
-                                              is_count=True,
-                                              )
+                                            name=u"Number of organisation created / %s day(s)" % 1,
+                                            abscissa='creation_date',
+                                            type=RGT_RANGE, days=1,
+                                            is_count=True,
+                                           )
 
         interval_day_count = 300
         entities_per_day = 5
         create_orga = partial(Organisation.objects.create, user=self.user)
         for i in xrange(1, interval_day_count + 1):
             creation = datetime.strptime('%s 2014' % i, '%j %Y').strftime("%Y-%m-%d")
-            for _ in xrange(entities_per_day):
+            for _j in xrange(entities_per_day):
                 create_orga(name='Target Orga', creation_date=creation)
 
         start = time.clock()
@@ -2391,7 +2391,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_orga = partial(Organisation.objects.create, user=self.user)
         for i in xrange(1, interval_day_count + 1):
             creation = datetime.strptime('%s 2014' % i, '%j %Y').strftime("%Y-%m-%d")
-            for _ in xrange(entities_per_day):
+            for _j in xrange(entities_per_day):
                 create_orga(name='Target Orga', creation_date=creation, capital=100)
 
         start = time.clock()

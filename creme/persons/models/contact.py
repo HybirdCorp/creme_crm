@@ -20,10 +20,9 @@
 
 from future_builtins import filter
 import logging
-import warnings
+#import warnings
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,

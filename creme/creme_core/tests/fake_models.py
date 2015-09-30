@@ -13,7 +13,7 @@ else:
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
     from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-    from ..models import CremeModel, CremeEntity, RelationType, Language
+    from ..models import CremeModel, CremeEntity, Language
     from ..models.fields import PhoneField, BasicAutoField, MoneyField, DatePeriodField
 
     from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT

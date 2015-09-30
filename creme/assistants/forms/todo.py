@@ -22,7 +22,7 @@ from datetime import datetime, time
 
 from django.forms import TypedChoiceField
 from django.utils.timezone import localtime
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _ # ugettext
 
 from creme.creme_core.forms import CremeModelWithUserForm, CremeDateTimeField
 from creme.creme_core.utils.dates import make_aware_dt

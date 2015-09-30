@@ -60,9 +60,9 @@ class AddressTestCase(CremeTestCase):
                         )
 
     def test_info_names02(self):
-        fconf = FieldsConfig.create(Address,
-                                    descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
-                                   )
+        FieldsConfig.create(Address,
+                            descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                           )
 
         self.assertEqual({'name', 'address', 'zipcode', 'city',
                           'department', 'state', 'country',

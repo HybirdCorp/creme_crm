@@ -20,7 +20,7 @@
 
 from datetime import datetime
 #from optparse import make_option, OptionParser
-from os import listdir, makedirs, sep
+from os import listdir, makedirs
 from os.path import join, exists, isdir
 
 import pytz

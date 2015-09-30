@@ -9,7 +9,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
-    from ..base import skipIfNotInstalled
+#    from ..base import skipIfNotInstalled
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeActivity, FakeImage)
     from creme.creme_core.auth.entity_credentials import EntityCredentials

@@ -2,7 +2,7 @@
 
 try:
     from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
+#    from django.contrib.contenttypes.models import ContentType
     from django.db.models import fields, FieldDoesNotExist
     from django.utils import translation
     from django.utils.translation import ugettext as _

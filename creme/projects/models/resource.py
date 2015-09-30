@@ -26,9 +26,9 @@ from creme.creme_core.models import CremeEntity
 
 #from creme.persons.models import Contact
 
-from .task import ProjectTask
+#from .task import ProjectTask
 
-#NB: no AbstractResource because resource should probably not be a CremeEntity at all...
+# NB: no AbstractResource because resource should probably not be a CremeEntity at all...
 class Resource(CremeEntity): #NB: CremeEntity and not CremeModel because we use a CreatorEntityField in WorkingPeriods' form
 #    linked_contact  = ForeignKey(Contact, verbose_name=_(u'Contact'))
     linked_contact  = ForeignKey(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contact'), editable=False)

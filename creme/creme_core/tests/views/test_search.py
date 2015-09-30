@@ -264,7 +264,7 @@ class SearchViewTestCase(ViewsTestCase):
 
     def test_search11(self):
         "With FieldsConfig: all fields are hidden"
-        user = self.login()
+        self.login()
 
         hidden_fname = 'description'
         SearchConfigItem.create_if_needed(Contact, [hidden_fname])

@@ -32,7 +32,6 @@ from creme.creme_core.models.fields import CTypeForeignKey
 from creme.opportunities import get_opportunity_model
 #from creme.opportunities.models import Opportunity
 
-from .. import get_act_model
 from ..constants import REL_SUB_COMPLETE_GOAL
 from .market_segment import MarketSegment
 

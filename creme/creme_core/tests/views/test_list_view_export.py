@@ -5,7 +5,7 @@ try:
     from functools import partial
     from unittest import skipIf
 
-    from django.apps import apps
+#    from django.apps import apps
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.encoding import force_unicode
@@ -348,7 +348,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def test_list_view_export08(self):
         "FieldsConfig"
         self.login()
-        cells = self._build_hf_n_contacts()
+        self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
         FieldsConfig.create(Contact,

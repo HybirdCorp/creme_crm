@@ -9,8 +9,8 @@ try:
     from creme.creme_core.models import SettingValue
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.documents import get_folder_model
-    from creme.documents.constants import DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME
+#    from creme.documents import get_folder_model
+#    from creme.documents.constants import DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME
     from creme.documents.models import FolderCategory #, Folder
 
     from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER

@@ -29,7 +29,7 @@ from creme.creme_core.models import CremeModel, CremeEntity
 from .base import _PollLine
 #from .campaign import PollCampaign
 from .poll_type import PollType
-from .poll_form import PollForm, PollFormLine
+from .poll_form import PollFormLine # PollForm
 
 
 #class PollReply(CremeEntity):

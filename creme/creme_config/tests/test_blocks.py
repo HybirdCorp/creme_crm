@@ -738,7 +738,6 @@ class BlocksConfigTestCase(CremeTestCase):
         "Superuser configuration"
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(Organisation)
-        role = self.role
 
         create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
                              content_type=ct, zone=BlockDetailviewLocation.TOP,

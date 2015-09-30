@@ -10,7 +10,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder
-    from creme.documents.models import Folder, FolderCategory, Document
+    from creme.documents.models import Folder, FolderCategory # Document
 #    from creme.documents.blocks import folder_docs_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))

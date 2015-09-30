@@ -21,9 +21,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('EmailsTestCase',)
-
-
 def skipIfCustomEmailCampaign(test_func):
     return skipIf(skip_emailcampaign_tests, 'Custom EmailCampaign model in use')(test_func)
 

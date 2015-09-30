@@ -23,7 +23,6 @@ from json import loads as jsonloads, dumps as jsondumps
 import logging
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (CharField, TextField, ForeignKey, OneToOneField,
         PositiveIntegerField, PositiveSmallIntegerField, BooleanField)

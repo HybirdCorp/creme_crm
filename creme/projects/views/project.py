@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required

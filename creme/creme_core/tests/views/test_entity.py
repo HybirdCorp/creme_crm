@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from os.path import join, exists
+#    from os.path import join, exists
     from datetime import date
     from decimal import Decimal
     from functools import partial

@@ -22,7 +22,7 @@ from collections import defaultdict
 import copy
 from datetime import datetime, timedelta
 import logging
-from json import loads as jsonloads, dumps as jsondumps
+from json import dumps as jsondumps
 
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
