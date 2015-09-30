@@ -51,11 +51,15 @@ if (navigator.userAgent.match(/Android/i)) {
         {% for error in form.name.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
       </div>
 
-      <div class='form-field'>
-        <label class='field-label' for='{{form.phone.auto_id}}'>{% trans 'Phone' %}</label>
-        {{form.phone}}
-        {% for error in form.phone.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
-      </div>
+      {% with phone_f=form.phone %}
+        {% if phone_f %}
+          <div class='form-field'>
+            <label class='field-label' for='{{phone_f.auto_id}}'>{% trans 'Phone' %}</label>
+            {{phone_f}}
+            {% for error in phone_f.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
 
       <hr/>
 
