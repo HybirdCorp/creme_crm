@@ -60,24 +60,33 @@ if (navigator.userAgent.match(/Android/i)) {
         {% for error in form.first_name.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
       </div>
 
-      <hr/>
+      {% with phone_f=form.phone mobile_f=form.mobile email_f=form.email %}
+        {% if phone_f or mobile_f or email_f %}
+          <hr/>
+        {% endif %}
 
-      <div class='form-field'>
-        <label class='field-label' for='{{form.phone.auto_id}}'>{% trans 'Phone' %}</label>
-        {{form.phone}}
-        {% for error in form.phone.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
-      </div>
-      <div class='form-field'>
-        <label class='field-label' for='{{form.mobile.auto_id}}'>{% trans 'Mobile' %}</label>
-        {{form.mobile}}
-        {% for error in form.mobile.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
-      </div>
-
-      <div class='form-field'>
-        <label class='field-label' for='{{form.email.auto_id}}'>{% trans 'Email address' %}</label>
-        {{form.email}}
-        {% for error in form.email.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
-      </div>
+        {% if phone_f %}
+          <div class='form-field'>
+            <label class='field-label' for='{{phone_f.auto_id}}'>{% trans 'Phone' %}</label>
+            {{phone_f}}
+            {% for error in phone_f.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+          </div>
+        {% endif %}
+        {% if mobile_f %}
+          <div class='form-field'>
+            <label class='field-label' for='{{mobile_f.auto_id}}'>{% trans 'Mobile' %}</label>
+            {{mobile_f}}
+            {% for error in mobile_f.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+          </div>
+        {% endif %}
+        {% if email_f %}
+          <div class='form-field'>
+            <label class='field-label' for='{{email_f.auto_id}}'>{% trans 'Email address' %}</label>
+            {{email_f}}
+            {% for error in email_f.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
 
       <hr/>
 

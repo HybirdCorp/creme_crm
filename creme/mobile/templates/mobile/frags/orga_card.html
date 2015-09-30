@@ -1,5 +1,6 @@
-{% load i18n creme_core_tags %}{% has_perm_to view orga as view_perm %}
+{% load i18n creme_core_tags mobile_tags %}{% has_perm_to view orga as view_perm %}
 {% if view_perm %}
+  {% prepare_fields orga 'billing_address' 'phone' %}
   {% with address=orga.billing_address %}{% with has_address=address|bool %}
     <div class='{{card_classes|default:'card card-orga'}} {% if has_address %}with-more-info{% endif %}' data-person-id='{{orga.id}}'>
       <div class='entity-field'>

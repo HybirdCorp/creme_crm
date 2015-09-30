@@ -1,5 +1,6 @@
 {% load i18n creme_core_tags mobile_tags %}{% has_perm_to view contact as view_perm %}
 {% if view_perm %}
+  {% prepare_fields contact 'email' 'billing_address' 'position' 'phone' 'mobile' %}
   {% with email=contact.email address=contact.billing_address position=contact.position organisations=contact|employers %}
   {% with has_address=address|bool %}
   {% with more_info=email|or_op:has_address|or_op:position|or_op:organisations %}
@@ -51,6 +52,7 @@
         {% endif %}
 
         {% for orga in organisations %}
+          {% prepare_fields orga 'phone' 'billing_address' %}
           {% with orga_phone=orga.phone orga_address=orga.billing_address %}
           {% with orga_has_address=orga_address|bool %}
             {% if orga_phone or orga_has_address %}
