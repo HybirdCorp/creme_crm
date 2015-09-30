@@ -139,13 +139,19 @@ def fetch(request, template="crudity/waiting_actions.html",
 
     _fetch(request.user)
 
-    tpl_dict = {
-            'blocks': ["".join(block(backend).detailview_display(context) for block in backend.blocks)
-                       or WaitingActionBlock(backend).detailview_display(context)
+#    tpl_dict = {
+#            'blocks': ["".join(block(backend).detailview_display(context) for block in backend.blocks)
+#                       or WaitingActionBlock(backend).detailview_display(context)
+#                            for backend in crudity_registry.get_configured_backends()
+#                                if backend.in_sandbox
+#                      ],
+#        }
+
+    context['blocks'] = ["".join(block(backend).detailview_display(context) for block in backend.blocks)
+                         or WaitingActionBlock(backend).detailview_display(context)
                             for backend in crudity_registry.get_configured_backends()
                                 if backend.in_sandbox
-                      ],
-        }
+                      ]
 
     if extra_tpl_ctx:
 #        tpl_dict.update(extra_tpl_ctx)
