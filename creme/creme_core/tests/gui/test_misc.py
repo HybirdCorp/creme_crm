@@ -7,7 +7,7 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.models import Session
-    from django.utils.formats import date_format
+    from django.utils.formats import date_format, number_format
     from django.utils.html import escape
     from django.utils.timezone import localtime
     from django.utils.translation import ugettext as _, pgettext
@@ -415,8 +415,9 @@ class GuiTestCase(CremeTestCase):
         line1 = create_line(item='Swords',  quantity='3.00', unit_price='125.6', discount_unit=FAKE_PERCENT_UNIT)
         line2 = create_line(item='Shields', quantity='2.00', unit_price='53.4',  discount_unit=None)
 
-        self.assertEqual('3.00',  get_csv_val(line1, 'quantity',   user))
-        self.assertEqual('125.6', get_csv_val(line1, 'unit_price', user))
+        dec_format = partial(number_format, use_l10n=True)
+        self.assertEqual(dec_format('3.00'),  get_csv_val(line1, 'quantity',   user))
+        self.assertEqual(dec_format('125.6'), get_csv_val(line1, 'unit_price', user))
         self.assertEqual(FAKE_DISCOUNT_UNIT[FAKE_PERCENT_UNIT],
                          get_csv_val(line1, 'discount_unit', user)
                         )
