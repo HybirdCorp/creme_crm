@@ -1,14 +1,15 @@
 # FR LOCALISATION OF 'CRUDITY' APP
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i "tests/*"
+# > django-admin.py makemessages -l fr -i "tests/*"
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Crudity 1.3\n"
-"POT-Creation-Date: 2011-08-12 16:45+0200\n"
+"Project-Id-Version: Creme Creme-Crudity 1.6\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-09-29 15:42+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,142 +17,128 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: blocks.py:42
-#, python-format
-msgid "Error: you are not allowed to view this block: %s"
-msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
-
-#: blocks.py:50 models/actions.py:53 templates/crudity/waiting_actions.html:4
-#: templates/crudity/frags/ajax/waiting_actions.html:6
-#: templates/crudity/frags/ajax/waiting_actions.html:7
-msgid "Waiting actions"
-msgstr "Actions en attente"
-
-#: blocks.py:86 creme_core_register.py:32 models/history.py:43
-#: models/history.py:44 templates/crudity/history.html:6
-#: templates/crudity/history.html.py:13
-msgid "History"
-msgstr "Historique"
-
-#: creme_core_register.py:27
+#: apps.py:28 apps.py:37
 msgid "External data management"
 msgstr "Gestion des données externes"
 
-#: creme_core_register.py:31
+#: apps.py:41
 msgid "Email waiting actions"
 msgstr "Actions en attente pour les emails"
 
-#: populate.py:33
-msgid "Are waiting actions are by user?"
-msgstr "Est-ce que les actions en attente sont par utilisateur ?"
+#: apps.py:42 blocks.py:86 models/history.py:40 models/history.py:41
+#: templates/crudity/history.html:8 templates/crudity/history.html.py:15
+msgid "History"
+msgstr "Historique"
 
-#: backends/models.py:205
+#: backends/models.py:226
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
 
-#: builders/infopath.py:371 inputs/email.py:75
+#: blocks.py:41
+#, python-format
+msgid "Error: you are not allowed to view this block: %s"
+msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
+
+#: blocks.py:50 models/actions.py:43
+#: templates/crudity/frags/ajax/waiting_actions.html:4
+#: templates/crudity/waiting_actions.html:4
+msgid "Waiting actions"
+msgstr "Actions en attente"
+
+#: builders/infopath.py:386 inputs/email.py:66
 msgid "Create"
 msgstr "Créer"
 
-#: inputs/email.py:63
+#: inputs/email.py:54
 msgid "Email - Raw"
 msgstr "E-mail - Simple"
 
-#: inputs/email.py:180
+#: inputs/email.py:182
 msgid "Email - Infopath"
 msgstr "E-mail - Infopath"
 
-#: models/actions.py:43 models/history.py:36
-#: templates/crudity/templatetags/block_history.html:45
+#: models/actions.py:32 models/history.py:33
+#: templates/crudity/templatetags/block_history.html:46
 msgid "Action"
 msgstr "Action"
 
-#: models/actions.py:44 models/history.py:37
-#: templates/crudity/templatetags/block_history.html:46
+#: models/actions.py:33 models/history.py:34
+#: templates/crudity/templatetags/block_history.html:47
 msgid "Source"
 msgstr "Source"
 
-#: models/actions.py:46
+#: models/actions.py:36
 msgid "Ressource's type"
 msgstr "Type de ressource"
 
-#: models/actions.py:47
+#: models/actions.py:37
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/actions.py:48 models/history.py:39
+#: models/actions.py:38 models/history.py:36
 msgid "Owner"
 msgstr "Propriétaire"
 
-#: models/actions.py:52
+#: models/actions.py:42
 msgid "Waiting action"
 msgstr "Action en attente"
 
-#: models/actions.py:70
+#: models/actions.py:61
 #, python-format
 msgid "You are not allowed to validate/delete the waiting action <%s>"
 msgstr ""
 "Vous n'êtes pas autorisé à valider/effacer cette action en attente <%s>"
 
-#: models/actions.py:71
+#: models/actions.py:63
 msgid "OK"
 msgstr "OK"
 
-#: models/history.py:34 templates/crudity/templatetags/block_history.html:43
+#: models/history.py:31 templates/crudity/templatetags/block_history.html:44
 msgid "Entity"
 msgstr "Fiche"
 
-#: models/history.py:35
+#: models/history.py:32
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/history.py:38 templates/crudity/templatetags/block_history.html:47
+#: models/history.py:35 templates/crudity/templatetags/block_history.html:48
 msgid "Description"
 msgstr "Description"
 
-#: templates/crudity/frags/ajax/waiting_actions.html:11
+#: setting_keys.py:11
+msgid "Are waiting actions are by user?"
+msgstr "Est-ce que les actions en attente sont par utilisateur ?"
+
+#: templates/crudity/frags/ajax/waiting_actions.html:10
 msgid "Refresh"
 msgstr "Rafraîchir"
 
-#: templates/crudity/infopath/create_template/frags/validation/email_field.xml:3
-msgid "Invalid email"
-msgstr "E-mail invalide"
-
-#: templates/crudity/infopath/create_template/frags/validation/email_field.xml:3
-msgid "Enter a valid email address. For example: creme@crm.org"
-msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
-
-#: templates/crudity/infopath/create_template/frags/xsl/view/ForeignKey.xml:8
-#: tests/builders.py:434
-msgid "Select..."
-msgstr "Sélectionner..."
-
-#: templates/crudity/templatetags/block_history.html:24
+#: templates/crudity/templatetags/block_history.html:25
 #, python-format
 msgid "%(counter)s History item - %(ct_name)s"
 msgid_plural "%(counter)s History items - %(ct_name)s"
 msgstr[0] "%(counter)s entrée d'historique - %(ct_name)s"
 msgstr[1] "%(counter)s entrées d'historique - %(ct_name)s"
 
-#: templates/crudity/templatetags/block_history.html:44
+#: templates/crudity/templatetags/block_history.html:45
 msgid "Created"
 msgstr "Créé"
 
-#: templates/crudity/templatetags/block_history.html:48
+#: templates/crudity/templatetags/block_history.html:49
 msgid "View entity's file"
 msgstr "Voir la fiche de la fiche"
 
-#: templates/crudity/templatetags/block_history.html:58
+#: templates/crudity/templatetags/block_history.html:59
 #, python-format
 msgid "View '%(history_entity)s' details"
 msgstr "Voir les détails de '%(history_entity)s'"
 
-#: templates/crudity/templatetags/block_history.html:58
+#: templates/crudity/templatetags/block_history.html:59
 msgid "View"
 msgstr "Voir"
 
-#: templates/crudity/templatetags/block_history.html:64
+#: templates/crudity/templatetags/block_history.html:65
 #, python-format
 msgid "No waiting action for %(ct_name)s"
 msgstr "Aucune action en attente pour %(ct_name)s"
@@ -204,17 +191,17 @@ msgstr "Sélectionner cette ligne"
 msgid "No waiting action for %(ct_name)s from %(backend_source)s"
 msgstr "Aucune action en attente pour %(ct_name)s venant de %(backend_source)s"
 
-#: templates/crudity/templatetags/button_email_template_create.html:6
-#: templates/crudity/templatetags/button_infopath_create_form.html:6
+#: templates/crudity/templatetags/button_email_template_create.html:5
+#: templates/crudity/templatetags/button_infopath_create_form.html:5
 msgid "Download"
 msgstr "Télécharger"
 
-#: templates/crudity/templatetags/button_email_template_create.html:7
+#: templates/crudity/templatetags/button_email_template_create.html:6
 #, python-format
 msgid "Email template for \"%(verbose_name)s\""
 msgstr "Modèle d'e-mail pour \"%(verbose_name)s\""
 
-#: templates/crudity/templatetags/button_infopath_create_form.html:7
+#: templates/crudity/templatetags/button_infopath_create_form.html:6
 #, python-format
 msgid "Infopath form for \"%(verbose_name)s\""
 msgstr "Formulaire Infopath pour \"%(verbose_name)s\""
@@ -222,6 +209,15 @@ msgstr "Formulaire Infopath pour \"%(verbose_name)s\""
 #: views/actions.py:56
 msgid "Operation successfully completed"
 msgstr ""
+
+#~ msgid "Invalid email"
+#~ msgstr "E-mail invalide"
+
+#~ msgid "Enter a valid email address. For example: creme@crm.org"
+#~ msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
+
+#~ msgid "Select..."
+#~ msgstr "Sélectionner..."
 
 #~ msgid "Read"
 #~ msgstr "Lire"
