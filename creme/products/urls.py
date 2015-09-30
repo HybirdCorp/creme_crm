@@ -24,7 +24,7 @@ if not product_model_is_custom():
         url(r'^product/(?P<product_id>\d+)$',      product.detailview, name='products__view_product'),
     ]
 
-if not product_model_is_custom():
+if not service_model_is_custom():
     urlpatterns += [
         url(r'^services$',                         service.listview,   name='products__list_services'),
         url(r'^service/add$',                      service.add,        name='products__create_service'),
