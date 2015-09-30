@@ -45,6 +45,63 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         return tpl
 
+    def test_status01(self):
+        invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
+        tpl = self._create_templatebase(Invoice, invoice_status1.id)
+
+        with self.assertNumQueries(1):
+            status_str = tpl.verbose_status
+
+        self.assertEqual(unicode(invoice_status1), status_str)
+
+        # Cache -------------------------
+        with self.assertNumQueries(0):
+            status_str = tpl.verbose_status
+
+        self.assertEqual(unicode(invoice_status1), status_str)
+
+        # Change status -------------------------
+        invoice_status2 = self.get_object_or_fail(InvoiceStatus, pk=2)
+        tpl.status_id = invoice_status2.id
+
+        with self.assertNumQueries(1):
+            status_str = tpl.verbose_status
+
+        self.assertEqual(unicode(invoice_status2), status_str)
+
+        # Invalid ID -------------------------
+        tpl.status_id = invalid_id = 1024
+        self.assertFalse(InvoiceStatus.objects.filter(id=invalid_id).exists())
+
+        with self.assertNumQueries(1):
+            status_str = tpl.verbose_status
+
+        self.assertEqual('', status_str)
+
+    def test_status02(self):
+        "Other CT"
+        quote_status = self.get_object_or_fail(QuoteStatus, pk=3)
+        tpl = self._create_templatebase(Quote, quote_status.id)
+
+        self.assertEqual(unicode(quote_status), tpl.verbose_status)
+
+    def test_status_function_field(self):
+        invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        tpl = self._create_templatebase(Invoice, invoice_status.id)
+
+        with self.assertNoException():
+            funf = tpl.function_fields.get('get_verbose_status')
+
+        self.assertIsNotNone(funf)
+
+        with self.assertNumQueries(1):
+            status_str = funf(tpl).for_html()
+
+        self.assertEqual(unicode(invoice_status), status_str)
+
+        with self.assertNumQueries(0):
+            funf(tpl).for_html()
+
     @skipIfCustomInvoice
     def test_create_invoice01(self):
         invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
