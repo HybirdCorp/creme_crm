@@ -23,7 +23,7 @@ from itertools import chain
 from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import linebreaks
-from django.utils.formats import date_format
+from django.utils.formats import date_format, number_format
 from django.utils.html import escape
 #from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
@@ -36,7 +36,7 @@ from ..utils.collections import ClassKeyedMap
 from ..utils.meta import FieldInfo #get_model_field_info
 
 
-#TODO: in settings
+# TODO: in settings
 MAX_HEIGHT = 200
 MAX_WIDTH = 200
 
@@ -83,6 +83,10 @@ def print_integer(entity, fval, user, field):
 
     return fval if fval is not None else ''
 
+def print_decimal(entity, fval, user, field):
+    # TODO remove 'use_l10n' when settings.USE_L10N == True
+    return number_format(fval, use_l10n=True) if fval is not None else ''
+
 def print_boolean(entity, fval, user, field): #TODO: rename print_boolean_html
     return bool_as_html(fval)
 
@@ -97,14 +101,13 @@ def print_urlfield(entity, fval, user, field): #TODO: rename print_url_html
     return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
 
 def print_datetime(entity, fval, user, field):
-    #return date_format(fval, 'DATETIME_FORMAT') if fval else ''
     return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
 
 def print_date(entity, fval, user, field):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
 def print_foreignkey(entity, fval, user, field): #TODO: rename print_foreignkey_html
-    #TODO: temporary hack before print_field refactor in order to give extra parameters for custom display. 
+    # TODO: temporary hack before print_field refactor in order to give extra parameters for custom display.
     from creme.media_managers.models.image import Image
 
     if isinstance(fval, Image) and user.has_perm_to_view(fval):
@@ -127,7 +130,7 @@ def print_foreignkey(entity, fval, user, field): #TODO: rename print_foreignkey_
 
 def print_foreignkey_csv(entity, fval, user, field):
     if isinstance(fval, CremeEntity):
-        #TODO: change allowed unicode ??
+        # TODO: change allowed unicode ??
         return unicode(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
 
     return unicode(fval) if fval else u''
@@ -135,7 +138,7 @@ def print_foreignkey_csv(entity, fval, user, field):
 def print_many2many(entity, fval, user, field): #TODO: rename print_many2many_html
     output = []
 
-    #TODO: temporary hack before print_field refactor in order to give extra parameters for custom display. 
+    # TODO: temporary hack before print_field refactor in order to give extra parameters for custom display.
     from creme.media_managers.models.image import Image
 
     def print_entity_link(e):
@@ -164,7 +167,7 @@ def print_many2many(entity, fval, user, field): #TODO: rename print_many2many_ht
 
 def print_many2many_csv(entity, fval, user, field):
     if issubclass(fval.model, CremeEntity):
-        #TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
+        # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
         return u'/'.join(unicode(e) if user.has_perm_to_view(e)
                          else settings.HIDDEN_VALUE
                             for e in fval.filter(is_deleted=False)
@@ -198,11 +201,12 @@ def print_text_html(entity, fval, user, field):
     return linebreaks(fval) if fval else ''
 
 
-#TODO: Do more specific fields (i.e: currency field....) ?
+# TODO: Do more specific fields (i.e: currency field....) ?
 class _FieldPrintersRegistry(object):
     def __init__(self):
         self._printers = ClassKeyedMap([
                     (models.IntegerField,       print_integer),
+                    (models.DecimalField,       print_decimal),
                     (models.BooleanField,       print_boolean),
 
                     (models.DateField,          print_date),
@@ -224,6 +228,7 @@ class _FieldPrintersRegistry(object):
             )
         self._csv_printers = ClassKeyedMap([
                     (models.IntegerField,       print_integer),
+                    (models.DecimalField,       print_decimal),
                     (models.BooleanField,       print_boolean_csv),
 
                     (models.DateField,          print_date),
