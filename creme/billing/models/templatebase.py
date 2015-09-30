@@ -22,12 +22,12 @@ from datetime import timedelta #date
 import logging
 import warnings
 
-from django.core.urlresolvers import reverse
-from django.db.models import PositiveIntegerField #ForeignKey
-from django.utils.translation import pgettext_lazy
-#from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
+from django.db.models import PositiveIntegerField
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
+from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models.fields import CTypeForeignKey
 
 from .base import Base
@@ -36,12 +36,24 @@ from .base import Base
 logger = logging.getLogger(__name__)
 
 
+class _VerboseStatusField(FunctionField):
+    name         = 'get_verbose_status'
+    verbose_name = _(u'Status')
+
+# TODO:
+#    @classmethod
+#    def populate_entities(cls, entities):
+
+
 #class TemplateBase(Base):
 class AbstractTemplateBase(Base):
     ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
     status_id = PositiveIntegerField(editable=False).set_tags(viewable=False) #TODO: avoid deletion of status
 
+    function_fields = Base.function_fields.new(_VerboseStatusField())
     creation_label = pgettext_lazy('billing', u'Add a template') #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
+
+    _verbose_status_cache = None
 
 #    class Meta:
     class Meta(Base.Meta):
@@ -80,16 +92,28 @@ class AbstractTemplateBase(Base):
         except ObjectDoesNotExist:
             return None
 
-    @property
-    def verbose_status(self):
-        try: #TODO: cache
-            return self.ct.model_class()._meta.get_field('status').rel.to.objects.get(id=self.status_id).name
-        except Exception: #TODO: test
-            logger.exception('Error in TemplateBase.verbose_status')
-            return ''
+    def get_verbose_status(self):
+        vstatus = self._verbose_status_cache
 
-    # This method is used by the generation job
+        if vstatus is None or vstatus.id != self.status_id:
+            status_model = self.ct.model_class()._meta.get_field('status').rel.to 
+
+            try:
+                vstatus = status_model.objects.get(id=self.status_id)
+            except status_model.DoesNotExist as e:
+                logger.warn('Invalid status in TemplateBase(id=%s) [%s]', self.id, e)
+                vstatus = status_model(id=self.status_id, name='')
+
+            self._verbose_status_cache = vstatus
+
+        return vstatus.name
+
+    @property
+    def verbose_status(self): # TODO: deprecate ??
+        return self.get_verbose_status()
+
     def create_entity(self):
+        "This method is used by the generation job"
         instance_class = self.ct.model_class()
         instance = instance_class()
         instance.build(self)
