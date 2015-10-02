@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import models, migrations
 import django.db.models.deletion
-from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('billing', '0007_v1_6__make_line_abstract_3'),
     ]

@@ -47,12 +47,15 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Overall discount" %}</th>
-            <td class="{% cycle row_color %} td_info" {% comment %}name="overall_discount_document" value="{% if object.discount %}{{ object.discount }}{% endif %}"{% endcomment %}>
+            <td class="{% cycle row_color %} td_info">
+{% comment %}
                 {% if object.discount %}
                     {% print_field object=object field='discount' %} %
                 {% else %}
                     {% trans "None" context "billing-discount" %}
                 {% endif %}
+{% endcomment %}
+                {% print_field object=object field='discount' %}
             </td>
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'discount' for object %}</td>
         </tr>

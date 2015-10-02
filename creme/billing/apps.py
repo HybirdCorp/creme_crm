@@ -79,6 +79,13 @@ class BillingConfig(CremeAppConfig):
 
         button_registry.register(*button_list)
 
+    def register_field_printers(self, field_printers_registry):
+        from .models.fields  import BillingDiscountField
+
+        from .utils import print_discount
+
+        field_printers_registry.register(BillingDiscountField, print_discount)
+
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register
         icon_fmt = 'images/invoice_%(size)s.png'
