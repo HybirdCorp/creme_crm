@@ -48,6 +48,9 @@ class FieldsConfig(CremeModel):
     class InvalidAttribute(Exception):
         pass
 
+    class InvalidModel(Exception):
+        pass
+
     class LocalCache(object):
         __slots__ = ('_configs', )
 
@@ -113,8 +116,13 @@ class FieldsConfig(CremeModel):
 
         return errors, safe_descriptions
 
-    @staticmethod
-    def create(model, descriptions=()): # TODO: in a manager ?
+    @classmethod
+    def create(cls, model, descriptions=()): # TODO: in a manager ?
+        from ..gui.fields_config import fields_config_registry
+
+        if not fields_config_registry.is_model_valid(model):
+            raise cls.InvalidModel("This model cannot have a FieldsConfig")
+
         return FieldsConfig.objects.create(content_type=ContentType.objects.get_for_model(model),
                                            descriptions=descriptions,
                                           )
@@ -189,13 +197,22 @@ class FieldsConfig(CremeModel):
                not fconfigs.is_fieldinfo_hidden(model, cell.field_info):
                 yield cell
 
+    # TODO: cache
+    # TODO: in a manager ?
     @staticmethod
-    def get_4_model(model): # TODO: in a manager
-        # TODO: cache
+    def get_4_model(model):
+        from ..gui.fields_config import fields_config_registry
+
+        fc = None
         ct = ContentType.objects.get_for_model(model)
 
-        return FieldsConfig.objects.filter(content_type=ct).first() or \
-               FieldsConfig(content_type=ct, descriptions=())
+        if fields_config_registry.is_model_valid(model):
+            fc = FieldsConfig.objects.filter(content_type=ct).first()
+
+        if fc is None:
+            fc = FieldsConfig(content_type=ct, descriptions=())
+
+        return fc
 
     @property
     def hidden_fields(self):

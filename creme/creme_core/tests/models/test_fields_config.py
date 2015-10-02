@@ -7,9 +7,10 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_forms import FakeContactForm
-    from ..fake_models import FakeContact
+    from ..fake_models import FakeContact, FakeOrganisation, FakeCivility, FakeAddress
 
-    from creme.creme_core.models import FieldsConfig
+    from creme.creme_core.gui.fields_config import fields_config_registry
+    from creme.creme_core.models import CremeEntity, FieldsConfig
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -73,6 +74,48 @@ class FieldsConfigTestCase(CremeTestCase):
             FieldsConfig.create(FakeContact,
                                 descriptions=[('phone', {FieldsConfig.HIDDEN: 5})],
                                )
+
+    def test_create_errors_05(self):
+        "Invalid model"
+        is_valid = fields_config_registry.is_model_valid
+        self.assertTrue(is_valid(FakeContact))      # registered CremeEntity
+        self.assertTrue(is_valid(FakeOrganisation)) # idem
+        self.assertFalse(is_valid(CremeEntity))     # not registered
+        self.assertFalse(is_valid(FakeCivility))    # not a CremeEntity
+        self.assertTrue(is_valid(FakeAddress))      # registered extra model
+
+        create_fc = FieldsConfig.create
+
+        with self.assertRaises(FieldsConfig.InvalidModel):
+            create_fc(CremeEntity)
+
+        with self.assertRaises(FieldsConfig.InvalidModel):
+            create_fc(FakeCivility)
+
+    def test_get_4_model01(self):
+        model = FakeContact
+        h_field1 = 'phone'
+        h_field2 = 'mobile'
+        FieldsConfig.create(model,
+                            descriptions=[(h_field1, {FieldsConfig.HIDDEN: True}),
+                                          (h_field2, {FieldsConfig.HIDDEN: True}),
+                                         ],
+                           )
+
+        with self.assertNumQueries(1):
+            fc = FieldsConfig.get_4_model(model)
+
+        is_hidden = fc.is_fieldname_hidden
+        self.assertTrue(is_hidden(h_field1))
+        self.assertTrue(is_hidden(h_field2))
+        self.assertFalse(is_hidden('description'))
+
+    def test_get_4_model02(self):
+        "No query for model which cannot be registered"
+        with self.assertNumQueries(0):
+            fc = FieldsConfig.get_4_model(CremeEntity)
+
+        self.assertFalse(list(fc.hidden_fields))
 
     def _create_contact_conf(self):
         FieldsConfig.create(FakeContact,
