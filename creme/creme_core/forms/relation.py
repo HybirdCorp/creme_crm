@@ -55,7 +55,7 @@ class _RelationsCreateForm(CremeForm):
         self.subjects_ids = subjects_ids = frozenset(s.id for s in subjects)
 
         fields = self.fields
-        #TODO: improve queries ??
+        # TODO: improve queries ??
         user = self.user
         entities = [sfrt.object_entity 
                         for sfrt in SemiFixedRelationType.objects
@@ -66,12 +66,15 @@ class _RelationsCreateForm(CremeForm):
 
         if not relations_types:
             relations_types = RelationType.get_compatible_ones(content_type)
+            sfrt_queryset = sfrt_queryset.filter(Q(relation_type__subject_ctypes=content_type) |
+                                                 Q(relation_type__subject_ctypes__isnull=True)
+                                                )
         else:
             sfrt_queryset = sfrt_queryset.filter(relation_type__in=relations_types)
 
         fields['semifixed_rtypes'].queryset = sfrt_queryset
 
-        #TODO: add a qfilter to exclude the subjects from possible objects
+        # TODO: add a qfilter to exclude the subjects from possible objects
         relations_field = fields['relations']
         relations_field.allowed_rtypes = relations_types
         relations_field.initial = [(relations_field.allowed_rtypes.all()[0], None)]

@@ -115,13 +115,20 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(load_json(response.content), expected)
 
     def _aux_test_add_relations(self, is_superuser=True):
-        self.login(is_superuser)
+        user = self.login(is_superuser)
 
-        create_entity = lambda : CremeEntity.objects.create(user=self.user)
-        self.subject01 = create_entity()
-        self.subject02 = create_entity()
-        self.object01  = create_entity()
-        self.object02  = create_entity()
+#        create_entity = lambda : CremeEntity.objects.create(user=self.user)
+#        self.subject01 = create_entity()
+#        self.subject02 = create_entity()
+#        self.object01  = create_entity()
+#        self.object02  = create_entity()
+        create_contact = partial(Contact.objects.create, user=user)
+        self.subject01 = create_contact(first_name='Laharl', last_name='Overlord')
+        self.subject02 = create_contact(first_name='Etna',   last_name='Devil')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        self.object01 = create_orga(name='orga01')
+        self.object02 = create_orga(name='orga02')
 
         self.ct_id = ContentType.objects.get_for_model(CremeEntity).id
 
@@ -263,6 +270,15 @@ class RelationViewsTestCase(ViewsTestCase):
 
         subject = self.subject01
 
+        # Contraint OK & KO
+        create_rtype = RelationType.create
+        rtype03 = create_rtype(('test-subject_foobar3', 'is hating orga',     [Contact]),
+                               ('test-object_foobar3',  '(orga) is hated by', [Organisation]),
+                              )[0]
+        rtype04 = create_rtype(('test-subject_foobar4', 'has fired', [Organisation]), # subject cannot be a Contact
+                               ('test-object_foobar4',  'has been fired by')
+                              )[0]
+
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(predicate='Related to "object01"',
                             relation_type=self.rtype01, object_entity=self.object01,
@@ -270,13 +286,22 @@ class RelationViewsTestCase(ViewsTestCase):
         sfrt2 = create_sfrt(predicate='Related to "object02"',
                             relation_type=self.rtype02, object_entity=self.object02,
                            )
+        sfrt3 = create_sfrt(predicate='Linked to "object02"',
+                            relation_type=rtype03, object_entity=self.object02,
+                           )
+        create_sfrt(predicate='Linked to "object01"',
+                            relation_type=rtype04, object_entity=self.object01,
+                           ) # should not be proposed
 
         url = self._build_add_url(subject)
 
         with self.assertNoException():
             semifixed_rtypes = self.client.get(url).context['form'].fields['semifixed_rtypes']
 
-        self.assertEqual([(sfrt1.id, sfrt1.predicate), (sfrt2.id, sfrt2.predicate)],
+        self.assertEqual([(sfrt1.id, sfrt1.predicate),
+                          (sfrt2.id, sfrt2.predicate),
+                          (sfrt3.id, sfrt3.predicate),
+                         ],
                          list(semifixed_rtypes.choices)
                         )
 
@@ -326,7 +351,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(subject, self.rtype02, self.object02)
 
     def test_add_relations_with_semi_fixed03(self):
-        "One raltions at leats (semi-fixed or not semi-fixed)"
+        "One relationship at least (semi-fixed or not semi-fixed)"
         self._aux_test_add_relations()
 
         response = self.assertPOST200(self._build_add_url(self.subject01))
