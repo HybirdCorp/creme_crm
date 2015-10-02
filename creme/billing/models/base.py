@@ -25,7 +25,7 @@ import logging
 
 from django.conf import settings
 from django.db.models import (CharField, TextField, ForeignKey, DateField,
-        DecimalField, SET_NULL, PROTECT)
+        SET_NULL, PROTECT) # DecimalField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
@@ -40,10 +40,11 @@ from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
 from ..utils import round_to_2
 
 #from .line import Line
+from .algo import ConfigBillingAlgo
+from .fields import BillingDiscountField
+from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 from .product_line import ProductLine
 from .service_line import ServiceLine
-from .algo import ConfigBillingAlgo
-from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 
 
 logger = logging.getLogger(__name__)
@@ -54,7 +55,8 @@ class Base(CremeEntity):
     number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)
-    discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
+#    discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
+    discount         = BillingDiscountField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
 #    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
     billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
 #                                  related_name='BillingAddress_set',

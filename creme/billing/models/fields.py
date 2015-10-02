@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,26 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from decimal import Decimal, InvalidOperation
-import logging
+from django.db.models import DecimalField
 
-from django.utils.formats import number_format
-from django.utils.translation import ugettext as _ # pgettext
-
-from .constants import ROUND_POLICY
-
-
-logger = logging.getLogger(__name__)
-
-
-def round_to_2(decimal_instance):
-    try:
-        return Decimal(decimal_instance).quantize(Decimal('.01'), rounding=ROUND_POLICY)
-    except InvalidOperation as e:
-        logger.debug("round_to_2: InvalidOperation : %s", e)
-        return Decimal()
-
-def print_discount(entity, fval, user, field):
-    # TODO: print 'None' only on detail views => we need this info in printers
-#    return _(u'%s %%') % fval if fval else pgettext('billing-discount', u'None')
-    return _(u'%s %%') % number_format(fval, use_l10n=True)
+# NB: useful to have a specific printer
+class BillingDiscountField(DecimalField):
+    pass

@@ -153,16 +153,9 @@ class BaseEditForm(CremeEntityForm):
 
 
 class BaseCreateForm(BaseEditForm):
-    #class Meta:
-        #exclude = BaseEditForm.Meta.exclude
-
     def __init__(self, *args, **kwargs):
         super(BaseCreateForm, self).__init__(*args, **kwargs)
 
-        #try:
-            #self.fields['source'].initial = Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0]
-        #except IndexError as e:
-            #logger.debug('Exception in %s.__init__: %s', self.__class__, e)
         self.fields['source'].initial = first_managed_orga_id()
 
     def save(self, *args, **kwargs):
