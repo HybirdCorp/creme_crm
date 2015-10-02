@@ -18,15 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import edit_entity, list_view, view_entity
 
-from .. import get_template_base_model
+from .. import get_template_base_model, get_sales_order_model, get_invoice_model
 from ..forms.templatebase import TemplateBaseEditForm
 #from ..models import TemplateBase
 
 
 TemplateBase = get_template_base_model()
+SalesOrder = get_sales_order_model()
+Invoice = get_invoice_model()
 
 
 @login_required
@@ -44,8 +47,8 @@ def detailview(request, template_id):
     return view_entity(request, template_id, TemplateBase, '/billing/template',
                        'billing/view_template.html',
                        {'can_download':       False,
-                        'can_create_order':   has_perm('billing.add_salesorder') and isnt_staff,
-                        'can_create_invoice': has_perm('billing.add_invoice') and isnt_staff,
+                        'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
+                        'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
                        }
                       )
 

@@ -20,16 +20,19 @@
 
 from django.utils.translation import ugettext_lazy as _ # ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
-from .. import get_quote_model
+from .. import get_quote_model, get_invoice_model, get_sales_order_model
 from ..forms.quote import QuoteCreateForm, QuoteEditForm
 #from ..models import Quote
 from ..views.workflow import generic_add_related #_add_with_relations
 
 
 Quote = get_quote_model()
+Invoice = get_invoice_model()
+SalesOrder = get_sales_order_model()
 
 
 @login_required
@@ -68,8 +71,8 @@ def detailview(request, quote_id):
     return view_entity(request, quote_id, Quote, '/billing/quote',
                        'billing/view_quote.html',
                        {'can_download':       True,
-                        'can_create_order':   has_perm('billing.add_salesorder') and isnt_staff,
-                        'can_create_invoice': has_perm('billing.add_invoice') and isnt_staff,
+                        'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
+                        'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
                        },
                       )
 

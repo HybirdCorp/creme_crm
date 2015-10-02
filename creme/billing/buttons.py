@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
 
 from creme.persons import get_organisation_model, get_contact_model
@@ -82,7 +83,7 @@ class AddInvoiceButton(_AddBillingDocumentButton):
     model_to_create = Invoice
     id_             = Button.generate_id('billing', 'add_invoice')
     verbose_name    = _(u'Add a related invoice')
-    permission      = 'billing.add_invoice'
+    permission      = cperm(Invoice)
 #    become_url      = "/billing/invoice/add/%s"
     url_name      = 'billing__create_related_invoice'
 
@@ -91,7 +92,7 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
     model_to_create = SalesOrder
     id_             = Button.generate_id('billing', 'add_salesorder')
     verbose_name    = _(u'Add a related sales order')
-    permission      = 'billing.add_salesorder'
+    permission      = cperm(SalesOrder)
 #    become_url      = "/billing/sales_order/add/%s"
     url_name        = 'billing__create_related_order'
 
@@ -99,7 +100,7 @@ class AddQuoteButton(_AddBillingDocumentButton):
     model_to_create = Quote
     id_             = Button.generate_id('billing', 'add_quote')
     verbose_name    = _(u'Add a related quote')
-    permission      = 'billing.add_quote'
+    permission      = cperm(Quote)
 #    become_url      = "/billing/quote/add/%s"
     url_name        = 'billing__create_related_quote'
 

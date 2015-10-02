@@ -21,6 +21,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_link_perm as lperm
 from creme.creme_core.gui.button_menu import Button
 
 from . import get_entityemail_model
@@ -36,7 +37,7 @@ class EntityEmailLinkButton(Button):
     id_           = Button.generate_id('emails', 'entity_email_link')
     verbose_name  = _(u'Link this email to')
     template_name = 'emails/templatetags/button_entityemail_link.html'
-    permission    = 'emails.link_entityemail'
+    permission    = lperm(EntityEmail)
 
     def get_ctypes(self):
         return (EntityEmail, )

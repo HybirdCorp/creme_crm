@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import Relation
 
@@ -111,7 +112,7 @@ class AddLinkedContactButton(Button):
     id_           = Button.generate_id('persons', 'add_linked_contact')
     verbose_name  = _(u'Add a related contact')
     template_name = 'persons/templatetags/button_add_linked_contact.html'
-    permission    = 'persons.add_contact' #TODO: 'persons.addrelated_contact' ??
+    permission    = cperm(Contact) #TODO: 'persons.addrelated_contact' ??
 
     def get_ctypes(self):
         return (Organisation,)
