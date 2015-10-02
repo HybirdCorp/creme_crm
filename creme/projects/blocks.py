@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.models import Relation #CremeEntity
 from creme.creme_core.gui.block import SimpleBlock, PaginatedBlock, QuerysetBlock
 
@@ -81,7 +82,7 @@ class ProjectTasksBlock(QuerysetBlock):
     def detailview_display(self, context):
         project = context['object']
         user    = context['user']
-        creation_perm = user.has_perm('projects.add_projecttask') and user.has_perm_to_change(project)
+        creation_perm = user.has_perm(cperm(ProjectTask)) and user.has_perm_to_change(project)
 
         return self._render(self.get_block_template_context(
                                 context, project.get_tasks(),

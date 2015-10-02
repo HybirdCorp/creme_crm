@@ -20,7 +20,13 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
+
+from . import get_opportunity_model
+
+
+Opportunity = get_opportunity_model()
 
 
 class LinkedOpportunityButton(Button):
@@ -28,7 +34,7 @@ class LinkedOpportunityButton(Button):
 #    verbose_name  = _(u'Add an opportunity linked to an organisation')
     verbose_name  = _(u'Add a linked opportunity')
     template_name = 'opportunities/templatetags/button_linked_opp.html'
-    permission    = 'opportunities.add_opportunity'
+    permission    = cperm(Opportunity)
 
     def get_ctypes(self):
 #        from creme.persons.models import Organisation, Contact

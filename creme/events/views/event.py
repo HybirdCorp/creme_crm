@@ -23,6 +23,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVolatile
 from creme.creme_core.models import RelationType
@@ -33,6 +34,8 @@ from creme.creme_core.views.generic import add_entity, edit_entity, view_entity,
 from creme.persons import get_contact_model
 #from creme.persons.models import Contact
 
+from creme.opportunities import get_opportunity_model
+
 from .. import get_event_model
 from ..constants import *
 from ..forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
@@ -41,6 +44,8 @@ from ..models import EventType #Event
 
 Contact = get_contact_model()
 Event   = get_event_model()
+Opportunity = get_opportunity_model()
+
 
 @login_required
 @permission_required(('events', 'events.add_event'))
@@ -89,7 +94,7 @@ def build_get_actions(event, entity):
                                        ),
                 'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
                                          ugettext(u"Create an opportunity"),
-                                         user.has_perm('opportunities.add_opportunity') and user.has_perm_to_link(event),
+                                         user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
                                          icon="images/opportunity_16.png",
                                         ),
                            ]

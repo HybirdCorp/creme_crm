@@ -31,6 +31,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import ugettext as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import EntityCredentials
@@ -158,7 +159,7 @@ def user_calendar(request):
                    'n_others_calendars':      len(calendars),
                    'creme_calendars_by_user': jsondumps(creme_calendars_by_user),
                    'current_calendars':       [str(id) for id in calendar_ids],
-                   'creation_perm':           user.has_perm('activities.add_activity'),
+                   'creation_perm':           user.has_perm(cperm(Activity)),
                    'floating_activities':     floating_activities, #TODO only floating activities assigned to logged user ??
                   }
                  )
