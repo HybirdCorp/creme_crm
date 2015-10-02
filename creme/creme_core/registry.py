@@ -22,6 +22,7 @@ from collections import defaultdict
 import logging
 
 from django.conf import settings
+from django.utils.datastructures import OrderedSet
 
 from .utils.imports import safe_import_object
 
@@ -51,7 +52,8 @@ class CremeRegistry(object):
     CRED_ADMIN   = 0b10
 
     def __init__(self):
-        self._entity_models = []
+#        self._entity_models = []
+        self._entity_models = OrderedSet()
         self._apps = {}
         self._extending_apps = defaultdict(list)
         self._generic_registry = {}
@@ -83,7 +85,6 @@ class CremeRegistry(object):
 
     def register_entity_models(self, *models):
         """Register CremeEntity models."""
-        #self._entity_models.extend(models)
         from .models import CremeEntity
 
         entity_models = self._entity_models
@@ -103,7 +104,11 @@ class CremeRegistry(object):
                            )
                 model._meta.ordering = ('header_filter_search_field',)
 
-            entity_models.append(model)
+#            entity_models.append(model)
+            entity_models.add(model)
+
+    def is_entity_model_registered(self, model):
+        return model in self._entity_models
 
     def iter_entity_models(self):
         return iter(self._entity_models)

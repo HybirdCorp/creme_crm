@@ -52,6 +52,12 @@ class FieldsConfigRegistry(object):
         for app_label in self._needed_fields[model][field_name]:
             yield apps.get_app_config(app_label)
 
+    def is_model_valid(self, model):
+        if creme_registry.is_entity_model_registered(model):
+            return True
+
+        return model in self._extra_models
+
     def register(self, model):
         assert not issubclass(model, CremeEntity)
         self._extra_models.add(model)
