@@ -46,8 +46,8 @@ class RelationType(CremeModel):
     If *_ctypes = null --> all ContentTypes are valid.
     If *_properties = null --> all CremeProperties are valid.
     """
-    id = CharField(primary_key=True, max_length=100) #NB: convention: 'app_name-foobar'
-                                                     #BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
+    id = CharField(primary_key=True, max_length=100) # NB: convention: 'app_name-foobar'
+                                                     # BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
 
     subject_ctypes     = ManyToManyField(ContentType,       blank=True, related_name='relationtype_subjects_set') # null=True
     object_ctypes      = ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')  # null=True
@@ -69,7 +69,6 @@ class RelationType(CremeModel):
     def __unicode__(self):
         sym_type = self.symmetric_type
         symmetric_pred = ugettext(u'No relationship') if sym_type is None else sym_type.predicate
-        #return force_unicode(u'%s — %s' % (self.predicate, symmetric_pred))#NB: — == "\xE2\x80\x94" == &mdash;
         return u'%s — %s' % (self.predicate, symmetric_pred) #NB: — == "\xE2\x80\x94" == &mdash;
 
     def add_subject_ctypes(self, *models):
@@ -147,7 +146,7 @@ class RelationType(CremeModel):
         sub_relation_type.symmetric_type = obj_relation_type
         obj_relation_type.symmetric_type = sub_relation_type
 
-        #Delete old m2m (TODO: just remove useless ones ???)
+        # Delete old m2m (TODO: just remove useless ones ???)
         for rt in (sub_relation_type, obj_relation_type):
             rt.subject_ctypes.clear()
             rt.subject_properties.clear()
@@ -192,7 +191,7 @@ class RelationType(CremeModel):
             raise Http404(ugettext("You can't add/delete the relationships with this type (internal type)"))
 
 
-#TODO: remove CremeAbstractEntity inheritage (user/modified not useful any more ??) ??
+# TODO: remove CremeAbstractEntity inheritage (user/modified not useful any more ??) ??
 class Relation(CremeAbstractEntity):
     type               = ForeignKey(RelationType, blank=True, null=True) #TODO: nullable=False
     symmetric_relation = ForeignKey('self', blank=True, null=True)
@@ -205,7 +204,7 @@ class Relation(CremeAbstractEntity):
         verbose_name_plural = _(u'Relationships')
 
     def __unicode__(self):
-        #TODO: as_a() method ?? (mark_safe)
+        # TODO: as_a() method ?? (mark_safe)
         #subject = self.subject_entity
         #object_ = self.object_entity
         #str_ = u'<a href="%s">%s</a> -- %s --> <a href="%s">%s</a>' % (
@@ -264,21 +263,10 @@ class Relation(CremeAbstractEntity):
             self.symmetric_relation = sym_relation
             super(Relation, self).save(using=using, force_insert=False)
 
-    #Commented on 18 august 2014
-    #def _collect_sub_objects(self, seen_objs, parent=None, nullable=False):
-        #pk_val = self._get_pk_val()
-
-        #if self.symmetric_relation is not None:
-            #seen_objs.add(self.symmetric_relation.__class__, self.symmetric_relation._get_pk_val(), self.symmetric_relation, parent, nullable)
-
-        #seen_objs.add(self.__class__, pk_val, self, parent, nullable)
-
     def get_real_entity(self):
         return self._get_real_entity(Relation)
 
     @staticmethod
-    #def populate_real_object_entities(relations, user=None):
-        #@param user If given, real entities are populated with credentials related to this user.
     def populate_real_object_entities(relations):
         """Faster than call get_real_entity() on each relation.object_entity.
         @param relations Iterable of Relation objects.
