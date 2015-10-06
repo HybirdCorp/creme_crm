@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import DecimalField
+from django.forms.fields import DecimalField
+from django.forms.utils import ValidationError
+from django.utils.translation import ugettext as _
 
-# NB: useful to have a specific printer + a specifi form field
+
 class BillingDiscountField(DecimalField):
-    def formfield(self, **kwargs):
-        from ..forms.fields import BillingDiscountField as FormBillingDiscountField
+    def validate(self, value):
+        super(BillingDiscountField, self).validate(value)
 
-        defaults = {'form_class': FormBillingDiscountField}
-        defaults.update(kwargs)
-
-        return super(BillingDiscountField, self).formfield(**defaults)
+        if not (0 <= value <= 100):
+            raise ValidationError(_(u'Enter a number between 0 and 100 (it is a percentage).'))

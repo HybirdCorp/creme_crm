@@ -20,8 +20,8 @@
 
 import logging
 
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _, ugettext
+#from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _ # ugettext
 
 from creme.creme_core.forms import (CremeEntityForm, CremeDateField,
         GenericEntityField, CreatorEntityField)
@@ -39,7 +39,7 @@ from ..models import Line
 logger = logging.getLogger(__name__)
 
 
-#TODO: move to persons ??
+# TODO: move to persons ??
 def copy_or_create_address(address, owner, name):
     if address is None:
         name = unicode(name)
@@ -67,6 +67,11 @@ class BaseEditForm(CremeEntityForm):
     issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
     expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)
 
+    class Meta(CremeEntityForm.Meta):
+        labels = {
+                'discount': _(u'Overall discount (in %)'),
+            }
+
     blocks = CremeEntityForm.blocks.new(
                 ('orga_n_address', _(u'Organisations'), ['source', 'target']), #TODO: rename
             )
@@ -79,7 +84,7 @@ class BaseEditForm(CremeEntityForm):
 
         pk = self.instance.pk
 
-        if pk is not None: #edit mode
+        if pk is not None: # Edit mode
             relations = Relation.objects.filter(subject_entity=pk, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED))
 
             issued_relation   = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_ISSUED), None)
@@ -93,21 +98,21 @@ class BaseEditForm(CremeEntityForm):
                 self.received_relation = received_relation
                 self.fields['target'].initial = received_relation.object_entity
 
+#    def clean_discount(self):
+#        discount = self.cleaned_data.get('discount')
+#
+#        if not (0 <= discount <= 100):
+#            raise ValidationError(ugettext(u"Your discount is a %. It must be between 0 and 100%"),
+#                                  code='invalid_percentage',
+#                                 )
+#
+#        return discount
+
     def clean_source(self):
         return validate_linkable_entity(self.cleaned_data['source'], self.user)
 
     def clean_target(self):
         return validate_linkable_entity(self.cleaned_data['target'], self.user)
-
-    def clean(self):
-        cleaned_data = super(BaseEditForm, self).clean()
-
-        if cleaned_data.get('discount') > 100:
-            raise ValidationError(ugettext(u"Your discount is a %. It must be between 1 and 100%"),
-                                  code='invalid_percentage',
-                                 )
-
-        return cleaned_data
 
     def _manage_relation(self, existing_relation, type_id, related_entity):
         if existing_relation:
@@ -123,7 +128,7 @@ class BaseEditForm(CremeEntityForm):
                                     user=instance.user,
                                    )
 
-    def save(self):
+    def save(self, *args, **kwargs):
         instance = self.instance
 
         cleaned_data = self.cleaned_data
@@ -137,14 +142,14 @@ class BaseEditForm(CremeEntityForm):
         if source != org_payment_info:
             instance.payment_info = None
 
-        instance = super(BaseEditForm, self).save()
+        instance = super(BaseEditForm, self).save(*args, **kwargs)
 
         self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source) #TODO: move this intelligence in models.Base.save()
         self._manage_relation(self.received_relation, REL_SUB_BILL_RECEIVED, target)
 
-        #TODO: do this in model/with signal to avoid errors ???
+        # TODO: do this in model/with signal to avoid errors ???
         if self.old_user_id and self.old_user_id != user.id:
-            #do not use queryset.update() to call the CremeEntity.save() method TODO: change with future Credentials system ??
+            # Do not use queryset.update() to call the CremeEntity.save() method TODO: change with future Credentials system ??
             for line in instance.get_lines(Line):
                 line.user = instance.user
                 line.save()

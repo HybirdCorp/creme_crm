@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-02 15:32+0200\n"
+"POT-Creation-Date: 2015-10-05 20:02+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -219,21 +219,20 @@ msgstr "Émission"
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: forms/base.py:71
+#: forms/base.py:72
+msgid "Overall discount (in %)"
+msgstr "Remise globale (en %)"
+
+#: forms/base.py:76
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: forms/base.py:106
-msgid "Your discount is a %. It must be between 1 and 100%"
-msgstr ""
-"Cette remise est un pourcentage %. Sa valeur doit se situer entre 1 et 100%"
-
-#: forms/base.py:171 forms/lv_import.py:99 forms/lv_import.py:125
+#: forms/base.py:176 forms/lv_import.py:99 forms/lv_import.py:125
 #: forms/templatebase.py:85 models/base.py:61
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:172 forms/lv_import.py:100 forms/lv_import.py:130
+#: forms/base.py:177 forms/lv_import.py:100 forms/lv_import.py:130
 #: forms/templatebase.py:86 models/base.py:67
 msgid "Shipping address"
 msgstr "Adresse de livraison"
@@ -241,6 +240,10 @@ msgstr "Adresse de livraison"
 #: forms/credit_note.py:56 models/credit_note.py:44
 msgid "Credit notes"
 msgstr "Avoirs"
+
+#: forms/fields.py:31
+msgid "Enter a number between 0 and 100 (it is a percentage)."
+msgstr "Entrez un nombre entre 0 et 100 (c'est un pourcentage)."
 
 #: forms/line.py:47 models/line.py:60
 #: templates/billing/frags/generic_billing_line_frag.html:7
@@ -1182,7 +1185,7 @@ msgstr "réinitialiser"
 msgid "Download '%(object)s' to the desired format"
 msgstr "Télécharger '%(object)s' au format voulu"
 
-#: utils.py:42
+#: utils.py:43
 #, python-format
 msgid "%s %%"
 msgstr "%s %%"
@@ -1295,6 +1298,11 @@ msgstr "Enregistrer le bon de commande"
 #, python-format
 msgid "Add a sales order for «%s»"
 msgstr "Ajouter un bon de commande pour «%s»"
+
+#~ msgid "Your discount is a %. It must be between 1 and 100%"
+#~ msgstr ""
+#~ "Cette remise est un pourcentage %. Sa valeur doit se situer entre 1 et "
+#~ "100%"
 
 #~ msgctxt "billing-discount"
 #~ msgid "None"
