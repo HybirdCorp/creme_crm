@@ -9,7 +9,7 @@ You can find more information on Creme on its official web site: http://cremecrm
 DEPENDENCIES:
     - Core
         - Python 2.7
-        - Django 1.8
+        - Django 1.8 (>= 1.8.5)
         - Django-mediagenerator 1.12
         - pytz
         - python-dateutil 1.5
@@ -50,7 +50,12 @@ Upgrade notice : if you already have a Creme installation, upgrade the version o
 See the creme/settings.py and set your parameters (or put them in a new file called creme/local_settings.py instead).
 When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
 run the following commands in the root directory:
->> python manage.py migrate
+
+If you are upgrading from Creme 1.5:
+    >> python manage.py migrate --fake-initial
+else (ie: new isntallation):
+    >> python manage.py migrate
+
 >> python manage.py generatemedia
 [Do not worry about 'URL not found' messages]
 >> python manage.py creme_populate

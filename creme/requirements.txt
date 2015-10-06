@@ -1,4 +1,4 @@
-django>=1.8,<1.9
+django>=1.8.5,<1.9
 MySQL-python==1.2.3
 Pillow>=2.7,<2.8
 django-mediagenerator==1.12
