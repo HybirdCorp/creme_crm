@@ -107,7 +107,7 @@ class RelationTypeEditForm(RelationTypeCreateForm):
 
 
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
-    semi_relation = RelationEntityField(label=_('Type and object'),
+    semi_relation = RelationEntityField(label=_('Type and object'), autocomplete=True,
                                         allowed_rtypes=RelationType.objects.filter(is_internal=False),
                                        )
 
