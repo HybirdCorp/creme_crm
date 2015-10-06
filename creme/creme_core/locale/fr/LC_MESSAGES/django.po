@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-22 12:17+0200\n"
+"POT-Creation-Date: 2015-10-05 16:18+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -75,27 +75,27 @@ msgstr "Fichier XLSX"
 msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
-#: blocks.py:35 forms/list_view_import.py:1213 models/creme_property.py:108
+#: blocks.py:36 forms/list_view_import.py:1213 models/creme_property.py:108
 #: models/entity.py:51
 msgid "Properties"
 msgstr "Propriétés"
 
-#: blocks.py:51 forms/relation.py:34 gui/block.py:347 models/relation.py:205
+#: blocks.py:52 forms/relation.py:36 gui/block.py:347 models/relation.py:204
 #: templates/creme_core/entity_cells_widget.html:85
 msgid "Relationships"
 msgstr "Relations"
 
-#: blocks.py:76 forms/bulk.py:356 models/custom_field.py:64
+#: blocks.py:77 forms/bulk.py:356 models/custom_field.py:64
 #: templates/creme_core/entity_cells_widget.html:60
 #: templates/creme_core/templatetags/block_customfields.html:7
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: blocks.py:85 templates/creme_core/templatetags/block_history.html:6
+#: blocks.py:86 templates/creme_core/templatetags/block_history.html:6
 msgid "History"
 msgstr "Historique"
 
-#: blocks.py:169 templates/creme_core/base.html:253
+#: blocks.py:187 templates/creme_core/base.html:253
 #: templates/creme_core/trash.html:5 templates/creme_core/trash.html.py:12
 msgid "Trash"
 msgstr "Corbeille"
@@ -182,7 +182,7 @@ msgstr "%(operator)s : %(message)s."
 msgid "Actions"
 msgstr "Actions"
 
-#: forms/base.py:203 forms/base.py:228 forms/relation.py:179
+#: forms/base.py:203 forms/base.py:228 forms/relation.py:245
 #: templates/creme_core/templatetags/block_ptype_info.html:5
 msgid "General information"
 msgstr "Informations générales"
@@ -243,11 +243,11 @@ msgstr ""
 msgid "Type of property"
 msgstr "Type de propriété"
 
-#: forms/creme_property.py:66 forms/relation.py:176
+#: forms/creme_property.py:66 forms/relation.py:242
 msgid "Related entities"
 msgstr "Fiches associées"
 
-#: forms/creme_property.py:75 forms/relation.py:190
+#: forms/creme_property.py:75 forms/relation.py:256
 msgid "NONE !"
 msgstr "AUCUNE !"
 
@@ -273,13 +273,13 @@ msgstr "N'a pas la relation"
 
 #: forms/entity_filter.py:69 forms/entity_filter.py:72
 #: forms/entity_filter.py:114 forms/entity_filter.py:117
-#: forms/entity_filter.py:261 forms/entity_filter.py:264 models/history.py:116
+#: forms/entity_filter.py:261 forms/entity_filter.py:264 models/history.py:119
 msgid "True"
 msgstr "Vrai"
 
 #: forms/entity_filter.py:69 forms/entity_filter.py:72
 #: forms/entity_filter.py:114 forms/entity_filter.py:117
-#: forms/entity_filter.py:261 forms/entity_filter.py:264 models/history.py:116
+#: forms/entity_filter.py:261 forms/entity_filter.py:264 models/history.py:119
 msgid "False"
 msgstr "Faux"
 
@@ -792,25 +792,43 @@ msgstr "Colonne %i"
 msgid "Merged entity"
 msgstr "Fiche fusionnée"
 
-#: forms/relation.py:35 models/relation.py:306
+#: forms/relation.py:37 models/relation.py:294
 msgid "Semi-fixed types of relationship"
 msgstr "Types de relation semi-fixés"
 
-#: forms/relation.py:41
+#: forms/relation.py:43
 #, python-format
 msgid "There are duplicates: %(duplicates)s"
 msgstr "Il y a des doublons: %(duplicates)s"
 
-#: forms/relation.py:42
+#: forms/relation.py:44
 #, python-format
 msgid "An entity can not be linked to itself : %(entities)s"
 msgstr "Une fiche ne peut pas être reliée à elle-même : %(entities)s"
 
-#: forms/relation.py:43
+#: forms/relation.py:45
 msgid "You must give one relationship at least."
 msgstr "Vous devez donner au moins une relation."
 
-#: forms/relation.py:193
+#: forms/relation.py:46
+#, python-format
+msgid ""
+"«%(subject)s» must have the property «%(property)s» in order to use the "
+"relationship «%(predicate)s»"
+msgstr ""
+"«%(subject)s» doit avoir la propriété «%(property)s» pour pouvoir utiliser "
+"la relation «%(predicate)s»"
+
+#: forms/relation.py:49
+#, python-format
+msgid ""
+"«%(subject)s» must have a property in «%(properties)s» in order to use the "
+"relationship «%(predicate)s»"
+msgstr ""
+"«%(subject)s» doit avoir une propriété parmi «%(properties)s» pour pouvoir "
+"utiliser la relation «%(predicate)s»"
+
+#: forms/relation.py:259
 msgid "Unlinkable entities"
 msgstr "Fiches non reliables"
 
@@ -873,7 +891,7 @@ msgstr "Aucun choix disponible."
 msgid "More"
 msgstr ""
 
-#: forms/widgets.py:844 models/search.py:76
+#: forms/widgets.py:844 models/search.py:77
 #: templates/creme_core/search_results.html:18
 #: templates/creme_core/templatetags/search_panel.html:17
 msgid "Search"
@@ -913,35 +931,35 @@ msgstr "Bloc de relation: %s"
 msgid "Unknow type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
-#: gui/field_printers.py:90 models/custom_field.py:271
+#: gui/field_printers.py:94 models/custom_field.py:271
 #: templatetags/creme_listview.py:83 utils/__init__.py:268
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:90 models/custom_field.py:271
+#: gui/field_printers.py:94 models/custom_field.py:271
 #: templatetags/creme_listview.py:87 utils/__init__.py:271
 msgid "No"
 msgstr "Non"
 
-#: gui/field_printers.py:187
+#: gui/field_printers.py:190
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "heure"
 msgstr[1] "heures"
 
-#: gui/field_printers.py:189
+#: gui/field_printers.py:192
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "minute"
 msgstr[1] "minutes"
 
-#: gui/field_printers.py:191
+#: gui/field_printers.py:194
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
-#: models/auth.py:49 models/block.py:385 models/entity_filter.py:115
+#: models/auth.py:49 models/block.py:384 models/entity_filter.py:115
 #: models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:51
 #: templates/creme_core/templatetags/block_trash.html:22
@@ -1133,28 +1151,28 @@ msgstr "Date de création"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:53 models/block.py:384 models/button_menu.py:31
+#: models/block.py:52 models/block.py:383 models/button_menu.py:31
 #: models/custom_field.py:55
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:54 models/search.py:62
+#: models/block.py:53 models/search.py:63
 msgid "Related role"
 msgstr "Rôle associé"
 
-#: models/block.py:216 models/block.py:319 models/block.py:460
+#: models/block.py:215 models/block.py:318 models/block.py:459
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:218
+#: models/block.py:217
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
-#: models/block.py:320
+#: models/block.py:319
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/block.py:322
+#: models/block.py:321
 msgid "Verbose"
 msgstr "Verbeux"
 
@@ -1495,12 +1513,12 @@ msgstr "Est vide"
 msgid "Range"
 msgstr "Intervalle"
 
-#: models/fields_config.py:82
+#: models/fields_config.py:86
 #, python-format
 msgid "Configuration of %s"
 msgstr "Configuration de %s"
 
-#: models/fields_config.py:160
+#: models/fields_config.py:169
 #, python-format
 msgid "Warning: the app «%(app)s» need the field «%(field)s»."
 msgstr "Attention: l'app «%(app)s» a besoin du champ «%(field)s»."
@@ -1530,97 +1548,97 @@ msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être supprimée"
 
-#: models/history.py:226 models/history.py:232
+#: models/history.py:229 models/history.py:235
 #, python-format
 msgid "Set field “%(field)s”"
 msgstr "Champ “%(field)s” modifié"
 
-#: models/history.py:234
+#: models/history.py:237
 #, python-format
 msgid "Set field “%(field)s” to “%(value)s”"
 msgstr "Champ “%(field)s” mis à “%(value)s”"
 
-#: models/history.py:241
+#: models/history.py:244
 #, python-format
 msgid "Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”"
 msgstr "Champ “%(field)s” passe de “%(oldvalue)s” à “%(value)s”"
 
-#: models/history.py:260
+#: models/history.py:263
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:273
+#: models/history.py:276
 msgid "Edition"
 msgstr "Modification"
 
-#: models/history.py:290
+#: models/history.py:293
 msgid "Deletion"
 msgstr "Suppression"
 
-#: models/history.py:303
+#: models/history.py:306
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:327
+#: models/history.py:330
 msgid "Property creation"
 msgstr "Création de propriété"
 
-#: models/history.py:328
+#: models/history.py:331
 #, python-format
 msgid "Add property “%s”"
 msgstr "Ajout de la propriété “%s”"
 
-#: models/history.py:350
+#: models/history.py:353
 msgid "Property deletion"
 msgstr "Suppression de propriété"
 
-#: models/history.py:351
+#: models/history.py:354
 #, python-format
 msgid "Delete property “%s”"
 msgstr "Suppression de la propriété “%s”"
 
-#: models/history.py:362 models/relation.py:204
+#: models/history.py:365 models/relation.py:203
 #: templates/creme_core/templatetags/block_relations.html:7
 msgid "Relationship"
 msgstr "Relation"
 
-#: models/history.py:365
+#: models/history.py:368
 #, python-format
 msgid "Add a relationship “%s”"
 msgstr "Ajout de la relation: “%s”"
 
-#: models/history.py:407
+#: models/history.py:410
 msgid "Relationship deletion"
 msgstr "Suppression de Relation"
 
-#: models/history.py:408
+#: models/history.py:411
 #, python-format
 msgid "Delete a relationship “%s”"
 msgstr "Suppression de la relation “%s”"
 
-#: models/history.py:423
+#: models/history.py:426
 msgid "Auxiliary (creation)"
 msgstr "Auxiliaire (création)"
 
-#: models/history.py:445
+#: models/history.py:448
 #, python-format
 msgid "Add <%(type)s>: “%(value)s”"
 msgstr "Ajout de <%(type)s>: “%(value)s”"
 
-#: models/history.py:453
+#: models/history.py:456
 msgid "Auxiliary (edition)"
 msgstr "Auxiliaire (modification)"
 
-#: models/history.py:473
+#: models/history.py:476
 #, python-format
 msgid "Edit <%(type)s>: “%(value)s”"
 msgstr "Modification de <%(type)s>: “%(value)s”"
 
-#: models/history.py:485
+#: models/history.py:488
 msgid "Auxiliary (deletion)"
 msgstr "Auxiliaire (suppression)"
 
-#: models/history.py:495
+#: models/history.py:498
 #, python-format
 msgid "Delete <%(type)s>: “%(value)s”"
 msgstr "Suppression de <%(type)s>: “%(value)s”"
@@ -1649,7 +1667,7 @@ msgstr "Url"
 msgid "Order"
 msgstr "Ordre"
 
-#: models/relation.py:61 models/relation.py:298
+#: models/relation.py:61 models/relation.py:286
 msgid "Predicate"
 msgstr "Prédicat"
 
@@ -1665,12 +1683,12 @@ msgstr "Types de relation"
 msgid "No relationship"
 msgstr "Aucune relation"
 
-#: models/relation.py:192
+#: models/relation.py:191
 msgid "You can't add/delete the relationships with this type (internal type)"
 msgstr ""
 "Vous ne pouvez pas ajouter/supprimer les relations de ce type (type interne)"
 
-#: models/relation.py:305
+#: models/relation.py:293
 msgid "Semi-fixed type of relationship"
 msgstr "Type de relation semi-fixé"
 
@@ -1682,30 +1700,30 @@ msgstr "Mémento"
 msgid "Reminders"
 msgstr "Mémentos"
 
-#: models/search.py:60
+#: models/search.py:61
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: models/search.py:64
+#: models/search.py:65
 msgctxt "creme_core-search_conf"
 msgid "Disabled?"
 msgstr "Désactivée ?"
 
-#: models/search.py:77
+#: models/search.py:78
 msgid "Searches"
 msgstr "Recherches"
 
-#: models/search.py:86
+#: models/search.py:87
 #, python-format
 msgid "Search configuration of super-users for «%s»"
 msgstr "Configuration de recherche des super-utilisateurs pour «%s»"
 
-#: models/search.py:91
+#: models/search.py:92
 #, python-format
 msgid "Default search configuration for «%s»"
 msgstr "Configuration de recherche par défaut pour «%s»"
 
-#: models/search.py:93
+#: models/search.py:94
 #, python-format
 msgid "Search configuration of «%(role)s» for «%(type)s»"
 msgstr "Configuration de recherche de «%(role)s» pour «%(type)s»"
@@ -2202,6 +2220,7 @@ msgid "Concerned types : "
 msgstr "Types concernés : "
 
 #: templates/creme_core/templatetags/block_custom.html:23
+#: templates/creme_core/templatetags/block_found_entities.html:39
 msgid ""
 "It seems that all fields are hidden. Ask your administrator to fix the "
 "configuration."
@@ -2209,11 +2228,11 @@ msgstr ""
 "Il semble que tous les champs soient cachés. Demandez à votre administrateur "
 "de corriger la configuration."
 
-#: templates/creme_core/templatetags/block_found_entities.html:23
+#: templates/creme_core/templatetags/block_found_entities.html:24
 msgid "Action"
 msgstr "Action"
 
-#: templates/creme_core/templatetags/block_found_entities.html:30
+#: templates/creme_core/templatetags/block_found_entities.html:31
 msgid "Go to the page"
 msgstr "Aller sur la fiche"
 
@@ -2234,11 +2253,11 @@ msgstr "Modifications"
 msgid "By"
 msgstr "Par"
 
-#: templates/creme_core/templatetags/block_history.html:58
+#: templates/creme_core/templatetags/block_history.html:57
 msgid "Edition of :"
 msgstr "Modification de :"
 
-#: templates/creme_core/templatetags/block_history.html:60
+#: templates/creme_core/templatetags/block_history.html:59
 #, python-format
 msgid "Edit \"%(entity)s\""
 msgstr "Modifier \"%(entity)s\""
@@ -2781,7 +2800,7 @@ msgstr "Nouvelles propriétés pour «%s»"
 msgid "Save the type of property"
 msgstr "Enregistrer le type de propriété"
 
-#: views/creme_property.py:236 views/search.py:94
+#: views/creme_property.py:236 views/search.py:100
 #, python-format
 msgid "%(count)s %(model)s"
 msgstr "%(count)s %(model)s"
@@ -2980,11 +2999,11 @@ msgstr "Il manque une propriété compatible pour la fiche objet avec l'id=%s"
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour la fiche avec l'id=%s"
 
-#: views/search.py:118
+#: views/search.py:119
 msgid "Empty search…"
 msgstr "Recherche vide…"
 
-#: views/search.py:120
+#: views/search.py:121
 #, python-format
 msgid "Please enter at least %s characters"
 msgstr "Veuillez entrer au moins %s caractères"
