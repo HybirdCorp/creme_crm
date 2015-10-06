@@ -170,11 +170,11 @@ class InvoiceTestCase(_BillingTestCase):
                                      )
         link_error = _(u'You are not allowed to link this entity: %s')
         not_viewable_error = _(u'Entity #%s (not viewable)')
-        self.assertFormError(response, 'form', 'source', 
-                             [link_error % (not_viewable_error % source.id)]
+        self.assertFormError(response, 'form', 'source',
+                             link_error % (not_viewable_error % source.id)
                             )
-        self.assertFormError(response, 'form', 'target', 
-                             [link_error % (not_viewable_error % target.id)]
+        self.assertFormError(response, 'form', 'target',
+                             link_error % (not_viewable_error % target.id)
                             )
 
 #    def test_create_from_a_detailview01(self):
@@ -314,7 +314,7 @@ class InvoiceTestCase(_BillingTestCase):
                                           'status':          1,
                                           'currency':        currency.pk,
                                           'discount':        Decimal(),
-                                          'discount_unit':   1,
+                                          #'discount_unit':   1,
                                           'source':          source.id,
                                           'target':          self.genericfield_format_entity(target),
                                          }
@@ -377,7 +377,29 @@ class InvoiceTestCase(_BillingTestCase):
                              ) #refresh
                         )
 
-    def test_inner_edit(self):
+    def test_editview04(self):
+        "Error on discount"
+        user = self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+        url = invoice.get_edit_absolute_url()
+
+        def post(discount):
+            return self.assertPOST200(url, follow=True,
+                                      data={'user':              user.id,
+                                              'name':            invoice.name,
+                                              'status':          invoice.status_id,
+                                              'currency':        invoice.currency.pk,
+                                              'discount':        discount,
+                                              'source':          source.id,
+                                              'target':          self.genericfield_format_entity(target),
+                                              }
+                                     )
+
+        msg = _(u'Enter a number between 0 and 100 (it is a percentage).')
+        self.assertFormError(post('150'), 'form', 'discount', msg)
+        self.assertFormError(post('-10'), 'form', 'discount', msg)
+
+    def test_inner_edit01(self):
         user = self.login()
 
         name = 'invoice001'
@@ -400,9 +422,29 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(invoice).name)
 
-        #Addresses should not be editable
+        # Addresses should not be editable
         self.assertGET(400, build_url('billing_address'))
         self.assertGET(400, build_url('shipping_address'))
+
+    def test_inner_edit02(self):
+        "Discount"
+        user = self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001', user=user)[0]
+        url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s' % {
+                    'ct': invoice.entity_type_id,
+                    'id': invoice.id,
+                    'field': 'discount',
+                }
+        self.assertGET200(url)
+
+        response = self.assertPOST200(url, data={'entities_lbl': [unicode(invoice)],
+                                                 'field_value':  '110',
+                                                }
+                                     )
+        self.assertFormError(response, 'form', 'field_value',
+                             _(u'Enter a number between 0 and 100 (it is a percentage).')
+                            )
 
     def test_generate_number01(self):
         self.login()
