@@ -55,6 +55,8 @@ ProductLine = get_product_line_model()
 ServiceLine = get_service_line_model()
 
 
+# DEPRECATED
+# TODO: remove template file too
 class BillingBlock(Block):
     template_name = 'billing/templatetags/block_billing.html'
 

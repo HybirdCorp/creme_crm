@@ -24,10 +24,11 @@ import logging
 from django.apps import apps
 from django.utils.translation import ugettext as _, pgettext
 
-from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation #EntityCellFunctionField
-from creme.creme_core.models import (RelationType, SearchConfigItem,
-        ButtonMenuItem, HeaderFilter, EntityFilter, SettingValue,
-        BlockDetailviewLocation, BlockPortalLocation, EntityFilterCondition)
+from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+        EntityCellRelation, EntityCellFunctionField)
+from creme.creme_core.models import (RelationType, SettingValue, SearchConfigItem,
+        ButtonMenuItem, HeaderFilter, EntityFilter, EntityFilterCondition,
+        BlockDetailviewLocation, BlockPortalLocation, CustomBlockConfigItem)
 from creme.creme_core.blocks import (properties_block, relations_block,
         customfields_block, history_block)
 from creme.creme_core.utils import create_if_needed
@@ -81,11 +82,11 @@ class Populator(BasePopulator):
                             (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]),
                             is_internal=True
                            )
-        rt_sub_bill_received, rt_obj_bill_received = \
+        rt_sub_bill_received = \
         RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by"),  billing_entities),
                             (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact]),
                             is_internal=True
-                           )
+                           )[0]
         RelationType.create((REL_SUB_HAS_LINE, _(u"had the line"),   billing_entities),
                             (REL_OBJ_HAS_LINE, _(u"is the line of"), line_entities),
                             is_internal=True
@@ -115,33 +116,26 @@ class Populator(BasePopulator):
                         )
 
 
-        #NB: pk=1 + is_custom=False --> default status (used when a quote is converted in invoice for example)
-        create_if_needed(SalesOrderStatus, {'pk': 1}, name=pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False) #default status
+        # NB: pk=1 + is_custom=False --> default status (used when a quote is converted in invoice for example)
+        create_if_needed(SalesOrderStatus, {'pk': 1}, name=pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False) # Default status
         if not already_populated:
             create_if_needed(SalesOrderStatus, {'pk': 2}, name=pgettext('billing-salesorder', 'Accepted'), order=3)
             create_if_needed(SalesOrderStatus, {'pk': 3}, name=pgettext('billing-salesorder', 'Rejected'), order=4)
             create_if_needed(SalesOrderStatus, {'pk': 4}, name=pgettext('billing-salesorder', 'Created'),  order=2)
 
 
-        #def create_invoice_status(pk, name, order, is_custom=True):
-            #istatus = create_if_needed(InvoiceStatus, {'pk': pk}, name=name, is_custom=is_custom, order=order)
-            #return istatus if istatus.name == name else None
         def create_invoice_status(pk, name, order, **kwargs):
             create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
 
-        create_invoice_status(1, pgettext('billing-invoice', 'Draft'),      order=1, is_custom=False) #default status
+        create_invoice_status(1, pgettext('billing-invoice', 'Draft'),      order=1, is_custom=False) # Default status
         create_invoice_status(2, pgettext('billing-invoice', 'To be sent'), order=2, is_custom=False)
         if not already_populated:
             create_invoice_status(3, pgettext('billing-invoice', 'Sent'),            order=3, pending_payment=True)
-            #resulted = \
             create_invoice_status(4, pgettext('billing-invoice', 'Resulted'),        order=5)
             create_invoice_status(5, pgettext('billing-invoice', 'Partly resulted'), order=4, pending_payment=True)
             create_invoice_status(6, _('Collection'),                                order=7)
-            #resulted_collection = \
             create_invoice_status(7, _('Resulted collection'),                       order=6)
             create_invoice_status(8, pgettext('billing-invoice', 'Canceled'),        order=8)
-        #else:
-            #resulted = resulted_collection = None #not really useful
 
 
         create_if_needed(CreditNoteStatus, {'pk': 1}, name=pgettext('billing-creditnote', 'Draft'), order=1, is_custom=False)
@@ -159,7 +153,7 @@ class Populator(BasePopulator):
                                     operator=EntityFilterCondition.EQUALS,
                                     name='status__pending_payment', values=[True],
                                 ),
-                            ],
+                           ],
             )
         EntityFilter.create(
                 'billing-invoices_unpaid_late', name=_(u"Invoices unpaid and late"),
@@ -173,7 +167,7 @@ class Populator(BasePopulator):
                                     model=Invoice,
                                     name='expiration_date', date_range='in_past',
                                 ),
-                            ],
+                           ],
             )
         current_year_invoice_filter = EntityFilter.create(
                 'billing-current_year_invoices', name=_(u"Current year invoices"),
@@ -206,7 +200,7 @@ class Populator(BasePopulator):
                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                             EntityCellRelation(rtype=rt_sub_bill_received),
                                             (EntityCellRegularField, {'name': 'number'}),
-                                            (EntityCellRegularField, {'name': 'status'}) if status else None, #status__name
+                                            (EntityCellRegularField, {'name': 'status'}) if status else None,
                                             (EntityCellRegularField, {'name': 'total_no_vat'}),
                                             (EntityCellRegularField, {'name': 'issuing_date'}),
                                             (EntityCellRegularField, {'name': 'expiration_date'}),
@@ -248,7 +242,7 @@ class Populator(BasePopulator):
 
 
         if not already_populated:
-            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', "Pending"),  order=2) #default status
+            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', "Pending"),  order=2) # Default status
             create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', "Accepted"), order=3, won=True)
             create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', "Rejected"), order=4)
             create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', "Created"),  order=1)
@@ -266,34 +260,6 @@ class Populator(BasePopulator):
                             )
 
 
-            #if resulted and resulted_collection:
-                #EntityFilter.create('billing-invoices_unpaid', name=_(u"Invoices unpaid"),
-                                    #model=Invoice, user='admin',
-                                    #conditions=[EntityFilterCondition.build_4_field(
-                                                      #model=Invoice,
-                                                      #operator=EntityFilterCondition.EQUALS_NOT,
-                                                      #name='status',
-                                                      #values=[resulted.pk, resulted_collection.pk],
-                                                  #),
-                                               #],
-                                   #)
-
-                #EntityFilter.create('billing-invoices_unpaid_late', name=_(u"Invoices unpaid and late"),
-                                    #model=Invoice, user='admin',
-                                    #conditions=[EntityFilterCondition.build_4_field(
-                                                      #model=Invoice,
-                                                      #operator=EntityFilterCondition.EQUALS_NOT,
-                                                      #name='status',
-                                                      #values=[resulted.pk, resulted_collection.pk],
-                                                  #),
-                                                #EntityFilterCondition.build_4_date(
-                                                    #model=Invoice,
-                                                    #name='expiration_date', date_range='in_past',
-                                                  #),
-                                               #],
-                                    #)
-
-
             create_bmi = ButtonMenuItem.create_if_needed
             create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 
@@ -301,62 +267,117 @@ class Populator(BasePopulator):
             create_bmi(pk='billing-salesorder_orga_button', model=Organisation, button=add_related_salesorder, order=101)
             create_bmi(pk='billing-invoice_orga_button',    model=Organisation, button=add_related_invoice,    order=102)
 
-            create_bmi(pk='billing-quote_contact_button',       model=Contact, button=add_related_quote,      order=100)
-            create_bmi(pk='billing-salesorder_contact_button',  model=Contact, button=add_related_salesorder, order=101)
-            create_bmi(pk='billing-invoice_contact_button',     model=Contact, button=add_related_invoice,    order=102)
+            create_bmi(pk='billing-quote_contact_button',      model=Contact, button=add_related_quote,      order=100)
+            create_bmi(pk='billing-salesorder_contact_button', model=Contact, button=add_related_salesorder, order=101)
+            create_bmi(pk='billing-invoice_contact_button',    model=Contact, button=add_related_invoice,    order=102)
 
 
-            models_4_blocks = [(Invoice, True), #boolean -> insert CreditNote block
-                               (CreditNote, False),
-                               (Quote, True),
-                               (SalesOrder, True),
-                               (TemplateBase, False),
+            get_ct = ContentType.objects.get_for_model
+            create_cbci = CustomBlockConfigItem.objects.create
+            build_cell = EntityCellRegularField.build
+
+            def build_common_cells(model):
+                return [build_cell(model, 'created'),
+                        build_cell(model, 'modified'),
+                        build_cell(model, 'user'),
+                        build_cell(model, 'name'),
+                        build_cell(model, 'number'),
+                        build_cell(model, 'issuing_date'),
+                        build_cell(model, 'expiration_date'),
+                        build_cell(model, 'discount'),
+                        build_cell(model, 'comment'),
+                        build_cell(model, 'additional_info'),
+                        build_cell(model, 'payment_terms'),
+                        build_cell(model, 'currency'),
+                       ]
+
+            cbci_invoice = create_cbci(id='billing-invoice_info',
+                                       name=_(u'Invoice information'),
+                                       content_type=get_ct(Invoice),
+                                       cells=build_common_cells(Invoice) +
+                                             [build_cell(Invoice, 'status'),
+                                              build_cell(Invoice, 'payment_type'),
+                                             ],
+                                      )
+            cbci_c_note   = create_cbci(id='billing-creditnote_info',
+                                       name=_(u'Credit note information'),
+                                       content_type=get_ct(CreditNote),
+                                       cells=build_common_cells(CreditNote) +
+                                             [build_cell(CreditNote, 'status')],
+                                      )
+            cbci_quote   = create_cbci(id='billing-quote_info',
+                                       name=_(u'Quote information'),
+                                       content_type=get_ct(Quote),
+                                       cells=build_common_cells(Quote) +
+                                             [build_cell(Quote, 'status'),
+                                              build_cell(Quote, 'acceptation_date'),
+                                             ],
+                                      )
+            cbci_s_order = create_cbci(id='billing-salesorder_info',
+                                       name=_(u'Salesorder information'),
+                                       content_type=get_ct(SalesOrder),
+                                       cells=build_common_cells(SalesOrder) +
+                                             [build_cell(SalesOrder, 'status')],
+                                      )
+            cbci_tbase   = create_cbci(id='billing-templatebase_info',
+                                       name=pgettext('billing', u'Template information'),
+                                       content_type=get_ct(TemplateBase),
+                                       cells=build_common_cells(TemplateBase) +
+                                             [EntityCellFunctionField.build(TemplateBase, 'get_verbose_status')],
+                                      )
+
+            models_4_blocks = [(Invoice,      cbci_invoice, True), # Boolean -> insert CreditNote block
+                               (CreditNote,   cbci_c_note,  False),
+                               (Quote,        cbci_quote,   True),
+                               (SalesOrder,   cbci_s_order, True),
+                               (TemplateBase, cbci_tbase,   False),
                               ]
+            create_bdl = BlockDetailviewLocation.create
 
-            for model, has_credit_notes in models_4_blocks:
-                BlockDetailviewLocation.create(block_id=product_lines_block.id_,   order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
-                BlockDetailviewLocation.create(block_id=service_lines_block.id_,   order=20,  zone=BlockDetailviewLocation.TOP,   model=model)
+            for model, cbci, has_credit_notes in models_4_blocks:
+                create_bdl(block_id=product_lines_block.id_,   order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
+                create_bdl(block_id=service_lines_block.id_,   order=20,  zone=BlockDetailviewLocation.TOP,   model=model)
 
                 if has_credit_notes:
-                    BlockDetailviewLocation.create(block_id=credit_note_block.id_, order=30,  zone=BlockDetailviewLocation.TOP,   model=model)
+                    create_bdl(block_id=credit_note_block.id_, order=30,  zone=BlockDetailviewLocation.TOP,   model=model)
 
-                BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=model)
-                BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
-                BlockDetailviewLocation.create(block_id=billing_payment_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=model)
-                BlockDetailviewLocation.create(block_id=billing_address_block.id_, order=70,  zone=BlockDetailviewLocation.LEFT,  model=model)
-                BlockDetailviewLocation.create(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=model)
-                BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
+#                BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=model)
+                create_bdl(block_id=cbci.generate_id(),        order=5,   zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=billing_payment_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=billing_address_block.id_, order=70,  zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
 
-                BlockDetailviewLocation.create(block_id=target_block.id_,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
+                create_bdl(block_id=target_block.id_,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=model)
+                create_bdl(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
+                create_bdl(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
-                for model, __ in models_4_blocks:
-                    BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
+                for t in models_4_blocks:
+                    model = t[0]
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
 
-            BlockDetailviewLocation.create(block_id=payment_information_block.id_, order=300, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
-            BlockDetailviewLocation.create(block_id=received_invoices_block.id_,   order=14,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-#            BlockDetailviewLocation.create(block_id=received_billing_document_block.id_, order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-            BlockDetailviewLocation.create(block_id=received_quotes_block.id_,     order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            create_bdl(block_id=payment_information_block.id_, order=300, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+            create_bdl(block_id=received_invoices_block.id_,   order=14,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+#            create_bdl(block_id=received_billing_document_block.id_, order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            create_bdl(block_id=received_quotes_block.id_,     order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
 
             if apps.is_installed('creme.reports'):
                 logger.info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')
-                #self.create_reports(rt_sub_bill_received, resulted, resulted_collection)
                 self.create_reports(rt_sub_bill_received,
                                     current_year_invoice_filter,
                                     current_year_unpaid_invoice_filter,
                                    )
 
-    #def create_reports(self, rt_sub_bill_received, resulted, resulted_collection):
     def create_reports(self, rt_sub_bill_received, current_year_invoice_filter, current_year_unpaid_invoice_filter):
         from functools import partial
 
@@ -366,96 +387,56 @@ class Populator(BasePopulator):
         from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH
         from creme.reports.models import Report, Field, ReportGraph
 
-        #if not (resulted and resulted_collection):
-            #logger.info("Invoice status 'Resulted' and/or 'Resulted collection' have change => do not create reports 'All invoices of the current year' and 'Invoices unpaid of the current year'")
-            #return
 
-        invoice_ct = ContentType.objects.get_for_model(Invoice)
-        admin = get_user_model().objects.get(pk=1)
-
-        #current_year_invoice_filter = EntityFilter.create(
-                #'billing-current_year_invoices',
-                #_(u"Current year invoices"),
-                #Invoice, user='admin',
-                #conditions=[EntityFilterCondition.build_4_date(model=Invoice,
-                                                               #name='issuing_date',
-                                                               #date_range='current_year',
-                                                              #),
-                           #],
-            #)
-
-        #current_year_unpaid_invoice_filter = EntityFilter.create(
-                #'billing-current_year_unpaid_invoices',
-                #_(u"Current year and unpaid invoices"),
-                #Invoice, user='admin',
-                #conditions=[EntityFilterCondition.build_4_date(model=Invoice,
-                                                               #name='issuing_date',
-                                                               #date_range='current_year',
-                                                              #),
-                            #EntityFilterCondition.build_4_field(model=Invoice,
-                                                                #operator=EntityFilterCondition.EQUALS_NOT,
-                                                                #name='status',
-                                                                #values=[resulted.pk, resulted_collection.pk],
-                                                               #),
-                           #],
-            #)
-
+#        admin = get_user_model().objects.get(pk=1)
+        admin = get_user_model().objects.get_admin()
 
         def create_report_columns(report):
-            create_field = partial(Field.objects.create, report=report)
-            create_field(name='name',                  order=1, type=RFT_FIELD)
+            create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+            create_field(name='name',                  order=1)
             create_field(name=rt_sub_bill_received.id, order=2, type=RFT_RELATION)
-            create_field(name='number',                order=3, type=RFT_FIELD)
-            create_field(name='status',                order=4, type=RFT_FIELD)
-            create_field(name='total_no_vat',          order=5, type=RFT_FIELD)
-            create_field(name='issuing_date',          order=6, type=RFT_FIELD)
-            create_field(name='expiration_date',       order=7, type=RFT_FIELD)
+            create_field(name='number',                order=3)
+            create_field(name='status',                order=4)
+            create_field(name='total_no_vat',          order=5)
+            create_field(name='issuing_date',          order=6)
+            create_field(name='expiration_date',       order=7)
 
-        create_graph = ReportGraph.objects.create
+        create_report = partial(Report.objects.create, user=admin,
+                                ct=ContentType.objects.get_for_model(Invoice),
+                               )
+        create_graph = partial(ReportGraph.objects.create, user=admin)
 
-        #Create current year invoices report -----------------------------------
-        report_name = _(u"All invoices of the current year")
-        #try:
-            #Report.objects.get(name=report_name, ct=invoice_ct)
-        #except (Report.DoesNotExist, Report.MultipleObjectsReturned):
-        invoices_report = Report.objects.create(name=report_name, ct=invoice_ct,
-                                                filter=current_year_invoice_filter, user=admin,
-                                               )
-        create_report_columns(invoices_report)
+        # Create current year invoices report ----------------------------------
+        invoices_report1 = create_report(name=_(u'All invoices of the current year'),
+                                         filter=current_year_invoice_filter,
+                                        )
+        create_report_columns(invoices_report1)
 
         rgraph1 = create_graph(name=_(u"Sum of current year invoices total without taxes / month"),
-                               report=invoices_report,
+                               report=invoices_report1,
                                abscissa='issuing_date', ordinate='total_no_vat__sum',
-                               type=RGT_MONTH, is_count=False, user=admin,
+                               type=RGT_MONTH, is_count=False,
                               )
         create_graph(name=_(u"Sum of current year invoices total without taxes / invoices status"),
-                     report=invoices_report,
+                     report=invoices_report1,
                      abscissa='status', ordinate='total_no_vat__sum',
-                     type=RGT_FK, is_count=False, user=admin,
+                     type=RGT_FK, is_count=False,
                     )
         ibci = rgraph1.create_instance_block_config_item()
 
         BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=1)
-        #else:
-            #logger.info("The report 'Invoices of the current year' already exists")
 
-        #Create current year and unpaid invoices report ------------------------
-        report_name = _(u"Invoices unpaid of the current year")
-        #try:
-            #Report.objects.get(name=report_name, ct=invoice_ct)
-        #except (Report.DoesNotExist, Report.MultipleObjectsReturned):
-        invoices_report = Report.objects.create(name=report_name, ct=invoice_ct, user=admin,
-                                                filter=current_year_unpaid_invoice_filter,
-                                               )
-        create_report_columns(invoices_report)
+        # Create current year and unpaid invoices report -----------------------
+        invoices_report2 = create_report(name=_(u'Invoices unpaid of the current year'),
+                                         filter=current_year_unpaid_invoice_filter,
+                                        )
+        create_report_columns(invoices_report2)
 
         rgraph = create_graph(name=_(u"Sum of current year and unpaid invoices total without taxes / month"),
-                              report=invoices_report, user=admin,
+                              report=invoices_report2,
                               abscissa='issuing_date', ordinate='total_no_vat__sum',
                               type=RGT_MONTH, is_count=False,
                              )
         ibci = rgraph.create_instance_block_config_item()
 
         BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=2)
-        #else:
-            #logger.info("The report 'Invoices unpaid of the current year' already exists")
