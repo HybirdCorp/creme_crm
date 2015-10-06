@@ -264,6 +264,53 @@ class RelationViewsTestCase(ViewsTestCase):
                                 }
                             )
 
+    def test_add_relations07(self):
+        "CremeProperty contraints on subject"
+        self._aux_test_add_relations()
+
+        subject = self.subject01
+
+        create_ptype = CremePropertyType.create
+        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is strong')
+        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is cool')
+        ptype03 = create_ptype(str_pk='test-prop_foobar03', text='Is smart')
+
+        CremeProperty.objects.create(type=ptype02, creme_entity=subject)
+
+        # Constraint OK & KO
+        create_rtype = RelationType.create
+        rtype03 = create_rtype(('test-subject_foobar3', 'rules',       [Contact], [ptype01, ptype03]),
+                               ('test-object_foobar3',  'is ruled by'),
+                              )[0]
+        rtype04 = create_rtype(('test-subject_foobar4', 'is the hero of',     [Contact], [ptype02]),
+                               ('test-object_foobar4',  'has a hero which is'),
+                              )[0]
+
+        url = self._build_add_url(subject)
+        response = self.assertPOST200(url,
+                                      data={'relations': self.format_str % (
+                                                            rtype03.id, self.ct_id, self.object01.id
+                                                        ),
+                                         }
+                                      )
+        self.assertFormError(response, 'form', 'relations',
+                             _(u'«%(subject)s» must have a property in «%(properties)s» '
+                               u'in order to use the relationship «%(predicate)s»') % {
+                                    'subject':    subject,
+                                    'properties': '%s/%s' % (ptype01, ptype03),
+                                    'predicate':  rtype03.predicate,
+                                }
+                            )
+
+        response = self.client.post(url,
+                                    data={'relations': self.format_str % (
+                                                           rtype04.id, self.ct_id, self.object01.id
+                                                        ),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(1, subject.relations.count())
+
     def test_add_relations_with_semi_fixed01(self):
         "Only semi fixed"
         self._aux_test_add_relations()
@@ -408,6 +455,50 @@ class RelationViewsTestCase(ViewsTestCase):
             sfrt_field = response.context['form'].fields['semifixed_rtypes']
 
         self.assertEqual([(sfrt2.id, sfrt2.predicate)], list(sfrt_field.choices))
+
+    def test_add_relations_with_semi_fixed06(self):
+        "CremeProperty contraints on subject"
+        self._aux_test_add_relations()
+
+        subject = self.subject01
+
+        create_ptype = CremePropertyType.create
+        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is strong')
+        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is cool')
+
+        CremeProperty.objects.create(type=ptype02, creme_entity=subject)
+
+        # Constraint OK & KO
+        create_rtype = RelationType.create
+        rtype03 = create_rtype(('test-subject_foobar3', 'rules',       [Contact], [ptype01]),
+                               ('test-object_foobar3',  'is ruled by'),
+                              )[0]
+        rtype04 = create_rtype(('test-subject_foobar4', 'is the hero of',     [Contact], [ptype02]),
+                               ('test-object_foobar4',  'has a hero which is'),
+                              )[0]
+
+        create_sfrt = SemiFixedRelationType.objects.create
+        sfrt1 = create_sfrt(predicate='Rules "object01"',
+                            relation_type=rtype03, object_entity=self.object01,
+                           )
+        sfrt2 = create_sfrt(predicate='Is the hero of "object02"',
+                            relation_type=rtype04, object_entity=self.object02,
+                           )
+
+        url = self._build_add_url(subject)
+        response = self.assertPOST200(url, data={'semifixed_rtypes': [sfrt1.id]})
+        self.assertFormError(response, 'form', 'semifixed_rtypes',
+                             _(u'«%(subject)s» must have the property «%(property)s» '
+                               u'in order to use the relationship «%(predicate)s»') % {
+                                    'subject':    subject,
+                                    'property':   ptype01,
+                                    'predicate':  rtype03.predicate,
+                                }
+                            )
+
+        response = self.client.post(url, data={'semifixed_rtypes': [sfrt2.id]})
+        self.assertNoFormError(response)
+        self.assertEqual(1, subject.relations.count())
 
     def _build_narrowed_add_url(self, subject, rtype):
         return '/creme_core/relation/add/%s/%s' % (subject.id, rtype.id)

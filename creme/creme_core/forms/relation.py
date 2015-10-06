@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
+
 from django.db.models import Q
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from ..models import Relation, RelationType, SemiFixedRelationType #CremeEntity
+from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType #CremeEntity
 from ..utils import entities2unicode
 from .base import CremeForm, FieldBlockManager
 from .fields import MultiRelationEntityField
@@ -34,13 +36,19 @@ class _RelationsCreateForm(CremeForm):
     relations        = MultiRelationEntityField(label=_(u'Relationships'), required=False, autocomplete=True)
     semifixed_rtypes = ModelMultipleChoiceField(label=_(u'Semi-fixed types of relationship'),
                                                 queryset=SemiFixedRelationType.objects.none(),
-                                                required=False, widget=UnorderedMultipleChoiceWidget
+                                                required=False, widget=UnorderedMultipleChoiceWidget,
                                                )
 
     error_messages = {
         'duplicates': _(u'There are duplicates: %(duplicates)s'),
         'link_themselves': _(u'An entity can not be linked to itself : %(entities)s'),
         'empty': _(u'You must give one relationship at least.'),
+        'missing_property_single': _(u'«%(subject)s» must have the property «%(property)s» '
+                                     u'in order to use the relationship «%(predicate)s»'
+                                    ),
+        'missing_property_multi': _(u'«%(subject)s» must have a property in «%(properties)s» '
+                                    u'in order to use the relationship «%(predicate)s»'
+                                   ),
     }
 
     def __init__(self, subjects, content_type, relations_types=None, *args, **kwargs):
@@ -101,6 +109,51 @@ class _RelationsCreateForm(CremeForm):
                                   code='duplicates',
                                  )
 
+    # TODO: indicates all subjects which miss properties ?
+    # TODO: filter & display these invalid subjects (like non editable subjects)
+    def _check_properties(self, rtypes):
+        subjects = self.subjects
+        need_validation = False
+        ptypes_contraints = OrderedDict()
+
+        for rtype in rtypes:
+            if rtype.id not in ptypes_contraints:
+                properties = dict(rtype.subject_properties.values_list('id', 'text'))
+                ptypes_contraints[rtype.id] = (rtype, properties)
+
+                if properties:
+                    need_validation = True
+
+        if not need_validation:
+            return
+
+        CremeEntity.populate_properties(subjects)
+
+        for subject in subjects:
+            for rtype, needed_properties in ptypes_contraints.itervalues():
+                if needed_properties and \
+                   not any(p.type_id in needed_properties for p in subject.get_properties()):
+                    if len(needed_properties) == 1:
+                        raise ValidationError(
+                                    self.error_messages['missing_property_single'],
+                                    params={'subject':    subject,
+                                            'property':   needed_properties.itervalues().next(),
+                                            'predicate':  rtype.predicate,
+                                           },
+                                    code='missing_property_single',
+                                 )
+                    else:
+                        raise ValidationError(
+                                    self.error_messages['missing_property_multi'],
+                                    params={'subject':    subject,
+                                            'properties': u'/'.join(unicode(p)
+                                                                      for p in needed_properties.itervalues()
+                                                                   ),
+                                            'predicate':  rtype.predicate,
+                                           },
+                                    code='missing_property_multi',
+                                 )
+
     def _check_loops(self, relations):
         subjects_ids = self.subjects_ids
         bad_objects = [unicode(entity) for rtype, entity in relations if entity.id in subjects_ids]
@@ -118,16 +171,25 @@ class _RelationsCreateForm(CremeForm):
         self._check_duplicates(relations, user)
         self._check_loops(relations)
         validate_linkable_entities([entity for rt_id, entity in relations], user)
+        self._check_properties([rtype for rtype, e_ in relations])
 
         return relations
+
+    def clean_semifixed_rtypes(self):
+        sf_rtypes = self.cleaned_data['semifixed_rtypes']
+        self._check_properties([sf_rtype.relation_type for sf_rtype in sf_rtypes])
+
+        return sf_rtypes
 
     def clean(self):
         cdata = super(_RelationsCreateForm, self).clean()
 
         if not self._errors:
             relations_desc = cdata['relations']
-            #TODO: improve queries ??
-            relations_desc.extend((sfrt.relation_type, sfrt.object_entity) for sfrt in cdata['semifixed_rtypes'])
+            # TODO: improve queries ??
+            relations_desc.extend((sfrt.relation_type, sfrt.object_entity)
+                                      for sfrt in cdata['semifixed_rtypes']
+                                 )
 
             if not relations_desc:
                 raise ValidationError(self.error_messages['empty'], code='empty')
@@ -167,6 +229,7 @@ class _RelationsCreateForm(CremeForm):
                                     object_entity=object_entity,
                                    )
 
+
 class RelationCreateForm(_RelationsCreateForm):
     def __init__(self, subject, relations_types=None, *args, **kwargs):
         super(RelationCreateForm, self).__init__([subject], subject.entity_type,
@@ -178,7 +241,7 @@ class RelationCreateForm(_RelationsCreateForm):
 class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
 
-    #TODO: use Meta.fields ?? (beware to bad_entities_lbl)
+    # TODO: use Meta.fields ?? (beware to bad_entities_lbl)
     blocks = FieldBlockManager(('general', _(u'General information'), ['entities_lbl', 'relations', 'semifixed_rtypes']),)
 
     def __init__(self, subjects, forbidden_subjects, relations_types=None, *args, **kwargs):
