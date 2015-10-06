@@ -33,8 +33,9 @@ from .other_models import InvoiceStatus, SettlementTerms
 #class Invoice(Base):
 class AbstractInvoice(Base):
     status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), on_delete=PROTECT)
-    payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'), blank=True, null=True,
-                              on_delete=SET_NULL)
+    payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'),
+                              blank=True, null=True, on_delete=SET_NULL,
+                             ).set_tags(optional=True)
 
     creation_label = _('Add an invoice')
     generate_number_in_create = False

@@ -56,15 +56,19 @@ class Base(CremeEntity):
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)
 #    discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
-    discount         = BillingDiscountField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
-#    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
-    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
+    discount         = BillingDiscountField(_(u'Overall discount'), default=DEFAULT_DECIMAL,
+                                            max_digits=10, decimal_places=2,
+                                           )
+#    billing_address  = ForeignKey(Address,
+    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
+                                  verbose_name=_(u'Billing address'),
 #                                  related_name='BillingAddress_set',
                                   related_name='+',
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
                                  ).set_tags(enumerable=False)
-#    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
-    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Shipping address'),
+#    shipping_address = ForeignKey(Address,
+    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
+                                  verbose_name=_(u'Shipping address'),
 #                                  related_name='ShippingAddress_set',
                                   related_name='+',
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
@@ -75,23 +79,32 @@ class Base(CremeEntity):
                                   default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
                                  )
     comment          = TextField(_(u'Comment'), blank=True, null=True)
-    total_vat        = MoneyField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
-    total_no_vat     = MoneyField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
-    additional_info  = ForeignKey(AdditionalInformation, verbose_name=_(u'Additional Information'),
+    total_vat        = MoneyField(_(u'Total with VAT'), default=0,
+                                  max_digits=14, decimal_places=2,
+                                  blank=True, null=True, editable=False,
+                                 )
+    total_no_vat     = MoneyField(_(u'Total without VAT'), default=0,
+                                  max_digits=14, decimal_places=2,
+                                  blank=True, null=True, editable=False,
+                                 )
+    additional_info  = ForeignKey(AdditionalInformation,
+                                  verbose_name=_(u'Additional Information'),
 #                                  related_name='AdditionalInformation_set',
                                   related_name='+',
                                   blank=True, null=True, on_delete=SET_NULL,
-                                 ).set_tags(clonable=False)
+                                 ).set_tags(clonable=False, optional=True)
     payment_terms    = ForeignKey(PaymentTerms, verbose_name=_(u'Payment Terms'),
 #                                  related_name='PaymentTerms_set',
                                   related_name='+',
                                   blank=True, null=True, on_delete=SET_NULL,
-                                 ).set_tags(clonable=False)
-    payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False, on_delete=SET_NULL)
+                                 ).set_tags(clonable=False, optional=True)
+    payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'),
+                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
+                                 )
 
     creation_label = _('Add an accounting document')
 
-    generate_number_in_create = True #TODO: use settings instead ???
+    generate_number_in_create = True # TODO: use settings instead ???
 
     #caches
     _productlines_cache = None
@@ -126,9 +139,9 @@ class Base(CremeEntity):
         self._servicelines_cache = None
         self._creditnotes_cache = None
 
-    #TODO: property + cache
-    #TODO: factorise with get_target()
-    #TODO: return an Organisation instead of a CremeEntity ?? <- If doing this check calls to .get_source().get_real_entity()
+    # TODO: property + cache
+    # TODO: factorise with get_target()
+    # TODO: return an Organisation instead of a CremeEntity ?? <- If doing this check calls to .get_source().get_real_entity()
     def get_source(self):
         try:
             return Relation.objects.get(subject_entity=self.id, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
@@ -199,14 +212,14 @@ class Base(CremeEntity):
 
         return self._servicelines_cache
 
-    #TODO: remove (crappy api, no cache....)
+    # TODO: remove (crappy API, no cache....)
     # Could replace get_x_lines()
     def get_lines(self, klass):
         return klass.objects.filter(relations__object_entity=self.id,
                                     relations__type=REL_OBJ_HAS_LINE,
                                    )
 
-    def get_product_lines_total_price_exclusive_of_tax(self): #TODO: inline ???
+    def get_product_lines_total_price_exclusive_of_tax(self): # TODO: inline ???
         return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.product_lines))
 
     def get_product_lines_total_price_inclusive_of_tax(self):
@@ -268,7 +281,7 @@ class Base(CremeEntity):
         for line in chain(source.product_lines, source.service_lines):
             line.clone(self)
 
-    #TODO: factorise with persons ??
+    # TODO: factorise with persons ??
     def _post_save_clone(self, source):
         save = False
 
@@ -283,7 +296,7 @@ class Base(CremeEntity):
         if save:
             self.save()
 
-    #TODO: Can not we really factorise with clone()
+    # TODO: Can not we really factorise with clone()
     def build(self, template):
         self._build_object(template)
         self._post_save_clone(template) #copy addresses
@@ -308,9 +321,9 @@ class Base(CremeEntity):
         self.payment_info       = template.payment_info
         self.save()
 
-        #not copied
-        #additional_info
-        #payment_terms
+        # NB: not copied:
+        # - additional_info
+        # - payment_terms
 
     def _build_lines(self, template, klass):
         logger.debug("=> Clone lines")
