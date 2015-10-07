@@ -110,7 +110,8 @@ class SettingsBlock(QuerysetBlock):
 
 class _ConfigAdminBlock(QuerysetBlock):
     page_size    = _PAGE_SIZE
-    permission   = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+#    permission   = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    permission   = None # The portals can be viewed by all users => reloading can be done by all uers too.
     configurable = False
 
 
@@ -185,7 +186,8 @@ class FieldsConfigsBlock(PaginatedBlock):
     page_size     = _PAGE_SIZE
     verbose_name  = u'Fields configuration'
     template_name = 'creme_config/templatetags/block_fields_configs.html'
-    permission    = 'creme_config.can_admin' # NB: used by the view creme_core.views.blocks.reload_basic
+#    permission    = 'creme_config.can_admin' # NB: used by the view creme_core.views.blocks.reload_basic
+    permission    = None # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
@@ -281,7 +283,8 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
     verbose_name  = u'Blocks locations on detailviews'
     template_name = 'creme_config/templatetags/block_blocklocations.html'
-    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic
     configurable  = False
 
     def detailview_display(self, context):
@@ -369,7 +372,8 @@ class BlockPortalLocationsBlock(PaginatedBlock):
     page_size     = _PAGE_SIZE - 2 #'-1' because there is always the line for default config & home config on each page
     verbose_name  = u'Blocks locations on portals'
     template_name = 'creme_config/templatetags/block_blockportallocations.html'
-    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
@@ -474,7 +478,8 @@ class ButtonMenuBlock(Block):
     dependencies  = (ButtonMenuItem,)
     verbose_name  = u'Button menu configuration'
     template_name = 'creme_config/templatetags/block_button_menu.html'
-    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
@@ -511,7 +516,8 @@ class SearchConfigBlock(PaginatedBlock):
     order_by      = 'content_type'
     # TODO _ConfigAdminBlock => Mixin
     page_size    = _PAGE_SIZE * 2 # only one block
-    permission   = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+#    permission   = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    permission   = None # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable = False
 
     def detailview_display(self, context):

@@ -94,7 +94,7 @@ def delete(request):
 
 @jsonify
 @login_required
-@permission_required('creme_core.can_admin')
+#@permission_required('creme_core.can_admin')
 def reload_block(request, ct_id):
 #    context = RequestContext(request)
 #    context['content_type'] = get_ct_or_404(ct_id)
