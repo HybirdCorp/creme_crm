@@ -1,8 +1,8 @@
-{% load i18n %}
-{% load creme_core_tags creme_block creme_widgets %}
+{% load i18n creme_core_tags creme_block creme_widgets %}
 {# TODO: Merge with block_received_invoices.html ? #}
+{% with hidden_count=hidden_fields|length %}{% with colspan=5|sub:hidden_count %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=5 %}
+    {% get_block_header colspan=colspan %}
         {% comment %}<th class="label">{% get_block_title _('%s Received billing document') _('%s Received billing documents') 'invoice_48.png' _('Billing document') %}</th>{% endcomment %}
         <th class="label">{% get_block_title title title_plural 'invoice_48.png' _('Billing document') %}</th>
         <th class="actions">
@@ -13,7 +13,7 @@
         {% if page.paginator.count %}
             <tr class="header">
                 {% get_column_header _('Name') 'name' %}
-                {% get_column_header _('Expiration date') 'expiration_date' %}
+                {% if 'expiration_date' not in hidden_fields %}{% get_column_header _('Expiration date') 'expiration_date' %}{% endif %}
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 {% get_column_header _('Total without VAT') 'total_no_vat' %}
                 {% comment %}{% get_column_header _('Type') 'entity_type' %}{% endcomment %}
@@ -24,12 +24,12 @@
                     <td class="{{row_color}}">{% widget_entity_hyperlink billing_document user %}</td>
                     {% has_perm_to view billing_document as view_perm %}
                     {% if view_perm %}
-                        <td class="{{row_color}}">{{billing_document.expiration_date|default:''}}</td>
+                        {% if 'expiration_date' not in hidden_fields %}<td class="{{row_color}}">{{billing_document.expiration_date|default:''}}</td>{% endif %}
                         <td class="{{row_color}}">{{billing_document.status}}</td>
                         <td class="{{row_color}}">{{billing_document.total_no_vat|format_amount:billing_document.currency}}</td>
                         {% comment %}<td class="{{row_color}}">{{billing_document.entity_type}}</td>{% endcomment %}
                     {% else %}
-                        <td class="{{row_color}}">??</td>
+                        {% if 'expiration_date' not in hidden_fields %}<td class="{{row_color}}">??</td>{% endif %}
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
                         {% comment %}<td class="{{row_color}}">??</td>{% endcomment %}
@@ -44,5 +44,6 @@
             </tr>
         {% endif %}
     </tbody>
-    {% get_block_footer 5 %}
+    {% get_block_footer colspan %}
 </table>
+{% endwith %}{% endwith %}

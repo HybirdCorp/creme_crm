@@ -153,15 +153,22 @@ class CreditNoteBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         billing_document = context['object']
+        is_hidden = context['fields_configs'].get_4_model(CreditNote).is_fieldname_hidden
 
-        return self._render(self.get_block_template_context(context,
-                                                            billing_document.get_credit_notes(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing_document.pk),
-                                                            rtype_id=self.relation_type_deps[0],
-                                                            ct=ContentType.objects.get_for_model(CreditNote),
-                                                            add_title=_(u'Add a credit note'),
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+                    context,
+                    billing_document.get_credit_notes(),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (
+                                    self.id_, billing_document.pk,
+                                ),
+                    rtype_id=self.relation_type_deps[0],
+                    ct=ContentType.objects.get_for_model(CreditNote),
+                    add_title=_(u'Add a credit note'),
+                    hidden_fields={fname
+                                       for fname in ('issuing_date', 'expiration_date')
+                                           if is_hidden(fname)
+                                  },
+                ))
 
 
 class TotalBlock(Block):
@@ -200,6 +207,7 @@ class ReceivedInvoicesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         person_id = context['object'].id
+        is_hidden = context['fields_configs'].get_4_model(Invoice).is_fieldname_hidden
 
         return self._render(self.get_block_template_context(
                     context,
@@ -207,6 +215,7 @@ class ReceivedInvoicesBlock(QuerysetBlock):
                                            relations__type=REL_SUB_BILL_RECEIVED,
                                           ),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                    hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
                 ))
 
 
@@ -253,16 +262,19 @@ class _ReceivedBillingDocumentsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         person_id = context['object'].id
+        model = self._billing_model
+        is_hidden = context['fields_configs'].get_4_model(model).is_fieldname_hidden
 
         return self._render(self.get_block_template_context(
                     context,
-                    self._billing_model.objects.filter(relations__object_entity=person_id,
-                                                       relations__type=REL_SUB_BILL_RECEIVED,
-                                                      ),
+                    model.objects.filter(relations__object_entity=person_id,
+                                         relations__type=REL_SUB_BILL_RECEIVED,
+                                        ),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
                     title=self._title,
                     title_plural=self._title_plural,
                     empty_msg=self._empty_msg,
+                    hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
                 ))
 
 
