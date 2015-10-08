@@ -21,7 +21,7 @@
                 <td class="block_header_line_dark" align="center" width="20%">{% trans "Name" %}</td>
                 <td class="block_header_line_dark" align="center" width="5%">{% trans "Number" %}</td>
                 <td class="block_header_line_dark" align="center" width="10%">{% trans "Status" %}</td>
-                <td class="block_header_line_dark" align="center" width="25%">{% trans "Comment" %}</td>
+                {% if 'comment' not in hidden_fields %}<td class="block_header_line_dark" align="center" width="25%">{% trans "Comment" %}</td>{% endif %}
                 {% if 'issuing_date' not in hidden_fields %}<td class="block_header_line_dark" align="center" width="10%">{% trans "Issuing date" %}</td>{% endif %}
                 {% if 'expiration_date' not in hidden_fields %}<td class="block_header_line_dark" align="center" width="10%">{% trans "Expiration date" %}</td>{% endif %}
                 <td class="block_header_line_dark" align="center" width="10%">{% trans "Total (exclusive of tax)" %}</td>
@@ -39,12 +39,14 @@
                         <td class="{{row_color}}" align="center">{% widget_entity_hyperlink credit_note user %}</td>
                         <td class="{{row_color}}" align="center">{{credit_note.number}}</td>
                         <td class="{{row_color}}" align="center">{{credit_note.status}}</td>
-                        <td class="{{row_color}}" align="center" id="comment{{credit_note.pk}}" {% if credit_note.comment %}title="{{credit_note.comment}}"{% endif %}>
-                            {% if credit_note.comment %}
-                                {{credit_note.comment|linebreaksbr}}
-                            {% endif %}
-                            {% url 'billing__edit_cnote_comment' credit_note.id as edit_comment_url %}{% get_line_editor at_url edit_comment_url with_perms credit_note_edit_perm %}
-                        </td>
+                        {% if 'comment' not in hidden_fields %}
+                            <td class="{{row_color}}" align="center" id="comment{{credit_note.pk}}" {% if credit_note.comment %}title="{{credit_note.comment}}"{% endif %}>
+                                {% if credit_note.comment %}
+                                    {{credit_note.comment|linebreaksbr}}
+                                {% endif %}
+                                {% url 'billing__edit_cnote_comment' credit_note.id as edit_comment_url %}{% get_line_editor at_url edit_comment_url with_perms credit_note_edit_perm %}
+                            </td>
+                        {% endif %}
                         {% if 'issuing_date' not in hidden_fields %}<td class="{{row_color}}" align="center">{% print_field object=credit_note field='issuing_date' %}</td>{% endif %}
                         {% if 'expiration_date' not in hidden_fields %}<td class="{{row_color}}" align="center">{% print_field object=credit_note field='expiration_date' %}</td>{% endif %}
                         <td class="{{row_color}}" align="center">

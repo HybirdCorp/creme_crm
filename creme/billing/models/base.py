@@ -80,7 +80,7 @@ class Base(CremeEntity):
                                   related_name='+',
                                   default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
                                  )
-    comment          = TextField(_(u'Comment'), blank=True, null=True)
+    comment          = TextField(_(u'Comment'), blank=True, null=True).set_tags(optional=True)
     total_vat        = MoneyField(_(u'Total with VAT'), default=0,
                                   max_digits=14, decimal_places=2,
                                   blank=True, null=True, editable=False,

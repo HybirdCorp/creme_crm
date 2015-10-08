@@ -7,7 +7,7 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import Relation, Currency
+    from creme.creme_core.models import Relation, Currency, FieldsConfig
 
     from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
@@ -25,6 +25,9 @@ except Exception as e:
 class CreditNoteTestCase(_BillingTestCase):
     def setUp(self):
         self.login()
+
+    def _build_editcomment_url(self, credit_note):
+        return reverse('billing__edit_cnote_comment', args=(credit_note.id,))
 
     def _build_deleterelated_url(self, credit_note, invoice):
 #        return '/billing/credit_note/delete_related/%(credit_note)d/from/%(invoice)d/' % {
@@ -426,5 +429,27 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 50)
 
+    def test_editcomment01(self):
+        FieldsConfig.create(CreditNote,
+                            descriptions=[('issuing_date', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+
+        url = self._build_editcomment_url(credit_note)
+        self.assertGET200(url)
+
+        comment = 'Special gift'
+        self.assertNoFormError(self.client.post(url, data={'comment': comment}))
+        self.assertEqual(comment, self.refresh(credit_note).comment)
+
+    def test_editcomment02(self):
+        "'comment' is hidden"
+        FieldsConfig.create(CreditNote,
+                            descriptions=[('comment', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        self.assertGET409(self._build_editcomment_url(credit_note))
 
     #TODO: complete (other views)
