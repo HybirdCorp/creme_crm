@@ -165,7 +165,7 @@ class CreditNoteBlock(QuerysetBlock):
                     ct=ContentType.objects.get_for_model(CreditNote),
                     add_title=_(u'Add a credit note'),
                     hidden_fields={fname
-                                       for fname in ('issuing_date', 'expiration_date')
+                                       for fname in ('issuing_date', 'expiration_date', 'comment')
                                            if is_hidden(fname)
                                   },
                 ))
