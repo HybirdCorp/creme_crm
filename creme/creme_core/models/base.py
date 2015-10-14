@@ -25,7 +25,7 @@ import os
 
 from django.contrib.contenttypes.models import ContentType
 #from django.db import transaction
-from django.db.models import Model, CharField, BooleanField, FileField #ForeignKey, Manager
+from django.db.models import Model, CharField, BooleanField, FileField, Manager  # ForeignKey
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
@@ -132,6 +132,7 @@ class CremeAbstractEntity(CremeModel):
     user       = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_('User'
 
     #objects = CremeEntityManager()
+    objects = Manager()
 
     _real_entity = None
 
