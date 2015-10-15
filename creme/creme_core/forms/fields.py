@@ -71,6 +71,15 @@ class JSONField(CharField):
     }
     value_type = None # Overload this: type of the value returned by the field.
 
+    def __init__(self, *args, **kwargs):
+        super(JSONField, self).__init__(*args, **kwargs)
+        self.widget.from_python = self.from_python
+
+    def __deepcopy__(self, memo):
+        obj = super(JSONField, self).__deepcopy__(memo)
+        obj.widget.from_python = obj.from_python
+        return obj
+
     def _build_empty_value(self):
         "Value returned by not-required fields, when value is empty."
         if self.value_type is list:
@@ -209,12 +218,16 @@ class JSONField(CharField):
                                       code='doesnotexist',
                                      )
 
+    # DEPRECATED
     def _create_widget(self):
         raise NotImplementedError
 
     def _build_widget(self):
+        warnings.warn("JSONField._build_widget() is deprecated ; "
+                      "set a 'widget' class attribute in your field instead.",
+                      DeprecationWarning
+                     )
         self.widget = self._create_widget()
-        #TODO : wait for django 1.2 and new widget api to remove this hack
         self.widget.from_python = lambda v: self.from_python(v)
 
     def _value_from_unjsonfied(self, data):
@@ -515,7 +528,6 @@ class RelationEntityField(JSONField):
 #        self._autocomplete = autocomplete
         self.autocomplete = autocomplete
         self.allowed_rtypes = allowed_rtypes
-        self.widget.from_python = self.from_python # TODO: in JSONField
 
     @property
     def allowed_rtypes(self):
@@ -1059,7 +1071,6 @@ class FilteredEntityTypeField(JSONField):
         super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
         self._empty_label = empty_label
         self.ctypes = ctypes
-        self.widget.from_python = self.from_python # TODO: in JSONField
 
 #    def __deepcopy__(self, memo): # todo: move to JSONField ?? (some JSON will never have this problem but...)
 #        # NB: we force to create a 'cleaned' widget when instancing a form.

@@ -102,8 +102,6 @@ class ActivityTypeField(JSONField):
 #        self.types = types if types is not None else ActivityType.objects.all()
         self.types = types
 
-        self.widget.from_python = self.from_python # TODO: in JSONField
-
     def __deepcopy__(self, memo):
         result = super(ActivityTypeField, self).__deepcopy__(memo)
 

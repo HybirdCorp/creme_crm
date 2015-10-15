@@ -60,8 +60,6 @@ class CategoryField(JSONField):
         super(CategoryField, self).__init__(*args, **kwargs)
         self.categories = categories
 
-        self.widget.from_python = self.from_python # TODO: in JSONField
-
     def __deepcopy__(self, memo):
         result = super(CategoryField, self).__deepcopy__(memo)
 #        result._build_widget() #refresh the list of categories

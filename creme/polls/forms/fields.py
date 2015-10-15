@@ -55,7 +55,6 @@ class PollFormLineConditionsField(JSONField):
     def __init__(self, sources=(), *args, **kwargs):
         super(PollFormLineConditionsField, self).__init__(*args, **kwargs)
         self.sources = sources
-        self.widget.from_python = self.from_python # TODO: in JSONField
 
     @property
     def sources(self):
