@@ -25,7 +25,7 @@ from types import GeneratorType
 #import warnings
 
 from django.conf import settings
-#from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.models import ContentType
 from django.forms.utils import flatatt
 from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
         TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer)
@@ -201,6 +201,11 @@ class ActionButtonList(Widget):
         self.actions = actions or []
         self.from_python = None
 
+    def __deepcopy__(self, memo):
+        obj = super(ActionButtonList, self).__deepcopy__(memo)
+        obj.actions = copy.deepcopy(self.actions)
+        return obj
+
     def add_action(self, name, label, enabled=True, **kwargs):
         self.actions.append((name, label, enabled, kwargs))
         return self
@@ -223,11 +228,9 @@ class ActionButtonList(Widget):
                             </ul>""" % context)
 
     def _render_actions(self):
-        #output = []
-        #output.extend(self._render_action(name, label, enabled, **attrs) for name, label, enabled, attrs in self.actions)
-
-        #return '\n'.join(output)
-        return '\n'.join(self._render_action(name, label, enabled, **attrs) for name, label, enabled, attrs in self.actions)
+        return '\n'.join(self._render_action(name, label, enabled, **attrs)
+                            for name, label, enabled, attrs in self.actions
+                        )
 
     def _render_action(self, name, label, enabled, **kwargs):
         if enabled is not None:
@@ -256,7 +259,7 @@ class PolymorphicInput(TextInput):
         self.from_python = None # TODO: wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
-        value = self.from_python(value) if self.from_python is not None else value #TODO : wait for django 1.2 and new widget api to remove this hack
+        value = self.from_python(value) if self.from_python is not None else value # TODO: wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
         context = widget_render_context('ui-creme-polymorphicselect', attrs,
@@ -560,6 +563,84 @@ class RelationSelector(ChainedInput):
         self.add_dselect("rtype", options=relation_types, attrs=dselect_attrs)
         self.add_dselect("ctype", options=content_types, attrs=dselect_attrs)
         self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
+
+
+class EntityCreatorWidget(ActionButtonList):
+    def __init__(self, model=None, q_filter=None, attrs=None, creation_url='', creation_allowed=False):
+        super(EntityCreatorWidget, self).__init__(delegate=None, attrs=attrs)
+        self.model = model
+        self.q_filter = q_filter
+        self.creation_url = creation_url
+        self.creation_allowed = creation_allowed
+
+    def render(self, name, value, attrs=None):
+        model = self.model
+
+        if model is None:
+            self.delegate = Label(empty_label='Model is not set')
+        else:
+            self.delegate = EntitySelector(unicode(ContentType.objects.get_for_model(model).id),
+                                           {'auto': False, 'qfilter': self.q_filter},
+                                          )
+
+            if not self.is_required:
+                clear_label = _(u'Clear')
+                self.add_action('reset', clear_label, title=clear_label, action='reset', value='')
+
+            url = self.creation_url
+            if url:
+                allowed = self.creation_allowed
+                self.add_action('create', model.creation_label, enabled=allowed, url=url,
+                                title=_(u'Create') if allowed else _(u"Can't create"),
+                               )
+
+        return super(EntityCreatorWidget, self).render(name, value, attrs)
+
+
+# TODO: factorise with EntityCreatorWidget ?
+class MultiEntityCreatorWidget(SelectorList):
+    def __init__(self, model=None, q_filter=None, attrs=None, creation_url='', creation_allowed=False):
+        attrs = attrs or {'clonelast': False}
+        super(MultiEntityCreatorWidget, self).__init__(None, attrs=attrs)
+        self.model = model
+        self.q_filter = q_filter
+        self.creation_url = creation_url
+        self.creation_allowed = creation_allowed
+
+    def render(self, name, value, attrs=None):
+        model = self.model
+        self.selector = button_list = ActionButtonList(delegate=None)
+
+        if model is None:
+            delegate = Label(empty_label='Model is not set')
+        else:
+            delegate = EntitySelector(unicode(ContentType.objects.get_for_model(model).id),
+                                      {'auto':       False,
+                                       'qfilter':    self.q_filter,
+                                       'multiple':   True,
+                                       'autoselect': True,
+                                       },
+                                     )
+
+            def add_action(name, label, enabled=True, **kwargs):
+                button_list.add_action(name, label, enabled=False, **kwargs)
+                self.add_action(name, label, enabled)
+
+            #button_list.clear_actions()
+            self.clear_actions() # TODO: indicate that we do not want actions in __init__
+
+            # TODO: use _CremeModel.selection_label instead of 'Select'
+            add_action('add', _(u'Select'))
+
+            url = self.creation_url
+            if url:
+                allowed = self.creation_allowed
+                add_action('create', model.creation_label, enabled=allowed, url=url,
+                            title=_(u'Create') if allowed else _(u"Can't create")
+                           )
+
+        button_list.delegate = delegate
+        return super(MultiEntityCreatorWidget, self).render(name, value, attrs)
 
 
 class FilteredEntityTypeWidget(ChainedInput):
@@ -920,7 +1001,8 @@ class Label(TextInput):
         return mark_safe(u'%(input)s<span %(attrs)s>%(content)s</span>' % {
                 'input':   super(Label, self).render(name, value, {'style': 'display:none;'}),
                 'attrs':   flatatt(self.build_attrs(attrs, name=name)),
-                'content': conditional_escape(force_unicode(value if value is not None else self.empty_label)),
+#                'content': conditional_escape(force_unicode(value if value is not None else self.empty_label)),
+                'content': conditional_escape(force_unicode(value or self.empty_label)),
             })
 
 

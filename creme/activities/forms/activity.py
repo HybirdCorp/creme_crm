@@ -333,11 +333,12 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         other_f = fields['other_participants']
         other_f.q_filter = {'is_user__isnull': True}
-        # HACK : The 'q_filter' disable creation when 'creation_action_url' is empty because default creation views
-        # cannot return filtered instances.
-        # So this weird line forces a value in 'creation_action_url' in order re-enable creation button.
+#        # hack : The 'q_filter' disable creation when 'creation_action_url' is empty because default creation views
+#        # cannot return filtered instances.
+#        # So this weird line forces a value in 'creation_action_url' in order re-enable creation button.
         # The creation view cannot create a Contact with a non-null 'is_user'.
-        other_f.create_action_url = other_f.create_action_url
+#        other_f.create_action_url = other_f.create_action_url
+        other_f.force_creation = True # TODO: in constructor
 
     def clean_my_participation(self):
         my_participation = self.cleaned_data.get('my_participation', False)

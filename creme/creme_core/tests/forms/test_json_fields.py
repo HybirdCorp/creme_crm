@@ -8,16 +8,16 @@ try:
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeImage as Document)
     from .base import FieldTestCase
+    from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.forms.fields import (JSONField,
             GenericEntityField, MultiGenericEntityField,
             RelationEntityField, MultiRelationEntityField,
             CreatorEntityField, MultiCreatorEntityField,
             FilteredEntityTypeField)
     from creme.creme_core.gui import quickforms_registry
-    from creme.creme_core.utils import creme_entity_content_types
     from creme.creme_core.models import (CremeProperty, CremePropertyType,
             RelationType, CremeEntity, EntityFilter)
-    from creme.creme_core.constants import REL_SUB_HAS
+    from creme.creme_core.utils import creme_entity_content_types
 
     #from creme.persons.models import Organisation, Contact
 
@@ -1164,6 +1164,22 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
+    def test_void01(self):
+        "Model is None"
+        with self.assertNumQueries(0):
+            field = CreatorEntityField(required=False)
+
+        self.assertIsNone(field.model)
+        self.assertIsNone(field.widget.model)
+        self.assertIsNone(field.clean('1'))
+
+    def test_void02(self):
+        "Model is None ; required"
+        with self.assertNumQueries(0):
+            field = CreatorEntityField()
+
+        self.assertFieldValidationError(CreatorEntityField, 'required', field.clean, '1')
+
     def test_format_object(self):
         self.login()
         contact = self.create_contact()
@@ -1174,6 +1190,16 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(jsonified, from_python(jsonified))
         self.assertEqual(jsonified, from_python(contact))
         self.assertEqual(jsonified, from_python(contact.pk))
+
+    def test_model(self):
+        field = CreatorEntityField(Contact)
+        self.assertEqual(Contact, field.model)
+        self.assertEqual(Contact, field.widget.model)
+
+        field = CreatorEntityField()
+        field.model = Contact
+        self.assertEqual(Contact, field.model)
+        self.assertEqual(Contact, field.widget.model)
 
     def test_qfilter(self):
         self.login()
@@ -1207,8 +1233,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_format_object_with_qfilter(self):
         self.login()
         contact = self.create_contact()
-        qfilter = {'~pk': contact.pk}
-        field = CreatorEntityField(Contact, q_filter=qfilter)
+        field = CreatorEntityField(Contact, q_filter={'~pk': contact.pk})
 
         jsonified = str(contact.pk)
 
@@ -1273,43 +1298,56 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_action_buttons_no_custom_quickform(self):
         #self.autodiscover()
-        self.login()
-        contact = self.create_contact()
-
-        field = CreatorEntityField(Contact, required=False)
-        field.user = self.user
-
         from creme.creme_core.gui import quickforms_registry
-
-        self.assertTrue(field.user.has_perm_to_create(Contact))
         self.assertIsNotNone(quickforms_registry.get_form(Contact))
 
-        self.assertEqual(field.widget.actions,
-                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
-                          ('create', _(u'Add'), True, {'title':_(u'Add'), 'url':field.create_action_url})]
-                        )
+        user = self.login()
+        self.assertTrue(user.has_perm_to_create(Contact))
 
-        field.q_filter = {'~pk': contact.pk}
+        field = CreatorEntityField(Contact, required=False)
+        field.user = user
 
-        self.assertEqual(field.widget.actions,
-                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
-                        )
+        # TODO: test widget
+#        self.assertEqual(field.widget.actions,
+#                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
+#                          ('create', _(u'Add'), True, {'title':_(u'Add'), 'url':field.create_action_url})]
+#                        )
+        url = field.create_action_url
+        self.assertTrue(url)
+        self.assertEqual(url, field.widget.creation_url)
+
+        contact = self.create_contact()
+        q_filter = {'~pk': contact.pk}
+        field.q_filter = q_filter
+#        self.assertEqual(field.widget.actions,
+#                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
+#                        )
+        self.assertEqual(q_filter, field.q_filter)
+        self.assertEqual(q_filter, field.widget.q_filter)
+        self.assertFalse(field.force_creation)
+        self.assertEqual('', field.widget.creation_url)
+
+        field.force_creation = True
+        self.assertTrue(field.widget.creation_url)
 
         field = CreatorEntityField(Contact, q_filter={'~pk': contact.pk}, required=False)
-        field.user = self.user
-
-        self.assertEqual(field.widget.actions,
-                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
-                        )
+        field.user = user
+#        self.assertEqual(field.widget.actions,
+#                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
+#                        )
+        self.assertEqual('', field.widget.creation_url)
 
     def test_action_buttons_no_user(self):
         self.login()
         field = CreatorEntityField(Contact, required=False)
 
         self.assertIsNone(field.user)
-        self.assertEqual(field.widget.actions,
-                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
-                        )
+#        self.assertEqual(field.widget.actions,
+#                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
+#                        )
+        widget = field.widget
+        self.assertEqual('', widget.creation_url)
+        self.assertFalse(widget.creation_allowed)
 
     def test_action_buttons_required(self):
         self.login()
@@ -1320,16 +1358,17 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(field.widget.actions, [])
 
     def test_action_buttons_no_quickform(self):
-        self.login()
+        user = self.login()
 
         field = CreatorEntityField(CremeEntity, required=False)
-        field.user = self.user
+        field.user = user
 
         self.assertTrue(field.user.has_perm_to_create(CremeEntity))
         self.assertIsNone(quickforms_registry.get_form(CremeEntity))
-        self.assertEqual(field.widget.actions,
-                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
-                        )
+#        self.assertEqual(field.widget.actions,
+#                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
+#                        )
+        self.assertFalse(field.widget.creation_url)
 
     def test_action_buttons_not_allowed(self):
         #self.autodiscover()
@@ -1343,28 +1382,36 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFalse(field.user.has_perm_to_create(Contact))
         self.assertIsNotNone(quickforms_registry.get_form(Contact))
 
-        self.assertEqual(field.widget.actions,
-                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
-                          ('create', _(u'Add'), False, {'title':_(u"Can't add"), 'url':field.create_action_url})]
-                        )
+#        self.assertEqual(field.widget.actions,
+#                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
+#                          ('create', _(u'Add'), False, {'title':_(u"Can't add"), 'url':field.create_action_url})]
+#                        )
+        widget = field.widget
+        self.assertTrue(widget.creation_url)
+        self.assertFalse(widget.creation_allowed)
 
     def test_action_buttons_allowed(self):
         #self.autodiscover()
-        self.login()
-
-        field = CreatorEntityField(Contact, required=False)
-        field.user = self.user
-
         from creme.creme_core.gui import quickforms_registry
-
-        self.assertTrue(field.user.has_perm_to_create(Contact))
         self.assertIsNotNone(quickforms_registry.get_form(Contact))
 
-        self.assertEqual(field.widget.actions,
-                         [('reset',  _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
-                          ('create', _(u'Add'),   True, {'title':_(u'Add'), 'url':field.create_action_url}),
-                         ]
-                        )
+        user = self.login()
+        self.assertTrue(user.has_perm_to_create(Contact))
+
+        field = CreatorEntityField(Contact, required=False)
+        self.assertEqual('', field.widget.creation_url)
+
+        field.user = user
+
+        # TODO: test widget
+#        self.assertEqual(field.widget.actions,
+#                         [('reset',  _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
+#                          ('create', _(u'Add'),   True, {'title':_(u'Add'), 'url':field.create_action_url}),
+#                         ]
+#                        )
+        widget = field.widget
+        self.assertEqual(widget.creation_url, field.create_action_url)
+        self.assertTrue(widget.creation_allowed)
 
     def test_create_action_url(self):
         self.login()
@@ -1389,8 +1436,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertIsNone(value)
 
     def test_clean_invalid_json(self):
-        field = CreatorEntityField(Contact, required=False)
-        self.assertFieldValidationError(CreatorEntityField, 'invalidformat', field.clean, '{12')
+        clean = CreatorEntityField(Contact, required=False).clean
+        self.assertFieldValidationError(CreatorEntityField, 'invalidformat', clean, '{12')
 
     def test_clean_invalid_data_type(self):
         clean = CreatorEntityField(Contact, required=False).clean
@@ -1422,9 +1469,10 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
         contact = self.create_contact()
 
-        field = CreatorEntityField(Contact)
-        field.q_filter = {'~pk': contact.pk}
+        with self.assertNumQueries(0):
+            field = CreatorEntityField(Contact)
 
+        field.q_filter = {'~pk': contact.pk}
         self.assertFieldValidationError(CreatorEntityField, 'doesnotexist', field.clean, str(contact.pk))
 
         field.q_filter = {'pk': contact.pk}
@@ -1432,6 +1480,22 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
+    def test_void01(self):
+        "Model is None"
+        with self.assertNumQueries(0):
+            field = MultiCreatorEntityField(required=False)
+
+        self.assertEqual([], field.clean('[1]'))
+
+    def test_void02(self):
+        "Model is None ; required"
+        with self.assertNumQueries(0):
+            field = MultiCreatorEntityField()
+
+        self.assertFieldValidationError(MultiCreatorEntityField, 'required',
+                                        field.clean, '[1]',
+                                       )
+
     def test_format_object(self):
         self.login()
 
@@ -1628,8 +1692,9 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
         contact = self.create_contact()
 
-        field = MultiCreatorEntityField(Contact)
-        field.q_filter = {'~pk': contact.pk}
+        with self.assertNumQueries(0):
+            field = MultiCreatorEntityField(Contact)
+            field.q_filter = {'~pk': contact.pk}
 
         self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist', field.clean, '[%d]' % contact.pk)
 
