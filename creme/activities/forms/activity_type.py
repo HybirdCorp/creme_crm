@@ -18,12 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
+
 from django.core.exceptions import ValidationError
-from django.forms.fields import CharField
+from django.forms.fields import CharField, CallableChoiceIterator
 from django.utils.translation import ugettext_lazy as _, ungettext
 
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.bulk import BulkDefaultEditForm #BulkForm
+from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.fields import DurationField, JSONField
 from creme.creme_core.forms.widgets import ChainedInput, Label
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
@@ -38,7 +40,7 @@ class ActivityTypeForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = ActivityType
 
-    def save(self):
+    def save(self): # TODO: *args, **kwargs
         instance = self.instance
 
         if not instance.id:
@@ -71,37 +73,56 @@ class ActivitySubTypeForm(CremeModelForm):
 
 
 class ActivityTypeWidget(ChainedInput):
-    def __init__(self, types, attrs=None, creation_allowed=True):
+    def __init__(self, types=(), attrs=None, creation_allowed=True):
         super(ActivityTypeWidget, self).__init__(attrs)
-        attrs = {'auto': False}
-        self.creation_allowed = creation_allowed
+        self.creation_allowed = creation_allowed # TODO: useless at the moment ...
+        self.types = types
 
-        self.add_dselect('type', options=types, attrs=attrs)
-        self.add_dselect('sub_type', options='/activities/type/${type}/json', attrs=attrs)
+    def render(self, name, value, attrs=None):
+        add = partial(self.add_dselect, attrs={'auto': False})
+        add('type', options=self.types)
+        add('sub_type', options='/activities/type/${type}/json')
+
+        return super(ActivityTypeWidget, self).render(name, value, attrs)
 
 
 class ActivityTypeField(JSONField):
+    widget = ActivityTypeWidget # Should have a 'types' attribute
     default_error_messages = {
         'typenotallowed':  _('This type causes constraint error.'),
         'subtyperequired': _('Sub-type is required.'),
     }
     value_type = dict
 
-    def __init__(self, types=None, empty_label=u'---------', *args, **kwargs):
+#    def __init__(self, types=None, empty_label=u'---------', *args, **kwargs):
+    def __init__(self, types=ActivityType.objects.all(), empty_label=u'---------', *args, **kwargs):
         self.empty_label = empty_label
 
         super(ActivityTypeField, self).__init__(*args, **kwargs)
-        self.types = types if types is not None else ActivityType.objects.all()
+#        self.types = types if types is not None else ActivityType.objects.all()
+        self.types = types
 
-    def _create_widget(self):
-        options = tuple((atype.pk, unicode(atype)) for atype in self.types)
+        self.widget.from_python = self.from_python # TODO: in JSONField
 
-        if len(options) > 1 or not self.required:
-            options = ((None, self.empty_label),) + options
+    def __deepcopy__(self, memo):
+        result = super(ActivityTypeField, self).__deepcopy__(memo)
 
-        return ActivityTypeWidget(options, attrs={'reset': not self.required},)
-#        return ActivityTypeWidget(self._get_types_options(self._get_types_objects()),
-#                                  attrs={'reset':False, 'direction':ChainedInput.VERTICAL})
+        # Need to force a fresh iterator to be created.
+        result.types = result.types
+
+        return result
+
+#    def _create_widget(self):
+#        options = tuple((atype.pk, unicode(atype)) for atype in self.types)
+#
+#        if len(options) > 1 or not self.required:
+#            options = ((None, self.empty_label),) + options
+#
+#        return ActivityTypeWidget(options, attrs={'reset': not self.required},)
+##        return ActivityTypeWidget(self._get_types_options(self._get_types_objects()),
+##                                  attrs={'reset':False, 'direction':ChainedInput.VERTICAL})
+    def widget_attrs(self, widget): # See Field.widget_attrs()
+        return {'reset': not self.required}
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, ActivitySubType):
@@ -118,12 +139,12 @@ class ActivityTypeField(JSONField):
         subtype_pk = clean(data, 'sub_type', str, required=False)
 
         if not type_pk and self.required:
-            raise ValidationError(self.error_messages['required'])
+            raise ValidationError(self.error_messages['required'], code='required')
 
         try:
             atype = self.types.get(pk=type_pk)
         except ActivityType.DoesNotExist:
-            raise ValidationError(self.error_messages['typenotallowed'])
+            raise ValidationError(self.error_messages['typenotallowed'], code='typenotallowed')
 
         related_types = ActivitySubType.objects.filter(type=atype)
         subtype = None
@@ -132,9 +153,13 @@ class ActivityTypeField(JSONField):
             try:
                 subtype = related_types.get(pk=subtype_pk)
             except ActivitySubType.DoesNotExist:
-                raise ValidationError(self.error_messages['subtyperequired'])
+                raise ValidationError(self.error_messages['subtyperequired'],
+                                      code='subtyperequired',
+                                     )
         elif self.required and related_types.exists():
-            raise ValidationError(self.error_messages['subtyperequired'])
+            raise ValidationError(self.error_messages['subtyperequired'],
+                                  code='subtyperequired',
+                                 )
 
         return (atype, subtype)
 
@@ -145,7 +170,17 @@ class ActivityTypeField(JSONField):
     @types.setter
     def types(self, types):
         self._types = types
-        self._build_widget()
+#        self._build_widget()
+        self.widget.types = CallableChoiceIterator(self._get_types_options)
+
+    def _get_types_options(self):
+        types = self._types # TODO: self.types ??
+
+        if len(types) > 1 or not self.required:
+            yield None, self.empty_label
+
+        for instance in types:
+            yield instance.id, unicode(instance)
 
 
 class BulkEditTypeForm(BulkDefaultEditForm):

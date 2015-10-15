@@ -97,7 +97,10 @@ class ActivityTypeFieldTestCase(FieldTestCase):
     def test_clean01(self):
         atype = self.atype
         subtype = self.subtype
-        field = ActivityTypeField(types=ActivityType.objects.filter(pk=atype.id))
+
+        with self.assertNumQueries(0):
+            field = ActivityTypeField(types=ActivityType.objects.filter(pk=atype.id))
+
         self.assertEqual((atype, subtype),
                          field.clean(self._build_value(atype.id, subtype.id))
                         )
