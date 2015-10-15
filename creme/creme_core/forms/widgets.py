@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+#import copy
 from itertools import chain
 from json import dumps as json_dump
 from types import GeneratorType
@@ -246,21 +247,13 @@ class ActionButtonList(Widget):
 
 
 class PolymorphicInput(TextInput):
-#Removed on 6 january 2015
-#    class Model(object):
-#        def __init__(self, name='', widget=DynamicInput, attrs=None, **kwargs):
-#            self.name = name
-#            self.kwargs = kwargs
-#            self.attrs = attrs
-#            self.widget = widget
-
     def __init__(self, attrs=None, key='', *args):
         super(PolymorphicInput, self).__init__(attrs)
         self.key = key
         self.inputs = []
         self.default_input = None
         self.set_inputs(*args)
-        self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
+        self.from_python = None # TODO: wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value #TODO : wait for django 1.2 and new widget api to remove this hack
@@ -273,10 +266,11 @@ class PolymorphicInput(TextInput):
                                        )
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
-        return mark_safe("""<span class="%(css)s" style="%(style)s" widget="%(typename)s" key="%(key)s">
-                                %(input)s
-                                %(selectors)s
-                            </span>""" % context)
+        return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" key="%(key)s">'
+                             '%(input)s'
+                             '%(selectors)s'
+                         '</span>' % context
+                        )
 
     def set_inputs(self, *args):
         for input in args:
@@ -350,19 +344,17 @@ class ChainedInput(TextInput):
     HORIZONTAL = 'hbox'
     VERTICAL = 'vbox'
 
-#Removed on 6 january 2015
-#    class Model(object):
-#        def __init__(self, name='', widget=DynamicSelect, attrs=None, **kwargs):
-#            self.name = name
-#            self.kwargs = kwargs
-#            self.attrs = attrs
-#            self.widget = widget
-
     def __init__(self, attrs=None, *args):
         super(ChainedInput, self).__init__(attrs)
         self.inputs = []
         self.set_inputs(*args)
         self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
+
+    # TODO ?
+    #def __deepcopy__(self, memo):
+        #obj = super(ChainedInput, self).__deepcopy__(memo)
+        #obj.inputs = copy.deepcopy(self.inputs)
+        #return obj
 
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
@@ -393,6 +385,10 @@ class ChainedInput(TextInput):
 
     def add_input(self, name, widget, attrs=None, **kwargs):
         self.inputs.append((name, widget(attrs=attrs or {}, **kwargs) if callable(widget) else widget))
+
+    # TODO ?
+    #def clear(self):
+        #self.inputs[:] = ()
 
     def _render_inputs(self, attrs):
         direction = attrs.get('direction', ChainedInput.HORIZONTAL)

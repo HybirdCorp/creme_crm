@@ -24,6 +24,7 @@ import logging
 
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.forms import ModelChoiceField
+from django.forms.fields import CallableChoiceIterator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
@@ -37,35 +38,46 @@ from .base import CremeForm
 from .fields import JSONField
 from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
 
+
 logger = logging.getLogger(__name__)
 
 
 class BatchActionsWidget(SelectorList):
-    def __init__(self, model, fields, attrs=None):
-        chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+    def __init__(self, model=CremeEntity, fields=(), attrs=None):
+        super(BatchActionsWidget, self).__init__(selector=None, attrs=attrs)
+        self.model = model
+        self.fields = fields
 
-        #TODO: improve SelectorList.add_* to avoid attribute 'auto'
-        chained_input.add_dselect('name', attrs=attrs,
-                                  options=[(fname, field.verbose_name) for fname, field in fields.iteritems()]
+    def render(self, name, value, attrs=None):
+        self.selector = chained_input = ChainedInput()
+        sub_attrs = {'auto': False}
+
+        # TODO: improve SelectorList.add_* to avoid attribute 'auto'
+        chained_input.add_dselect('name', attrs=sub_attrs,
+#                                  options=[(fname, field.verbose_name)
+#                                                for fname, field in self.fields.iteritems()
+#                                          ],
+                                   options=self.fields,
                                  )
-        chained_input.add_dselect('operator', attrs=attrs,
-                                  options='/creme_core/list_view/batch_process/%s/get_ops/${name}' % ContentType.objects.get_for_model(model).id
+        chained_input.add_dselect('operator', attrs=sub_attrs,
+                                  options='/creme_core/list_view/batch_process/%s/get_ops/${name}' %
+                                                ContentType.objects.get_for_model(self.model).id
                                  )
 
-        pinput = PolymorphicInput(key='${operator}', attrs=attrs)
-        pinput.set_default_input(widget=DynamicInput, attrs=attrs) #TODO: count if the operators with need_arg=False are more ?
+        pinput = PolymorphicInput(key='${operator}', attrs=sub_attrs)
+        pinput.set_default_input(widget=DynamicInput, attrs=sub_attrs) # TODO: count if the operators with need_arg=False are more ?
 
         for op_id, operator in batch_operator_manager.operators():
             if not operator.need_arg:
-                pinput.add_input(op_id, widget=DynamicInput, attrs=attrs, type='hidden') #TODO: DynamicHiddenInput
+                pinput.add_input(op_id, widget=DynamicInput, attrs=sub_attrs, type='hidden') # TODO: DynamicHiddenInput
 
-        chained_input.add_input('value', pinput, attrs=attrs)
+        chained_input.add_input('value', pinput, attrs=sub_attrs)
 
-        super(BatchActionsWidget, self).__init__(chained_input)
+        return super(BatchActionsWidget, self).render(name, value, attrs)
 
 
 class BatchActionsField(JSONField):
+    widget = BatchActionsWidget # Should have 'model' & 'fields' attributes
     default_error_messages = {
         'invalidfield':    _(u"This field is invalid with this model."),
         'reusedfield':     _(u"The field «%(field)s» can not be used twice."),
@@ -74,10 +86,11 @@ class BatchActionsField(JSONField):
     }
 
     value_type = list
+    _fields = None
 
-    def __init__(self, model=None, *args, **kwargs):
+    def __init__(self, model=CremeEntity, *args, **kwargs):
         super(BatchActionsField, self).__init__(*args, **kwargs)
-        self.model = model or CremeEntity
+        self.model = model
 
     @property
     def model(self):
@@ -86,32 +99,48 @@ class BatchActionsField(JSONField):
     @model.setter
     def model(self, model):
         self._model = model
-        fields = []
-        managed_fields = tuple(batch_operator_manager.managed_fields)
-        updatable = partial(bulk_update_registry.is_updatable,
-                            model=model, exclude_unique=False,
-                           )
-        get_form = bulk_update_registry.status(model).get_form
 
-        for field in model._meta.fields:
-            if field.editable and isinstance(field, managed_fields):
-                fname = field.name
+#        [...]
+#        self._build_widget()
+        widget = self.widget
+        widget.model = model
+        widget.fields = CallableChoiceIterator(
+                            lambda: [(fname, field.verbose_name)
+                                         for fname, field in self._get_fields().iteritems()
+                                    ]
+                        )
 
-                if updatable(field_name=fname) and get_form(fname) is None: #not a specific form (ie: specific busness logic) #TODO: test
-                    fields.append((field.name, field))
+    def _get_fields(self):
+        if self._fields is None:
+            fields = []
+            model = self._model
+            managed_fields = tuple(batch_operator_manager.managed_fields)
+            updatable = partial(bulk_update_registry.is_updatable,
+                                model=model, exclude_unique=False,
+                               )
+            get_form = bulk_update_registry.status(model).get_form
 
-        sort_key = collator.sort_key
-        fields.sort(key=lambda c: sort_key(unicode(c[1].verbose_name)))
+            for field in model._meta.fields:
+                if field.editable and isinstance(field, managed_fields):
+                    fname = field.name
 
-        self._fields = OrderedDict(fields)
-        self._build_widget()
+                    # Not a specific form (ie: specific busness logic) TODO: test
+                    if updatable(field_name=fname) and get_form(fname) is None:
+                        fields.append((field.name, field))
 
-    def _create_widget(self):
-        return BatchActionsWidget(self._model, self._fields)
+            sort_key = collator.sort_key
+            fields.sort(key=lambda c: sort_key(unicode(c[1].verbose_name)))
+
+            self._fields = OrderedDict(fields)
+
+        return self._fields
+
+#    def _create_widget(self):
+#        return BatchActionsWidget(self._model, self._fields)
 
     def _clean_fieldname(self, entry, used_fields):
         fname = self.clean_value(entry, 'name', str)
-        field = self._fields.get(fname)
+        field = self._get_fields().get(fname)
 
         if not field:
             raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
@@ -134,15 +163,17 @@ class BatchActionsField(JSONField):
         return operator_name, value
 
     def _value_from_unjsonfied(self, data):
+        actions = []
         model = self._model
         clean_fieldname = self._clean_fieldname
         clean_operator_n_value = self._clean_operator_name_n_value
         used_fields = set()
-        actions = []
 
         for entry in data:
             try:
-                action = BatchAction(model, clean_fieldname(entry, used_fields), *clean_operator_n_value(entry))
+                action = BatchAction(model, clean_fieldname(entry, used_fields),
+                                     *clean_operator_n_value(entry)
+                                    )
             except BatchAction.InvalidOperator as e:
                 raise ValidationError(self.error_messages['invalidoperator'],
                                       code='invalidoperator',
@@ -181,7 +212,7 @@ class BatchProcessForm(CremeForm):
         meta = self._entity_type._meta
 
         try:
-            #TODO: NON_FIELD_ERRORS need to be unit tested...
+            # TODO: NON_FIELD_ERRORS need to be unit tested...
             humanized = [unicode(errors) if field == NON_FIELD_ERRORS else
                          u'%s => %s' % (meta.get_field(field).verbose_name, u', '.join(errors))
                              for field, errors in ve.message_dict.iteritems()
@@ -204,7 +235,7 @@ class BatchProcessForm(CremeForm):
     def read_objects_count(self):
         return  self._read_objects_count
 
-    #TODO: move to a job when job engine is done
+    # TODO: move to a job when job engine is done
     def save(self, *args, **kwargs):
         cdata = self.cleaned_data
         entities = self._entity_type.objects.all()
@@ -223,8 +254,8 @@ class BatchProcessForm(CremeForm):
                 read_count += 1
                 changed = False
 
-                #we snapshot the unicode representation here, because the actions
-                #could modify the field used to build it.
+                # We snapshot the unicode representation here, because the
+                # actions could modify the field used to build it.
                 entity_repr = unicode(entity)
 
                 for action in actions:

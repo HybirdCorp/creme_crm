@@ -118,20 +118,27 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                        )
 
     def test_ok01(self):
-        actions = BatchActionsField(model=Contact).clean(
-                        self.format_str % {'name':     'description',
-                                           'operator': 'upper',
-                                           'value':    '',
-                                          }
-                    )
+        with self.assertNumQueries(0):
+            field = BatchActionsField(model=Contact)
+
+        actions = field.clean(self.format_str % {'name':     'description',
+                                                 'operator': 'upper',
+                                                 'value':    '',
+                                                }
+                             )
         self.assertEqual(1, len(actions))
 
         contact = Contact(first_name='faye', last_name='Valentine', description='yarglaaaaaaaaaaa')
         actions[0](contact)
         self.assertEqual('YARGLAAAAAAAAAAA', contact.description)
 
-    def test_ok02(self): #several actions
-        actions = BatchActionsField(model=Contact).clean(
+    def test_ok02(self):
+        "Several actions"
+        with self.assertNumQueries(0):
+            field = BatchActionsField()
+            field.model = Contact
+
+        actions = field.clean(
                         '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": "%(value01)s"},'
                         ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": "%(value02)s"}]' % {
                                 'name01':  'first_name', 'operator01': 'prefix', 'value01': 'My ',
