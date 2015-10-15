@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,29 +18,36 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
+
+from django.db.models.query import QuerySet
 from django.forms.utils import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms.fields import JSONField
+from creme.creme_core.forms.fields import JSONField, ChoiceModelIterator
 from creme.creme_core.forms.widgets import ChainedInput
 
 from ..models import Category, SubCategory
 
 
 class CategorySelector(ChainedInput):
-    def __init__(self, categories, attrs=None, creation_allowed=True):
+    def __init__(self, categories=(), attrs=None, creation_allowed=True):
         super(CategorySelector, self).__init__(attrs)
-        input_attrs = {'auto': False}
-        self.creation_allowed = creation_allowed
+        self.creation_allowed = creation_allowed # TODO: useless at the moment...
+        self.categories = categories
 
-        add = self.add_dselect
-        add('category', options=categories, attrs=input_attrs, label=_(u'Category'))
+    def render(self, name, value, attrs=None):
+        add = partial(self.add_dselect, attrs={'auto': False})
+        add('category', options=self.categories, label=_(u'Category'))
         add('subcategory', options='/products/sub_category/${category}/json',
-            attrs=input_attrs, label=_(u'Sub-category'),
+            label=_(u'Sub-category'),
            )
+
+        return super(CategorySelector, self).render(name, value, attrs)
 
 
 class CategoryField(JSONField):
+    widget = CategorySelector # need 'categories' "attribute"
     default_error_messages = {
         'doesnotexist':          _(u"This category doesn't exist."),
         'categorynotallowed':    _(u"This category causes constraint error."),
@@ -48,19 +55,29 @@ class CategoryField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, categories=None, *args, **kwargs):
+#    def __init__(self, categories=None, *args, **kwargs):
+    def __init__(self, categories=Category.objects.all(), *args, **kwargs):
         super(CategoryField, self).__init__(*args, **kwargs)
         self.categories = categories
 
+        self.widget.from_python = self.from_python # TODO: in JSONField
+
     def __deepcopy__(self, memo):
         result = super(CategoryField, self).__deepcopy__(memo)
-        result._build_widget() #refresh the list of categories
+#        result._build_widget() #refresh the list of categories
+
+        # Need to force a new ChoiceModelIterator to be created.
+        result.categories = result.categories
+
         return result
 
-    def _create_widget(self):
-        return CategorySelector(self._get_categories_options(self._get_categories_objects()),
-                                attrs={'reset': False, 'direction': ChainedInput.VERTICAL},
-                               )
+#    def _create_widget(self):
+#        return CategorySelector(self._get_categories_options(self._get_categories_objects()),
+#                                attrs={'reset': False, 'direction': ChainedInput.VERTICAL},
+#                               )
+
+    def widget_attrs(self, widget): # See Field.widget_attrs()
+        return {'reset': False, 'direction': ChainedInput.VERTICAL}
 
     def _clean_subcategory(self, category_pk, subcategory_pk):
         self._clean_category(category_pk)
@@ -79,20 +96,28 @@ class CategoryField(JSONField):
 
     def _clean_category(self, category_pk):
         # check category in allowed ones
-        for category in self._get_categories_objects():
-            if category.pk == category_pk:
-                return category
+#        for category in self._get_categories_objects():
+#            if category.pk == category_pk:
+#                return category
+#
+#        raise ValidationError(self.error_messages['categorynotallowed'],
+#                              code='categorynotallowed',
+#                             )
+        try:
+            category = self._categories.get(id=category_pk)
+        except Category.DoesNotExist:
+            raise ValidationError(self.error_messages['categorynotallowed'],
+                                  code='categorynotallowed',
+                                 )
 
-        raise ValidationError(self.error_messages['categorynotallowed'],
-                              code='categorynotallowed',
-                             )
+        return category
 
-    def _get_categories_options(self, categories): #TODO: factorise ??
-        return ((category.pk, unicode(category)) for category in categories)
-
-    def _get_categories_objects(self):
-        ids = self._categories
-        return Category.objects.filter(id__in=ids) if ids else Category.objects.all()
+#    def _get_categories_options(self, categories):
+#        return ((category.pk, unicode(category)) for category in categories)
+#
+#    def _get_categories_objects(self):
+#        ids = self._categories
+#        return Category.objects.filter(id__in=ids) if ids else Category.objects.all()
 
     @property
     def categories(self):
@@ -100,17 +125,23 @@ class CategoryField(JSONField):
 
     @categories.setter
     def categories(self, categories):
-        self._categories = categories or []
-        self._build_widget()
+#        self._categories = categories or []
+#        self._build_widget()
+
+        if not isinstance(categories, QuerySet):
+            categories = Category.objects.filter(id__in=list(categories))
+
+        self._categories = categories
+        self.widget.categories = ChoiceModelIterator(categories)
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, SubCategory):
-            category = value.category_id
-            subcategory = value.id
+            category_id    = value.category_id
+            subcategory_id = value.id
         else:
-            category, subcategory = value
+            category_id, subcategory_id = value
 
-        return {'category': category, 'subcategory': subcategory}
+        return {'category': category_id, 'subcategory': subcategory_id}
 
     def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value

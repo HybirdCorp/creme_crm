@@ -21,43 +21,64 @@ class CategoryFieldTestCase(FieldTestCase):
         SubCategory.objects.all().delete()
         Category.objects.all().delete()
 
-    def test_categories(self):
+    def test_void(self):
+        cat1 = Category.objects.create(name='cat1', description='description')
+        cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
+
+        with self.assertNumQueries(0):
+            field = CategoryField()
+
+        self.assertEqual(cat11, field.clean(self.format_str % (cat1.id, cat11.id)))
+
+    def test_categories01(self):
         create_cat = partial(Category.objects.create, description='description')
         cat1 = create_cat(name='cat1')
         cat2 = create_cat(name='cat2')
 
-        field = CategoryField(categories=[cat1.id, cat2.id])
-        self.assertEqual(2, len(field.categories))
-
-        cats = field._get_categories_objects()
-        self.assertEqual(cat1, cats[0])
-        self.assertEqual(cat2, cats[1])
-
-    def test_default_ctypes(self):
-        self.populate('creme_core', 'products')
-
-        cat_qs = Category.objects.all()
-        cats = CategoryField()._get_categories_objects()
-        self.assertEqual(len(cat_qs), len(cats))
-        self.assertEqual(set(cat_qs), set(cats))
-
-    def test_deepcopy(self):
-        "Widget must be re-built when field is copied, to refresh the categories list."
         field = CategoryField()
+        self.assertEqual([cat1, cat2], list(field.categories))
 
-        #new category create after the instanciation of the initial field
-        cat = Category.objects.create(name='Xtra cat', description='...')
-        SubCategory.objects.create(name='Xtra subcat', description='...', category=cat)
+    def test_categories02(self):
+        "Fixed Categories"
+        create_cat = partial(Category.objects.create, description='description')
+        cat1 = create_cat(name='cat1')
+        cat2 = create_cat(name='cat2')
+        create_cat(name='cat3')
 
-        inputs = copy.deepcopy(field).widget.inputs
-        self.assertEqual(2, len(inputs))
+        field = CategoryField(categories=[cat1.id, cat2.id])
 
-        cat_input = inputs[0]
-        self.assertIsInstance(cat_input, tuple)
-        self.assertEqual(2, len(cat_input))
-        self.assertEqual('category', cat_input[0])
+#        self.assertEqual(2, len(field.categories))
+#
+#        cats = field._get_categories_objects()
+#        self.assertEqual(cat1, cats[0])
+#        self.assertEqual(cat2, cats[1])
+        self.assertEqual([cat1, cat2], list(field.categories))
 
-        self.assertEqual([(cat.id, cat.name)], cat_input[1].choices)
+#    def test_default_ctypes(self):
+#        self.populate('creme_core', 'products')
+#
+#        cat_qs = Category.objects.all()
+#        cats = CategoryField()._get_categories_objects()
+#        self.assertEqual(len(cat_qs), len(cats))
+#        self.assertEqual(set(cat_qs), set(cats))
+
+#    def test_deepcopy(self):
+#        "Widget categories must be refreshed when field is copied."
+#        field = CategoryField()
+#
+#        # New category create after the instanciation of the initial field
+#        cat = Category.objects.create(name='Xtra cat', description='...')
+#        SubCategory.objects.create(name='Xtra subcat', description='...', category=cat)
+#
+#        inputs = copy.deepcopy(field).widget.inputs
+#        self.assertEqual(2, len(inputs))
+#
+#        cat_input = inputs[0]
+#        self.assertIsInstance(cat_input, tuple)
+#        self.assertEqual(2, len(cat_input))
+#        self.assertEqual('category', cat_input[0])
+#
+#        self.assertEqual([(cat.id, cat.name)], list(cat_input[1].choices))
 
     def test_format_object(self):
         cat1 = Category.objects.create(name='cat1', description='description')
@@ -118,9 +139,11 @@ class CategoryFieldTestCase(FieldTestCase):
         cat2 = Category.objects.create(name='cat2', description='description')
         cat21 = SubCategory.objects.create(name='sub21', description='description', category=cat2)
 
-        clean = CategoryField(categories=[cat1.id]).clean
+        with self.assertNumQueries(0):
+            field = CategoryField(categories=[cat1.id])
+
         value = self.format_str % (cat2.id, cat21.id)
-        self.assertFieldValidationError(CategoryField, 'categorynotallowed', clean, value)
+        self.assertFieldValidationError(CategoryField, 'categorynotallowed', field.clean, value)
 
     def test_clean_unknown_category(self):
         "Data injection : category doesn't exist"

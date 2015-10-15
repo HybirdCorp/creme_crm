@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#import copy
+import copy
 from itertools import chain
 from json import dumps as json_dump
 from types import GeneratorType
@@ -350,14 +350,13 @@ class ChainedInput(TextInput):
         self.set_inputs(*args)
         self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
 
-    # TODO ?
-    #def __deepcopy__(self, memo):
-        #obj = super(ChainedInput, self).__deepcopy__(memo)
-        #obj.inputs = copy.deepcopy(self.inputs)
-        #return obj
+    def __deepcopy__(self, memo):
+        obj = super(ChainedInput, self).__deepcopy__(memo)
+        obj.inputs = copy.deepcopy(self.inputs)
+        return obj
 
     def render(self, name, value, attrs=None):
-        value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
+        value = self.from_python(value) if self.from_python is not None else value # TODO: wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
         context = widget_render_context('ui-creme-chainedselect', attrs,
