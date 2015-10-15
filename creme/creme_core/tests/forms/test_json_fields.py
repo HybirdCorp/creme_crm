@@ -535,7 +535,9 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
 
-        field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
+        with self.assertNumQueries(0):
+            field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
+
         rtypes = list(field._get_allowed_rtypes_objects())
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
@@ -550,7 +552,12 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
 
-        field = RelationEntityField(allowed_rtypes=RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]))
+        with self.assertNumQueries(0):
+            field = RelationEntityField(
+                        allowed_rtypes=RelationType.objects
+                                                   .filter(pk__in=[rtype1.id, rtype2.id])
+                     )
+
         rtypes = list(field._get_allowed_rtypes_objects())
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
@@ -664,7 +671,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype_id1 = 'test-i_do_not_exist'
         rtype_id2 = 'test-neither_do_i'
 
-        #message changes cause unknown rtype is ignored in allowed list
+        # Message changes cause unknown rtype is ignored in allowed list
 #        self.assertFieldValidationError(
 #                RelationEntityField, 'rtypedoesnotexist',
 #                RelationEntityField(allowed_rtypes=[rtype_id1, rtype_id2]).clean,
@@ -835,7 +842,9 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
 
-        field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
+        with self.assertNumQueries(0):
+            field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
+
         rtypes = list(field._get_allowed_rtypes_objects())
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)
@@ -845,7 +854,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
 
-        field = MultiRelationEntityField(allowed_rtypes=RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]))
+        with self.assertNumQueries(0):
+            field = MultiRelationEntityField(
+                        allowed_rtypes=RelationType.objects
+                                                   .filter(pk__in=[rtype1.id, rtype2.id])
+                     )
+
         rtypes = list(field._get_allowed_rtypes_objects())
         self.assertEqual(2, len(rtypes))
         self.assertIn(rtype1, rtypes)

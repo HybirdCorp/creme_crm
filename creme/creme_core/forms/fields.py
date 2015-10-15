@@ -46,8 +46,7 @@ from ..utils.collections import OrderedSet
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
-from .widgets import (CTEntitySelector, EntitySelector,
-        SelectorList, RelationSelector, ActionButtonList,
+from .widgets import (CTEntitySelector, SelectorList,
         UnorderedMultipleChoiceWidget, CalendarWidget)
 from . import widgets as core_widgets
 
@@ -473,6 +472,7 @@ class ChoiceModelIterator(object):
 
 
 class RelationEntityField(JSONField):
+    widget = core_widgets.RelationSelector
     default_error_messages = {
         'rtypedoesnotexist': _(u"This type of relationship doesn't exist."),
         'rtypenotallowed':   _(u"This type of relationship causes a constraint error."),
@@ -484,20 +484,32 @@ class RelationEntityField(JSONField):
     }
     value_type = dict
 
+    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, *args, **kwargs):
+        super(RelationEntityField, self).__init__(*args, **kwargs)
+#        self._autocomplete = autocomplete
+        self.autocomplete = autocomplete
+        self.allowed_rtypes = allowed_rtypes
+        self.widget.from_python = self.from_python # TODO: in JSONField
+
     @property
     def allowed_rtypes(self):
         return self._allowed_rtypes
 
     @allowed_rtypes.setter
-    def allowed_rtypes(self, allowed=(REL_SUB_HAS, )):
-        if allowed:
-            rtypes = allowed if isinstance(allowed, QuerySet) else RelationType.objects.filter(id__in=allowed)
-            rtypes = rtypes.order_by('predicate') #TODO: meta.ordering ??
-        else:
-            rtypes = RelationType.objects.order_by('predicate')
+#    def allowed_rtypes(self, allowed=(REL_SUB_HAS, )):
+    def allowed_rtypes(self, allowed):
+#        if allowed:
+#            rtypes = allowed if isinstance(allowed, QuerySet) else RelationType.objects.filter(id__in=allowed)
+#            rtypes = rtypes.order_by('predicate')
+#        else:
+#            rtypes = RelationType.objects.order_by('predicate')
+        rtypes = allowed if isinstance(allowed, QuerySet) else \
+                 RelationType.objects.filter(id__in=allowed)
+        rtypes = rtypes.order_by('predicate') # TODO: in RelationType._meta.ordering ??
 
         self._allowed_rtypes = rtypes
-        self._build_widget()
+#        self._build_widget()
+        self.widget.relation_types = self._get_options()
 
     @property
     def autocomplete(self):
@@ -506,19 +518,15 @@ class RelationEntityField(JSONField):
     @autocomplete.setter
     def autocomplete(self, autocomplete):
         self._autocomplete = autocomplete
-        self._build_widget()
+#        self._build_widget()
+        self.widget.autocomplete = autocomplete
 
-    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, *args, **kwargs):
-        super(RelationEntityField, self).__init__(*args, **kwargs)
-        self._autocomplete = autocomplete
-        self.allowed_rtypes = allowed_rtypes
-
-    def _create_widget(self):
-        return RelationSelector(self._get_options,
-                                '/creme_core/relation/type/${rtype}/content_types/json',
-                                autocomplete=self.autocomplete,
-                                attrs={'reset': not self.required},
-                               )
+#    def _create_widget(self):
+#        return RelationSelector(self._get_options,
+#                                '/creme_core/relation/type/${rtype}/content_types/json',
+#                                autocomplete=self.autocomplete,
+#                                attrs={'reset': not self.required},
+#                               )
 
     def _value_to_jsonifiable(self, value):
         rtype, entity = value
@@ -544,12 +552,12 @@ class RelationEntityField(JSONField):
         entity = self._clean_entity(ctype_pk, entity_pk)
         self._validate_properties_constraints(rtype, entity)
 
-        return (rtype, entity)
+        return rtype, entity
 
     def _validate_ctype_constraints(self, rtype, ctype_pk):
         ctype_ids = rtype.object_ctypes.values_list('pk', flat=True)
 
-        # is relation type accepts content type
+        # Is relation type accepts content type
         if ctype_ids and ctype_pk not in ctype_ids:
             raise ValidationError(self.error_messages['ctypenotallowed'],
                                   params={'ctype': ctype_pk}, code='ctypenotallowed',
@@ -564,7 +572,7 @@ class RelationEntityField(JSONField):
                                  )
 
     def _clean_rtype(self, rtype_pk):
-        # is relation type allowed
+        # Is relation type allowed
         if rtype_pk not in self._get_allowed_rtypes_ids():
             raise ValidationError(self.error_messages['rtypenotallowed'],
                                   params={'rtype': rtype_pk}, code='rtypenotallowed',
@@ -577,7 +585,7 @@ class RelationEntityField(JSONField):
                                   params={'rtype': rtype_pk}, code='rtypedoesnotexist',
                                  )
 
-    def _get_options(self):
+    def _get_options(self): # TODO: inline
         return ChoiceModelIterator(self._allowed_rtypes)
 
     def _get_allowed_rtypes_objects(self):
@@ -588,15 +596,16 @@ class RelationEntityField(JSONField):
 
 
 class MultiRelationEntityField(RelationEntityField):
+    widget = core_widgets.MultiRelationSelector
     value_type = list
 
-    def _create_widget(self):
-        return SelectorList(RelationSelector(self._get_options,
-                                             '/creme_core/relation/type/${rtype}/content_types/json',
-                                             multiple=True,
-                                             autocomplete=self.autocomplete
-                                            )
-                           )
+#    def _create_widget(self):
+#        return SelectorList(RelationSelector(self._get_options,
+#                                             '/creme_core/relation/type/${rtype}/content_types/json',
+#                                             multiple=True,
+#                                             autocomplete=self.autocomplete
+#                                            )
+#                           )
 
     def _value_to_jsonifiable(self, value):
         return list(map(super(MultiRelationEntityField, self)._value_to_jsonifiable, value))
@@ -612,7 +621,7 @@ class MultiRelationEntityField(RelationEntityField):
         rtype_allowed_ctypes     = frozenset(ct.pk for ct in rtype.object_ctypes.all())
         rtype_allowed_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
 
-        return (rtype, rtype_allowed_ctypes, rtype_allowed_properties)
+        return rtype, rtype_allowed_ctypes, rtype_allowed_properties
 
     def _build_ctype_cache(self, ctype_pk):
         try:
@@ -622,7 +631,7 @@ class MultiRelationEntityField(RelationEntityField):
                                   params={'ctype': ctype_pk}, code='ctypedoesnotexist',
                                  )
 
-        return (ctype, [])
+        return ctype, []
 
     def _get_cache(self, entries, key, build_func):
         cache = entries.get(key)
@@ -657,7 +666,7 @@ class MultiRelationEntityField(RelationEntityField):
         need_property_validation = False
 
         for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-            # check if relation type is allowed
+            # Check if relation type is allowed
             if rtype_pk not in allowed_rtypes_ids:
                 raise ValidationError(self.error_messages['rtypenotallowed'],
                                       params={'rtype': rtype_pk,
@@ -672,7 +681,7 @@ class MultiRelationEntityField(RelationEntityField):
             if rtype_allowed_properties:
                 need_property_validation = True
 
-            # check if content type is allowed by relation type
+            # Check if content type is allowed by relation type
             if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
                 raise ValidationError(self.error_messages['ctypenotallowed'],
                                       params={'ctype':ctype_pk}, code='ctypenotallowed',
@@ -685,7 +694,7 @@ class MultiRelationEntityField(RelationEntityField):
 
         entities_cache = {}
 
-        #build real entity cache and check both entity id exists and in correct content type
+        # Build real entity cache and check both entity id exists and in correct content type
         for ctype, entity_pks in ctypes_cache.values():
             ctype_entities = {entity.pk: entity
                                 for entity in ctype.model_class()
@@ -702,7 +711,7 @@ class MultiRelationEntityField(RelationEntityField):
 
         relations = []
 
-        # build cache for validation of properties constraint between relationtypes and entities
+        # Build cache for validation of properties constraint between relationtypes and entities
         if need_property_validation:
             CremeEntity.populate_properties(entities_cache.values())
 
