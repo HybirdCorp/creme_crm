@@ -97,7 +97,10 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
     @skipIfCustomPollForm
     def test_ok01(self):
         line1, line2 = self._create_lines()
-        field = PollFormLineConditionsField(sources=[line1, line2])
+
+        with self.assertNumQueries(0):
+            field = PollFormLineConditionsField(sources=[line1, line2])
+
         conditions = field.clean(self.FORMAT_STR % {'source': line1.id,
                                                     'choice': 1,
                                                    }
@@ -115,7 +118,10 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
     def test_ok02(self):
         "Several conditions, sources property"
         line1, line2 = self._create_lines()
-        field = PollFormLineConditionsField()
+
+        with self.assertNumQueries(0):
+            field = PollFormLineConditionsField()
+
         field.sources = [line1, line2]
         conditions = field.clean(self.FORMAT_STR2X % {
                                         'source1': line1.id, 'choice1': 1,

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
+
 from django.forms.utils import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,17 +30,22 @@ from ..models import PollFormLineCondition
 
 
 class PollFormLineConditionsWidget(SelectorList):
-    def __init__(self, sources, attrs=None):
-        chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
-        add = chained_input.add_dselect
-        add('source', attrs=attrs, options=[(src.id, src.question) for src in sources])
-        add('choice', attrs=attrs, options='/polls/pform_line/${source}/choices')
+    def __init__(self, sources=(), attrs=None):
+        super(PollFormLineConditionsWidget, self).__init__(selector=None, attrs=attrs)
+        self.sources = sources
 
-        super(PollFormLineConditionsWidget, self).__init__(chained_input)
+    def render(self, name, value, attrs=None):
+        self.selector = chained_input = ChainedInput()
+
+        add = partial(chained_input.add_dselect, attrs={'auto': False})
+        add('source', options=self.sources)
+        add('choice', options='/polls/pform_line/${source}/choices')
+
+        return super(PollFormLineConditionsWidget, self).render(name, value, attrs)
 
 
 class PollFormLineConditionsField(JSONField):
+    widget = PollFormLineConditionsWidget
     default_error_messages = {
         'invalidsource': _('This source is invalid.'),
         'invalidchoice': _('This choice is invalid.'),
@@ -48,6 +55,7 @@ class PollFormLineConditionsField(JSONField):
     def __init__(self, sources=(), *args, **kwargs):
         super(PollFormLineConditionsField, self).__init__(*args, **kwargs)
         self.sources = sources
+        self.widget.from_python = self.from_python # TODO: in JSONField
 
     @property
     def sources(self):
@@ -56,12 +64,15 @@ class PollFormLineConditionsField(JSONField):
     @sources.setter
     def sources(self, sources):
         "@param sources Sequence of PollFormLines"
-        self._sources = [source for source in sources if source.poll_line_type.get_choices()]
+        self._sources = valid_sources = [
+                source for source in sources
+                        if source.poll_line_type.get_choices()
+            ]
+#        self._build_widget()
+        self.widget.sources = [(src.id, src.question) for src in valid_sources]
 
-        self._build_widget()
-
-    def _create_widget(self):
-        return PollFormLineConditionsWidget(self._sources)
+#    def _create_widget(self):
+#        return PollFormLineConditionsWidget(self._sources)
 
     def _value_to_jsonifiable(self, value):
         return [{'source': condition.source_id, 'choice': condition.raw_answer}
