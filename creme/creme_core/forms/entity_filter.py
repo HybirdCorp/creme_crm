@@ -443,13 +443,6 @@ class _ConditionsField(JSONField):
         super(_ConditionsField, self).__init__(*args, **kwargs)
 #        self.model = model or CremeEntity
         self.model = model
-        self.widget.from_python = self.from_python # TODO: in JSONField
-
-    # TODO: in JSONField
-    def __deepcopy__(self, memo):
-        obj = super(_ConditionsField, self).__deepcopy__(memo)
-        obj.widget.from_python = obj.from_python
-        return obj
 
     def initialize(self, ctype, conditions=None, efilter=None):
 #        self.model = ctype.model_class()
