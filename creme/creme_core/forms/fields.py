@@ -46,8 +46,7 @@ from ..utils.collections import OrderedSet
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
-from .widgets import (CTEntitySelector, SelectorList,
-        UnorderedMultipleChoiceWidget, CalendarWidget)
+from .widgets import UnorderedMultipleChoiceWidget
 from . import widgets as core_widgets
 
 
@@ -228,6 +227,7 @@ class JSONField(CharField):
 
 
 class GenericEntityField(JSONField):
+    widget = core_widgets.CTEntitySelector
     default_error_messages = {
         'ctypenotallowed': _(u"This content type is not allowed."),
         'ctyperequired':   _(u"The content type is required."),
@@ -239,8 +239,10 @@ class GenericEntityField(JSONField):
 #    def __init__(self, models=None, autocomplete=False, *args, **kwargs):
     def __init__(self, models=(), autocomplete=False, creator=True, user=None, *args, **kwargs):
         super(GenericEntityField, self).__init__(*args, **kwargs)
-        self._creator = creator
-        self._autocomplete = autocomplete
+#        self._creator = creator
+        self.creator = creator
+#        self._autocomplete = autocomplete
+        self.autocomplete = autocomplete
         self._user = user
         self.allowed_models = models
 
@@ -260,7 +262,8 @@ class GenericEntityField(JSONField):
             allowed = ()
 
         self._allowed_models = list(allowed)
-        self._build_widget()
+#        self._build_widget()
+        self._update_wigets_choices()
 
     @property
     def user(self):
@@ -269,7 +272,8 @@ class GenericEntityField(JSONField):
     @user.setter
     def user(self, user):
         self._user = user
-        self._build_widget()
+#        self._build_widget()
+        self._update_wigets_choices()
 
     @property
     def autocomplete(self):
@@ -278,7 +282,8 @@ class GenericEntityField(JSONField):
     @autocomplete.setter
     def autocomplete(self, autocomplete):
         self._autocomplete = autocomplete
-        self._build_widget()
+#        self._build_widget()
+        self.widget.autocomplete = autocomplete
 
     @property
     def creator(self):
@@ -287,27 +292,33 @@ class GenericEntityField(JSONField):
     @creator.setter
     def creator(self, creator):
         self._creator = creator
-        self._build_widget()
+#        self._build_widget()
+        self.widget.creator = creator
 
-    def _create_widget(self):
-        widget = CTEntitySelector(self._get_ctypes_options(self.get_ctypes()),
-                                  attrs={'reset': False},
-                                 )
-        self._update_actions(widget)
-        return widget
+#    def _create_widget(self):
+#        widget = CTEntitySelector(self._get_ctypes_options(self.get_ctypes()),
+#                                  attrs={'reset': False},
+#                                 )
+#        self._update_actions(widget)
+#        return widget
+    def widget_attrs(self, widget):
+        return {'reset': False}
 
-    def _update_actions(self, widget):
-        if not self.required:
-            clear_label = _(u'Clear')
-            widget.actions.add_action('reset', clear_label,
-                                      title=clear_label, action='reset', value=''
-                                     )
+#    def _update_actions(self, widget):
+#        if not self.required:
+#            clear_label = _(u'Clear')
+#            widget.actions.add_action('reset', clear_label,
+#                                      title=clear_label, action='reset', value='',
+#                                     )
+#
+#        if self.creator:
+#            widget.actions.add_action('create', _(u'Add'),
+#                                      url='${ctype.create}',
+#                                      title='${ctype.create_label}',
+#                                     )
 
-        if self.creator:
-            widget.actions.add_action('create', _(u'Add'),
-                                      url='${ctype.create}',
-                                      title='${ctype.create_label}',
-                                     )
+    def _update_wigets_choices(self):
+        self.widget.content_types = CallableChoiceIterator(self._get_ctypes_options)
 
     def _has_quickform(self, model):
         from creme.creme_core.gui import quickforms_registry
@@ -358,31 +369,39 @@ class GenericEntityField(JSONField):
         return self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
 
     def _clean_ctype(self, ctype_pk):
-        #check ctype in allowed ones
+        # Check ctype in allowed ones
         for ct in self.get_ctypes():
             if ct.pk == ctype_pk:
                 return ct
 
         raise ValidationError(self.error_messages['ctypenotallowed'], code='ctypenotallowed')
 
-    def _get_ctypes_options(self, ctypes):
-        create_url = partial(self._create_url, self.user)
+#    def _get_ctypes_options(self, ctypes):
+    def _get_ctypes_options(self):
+        create_url = partial(self._create_url, self._user)
         return ((json_dump({'id': ctype.pk,
                             'create': create_url(ctype),
                             'create_label': unicode(ctype.model_class().creation_label),
                            }),
                  unicode(ctype)
-                ) for ctype in ctypes)
+#                ) for ctype in ctypes)
+                ) for ctype in self.get_ctypes())
 
     def get_ctypes(self):
-        get_ct = ContentType.objects.get_for_model
-        return [get_ct(model) for model in self._allowed_models] if self._allowed_models \
-               else list(creme_entity_content_types())
+        models = self._allowed_models
+
+        if models:
+            get_ct = ContentType.objects.get_for_model
+
+            return [get_ct(model) for model in models]
+
+        return list(creme_entity_content_types())
 
 
-#TODO: Add a q_filter, see utilization in EntityEmailForm
-#TODO: propose to allow duplicates ???
+# TODO: Add a q_filter, see utilization in EntityEmailForm
+# TODO: propose to allow duplicates ???
 class MultiGenericEntityField(GenericEntityField):
+    widget = core_widgets.MultiCTEntitySelector
     value_type = list
 
 #    def __init__(self, models=None, autocomplete=False, unique=True, *args, **kwargs):
@@ -390,32 +409,39 @@ class MultiGenericEntityField(GenericEntityField):
         super(MultiGenericEntityField, self).__init__(models, autocomplete, creator, user, *args, **kwargs)
         self.unique = unique
 
-    def _create_widget(self):
-        selector = CTEntitySelector(self._get_ctypes_options(self.get_ctypes()),
-                                    multiple=True,
-                                    attrs={'reset': False}
-                                   )
-        self._update_actions(selector)
-        return SelectorList(selector)
+#    def _create_widget(self):
+#        selector = CTEntitySelector(self._get_ctypes_options(self.get_ctypes()),
+#                                    multiple=True,
+#                                    attrs={'reset': False}
+#                                   )
+#        self._update_actions(selector)
+#        return SelectorList(selector)
+    def widget_attrs(self, widget):
+        return {}
 
-    def _update_actions(self, widget):
-        if self.creator:
-            widget.actions.add_action('create', _(u'Add'),
-                                      url='${ctype.create}',
-                                      title='${ctype.create_label}',
-                                     )
+#    def _update_actions(self, widget):
+#        if self.creator:
+#            widget.actions.add_action('create', _(u'Add'),
+#                                      url='${ctype.create}',
+#                                      title='${ctype.create_label}',
+#                                     )
 
     def _value_to_jsonifiable(self, value):
         return list(map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value))
 
     def _value_from_unjsonfied(self, data):
-        entities_pks = OrderedSet() if self.unique else []#in order to keep the global order (left by defaultdict)
-        entities_pks_append = entities_pks.add if self.unique else entities_pks.append
+        # We want to to keep the global order (left by defaultdict)
+        if self.unique:
+            entities_pks = OrderedSet()
+            entities_pks_append = entities_pks.add
+        else:
+            entities_pks = []
+            entities_pks_append = entities_pks.append
 
         entities_by_ctype = defaultdict(list)
         clean_value = self.clean_value
 
-        #group entity PKs by ctype, in order to make efficient queries
+        # Group entity PKs by ctype, in order to make efficient queries
         for entry in data:
             # Compatibility with older format.
             if data and isinstance(entry.get('ctype'), dict):
@@ -437,7 +463,7 @@ class MultiGenericEntityField(GenericEntityField):
 
         entities = {}
 
-        #build the list of entities (ignore invalid entries)
+        # Build the list of entities (ignore invalid entries)
         for ct_id, ctype_entity_pks in entities_by_ctype.iteritems():
             ctype_entities = self._clean_ctype(ct_id).model_class() \
                                                      .objects \
@@ -1247,11 +1273,11 @@ class CremeTimeField(TimeField):
 
 
 class CremeDateField(DateField):
-    widget = CalendarWidget
+    widget = core_widgets.CalendarWidget
 
 
 class CremeDateTimeField(DateTimeField):
-    widget = CalendarWidget
+    widget = core_widgets.CalendarWidget
 
 
 class MultiEmailField(Field):
@@ -1496,7 +1522,7 @@ class CTypeChoiceField(Field):
                             u' the available choices.'),
     }
 
-    #TODO: ctypes_or_models ??
+    # TODO: ctypes_or_models ??
     def __init__(self, ctypes=(), empty_label=u"---------",
                  required=True, widget=None, label=None, initial=None,
                  help_text=None, to_field_name=None, limit_choices_to=None,

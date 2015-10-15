@@ -261,7 +261,10 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_entity(self):
         self.login()
         contact = self.create_contact()
-        field = GenericEntityField(models=[Organisation, Contact, Document])
+
+        with self.assertNumQueries(0):
+            field = GenericEntityField(models=[Organisation, Contact, Document])
+
         self.assertEqual(contact, field.clean(self.build_field_data(contact.entity_type_id, contact.pk)))
 
     def test_clean_entity_old_format(self):
@@ -423,7 +426,9 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact()
         orga    = self.create_orga()
 
-        field = MultiGenericEntityField(models=[Organisation, Contact])
+        with self.assertNumQueries(0):
+            field = MultiGenericEntityField(models=[Organisation, Contact])
+
         value = '[' + ','.join((self.build_field_entry_data(contact.entity_type_id, contact.pk),
                                 self.build_field_entry_data(orga.entity_type_id, orga.pk))) + ']'
 
@@ -518,7 +523,9 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_autocomplete_property(self):
-        field = MultiGenericEntityField()
+        with self.assertNumQueries(0):
+            field = MultiGenericEntityField()
+
         self.assertFalse(field.autocomplete)
 
         field = MultiGenericEntityField(autocomplete=True)
