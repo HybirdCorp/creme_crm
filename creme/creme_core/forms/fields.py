@@ -33,9 +33,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
         ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
+from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
 from django.forms.utils import ValidationError
 from django.forms.widgets import Select, Textarea
-from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 
@@ -48,15 +48,13 @@ from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
 from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget,
         SelectorList, RelationSelector, ActionButtonList,
-        ListEditionWidget, UnorderedMultipleChoiceWidget,
-        CalendarWidget, TimeWidget, DatePeriodWidget, DateRangeWidget,
-        ColorPickerWidget, DurationWidget, ChoiceOrCharWidget) #ListViewWidget
+        UnorderedMultipleChoiceWidget, CalendarWidget)
+from . import widgets as core_widgets
 
 
 __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'RelationEntityField', 'MultiRelationEntityField',
            'CreatorEntityField', 'MultiCreatorEntityField',
-           #'CremeEntityField', 'MultiCremeEntityField',
            'FilteredEntityTypeField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
@@ -73,7 +71,7 @@ class JSONField(CharField):
         'invalidtype': _(u'Invalid type'),
         'doesnotexist': _(u"This entity doesn't exist."),
     }
-    value_type = None #Overload this: type of the value returned by the field.
+    value_type = None # Overload this: type of the value returned by the field.
 
     def _build_empty_value(self):
         "Value returned by not-required fields, when value is empty."
@@ -107,7 +105,7 @@ class JSONField(CharField):
 
         value = data.get(name)
 
-        #value can be "False" if a boolean value is expected.
+        # 'value' can be "False" if a boolean value is expected.
         if value is None:
             return self._return_none_or_raise(required, required_error_key)
 
@@ -143,7 +141,7 @@ class JSONField(CharField):
     def format_json(self, value):
         return json_dump(value)
 
-    #TODO: can we remove this hack with the new widget api (since django 1.2) ??
+    # TODO: can we remove this hack with the new widget api (since django 1.2) ??
     def from_python(self, value):
         if not value:
             return ''
@@ -214,7 +212,6 @@ class JSONField(CharField):
                                      )
 
     def _create_widget(self):
-        #pass
         raise NotImplementedError
 
     def _build_widget(self):
@@ -728,18 +725,32 @@ class MultiRelationEntityField(RelationEntityField):
 
 
 class CreatorEntityField(JSONField):
+    widget = core_widgets.EntityCreatorWidget # The following attributes are set: model, q_filter, creation_url, creation_allowed
     default_error_messages = {
         'doesnotexist':    _(u"This entity doesn't exist."),
         'entityrequired':  _(u"The entity is required."),
     }
     value_type = int
 
-    def __init__(self, model=None, q_filter=None, create_action_url=None, user=None, *args, **kwargs):
+    def __init__(self, model=None, q_filter=None, create_action_url=None,
+                 user=None, force_creation=False, *args, **kwargs
+                ):
         super(CreatorEntityField, self).__init__(*args, **kwargs)
-        self._model = model
-        self._user = user
-        self._create_action_url = create_action_url
-        self.q_filter = q_filter
+        widget = self.widget
+        self._model = widget.model = model
+        self._q_filter = widget.q_filter = q_filter
+        self._create_action_url = widget.creation_url = create_action_url
+        self._force_creation = force_creation
+        self.user = user
+
+    @property
+    def force_creation(self):
+        return self._force_creation
+
+    @force_creation.setter
+    def force_creation(self, force_creation):
+        self._force_creation = force_creation
+        self._update_creation_info()
 
     @property
     def model(self):
@@ -748,8 +759,9 @@ class CreatorEntityField(JSONField):
     @model.setter
     def model(self, model=None):
         self._model = model
-        self._build_widget()
-        self._update_actions()
+#        self._build_widget()
+        self.widget.model = model
+        self._update_creation_info()
 
     @property
     def q_filter(self):
@@ -759,14 +771,16 @@ class CreatorEntityField(JSONField):
     def q_filter(self, q_filter):
         self._q_filter = q_filter
 
-        if self.model is not None:
-            self._build_widget()
-            self._update_actions()
+#        if self.model is not None:
+#            self._build_widget()
+#            self._update_actions()
+        self.widget.q_filter = q_filter
+        self._update_creation_info()
 
     @property
     def q_filter_query(self):
+        q_filter = self._q_filter
         try:
-            q_filter = self._q_filter
             return get_q_from_dict(q_filter) if q_filter is not None else None
         except:
             raise ValueError('Invalid q_filter %s' % q_filter)
@@ -776,14 +790,20 @@ class CreatorEntityField(JSONField):
         if self._create_action_url is not None:
             return self._create_action_url
 
-        return '/creme_core/quickforms/from_widget/%s/add/1' % self.get_ctype().pk
+#        return '/creme_core/quickforms/from_widget/%s/add/1' % self.get_ctype().pk
+        model = self._model
+
+        return None if model is None else (
+               '/creme_core/quickforms/from_widget/%s/add/1' %
+                    ContentType.objects.get_for_model(model).id)
 
     @create_action_url.setter
     def create_action_url(self, url):
         self._create_action_url = url
 
-        if self.widget is not None:
-            self._update_actions()
+#        if self.widget is not None:
+#            self._update_actions()
+        self._update_creation_info()
 
     @property
     def user(self):
@@ -792,51 +812,67 @@ class CreatorEntityField(JSONField):
     @user.setter
     def user(self, user):
         self._user = user
-        self._update_actions()
+#        self._update_actions()
+        self._update_creation_info()
 
-    def _update_actions(self):
+    def _update_creation_info(self):
         user = self._user
-        self._clear_actions()
+        model = self._model
+        widget = self.widget
 
-        if not self.required:
-            clear_label = _(u'Clear')
-            self._add_action('reset', clear_label, title=clear_label, action='reset', value='')
+        if user and model:
+            widget.creation_allowed = user.has_perm_to_create(model)
+            widget.creation_url = self.create_action_url \
+                                  if self._has_quickform(model) and (
+                                      not self._q_filter or self._force_creation) \
+                                  else ''
+        else:
+            widget.creation_allowed = False
+            widget.creation_url = ''
 
-        if self._q_filter is not None and self._create_action_url is None:
-            return
+#    def _update_actions(self):
+#        user = self._user
+#        self._clear_actions()
+#
+#        if not self.required:
+#            clear_label = _(u'Clear')
+#            self._add_action('reset', clear_label, title=clear_label, action='reset', value='')
+#
+#        if self._q_filter is not None and self._create_action_url is None:
+#            return
+#
+#        if user is not None:
+#            self._add_create_action(user)
 
-        if user is not None:
-            self._add_create_action(user)
+#    def _clear_actions(self):
+#        self.widget.clear_actions()
 
-    def _clear_actions(self):
-        self.widget.clear_actions()
-
-    def _add_action(self, name, label, **kwargs):
-        self.widget.add_action(name, label, **kwargs)
+#    def _add_action(self, name, label, **kwargs):
+#        self.widget.add_action(name, label, **kwargs)
 
     def _has_quickform(self, model):
         from creme.creme_core.gui import quickforms_registry
         return quickforms_registry.get_form(model) is not None
 
-    def _add_create_action(self, user):
-        model = self.model
+#    def _add_create_action(self, user):
+#        model = self.model
+#
+#        if not self._has_quickform(model):
+#            return
+#
+#        allowed = user.has_perm_to_create(model)
+#        self._add_action('create', _(u'Add'), enabled=allowed,
+#                         title=_(u'Add') if allowed else _(u"Can't add"),
+#                         url=self.create_action_url,
+#                        )
 
-        if not self._has_quickform(model):
-            return
-
-        allowed = user.has_perm_to_create(model)
-        self._add_action('create', _(u'Add'), enabled=allowed,
-                         title=_(u'Add') if allowed else _(u"Can't add"),
-                         url=self.create_action_url,
-                        )
-
-    def _create_widget(self):
-        return ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk),
-                                                        {'auto':    False,
-                                                         'qfilter': self.q_filter,
-                                                        },
-                                                       )
-                               )
+#    def _create_widget(self):
+#        return ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk),
+#                                                        {'auto':    False,
+#                                                         'qfilter': self.q_filter,
+#                                                        },
+#                                                       )
+#                               )
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, (int, long)):
@@ -849,69 +885,81 @@ class CreatorEntityField(JSONField):
         return value.id
 
     def _value_from_unjsonfied(self, data):
-        return self._clean_entity_from_model(self.model, data, self.q_filter_query)
-
-    def get_ctype(self):
         model = self.model
-        return ContentType.objects.get_for_model(model) if model is not None else None
+
+        if model is None:
+            if self.required:
+                raise ValidationError(self.error_messages['required'], code='required')
+
+            return None
+
+        return self._clean_entity_from_model(model, data, self.q_filter_query)
+
+#    def get_ctype(self):
+#        model = self.model
+#        return ContentType.objects.get_for_model(model) if model is not None else None
 
 
 class MultiCreatorEntityField(CreatorEntityField):
+    widget = core_widgets.MultiEntityCreatorWidget # See CreatorEntityField.widget comment
     value_type = list
 
-    def _create_widget(self):
-        self._widget_item = ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk),
-                                                                     {'auto':       False,
-                                                                      'qfilter':    self.q_filter,
-                                                                      'multiple':   True,
-                                                                      'autoselect': True,
-                                                                     },
-                                                                    )
-                                            )
+#    def _create_widget(self):
+#        self._widget_item = ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk),
+#                                                                     {'auto':       False,
+#                                                                      'qfilter':    self.q_filter,
+#                                                                      'multiple':   True,
+#                                                                      'autoselect': True,
+#                                                                     },
+#                                                                    )
+#                                            )
+#
+#        return SelectorList(self._widget_item,
+#                            attrs={'clonelast' : False},
+#                           )
 
-        return SelectorList(self._widget_item,
-                            attrs={'clonelast' : False},
-                           )
+#    def _clear_actions(self):
+#        self._widget_item.clear_actions()
+#        self.widget.button_list.clear_actions()
+#        self.widget.clear_actions()
 
-    def _clear_actions(self):
-        self._widget_item.clear_actions()
-        self.widget.clear_actions()
+#    def _add_action(self, name, label, is_list_action=False, **kwargs):
+#        enabled = kwargs.pop('enabled', True)
+#
+#        if is_list_action:
+#            self._widget_item.add_action(name, label, enabled=False, **kwargs)
+#            self.widget.button_list.add_action(name, label, enabled=False, **kwargs)
+#            self.widget.add_action(name, label, enabled)
+#        else:
+#            self._widget_item.add_action(name, label, enabled=enabled, **kwargs)
+#            self.widget.button_list.add_action(name, label, enabled=enabled, **kwargs)
 
-    def _add_action(self, name, label, is_list_action=False, **kwargs):
-        enabled = kwargs.pop('enabled', True)
+#    def _add_create_action(self, user):
+#        model = self.model
+#
+#        if not self._has_quickform(model):
+#            return
+#
+#        allowed = user.has_perm_to_create(model)
+#
+#        self._add_action('create', model.creation_label, enabled=allowed,
+#                         title=_(u'Create') if allowed else _(u"Can't create"),
+#                         url=self.create_action_url,
+#                         is_list_action=True,
+#                        )
 
-        if is_list_action:
-            self._widget_item.add_action(name, label, enabled=False, **kwargs)
-            self.widget.add_action(name, label, enabled)
-        else:
-            self._widget_item.add_action(name, label, enabled=enabled, **kwargs)
-
-    def _add_create_action(self, user):
-        model = self.model
-
-        if not self._has_quickform(model):
-            return
-
-        allowed = user.has_perm_to_create(model)
-
-        self._add_action('create', model.creation_label, enabled=allowed,
-                         title=_(u'Create') if allowed else _(u"Can't create"),
-                         url=self.create_action_url,
-                         is_list_action=True,
-                        )
-
-    def _update_actions(self):
-        self._clear_actions()
-        #TODO : use _CremeModel.selection_label instead of 'Select'
-        self._add_action('add', _(u'Select'), is_list_action=True)
-
-        if self._q_filter is not None and self._create_action_url is None:
-            return
-
-        user = self._user
-
-        if user is not None:
-            self._add_create_action(user)
+#    def _update_actions(self):
+#        self._clear_actions()
+#        # todo : use _CremeModel.selection_label instead of 'Select'
+#        self._add_action('add', _(u'Select'), is_list_action=True)
+#
+#        if self._q_filter is not None and self._create_action_url is None:
+#            return
+#
+#        user = self._user
+#
+#        if user is not None:
+#            self._add_create_action(user)
 
     def _value_to_jsonifiable(self, value):
         if not value:
@@ -919,7 +967,9 @@ class MultiCreatorEntityField(CreatorEntityField):
 
         if value and isinstance(value[0], (int, long)):
             if self._entity_queryset(self.model, self.q_filter_query).filter(pk__in=value).count() < len(value):
-                raise ValueError("One or more entities with ids [%s] doesn't exists." % ', '.join(str(v) for v in value))
+                raise ValueError("One or more entities with ids [%s] doesn't exists." %
+                                    ', '.join(str(v) for v in value)
+                                )
 
             return value
 
@@ -927,163 +977,30 @@ class MultiCreatorEntityField(CreatorEntityField):
 
     def _value_from_unjsonfied(self, data):
         entities = []
+        model = self.model
 
-        for entry in data:
-            if not isinstance(entry, int):
-                raise ValidationError(self.error_messages['invalidtype'], code='invalidtype')
+        if model is not None:
+            clean_entity = partial(self._clean_entity_from_model,
+                                   model=model, qfilter=self.q_filter_query,
+                                  )
 
-            entity = self._clean_entity_from_model(self.model, entry, self.q_filter_query)
+            for entry in data:
+                if not isinstance(entry, int):
+                    raise ValidationError(self.error_messages['invalidtype'], code='invalidtype')
 
-            if entity is None:
-                raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
+                entity = clean_entity(entity_pk=entry)
 
-            entities.append(entity)
+                if entity is None:
+                    raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
 
-        if not entities:
-            return self._return_list_or_raise(self.entities)
+                entities.append(entity)
+        elif self.required:
+            raise ValidationError(self.error_messages['required'], code='required')
+
+#        if not entities:
+#            return self._return_list_or_raise(entities)
 
         return entities
-
-
-#class _EntityField(Field):
-    #"""
-        #Base class for CremeEntityField and MultiCremeEntityField,
-        #not really usable elsewhere avoid using it
-    #"""
-    #widget = ListViewWidget
-    #default_error_messages = {
-        #'invalid_choice': _(u"Select a valid choice. %(value)s is not an available choice."),
-    #}
-
-    #def __init__(self, model=None, q_filter=None, separator=',', *args, **kwargs):
-        #super(_EntityField, self).__init__(*args, **kwargs)
-        #self.model     = model
-        #self.q_filter  = q_filter
-        #self.o2m       = None
-        #self.separator = separator
-
-    #@property
-    #def model(self):
-        #return self._model
-
-    #@model.setter
-    #def model(self, model):
-        #self._model = self.widget.model = model
-
-    #@property
-    #def q_filter(self):
-        #return self._q_filter
-
-    #@q_filter.setter
-    #def q_filter(self, q_filter):
-        #self._q_filter = self.widget.q_filter = q_filter
-
-    #@property
-    #def o2m(self):
-        #return self._o2m
-
-    #@o2m.setter
-    #def o2m(self, o2m):
-        #self._o2m = self.widget.o2m = o2m
-
-    #@property
-    #def separator(self):
-        #return self._separator
-
-    #@separator.setter
-    #def separator(self, separator):
-        #self._separator = self.widget.separator = separator
-
-    #def clean(self, value):
-        #value = super(_EntityField, self).clean(value)
-
-        #if not value:
-            #return None
-
-        #if isinstance(value, basestring):
-            #if self.separator in value:#In case of the widget doesn't make a 'good clean'
-                #value = [v for v in value.split(self.separator) if v]
-            #else:
-                #value = [value]
-
-        #try:
-            #clean_ids = [int(v) for v in value]
-        #except ValueError:
-            #raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
-
-        #return clean_ids
-
-
-#class CremeEntityField(_EntityField):
-    #"""
-         #An input with comma (or anything) separated primary keys
-         #clean method return a model instance
-    #"""
-    #default_error_messages = {
-        #'doesnotexist': _(u"This entity doesn't exist."),
-    #}
-
-    #def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
-        #super(CremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
-        #self.o2m = 1
-
-        #warnings.warn("CremeEntityField class is deprecated; use CreatorEntityField instead",
-                      #DeprecationWarning
-                     #)
-
-    #def clean(self, value):
-        #clean_id = super(CremeEntityField, self).clean(value)
-        #if not clean_id:
-            #return None
-
-        #if len(clean_id) > 1:
-            #raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
-
-        #qs = self.model.objects.filter(is_deleted=False)
-
-        #if self.q_filter is not None:
-            #qs = qs.filter(get_q_from_dict(self.q_filter))
-
-        #try:
-            #return qs.get(pk=clean_id[0])
-        #except self.model.DoesNotExist:
-            #if self.required:
-                #raise ValidationError(self.error_messages['doesnotexist'])
-
-
-#class MultiCremeEntityField(_EntityField):
-    #"""
-         #An input with comma (or anything) separated primary keys
-         #clean method return a list of real model instances
-    #"""
-    #def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
-        #super(MultiCremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
-        #self.o2m = 0
-
-        #warnings.warn("MultiCremeEntityField class is deprecated; use MultiCreatorEntityField instead",
-                      #DeprecationWarning
-                     #)
-
-    #def clean(self, value):
-        #cleaned_ids = super(MultiCremeEntityField, self).clean(value)
-
-        #if not cleaned_ids:
-            #return []
-
-        #qs = self.model.objects.filter(is_deleted=False, pk__in=cleaned_ids)
-
-        #if self.q_filter is not None:
-            #qs = qs.filter(get_q_from_dict(self.q_filter))
-
-        #entities = list(qs)
-
-        #if len(entities) != len(cleaned_ids):
-            #raise ValidationError(self.error_messages['invalid_choice'] % {
-                                        #'value': ', '.join(str(val) for val in value),
-                                   #}
-                                 #)
-
-        #return entities
 
 
 class FilteredEntityTypeField(JSONField):
@@ -1202,7 +1119,7 @@ class ListEditionField(Field):
     * deleted elements are replaced by None.
     * modified elements are replaced by the new value.
     """
-    widget = ListEditionWidget
+    widget = core_widgets.ListEditionWidget
     default_error_messages = {}
 
     def __init__(self, content=(), only_delete=False, *args, **kwargs):
@@ -1298,7 +1215,7 @@ class AjaxModelChoiceField(ModelChoiceField):
 
 
 class CremeTimeField(TimeField):
-    widget = TimeWidget
+    widget = core_widgets.TimeWidget
 
 
 class CremeDateField(DateField):
@@ -1336,7 +1253,7 @@ class MultiEmailField(Field):
 
 
 class DatePeriodField(MultiValueField):
-    widget = DatePeriodWidget
+    widget = core_widgets.DatePeriodWidget
 
     def __init__(self, *args, **kwargs):
         choices = kwargs.pop("choices", None)
@@ -1371,7 +1288,7 @@ class DateRangeField(MultiValueField):
         #Render DateRangeWidget as a table
         DateRangeField(label=_(u'Date range'), widget=DateRangeWidget(attrs={'render_as': 'table'}))
     """
-    widget = DateRangeWidget
+    widget = core_widgets.DateRangeWidget
     default_error_messages = {
         'customized_empty': _(u'If you select «customized» you have to specify a start date and/or an end date.'),
         'customized_invalid': _(u'Start date has to be before end date.'),
@@ -1435,7 +1352,7 @@ class DateRangeField(MultiValueField):
 class ColorField(RegexField):
     """A Field which handle html colors (e.g: #F2FAB3) without '#' """
     regex  = compile_re(r'^([0-9a-fA-F]){6}$')
-    widget = ColorPickerWidget
+    widget = core_widgets.ColorPickerWidget
     default_error_messages = {
         'invalid': _(u'Enter a valid value (eg: DF8177).'),
     }
@@ -1448,7 +1365,7 @@ class ColorField(RegexField):
 
 
 class DurationField(MultiValueField):
-    widget = DurationWidget
+    widget = core_widgets.DurationWidget
     default_error_messages = {
         'invalid': _(u'Enter a whole number.'),
         'min_value': _(u'Ensure this value is greater than or equal to %(limit_value)s.'),
@@ -1477,7 +1394,7 @@ class DurationField(MultiValueField):
 
 
 class ChoiceOrCharField(MultiValueField):
-    widget = ChoiceOrCharWidget
+    widget = core_widgets.ChoiceOrCharWidget
 
     default_error_messages = {
         'invalid_other': _(u'Enter a value for "Other" choice.'),
