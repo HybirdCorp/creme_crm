@@ -16,6 +16,12 @@ try:
             EntityFilter, EntityFilterCondition, FieldsConfig,
             CustomField, CustomFieldEnumValue, Language,
             CremeEntity)
+    from creme.creme_core.forms.entity_filter import (FieldConditionWidget,
+            RegularFieldsConditionsField, DateFieldsConditionsField,
+            CustomFieldsConditionsField, CustomFieldConditionSelector, #CustomFieldConditionWidget
+            DateCustomFieldsConditionsField,
+            PropertiesConditionsField,
+            RelationsConditionsField, RelationSubfiltersConditionsField)
 
 #    from creme.persons.models import Organisation, Contact, Civility
 except Exception as e:
@@ -34,8 +40,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 #        cls.populate('persons')
         cls.populate('creme_core')
 
-        global RegularFieldsConditionsField, FieldConditionWidget
-        from creme.creme_core.forms.entity_filter import RegularFieldsConditionsField, FieldConditionWidget
+#        global RegularFieldsConditionsField, FieldConditionWidget
+#        from creme.creme_core.forms.entity_filter import RegularFieldsConditionsField, FieldConditionWidget
 
     def test_clean_empty_required(self):
         clean = RegularFieldsConditionsField(required=True).clean
@@ -117,7 +123,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                                       'value':    '"2011-5-12"',
                                                      }
                                        )
-        #TODO: M2M
+        # TODO: M2M
 
     def test_clean_invalid_operator(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
@@ -157,16 +163,18 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
     def test_iequals_condition(self):
-        clean = RegularFieldsConditionsField(model=Contact).clean
+        with self.assertNumQueries(0):
+            field = RegularFieldsConditionsField(model=Contact)
+
         operator = EntityFilterCondition.IEQUALS
         name = 'first_name'
         value = 'Faye'
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                 'operator': operator,
-                                 'name':     name,
-                                 'value':    '"' + value + '"',
-                             }
-                          )
+        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+                                       'operator': operator,
+                                       'name':     name,
+                                       'value':    '"' + value + '"',
+                                   }
+                                )
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -700,12 +708,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class DateFieldsConditionsFieldTestCase(FieldTestCase):
-    @classmethod
-    def setUpClass(cls):
-        FieldTestCase.setUpClass()
-
-        global DateFieldsConditionsField
-        from creme.creme_core.forms.entity_filter import DateFieldsConditionsField
+#    @classmethod
+#    def setUpClass(cls):
+#        FieldTestCase.setUpClass()
+#
+#        global DateFieldsConditionsField
+#        from creme.creme_core.forms.entity_filter import DateFieldsConditionsField
 
     def test_clean_invalid_data(self):
         clean = DateFieldsConditionsField(model=Contact).clean
@@ -749,7 +757,9 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         else:  self.fail('No ValidationError')
 
     def test_ok01(self):
-        field = DateFieldsConditionsField(model=Contact)
+        with self.assertNumQueries(0):
+            field = DateFieldsConditionsField(model=Contact)
+
         type01 = 'current_year'
         name01 = 'created'
         type02 = 'next_quarter'
@@ -993,12 +1003,12 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     CONDITION_FIELD_JSON_FMT = '[{"field": {"id": "%(field)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
 
-    @classmethod
-    def setUpClass(cls):
-        FieldTestCase.setUpClass()
-
-        global CustomFieldsConditionsField, CustomFieldConditionWidget
-        from creme.creme_core.forms.entity_filter import CustomFieldsConditionsField, CustomFieldConditionWidget
+#    @classmethod
+#    def setUpClass(cls):
+#        FieldTestCase.setUpClass()
+#
+#        global CustomFieldsConditionsField, CustomFieldConditionWidget, CustomFieldConditionSelector
+#        from creme.creme_core.forms.entity_filter import CustomFieldsConditionsField, CustomFieldConditionWidget, CustomFieldConditionSelector
 
     def setUp(self):
         ct = ContentType.objects.get_for_model(Contact)
@@ -1136,16 +1146,44 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                                         }
                                        )
 
-    def test_clean_integer(self):
-        clean = CustomFieldsConditionsField(model=Contact).clean
+    def test_clean_integer01(self):
+        with self.assertNumQueries(0):
+            field = CustomFieldsConditionsField(model=Contact)
+
         operator = EntityFilterCondition.EQUALS
         value = 180
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':    self.cfield_int.id,
-                                'operator': operator,
-                                'value':    value,
-                            }
-                          )
+        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+                                      'field':    self.cfield_int.id,
+                                      'operator': operator,
+                                      'value':    value,
+                                  }
+                                )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_int.id), condition.name)
+        self.assertEqual({'operator': operator,
+                          'rname': 'customfieldinteger',
+                          'value': [unicode(value)],
+                         },
+                         condition.decoded_value
+                        )
+
+    def test_clean_integer02(self):
+        "'model' property"
+        with self.assertNumQueries(0):
+            field = CustomFieldsConditionsField()
+            field.model = Contact
+
+        operator = EntityFilterCondition.EQUALS
+        value = 180
+        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+                                      'field':    self.cfield_int.id,
+                                      'operator': operator,
+                                      'value':    value,
+                                  }
+                                )
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -1324,7 +1362,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         #self.autodiscover()
         #self.populate('persons')
 
-        field_choicetype = CustomFieldConditionWidget.customfield_choicetype
+#        field_choicetype = CustomFieldConditionWidget.customfield_choicetype
+        field_choicetype = CustomFieldConditionSelector.customfield_choicetype
 
         self.assertEqual(field_choicetype(self.cfield_enum),  'enum__null')
         self.assertEqual(field_choicetype(self.cfield_date),  'date__null')
@@ -1334,12 +1373,12 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
-    @classmethod
-    def setUpClass(cls):
-        FieldTestCase.setUpClass()
-
-        global DateCustomFieldsConditionsField
-        from creme.creme_core.forms.entity_filter import DateCustomFieldsConditionsField
+#    @classmethod
+#    def setUpClass(cls):
+#        FieldTestCase.setUpClass()
+#
+#        global DateCustomFieldsConditionsField
+#        from creme.creme_core.forms.entity_filter import DateCustomFieldsConditionsField
 
     def setUp(self):
         create_cfield = partial(CustomField.objects.create,
@@ -1369,7 +1408,9 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                                        )
 
     def test_ok01(self):
-        field = DateCustomFieldsConditionsField(model=Contact)
+        with self.assertNumQueries(0):
+            field = DateCustomFieldsConditionsField(model=Contact)
+
         rtype  = 'current_year'
         conditions = field.clean('[{"field": "%(cfield01)s", "range": {"type": "%(type)s"}},'
                                  ' {"field": "%(cfield02)s", "range": {"type": "", "start": "2011-5-12"}},'
@@ -1419,13 +1460,16 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
     def test_empty(self):
-        clean = DateCustomFieldsConditionsField(model=Contact).clean
-        conditions = clean('[{"field": "%(cfield01)s", "range": {"type": "empty"}},'
-                           ' {"field": "%(cfield02)s", "range": {"type": "not_empty"}}]' % {
-                                  'cfield01': self.cfield01.id,
-                                  'cfield02': self.cfield02.id,
-                              }
-                          )
+        with self.assertNumQueries(0):
+            field = DateCustomFieldsConditionsField()
+            field.model = Contact
+
+        conditions = field.clean('[{"field": "%(cfield01)s", "range": {"type": "empty"}},'
+                                 ' {"field": "%(cfield02)s", "range": {"type": "not_empty"}}]' % {
+                                        'cfield01': self.cfield01.id,
+                                        'cfield02': self.cfield02.id,
+                                    }
+                                )
         self.assertEqual(2, len(conditions))
 
         EFC_DATECUSTOMFIELD = EntityFilterCondition.EFC_DATECUSTOMFIELD
@@ -1445,12 +1489,12 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class PropertiesConditionsFieldTestCase(FieldTestCase):
-    @classmethod
-    def setUpClass(cls):
-        FieldTestCase.setUpClass()
-
-        global PropertiesConditionsField
-        from creme.creme_core.forms.entity_filter import PropertiesConditionsField
+#    @classmethod
+#    def setUpClass(cls):
+#        FieldTestCase.setUpClass()
+#
+#        global PropertiesConditionsField
+#        from creme.creme_core.forms.entity_filter import PropertiesConditionsField
 
     def setUp(self):
         create_ptype = CremePropertyType.create
@@ -1459,7 +1503,10 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         self.ptype03 = create_ptype('test-prop_evil',   'Is evil', (Organisation,))
 
     def test_clean_empty_required(self):
-        clean = PropertiesConditionsField(required=True).clean
+        with self.assertNumQueries(0):
+            field = PropertiesConditionsField(required=True)
+
+        clean = field.clean
         self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, None)
         self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, "")
         self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, "[]")
@@ -1491,8 +1538,10 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
                                         '[{"ptype": "%s", "has": true}]' % self.ptype03.id
                                        )
 
-    def test_ok(self):
-        field = PropertiesConditionsField(model=Contact)
+    def test_ok01(self):
+        with self.assertNumQueries(0):
+            field = PropertiesConditionsField(model=Contact)
+
         conditions = field.clean('[{"ptype": "%s", "has": true}, {"ptype": "%s", "has": false}]' % (
                                         self.ptype01.id, self.ptype02.id,
                                     )
@@ -1510,14 +1559,28 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(self.ptype02.id, condition.name)
         self.assertIs(condition.decoded_value, False)
 
+    def test_ok02(self):
+        ptype = self.ptype01
+
+        with self.assertNumQueries(0):
+            field = PropertiesConditionsField()
+            field.model = Contact
+
+        conditions = field.clean('[{"ptype": "%s", "has": true}]' % ptype.id)
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
+        self.assertEqual(ptype.id, condition.name)
+
 
 class RelationsConditionsFieldTestCase(FieldTestCase):
-    @classmethod
-    def setUpClass(cls):
-        FieldTestCase.setUpClass()
-
-        global RelationsConditionsField
-        from creme.creme_core.forms.entity_filter import RelationsConditionsField
+#    @classmethod
+#    def setUpClass(cls):
+#        FieldTestCase.setUpClass()
+#
+#        global RelationsConditionsField
+#        from creme.creme_core.forms.entity_filter import RelationsConditionsField
 
     def setUp(self):
         create = RelationType.create
@@ -1540,25 +1603,43 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = RelationsConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean,
+                                        '"this is a string"'
+                                       )
         self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '"{}"')
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '{"foobar": {"rtype": "test-foobar", "has": true}}')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean,
+                                        '{"foobar": {"rtype": "test-foobar", "has": true}}'
+                                       )
 
     def test_clean_invalid_data(self):
         clean = RelationsConditionsField(model=Contact).clean
         ct = ContentType.objects.get_for_model(Contact)
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype": "%s", "has": true, "ctype": "not an int"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype": "%s", "has": true, "ctype": %d, "entity": "not an int"}]' % (self.rtype01.id, ct.id))
+        rt_id = self.rtype01.id
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean,
+                                        '[{"rtype": "%s", "has": true, "ctype": "not an int"}]' % rt_id
+                                       )
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean,
+                                        '[{"rtype": "%s", "has": true, "ctype": %d, "entity": "not an int"}]' % (rt_id, ct.id)
+                                       )
 
     def test_clean_incomplete_data_required(self):
         clean = RelationsConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"rtype": "%s"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"has": true}]')
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"rtype": "%s", "has": "not a boolean"}]' % self.rtype01.id)
+        rt_id = self.rtype01.id
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean,
+                                        '[{"rtype": "%s"}]' % rt_id
+                                       )
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean,
+                                        '[{"has": true}]'
+                                       )
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean,
+                                        '[{"rtype": "%s", "has": "not a boolean"}]' % rt_id
+                                       )
 
     def test_unknown_ct(self):
         clean = RelationsConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidct', clean, '[{"rtype": "%s", "has": true, "ctype": 2121545}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidct', clean,
+                                        '[{"rtype": "%s", "has": true, "ctype": 2121545}]' % self.rtype01.id
+                                       )
 
     def test_unknown_entity(self):
         clean = RelationsConditionsField(model=Contact).clean
@@ -1568,7 +1649,9 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_ok01(self):
         "No ct, no object entity"
-        field = RelationsConditionsField(model=Contact)
+        with self.assertNumQueries(0):
+            field = RelationsConditionsField(model=Contact)
+
         conditions = field.clean('[{"rtype": "%s", "has": true,  "ctype": 0, "entity": null},'
                                  ' {"rtype": "%s", "has": false, "ctype": 0, "entity": null}]' % (
                                     self.rtype01.id, self.rtype02.id)
@@ -1688,14 +1771,31 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         jsondict["ctype"] = 0
         self.assertEqual([jsondict], jsonloads(field.from_python(list(efilter.conditions.all()))))
 
+    def test_ok06(self):
+        "'model' property"
+        with self.assertNumQueries(0):
+            field = RelationsConditionsField()
+            field.model = Contact
+
+        rt_id = self.rtype01.id
+        conditions = field.clean('[{"rtype": "%s", "has": true,  "ctype": 0, "entity": null}]' %
+                                    rt_id
+                                )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_RELATION, condition.type)
+        self.assertEqual(rt_id, condition.name)
+        self.assertEqual({'has': True}, condition.decoded_value)
+
 
 class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
-    @classmethod
-    def setUpClass(cls):
-        FieldTestCase.setUpClass()
-
-        global RelationSubfiltersConditionsField
-        from creme.creme_core.forms.entity_filter import RelationSubfiltersConditionsField
+#    @classmethod
+#    def setUpClass(cls):
+#        FieldTestCase.setUpClass()
+#
+#        global RelationSubfiltersConditionsField
+#        from creme.creme_core.forms.entity_filter import RelationSubfiltersConditionsField
 
     def setUp(self):
         create = RelationType.create
@@ -1740,8 +1840,9 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def test_ok(self):
         user = self.login()
 
-        field = RelationSubfiltersConditionsField(model=Contact)
-        field.user = user
+        with self.assertNumQueries(0):
+            field = RelationSubfiltersConditionsField(model=Contact)
+            field.user = user
 
         get_ct = ContentType.objects.get_for_model
         conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": %(ct_contact)s, "filter":"%(filter01)s"},'

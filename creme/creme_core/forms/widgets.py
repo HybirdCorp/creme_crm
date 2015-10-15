@@ -451,10 +451,6 @@ class SelectorList(TextInput):
         return self
 
     def _render_actions(self):
-        #output = []
-        #output.extend(self._render_action(name, label, enabled, **attrs) for name, label, enabled, attrs in self.actions)
-
-        #return '\n'.join(output)
         return '\n'.join(self._render_action(action) for action in self.actions)
 
     def _render_action(self, action):
