@@ -53,7 +53,7 @@ run the following commands in the root directory:
 
 If you are upgrading from Creme 1.5:
     >> python manage.py migrate --fake-initial
-else (ie: new isntallation):
+else (ie: new installation):
     >> python manage.py migrate
 
 >> python manage.py generatemedia
