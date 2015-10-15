@@ -69,7 +69,7 @@ def widget_render_context(typename, attrs, css='', **kwargs):
 
     return context
 
-#TODO: to be improved....
+# TODO: to be improved....
 class DynamicInput(TextInput):
     def __init__(self, type='text', attrs=None):
         super(DynamicInput, self).__init__(attrs)
@@ -83,7 +83,7 @@ class DynamicInput(TextInput):
 
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context)) #, url=self.url
 
-#TODO ??? DynamicHiddenInput
+# TODO ??? DynamicHiddenInput
 #class HiddenInput(Input): #from django
     #input_type = 'hidden'
     #is_hidden = True
@@ -196,10 +196,12 @@ class DynamicSelectMultiple(SelectMultiple, EnchancedSelectOptions):
 
 
 class ActionButtonList(Widget):
-    def __init__(self, delegate, attrs=None, actions=None):
+#    def __init__(self, delegate, attrs=None, actions=None):
+    def __init__(self, delegate, attrs=None, actions=()):
         super(ActionButtonList, self).__init__(attrs)
         self.delegate = delegate
-        self.actions = actions or []
+#        self.actions = actions or []
+        self.actions = list(actions)
         self.from_python = None
 
     def __deepcopy__(self, memo):
@@ -212,7 +214,8 @@ class ActionButtonList(Widget):
         return self
 
     def clear_actions(self):
-        self.actions = []
+#        self.actions = []
+        self.actions[:] = ()
         return self
 
     def render(self, name, value, attrs=None):
@@ -223,10 +226,11 @@ class ActionButtonList(Widget):
         context['delegate'] = self.delegate.render(name, value, attrs)
         context['buttons'] = self._render_actions()
 
-        return mark_safe("""<ul class="ui-layout hbox %(css)s" style="%(style)s" widget="%(typename)s">
-                                <li class="delegate">%(delegate)s</li>
-                                %(buttons)s
-                            </ul>""" % context)
+        return mark_safe('<ul class="ui-layout hbox %(css)s" style="%(style)s" widget="%(typename)s">'
+                            '<li class="delegate">%(delegate)s</li>'
+                            '%(buttons)s'
+                         '</ul>' % context
+                        )
 
     def _render_actions(self):
         return '\n'.join(self._render_action(name, label, enabled, **attrs)
@@ -238,16 +242,16 @@ class ActionButtonList(Widget):
             if enabled is False or (callable(enabled) and not enabled()):
                 kwargs['disabled'] = u''
 
-        title = kwargs.pop('title', label)
-        context = {'name':  name,
-                   'attr':  flatatt(kwargs),
-                   'label': label,
-                   'title': title,
-                  }
-
-        return u"""<li><button class="ui-creme-actionbutton" name="%(name)s" title="%(title)s" alt="%(title)s" type="button" %(attr)s>
-                       %(label)s
-                   </button></li>""" % context
+        return ('<li>'
+                    '<button class="ui-creme-actionbutton" name="%(name)s" title="%(title)s" alt="%(title)s" type="button" %(attr)s>'
+                       '%(label)s'
+                    '</button>'
+                '</li>' % {'name':  name,
+                           'attr':  flatatt(kwargs),
+                           'label': label,
+                           'title': kwargs.pop('title', label),
+                          }
+               )
 
 
 class PolymorphicInput(TextInput):
@@ -442,7 +446,8 @@ class SelectorList(TextInput):
         return self
 
     def clear_actions(self):
-        self.actions = []
+#        self.actions = []
+        self.actions[:] = ()
         return self
 
     def _render_actions(self):
@@ -485,11 +490,11 @@ class SelectorList(TextInput):
         context['img_url'] = media_url('images/add_16.png')
         context['actions'] = self._render_actions()
 
-        return mark_safe('<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s %(disabled)s>'\
-                         '       %(input)s'\
-                         '      <div class="inner-selector-model" style="display:none;">%(selector)s</div>'\
-                         '       <ul class="selectors ui-layout"></ul>'\
-                         '       <ul class="ui-layout hbox">%(actions)s</ul>'\
+        return mark_safe('<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s %(disabled)s>'
+                         '    %(input)s'
+                         '    <div class="inner-selector-model" style="display:none;">%(selector)s</div>'
+                         '    <ul class="selectors ui-layout"></ul>'
+                         '    <ul class="ui-layout hbox">%(actions)s</ul>'
                          '</div>' % context)
 
 
@@ -521,38 +526,75 @@ class EntitySelector(TextInput):
         qfilter = attrs.pop('qfilter', None)
         context['qfilter'] = escape(json_dump(qfilter)) if qfilter else ''
 
-        html_output = """
-            <span class="%(css)s" style="%(style)s" widget="%(typename)s" 
-                  labelURL="%(text_url)s" label="%(label)s"
-                  popupURL="%(url)s" popupSelection="%(selection)s" %(autoselect)s
-                  qfilter="%(qfilter)s">
-                %(input)s
-                <button type="button">%(label)s</button>
-            </span>
-        """ % context
-
-        return mark_safe(html_output)
+        return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" '
+                            'labelURL="%(text_url)s" label="%(label)s" '
+                            'popupURL="%(url)s" popupSelection="%(selection)s" %(autoselect)s '
+                            'qfilter="%(qfilter)s">'
+                            '%(input)s'
+                            '<button type="button">%(label)s</button>'
+                         '</span>' % context
+                        )
 
 
 class CTEntitySelector(ChainedInput):
-    def __init__(self, content_types, attrs=None, multiple=False, autocomplete=False):
+    def __init__(self, content_types=(), attrs=None, multiple=False, autocomplete=False, creator=False):
         super(CTEntitySelector, self).__init__(attrs)
-        field_attrs = {'auto': False, 'datatype': 'json'}
+        self.content_types = content_types
+        self.multiple = multiple
+        self.autocomplete = autocomplete
+        self.creator = creator
 
-        if autocomplete:
+    def render(self, name, value, attrs=None):
+        field_attrs = {'auto': False, 'datatype': 'json'}
+        if self.autocomplete:
             field_attrs['autocomplete'] = True
 
-        self.add_dselect("ctype", options=content_types, attrs=field_attrs)
+        self.add_dselect('ctype', options=self.content_types, attrs=field_attrs)
 
-        self._actions = ActionButtonList(delegate=EntitySelector(content_type='${ctype.id}',
-                                                                 attrs={'auto': False, 'multiple':multiple}
-                                                                )
+        multiple = self.multiple
+        actions = ActionButtonList(delegate=EntitySelector(content_type='${ctype.id}',
+                                                           attrs={'auto': False,
+                                                                  'multiple': multiple,
+                                                                 },
+                                                          ),
+                                  )
+
+        if not self.is_required and not multiple:
+            clear_label = _(u'Clear')
+            actions.add_action('reset', clear_label, title=clear_label,
+                               action='reset', value='',
+                              )
+
+        if self.creator:
+            actions.add_action('create', _(u'Add'), url='${ctype.create}',
+                               title='${ctype.create_label}',
+                              )
+
+        self.add_input('entity', widget=actions)
+
+        return super(CTEntitySelector, self).render(name, value, attrs)
+
+#    @property
+#    def actions(self):
+#        return self._actions
+
+
+class MultiCTEntitySelector(SelectorList):
+    def __init__(self, content_types=(), attrs=None, autocomplete=False, creator=False):
+        super(MultiCTEntitySelector, self).__init__(None, attrs=attrs)
+        self.content_types = content_types
+        self.autocomplete = autocomplete
+        self.creator = creator
+
+    def render(self, name, value, attrs=None):
+        self.selector = CTEntitySelector(content_types=self.content_types,
+                                         multiple=True,
+                                         autocomplete=self.autocomplete,
+                                         creator=self.creator,
+                                         attrs={'reset': False},
                                         )
-        self.add_input("entity", widget=self._actions)
 
-    @property
-    def actions(self):
-        return self._actions
+        return super(MultiCTEntitySelector, self).render(name, value, attrs)
 
 
 class RelationSelector(ChainedInput):
