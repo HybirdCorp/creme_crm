@@ -41,15 +41,40 @@ __version__ = '1.6 beta'
 ## [END] FIX DJANGO 1.8.X #######################################################
 
 # FIX DJANGO MEDIAGENERATOR 1.12 ###############################################
-# There's a bug with Mediagenerator 1.12 + Django 1.8 migration code, which 
-# makes the command 'generatemedia' to crashes.
-# We'll remove this crappy monkey patching in a future fix release, when these
-# f*cking bug is fixed in Mediagenerator.
+# There're bugs with Django 1.8 + Mediagenerator 1.12 code, which
+# make the command 'generatemedia' to crash.
+# We'll remove these crappy monkey patchings in a future fix release, when these
+# f*cking bugs are fixed in Mediagenerator.
 from django.conf import settings
 
-if 'mediagenerator' in settings.INSTALLED_DJANGO_APPS:
-    from mediagenerator.management.commands.generatemedia import Command as GenerateMediaCommand
 
+if 'mediagenerator' in settings.INSTALLED_DJANGO_APPS:
+    from os.path import join
+
+    from django.apps import apps
+
+    from mediagenerator.management.commands.generatemedia import Command as GenerateMediaCommand
+    from mediagenerator import utils as mediagenerator_utils
+    from mediagenerator.utils import _media_dirs_cache
+    from mediagenerator.settings import GLOBAL_MEDIA_DIRS, IGNORE_APP_MEDIA_DIRS
+
+    def get_media_dirs():
+        if not _media_dirs_cache:
+            if not apps.ready:
+                apps.populate(settings.INSTALLED_APPS)
+
+            media_dirs = GLOBAL_MEDIA_DIRS[:]
+            for app in apps.get_app_configs():
+                if app.name in IGNORE_APP_MEDIA_DIRS:
+                    continue
+
+                media_dirs.append(join(app.path, u'static'))
+                media_dirs.append(join(app.path, u'media'))
+
+            _media_dirs_cache.extend(media_dirs)
+        return _media_dirs_cache
+
+    mediagenerator_utils.get_media_dirs = get_media_dirs
     GenerateMediaCommand.leave_locale_alone = True
 
 # [END] FIX DJANGO MEDIAGENERATOR 1.12 #########################################
