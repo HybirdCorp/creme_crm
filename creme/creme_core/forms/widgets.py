@@ -556,14 +556,47 @@ class CTEntitySelector(ChainedInput):
 
 
 class RelationSelector(ChainedInput):
-    def __init__(self, relation_types, content_types, attrs=None, multiple=False, autocomplete=False):
+    _CTYPES_URL_FMT = '/creme_core/relation/type/${rtype}/content_types/json'
+
+    def __init__(self, relation_types=(), content_types=_CTYPES_URL_FMT,
+                 attrs=None, multiple=False, autocomplete=False,
+                ):
         super(RelationSelector, self).__init__(attrs)
+        self.relation_types = relation_types
+        self.content_types = content_types
+        self.multiple = multiple
+        self.autocomplete = autocomplete
 
-        dselect_attrs = {'auto': False, 'autocomplete': True} if autocomplete else {'auto': False}
+    def render(self, name, value, attrs=None):
+        dselect_attrs = {'auto': False, 'autocomplete': True} if self.autocomplete else \
+                        {'auto': False}
 
-        self.add_dselect("rtype", options=relation_types, attrs=dselect_attrs)
-        self.add_dselect("ctype", options=content_types, attrs=dselect_attrs)
-        self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
+        self.add_dselect("rtype", options=self.relation_types, attrs=dselect_attrs)
+        self.add_dselect("ctype", options=self.content_types,  attrs=dselect_attrs)
+        self.add_input("entity", widget=EntitySelector,
+                       attrs={'auto': False, 'multiple': self.multiple},
+                      )
+
+        return super(RelationSelector, self).render(name, value, attrs)
+
+
+class MultiRelationSelector(SelectorList):
+    def __init__(self, relation_types=(), content_types=RelationSelector._CTYPES_URL_FMT,
+                 attrs=None, autocomplete=False,
+                ):
+        super(MultiRelationSelector, self).__init__(None, attrs=attrs)
+        self.relation_types = relation_types
+        self.content_types = content_types
+        self.autocomplete = autocomplete
+
+    def render(self, name, value, attrs=None):
+        self.selector = RelationSelector(relation_types=self.relation_types,
+                                          content_types=self.content_types,
+                                          multiple=True,
+                                          autocomplete=self.autocomplete,
+                                         )
+
+        return super(MultiRelationSelector, self).render(name, value, attrs)
 
 
 class EntityCreatorWidget(ActionButtonList):
