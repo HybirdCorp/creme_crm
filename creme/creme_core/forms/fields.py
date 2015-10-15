@@ -28,12 +28,12 @@ from json import loads as json_load, dumps as json_dump
 from re import compile as compile_re
 import warnings
 
-from django.core.validators import validate_email
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import validate_email
 from django.db.models.query import QuerySet
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
         ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
-from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
+from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField, CallableChoiceIterator
 from django.forms.utils import ValidationError
 from django.forms.widgets import Select, Textarea
 from django.utils.encoding import smart_unicode
@@ -46,7 +46,7 @@ from ..utils.collections import OrderedSet
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
-from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget,
+from .widgets import (CTEntitySelector, EntitySelector,
         SelectorList, RelationSelector, ActionButtonList,
         UnorderedMultipleChoiceWidget, CalendarWidget)
 from . import widgets as core_widgets
@@ -1004,71 +1004,90 @@ class MultiCreatorEntityField(CreatorEntityField):
 
 
 class FilteredEntityTypeField(JSONField):
+    widget = core_widgets.FilteredEntityTypeWidget
     default_error_messages = {
         'ctyperequired':   _(u'The content type is required.'),
-        'ctypenotallowed': _(u'This content type is not allowed.'), #TODO: factorise
+        'ctypenotallowed': _(u'This content type is not allowed.'), # TODO: factorise
         'invalidefilter':  _(u'This filter is invalid.'),
     }
     value_type = dict
 
-    def __init__(self, ctypes=None, empty_label=None, *args, **kwargs):
+#    def __init__(self, ctypes=None, empty_label=None, *args, **kwargs):
+    def __init__(self, ctypes=creme_entity_content_types, empty_label=None, *args, **kwargs):
         """Constructor.
         @param ctypes Allowed types.
-                        - None : all CremeEntity types.
+                        - A callable which returns an iterable of ContentType IDs / instances.
                         - Sequence of ContentType IDs / instances.
         """
-        super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
-        self._empty_label = empty_label #TODO: setter property ??
-        self.ctypes = ctypes
+#                        - None : all CremeEntity types.
         self.user = None
+        super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
+        self._empty_label = empty_label
+        self.ctypes = ctypes
+        self.widget.from_python = self.from_python # TODO: in JSONField
 
-    def __deepcopy__(self, memo): # TODO: move to JSONField ?? (some JSON will never have this problem but...)
-        # NB: we force to create a 'cleaned' widget when instancing a form.
-        #     The 'ctypes' property should be called when the form is instanced
-        #     (because the list of entities can be empty if the form class is built too soon).
-        result = super(FilteredEntityTypeField, self).__deepcopy__(memo)
-        result.widget = result._create_widget()
-
-        return result
+#    def __deepcopy__(self, memo): # todo: move to JSONField ?? (some JSON will never have this problem but...)
+#        # NB: we force to create a 'cleaned' widget when instancing a form.
+#        #     The 'ctypes' property should be called when the form is instanced
+#        #     (because the list of entities can be empty if the form class is built too soon).
+#        result = super(FilteredEntityTypeField, self).__deepcopy__(memo)
+#        result.widget = result._create_widget()
+#
+#        return result
 
     def _build_empty_value(self):
         return None, None
 
     def _clean_ctype(self, ctype_pk):
-#        for ct in self._ctypes:
         for ct in self.ctypes:
             if ctype_pk == ct.id:
                 return ct
 
     @property
     def ctypes(self):
-        #return self._ctypes
-        return self._ctypes or list(creme_entity_content_types())
+#        return self._ctypes or list(creme_entity_content_types())
+        get_ct = ContentType.objects.get_for_id
+        return [ct_or_ctid if isinstance(ct_or_ctid, ContentType) else get_ct(ct_or_ctid)
+                    for ct_or_ctid in self._ctypes()
+               ]
 
     @ctypes.setter
     def ctypes(self, ctypes):
-#        if ctypes is None:
-#            ctypes = list(creme_entity_content_types())
-#        else:
-        if ctypes is not None:
-            ctypes = [ct_or_ctid if isinstance(ct_or_ctid, ContentType) else
-                      ContentType.objects.get_for_id(ct_or_ctid)
-                        for ct_or_ctid in ctypes
-                     ]
+        "See constructor."
+#        if ctypes is not None:
+#            ctypes = [ct_or_ctid if isinstance(ct_or_ctid, ContentType) else
+#                      ContentType.objects.get_for_id(ct_or_ctid)
+#                        for ct_or_ctid in ctypes
+#                     ]
+#
+#        self._ctypes = ctypes
+#
+#        self._build_widget()
+        if not callable(ctypes):
+            ctypes_list = list(ctypes) # We copy the sequence to avoid external modifications
+            ctypes = lambda: ctypes_list
 
         self._ctypes = ctypes
+        self.widget.content_types = CallableChoiceIterator(self._get_choices)
 
-        self._build_widget()
-
-    def _create_widget(self):
+#    def _create_widget(self):
+#        choices = []
+#        if self._empty_label is not None:
+#            choices.append((0, unicode(self._empty_label))) #todo: improve widget to do not make a request for '0'
+#
+#        choices.extend(build_ct_choices(self.ctypes))
+#
+#        return FilteredEntityTypeWidget(choices)
+    def _get_choices(self):
         choices = []
-        if self._empty_label is not None:
-            choices.append((0, unicode(self._empty_label))) #TODO: improve widget to do not make a request for '0'
 
-#        choices.extend(build_ct_choices(self._ctypes))
+        if self._empty_label is not None:
+            # TODO: improve widget to do not make a request for '0' (same comment in widget)
+            choices.append((0, unicode(self._empty_label)))
+
         choices.extend(build_ct_choices(self.ctypes))
 
-        return FilteredEntityTypeWidget(choices)
+        return choices
 
     def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
@@ -1089,7 +1108,7 @@ class FilteredEntityTypeField(JSONField):
                                  )
 
         efilter_pk = clean_value(data, 'efilter',  str, required=False)
-        if not efilter_pk:  #TODO: self.filter_required ???
+        if not efilter_pk:  # TODO: self.filter_required ???
             efilter = None
         else:
             try:

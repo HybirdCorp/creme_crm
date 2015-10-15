@@ -19,6 +19,7 @@
 ################################################################################
 
 import copy
+from functools import partial
 from itertools import chain
 from json import dumps as json_dump
 from types import GeneratorType
@@ -644,17 +645,28 @@ class MultiEntityCreatorWidget(SelectorList):
 
 
 class FilteredEntityTypeWidget(ChainedInput):
-    def __init__(self, content_types, attrs=None, autocomplete=False):
+    def __init__(self, content_types=(), attrs=None, autocomplete=False):
         super(FilteredEntityTypeWidget, self).__init__(attrs)
+        self.content_types = content_types
+        self.autocomplete = autocomplete
 
-        add_dselect = self.add_dselect
-        attrs = {'auto': False, 'autocomplete': True} if autocomplete else {'auto': False}
+    def render(self, name, value, attrs=None):
+        add_dselect = partial(self.add_dselect,
+                              attrs={'auto': False, 'autocomplete': True}
+                                    if self.autocomplete else
+                                    {'auto': False},
+                             )
         ctype_name = 'ctype'
-        add_dselect(ctype_name, options=content_types, attrs=attrs)
+        add_dselect(ctype_name, options=self.content_types, attrs=attrs)
 
-        #TODO: 'all' as GET parameter ??
-        #TODO: allow to omit the 'All' filter ??
-        add_dselect('efilter', options='/creme_core/entity_filter/get_for_ctype/${%s}/all' % ctype_name, attrs=attrs)
+        # TODO: 'all' as GET parameter ??
+        # TODO: allow to omit the 'All' filter ??
+        # TODO: do not make a request for ContentType ID == '0'
+        add_dselect('efilter', attrs=attrs,
+                    options='/creme_core/entity_filter/get_for_ctype/${%s}/all' % ctype_name,
+                   )
+
+        return super(FilteredEntityTypeWidget, self).render(name, value, attrs)
 
 
 class DateTimeWidget(TextInput):

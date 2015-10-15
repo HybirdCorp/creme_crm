@@ -46,7 +46,7 @@ class ActForm(CremeEntityForm):
 class ObjectiveForm(CremeModelForm):
     entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
                                               empty_label=_(u'Do not count entity'),
-                                             ) #TODO: help text ???
+                                             ) # TODO: help text ???
 
     class Meta:
         model = ActObjective
@@ -61,7 +61,7 @@ class ObjectiveForm(CremeModelForm):
         self.act = entity
 
         instance = self.instance
-        if instance.pk: #edition
+        if instance.pk: # Edition
             fields = self.fields
             efilter = instance.filter
 
