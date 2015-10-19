@@ -107,7 +107,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             self.assertIn(field.name, backend.body_map)
             self.assertEqual(Contact, field.model)
 
-        for field in builder.fields:#Two passes because of cache
+        for field in builder.fields: # Two passes because of cache
             self.assertIn(field.name, backend.body_map)
             self.assertEqual(Contact, field.model)
 
@@ -148,7 +148,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         else:
             self.fail('<xsf:property name="lang" type="string" value=""></xsf:property> not found')
 
-        #TODO: use 'property_node'
+        # TODO: use 'property_node'
 
         mail_form_name = backend.subject
         self.assertEqual(mail_form_name, xml_find('%(ns)sextensions/%(ns)sextension/%(ns2)ssolutionDefinition/%(ns2)ssolutionPropertiesExtension/%(ns2)smail' % d_ns).get('formName'))
@@ -184,7 +184,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         content = builder._render_manifest_xsf(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.get_namespace()
-                        )#Can't be got with ElementTree, because it's a namespace
+                        ) # Can't be got with ElementTree, because it's a namespace
 
         d_ns = {'xsf': "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}"}
         xmlToEdit_node = XML(content).find('%(xsf)sviews/%(xsf)sview/%(xsf)sediting/%(xsf)sxmlToEdit' % d_ns)
@@ -199,13 +199,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_myschema_xsd01(self):
         body_map = {'user_id':     1,
-                    'is_actived':  True, #TODO: ignore this (editable=False)
+                    'is_actived':  True, # TODO: ignore this (editable=False)
                     "first_name":  "",
                     "last_name":   "",
                     'email':       'none@none.com',
                     'description': "",
                     "birthday":    "",
-                    "created":     "", #TODO: ignore this (editable=False)
+                    "created":     "", # TODO: ignore this (editable=False)
                     'url_site':    "",
                     "image":       "",
                     "language":    "",
@@ -314,14 +314,14 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         content = builder._render_template_xml(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.get_namespace()
-                        )#Can't be got with ElementTree, because it's a namespace
+                        ) # Can't be got with ElementTree, because it's a namespace
 
         d_ns = {'my': builder.namespace, 'xsi': "{http://www.w3.org/2001/XMLSchema-instance}"}
         find  = XML(content).find
 
         for field in builder.fields:
             field_node = find('{%s}%s' % (builder.namespace, field.name))
-            self.assertIsNotNone(field_node)#Beware : bool(field_node) doesn't work !
+            self.assertIsNotNone(field_node) # Beware: bool(field_node) doesn't work !
             if field.is_nillable:
                 self.assertEqual("true", field_node.get('%(xsi)snil' % d_ns))
 
@@ -347,7 +347,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         content = builder._render_upgrade_xsl(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.namespace
-                        )#Can't be got with ElementTree, because it's a namespace
+                        ) # Can't be got with ElementTree, because it's a namespace
 
         self.assertEqual({"my:%s" % field_name for field_name in body_map.iterkeys()},
                          {node.get('name')
@@ -370,7 +370,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         content = builder._render_upgrade_xsl(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.namespace
-                        )#Can't be got with ElementTree, because it's a namespace
+                        )
 
         d_ns = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
         findall = XML(content).findall
@@ -402,7 +402,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         content = builder._render_view_xsl(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
                          builder.namespace
-                        )#Can't be got with ElementTree, because it's a namespace
+                        )
 
         return XML(content.encode('utf-8'))
 
@@ -453,7 +453,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 "%(xd)sbinding": "my:description",
                 "contentEditable": "true",
             },"span"),
-            "is_actived": ({ #TODO: remove (not editable)
+            "is_actived": ({ # TODO: remove (not editable)
                 "class":           "xdBehavior_Boolean",
                 "%(xd)sCtrlId":    "is_actived",
                 "%(xd)sxctname":   "CheckBox",
@@ -468,7 +468,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 "%(xd)sCtrlId":    "birthday",
                 "%(xd)sxctname":   "DTPicker",
             },"div"),
-            "created": ({  #TODO: remove (not editable)
+            "created": ({  # TODO: remove (not editable)
                 "class":           "xdDTPicker",
                 "%(xd)sCtrlId":    "created",
                 "%(xd)sxctname":   "DTPicker",
@@ -510,7 +510,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         "Deeper with ForeignKey"
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}",
                    'xd': "{http://schemas.microsoft.com/office/infopath/2003}"
-                  } #TODO: factorise ??
+                  } # TODO: factorise ??
         field_name = "user_id"
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                     body_map={field_name: ""}, model=Contact
@@ -531,7 +531,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             self.assertEqual(expected_value, target_node.get(attr % d_ns))
 
         options = target_node.findall('option')
-        self.assertTrue(options)#At least, it must have empty choice
+        self.assertTrue(options) # At least, it must have empty choice
 
         users_set = {('my:%s=""' % field_name, _('Select...'))}
         users_set.update(('my:%s="%s"' % (field_name, user.pk), unicode(user))
