@@ -218,6 +218,7 @@ class CustomFieldInteger(CustomFieldValue):
         return forms.IntegerField(**kwargs)
 
 
+# TODO: rename CustomFieldDecimal
 class CustomFieldFloat(CustomFieldValue):
     _MAX_DIGITS = 12
     _DECIMAL_PLACES = 2

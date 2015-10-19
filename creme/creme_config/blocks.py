@@ -28,7 +28,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, block_registry
 from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
-        CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig, CustomField,
+        CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
+        CustomField, CustomFieldEnumValue,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem,
         ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
@@ -53,8 +54,8 @@ class GenericModelsBlock(QuerysetBlock):
     configurable  = False
 
     def detailview_display(self, context):
-        #NB: credentials are OK : we are sure to use the custom reloading view
-        #    if 'model', 'model_name' etc... are in the context
+        # NB: credentials are OK : we are sure to use the custom reloading view
+        #     if 'model', 'model_name' etc... are in the context
         model = context['model']
 
         try:
@@ -101,7 +102,6 @@ class SettingsBlock(QuerysetBlock):
 
         return self._render(self.get_block_template_context(
                                 context,
-                                #SettingValue.objects.filter(key__app_label=app_name, key__hidden=False, user=None),
                                 SettingValue.objects.filter(key_id__in=skeys_ids, user=None),
                                 update_url='/creme_config/settings/%s/reload/' % app_name,
                                 app_name=app_name,
@@ -234,14 +234,30 @@ class CustomFieldsBlock(QuerysetBlock):
     configurable  = False
 
     def detailview_display(self, context):
-        #NB: credentials are OK : we are sure to use the custom reloading view if 'content_type' is in the context
+        # NB: credentials are OK : we are sure to use the custom reloading view if 'content_type' is in the context
         ct = context['content_type'] #ct_id instead ??
 
-        return self._render(self.get_block_template_context(
-                                context, CustomField.objects.filter(content_type=ct),
-                                update_url='/creme_config/custom_fields/%s/reload/' % ct.id,
-                                ct=ct
-                           ))
+        btc = self.get_block_template_context(
+                    context, CustomField.objects.filter(content_type=ct),
+                    update_url='/creme_config/custom_fields/%s/reload/' % ct.id,
+                    ct=ct
+                )
+
+        # Retrieve & cache Enum values (in order to display them of course)
+        enums_types = {CustomField.ENUM, CustomField.MULTI_ENUM}
+        enums_cfields = [cfield
+                            for cfield in btc['page'].object_list
+                                if cfield.field_type in enums_types
+                        ]
+        evalues_map = defaultdict(list)
+
+        for enum_value in CustomFieldEnumValue.objects.filter(custom_field__in=enums_cfields):
+            evalues_map[enum_value.custom_field_id].append(enum_value.value)
+
+        for enums_cfield in enums_cfields:
+            enums_cfield.enum_values = evalues_map[enums_cfield.id]
+
+        return self._render(btc)
 
 
 class UsersBlock(_ConfigAdminBlock):

@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load i18n creme_core_tags creme_block %}
 {% has_perm_to admin 'creme_core' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=4 %}
@@ -22,7 +21,12 @@
             {% for field in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{field.name}}</td>
-                    <td class="{{row_color}}">{{field.type_verbose_name}}</td>
+                    <td class="{{row_color}}">
+                        {{field.type_verbose_name}}
+                        {% with values=field.enum_values %}
+                            {% if values %}({{values|join:" / "}}){% endif %}
+                        {% endwith %}
+                    </td>
                     <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/custom_fields/edit/{{field.id}}' with_perms admin_perm %}</td>
                     <td class="{{row_color}} action">{% get_line_deletor at_url '/creme_config/custom_fields/delete' with_args "{'id': '{{field.id}}'}" with_perms admin_perm %}</td>
                 </tr>
