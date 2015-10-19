@@ -1538,6 +1538,7 @@ class CTypeChoiceField(Field):
                  required=True, widget=None, label=None, initial=None,
                  help_text=None, to_field_name=None, limit_choices_to=None,
                  *args, **kwargs):
+        "@param ctypes A a sequence on ContentTypes or a callable which returns one."
         super(CTypeChoiceField, self).__init__(required, widget, label, initial, help_text,
                                                *args, **kwargs
                                               )
@@ -1551,14 +1552,23 @@ class CTypeChoiceField(Field):
 
     @property
     def ctypes(self):
-        return self._ctypes
+#        return self._ctypes
+        return self._ctypes()
 
     @ctypes.setter
     def ctypes(self, ctypes):
-        self._ctypes = ctypes = list(ctypes)
-        choices = self._build_empty_choice(self._build_ctype_choices(ctypes))
+#        self._ctypes = ctypes = list(ctypes)
+#        choices = self._build_empty_choice(self._build_ctype_choices(ctypes))
+#
+#        self.widget.choices = choices
+        if not callable(ctypes):
+            ctypes_list = list(ctypes)
+            ctypes = lambda: ctypes_list
 
-        self.widget.choices = choices
+        self._ctypes = ctypes
+        self.widget.choices = CallableChoiceIterator(
+                lambda: self._build_empty_choice(self._build_ctype_choices(self.ctypes))
+            )
 
     def _build_empty_choice(self, choices):
         if not self.required:
@@ -1576,7 +1586,8 @@ class CTypeChoiceField(Field):
         try:
             ct_id = int(value)
 
-            for ctype in self._ctypes:
+#            for ctype in self._ctypes:
+            for ctype in self.ctypes:
                 if ctype.id == ct_id:
                     return ctype
         except ValueError:
@@ -1588,16 +1599,19 @@ class CTypeChoiceField(Field):
 
 
 class MultiCTypeChoiceField(CTypeChoiceField):
-    widget = UnorderedMultipleChoiceWidget()
+    widget = UnorderedMultipleChoiceWidget # Beware: use Choice inner class
 
     def _build_ctype_choices(self, ctypes):
         from ..utils.unicode_collation import collator
         from ..registry import creme_registry
 
-        Choice = UnorderedMultipleChoiceWidget.Choice
+        Choice = self.widget.Choice
         get_app = creme_registry.get_app
 
-        choices = [(Choice(ct.id, help=_(get_app(ct.app_label).verbose_name)), unicode(ct)) for ct in ctypes]
+        choices = [(Choice(ct.id, help=_(get_app(ct.app_label).verbose_name)),
+                           unicode(ct)
+                          ) for ct in ctypes
+                  ]
         sort_key = collator.sort_key
         choices.sort(key=lambda k: sort_key(k[1]))
 
@@ -1618,11 +1632,13 @@ class MultiCTypeChoiceField(CTypeChoiceField):
 
 class EntityCTypeChoiceField(CTypeChoiceField):
     def __init__(self, ctypes=None, *args, **kwargs):
-        ctypes = ctypes or creme_entity_content_types()
+#        ctypes = ctypes or creme_entity_content_types()
+        ctypes = ctypes or creme_entity_content_types
         super(EntityCTypeChoiceField, self).__init__(ctypes=ctypes, *args, **kwargs)
 
 
 class MultiEntityCTypeChoiceField(MultiCTypeChoiceField):
     def __init__(self, ctypes=None, *args, **kwargs):
-        ctypes = ctypes or creme_entity_content_types()
+#        ctypes = ctypes or creme_entity_content_types()
+        ctypes = ctypes or creme_entity_content_types
         super(MultiEntityCTypeChoiceField, self).__init__(ctypes=ctypes, *args, **kwargs)
