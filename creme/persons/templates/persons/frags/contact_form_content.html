@@ -3,7 +3,7 @@
 {% block main_content %}
     {% with form.get_blocks as blocks %}
         {% include "creme_core/generics/blockform/content.html" with form_block=blocks.general %}
-        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.coordinates %}
+        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.details %}
         {% include "persons/frags/billing_block.html" with form_block=blocks.billing_address %}
         {% include "persons/frags/shipping_block.html" with form_block=blocks.shipping_address %}
         {% for form_block in blocks %}

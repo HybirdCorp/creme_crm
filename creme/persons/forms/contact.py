@@ -40,10 +40,12 @@ Organisation = get_organisation_model()
 
 
 class ContactForm(_BasePersonForm):
-    birthday = CremeDateTimeField(label=_('Birthday'), required=False) #TODO: hook django to use our widget directly...
+    birthday = CremeDateTimeField(label=_('Birthday'), required=False) # TODO: hook django to use our widget directly...
     image    = CreatorEntityField(label=_('Image'), required=False, model=Image)
 
-    blocks = _BasePersonForm.blocks.new(('coordinates', _(u'Coordinates'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']))
+    blocks = _BasePersonForm.blocks.new(
+                ('details', _(u'Contact details'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']),
+            )
 
     class Meta(_BasePersonForm.Meta):
         model = Contact
