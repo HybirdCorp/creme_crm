@@ -2,14 +2,14 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i "tests/*"
+# > django-admin.py makemessages -l fr -i "tests/*" -e py -e html -e xml
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-29 15:42+0200\n"
+"POT-Creation-Date: 2015-10-15 17:39+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -114,6 +114,18 @@ msgstr "Est-ce que les actions en attente sont par utilisateur ?"
 msgid "Refresh"
 msgstr "Rafraîchir"
 
+#: templates/crudity/infopath/create_template/frags/validation/email_field.xml:3
+msgid "Invalid email"
+msgstr "E-mail invalide"
+
+#: templates/crudity/infopath/create_template/frags/validation/email_field.xml:3
+msgid "Enter a valid email address. For example: creme@crm.org"
+msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
+
+#: templates/crudity/infopath/create_template/frags/xsl/view/ForeignKey.xml:8
+msgid "Select..."
+msgstr "Sélectionner..."
+
 #: templates/crudity/templatetags/block_history.html:25
 #, python-format
 msgid "%(counter)s History item - %(ct_name)s"
@@ -209,15 +221,6 @@ msgstr "Formulaire Infopath pour \"%(verbose_name)s\""
 #: views/actions.py:56
 msgid "Operation successfully completed"
 msgstr ""
-
-#~ msgid "Invalid email"
-#~ msgstr "E-mail invalide"
-
-#~ msgid "Enter a valid email address. For example: creme@crm.org"
-#~ msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
-
-#~ msgid "Select..."
-#~ msgstr "Sélectionner..."
 
 #~ msgid "Read"
 #~ msgstr "Lire"
