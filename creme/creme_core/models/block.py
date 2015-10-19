@@ -230,6 +230,9 @@ class RelationBlockItem(CremeModel):
             self._cells_map = {}
             self._dump_cells_map()
 
+    def __unicode__(self): # NB: useful for creme_config titles
+        return self.relation_type.predicate
+
     def delete(self):
         BlockDetailviewLocation.objects.filter(block_id=self.block_id).delete()
 
