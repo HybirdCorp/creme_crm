@@ -30,7 +30,7 @@ from django.forms.fields import ChoiceField, CharField
 #from django.forms.utils import ErrorList
 from django.template.loader import render_to_string
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.core.entity_cell import (EntityCell, EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -346,7 +346,7 @@ class ReportExportPreviewFilterForm(CremeForm):
         fields['doc_type'].choices = self._backend_choices()
 
     def _date_field_choices(self, report):
-        return chain([("", _(u"None"))],
+        return chain([('', pgettext_lazy('reports-date_filter', u'None'))],
                      [(field.name, field.verbose_name)
                         for field in report.ct.model_class()._meta.fields
                             if is_date_field(field)
@@ -394,10 +394,10 @@ class ReportExportPreviewFilterForm(CremeForm):
                ]
 
         if date_filter is not None:
-            range = date_filter.name
+            d_range = date_filter.name
             start, end = date_filter.get_dates(now())
 
-            data.extend([('date_filter_0', range),
+            data.extend([('date_filter_0', d_range),
                          ('date_filter_1', start.strftime('%d-%m-%Y') if start else ''),
                          ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
                         ])
