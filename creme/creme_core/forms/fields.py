@@ -37,7 +37,7 @@ from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField, Calla
 from django.forms.utils import ValidationError
 from django.forms.widgets import Select, Textarea
 from django.utils.encoding import smart_unicode
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from ..constants import REL_SUB_HAS
 from ..models import RelationType, CremeEntity, EntityFilter
@@ -1365,23 +1365,26 @@ class DateRangeField(MultiValueField):
 #        self.start_date = DateField()
 #        self.end_date   = DateField()
         # TODO: are these attributes useful ??
-        self.ranges     = ChoiceField(choices=chain([(u'', _(u'Customized'))],
-                                                    date_range_registry.choices(),
-                                                   ),
-                                      required=False,
+        self.ranges = ranges = ChoiceField(
+                required=False,
+                choices=lambda: chain([(u'', pgettext_lazy('creme_core-date_range', u'Customized'))],
+                                      date_range_registry.choices(),
                                      )
+            )
         self.start_date = DateField(required=False)
         self.end_date   = DateField(required=False)
         self.render_as  = render_as
 
 #        fields = self.ranges, self.start_date, self.end_date
 #        super(DateRangeField, self).__init__(fields, required=required, *args, **kwargs)
-        super(DateRangeField, self).__init__(fields=(self.ranges,
+        super(DateRangeField, self).__init__(fields=(ranges,
                                                      self.start_date,
                                                      self.end_date,
                                                     ),
                                              require_all_fields=False, *args, **kwargs
                                             )
+
+        self.widget.choices = ranges.widget.choices # Get the CallableChoiceIterator
 
     def compress(self, data_list):
         if data_list:
