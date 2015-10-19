@@ -33,7 +33,7 @@ from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, pgettext_lazy
 
 from ..utils.date_range import date_range_registry
 from ..utils.media import creme_media_themed_url as media_url
@@ -308,12 +308,13 @@ class PolymorphicInput(TextInput):
 
 
 class DateRangeSelect(TextInput):
-    def __init__(self, attrs=None):
+    def __init__(self, attrs=None, choices=None):
         super(DateRangeSelect, self).__init__(attrs)
-        self.choices = self.range_choices()
+#        self.choices = self.range_choices()
+        self.choices = choices
 
     def range_choices(self):
-        choices = [('', _("Customized"))]
+        choices = [('', pgettext_lazy('creme_core-date_range', u'Customized'))]
         choices.extend(date_range_registry.choices())
         return choices
 
@@ -321,29 +322,32 @@ class DateRangeSelect(TextInput):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
         context = widget_render_context('ui-creme-daterange-selector', attrs)
 
+        choices = self.range_choices() if self.choices is None else self.choices
         date_range = ['<select class="daterange-input range-type">']
-        date_range.extend(u'<option value="%s">%s</option>' % (name, verb_name) for name, verb_name in self.choices)
+        date_range.extend(u'<option value="%s">%s</option>' % (name, verb_name)
+                            for name, verb_name in choices
+                         )
         date_range.append('</select>')
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
         context['select'] = '\n'.join(date_range)
-        context['start'] = '<input type="text" class="daterange-input date-start" />'
-        context['end']   = '<input type="text" class="daterange-input date-end" />'
-        context['from']  = _(u'From')
-        context['to']    = _(u'To')
+        context['from'] = _(u'From')
+        context['to'] = _(u'To')
         context['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
 
-        return mark_safe("""<span class="%(css)s" style="%(style)s" widget="%(typename)s" date_format="%(date_format)s">
-                                %(input)s
-                                %(select)s
-                               <span class="daterange-inputs"> %(from)s%(start)s&nbsp;%(to)s%(end)s</span>
-                            </span>""" % context
+        return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" date_format="%(date_format)s">'
+                            '%(input)s%(select)s'
+                            '<span class="daterange-inputs">'
+                                ' %(from)s<input type="text" class="daterange-input date-start" />'
+                                '&nbsp;%(to)s<input type="text" class="daterange-input date-end" />'
+                            '</span>'
+                         '</span>' % context
                         )
 
 
 class NullableDateRangeSelect(DateRangeSelect):
     def range_choices(self):
-        choices = [('', _("Customized"))]
+        choices = [('', pgettext_lazy('creme_core-date_range', u'Customized'))]
         choices.extend(date_range_registry.choices(exclude_empty=False))
         return choices
 
