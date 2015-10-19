@@ -1196,14 +1196,24 @@ class DatePeriodWidget(MultiWidget):
 
 
 class DateRangeWidget(MultiWidget):
-    def __init__(self, attrs=None):
+#    def __init__(self, attrs=None):
+    def __init__(self, choices=(), attrs=None):
         self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'
 
-        widgets = (Select(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()), attrs={'class': 'range-type'}),
+#        widgets = (Select(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()), attrs={'class': 'range-type'}),
+        widgets = (Select(choices=choices, attrs={'class': 'range-type'}),
                    CalendarWidget(attrs={'class': 'date-start'}),
                    CalendarWidget(attrs={'class': 'date-end'}),
                   )
         super(DateRangeWidget, self).__init__(widgets, attrs)
+
+    @property
+    def choices(self):
+        return self.widgets[0].choices
+
+    @choices.setter
+    def choices(self, choices):
+        self.widgets[0].choices = choices
 
     def decompress(self, value):
         if value:
@@ -1211,8 +1221,8 @@ class DateRangeWidget(MultiWidget):
         return None, None, None
 
     def format_output(self, rendered_widgets):
-        _css_class = "ui-creme-daterange" #TODO: inline ?
-        context = widget_render_context('ui-creme-daterange', {})
+        typename = 'ui-creme-daterange'
+        context = widget_render_context(typename, {})
 
         if self.render_as == 'table':
             return u"".join([u'<table class="%(css)s" style="%(style)s" widget="%(typename)s"><tbody><tr>' % context,
@@ -1225,7 +1235,10 @@ class DateRangeWidget(MultiWidget):
                              u'</ul>'
                             ])
 
-        return u'<div class="%s">%s</div>' % (_css_class, u''.join(u'<div>%s</div>' % w for w in rendered_widgets))
+        return u'<div class="%s">%s</div>' % (
+                        typename,
+                        u''.join(u'<div>%s</div>' % w for w in rendered_widgets),
+                    )
 
 
 class DurationWidget(MultiWidget):
