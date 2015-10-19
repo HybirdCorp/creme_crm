@@ -1,11 +1,9 @@
 {% extends "creme_core/base.html" %}
 {% load i18n creme_core_tags %}
 
+{% block page_title %}{% trans 'Filter' %} - {{form.instance.entity_type}} - {% endblock %}
+
 {% block content %}
-{% comment %}
-    {% trans 'Filter: %s' as fmt %}
-    {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance.entity_type|format:fmt %}
-{% endcomment %}
     {% if not form.instance.pk %}
         {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance.entity_type|format:_('Add a filter for «%s»') %}
     {% else %}
