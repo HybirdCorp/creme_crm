@@ -1099,14 +1099,14 @@ class ListEditionWidget(Widget):
 
     def render(self, name, value, attrs=None, choices=()):
         output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
-        row = u"""<tr>
-                    <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
-                    <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s" style="display:none;"/><span>%(label)s</span></td>
-                  </tr>""" if self.only_delete \
-            else u"""<tr>
-                        <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
-                        <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s"/></td>
-                     </tr>"""
+        row = (u'<tr>'
+                    '<td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>'
+                    '<td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s" style="display:none;"/><span>%(label)s</span></td>'
+                '</tr>' if self.only_delete else
+                u'<tr>'
+                    '<td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>'
+                    '<td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s"/></td>'
+                 '</tr>')
 
         for i, label in enumerate(self.content):
             checked = 'checked'
@@ -1243,10 +1243,7 @@ class DateRangeWidget(MultiWidget):
 
 class DurationWidget(MultiWidget):
     def __init__(self, attrs=None):
-        widgets = (TextInput(),
-                   TextInput(),
-                   TextInput()
-                  )
+        widgets = (TextInput(), TextInput(), TextInput())
         super(DurationWidget, self).__init__(widgets, attrs)
 
     def decompress(self, value):
@@ -1256,13 +1253,13 @@ class DurationWidget(MultiWidget):
 
     def format_output(self, rendered_widgets):
         hours_widget, minutes_widget, seconds_widget = rendered_widgets
-        return u"""<span>%(hours)s&nbsp;%(hours_label)s&nbsp;
-                         %(minutes)s&nbsp;%(minutes_label)s&nbsp;
-                         %(seconds)s&nbsp;%(seconds_label)s&nbsp;</span>
-                """ % {'hours':   hours_widget,   'hours_label':   _(u'Hour(s)'),
-                       'minutes': minutes_widget, 'minutes_label': _(u'Minute(s)'),
-                       'seconds': seconds_widget, 'seconds_label': _(u'Second(s)'),
-                      }
+        return (u'<span>%(hours)s&nbsp;%(hours_label)s&nbsp;'
+                        '%(minutes)s&nbsp;%(minutes_label)s&nbsp;'
+                        '%(seconds)s&nbsp;%(seconds_label)s&nbsp;'
+                 '</span>' % {'hours':   hours_widget,   'hours_label':   _(u'Hour(s)'),
+                              'minutes': minutes_widget, 'minutes_label': _(u'Minute(s)'),
+                              'seconds': seconds_widget, 'seconds_label': _(u'Second(s)'),
+                             })
 
 
 class ChoiceOrCharWidget(MultiWidget):
