@@ -411,7 +411,7 @@ class EntityCellRelation(EntityCell):
 
         relations_list = ['<ul>']
         relations_list.extend(u'<li>%s</li>' % widget_entity_hyperlink(e, user)
-                                for e in entity.get_related_entities(self.value, True)
+                                for e in related_entities
                              )
         relations_list.append('</ul>')
 
