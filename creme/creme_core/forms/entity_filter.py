@@ -54,6 +54,7 @@ from .widgets import (Label, DynamicInput, SelectorList, ChainedInput,
 TRUE = 'true'
 FALSE = 'false'
 
+_BOOL_OPTIONS = ((TRUE, _("True")), (FALSE, _("False")))
 _HAS_PROPERTY_OPTIONS = OrderedDict([
         (TRUE,  _(u'Has the property')),
         (FALSE, _(u'Does not have the property')),
@@ -91,12 +92,14 @@ class FieldConditionWidget(ChainedInput): # TODO: rename FieldConditionSelecor ?
         if self.autocomplete:
             field_attrs['autocomplete'] = True
 
-        operator_attrs = dict(field_attrs,
-                              filter='context.field && item.value ? item.value.types.split(" ").indexOf(context.field.type) !== -1 : true',
-                              dependencies='field',
-                             )
-        self.add_dselect('field',    options=self._build_fieldchoices(self.fields), attrs=field_attrs)
-        self.add_dselect('operator', options=self._build_operatorchoices(self.operators), attrs=operator_attrs)
+        add_dselect = self.add_dselect
+        add_dselect('field',    options=self._build_fieldchoices(self.fields), attrs=field_attrs)
+        add_dselect('operator', options=self._build_operatorchoices(self.operators),
+                    attrs=dict(field_attrs,
+                               filter='context.field && item.value ? item.value.types.split(" ").indexOf(context.field.type) !== -1 : true',
+                               dependencies='field',
+                              ),
+                   )
         self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
 
         return super(FieldConditionWidget, self).render(name, value, attrs)
@@ -104,26 +107,29 @@ class FieldConditionWidget(ChainedInput): # TODO: rename FieldConditionSelecor ?
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
 
-        pinput.add_input('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
-                         widget=DynamicSelectMultiple,
-                         url='/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs,
-                        )
+        EQUALS_OPS = (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT)
+        add_input = pinput.add_input
+        add_input('^enum(__null)?.(%d|%d)$' % EQUALS_OPS,
+                  widget=DynamicSelectMultiple, attrs=field_attrs,
+                  url='/creme_core/enumerable/${field.ctype}/json',
+                 )
 
-        pinput.add_dselect('^user(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+        pinput.add_dselect('^user(__null)?.(%d|%d)$' % EQUALS_OPS,
                            '/creme_core/enumerable/userfilter/json', attrs=field_attrs,
                           )
-        pinput.add_input('^fk(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
-                         EntitySelector, content_type='${field.ctype}', attrs={'auto': False},
-                        )
-        pinput.add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
-                         DateRangeSelect, attrs={'auto': False},
-                        )
-        pinput.add_input('^boolean(__null)?.*',
-                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
-                        )
-        pinput.add_input('(string|.*__null).(%d)$' % EntityFilterCondition.ISEMPTY,
-                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
-                        )
+        add_input('^fk(__null)?.(%d|%d)$' % EQUALS_OPS,
+                  widget=EntitySelector, attrs={'auto': False},
+                  content_type='${field.ctype}',
+                 )
+        add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
+                  widget=DateRangeSelect, attrs={'auto': False},
+                 )
+        add_input('^boolean(__null)?.*', widget=DynamicSelect,
+                  options=_BOOL_OPTIONS, attrs=field_attrs,
+                 )
+        add_input('(string|.*__null).(%d)$' % EntityFilterCondition.ISEMPTY,
+                  widget=DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
+                 )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
 
         return pinput
@@ -164,9 +170,10 @@ class FieldConditionWidget(ChainedInput): # TODO: rename FieldConditionSelecor ?
             category, choice = self._build_fieldchoice(fieldname, fieldlist)
             categories[category].append(choice)
 
-        # Use collation sort
-        return [(cat, sorted(categories[cat], key=lambda item: collator.sort_key(item[1])))
-                    for cat in sorted(categories.keys(), key=collator.sort_key)
+        sort_key = collator.sort_key
+
+        return [(cat, sorted(categories[cat], key=lambda item: sort_key(item[1])))
+                    for cat in sorted(categories.keys(), key=sort_key)
                ]
 
     @staticmethod
@@ -1454,8 +1461,8 @@ class EntityFilterCreateForm(_EntityFilterForm):
                                    )
 
         instance.set_conditions(self.get_cleaned_conditions(),
-                                check_cycles=False,  # there cannot be a cycle because we are creating the filter right now
-                                check_privacy=False, # already checked in clean()
+                                check_cycles=False,  # There cannot be a cycle because we are creating the filter right now
+                                check_privacy=False, # Already checked in clean()
                                )
 
         return instance
@@ -1494,7 +1501,7 @@ class EntityFilterEditForm(_EntityFilterForm):
     def save(self, *args, **kwargs):
         instance = super(EntityFilterEditForm, self).save(*args, **kwargs)
         instance.set_conditions(self.cleaned_data['all_conditions'],
-                                check_cycles=False, check_privacy=False, #already checked in clean()
+                                check_cycles=False, check_privacy=False, # Already checked in clean()
                                )
 
         return instance
