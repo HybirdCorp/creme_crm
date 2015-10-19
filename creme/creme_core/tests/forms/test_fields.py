@@ -237,7 +237,9 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         self.assertEqual(sorted([(ct1.pk, unicode(ct1)),
                                  (ct2.pk, unicode(ct2)),
                                 ], key=lambda ct: ct[1]),
-                         field.widget.choices)
+#                         field.widget.choices
+                         list(field.widget.choices)
+                        )
 
         self.assertEqual(ct1, clean(ct1.id))
         self.assertEqual(ct2, clean(ct2.id))
@@ -253,7 +255,9 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
                          sorted([(ct1.pk, unicode(ct1)),
                                  (ct2.pk, unicode(ct2)),
                                 ], key=lambda ct: ct[1]),
-                         field.widget.choices)
+#                         field.widget.choices
+                         list(field.widget.choices)
+                        )
 
         self.assertEqual(ct1, clean(ct1.id))
         self.assertEqual(ct2, clean(ct2.id))
@@ -304,7 +308,11 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
     def test_ctypes01(self):
         "Constructor"
         ct1 = self.ct1
-        clean = EntityCTypeChoiceField(ctypes=[ct1]).clean
+
+        with self.assertNumQueries(0):
+            field = EntityCTypeChoiceField(ctypes=[ct1])
+
+        clean = field.clean
         self.assertEqual(ct1, clean(ct1.id))
         self.assertFieldValidationError(EntityCTypeChoiceField,
                                         'invalid_choice', clean, self.ct2.id,
@@ -321,6 +329,16 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
         self.assertFieldValidationError(EntityCTypeChoiceField,
                                         'invalid_choice', clean, self.ct2.id,
                                        )
+
+    def test_ctypes03(self):
+        "All accepted"
+        ContentType.objects.clear_cache()
+
+        with self.assertNumQueries(0):
+            field = EntityCTypeChoiceField()
+
+        ct1 = self.ct1
+        self.assertEqual(ct1, field.clean(ct1.id))
 
 
 class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
@@ -372,8 +390,13 @@ class MultiEntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
     def test_required(self):
         ct1 = self.ct1
         ct2 = self.ct2
-        clean = MultiEntityCTypeChoiceField().clean
 
+        ContentType.objects.clear_cache()
+
+        with self.assertNumQueries(0):
+            field = MultiEntityCTypeChoiceField()
+
+        clean = field.clean
         self.assertEqual([ct1], clean([ct1.id]))
         self.assertEqual([ct2], clean([ct2.id]))
         self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'required', clean, '')
