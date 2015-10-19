@@ -513,7 +513,7 @@ class EntitySelector(TextInput):
                                         selection=selection_mode,
                                         autoselect=autoselect_mode,
                                         style=attrs.pop('style', ''),
-                                        label=_(u'Select...'),
+                                        label=_(u'Select…'),
                                        )
 
         value = self.from_python(value) if self.from_python is not None else value
