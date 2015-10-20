@@ -29,7 +29,8 @@ from .other_models import QuoteStatus
 #class Quote(Base):
 class AbstractQuote(Base):
     status           = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT)
-    acceptation_date = DateField(_(u"Acceptation date"), blank=True, null=True).set_tags(clonable=False)
+    acceptation_date = DateField(_(u"Acceptation date"), blank=True, null=True)\
+                                .set_tags(clonable=False, optional=True)
 
     creation_label = _('Add a quote')
 
