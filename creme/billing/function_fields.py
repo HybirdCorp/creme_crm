@@ -20,9 +20,10 @@
 
 import datetime
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult
+from creme.creme_core.models import FieldsConfig
 
 from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Organisation, Contact
@@ -57,19 +58,49 @@ def get_total_pending(entity):
     return sum_totals_no_vat(Invoice, entity,
                              status__pending_payment=True)
 
+# TODO: move to CremeEntity ? (see Opportunity too)
+# TODO: remove when FieldsConfig cache has been added.
+def _get_quote_fieldsconfig(entity):
+    fc = getattr(entity, '_fconfig_quote_cache', None)
+
+    if fc is None:
+        entity._fconfig_quote_cache = fc = FieldsConfig.get_4_model(Quote)
+
+    return fc
 
 def get_total_won_quote_last_year(entity):
+    if _get_quote_fieldsconfig(entity).is_fieldname_hidden('acceptation_date'):
+        return ugettext(u'Error: «Acceptation date» is hidden')
+
     today_date = datetime.date.today()
+
     return sum_totals_no_vat(Quote, entity,
                              status__won=True,
-                             acceptation_date__year=today_date.year - 1)
+                             acceptation_date__year=today_date.year - 1,
+                            )
 
 
 def get_total_won_quote_this_year(entity):
+    # TODO: factorise (decorator ?)
+    if _get_quote_fieldsconfig(entity).is_fieldname_hidden('acceptation_date'):
+        return ugettext(u'Error: «Acceptation date» is hidden')
+
     today_date = datetime.date.today()
+
     return sum_totals_no_vat(Quote, entity,
                              status__won=True,
-                             acceptation_date__year=today_date.year)
+                             acceptation_date__year=today_date.year,
+                            )
+
+
+class _BaseTotalWonQuote(FunctionField):
+    @classmethod
+    def populate_entities(cls, entities):
+        # TODO: remove when FieldsConfig cache has been added.
+        fc = FieldsConfig.get_4_model(Quote)
+
+        for entity in entities:
+            entity._fconfig_quote_cache = fc
 
 
 class _TotalPendingPayment(FunctionField):
@@ -79,31 +110,33 @@ class _TotalPendingPayment(FunctionField):
     def __call__(self, entity):
         return FunctionFieldResult(get_total_pending(entity))
 
-    #TODO: use cache
+    # TODO: use cache for creme_orgas_billings_ids + regroup queries
     # def populate_entities(cls, entities):
     #     pass
 
 
-class _TotalWonQuoteThisYear(FunctionField):
+#class _TotalWonQuoteThisYear(FunctionField):
+class _TotalWonQuoteThisYear(_BaseTotalWonQuote):
     name         = "total_won_quote_this_year"
     verbose_name = _(u"Total Won Quote This Year")
 
     def __call__(self, entity):
         return FunctionFieldResult(get_total_won_quote_this_year(entity))
 
-    #TODO: use cache
+    # TODO: see _TotalPendingPayment
     # def populate_entities(cls, entities):
     #     pass
 
 
-class _TotalWonQuoteLastYear(FunctionField):
+#class _TotalWonQuoteLastYear(FunctionField):
+class _TotalWonQuoteLastYear(_BaseTotalWonQuote):
     name         = "total_won_quote_last_year"
     verbose_name = _(u"Total Won Quote Last Year")
 
     def __call__(self, entity):
         return FunctionFieldResult(get_total_won_quote_last_year(entity))
 
-    #TODO: use cache
+    # TODO: see _TotalPendingPayment
     # def populate_entities(cls, entities):
     #     pass
 

@@ -2,13 +2,13 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i "tests/*"
+# > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-06 11:36+0200\n"
+"POT-Creation-Date: 2015-10-20 19:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -67,106 +67,106 @@ msgstr "Service"
 msgid "Related Credit Notes"
 msgstr "Avoirs relatifs"
 
-#: blocks.py:162 models/credit_note.py:37
+#: blocks.py:166 models/credit_note.py:37
 msgid "Add a credit note"
 msgstr "Ajouter un avoir"
 
-#: blocks.py:171
+#: blocks.py:178
 msgid "Total"
 msgstr "Total"
 
-#: blocks.py:187 models/other_models.py:136
+#: blocks.py:194 models/other_models.py:136
 #: templates/billing/templatetags/block_target.html:10
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
-#: blocks.py:196
+#: blocks.py:203
 msgid "Received invoices"
 msgstr "Factures reçues"
 
-#: blocks.py:244
+#: blocks.py:253
 msgid "Received billing documents"
 msgstr "Documents comptables reçus"
 
-#: blocks.py:250
+#: blocks.py:259
 #, python-format
 msgid "%s Received billing document"
 msgstr "%s Document comptable reçu"
 
-#: blocks.py:251
+#: blocks.py:260
 #, python-format
 msgid "%s Received billing documents"
 msgstr "%s Documents comptables reçus"
 
-#: blocks.py:252
+#: blocks.py:261
 msgid "No received billing document for the moment"
 msgstr "Aucun document comptable reçu pour le moment"
 
-#: blocks.py:272
+#: blocks.py:284
 msgid "Received quotes"
 msgstr "Devis reçus"
 
-#: blocks.py:275
+#: blocks.py:287
 #, python-format
 msgid "%s Received quote"
 msgstr "%s Devis reçu"
 
-#: blocks.py:276
+#: blocks.py:288
 #, python-format
 msgid "%s Received quotes"
 msgstr "%s Devis reçus"
 
-#: blocks.py:277
+#: blocks.py:289
 msgid "No received quote for the moment"
 msgstr "Aucun devis reçu pour le moment"
 
-#: blocks.py:283
+#: blocks.py:295
 msgid "Received sales orders"
 msgstr "Bons de commande reçus"
 
-#: blocks.py:286
+#: blocks.py:298
 #, python-format
 msgid "%s Received sales order"
 msgstr "%s Bon de commande reçu"
 
-#: blocks.py:287
+#: blocks.py:299
 #, python-format
 msgid "%s Received sales orders"
 msgstr "%s Bons de commande reçus"
 
-#: blocks.py:288
+#: blocks.py:300
 msgid "No received sales order for the moment"
 msgstr "Aucun bon reçu pour le moment"
 
-#: blocks.py:294
+#: blocks.py:306
 msgid "Received credit notes"
 msgstr "Avoirs reçus"
 
-#: blocks.py:297
+#: blocks.py:309
 #, python-format
 msgid "%s Received credit note"
 msgstr "%s Avoir reçu"
 
-#: blocks.py:298
+#: blocks.py:310
 #, python-format
 msgid "%s Received credit notes"
 msgstr "%s Avoirs reçus"
 
-#: blocks.py:299
+#: blocks.py:311
 msgid "No received credit note for the moment"
 msgstr "Aucun avoir reçu pour le moment"
 
-#: blocks.py:304 models/base.py:90
+#: blocks.py:316 models/base.py:103
 #: templates/billing/templatetags/block_billing_payment_information.html:5
 #: templates/billing/templatetags/block_payment_information.html:5
 msgid "Payment information"
 msgstr "Informations de paiement"
 
-#: blocks.py:335
+#: blocks.py:347
 msgid "Default payment information"
 msgstr "Information de paiement par défaut"
 
-#: blocks.py:367 templates/billing/templatetags/block_persons_statistics.html:5
+#: blocks.py:379 templates/billing/templatetags/block_persons_statistics.html:5
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -212,7 +212,7 @@ msgstr "Cible"
 msgid "Issuing date"
 msgstr "Émission"
 
-#: forms/base.py:68 models/base.py:57
+#: forms/base.py:68 models/base.py:58
 #: templates/billing/templatetags/block_credit_note.html:26
 #: templates/billing/templatetags/block_received_billing_document.html:17
 #: templates/billing/templatetags/block_received_invoices.html:17
@@ -228,12 +228,12 @@ msgid "Organisations"
 msgstr "Sociétés"
 
 #: forms/base.py:176 forms/lv_import.py:99 forms/lv_import.py:125
-#: forms/templatebase.py:85 models/base.py:61
+#: forms/templatebase.py:85 models/base.py:66
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
 #: forms/base.py:177 forms/lv_import.py:100 forms/lv_import.py:130
-#: forms/templatebase.py:86 models/base.py:67
+#: forms/templatebase.py:86 models/base.py:73
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
@@ -351,17 +351,21 @@ msgstr "Statut"
 msgid "Status of %s"
 msgstr "Statut de %s"
 
-#: function_fields.py:77
+#: function_fields.py:73 function_fields.py:86
+msgid "Error: «Acceptation date» is hidden"
+msgstr "Erreur: «Date d'acceptation» est caché"
+
+#: function_fields.py:108
 #: templates/billing/templatetags/block_persons_statistics.html:17
 msgid "Total Pending Payment"
 msgstr "Total des paiements en attente"
 
-#: function_fields.py:89
+#: function_fields.py:121
 #: templates/billing/templatetags/block_persons_statistics.html:13
 msgid "Total Won Quote This Year"
 msgstr "Total des Devis remportés cette année"
 
-#: function_fields.py:101
+#: function_fields.py:134
 #: templates/billing/templatetags/block_persons_statistics.html:9
 msgid "Total Won Quote Last Year"
 msgstr "Total des Devis remportés l'année dernière"
@@ -395,15 +399,15 @@ msgstr "Nom"
 msgid "Number"
 msgstr "Numéro"
 
-#: models/base.py:59 templates/billing/templatetags/block_billing.html:49
+#: models/base.py:61 templates/billing/templatetags/block_billing.html:49
 msgid "Overall discount"
 msgstr "Remise globale"
 
-#: models/base.py:72 templates/billing/templatetags/block_billing.html:78
+#: models/base.py:78 templates/billing/templatetags/block_billing.html:78
 msgid "Currency"
 msgstr "Devise"
 
-#: models/base.py:77 models/line.py:59
+#: models/base.py:83 models/line.py:59
 #: templates/billing/frags/generic_billing_line_frag.html:38
 #: templates/billing/frags/generic_billing_line_frag.html:82
 #: templates/billing/templatetags/block_billing.html:63
@@ -411,25 +415,25 @@ msgstr "Devise"
 msgid "Comment"
 msgstr "Remarques"
 
-#: models/base.py:78
+#: models/base.py:84
 msgid "Total with VAT"
 msgstr "Total avec TVA"
 
-#: models/base.py:79
+#: models/base.py:88
 #: templates/billing/templatetags/block_received_billing_document.html:19
 #: templates/billing/templatetags/block_received_invoices.html:19
 msgid "Total without VAT"
 msgstr "Total HT"
 
-#: models/base.py:80 templates/billing/templatetags/block_billing.html:68
+#: models/base.py:93 templates/billing/templatetags/block_billing.html:68
 msgid "Additional Information"
 msgstr "Informations supplémentaires"
 
-#: models/base.py:85 templates/billing/templatetags/block_billing.html:73
+#: models/base.py:98 templates/billing/templatetags/block_billing.html:73
 msgid "Payment Terms"
 msgstr "Conditions de règlement"
 
-#: models/base.py:92
+#: models/base.py:107
 msgid "Add an accounting document"
 msgstr "Ajouter un document comptable"
 
@@ -451,17 +455,17 @@ msgstr "Statut de la facture"
 msgid "Settlement terms"
 msgstr "Délais de règlement"
 
-#: models/invoice.py:39
+#: models/invoice.py:40
 #: templates/billing/templatetags/block_received_invoices.html:8
 msgid "Add an invoice"
 msgstr "Ajouter une facture"
 
-#: models/invoice.py:46
+#: models/invoice.py:47
 #: templates/billing/templatetags/block_received_invoices.html:5
 msgid "Invoice"
 msgstr "Facture"
 
-#: models/invoice.py:47
+#: models/invoice.py:48
 msgid "Invoices"
 msgstr "Factures"
 
@@ -658,15 +662,15 @@ msgstr "Ligne produit"
 msgid "Status of quote"
 msgstr "Statut du devis"
 
-#: models/quote.py:34
+#: models/quote.py:35
 msgid "Add a quote"
 msgstr "Ajouter un devis"
 
-#: models/quote.py:64
+#: models/quote.py:65
 msgid "Quote"
 msgstr "Devis"
 
-#: models/quote.py:65
+#: models/quote.py:66
 msgid "Quotes"
 msgstr "Devis"
 
@@ -1110,7 +1114,7 @@ msgstr "Avoirs"
 msgid "Link to existing credit notes"
 msgstr "Consommer des avoirs existants"
 
-#: templates/billing/templatetags/block_credit_note.html:76
+#: templates/billing/templatetags/block_credit_note.html:66
 msgid "No related credit note for the moment"
 msgstr "Aucun avoir consommé pour le moment"
 
@@ -1216,16 +1220,16 @@ msgstr "%s %%"
 msgid "%(src)s (converted into  %(dest)s)"
 msgstr "%(src)s (converti en %(dest)s)"
 
-#: views/credit_note.py:43
+#: views/credit_note.py:44
 msgid "Save the credit note"
 msgstr "Enregistrer l'avoir"
 
-#: views/credit_note.py:75
+#: views/credit_note.py:79
 #, python-format
 msgid "Credit notes for «%s»"
 msgstr "Avoirs consommables par «%s»"
 
-#: views/credit_note.py:76
+#: views/credit_note.py:80
 msgid "Save the credit notes"
 msgstr "Enregistrer les avoirs"
 

@@ -4,9 +4,11 @@ try:
     import datetime
     from itertools import chain
 
+    from django.utils.translation import ugettext as _
+
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.core.function_field import FunctionField
-    from creme.creme_core.models import CremeProperty
+    from creme.creme_core.models import CremeProperty, FieldsConfig
 
     from creme.persons import get_contact_model
     from creme.persons.models import Organisation #, Contact
@@ -14,7 +16,7 @@ try:
 
     from ..function_fields import (get_total_pending,
             get_total_won_quote_last_year, get_total_won_quote_this_year)
-    from ..models import QuoteStatus, InvoiceStatus, ProductLine
+    from ..models import Quote, QuoteStatus, InvoiceStatus, ProductLine
     from .base import (_BillingTestCase, skipIfCustomProductLine,
             skipIfCustomQuote, skipIfCustomInvoice)
 except Exception as e:
@@ -58,7 +60,7 @@ class FunctionFieldTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
-    def test_get_total_won_quote_last_year(self):
+    def test_get_total_won_quote_last_year01(self):
         quote, source, target = self.create_quote_n_orgas("YOLO")
         quote.status = self.won_status
         year = datetime.timedelta(days=365)
@@ -69,9 +71,55 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote, 5000, 1)
         self.assertEqual(5000, get_total_won_quote_last_year(target))
 
+        funf = target.function_fields.get('total_won_quote_last_year')
+        self.assertIsNotNone(funf)
+        self.assertEqual('5000.00', funf(target).for_html()) # TODO: localization for numbers
+
+        # TODO: use self.assertNumQueries()
+
     @skipIfCustomQuote
     @skipIfCustomProductLine
-    def test_get_total_won_quote_this_year(self):
+    def test_get_total_won_quote_last_year02(self):
+        "'acceptation_date' is hidden"
+        quote, source, target = self.create_quote_n_orgas("YOLO")
+
+        FieldsConfig.create(Quote,
+                            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        quote.acceptation_date = self.today_date #- year
+        self._set_manages_by_creme(source)
+
+        with self.assertNumQueries(1):
+            total = get_total_won_quote_last_year(target)
+
+        self.assertEqual(_(u'Error: «Acceptation date» is hidden'), total)
+
+        with self.assertNumQueries(0):
+            get_total_won_quote_last_year(target)
+
+    @skipIfCustomQuote
+    @skipIfCustomProductLine
+    def test_get_total_won_quote_last_year03(self):
+        "'acceptation_date' is hidden + populate_entities()"
+        quote1, source1, target1 = self.create_quote_n_orgas("Quote1")
+        quote2, source2, target2 = self.create_quote_n_orgas("Quote2")
+
+        FieldsConfig.create(Quote,
+                            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        funf = target1.function_fields.get('total_won_quote_last_year')
+
+        with self.assertNumQueries(1):
+            funf.populate_entities([target1, target2])
+
+        with self.assertNumQueries(0):
+            get_total_won_quote_last_year(target1)
+
+    @skipIfCustomQuote
+    @skipIfCustomProductLine
+    def test_get_total_won_quote_this_year01(self):
         quote, source, target = self.create_quote_n_orgas("YOLO")
         quote.status = self.won_status
         quote.acceptation_date = self.today_date
@@ -80,6 +128,31 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertEqual(0, get_total_won_quote_this_year(target))
         self.create_line(quote, 5000, 1)
         self.assertEqual(5000, get_total_won_quote_this_year(target))
+
+        funf = target.function_fields.get('total_won_quote_this_year')
+        self.assertIsNotNone(funf)
+        self.assertEqual('5000.00', funf(target).for_html()) # TODO: localization for numbers
+
+    @skipIfCustomQuote
+    @skipIfCustomProductLine
+    def test_get_total_won_quote_this_year02(self):
+        "'acceptation_date' is hidden + populate_entities()"
+        quote1, source1, target1 = self.create_quote_n_orgas("Quote1")
+        quote2, source2, target2 = self.create_quote_n_orgas("Quote2")
+
+        FieldsConfig.create(Quote,
+                            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        funf = target1.function_fields.get('total_won_quote_this_year')
+
+        with self.assertNumQueries(1):
+            funf.populate_entities([target1, target2])
+
+        with self.assertNumQueries(0):
+            total = funf(target1).for_csv()
+
+        self.assertEqual(_(u'Error: «Acceptation date» is hidden'), total)
 
     @skipIfCustomQuote
     def test_functionfields(self):
