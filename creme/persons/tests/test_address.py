@@ -114,7 +114,7 @@ class AddressTestCase(CremeTestCase):
         self.assertContains(response, department)
 
     @skipIfCustomOrganisation
-    def test_create_billing(self):
+    def test_create_billing01(self):
         orga = self.login()
         self.assertGET404('/persons/address/add/invalid/%s' % orga.id)
 
@@ -148,6 +148,15 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(_(u'Billing address'), address.name)
 
         self.assertEqual(address, self.refresh(orga).billing_address)
+
+    @skipIfCustomOrganisation
+    def test_create_billing02(self):
+        orga = self.login()
+
+        FieldsConfig.create(Organisation,
+                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                           )
+        self.assertGET409(reverse('persons__create_billing_address', args=(orga.id,)))
 
     @skipIfCustomOrganisation
     def test_create_shipping(self):
