@@ -20,7 +20,9 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model
 #from ..models import Address
@@ -48,6 +50,14 @@ class UnnamedAddressForm(AddressForm):
 class _FieldAddressForm(UnnamedAddressForm):
     field_name = 'OVERLOAD'
     verbose_name = 'OVERLOAD'
+
+    def __init__(self, *args, **kwargs):
+        super(_FieldAddressForm, self).__init__(*args, **kwargs)
+
+        # TODO: should be in the view ?
+        field_name = self.field_name
+        if FieldsConfig.get_4_model(self._entity.__class__).is_fieldname_hidden(field_name):
+            raise ConflictError('"%s" is hidden & so it cannot be edited' % field_name)
 
     def save(self, *args, **kwargs):
         address = self.instance
