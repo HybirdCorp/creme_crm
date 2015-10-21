@@ -821,7 +821,7 @@ class CalendarWidget(TextInput):
                                                                format=dateformat),
                               })
 
-#TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup
+# TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup
 class DependentSelect(Select):
     def __init__(self, target_id, attrs=None, choices=()):
         self.target_id   = target_id
