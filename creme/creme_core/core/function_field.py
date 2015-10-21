@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,33 +19,8 @@
 ################################################################################
 
 from django.db.models.query_utils import Q
+from django.utils.formats import number_format
 from django.utils.html import escape
-
-
-class FunctionField(object):
-    """A FunctionField is related to a model and represents a special method of
-    this model : it has a verbose name and can be used by HeaderFilter to build
-    a column (like regular fields).
-    """
-    name         = "" #name of the attr if the related model class
-    verbose_name = "" #verbose name (used by HeaderFilter)
-    has_filter   = False #see EntityCell.has_a_filter
-    is_hidden    = False #see EntityCell.is_hidden
-    choices      = None #Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
-
-    @classmethod
-    def filter_in_result(cls, search_string):
-        return Q()
-
-    def __call__(self, entity):
-        """"@return An instance of FunctionField object
-        (so you can call for_html()/for_csv() on the result)."""
-        return FunctionFieldResult(getattr(entity, self.name)())
-
-    @classmethod
-    def populate_entities(cls, entities):
-        """Optimisation used for listviews ; see HeaderFilter"""
-        pass
 
 
 class FunctionFieldResult(object):
@@ -62,6 +37,51 @@ class FunctionFieldResult(object):
 
     def for_csv(self):
         return self._data
+
+
+class FunctionFieldDecimal(FunctionFieldResult):
+    def _format_decimal(self):
+        val = self._data
+        # TODO: factorise with field_printers ?
+        # TODO remove 'use_l10n' when settings.USE_L10N == True
+        return number_format(val, use_l10n=True) # TODO: ?? "if val is not None else ''"
+
+    def for_html(self):
+        return self._format_decimal() # TODO: escape() ?
+
+    def for_csv(self):
+        return self._format_decimal()
+
+# TODO: other types (date, datetime...)
+
+
+class FunctionField(object):
+    """A FunctionField is related to a model and represents a special method of
+    this model : it has a verbose name and can be used by HeaderFilter to build
+    a column (like regular fields).
+    """
+    name         = "" #name of the attr if the related model class
+    verbose_name = "" #verbose name (used by HeaderFilter)
+    has_filter   = False #see EntityCell.has_a_filter
+    is_hidden    = False #see EntityCell.is_hidden
+    choices      = None #Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
+    result_type  = FunctionFieldResult
+
+    @classmethod
+    def filter_in_result(cls, search_string):
+        return Q()
+
+    def __call__(self, entity):
+        """"@return An instance of FunctionField object
+        (so you can call for_html()/for_csv() on the result)."""
+#        return FunctionFieldResult(getattr(entity, self.name)())
+        return self.result_type(getattr(entity, self.name)())
+
+    @classmethod
+    def populate_entities(cls, entities):
+        """Optimisation used for listviews ; see HeaderFilter"""
+        pass
+
 
 
 class FunctionFieldResultsList(FunctionFieldResult):

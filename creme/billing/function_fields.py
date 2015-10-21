@@ -22,7 +22,7 @@ import datetime
 
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult
+from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal # FunctionFieldResult
 from creme.creme_core.models import FieldsConfig
 
 from creme.persons import get_contact_model, get_organisation_model
@@ -55,8 +55,7 @@ def sum_totals_no_vat(model, entity, **kwargs):
     return sum(billing_document.total_no_vat for billing_document in billing_documents)
 
 def get_total_pending(entity):
-    return sum_totals_no_vat(Invoice, entity,
-                             status__pending_payment=True)
+    return sum_totals_no_vat(Invoice, entity, status__pending_payment=True)
 
 # TODO: move to CremeEntity ? (see Opportunity too)
 # TODO: remove when FieldsConfig cache has been added.
@@ -108,7 +107,8 @@ class _TotalPendingPayment(FunctionField):
     verbose_name = _(u"Total Pending Payment")
 
     def __call__(self, entity):
-        return FunctionFieldResult(get_total_pending(entity))
+#        return FunctionFieldResult(get_total_pending(entity))
+        return FunctionFieldDecimal(get_total_pending(entity))
 
     # TODO: use cache for creme_orgas_billings_ids + regroup queries
     # def populate_entities(cls, entities):
@@ -121,7 +121,8 @@ class _TotalWonQuoteThisYear(_BaseTotalWonQuote):
     verbose_name = _(u"Total Won Quote This Year")
 
     def __call__(self, entity):
-        return FunctionFieldResult(get_total_won_quote_this_year(entity))
+#       return FunctionFieldResult(get_total_won_quote_this_year(entity))
+        return FunctionFieldDecimal(get_total_won_quote_this_year(entity))
 
     # TODO: see _TotalPendingPayment
     # def populate_entities(cls, entities):
@@ -134,7 +135,8 @@ class _TotalWonQuoteLastYear(_BaseTotalWonQuote):
     verbose_name = _(u"Total Won Quote Last Year")
 
     def __call__(self, entity):
-        return FunctionFieldResult(get_total_won_quote_last_year(entity))
+#        return FunctionFieldResult(get_total_won_quote_last_year(entity))
+        return FunctionFieldDecimal(get_total_won_quote_last_year(entity))
 
     # TODO: see _TotalPendingPayment
     # def populate_entities(cls, entities):
