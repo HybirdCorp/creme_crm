@@ -31,7 +31,7 @@ from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerF
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.core.function_field import FunctionField
+from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
 from creme.creme_core.models import (CremeEntity, CremeModel, Relation,
         FieldsConfig, Currency, Vat)
 from creme.creme_core.models.fields import BasicAutoField
@@ -52,6 +52,7 @@ from ..constants import *
 class _TurnoverField(FunctionField):
     name         = "get_weighted_sales"
     verbose_name = _(u"Weighted sales")
+    result_type  = FunctionFieldDecimal
 
     @classmethod
     def populate_entities(cls, entities):

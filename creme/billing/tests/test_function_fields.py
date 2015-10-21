@@ -4,6 +4,7 @@ try:
     import datetime
     from itertools import chain
 
+    from django.utils.formats import number_format
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
@@ -55,8 +56,16 @@ class FunctionFieldTestCase(_BillingTestCase):
         invoice.save()
         self._set_manages_by_creme(source)
         self.assertEqual(0, get_total_pending(target))
+
         self.create_line(invoice, 5000, 1)
         self.assertEqual(5000, get_total_pending(target))
+
+        funf = target.function_fields.get('total_pending_payment')
+        self.assertIsNotNone(funf)
+
+        val = number_format('5000.00', use_l10n=True)
+        self.assertEqual(val, funf(target).for_html())
+        self.assertEqual(val, funf(target).for_csv())
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
@@ -68,12 +77,16 @@ class FunctionFieldTestCase(_BillingTestCase):
         quote.save()
         self._set_manages_by_creme(source)
         self.assertEqual(0, get_total_won_quote_last_year(target))
+
         self.create_line(quote, 5000, 1)
         self.assertEqual(5000, get_total_won_quote_last_year(target))
 
         funf = target.function_fields.get('total_won_quote_last_year')
         self.assertIsNotNone(funf)
-        self.assertEqual('5000.00', funf(target).for_html()) # TODO: localization for numbers
+
+        val = number_format('5000.00', use_l10n=True)
+        self.assertEqual(val, funf(target).for_html())
+        self.assertEqual(val, funf(target).for_csv())
 
         # TODO: use self.assertNumQueries()
 
@@ -126,12 +139,16 @@ class FunctionFieldTestCase(_BillingTestCase):
         quote.save()
         self._set_manages_by_creme(source)
         self.assertEqual(0, get_total_won_quote_this_year(target))
+
         self.create_line(quote, 5000, 1)
         self.assertEqual(5000, get_total_won_quote_this_year(target))
 
         funf = target.function_fields.get('total_won_quote_this_year')
         self.assertIsNotNone(funf)
-        self.assertEqual('5000.00', funf(target).for_html()) # TODO: localization for numbers
+
+        val = number_format('5000.00', use_l10n=True)
+        self.assertEqual(val, funf(target).for_html())
+        self.assertEqual(val, funf(target).for_csv())
 
     @skipIfCustomQuote
     @skipIfCustomProductLine

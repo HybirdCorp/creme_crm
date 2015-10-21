@@ -12,6 +12,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.db.models import Max
+    from django.utils.formats import number_format
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
@@ -984,12 +985,16 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
         self.assertEqual(0, opportunity.get_weighted_sales())
-        self.assertEqual('0.0', funf(opportunity).for_html())
+        self.assertEqual(number_format('0.0', use_l10n=True),
+                         funf(opportunity).for_html()
+                        )
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   =  10
         self.assertEqual(100, opportunity.get_weighted_sales())
-        self.assertEqual('100.0', funf(opportunity).for_html())
+        self.assertEqual(number_format('100.0', use_l10n=True),
+                         funf(opportunity).for_html()
+                        )
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales02(self):
