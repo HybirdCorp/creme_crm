@@ -284,6 +284,13 @@ class SearchViewTestCase(ViewsTestCase):
                             _('It seems that all fields are hidden. Ask your administrator to fix the configuration.')
                            )
 
+    def test_search12(self):
+        "Model is not a CremeEntity"
+        self.login()
+
+        response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
+        self.assertEqual(404, response.status_code)
+
     def test_reload_block(self):
         self.login()
         self._setup_contacts()
