@@ -124,7 +124,12 @@ def search(request):
             models.extend(creme_registry.iter_entity_models())
             models.sort(key=lambda m: m._meta.verbose_name)
         else:
-            models.append(get_ct_or_404(ct_id).model_class())
+            model = get_ct_or_404(ct_id).model_class()
+
+            if not issubclass(model, CremeEntity):
+                raise Http404('The model must be a CremeEntity')
+
+            models.append(model)
 
         user = request.user
         searcher = Searcher(models, user)
