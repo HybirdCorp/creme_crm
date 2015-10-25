@@ -376,8 +376,8 @@ class CremeUser(AbstractBaseUser):
                                                        ),
                                         ],
                             )
-    first_name   = CharField(_(u'First name'), max_length=100, blank=True).set_tags(viewable=False) # NB: blank=True for teams
     last_name    = CharField(_(u'Last name'), max_length=100, blank=True)
+    first_name   = CharField(_(u'First name'), max_length=100, blank=True).set_tags(viewable=False) # NB: blank=True for teams
     email        = EmailField(_('Email address'), blank=True)
     date_joined  = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
     is_active    = BooleanField(_('Is active?'), default=True,
