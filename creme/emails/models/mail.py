@@ -45,8 +45,12 @@ ID_LENGTH = 32
 
 
 class _Email(CremeModel):
-    reads          = PositiveIntegerField(_(u'Number of reads'), blank=True, null=True, default=0)
-    status         = PositiveSmallIntegerField(_(u'Status'), default=MAIL_STATUS_NOTSENT)
+    reads          = PositiveIntegerField(_(u'Number of reads'), blank=True, null=True,
+                                          default=0, editable=False,
+                                         )
+    status         = PositiveSmallIntegerField(_(u'Status'), editable=False,
+                                               default=MAIL_STATUS_NOTSENT,
+                                              )
 
     sender         = CharField(_(u'Sender'), max_length=100)
     recipient      = CharField(_(u'Recipient'), max_length=100)
@@ -54,8 +58,8 @@ class _Email(CremeModel):
     subject        = CharField(_(u'Subject'), max_length=100, blank=True, null=True)
     #body_html      = TextField()
     body           = TextField(_(u'Body'))
-    sending_date   = DateTimeField(_(u"Sending date"), blank=True, null=True)
-    reception_date = DateTimeField(_(u"Reception date"), blank=True, null=True)
+    sending_date   = DateTimeField(_(u"Sending date"), blank=True, null=True, editable=False)
+    reception_date = DateTimeField(_(u"Reception date"), blank=True, null=True, editable=False)
     #signature      = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
     #attachments    = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
@@ -76,7 +80,10 @@ class _Email(CremeModel):
 
 #class EntityEmail(_Email, CremeEntity):
 class AbstractEntityEmail(_Email, CremeEntity):
-    identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, editable=False, default=generate_id)#TODO: lambda for this
+    identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH,
+                            null=False, blank=False, editable=False,
+                            default=generate_id, # TODO: lambda for this
+                           )
     body_html   = TextField(_(u'Body (HTML)'))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
 #    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
