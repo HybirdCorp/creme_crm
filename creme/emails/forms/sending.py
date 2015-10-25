@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime, time
+
 import logging
 from pickle import dumps
 
@@ -27,8 +29,9 @@ from django.template.base import Template, VariableNode
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _ # ugettext
 
-from creme.creme_core.models import SettingValue
 from creme.creme_core.forms import CremeModelForm, CreatorEntityField, CremeDateTimeField
+from creme.creme_core.models import SettingValue
+from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
 from ..constants import MAIL_STATUS_NOTSENT, SETTING_EMAILCAMPAIGN_SENDER
@@ -107,9 +110,16 @@ class SendingCreateForm(CremeModelForm):
             if sending_date is None:
                 self.add_error('sending_date', _(u"Sending date required for a deferred sending"))
             else:
-                sending_date = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
-                                                    minute=int(cleaned_data.get('minute') or 0),
-                                                   )
+#                sending_date = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
+#                                                    minute=int(cleaned_data.get('minute') or 0),
+#                                                   )
+                get_data = cleaned_data.get
+                sending_date = make_aware_dt(datetime.combine(sending_date,
+                                                              time(hour=int(get_data('hour') or 0),
+                                                                   minute=int(get_data('minute') or 0),
+                                                                  ),
+                                                             )
+                                            )
 
                 if sending_date < now():
                     self.add_error('sending_date', _(u'Sending date must be is the future'))
