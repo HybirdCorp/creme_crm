@@ -423,7 +423,7 @@ class SendingsTestCase(_EmailsTestCase):
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
 
         now_dt = now()
-        sending_date = now_dt + timedelta(hours=1) #today if we run the test before 23h...
+        sending_date = now_dt + timedelta(hours=1) # Today if we run the test before 23h...
 
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {'sender':   'vicious@reddragons.mrs',
@@ -433,7 +433,7 @@ class SendingsTestCase(_EmailsTestCase):
 
         post = partial(self.client.post, self._build_add_url(camp))
         self.assertNoFormError(post(data=dict(data,
-                                              sending_date=naive_sending_date.strftime('%Y-%m-%d'), #future: OK
+                                              sending_date=naive_sending_date.strftime('%Y-%m-%d'), # Future: OK
                                               hour=naive_sending_date.hour,
                                               minute=naive_sending_date.minute,
                                              )
