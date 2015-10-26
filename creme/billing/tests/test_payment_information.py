@@ -4,12 +4,12 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from creme.creme_core.models import Currency
+    from creme.creme_core.models import Currency, FieldsConfig
 
     from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import PaymentInformation
+    from ..models import PaymentInformation, Invoice
     from .base import _BillingTestCase, skipIfCustomInvoice
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -23,6 +23,9 @@ class PaymentInformationTestCase(_BillingTestCase):
 
     def _build_add_url(self, orga):
         return '/billing/payment_information/add/%s' % orga.id
+
+    def _build_setdefault_url(self, pi, invoice):
+        return '/billing/payment_information/set_default/%s/%s' % (pi.id, invoice.id)
 
     def test_createview01(self):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
@@ -136,7 +139,7 @@ class PaymentInformationTestCase(_BillingTestCase):
     def test_set_default_in_invoice01(self):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
-        url = '/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)
+        url = self._build_setdefault_url(pi_sony, invoice)
         self.assertGET404(url)
         self.assertPOST200(url)
         self.assertEqual(pi_sony, self.refresh(invoice).payment_info)
@@ -153,7 +156,7 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         def assertPostStatus(code, pi):
             self.assertEqual(code,
-                             self.client.post('/billing/payment_information/set_default/%s/%s' % (pi.id, invoice.id)) \
+                             self.client.post(self._build_setdefault_url(pi, invoice)) \
                                         .status_code
                             )
 
@@ -169,8 +172,20 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         sony_source.trash()
 
-        self.assertPOST403('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id))
+        self.assertPOST403(self._build_setdefault_url(pi_sony, invoice))
         self.assertNotEqual(pi_sony, self.refresh(invoice).payment_info)
+
+    @skipIfCustomInvoice
+    def test_set_default_in_invoice04(self):
+        "'payment_info' is hidden"
+        invoice, sony_source = self.create_invoice_n_orgas('Playstations')[:2]
+        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
+
+        FieldsConfig.create(Invoice,
+                            descriptions=[('payment_info', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        self.assertPOST409(self._build_setdefault_url(pi_sony, invoice))
 
     @skipIfCustomInvoice
     def test_set_null_in_invoice01(self):
@@ -178,7 +193,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
-        self.assertPOST200('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id))
+        self.assertPOST200(self._build_setdefault_url(pi_sony, invoice))
 
         currency = Currency.objects.all()[0]
         response = self.client.post('/billing/invoice/edit/%s' % invoice.id, follow=True,

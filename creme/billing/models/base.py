@@ -102,7 +102,7 @@ class Base(CremeEntity):
                                  ).set_tags(clonable=False, optional=True)
     payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'),
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
-                                 )
+                                 ).set_tags(optional=True)
 
     creation_label = _('Add an accounting document')
 

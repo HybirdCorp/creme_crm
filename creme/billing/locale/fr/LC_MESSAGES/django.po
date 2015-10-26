@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-20 19:03+0200\n"
+"POT-Creation-Date: 2015-10-25 22:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -166,7 +166,7 @@ msgstr "Informations de paiement"
 msgid "Default payment information"
 msgstr "Information de paiement par défaut"
 
-#: blocks.py:379 templates/billing/templatetags/block_persons_statistics.html:5
+#: blocks.py:382 templates/billing/templatetags/block_persons_statistics.html:5
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -351,21 +351,21 @@ msgstr "Statut"
 msgid "Status of %s"
 msgstr "Statut de %s"
 
-#: function_fields.py:73 function_fields.py:86
+#: function_fields.py:72 function_fields.py:85
 msgid "Error: «Acceptation date» is hidden"
 msgstr "Erreur: «Date d'acceptation» est caché"
 
-#: function_fields.py:108
+#: function_fields.py:109
 #: templates/billing/templatetags/block_persons_statistics.html:17
 msgid "Total Pending Payment"
 msgstr "Total des paiements en attente"
 
-#: function_fields.py:121
+#: function_fields.py:124
 #: templates/billing/templatetags/block_persons_statistics.html:13
 msgid "Total Won Quote This Year"
 msgstr "Total des Devis remportés cette année"
 
-#: function_fields.py:134
+#: function_fields.py:138
 #: templates/billing/templatetags/block_persons_statistics.html:9
 msgid "Total Won Quote Last Year"
 msgstr "Total des Devis remportés l'année dernière"
@@ -385,7 +385,7 @@ msgstr "Préfixe de la facture"
 #: models/base.py:54 models/other_models.py:46 models/other_models.py:93
 #: models/other_models.py:123
 #: templates/billing/templatetags/block_billing.html:29
-#: templates/billing/templatetags/block_billing_payment_information.html:21
+#: templates/billing/templatetags/block_billing_payment_information.html:25
 #: templates/billing/templatetags/block_credit_note.html:21
 #: templates/billing/templatetags/block_payment_information.html:16
 #: templates/billing/templatetags/block_received_billing_document.html:16
@@ -620,7 +620,7 @@ msgid "RIB key"
 msgstr "Clé RIB"
 
 #: models/other_models.py:129
-#: templates/billing/templatetags/block_billing_payment_information.html:35
+#: templates/billing/templatetags/block_billing_payment_information.html:39
 #: templates/billing/templatetags/block_payment_information.html:45
 msgid "Banking domiciliation"
 msgstr "Domiciliation"
@@ -1082,16 +1082,25 @@ msgstr "Ajouter une information de paiement"
 msgid "Add a payment information (no source organisation)"
 msgstr "Ajouter une information de paiement (aucune société émettrice)"
 
-#: templates/billing/templatetags/block_billing_payment_information.html:23
+#: templates/billing/templatetags/block_billing_payment_information.html:21
+msgid ""
+"The field «Payment information» is hidden ; in order to use this block, you "
+"have to reactivate it (so please contact your administrator)."
+msgstr ""
+"Le champ «Informations de paiement» est caché ; pour pouvoir utiliser ce "
+"bloc, vous devez le reéactiver (et donc veuillez contacter votre "
+"administrateur)."
+
+#: templates/billing/templatetags/block_billing_payment_information.html:27
 msgid "Selected by default in this document"
 msgstr "Sélectionné par défaut dans ce document"
 
-#: templates/billing/templatetags/block_billing_payment_information.html:31
+#: templates/billing/templatetags/block_billing_payment_information.html:35
 #: templates/billing/templatetags/block_payment_information.html:17
 msgid "RIB"
 msgstr "RIB"
 
-#: templates/billing/templatetags/block_billing_payment_information.html:51
+#: templates/billing/templatetags/block_billing_payment_information.html:55
 #: templates/billing/templatetags/block_payment_information.html:61
 msgid "No payment information for the moment"
 msgstr "Aucune information de paiement pour le moment"
