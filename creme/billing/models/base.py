@@ -214,9 +214,11 @@ class Base(CremeEntity):
 
         return self._servicelines_cache
 
-    # TODO: remove (crappy API, no cache....)
-    # Could replace get_x_lines()
+    # TODO: we need away to get all Line concrete child models
+    # Could replace get_x_lines() # TODO: add a cache
     def get_lines(self, klass):
+        assert not klass._meta.abstract, '"klass" cannot be an abstract model (use ProductLine or ServiceLine)'
+
         return klass.objects.filter(relations__object_entity=self.id,
                                     relations__type=REL_OBJ_HAS_LINE,
                                    )

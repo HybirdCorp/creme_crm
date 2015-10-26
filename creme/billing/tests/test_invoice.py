@@ -372,7 +372,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(other_user, invoice.user)
 
         self.assertEqual([other_user.id] * 4,
-                         list(Line.objects.filter(pk__in=[l.pk for l in lines])
+#                         list(Line.objects.filter(pk__in=[l.pk for l in lines])
+                         list(CremeEntity.objects.filter(pk__in=[l.pk for l in lines])
                                           .values_list('user', flat=True)
                              ) #refresh
                         )
@@ -573,15 +574,17 @@ class InvoiceTestCase(_BillingTestCase):
     def test_get_lines01(self):
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        self.assertFalse(invoice.get_lines(Line))
+#        self.assertFalse(invoice.get_lines(Line))
+        self.assertFalse(invoice.get_lines(ProductLine))
+        self.assertFalse(invoice.get_lines(ServiceLine))
 
         kwargs = {'user': user, 'related_document': invoice}
         product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
         service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
 
-        self.assertEqual({product_line.id, service_line.id},
-                         set(invoice.get_lines(Line).values_list('pk', flat=True))
-                        )
+#        self.assertEqual({product_line.id, service_line.id},
+#                         set(invoice.get_lines(Line).values_list('pk', flat=True))
+#                        )
 
         self.assertEqual([product_line.pk], list(invoice.get_lines(ProductLine).values_list('pk', flat=True)))
         self.assertEqual([service_line.pk], list(invoice.get_lines(ServiceLine).values_list('pk', flat=True)))
