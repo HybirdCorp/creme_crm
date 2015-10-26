@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 import logging
 
 #from django.core.exceptions import ValidationError
@@ -150,7 +151,8 @@ class BaseEditForm(CremeEntityForm):
         # TODO: do this in model/with signal to avoid errors ???
         if self.old_user_id and self.old_user_id != user.id:
             # Do not use queryset.update() to call the CremeEntity.save() method TODO: change with future Credentials system ??
-            for line in instance.get_lines(Line):
+#            for line in instance.get_lines(Line):
+            for line in chain(instance.product_lines, instance.service_lines): # TODO: we need a way to retrieve all lines with potential other types...
                 line.user = instance.user
                 line.save()
 
