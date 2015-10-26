@@ -16,7 +16,11 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if page.paginator.count %}
+        {% if field_hidden %}
+            <tr class="content empty">
+                <td class="block_line_dark td_error">{% trans "The field «Payment information» is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
+            </tr>
+        {% elif page.paginator.count %}
             <tr class="header">
                 {% get_column_header _('Name') 'name' %}
                 <th class="block_header_line_dark">&nbsp;</th>

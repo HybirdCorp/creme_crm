@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import migrations
-from django.utils.translation import activate, ugettext as _
+from django.utils.translation import activate, ugettext as _, pgettext
 
 
 MODELBLOCK_ID = 'modelblock'
@@ -150,7 +150,7 @@ def convert_old_blocks(apps, schema_editor):
         pass
     else:
         cbci = create_cbci(id='billing-templatebase_info',
-                           name=_('Template information'),
+                           name=pgettext('billing', u'Template information'),
                            content_type=templatebase_ctype,
                            json_cells='[{"type": "regular_field", "value": "created"}, '
                                        '{"type": "regular_field", "value": "modified"}, '

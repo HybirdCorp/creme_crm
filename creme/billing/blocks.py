@@ -348,25 +348,28 @@ class BillingPaymentInformationBlock(QuerysetBlock):
     template_name = "billing/templatetags/block_billing_payment_information.html"
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     dependencies  = (Relation, PaymentInformation)
-    relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED)
+    relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED,
+                          REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED,
+                         )
     order_by      = 'name'
 
     def detailview_display(self, context):
         billing = context['object']
+        pi_qs = PaymentInformation.objects.none()
+        hidden = context['fields_configs'].get_4_model(billing.__class__)\
+                                          .is_fieldname_hidden('payment_info')
         organisation = billing.get_source()
 
-        if organisation is not None:
+        if not hidden and organisation is not None:
             pi_qs = PaymentInformation.objects.filter(organisation=organisation)
-        else:
-            pi_qs = PaymentInformation.objects.none()
 
-        btc = self.get_block_template_context(context, pi_qs,
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
-                                              ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
-                                              organisation=organisation,
-                                             )
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                                context, pi_qs,
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
+                                ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
+                                organisation=organisation,
+                                field_hidden=hidden,
+                           ))
 
 
 class BillingAddressBlock(AddressBlock):

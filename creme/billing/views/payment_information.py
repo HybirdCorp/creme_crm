@@ -22,8 +22,9 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, FieldsConfig
 from creme.creme_core.utils import jsonify
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
@@ -73,6 +74,9 @@ def set_default(request, payment_information_id, billing_id):
                                    )
                      ):
         raise Http404('This entity is not a billing document')
+
+    if FieldsConfig.get_4_model(billing_doc.__class__).is_fieldname_hidden('payment_info'):
+        raise ConflictError('The field "payment_info" is hidden.')
 
     organisation = pi.get_related_entity()
     user.has_perm_to_view_or_die(organisation)
