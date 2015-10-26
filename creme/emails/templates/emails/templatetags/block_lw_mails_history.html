@@ -8,7 +8,7 @@
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr class="header">
-                <th class="block_header_line_dark">{% trans "Sending date" %}</th>
+                {% get_column_header _('Sending date') 'sending_date' %}
                 <th class="block_header_line_dark">{% trans "Subject" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark action">{% trans "Detail" %}</th>
