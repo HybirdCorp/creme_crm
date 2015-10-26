@@ -28,7 +28,7 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Status" %}</th>
-            <td class="{% cycle row_color %} td_info">{{mail.get_status_str}}</td>
+            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='status' %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Related sending" %}</th>

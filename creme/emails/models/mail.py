@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -50,6 +51,7 @@ class _Email(CremeModel):
                                          )
     status         = PositiveSmallIntegerField(_(u'Status'), editable=False,
                                                default=MAIL_STATUS_NOTSENT,
+                                               choices=MAIL_STATUS.items(),
                                               )
 
     sender         = CharField(_(u'Sender'), max_length=100)
@@ -71,6 +73,9 @@ class _Email(CremeModel):
         return u"Mail<from: %s> <to: %s> <sent: %s> <id: %s>" % (self.sender, self.recipient, self.sending_date, self.id)
 
     def get_status_str(self):
+        warnings.warn("_Email.get_status_str() method is deprecated ; use get_status_display() instead.",
+                      DeprecationWarning
+                     )
         return MAIL_STATUS[self.status]
 
     def get_body(self):
@@ -134,7 +139,8 @@ class AbstractEntityEmail(_Email, CremeEntity):
         return ugettext('EMail <from: %(from)s> <to: %(to)s> <status: %(status)s>') % {
                                 'from':   self.sender,
                                 'to':     self.recipient,
-                                'status': self.get_status_str(),
+#                                'status': self.get_status_str(),
+                                'status': self.get_status_display(),
                             }
 
     def get_absolute_url(self):
