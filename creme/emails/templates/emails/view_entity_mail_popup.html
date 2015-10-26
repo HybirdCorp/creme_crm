@@ -33,7 +33,7 @@
         </tr>
         <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Status" %}</th>
-            <td class="td_info {% cycle row_color %}">{{object.get_status_str}}</td>
+            <td class="td_info {% cycle row_color %}">{% print_field object=object field='status' %}</td>
         </tr>
         <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Sender" %}</th>

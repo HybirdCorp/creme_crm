@@ -29,7 +29,7 @@
                     <td class="{{row_color}}">{% print_field object=mail field='sender' %}</td>
                     <td class="{{row_color}}">{% print_field object=mail field='recipient' %}</td>
                     <td class="{{row_color}}">{{mail.subject}}</td>
-                    <td class="{{row_color}}">{{mail.get_status_str}}</td>
+                    <td class="{{row_color}}">{% print_field object=mail field='status' %}</td>
                     <td class="{{row_color}}">{% print_field object=mail field='sending_date' %}</td>
                     <td class="{{row_color}} action">
                         <a class="button_link" onclick="creme.dialogs.form('{% url 'emails__view_email_popup' mail.pk %}').open();">

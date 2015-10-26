@@ -22,7 +22,7 @@
                         <td class="{{row_color}} selectable">
                             <input name="select_one" value="{{mail.pk}}" title="{% trans "Select this line" %}" type="checkbox" onclick="creme.utils.autoCheckallState (this, '#{{block_name}} [name=select_all]', '#{{block_name}} [name=select_one]');"/>
                         </td>
-                        <td class="{{row_color}}">{{MAIL_STATUS|get_value:mail.status}}</td>
+                        <td class="{{row_color}}">{{mail.get_status_display}}{% comment %}{{MAIL_STATUS|get_value:mail.status}}{% endcomment %}</td>
                         <td class="{{row_color}}">{{mail.sender}}</td>
                         <td class="{{row_color}}">{{mail.recipient}}</td>
                         <td class="{{row_color}}">{{mail.subject}}</td>

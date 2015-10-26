@@ -250,7 +250,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
 
     def detailview_display(self, context):
         super(WaitingSynchronizationMailsBlock, self).detailview_display(context)
-        context['MAIL_STATUS'] = MAIL_STATUS
+#        context['MAIL_STATUS'] = MAIL_STATUS
         context['entityemail_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
         #context['rtypes'] = ','.join([REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
         context['rtypes'] = (REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO)
@@ -264,9 +264,9 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
                                                            ))
 
 
-#TODO: factorise with WaitingSynchronizationMailsBlock ??
-#TODO: credentials ?? (see template too)
-#TODO: is_deleted ?? (idem)
+# TODO: factorise with WaitingSynchronizationMailsBlock ??
+# TODO: credentials ?? (see template too)
+# TODO: is_deleted ?? (idem)
 class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
     verbose_name  = u'Spam emails'
@@ -274,7 +274,7 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
 
     def detailview_display(self, context):
         super(SpamSynchronizationMailsBlock, self).detailview_display(context)
-        context['MAIL_STATUS'] = MAIL_STATUS
+#        context['MAIL_STATUS'] = MAIL_STATUS
         context['entityemail_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
 
         waiting_mails = EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM)
