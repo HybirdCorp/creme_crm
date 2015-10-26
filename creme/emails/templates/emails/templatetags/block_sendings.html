@@ -23,8 +23,8 @@
             {% for sending in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{sending.sending_date}}</td>
-                    <td class="{{row_color}}">{{sending.get_type_str}}</td>
-                    <td class="{{row_color}}">{{sending.get_state_str}}</td>
+                    <td class="{{row_color}}">{{sending.get_type_display}}</td>
+                    <td class="{{row_color}}">{{sending.get_state_display}}</td>
                     <td class="{{row_color}}">{{sending.get_mails.count}}{% if sending.get_unsent_mails_count %} / <span class="errorlist">{{ sending.get_unsent_mails_count }} {% trans "not sent" %}{% endif %}</span></td>
                     <td class="{{row_color}} action">
                         <a class="button_link" onclick="creme.dialogs.url('/emails/campaign/sending/{{sending.pk}}').open();">

@@ -21,6 +21,7 @@
 import logging
 from pickle import loads
 from time import sleep
+import warnings
 
 from django.conf import settings
 from django.core.mail import send_mail, get_connection
@@ -45,7 +46,7 @@ from .signature import EmailSignature
 
 logger = logging.getLogger(__name__)
 
-#TODO: move to constants.py ???
+# TODO: move to constants.py ???
 SENDING_TYPE_IMMEDIATE = 1
 SENDING_TYPE_DEFERRED  = 2
 
@@ -69,13 +70,21 @@ SENDING_STATES = {
 
 class EmailSending(CremeModel):
     sender        = EmailField(_(u"Sender address"), max_length=100)
-#    campaign      = ForeignKey(EmailCampaign, verbose_name=pgettext_lazy('emails', u'Related campaign'),
-    campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL, verbose_name=pgettext_lazy('emails', u'Related campaign'),
+#    campaign      = ForeignKey(EmailCampaign,
+    campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL,
+                               verbose_name=pgettext_lazy('emails', u'Related campaign'),
                                related_name='sendings_set', editable=False,
                               )
-    type          = PositiveSmallIntegerField(verbose_name=_(u"Sending type"))
+    type          = PositiveSmallIntegerField(verbose_name=_(u"Sending type"),
+                                              choices=SENDING_TYPES.items(),
+                                              default=SENDING_TYPE_IMMEDIATE,
+                                             )
     sending_date  = DateTimeField(_(u"Sending date of emails"))
-    state         = PositiveSmallIntegerField(verbose_name=_(u"Sending state"), editable=False) #TODO: choices ?
+    state         = PositiveSmallIntegerField(verbose_name=_(u"Sending state"),
+                                              editable=False,
+                                              choices=SENDING_STATES.items(),
+                                              default=SENDING_STATE_PLANNED,
+                                             )
 
     subject     = CharField(_(u'Subject'), max_length=100, editable=False)
     body        = TextField(_(u"Body"), editable=False)
@@ -84,7 +93,9 @@ class EmailSending(CremeModel):
                              blank=True, null=True, editable=False, on_delete=SET_NULL,
                             )
 #    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'), editable=False)
-    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'), editable=False)
+    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
+                                  verbose_name=_(u'Attachments'), editable=False,
+                                 )
 
     class Meta:
         app_label = "emails"
@@ -92,7 +103,10 @@ class EmailSending(CremeModel):
         verbose_name_plural = _(u'Email campaign sendings')
 
     def __unicode__(self):
-        return ugettext(u"Sending of <%(campaign)s> on %(date)s") % {'campaign': self.campaign, 'date': self.sending_date}
+        return ugettext(u"Sending of «%(campaign)s» on %(date)s") % {
+                            'campaign': self.campaign,
+                            'date':     self.sending_date,
+                        }
 
     def get_mails(self):
         return self.mails_set.all()
@@ -101,15 +115,23 @@ class EmailSending(CremeModel):
         return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]).count()
 
     def get_state_str(self):
+        warnings.warn("EmailSending.get_state_str() method is deprecated ; use get_state_display() instead.",
+                      DeprecationWarning
+                     )
+
         return SENDING_STATES[self.state]
 
     def get_type_str(self):
+        warnings.warn("EmailSending.get_type_str() method is deprecated ; use get_type_display() instead.",
+                      DeprecationWarning
+                     )
+
         return SENDING_TYPES[self.type]
 
     def get_absolute_url(self):
         return self.campaign.get_absolute_url()
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self): # For generic views
         return self.campaign
 
     def send_mails(self):
@@ -118,8 +140,8 @@ class EmailSending(CremeModel):
         except ImageFromHTMLError as e:
             activate(settings.LANGUAGE_CODE)
             send_mail(ugettext('[CremeCRM] Campaign email sending error.'),
-                      ugettext("Emails in the sending of the campaign <%(campaign)s> on %(date)s weren't sent "
-                               "because the image <%(image)s> is no longer available in the template.") % {
+                      ugettext("Emails in the sending of the campaign «%(campaign)s» on %(date)s weren't sent "
+                               "because the image «%(image)s» is no longer available in the template.") % {
                             'campaign': self.campaign,
                             'date':     self.sending_date,
                             'image':    e.filename,
