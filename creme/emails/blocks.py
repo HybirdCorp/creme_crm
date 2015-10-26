@@ -191,7 +191,7 @@ class MailsBlock(QuerysetBlock):
 class MailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails_history')
     dependencies  = (EntityEmail, Relation)
-    #order_by      = '-sending_date' #moved to model
+    order_by      = '-sending_date'
     verbose_name  = _(u"Emails history")
     template_name = 'emails/templatetags/block_mails_history.html'
     relation_type_deps = (REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO)
