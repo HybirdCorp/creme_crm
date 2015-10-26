@@ -5,7 +5,6 @@ from sys import argv
 
 from django.utils.translation import ugettext_lazy as _
 
-#DEBUG = True
 DEBUG = False
 JAVASCRIPT_DEBUG = DEBUG
 
@@ -15,8 +14,6 @@ FORCE_JS_TESTVIEW = False
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
-
-#login / password for interface of administration : admin/admin
 
 from os.path import dirname, join, abspath, exists
 BASE_DIR = dirname(dirname(__file__))
@@ -50,7 +47,7 @@ AUTHENTICATION_BACKENDS = ('creme.creme_core.auth.backend.EntityBackend',)
 AUTH_USER_MODEL = 'creme_core.CremeUser'
 
 
-#I18N / L10N ###################################################################
+# I18N / L10N ##################################################################
 
 USE_TZ = True
 
@@ -83,7 +80,7 @@ DATE_FORMAT_VERBOSE = _(u'Format: Day-Month-Year (Ex:31-12-2016)')
 DATE_FORMAT_JS      = {
     'd-m-Y': 'dd-mm-yy',
 }
-DATE_FORMAT_JS_SEP = '-' #DATE_FORMAT_JS values separator
+DATE_FORMAT_JS_SEP = '-' # DATE_FORMAT_JS values separator
 DATE_INPUT_FORMATS = (
     '%d-%m-%Y', '%d/%m/%Y',
     '%Y-%m-%d', # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
@@ -105,17 +102,17 @@ DATETIME_INPUT_FORMATS  = (
     "%Y-%m-%dT%H:%M:%S", # Needed for infopath
 )
 
-#I18N / L10N [END]##############################################################
+# I18N / L10N [END]#############################################################
 
 
-#SITE: URLs / PATHS / ... ######################################################
+# SITE: URLs / PATHS / ... #####################################################
 
 SITE_ID = 1
-SITE_DOMAIN = 'http://mydomain' #No end slash!
+SITE_DOMAIN = 'http://mydomain' # No end slash!
 
 APPEND_SLASH = False
 
-ROOT_URLCONF = 'creme.urls' # means urls.py
+ROOT_URLCONF = 'creme.urls' # Means urls.py
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/creme_login/'
@@ -134,7 +131,7 @@ MEDIA_URL = 'http://127.0.0.1:8000/site_media/'
 ## trailing slash.
 ## Examples: "http://foo.com/media/", "/media/".
 #ADMIN_MEDIA_PREFIX = '/media/'
-#TODO STATIC_URL ??
+# TODO STATIC_URL ??
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
@@ -144,7 +141,7 @@ SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
 # See: https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = '*'
 
-#SITE: URLs / PATHS / ... [END]#################################################
+# SITE: URLs / PATHS / ... [END]################################################
 
 #TEMPLATE_DEBUG = DEBUG
 #
@@ -206,7 +203,7 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_fields_configs',
             ],
             'loaders': [
-                ('django.template.loaders.cached.Loader', ( #Don't use cached loader when developping (in your local_settings.py)
+                ('django.template.loaders.cached.Loader', ( # Don't use cached loader when developping (in your local_settings.py)
                     'django.template.loaders.filesystem.Loader',
                     'django.template.loaders.app_directories.Loader',
                     #'django.template.loaders.eggs.Loader',
@@ -245,12 +242,12 @@ INSTALLED_DJANGO_APPS = (
     #'django.contrib.admin',
     #'django.contrib.admindocs',
 
-    #EXTERNAL APPS
+    # EXTERNAL APPS
     'mediagenerator', #It manages js/css/images
 )
 
 INSTALLED_CREME_APPS = (
-    #CREME CORE APPS
+    # CREME CORE APPS
     'creme.creme_core',
     'creme.creme_config',
     'creme.media_managers',
@@ -259,24 +256,24 @@ INSTALLED_CREME_APPS = (
     'creme.activities',
     'creme.persons',
 
-    #CREME OPTIONNAL APPS (can be safely commented)
+    # CREME OPTIONNAL APPS (can be safely commented)
     'creme.graphs',
     'creme.reports',
     'creme.products',
     'creme.recurrents',
-    'creme.billing',       #need 'products'
-    'creme.opportunities', #need 'products'
-    'creme.commercial',    #need 'opportunities'
-    'creme.events',        #need 'opportunities'
+    'creme.billing',       # Need 'products'
+    'creme.opportunities', # Need 'products'
+    'creme.commercial',    # Need 'opportunities'
+    'creme.events',        # Need 'opportunities'
     'creme.crudity',
-    'creme.emails', #need 'crudity'
-    #creme.'sms', #Work In Progress
+    'creme.emails', # Need 'crudity'
+    #creme.'sms', # Work In Progress
     'creme.projects',
     'creme.tickets',
     #'creme.cti',
     'creme.activesync',
     'creme.vcfs',
-    #'creme.polls',  #need 'commercial'
+    #'creme.polls',  # Need 'commercial'
     #'creme.mobile',
     'creme.geolocation',
 )
@@ -308,27 +305,25 @@ EXPORT_BACKENDS = (
                    'creme.creme_core.backends.xls_export.XLSExportBackend',  # You need to install xlwt and xlrd
 )
 
-#EMAILS [internal] #############################################################
+# EMAILS [internal] ############################################################
 
 # Emails sent to the users of Creme (reminders, assistants.user_message, commercial.commercial_approach...)
-EMAIL_SENDER        = 'sender@domain.org' #This is a Creme parameter which specifies from_email (sender) when sending email
+EMAIL_SENDER        = 'sender@domain.org' # This is a Creme parameter which specifies from_email (sender) when sending email.
 EMAIL_HOST          = 'localhost'
 EMAIL_HOST_USER     = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS       = False
+#EMAIL_PORT         = 1025 # Default value in django/conf/global_settings.py
 
-#Dev smtp serv
-#=> python -m smtpd -n -c DebuggingServer localhost:1025
-#Think to comment email prod settings
-#EMAIL_HOST = 'localhost'
-#EMAIL_PORT = 1025
+# Tip: _developpement_ SMTP server
+# => python -m smtpd -n -c DebuggingServer localhost:1025
 
-DEFAULT_USER_EMAIL = '' #Email used in case the user doesn't have filled his email
+DEFAULT_USER_EMAIL = '' # Email address used in case the user doesn't have filled his one.
 
 
-#EMAILS [END] ###################################################################
+# EMAILS [END] #################################################################
 
-#LOGS ##########################################################################
+# LOGS #########################################################################
 
 LOGGING_FORMATTERS = {
     'verbose': {
@@ -398,41 +393,37 @@ import warnings
 # "error" "ignore" "always" "default" "module" "once"
 warnings.simplefilter("once")
 
-#LOGS [END]#####################################################################
+# LOGS [END]####################################################################
 
-#GUI ###########################################################################
+# GUI ##########################################################################
 
-#Main menu
-LOGO_URL = 'images/creme_256_cropped.png' #Big image in the side menu
+# Main menu
+LOGO_URL = 'images/creme_256_cropped.png' # Big image in the side menu
 USE_STRUCT_MENU = True #True = use the per app menu
 
-BLOCK_SIZE = 10 #Lines number in common blocks
-MAX_LAST_ITEMS = 9 #Max number of items in the 'Last viewed items' bar
+BLOCK_SIZE = 10 # Lines number in common blocks
+MAX_LAST_ITEMS = 9 # Max number of items in the 'Last viewed items' bar
 
-##Show or not help messages in all the application
-#SHOW_HELP = True
+HIDDEN_VALUE = u"??" # Used to replace contents which a user is not allowed to see.
 
-HIDDEN_VALUE = u"??"
-
-#GUI [END]######################################################################
+# GUI [END]#####################################################################
 
 
-#MEDIA GENERATOR SETTINGS ######################################################
-#http://www.allbuttonspressed.com/projects/django-mediagenerator
+# MEDIA GENERATOR & THEME SETTINGS #############################################
+# http://www.allbuttonspressed.com/projects/django-mediagenerator
 
-MEDIA_DEV_MODE = False #DEBUG
+MEDIA_DEV_MODE = False
 DEV_MEDIA_URL = '/devmedia/'
 PRODUCTION_MEDIA_URL = '/static_media/'
 
-#GENERATED_MEDIA_NAMES_MODULE = 'creme._generated_media_names'
 GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
 GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 
-#Available themes. A theme is represented by (theme_dir, theme verbose name)
+# Available themes. A theme is represented by (theme_dir, theme verbose name)
 THEMES = [('icecream',  _('Ice cream')),
           ('chantilly', _('Chantilly')),
          ]
-DEFAULT_THEME = 'icecream' #'chantilly'
+DEFAULT_THEME = 'icecream' # Other available choice: 'chantilly'
 
 CSS_DEFAULT_LISTVIEW = 'left_align'
 CSS_NUMBER_LISTVIEW = 'right_align'
@@ -440,7 +431,7 @@ CSS_TEXTAREA_LISTVIEW = 'text_area'
 CSS_DEFAULT_HEADER_LISTVIEW = 'hd_cl_lv'
 CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
 
-#TODO: create a static/css/creme-minimal.css for login/logout ??
+# TODO: create a static/css/creme-minimal.css for login/logout ??
 CREME_CORE_CSS = ('main.css',
                     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.11.4.custom.css',
                     'creme_core/css/fg-menu-3.0/fg.menu.css',
@@ -461,14 +452,14 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/navit.css',
                     'creme_core/css/forms.css',
 
-                    #APPS
+                    # APPS
                     'creme_config/css/creme_config.css',
                     'activities/css/fullcalendar-1.6.7.css',
                     'activities/css/activities.css',
                     'persons/css/persons.css',
                  )
 
-CREME_OPT_CSS = ( #OPTIONNAL APPS
+CREME_OPT_CSS = ( # OPTIONNAL APPS
                  ('creme.billing',     'billing/css/billing.css'),
                  ('creme.commercial',  'commercial/css/commercial.css'),
                  ('creme.crudity',     'crudity/css/crudity.css'),
@@ -477,11 +468,11 @@ CREME_OPT_CSS = ( #OPTIONNAL APPS
                 )
 
 CREME_I18N_JS = ('l10n.js',
-                    {'filter': 'mediagenerator.filters.i18n.I18N'}, #to build the i18n catalog statically.
+                    {'filter': 'mediagenerator.filters.i18n.I18N'}, # To build the i18n catalog statically.
                 )
 
 CREME_CORE_JS = ('main.js',
-                    {'filter': 'mediagenerator.filters.media_url.MediaURL'}, #to get the media_url() function in JS.
+                    {'filter': 'mediagenerator.filters.media_url.MediaURL'}, # To get the media_url() function in JS.
                     'creme_core/js/media.js',
                     'creme_core/js/jquery/jquery-1.11.2.js',
                     'creme_core/js/jquery/jquery-migrate-1.2.1.js',
@@ -505,7 +496,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/cookie.js',
                     'creme_core/js/jquery/extensions/fg-menu-3.0/fg.menu.js',
                     'creme_core/js/jquery/extensions/fg-menu-3.0/jquery.hotkeys-0.8.js',
-                    'activities/js/jquery/extensions/fullcalendar-1.6.7.js', #TODO: move with activities.js (beware it causes errors for now)
+                    'activities/js/jquery/extensions/fullcalendar-1.6.7.js', # TODO: move with activities.js (beware it causes errors for now)
                     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
                     'creme_core/js/jquery/extensions/json-2.2.js',
                     'creme_core/js/jquery/extensions/highlight.js',
@@ -526,7 +517,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
                     'creme_core/js/lib/generators-0.1.js',
 
-                    #'creme_core/js/datejs/date-en-US.js', #TODO improve
+                    #'creme_core/js/datejs/date-en-US.js', # TODO improve
                     'creme_core/js/datejs/date-fr-FR.js',
 
                     'creme_core/js/lib/jquery.navIt.0.0.6.js',
@@ -604,14 +595,14 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/merge.js',
                     'creme_core/js/relations.js',
 
-                    #OTHER APPS (mandatory ones)
+                    # OTHER APPS (mandatory ones)
                     'assistants/js/assistants.js',
                     'activities/js/activities.js',
                     #'media_managers/js/media_managers.js',
                     'persons/js/persons.js',
                 )
 
-CREME_OPT_JS = ( #OPTIONNAL APPS
+CREME_OPT_JS = ( # OPTIONNAL APPS
                 ('creme.billing',     'billing/js/billing.js'),
                 ('creme.reports',     'reports/js/reports.js'),
                 ('creme.emails',      'emails/js/emails.js'),
@@ -622,7 +613,7 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
                 ('creme.geolocation', 'geolocation/js/block.js',),
                )
 
-TEST_CREME_CORE_JS = (#js Unit test files
+TEST_CREME_CORE_JS = (# JS Unit test files
     'test_core.js',
     'creme_core/js/tests/qunit/qunit-1.18.0.js',
     'creme_core/js/tests/component/component.js',
@@ -667,7 +658,7 @@ CREME_OPT_MEDIA_BUNDLES = ()
 
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
-    #'js':  'mediagenerator.filters.closure.Closure', #NB: Closure causes compilation errors...
+    #'js':  'mediagenerator.filters.closure.Closure', # NB: Closure causes compilation errors...
     'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
 }
 
@@ -676,42 +667,42 @@ YUICOMPRESSOR_PATH = join(dirname(__file__), 'static', 'utils', 'yui', 'yuicompr
 
 COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
 
-#MEDIA GENERATOR SETTINGS [END] ################################################
+# MEDIA GENERATOR & THEME SETTINGS [END] #######################################
 
 
-#APPS CONFIGURATION ############################################################
+# APPS CONFIGURATION ###########################################################
 
-#DOCUMENTS ---------------------------------------------------------------------
+# DOCUMENTS --------------------------------------------------------------------
 DOCUMENTS_FOLDER_MODEL   = 'documents.Folder'
 DOCUMENTS_DOCUMENT_MODEL = 'documents.Document'
 
-#PERSONS -----------------------------------------------------------------------
+# PERSONS ----------------------------------------------------------------------
 PERSONS_ADDRESS_MODEL      = 'persons.Address'
 PERSONS_CONTACT_MODEL      = 'persons.Contact'
 PERSONS_ORGANISATION_MODEL = 'persons.Organisation'
 
-#ASSISTANTS --------------------------------------------------------------------
+# ASSISTANTS -------------------------------------------------------------------
 DEFAULT_TIME_ALERT_REMIND = 10
 DEFAULT_TIME_TODO_REMIND = 120
 
-#REPORTS -----------------------------------------------------------------------
+# REPORTS ----------------------------------------------------------------------
 REPORTS_REPORT_MODEL = 'reports.Report'
 REPORTS_GRAPH_MODEL  = 'reports.ReportGraph'
 
-#ACTIVITIES --------------------------------------------------------------------
+# ACTIVITIES -------------------------------------------------------------------
 ACTIVITIES_ACTIVITY_MODEL = 'activities.Activity'
 
-#GRAPHS ------------------------------------------------------------------------
+# GRAPHS -----------------------------------------------------------------------
 GRAPHS_GRAPH_MODEL = 'graphs.Graph'
 
-#PRODUCTS ----------------------------------------------------------------------
+# PRODUCTS ---------------------------------------------------------------------
 PRODUCTS_PRODUCT_MODEL = 'products.Product'
 PRODUCTS_SERVICE_MODEL = 'products.Service'
 
-#RECURRENTS --------------------------------------------------------------------
+# RECURRENTS -------------------------------------------------------------------
 RECURRENTS_RGENERATOR_MODEL = 'recurrents.RecurrentGenerator'
 
-#BILLING -----------------------------------------------------------------------
+# BILLING ----------------------------------------------------------------------
 BILLING_CREDIT_NOTE_MODEL   = 'billing.CreditNote'
 BILLING_INVOICE_MODEL       = 'billing.Invoice'
 BILLING_PRODUCT_LINE_MODEL  = 'billing.ProductLine'
@@ -720,36 +711,38 @@ BILLING_SALES_ORDER_MODEL   = 'billing.SalesOrder'
 BILLING_SERVICE_LINE_MODEL  = 'billing.ServiceLine'
 BILLING_TEMPLATE_BASE_MODEL = 'billing.TemplateBase'
 
+# Prefixes used to generate the numbers of the billing documents
+# (with the 'vanilla' number generator)
 QUOTE_NUMBER_PREFIX = "DE"
 INVOICE_NUMBER_PREFIX = "FA"
 SALESORDER_NUMBER_PREFIX = "BC"
 
-#OPPORTUNITIES -----------------------------------------------------------------
+# OPPORTUNITIES ----------------------------------------------------------------
 OPPORTUNITIES_OPPORTUNITY_MODEL = 'opportunities.Opportunity'
 
-#COMMERCIAL --------------------------------------------------------------------
+# COMMERCIAL -------------------------------------------------------------------
 COMMERCIAL_ACT_MODEL      = 'commercial.Act'
 COMMERCIAL_PATTERN_MODEL  = 'commercial.ActObjectivePattern'
 COMMERCIAL_STRATEGY_MODEL = 'commercial.Strategy'
 
-#EMAILS [external] -------------------------------------------------------------
+# EMAILS [external] ------------------------------------------------------------
 EMAILS_CAMPAIGN_MODEL = 'emails.EmailCampaign'
 EMAILS_TEMPLATE_MODEL = 'emails.EmailTemplate'
 EMAILS_EMAIL_MODEL    = 'emails.EntityEmail'
 EMAILS_MLIST_MODEL    = 'emails.MailingList'
 
-#Emails campaigns sent to the customers
+# Emails campaigns sent to the customers
 EMAILCAMPAIGN_HOST      = 'localhost'
 EMAILCAMPAIGN_HOST_USER = ''
 EMAILCAMPAIGN_PASSWORD  = ''
 EMAILCAMPAIGN_PORT      = 25
 EMAILCAMPAIGN_USE_TLS   = True
 
-#Emails are sent by chunks, and sleep between 2 chunks.
+# Emails are sent by chunks, and sleep between 2 chunks.
 EMAILCAMPAIGN_SIZE = 40
 EMAILCAMPAIGN_SLEEP_TIME = 2
 
-#SMS ---------------------------------------------------------------------------
+# SMS --------------------------------------------------------------------------
 SMS_CAMPAIGN_MODEL = 'sms.SMSCampaign'
 SMS_MLIST_MODEL    = 'sms.MessagingList'
 SMS_TEMPLATE_MODEL = 'sms.MessageTemplate'
@@ -758,22 +751,23 @@ CREME_SAMOUSSA_URL = 'http://localhost:8001/'
 CREME_SAMOUSSA_USERNAME = ''
 CREME_SAMOUSSA_PASSWORD = ''
 
-#CRUDITY -----------------------------------------------------------------------
-#Mail parameters to sync external email in creme
-CREME_GET_EMAIL              = "" #Creme get email e.g : creme@cremecrm.org
-CREME_GET_EMAIL_SERVER       = "" #Creme get server e.g : pop.cremecrm.org (only pop supported for now)
-CREME_GET_EMAIL_USERNAME     = "" #user
-CREME_GET_EMAIL_PASSWORD     = "" #pass
+# CRUDITY -----------------------------------------------------------------------
+# EMail parameters to sync external emails in Creme
+CREME_GET_EMAIL              = "" # Creme gets email. e.g : creme@cremecrm.org
+CREME_GET_EMAIL_SERVER       = "" # Creme gets server. e.g : pop.cremecrm.org (only pop supported for now)
+CREME_GET_EMAIL_USERNAME     = ""
+CREME_GET_EMAIL_PASSWORD     = ""
 CREME_GET_EMAIL_PORT         = 110
-CREME_GET_EMAIL_SSL          = False #True or False #Not used for the moment
-CREME_GET_EMAIL_SSL_KEYFILE  = "" #Not used for the moment
-CREME_GET_EMAIL_SSL_CERTFILE = "" #Not used for the moment
+CREME_GET_EMAIL_SSL          = False # True or False #Not used for the moment
+CREME_GET_EMAIL_SSL_KEYFILE  = "" # Not used for the moment
+CREME_GET_EMAIL_SSL_CERTFILE = "" # Not used for the moment
 
-CREME_GET_EMAIL_JOB_USER_ID  = 1 #Only for job. Default user id which will handle the synchronization
-                                 #User used to synchronize mails with management command
+# Only for job. Default user id which will handle the synchronization
+# User used to synchronize mails with management command.
+CREME_GET_EMAIL_JOB_USER_ID  = 1
 
-#CRUDITY_BACKENDS configurates the backends (it's a list of dict)
-#Here a template of a crudity backend configuration:
+# CRUDITY_BACKENDS configurates the backends (it's a list of dict)
+# Here a template of a crudity backend configuration:
 #CRUDITY_BACKENDS = [
 #    {
 #        "fetcher": "email",                #The name of the fetcher (which is registered with). Available choices: 'email'
@@ -807,46 +801,50 @@ CRUDITY_BACKENDS = [
     },
 ]
 
-#ACTIVESYNC ------------------------------------------------------------------------
-#TODO: Rename and transform this into an AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
+# ACTIVESYNC -------------------------------------------------------------------
+# TODO: Rename and transform this into an AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
 IS_ZPUSH = True
 
-CONFLICT_MODE = 1 #0 Client object replaces server object. / 1 Server object replaces client object.
+# 0 = Client object replaces server object.
+# 1 = Server object replaces client object.
+CONFLICT_MODE = 1
 
-ACTIVE_SYNC_DEBUG = DEBUG #Make appears some debug informations on the UI
+ACTIVE_SYNC_DEBUG = DEBUG # Make appears some debug informations on the UI
 
-LIMIT_SYNC_KEY_HISTORY = 50 #Number of sync_keys kept in db by user
+LIMIT_SYNC_KEY_HISTORY = 50 # Number of sync_keys kept in db by user
 
 CONNECTION_TIMEOUT = 150
 
-PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures > to this size
+PICTURE_LIMIT_SIZE = 55000 # E.g: 55Ko Active sync servers don't handle pictures > to this size
 
-#TICKETS -----------------------------------------------------------------------
+# TICKETS ----------------------------------------------------------------------
 TICKETS_TICKET_MODEL   = 'tickets.Ticket'
 TICKETS_TEMPLATE_MODEL = 'tickets.TicketTemplate'
 
 # If a Ticket is still open TICKETS_COLOR_DELAY days after its creation, it is red in the listview
 TICKETS_COLOR_DELAY = 7
 
-#EVENTS ------------------------------------------------------------------------
+# EVENTS -----------------------------------------------------------------------
 EVENTS_EVENT_MODEL = 'events.Event'
 
-#CTI ---------------------------------------------------------------------------
+# CTI --------------------------------------------------------------------------
 ABCTI_URL = 'http://127.0.0.1:8087'
 
-#VCF ---------------------------------------------------------------------------
-VCF_IMAGE_MAX_SIZE = 3145728 #Limit size (byte) of remote photo files (i.e : when the photo in the vcf file is just a url)
+# VCF --------------------------------------------------------------------------
+# Limit size (byte) of remote photo files
+# (i.e : when the photo in the vcf file is just a url)
+VCF_IMAGE_MAX_SIZE = 3145728
 
-#PROJECTS ----------------------------------------------------------------------
+# PROJECTS ---------------------------------------------------------------------
 PROJECTS_PROJECT_MODEL = 'projects.Project'
 PROJECTS_TASK_MODEL    = 'projects.ProjectTask'
 
-#POLLS -------------------------------------------------------------------------
+# POLLS ------------------------------------------------------------------------
 POLLS_CAMPAIGN_MODEL = 'polls.PollCampaign'
 POLLS_FORM_MODEL     = 'polls.PollForm'
 POLLS_REPLY_MODEL    = 'polls.PollReply'
 
-#MOBILE ------------------------------------------------------------------------
+# MOBILE -----------------------------------------------------------------------
 
 # Domain of the complete version (in order to go to it from the mobile version).
 # eg: 'http://mydomain' #No end slash!
@@ -854,16 +852,16 @@ POLLS_REPLY_MODEL    = 'polls.PollReply'
 # so SITE_DOMAIN will be used.
 NON_MOBILE_SITE_DOMAIN = ''
 
-#GEOLOCATION -------------------------------------------------------------------
+# GEOLOCATION ------------------------------------------------------------------
 # Files containing towns with their location.
-# It can be an url or a local file. zip files are also supported.
+# It can be an url or a local file ; zip files are also supported.
 GEOLOCATION_TOWNS = ((join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'),
                       {'country': 'France'},
                      ),
                     )
 
 
-#APPS CONFIGURATION [END]#######################################################
+# APPS CONFIGURATION [END]######################################################
 
 try:
     from project_settings import *
@@ -875,21 +873,19 @@ try:
 except ImportError:
     pass
 
-#GENERAL [FINAL SETTINGS]-------------------------------------------------------
+# GENERAL [FINAL SETTINGS]------------------------------------------------------
 
-#LOCALE_PATHS = [join(CREME_ROOT, "locale")] + [join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS]
 _LOCALE_OVERLOAD = join(CREME_ROOT, 'locale_overload', 'locale')
 
 LOCALE_PATHS = [join(CREME_ROOT, "locale")]
 if exists(_LOCALE_OVERLOAD):
     LOCALE_PATHS.append(_LOCALE_OVERLOAD)
-#LOCALE_PATHS.extend(join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS)
 LOCALE_PATHS.extend(join(CREME_ROOT, app.rsplit('.')[-1], "locale") for app in INSTALLED_CREME_APPS)
 
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
 
-#MEDIA GENERATOR [FINAL SETTINGS]-----------------------------------------------
+# MEDIA GENERATOR [FINAL SETTINGS]----------------------------------------------
 MEDIA_BUNDLES = (
                  CREME_I18N_JS,
                  CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_CREME_APPS)
