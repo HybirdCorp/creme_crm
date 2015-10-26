@@ -18,12 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.forms.base import CremeModelWithUserForm
+from creme.creme_core.forms.base import CremeModelForm # CremeModelWithUserForm
 
 from ..models import PaymentInformation
 
 
-class PaymentInformationEditForm(CremeModelWithUserForm):
+#class PaymentInformationEditForm(CremeModelWithUserForm):
+class PaymentInformationEditForm(CremeModelForm):
     class Meta:
         model = PaymentInformation
         exclude = ('organisation', )
