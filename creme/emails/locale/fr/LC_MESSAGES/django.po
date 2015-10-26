@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-25 20:41+0100\n"
+"POT-Creation-Date: 2015-10-26 18:20+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -50,34 +50,34 @@ msgstr "Liste des e-mails"
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des e-mails externes"
 
-#: blocks.py:78 forms/campaign.py:50 models/mailing_list.py:47
+#: blocks.py:83 forms/campaign.py:50 models/mailing_list.py:47
 #: templates/emails/templatetags/block_mailing_lists.html:6
 msgid "Mailing lists"
 msgstr "Listes de diffusion d'e-mails"
 
-#: blocks.py:89
+#: blocks.py:94
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: blocks.py:104 forms/mailing_list.py:50 forms/mailing_list.py:113
+#: blocks.py:109 forms/mailing_list.py:50 forms/mailing_list.py:113
 #: models/mailing_list.py:37
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
-#: blocks.py:115 forms/mailing_list.py:67 forms/mailing_list.py:122
+#: blocks.py:125 forms/mailing_list.py:67 forms/mailing_list.py:122
 #: models/mailing_list.py:39
 msgid "Organisations recipients"
 msgstr "Sociétés destinataires"
 
-#: blocks.py:126 models/mailing_list.py:35
+#: blocks.py:140 models/mailing_list.py:35
 msgid "Child mailing lists"
 msgstr "Listes de diffusion filles"
 
-#: blocks.py:137
+#: blocks.py:151
 msgid "Parent mailing lists"
 msgstr "Listes de diffusion parentes"
 
-#: blocks.py:148 forms/mail.py:69 forms/template.py:53 forms/template.py:96
+#: blocks.py:162 forms/mail.py:69 forms/template.py:53 forms/template.py:96
 #: forms/template.py:98 models/mail.py:95 models/sending.py:97
 #: models/template.py:41 templates/emails/templatetags/block_mail.html:46
 #: templates/emails/view_email.html:62
@@ -85,19 +85,19 @@ msgstr "Listes de diffusion parentes"
 msgid "Attachments"
 msgstr "Fichiers attachés"
 
-#: blocks.py:161 templates/emails/templatetags/block_sendings.html:6
+#: blocks.py:175 templates/emails/templatetags/block_sendings.html:6
 msgid "Sendings"
 msgstr "Envois"
 
-#: blocks.py:195
+#: blocks.py:209
 msgid "Emails history"
 msgstr "Historique des e-mails"
 
-#: blocks.py:224
+#: blocks.py:238
 msgid "Campaigns emails history"
 msgstr "Historique des e-mails des campagnes"
 
-#: blocks.py:293 models/signature.py:42
+#: blocks.py:307 models/signature.py:42
 msgid "Email signatures"
 msgstr "Signatures d'e-mail"
 
@@ -164,12 +164,12 @@ msgid "Sender"
 msgstr "Émetteur"
 
 #: forms/mail.py:64 forms/mailing_list.py:48
-#: templates/emails/templatetags/block_contacts.html:6
+#: templates/emails/templatetags/block_contacts.html:5
 msgid "Contacts"
 msgstr "Contacts"
 
 #: forms/mail.py:65 forms/mailing_list.py:65
-#: templates/emails/templatetags/block_organisations.html:6
+#: templates/emails/templatetags/block_organisations.html:5
 msgid "Organisations"
 msgstr "Sociétés"
 
@@ -654,11 +654,11 @@ msgstr "Actions"
 msgid "Select this line"
 msgstr "Sélectionner cette ligne"
 
-#: templates/emails/templatetags/_block_synchronization.html:32
+#: templates/emails/templatetags/_block_synchronization.html:33
 msgid "See the entity"
 msgstr "Voir la fiche"
 
-#: templates/emails/templatetags/_block_synchronization.html:42
+#: templates/emails/templatetags/_block_synchronization.html:43
 msgid "No received email to synchronize"
 msgstr "Aucun e-mail reçu à synchroniser"
 
@@ -678,9 +678,9 @@ msgstr "Ajouter des documents existants"
 
 #: templates/emails/templatetags/block_attachments.html:17
 #: templates/emails/templatetags/block_child_lists.html:17
-#: templates/emails/templatetags/block_contacts.html:18
+#: templates/emails/templatetags/block_contacts.html:23
 #: templates/emails/templatetags/block_mailing_lists.html:17
-#: templates/emails/templatetags/block_organisations.html:18
+#: templates/emails/templatetags/block_organisations.html:23
 msgid "Unlink"
 msgstr "Délier"
 
@@ -712,12 +712,12 @@ msgstr "Nom de la liste"
 msgid "No child list for the moment"
 msgstr "Aucune liste fille pour le moment"
 
-#: templates/emails/templatetags/block_contacts.html:6
+#: templates/emails/templatetags/block_contacts.html:5
 #, python-format
 msgid "%s Contact recipient"
 msgstr "%s Contact destinataire"
 
-#: templates/emails/templatetags/block_contacts.html:6
+#: templates/emails/templatetags/block_contacts.html:5
 #, python-format
 msgid "%s Contacts recipients"
 msgstr "%s Contacts destinataires"
@@ -731,18 +731,26 @@ msgstr "Ajouter depuis des contacts existants"
 msgid "Add from a filter"
 msgstr "Ajouter à partir d'un filtre"
 
-#: templates/emails/templatetags/block_contacts.html:17
-#: templates/emails/templatetags/block_organisations.html:17
+#: templates/emails/templatetags/block_contacts.html:18
+msgid ""
+"The field «Email address» of Contact is hidden ; in order to use this block, "
+"you have to reactivate it (so please contact your administrator)."
+msgstr ""
+"Le champ «Adresse email» de Contact est caché ; pour pouvoir utiliser ce "
+"bloc, vous devez le réactiver (donc veuillez contacter votre administrateur)."
+
+#: templates/emails/templatetags/block_contacts.html:22
+#: templates/emails/templatetags/block_organisations.html:22
 #: templates/emails/templatetags/block_recipients.html:17
 msgid "Address"
 msgstr "Adresse"
 
-#: templates/emails/templatetags/block_contacts.html:24
-#: templates/emails/templatetags/block_organisations.html:24
+#: templates/emails/templatetags/block_contacts.html:29
+#: templates/emails/templatetags/block_organisations.html:29
 msgid "no email address"
 msgstr "pas d'adresse e-mail"
 
-#: templates/emails/templatetags/block_contacts.html:33
+#: templates/emails/templatetags/block_contacts.html:38
 msgid "No contact recipient for the moment"
 msgstr "Aucun contact destinataire pour le moment"
 
@@ -864,12 +872,12 @@ msgstr "Ré-envoyer"
 msgid "No email in the history for the moment"
 msgstr "Aucun e-mail dans l'historique pour le moment"
 
-#: templates/emails/templatetags/block_organisations.html:6
+#: templates/emails/templatetags/block_organisations.html:5
 #, python-format
 msgid "%s Organisation recipient"
 msgstr "%s Société destinataire"
 
-#: templates/emails/templatetags/block_organisations.html:6
+#: templates/emails/templatetags/block_organisations.html:5
 #, python-format
 msgid "%s Organisations recipients"
 msgstr "%s Sociétés destinataires"
@@ -878,7 +886,15 @@ msgstr "%s Sociétés destinataires"
 msgid "Add from existing organisations"
 msgstr "Ajouter depuis des sociétés existantes"
 
-#: templates/emails/templatetags/block_organisations.html:33
+#: templates/emails/templatetags/block_organisations.html:18
+msgid ""
+"The field «Email address» of Organisation is hidden ; in order to use this "
+"block, you have to reactivate it (so please contact your administrator)."
+msgstr ""
+"Le champ «Adresse email» de Société est caché ; pour pouvoir utiliser ce "
+"bloc, vous devez le réactiver (donc veuillez contacter votre administrateur)."
+
+#: templates/emails/templatetags/block_organisations.html:38
 msgid "No organisation recipient for the moment"
 msgstr "Aucune société destinataire pour le moment"
 
@@ -1032,7 +1048,7 @@ msgstr "Enregistrer la campagne"
 msgid "New mailing lists for «%s»"
 msgstr "Nouvelles listes de diffusion pour «%s»"
 
-#: views/campaign.py:68 views/mailing_list.py:106
+#: views/campaign.py:68 views/mailing_list.py:115
 msgid "Link the mailing lists"
 msgstr "Lier les listes de diffusion"
 
@@ -1067,29 +1083,29 @@ msgstr "Étape suivante"
 msgid "Sending an email to «%(entity)s» (step %(step)s/2)"
 msgstr "Envoi d'un e-mail à «%(entity)s» (étape %(step)s/2)"
 
-#: views/mailing_list.py:44
+#: views/mailing_list.py:49
 msgid "Save the mailing list"
 msgstr "Enregistrer la liste de diffusion"
 
-#: views/mailing_list.py:68 views/mailing_list.py:77
+#: views/mailing_list.py:74 views/mailing_list.py:84
 #, python-format
 msgid "New contacts for «%s»"
 msgstr "Nouveaux contacts pour «%s»"
 
-#: views/mailing_list.py:70 views/mailing_list.py:79
+#: views/mailing_list.py:76 views/mailing_list.py:86
 msgid "Link the contacts"
 msgstr "Lier les contacts"
 
-#: views/mailing_list.py:86 views/mailing_list.py:95
+#: views/mailing_list.py:94 views/mailing_list.py:104
 #, python-format
 msgid "New organisations for «%s»"
 msgstr "Nouvelles sociétés pour «%s»"
 
-#: views/mailing_list.py:88 views/mailing_list.py:97
+#: views/mailing_list.py:96 views/mailing_list.py:106
 msgid "Link the organisations"
 msgstr "Lier les sociétés"
 
-#: views/mailing_list.py:104
+#: views/mailing_list.py:113
 #, python-format
 msgid "New child lists for «%s»"
 msgstr "Nouvelles listes filles pour «%s»"

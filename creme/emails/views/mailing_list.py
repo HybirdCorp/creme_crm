@@ -24,8 +24,11 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.decorators import require_model_fields
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
+
+from creme.persons import get_contact_model, get_organisation_model
 
 from .. import get_mailinglist_model
 from ..forms.mailing_list import (MailingListForm, AddChildForm,
@@ -34,7 +37,9 @@ from ..forms.mailing_list import (MailingListForm, AddChildForm,
 #from ..models import MailingList
 
 
-MailingList = get_mailinglist_model()
+Contact      = get_contact_model()
+Organisation = get_organisation_model()
+MailingList  = get_mailinglist_model()
 
 
 @login_required
@@ -63,6 +68,7 @@ def listview(request):
 
 @login_required
 @permission_required('emails')
+@require_model_fields(Contact, 'email')
 def add_contacts(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsForm,
                          ugettext(u'New contacts for «%s»'),
@@ -72,6 +78,7 @@ def add_contacts(request, ml_id):
 
 @login_required
 @permission_required('emails')
+@require_model_fields(Contact, 'email')
 def add_contacts_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsFromFilterForm,
                          ugettext(u'New contacts for «%s»'),
@@ -81,6 +88,7 @@ def add_contacts_from_filter(request, ml_id):
 
 @login_required
 @permission_required('emails')
+@require_model_fields(Organisation, 'email')
 def add_organisations(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsForm,
                          ugettext(u'New organisations for «%s»'),
@@ -90,6 +98,7 @@ def add_organisations(request, ml_id):
 
 @login_required
 @permission_required('emails')
+@require_model_fields(Organisation, 'email')
 def add_organisations_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
                          ugettext(u'New organisations for «%s»'),
@@ -106,6 +115,7 @@ def add_children(request, ml_id):
                          submit_label=_('Link the mailing lists'),
                         )
 
+# TODO: Conflict error if 'email' field is hidden ?
 @login_required
 @permission_required('emails')
 def _delete_aux(request, ml_id, deletor):
