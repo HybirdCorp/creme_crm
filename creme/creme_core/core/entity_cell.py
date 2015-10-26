@@ -30,6 +30,7 @@ from ..models import CremeEntity, RelationType, CustomField
 from ..models.fields import DatePeriodField
 #from ..templatetags.creme_widgets import widget_entity_hyperlink
 from ..utils.meta import FieldInfo
+from .function_field import FunctionFieldDecimal
 
 
 logger = logging.getLogger(__name__)
@@ -86,7 +87,7 @@ class EntityCell(object):
      - other entities linked by a Relation (of a given RelationType)
      - ...
     """
-    type_id = None #Used for register ; overload in child classes (string type)
+    type_id = None # Used for register ; overload in child classes (string type)
 
     _listview_css_class = None
     _header_listview_css_class = None
@@ -97,20 +98,19 @@ class EntityCell(object):
                 ):
         self.value = value
         self.title = title
-        self.has_a_filter = has_a_filter #TODO: refactor list view templatetags
-        self.editable = editable #TODO: still useful ???
+        self.has_a_filter = has_a_filter # TODO: refactor list view templatetags
+        self.editable = editable # TODO: still useful ???
         self.sortable = sortable
         self.is_hidden = is_hidden
-        self.filter_string = filter_string #TODO: remove from public interface when quick search has been refactored
+        self.filter_string = filter_string # TODO: remove from public interface when quick search has been refactored
 
     def __repr__(self):
         return u"<EntityCell(type=%s, value='%s')>" % (self.type_id, self.value)
 
     def __unicode__(self):
-        return self.title #used by CustomBlockConfigItem block (creme_config)
+        return self.title # Used by CustomBlockConfigItem block (creme_config)
 
     def _get_field_class(self):
-        #return None
         return Field
 
     def _get_listview_css_class(self, attr_name):
@@ -142,7 +142,7 @@ class EntityCell(object):
     def populate_entities(cells, entities):
         pass
 
-    #TODO: factorise render_* => like FunctionField, result that can be html, csv...
+    # TODO: factorise render_* => like FunctionField, result that can be html, csv...
     def render_html(self, entity, user):
         raise NotImplementedError
 
@@ -165,7 +165,7 @@ class EntityCellActions(EntityCell):
                                                )
 
     #def render_html(self, entity, user):
-        #TODO
+        # TODO
 
 
 @CELLS_MAP
@@ -199,7 +199,7 @@ class EntityCellRegularField(EntityCell):
                 sortable = False
 
         if isinstance(field, (DateField, DateTimeField)):
-            pattern = "%s__range" #TODO: quick search overload this, to use gte/lte when it is needed
+            pattern = "%s__range" # TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
             pattern = "%s__creme-boolean"
         elif isinstance(field, DatePeriodField):
@@ -282,8 +282,8 @@ class EntityCellCustomField(EntityCell):
         super(EntityCellCustomField, self).__init__(value=unicode(customfield.id),
                                                     title=customfield.name,
                                                     has_a_filter=True,
-                                                    editable=False, #TODO: make it editable
-                                                    sortable=False, #TODO: make it sortable
+                                                    editable=False, # TODO: make it editable
+                                                    sortable=False, # TODO: make it sortable
                                                     is_hidden=False,
                                                     filter_string=pattern % customfield.get_value_class().get_related_name(),
                                                    )
@@ -309,14 +309,7 @@ class EntityCellCustomField(EntityCell):
 
     @staticmethod
     def populate_entities(cells, entities):
-        #TODO: can we reuse the same code to build EntityCell without too many queries ??
-        #cfields = CustomField.objects.in_bulk([int(cell.value) for cell in cells])
-
-        #for cell in cells:
-            #cell._customfield = cfields[int(cell.value)]
-
-        #CremeEntity.populate_custom_values(entities, cfields.values()) #NB: not itervalues() (iterated several times)
-        CremeEntity.populate_custom_values(entities, [cell.custom_field for cell in cells]) #NB: not itervalues()
+        CremeEntity.populate_custom_values(entities, [cell.custom_field for cell in cells]) # NB: not itervalues()
 
     def render_html(self, entity, user):
         from django.utils.html import escape
@@ -330,6 +323,10 @@ class EntityCellCustomField(EntityCell):
 @CELLS_MAP
 class EntityCellFunctionField(EntityCell):
     type_id = 'function_field'
+
+    _FUNFIELD_CSS = { # TODO: ClassKeyedMap ?
+        FunctionFieldDecimal: DecimalField,
+    }
 
     def __init__(self, func_field):
         self._functionfield = func_field
@@ -354,6 +351,9 @@ class EntityCellFunctionField(EntityCell):
     @property
     def function_field(self):
         return self._functionfield
+
+    def _get_field_class(self):
+        return self._FUNFIELD_CSS.get(self._functionfield.result_type, Field)
 
     @staticmethod
     def populate_entities(cells, entities):
@@ -433,8 +433,8 @@ class EntityCellVolatile(EntityCell):
         self._render_func = render_func
         super(EntityCellVolatile, self).__init__(value=value,
                                                  title=title,
-                                                 has_a_filter=True, #TODO: ??
-                                                 #editable=False ,
+                                                 has_a_filter=True, # TODO: ??
+                                                 #editable=False,
                                                  is_hidden=is_hidden,
                                                 )
 
