@@ -60,16 +60,21 @@ class _RelatedEntitesBlock(QuerysetBlock):
     #verbose_name  = 'SET ME'
     #template_name = 'SET ME'
 
-    def _get_queryset(self, entity): #OVERLOAD ME
+    def _get_queryset(self, entity): # OVERLOAD ME
         raise NotImplementedError
+
+    def _update_context(self, context):
+        pass
 
     def detailview_display(self, context):
         entity = context['object']
+        btc = self.get_block_template_context(context, self._get_queryset(entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                             )
 
-        return self._render(self.get_block_template_context(context, self._get_queryset(entity),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                           )
-                           )
+        self._update_context(btc)
+
+        return self._render(btc)
 
 
 class MailingListsBlock(_RelatedEntitesBlock):
@@ -108,6 +113,11 @@ class ContactsBlock(_RelatedEntitesBlock):
     def _get_queryset(self, entity): #entity=mailing_list
         return entity.contacts.select_related('civility')
 
+    def _update_context(self, context):
+        # TODO: in a templatetag ??
+        context['field_hidden'] = context['fields_configs'].get_4_model(Contact) \
+                                                           .is_fieldname_hidden('email')
+
 
 class OrganisationsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('emails', 'organisations')
@@ -118,6 +128,10 @@ class OrganisationsBlock(_RelatedEntitesBlock):
 
     def _get_queryset(self, entity): #entity=mailing_list
         return entity.organisations.all()
+
+    def _update_context(self, context):
+        context['field_hidden'] = context['fields_configs'].get_4_model(Organisation) \
+                                                           .is_fieldname_hidden('email')
 
 
 class ChildListsBlock(_RelatedEntitesBlock):

@@ -22,8 +22,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import Relation, FieldsConfig
+from creme.creme_core.models import Relation
+from creme.creme_core.views.decorators import require_model_fields
 from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         view_entity, add_to_entity, edit_model_with_popup)
 
@@ -51,10 +51,8 @@ def edit(request, credit_note_id):
 
 @login_required
 @permission_required('billing')
+@require_model_fields(CreditNote, 'comment')
 def edit_comment(request, credit_note_id):
-    if FieldsConfig.get_4_model(CreditNote).is_fieldname_hidden('comment'):
-        raise ConflictError('Comment is hidden & so it cannot be edited')
-
     return edit_model_with_popup(request, {'pk': credit_note_id},
                                  CreditNote, CreditNotePopupEditForm,
                                 )

@@ -1,18 +1,23 @@
-{% load i18n %}
-{% load creme_core_tags creme_block creme_widgets %}
+{% load i18n creme_core_tags creme_block creme_widgets %}
 {% has_perm_to change object as edit_perm %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
         <th class="label">{% get_block_title _('%s Contact recipient') _('%s Contacts recipients') 'contact_48.png' _('Contacts') %}</th>
         <th class="actions">
-            <div class="buttons">
-                {% get_line_linker at_url '/emails/mailing_list/{{object.pk}}/contact/add' with_label _("Add from existing contacts") with_perms edit_perm %}
-                {% get_line_linker at_url '/emails/mailing_list/{{object.pk}}/contact/add_from_filter' with_label _("Add from a filter") with_perms edit_perm %}
-            </div>
+            {% if not field_hidden %}
+                <div class="buttons">
+                    {% get_line_linker at_url '/emails/mailing_list/{{object.pk}}/contact/add' with_label _("Add from existing contacts") with_perms edit_perm %}
+                    {% get_line_linker at_url '/emails/mailing_list/{{object.pk}}/contact/add_from_filter' with_label _("Add from a filter") with_perms edit_perm %}
+                </div>
+            {% endif %}
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if page.paginator.count %}
+        {% if field_hidden %}
+            <tr class="content empty">
+                <td class="block_line_dark td_error">{% trans "The field «Email address» of Contact is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
+            </tr>
+        {% elif page.paginator.count %}
             <tr class="header">
                 <th class="block_header_line_dark">{% trans "Address" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>

@@ -8,7 +8,7 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import EntityFilter, EntityFilterCondition
+    from creme.creme_core.models import EntityFilter, EntityFilterCondition, FieldsConfig
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
@@ -27,6 +27,18 @@ class MailingListsTestCase(_EmailsTestCase):
     def setUp(self):
         super(MailingListsTestCase, self).setUp()
         self.login()
+
+    def _build_addcontact_url(self, mlist):
+        return '/emails/mailing_list/%s/contact/add' % mlist.id
+
+    def _build_addcontactfilter_url(self, mlist):
+        return '/emails/mailing_list/%s/contact/add_from_filter' % mlist.id
+
+    def _build_addorga_url(self, mlist):
+        return '/emails/mailing_list/%s/organisation/add' % mlist.id
+
+    def _build_addorgafilter_url(self, mlist):
+        return '/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id
 
     def test_create(self):
 #        url = '/emails/mailing_list/add'
@@ -141,7 +153,7 @@ class MailingListsTestCase(_EmailsTestCase):
     @skipIfCustomContact
     def test_ml_contacts01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-        url = '/emails/mailing_list/%s/contact/add' % mlist.id
+        url = self._build_addcontact_url(mlist)
         self.assertGET200(url)
 
         create = partial(Contact.objects.create, user=self.user)
@@ -165,10 +177,20 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertNotIn(contact_to_del, contacts)
 
     @skipIfCustomContact
+    def test_ml_contacts02(self):
+        "'email' is hidden"
+        mlist = MailingList.objects.create(user=self.user, name='ml01')
+
+        FieldsConfig.create(Contact,
+                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+                           )
+        self.assertGET409(self._build_addcontact_url(mlist))
+
+    @skipIfCustomContact
     def test_ml_contacts_filter01(self):
         "'All' filter"
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-        url = '/emails/mailing_list/%s/contact/add_from_filter' % mlist.id
+        url = self._build_addcontactfilter_url(mlist)
         self.assertGET200(url)
 
         create = partial(Contact.objects.create, user=self.user)
@@ -204,7 +226,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         mlist = MailingList.objects.create(user=self.user, name='ml01')
 
-        url = '/emails/mailing_list/%s/contact/add_from_filter' % mlist.id
+        url = self._build_addcontactfilter_url(mlist)
         context = self.client.get(url).context
 
         with self.assertNoException():
@@ -215,10 +237,19 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertNoFormError(self.client.post(url, data={'filters': efilter.id}))
         self.assertEqual(expected_ids, {c.id for c in mlist.contacts.all()})
 
+    @skipIfCustomContact
+    def test_ml_contacts_filter03(self):
+        "'email' is hidden"
+        mlist = MailingList.objects.create(user=self.user, name='ml01')
+        FieldsConfig.create(Contact,
+                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+                           )
+        self.assertGET409(self._build_addcontactfilter_url(mlist))
+
     @skipIfCustomOrganisation
     def test_ml_orgas01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-        url = '/emails/mailing_list/%s/organisation/add' % mlist.id
+        url = self._build_addorga_url(mlist)
         self.assertGET200(url)
 
         create = partial(Organisation.objects.create, user=self.user)
@@ -242,10 +273,20 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertNotIn(orga_to_del, orgas)
 
     @skipIfCustomOrganisation
+    def test_ml_orgas02(self):
+        "'email' is hidden"
+        mlist = MailingList.objects.create(user=self.user, name='ml01')
+
+        FieldsConfig.create(Organisation,
+                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+                           )
+        self.assertGET409(self._build_addorga_url(mlist))
+
+    @skipIfCustomOrganisation
     def test_ml_orgas_filter01(self):
         " 'All' filter"
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-        url = '/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id
+        url = self._build_addorgafilter_url(mlist)
         self.assertGET200(url)
 
         create_orga = partial(Organisation.objects.create, user=self.user)
@@ -283,7 +324,7 @@ class MailingListsTestCase(_EmailsTestCase):
         efilter = create_ef(pk='test-filter')
         self.assertEqual(expected_ids, {c.id for c in efilter.filter(Organisation.objects.all())})
 
-        url = '/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id
+        url = self._build_addorgafilter_url(mlist)
         response = self.assertPOST200(url, data={'filters': priv_efilter.id})
         self.assertFormError(response, 'form', 'filters',
                              _(u'Select a valid choice. That choice is not one of the available choices.')
@@ -292,6 +333,16 @@ class MailingListsTestCase(_EmailsTestCase):
         response = self.client.post(url, data={'filters': efilter.id})
         self.assertNoFormError(response)
         self.assertEqual(expected_ids, {c.id for c in mlist.organisations.all()})
+
+    @skipIfCustomOrganisation
+    def test_ml_orgas_filter03(self):
+        "'email' is hidden"
+        mlist = MailingList.objects.create(user=self.user, name='ml01')
+
+        FieldsConfig.create(Organisation,
+                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+                           )
+        self.assertGET409(self._build_addorgafilter_url(mlist))
 
     def test_ml_tree01(self):
         create_ml = partial(MailingList.objects.create, user=self.user)
