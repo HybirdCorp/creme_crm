@@ -19,13 +19,11 @@
 ################################################################################
 
 from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext as _
 from django.forms import ModelMultipleChoiceField
-#from django.forms.widgets import CheckboxSelectMultiple
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
-#from creme.activities.forms.activity import _ActivityCreateForm
 from creme.activities.forms.activity import ActivityCreateForm, CalendarActivityCreateForm
 
 from .constants import PRIO_NOT_IMP_PK
@@ -37,13 +35,11 @@ def add_users_field(form):
         return
 
     form.fields['informed_users'] = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
-                                                             #widget=CheckboxSelectMultiple(),
                                                              widget=UnorderedMultipleChoiceWidget,
                                                              required=False,
-                                                             label=_(u'Users to keep informed'), #label=_(u"Users"),
+                                                             label=_(u'Users to keep informed'),
                                                             )
 
-    #form.blocks = form.blocks.new(('informed_users', _(u'Users to keep informed'), ['informed_users']))
     form.blocks = form.blocks.new(('informed_users', 'Users to keep informed', ['informed_users']))
 
 def save_users_field(form):
@@ -66,16 +62,15 @@ def save_users_field(form):
     Participants: %(participants)s.""") % {
             'activity':     activity,
             'description':  activity.description,
-            'start':        activity.start,
-            'end':          activity.end,
+            'start':        activity.start or _('not specified'),
+            'end':          activity.end or _('not specified'),
             'subjects':     u' / '.join(unicode(e) for e in cdata['subjects']),
             'participants': u' / '.join(unicode(c) for c in form.participants),
         }
 
-    UserMessage.create_messages(raw_users, title, body, PRIO_NOT_IMP_PK, activity.user, activity) #TODO: sender = the real user that created the activity ???
+    # TODO: sender = the real user that created the activity ???
+    UserMessage.create_messages(raw_users, title, body, PRIO_NOT_IMP_PK, activity.user, activity)
 
 
-#_ActivityCreateForm.add_post_init_callback(add_users_field)
-#_ActivityCreateForm.add_post_save_callback(save_users_field)
 ActivityCreateForm.add_post_init_callback(add_users_field)
 ActivityCreateForm.add_post_save_callback(save_users_field)
