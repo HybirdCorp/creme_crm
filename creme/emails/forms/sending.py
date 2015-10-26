@@ -23,8 +23,8 @@ from datetime import datetime, time
 import logging
 from pickle import dumps
 
-from django.forms import TypedChoiceField, IntegerField, EmailField
-from django.forms.utils import ValidationError #ErrorList
+from django.forms import IntegerField, EmailField # TypedChoiceField
+from django.forms.utils import ValidationError # ErrorList
 from django.template.base import Template, VariableNode
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _ # ugettext
@@ -34,10 +34,9 @@ from creme.creme_core.models import SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
-from ..constants import MAIL_STATUS_NOTSENT, SETTING_EMAILCAMPAIGN_SENDER
+from ..constants import SETTING_EMAILCAMPAIGN_SENDER # MAIL_STATUS_NOTSENT
 #from ..models import EmailTemplate
-from ..models.sending import (EmailSending, LightWeightEmail,
-        SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED)
+from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPE_DEFERRED # SENDING_TYPES SENDING_STATE_PLANNED
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 class SendingCreateForm(CremeModelForm):
     sender       = EmailField(label=_(u"Sender address"))
-    type         = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
+#    type         = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
 #    template     = CreatorEntityField(label=_(u'Email template'), model=EmailTemplate)
     template     = CreatorEntityField(label=_(u'Email template'), model=get_emailtemplate_model())
     sending_date = CremeDateTimeField(label=_(u"Sending date"), required=False,
@@ -130,8 +129,10 @@ class SendingCreateForm(CremeModelForm):
 
         return cleaned_data
 
-    def _get_variables(self, body): #TODO: move in Emailtemplate ??
-        return (varnode.filter_expression.var.var for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode))
+    def _get_variables(self, body): # TODO: move in Emailtemplate ??
+        return (varnode.filter_expression.var.var
+                    for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode)
+               )
 
     def save(self):
         instance = self.instance
@@ -139,7 +140,7 @@ class SendingCreateForm(CremeModelForm):
         sender_setting = self.sender_setting
 
         instance.campaign = self.campaign
-        instance.state = SENDING_STATE_PLANNED
+#        instance.state = SENDING_STATE_PLANNED
 
         template = cleaned_data['template']
         instance.subject   = template.subject
@@ -164,8 +165,8 @@ class SendingCreateForm(CremeModelForm):
 
         for address, recipient_entity in instance.campaign.all_recipients():
             mail = LightWeightEmail(sending=instance,
-                                    reads=0,
-                                    status=MAIL_STATUS_NOTSENT,
+#                                    reads=0,
+#                                    status=MAIL_STATUS_NOTSENT,
                                     sender=instance.sender,
                                     recipient=address,
                                     sending_date=instance.sending_date,
@@ -178,7 +179,7 @@ class SendingCreateForm(CremeModelForm):
                 for varname in varlist:
                     val = getattr(recipient_entity, varname, None)
                     if val:
-                        context[varname] = val.encode('utf-8')#TODO: unicode(val).encode('utf-8') ? if val is an fk it doesn't have attribute encode...(civility)
+                        context[varname] = val.encode('utf-8') # TODO: unicode(val).encode('utf-8') ? if val is an fk it doesn't have attribute encode...(civility)
 
                 if context:
                     mail.body = dumps(context)

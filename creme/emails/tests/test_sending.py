@@ -24,7 +24,7 @@ try:
             EmailTemplate, MailingList, LightWeightEmail)
     from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
             SENDING_STATE_DONE, SENDING_STATE_PLANNED)
-    from ..constants import SETTING_EMAILCAMPAIGN_SENDER
+    from ..constants import SETTING_EMAILCAMPAIGN_SENDER, MAIL_STATUS_NOTSENT
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -161,14 +161,14 @@ class SendingsTestCase(_EmailsTestCase):
         mlist01.children.add(mlist02, mlist03, mlist04)
         camp.mailing_lists.add(mlist01, mlist05, mlist06)
 
-        addresses = ['spike.spiegel@bebop.com',  #0
-                     'jet.black@bebop.com',      #1
-                     'faye.valentine@bebop.com', #2
-                     'ed.wong@bebop.com',        #3
-                     'ein@bebop.com',            #4
-                     'contact@nerv.jp',          #5
-                     'contact@seele.jp',         #6
-                     'shin@reddragons.mrs',      #7
+        addresses = ['spike.spiegel@bebop.com',  # 0
+                     'jet.black@bebop.com',      # 1
+                     'faye.valentine@bebop.com', # 2
+                     'ed.wong@bebop.com',        # 3
+                     'ein@bebop.com',            # 4
+                     'contact@nerv.jp',          # 5
+                     'contact@seele.jp',         # 6
+                     'shin@reddragons.mrs',      # 7
                     ]
 
         create_recipient = EmailRecipient.objects.create
@@ -238,11 +238,14 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertTrue(all(c.id in related_set for c in contacts))
         self.assertTrue(all(o.id in related_set for o in orgas))
 
+
         self.assertEqual('', sending.mails_set.filter(recipient_entity=None)[0].body)
         self.assertEqual('', sending.mails_set.get(recipient_entity=contacts[0].id).body)
         self.assertEqual('', sending.mails_set.get(recipient_entity=orgas[0].id).body)
 
         mail = mails[0]
+        self.assertEqual(0, mail.reads)
+        self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
         self.assertGET200('/emails/mails_history/%s' % mail.id)
 
         response = self.assertGET200('/emails/mail/get_body/%s' % mail.id)
