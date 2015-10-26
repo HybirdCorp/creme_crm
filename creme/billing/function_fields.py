@@ -93,6 +93,8 @@ def get_total_won_quote_this_year(entity):
 
 
 class _BaseTotalWonQuote(FunctionField):
+    result_type = FunctionFieldDecimal # Useful to get the rigth CSS class in listview
+
     @classmethod
     def populate_entities(cls, entities):
         # TODO: remove when FieldsConfig cache has been added.
@@ -105,6 +107,7 @@ class _BaseTotalWonQuote(FunctionField):
 class _TotalPendingPayment(FunctionField):
     name         = "total_pending_payment"
     verbose_name = _(u"Total Pending Payment")
+    result_type  = FunctionFieldDecimal # Useful to get the rigth CSS class in listview
 
     def __call__(self, entity):
 #        return FunctionFieldResult(get_total_pending(entity))

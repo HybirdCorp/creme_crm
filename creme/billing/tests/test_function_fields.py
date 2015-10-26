@@ -4,10 +4,12 @@ try:
     import datetime
     from itertools import chain
 
+    from django.conf import settings
     from django.utils.formats import number_format
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.core.entity_cell import EntityCellFunctionField
     from creme.creme_core.core.function_field import FunctionField
     from creme.creme_core.models import CremeProperty, FieldsConfig
 
@@ -66,6 +68,11 @@ class FunctionFieldTestCase(_BillingTestCase):
         val = number_format('5000.00', use_l10n=True)
         self.assertEqual(val, funf(target).for_html())
         self.assertEqual(val, funf(target).for_csv())
+
+        # Test for EntityCellFunctionField + CSS
+        cell = EntityCellFunctionField(func_field=funf)
+        self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
