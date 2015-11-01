@@ -42,8 +42,12 @@ def address_as_dict(address):
 
     geoaddress = GeoAddress.get_geoaddress(address)
 
-    is_billing  = owner.billing_address_id == address_id
-    is_shipping = owner.shipping_address_id == address_id
+#    is_billing  = owner.billing_address_id == address_id
+#    is_shipping = owner.shipping_address_id == address_id
+    # NB: we use gettattr() to accept custom person model without
+    # billing_address/shipping_address attribute.
+    is_billing  = getattr(owner, 'billing_address_id', None) == address_id
+    is_shipping = getattr(owner, 'shipping_address_id', None) == address_id
 
     return {
             'id':           address_id,
@@ -66,10 +70,15 @@ def address_title(address):
     if address.name:
         return address.name
 
-    if address.owner.billing_address_id == address.id:
+    address_id = address.id
+
+#    if address.owner.billing_address_id == address.id:
+    # See above
+    if getattr(address.owner, 'billing_address_id', None) == address_id:
         return _('Billing address')
 
-    if address.owner.shipping_address_id == address.id:
+#    if address.owner.shipping_address_id == address.id:
+    if getattr(address.owner, 'shipping_address_id', None) == address_id:
         return _('Shipping address')
 
     return ''
