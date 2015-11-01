@@ -598,7 +598,6 @@ CREME_CORE_JS = ('main.js',
                     # OTHER APPS (mandatory ones)
                     'assistants/js/assistants.js',
                     'activities/js/activities.js',
-                    #'media_managers/js/media_managers.js',
                     'persons/js/persons.js',
                 )
 

@@ -50,7 +50,7 @@ class AbstractActivity(CremeEntity):
                              ).set_tags(optional=True)
     duration      = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
     type          = ForeignKey(ActivityType, verbose_name=_(u'Activity type'),
-                               on_delete=PROTECT, #editable=False,
+                               on_delete=PROTECT,
                               )
     sub_type      = ForeignKey(ActivitySubType, verbose_name=_(u'Activity sub-type'),
                                blank=True, null=True, on_delete=SET_NULL,
@@ -63,11 +63,10 @@ class AbstractActivity(CremeEntity):
                                    )
     is_all_day    = BooleanField(_(u'All day?'), blank=True, default=False)
     busy          = BooleanField(_(u'Busy?'), default=False)
-    #TODO: use choices ; to be improved with choices: listview search/field printers/history
+    # TODO: use choices ; to be improved with choices: listview search/field printers/history
     floating_type = PositiveIntegerField(_(u'Floating type'), default=NARROW,
                                          editable=False,
                                         ).set_tags(viewable=False)
-
 
     creation_label = _('Add an activity')
 
@@ -81,7 +80,8 @@ class AbstractActivity(CremeEntity):
     def as_ical_event(self):
         """Return a normalized iCalendar event string
             /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
-            Example : BEGIN:VEVENT\nUID:http://cremecrm.com"""
+            Example : BEGIN:VEVENT\nUID:http://cremecrm.com
+        """
         from ..utils import get_ical_date
         return u"""BEGIN:VEVENT
 UID:http://cremecrm.com
@@ -222,7 +222,6 @@ END:VEVENT
 
         if enabled is None:
             try:
-                #sv = SettingValue.objects.get(key=SETTING_AUTO_ORGA_SUBJECTS)
                 sv = SettingValue.objects.get(key_id=SETTING_AUTO_ORGA_SUBJECTS)
             except SettingValue.DoesNotExist:
                 logger.critical('SettingValue with key=%s cannot be found !'

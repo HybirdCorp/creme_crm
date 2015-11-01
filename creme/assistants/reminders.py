@@ -79,8 +79,6 @@ class ReminderTodo(Reminder):
         return Q(deadline__lte=dt_now + timedelta(days=1), is_ok=False)
 
     def ok_for_continue(self):
-        #return now().hour > 8
-        #return localtime(now()).hour >= SettingValue.objects.get(key=MIN_HOUR_4_TODO_REMINDER).value
         return localtime(now()).hour >= SettingValue.objects.get(key_id=MIN_HOUR_4_TODO_REMINDER).value
 
 

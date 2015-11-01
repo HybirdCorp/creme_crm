@@ -285,8 +285,7 @@ class HeaderFilter(Model): #CremeModel ???
                          Q(is_private=True, user__in=[user] + user.teams)
                         )
 
-    #TODO: dispatch this job in Cells classes
-    #def populate_entities(self, entities, user):
+    # TODO: dispatch this job in Cells classes
     def populate_entities(self, entities):
         """Fill caches of CremeEntity objects, related to the columns that will
         be displayed with this HeaderFilter.
@@ -298,5 +297,4 @@ class HeaderFilter(Model): #CremeModel ???
             cell_groups[cell.__class__].append(cell)
 
         for cell_cls, cell_group in cell_groups.iteritems():
-            #cell_cls.populate_entities(cell_group, entities, user)
             cell_cls.populate_entities(cell_group, entities)

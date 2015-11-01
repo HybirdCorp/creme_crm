@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,6 @@ from ..utils import get_user_timezone_config
 class UserThemeForm(CremeForm):
     theme = ChoiceField(label=_(u"Choose your theme"), choices=settings.THEMES,
                         widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form), function() {creme.utils.reload(window);});'}),
-                        #help_text=_(u"Think to reload the page once you changed the theme."),
                        )
 
     def __init__(self, *args, **kwargs):
@@ -47,13 +46,10 @@ class UserThemeForm(CremeForm):
     def save(self, *args, **kwargs):
         theme = self.cleaned_data['theme']
 
-        #TODO: SettingValue.objects.get_or_create (update_model_instance if 'not created')
+        # TODO: SettingValue.objects.get_or_create (update_model_instance if 'not created')
         try:
-            #sv = SettingValue.objects.get(user=self.user, key=USER_THEME_NAME)
             sv = SettingValue.objects.get(user=self.user, key_id=USER_THEME_NAME)
         except SettingValue.DoesNotExist:
-            #sk = SettingKey.objects.get(pk=USER_THEME_NAME)
-            #SettingValue.objects.create(user=self.user, key=sk, value=theme)
             SettingValue.objects.create(user=self.user, key_id=USER_THEME_NAME, value=theme)
         else:
             update_model_instance(sv, value=theme)
@@ -64,7 +60,6 @@ class UserThemeForm(CremeForm):
 class UserTimeZoneForm(CremeForm):
     time_zone = ChoiceField(label=_(u'Choose your time zone'),
                             choices=[(tz, tz) for tz in pytz.common_timezones],
-                            #widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
                             widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form), function() {creme.utils.reload(window);});'}),
                            )
 
@@ -77,8 +72,6 @@ class UserTimeZoneForm(CremeForm):
         time_zone = self.cleaned_data['time_zone']
 
         if not self.setting_value:
-            #sk = SettingKey.objects.get(pk=USER_TIMEZONE)
-            #SettingValue.objects.create(user=self.user, key=sk, value=time_zone)
             SettingValue.objects.create(user=self.user, key_id=USER_TIMEZONE, value=time_zone)
         else:
             update_model_instance(self.setting_value, value=time_zone)

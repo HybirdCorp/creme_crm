@@ -20,27 +20,28 @@
 
 from collections import defaultdict
 
-from django.db.models import CharField, BooleanField, TextField, DateTimeField, ForeignKey, PositiveIntegerField
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
+        ForeignKey, PositiveIntegerField)
+from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.core.function_field import (FunctionField,
+        FunctionFieldResult, FunctionFieldResultsList)
 from creme.creme_core.models import CremeEntity, CremeModel
 from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
-from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 
 
 class ToDo(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
     is_ok         = BooleanField(_("Done ?"), editable=False, default=False)
-    #has_deadline  = BooleanField(editable=False)
-    reminded      = BooleanField(_(u'Notification sent'), editable=False, default=False) #need by creme_core.core.reminder
+    reminded      = BooleanField(_(u'Notification sent'), editable=False, default=False) # Needed by creme_core.core.reminder
     description   = TextField(_(u'Description'), blank=True, null=True)
     creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
-    user          = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
+    user          = CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
+    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -49,15 +50,6 @@ class ToDo(CremeModel):
         app_label = 'assistants'
         verbose_name = _(u'Todo')
         verbose_name_plural = _(u'Todos')
-
-    #def __init__(self, *args, **kwargs):
-        #super(ToDo, self).__init__(*args, **kwargs)
-
-        #if self.pk is None:
-            #self.is_ok = False
-
-        #if self.deadline is None:
-            #self.has_deadline = False
 
     def __unicode__(self):
         return self.title
@@ -77,7 +69,7 @@ class ToDo(CremeModel):
     def get_todos_for_ctypes(ct_ids, user):
         return ToDo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self): # For generic views
         return self.creme_entity
 
 

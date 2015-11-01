@@ -73,10 +73,8 @@ class RecurrentGeneratorWizard(SessionWizardView):
             step = self.steps.current
 
         if step == '1':
-            #prev_data = self.get_cleaned_data_for_step(self.get_prev_step(self.steps.current))
             prev_data =  self.get_cleaned_data_for_step('0')
 
-            #if prev_data is not None:
             ctype = prev_data['ct']
             form_class = recurrent_registry.get_form_of_template(ctype)
 
@@ -84,12 +82,10 @@ class RecurrentGeneratorWizard(SessionWizardView):
             kwargs.update(data=data,
                           files=files,
                           prefix=self.get_form_prefix(step, None),
-                          initial=self.get_form_initial(step), #not really useful here...
+                          initial=self.get_form_initial(step), # Not really useful here...
                           ct=ctype,
                          )
             form = form_class(**kwargs)
-
-        #if form is None:
         else:
             form = super(RecurrentGeneratorWizard, self).get_form(step, data, files)
 
@@ -107,7 +103,9 @@ def edit(request, generator_id):
 @login_required
 @permission_required('recurrents')
 def listview(request):
-    return list_view(request, RecurrentGenerator, extra_dict={'add_url': '/recurrents/generator/add'})
+    return list_view(request, RecurrentGenerator,
+                     extra_dict={'add_url': '/recurrents/generator/add'},
+                    )
 
 @login_required
 @permission_required('recurrents')

@@ -44,7 +44,6 @@ def get_user_theme(request):
 
     if theme_name is None:
         try:
-            #sv = SettingValue.objects.get(user=user, key=USER_THEME_NAME)
             sv = SettingValue.objects.get(user=user, key_id=USER_THEME_NAME)
         except SettingValue.DoesNotExist:
             pass
@@ -57,9 +56,7 @@ def get_user_theme(request):
                 sv.delete()
 
         if theme_name is None:
-            #sk = SettingKey.objects.get(pk=USER_THEME_NAME)
             theme_name = settings.DEFAULT_THEME
-            #sv = SettingValue.objects.create(user=user, key=sk, value=theme_name)
             SettingValue.objects.create(user=user, key_id=USER_THEME_NAME, value=theme_name)
 
         session['usertheme'] = theme_name
@@ -68,7 +65,6 @@ def get_user_theme(request):
 
 def get_user_timezone_config(user):
     try:
-        #sv = SettingValue.objects.get(user=user, key=USER_TIMEZONE)
         sv = SettingValue.objects.get(user=user, key_id=USER_TIMEZONE)
     except SettingValue.DoesNotExist:
         sv = None

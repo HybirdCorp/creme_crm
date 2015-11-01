@@ -320,8 +320,6 @@ creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_u
     creme.blocks.form(url, {blockReloadUrl: block_url}).open();
 };
 
-// creme.utils.loadBlock = creme.blocks.reload;
-
 creme.blocks.tableExpandState = function($self, state, trigger) {
     var $table = $self.parents('table[id]');
     var $collapsable = $table.find('.collapsable');
