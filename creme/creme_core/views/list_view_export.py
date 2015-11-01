@@ -47,10 +47,10 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
     if backend is None:
         raise Http404('Unknown extension')
 
-    #TODO: is it possible that session doesn't content the state (eg: url linked and open directly) ????
+    # TODO: is it possible that session doesn't content the state (eg: url linked and open directly) ????
     current_lvs = ListViewState.get_state(request, url=request.GET['list_url'])
 
-    #TODO: factorise (with list_view()) ?? in a ListViewState's method ???
+    # TODO: factorise (with list_view()) ?? in a ListViewState's method ???
     hf = HeaderFilter.objects.get(pk=current_lvs.header_filter_id)
 #    cells = hf.cells
     cells = hf.filtered_cells
@@ -79,8 +79,7 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
         entities = current_lvs.sort_query(entities)
 
         for entities_slice in iter_as_slices(entities, 256):
-            #hf.populate_entities(entities_slice, user)  # optimisation time !!!
-            hf.populate_entities(entities_slice)  # optimisation time !!!
+            hf.populate_entities(entities_slice)  # Optimisation time !!!
 
             for entity in entities_slice:
                 line = []

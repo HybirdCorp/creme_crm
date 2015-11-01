@@ -27,12 +27,10 @@ from decimal import Decimal
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-#from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-#from ..registry import creme_registry
 from ..core.exceptions import ConflictError
 from ..signals import pre_replace_related
 
@@ -45,12 +43,6 @@ def creme_entity_content_types():
     get_for_model = ContentType.objects.get_for_model
     return (get_for_model(model) for model in creme_registry.iter_entity_models())
 
-#def Q_creme_entity_content_types():
-    #warnings.warn("Q_creme_entity_content_types() function is deprecated.",
-                  #DeprecationWarning
-                 #)
-    #return ContentType.objects.filter(pk__in=[ct_model.pk for ct_model in creme_entity_content_types()])
-
 def get_ct_or_404(ct_id):
     try:
         ct = ContentType.objects.get_for_id(ct_id)
@@ -62,7 +54,7 @@ def get_ct_or_404(ct_id):
 def build_ct_choices(ctypes):
     from .unicode_collation import collator
     choices = [(ct.id, unicode(ct)) for ct in ctypes]
-    #choices.sort(key=lambda k: k[1])
+
     sort_key = collator.sort_key
     choices.sort(key=lambda k: sort_key(k[1]))
 

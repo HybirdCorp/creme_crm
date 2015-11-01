@@ -410,7 +410,7 @@ class SpecificRelationsBlock(QuerysetBlock):
 
 class CustomBlock(Block):
     """Block that can be customised by the user to display informations of an entity.
-    It can display regular, custom & function fields, relationships... (see HeaderFilterItem)
+    It can display regular, custom & function fields, relationships... (see HeaderFilter & EntityCells)
     """
     template_name = 'creme_core/templatetags/block_custom.html'
 
@@ -418,7 +418,7 @@ class CustomBlock(Block):
         "@param customblock_conf_item Instance of CustomBlockConfigItem"
         super(CustomBlock, self).__init__()
         self.id_ = id_
-        self.dependencies = (customblock_conf_item.content_type.model_class(),) #TODO: other model (FK, M2M, Relation)
+        self.dependencies = (customblock_conf_item.content_type.model_class(),) # TODO: other model (FK, M2M, Relation)
         #self.relation_type_deps = () #TODO: if cell is EntityCellRelation
         self.verbose_name = customblock_conf_item.name
         self.config_item = customblock_conf_item
@@ -514,7 +514,7 @@ class BlocksManager(object):
 
     @staticmethod
     def get(context):
-        return context[BlocksManager.var_name] #will raise exception if not created: OK
+        return context[BlocksManager.var_name] # Will raise exception if not created: OK
 
     def get_remaining_groups(self):
         return self._blocks_groups.keys()

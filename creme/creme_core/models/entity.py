@@ -22,12 +22,10 @@ from collections import defaultdict
 import logging
 import warnings
 
-#from django.db import models
 from django.db.models import ForeignKey, Q
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
-#from django.conf import settings
 from django.forms.utils import flatatt
 
 from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
@@ -53,7 +51,7 @@ class _PrettyPropertiesField(FunctionField):
 
     @classmethod
     def filter_in_result(cls, search_string):
-        #should we make a separated query to retrieve first the searched types ?
+        # Should we make a separated query to retrieve first the searched types ?
         return Q(properties__type__text__icontains=search_string)
 
     def __call__(self, entity):
@@ -66,7 +64,7 @@ class _PrettyPropertiesField(FunctionField):
 
 class CremeEntity(CremeAbstractEntity):
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField())
-    allowed_related = set() #Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields #TODO: use tag instead
+    allowed_related = set() # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields #TODO: use tag instead
     creation_label = _('Add an entity')
 
     class Meta:
@@ -107,73 +105,6 @@ class CremeEntity(CremeAbstractEntity):
     def allowed_unicode(self, user):
         return unicode(self) if user.has_perm_to_view(self) else ugettext(u'Entity #%s (not viewable)') % self.id
 
-    #XXX: all deprecated methods commented on 23/01/2014
-    #def can_change(self, user):
-        #warnings.warn("CremeEntity.can_change() method is deprecated; use User.has_perm_to_change() instead",
-                      #DeprecationWarning
-                     #)
-        #return user.has_perm_to_change(self)
-
-    #def can_change_or_die(self, user):
-        #warnings.warn("CremeEntity.can_change_or_die() method is deprecated; use User.has_perm_to_change_or_die() instead",
-                      #DeprecationWarning
-                     #)
-        #user.has_perm_to_change_or_die(self)
-
-    #def can_delete(self, user):
-        #warnings.warn("CremeEntity.can_delete() method is deprecated; use User.has_perm_to_delete() instead",
-                      #DeprecationWarning
-                     #)
-        #return user.has_perm_to_delete(self)
-
-    #def can_delete_or_die(self, user):
-        #warnings.warn("CremeEntity.can_delete_or_die() method is deprecated; use User.has_perm_to_delete_or_die() instead",
-                      #DeprecationWarning
-                     #)
-        #user.has_perm_to_delete_or_die(self)
-
-    #def can_link(self, user):
-        #warnings.warn("CremeEntity.can_link() method is deprecated; use User.has_perm_to_link() instead",
-                      #DeprecationWarning
-                     #)
-        #return user.has_perm_to_link(self)
-
-    #def can_link_or_die(self, user):
-        #warnings.warn("CremeEntity.can_link_or_die() method is deprecated; use User.has_perm_to_link_or_die() instead",
-                      #DeprecationWarning
-                     #)
-        #user.has_perm_to_link_or_die(self)
-
-    #def can_unlink(self, user):
-        #warnings.warn("CremeEntity.can_unlink() method is deprecated; use User.has_perm_to_unlink() instead",
-                      #DeprecationWarning
-                     #)
-        #return user.has_perm_to_unlink(self)
-
-    #def can_unlink_or_die(self, user):
-        #warnings.warn("CremeEntity.can_unlink_or_die() method is deprecated; use User.has_perm_to_unlink_or_die() instead",
-                      #DeprecationWarning
-                     #)
-        #user.has_perm_to_unlink_or_die(self)
-
-    #def can_view(self, user):
-        #warnings.warn("CremeEntity.can_view() method is deprecated; use User.has_perm_to_view() instead",
-                      #DeprecationWarning
-                     #)
-        #return user.has_perm_to_view(self)
-
-    #def can_view_or_die(self, user):
-        #warnings.warn("CremeEntity.can_view_or_die() method is deprecated; use User.has_perm_to_view_or_die() instead",
-                      #DeprecationWarning
-                     #)
-        #user.has_perm_to_view_or_die(self)
-
-    #@staticmethod
-    #def populate_credentials(entities, user):
-        #warnings.warn("CremeEntity.populate_credentials() method is deprecated & useless.",
-                      #DeprecationWarning
-                     #)
-
     @staticmethod
     def get_real_entity_by_id(pk):
         warnings.warn("CremeEntity.get_real_entity_by_id() method is deprecated (because it is probably useless).",
@@ -197,7 +128,6 @@ class CremeEntity(CremeAbstractEntity):
         If '' (void string) is returned, the model can not be edited directly.
         eg: return "/my_app/my_model/edit/%s" % self.id
         """
-        #return "/creme_core/entity/edit/%s" % self.id
         return ''
 
     def get_delete_absolute_url(self):
@@ -242,13 +172,11 @@ class CremeEntity(CremeAbstractEntity):
         return relations
 
     @staticmethod
-    #def populate_relations(entities, relation_type_ids, user):
     def populate_relations(entities, relation_type_ids):
         relations = Relation.objects.filter(subject_entity__in=[e.id for e in entities],
                                             type__in=relation_type_ids,
                                            )\
                                     .select_related('object_entity')
-        #Relation.populate_real_object_entities(relations, user)
         Relation.populate_real_object_entities(relations)
 
         # { Subject_Entity -> { RelationType ->[Relation list] } }
@@ -299,7 +227,7 @@ class CremeEntity(CremeAbstractEntity):
 
         return '<a target="_blank" href="%s">%s</a>' % (self.get_absolute_url(), escape(unicode(self)))
 
-    def get_actions(self, user): #TODO: improve icon/css class management....
+    def get_actions(self, user): # TODO: improve icon/css class management....
         actions = []
 
         edit_url = self.get_edit_absolute_url()
@@ -343,8 +271,8 @@ class CremeEntity(CremeAbstractEntity):
     def populate_properties(entities):
         properties_map = defaultdict(list)
 
-        #NB1: listify entities in order to avoid subquery (that is not supported by some DB backends)
-        #NB2: list of id in order to avoid strange queries that retrieve base CremeEntities (ORM problem ?)
+        # NB1: listify entities in order to avoid subquery (that is not supported by some DB backends)
+        # NB2: list of id in order to avoid strange queries that retrieve base CremeEntities (ORM problem ?)
         entities_ids = [entity.id for entity in entities]
 
         for prop in CremeProperty.objects.filter(creme_entity__in=entities_ids).select_related('type'):

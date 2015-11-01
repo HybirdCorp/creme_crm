@@ -110,30 +110,6 @@ creme.utils.bindShowHideTbody = function(root) {
     });
 }
 
-// Commented on 13 January 2015
-// creme.utils.simpleConfirm = function(cb, msg) {
-//     console.warn('this functions is deprecated. please use creme.dialogs.confirm() instead.');
-//     var buttons = [{
-//                         text: gettext("Ok"),
-//                         click: function() {
-//                             cb();
-//                             $(this).dialog("destroy");
-//                             $(this).remove();
-//                         }
-//                    },
-//                    {
-//                         text: gettext("Cancel"),
-//                         click: function() { //todo: factorise
-//                             $(this).dialog("destroy");
-//                             $(this).remove();
-//                         }
-//                    }
-//     ];
-// 
-//     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
-// }
-
-
 // TODO : only used by menu, so refactor it when horizontal menu will replace old one. 
 creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factorise (see ajaxDelete()) ??
     creme.dialogs.confirm(gettext("Are you sure ?"))
@@ -347,7 +323,7 @@ creme.utils.appendInUrl = function(url, strToAppend) {
     return url + anchor;
 }
 
-//TODO: move to a block.py (and postNReload() etc...)???
+//TODO: move to a block.py ???
 creme.utils.innerPopupNReload = function(url, reload_url) {
     creme.utils.showInnerPopup(url, {
         beforeClose: function(event, ui, dial) {
@@ -355,17 +331,6 @@ creme.utils.innerPopupNReload = function(url, reload_url) {
         }
     });
 }
-
-// Commented on 13 January 2015
-// creme.utils.postNReload = function(url, reload_url) {
-//     console.warn('this function is deprecated. please use creme.blocks.ajaxPOSTQuery instead.');
-//     creme.ajax.post({
-//         url: url,
-//         success: function(data, status) {
-//             creme.blocks.reload(reload_url);
-//         }
-//     });
-// }
 
 creme.utils.handleResearch = function(target_node_id, from) {
     console.warn('creme.utils.handleResearch() functions is deprecated. Use creme.utils.decorateSearchResult() instead.');

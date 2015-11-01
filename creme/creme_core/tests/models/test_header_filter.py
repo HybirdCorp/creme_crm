@@ -295,7 +295,6 @@ class HeaderFiltersTestCase(CremeTestCase):
                    ]
 
         with self.assertNumQueries(0):
-            #hf.populate_entities(contacts, user)
             hf.populate_entities(contacts)
 
         with self.assertNumQueries(1):
@@ -325,7 +324,6 @@ class HeaderFiltersTestCase(CremeTestCase):
                    ]
 
         with self.assertNumQueries(2):
-            #hf.populate_entities(contacts, user)
             hf.populate_entities(contacts)
 
         with self.assertNumQueries(0):
@@ -369,7 +367,6 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         with self.assertNoException():
             with self.assertNumQueries(0):
-                #hf.populate_entities(contacts, user)
                 hf.populate_entities(contacts)
 
     def test_populate_entities_fields04(self):
@@ -424,7 +421,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         ContentType.objects.get_for_model(CremeEntity)
 
         with self.assertNumQueries(2):
-            #hf.populate_entities([nagate, shizuka], user)
             hf.populate_entities([nagate, shizuka])
 
         with self.assertNumQueries(0):
