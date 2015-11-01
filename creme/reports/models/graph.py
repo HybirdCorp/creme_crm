@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
 from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
 
-from ..constants import RFT_RELATION, RFT_FIELD
+from ..constants import RFT_RELATION, RFT_FIELD, GROUP_TYPES
 #from .report import Report
 
 
@@ -39,11 +39,11 @@ class AbstractReportGraph(CremeEntity):
     name     = CharField(pgettext_lazy('reports-graphs', u'Name of the graph'), max_length=100)
 #    report   = ForeignKey(Report, editable=False)
     report   = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False)
-    abscissa = CharField(_(u'Abscissa axis'), max_length=100, editable=False)
-    ordinate = CharField(_(u'Ordinate axis'), max_length=100, editable=False)
-    type     = PositiveIntegerField(_(u'Type'), editable=False) #see RGT_*
+    abscissa = CharField(_(u'X axis'), max_length=100, editable=False)
+    ordinate = CharField(_(u'Y axis'), max_length=100, editable=False)
+    type     = PositiveIntegerField(_(u'Grouping'), editable=False, choices=GROUP_TYPES.items())
     days     = PositiveIntegerField(_(u'Days'), blank=True, null=True)
-    is_count = BooleanField(_(u'Make a count instead of aggregate?'), default=False) #TODO: 'count' function instead ???
+    is_count = BooleanField(_(u'Make a count instead of aggregate?'), default=False) # TODO: 'count' function instead ???
     chart    = CharField(_(u'Chart type'), max_length=100, null=True)
 
     creation_label = _("Add a report's graph")

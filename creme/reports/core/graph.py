@@ -345,7 +345,7 @@ class RGHMonth(_RGHRegularField):
 
 @RGRAPH_HANDS_MAP(RGT_YEAR)
 class RGHYear(_RGHRegularField):
-    verbose_name =_(u"By years")
+    verbose_name = _(u"By years")
 
     def _fetch(self, entities, order):
         abscissa = self._graph.abscissa
