@@ -176,9 +176,9 @@ END:VEVENT
                                .distinct()
 
     @staticmethod
-    def get_future_linked(entity, today): #TODO end greater than today or floating type equal to floating
+    def get_future_linked(entity, today): # TODO end greater than today or floating type equal to floating
 #        return Activity._get_linked_aux(entity).filter(end__gt=today).order_by('start')
-        return Activity._get_linked_aux(entity).filter(end__gt=today).order_by('start')
+        return get_activity_model()._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
     @staticmethod
     def get_future_linked_for_ctypes(ct_ids, today):
@@ -211,12 +211,12 @@ END:VEVENT
             self.end   = self.end.replace(hour=23, minute=59)
 
     def _pre_save_clone(self, source):
-        #TODO: Explicit this into description ? Move the activity to another time-slot ?
+        # TODO: Explicit this into description ? Move the activity to another time-slot ?
         if source.busy:
             self.busy = False
 
     def is_auto_orga_subject_enabled(self):
-        #TODO: better cache system for SettingValues...
+        # TODO: better cache system for SettingValues...
         CACHE_NAME = '_auto_orga_subject_cache'
         enabled = getattr(self, CACHE_NAME, None)
 
