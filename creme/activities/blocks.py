@@ -42,8 +42,8 @@ Activity = get_activity_model()
 
 class ParticipantsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'participants')
-    #NB: Organisation is a hack in order to reload the SubjectsBlock when
-    #    auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
+    # NB: Organisation is a hack in order to reload the SubjectsBlock when
+    #     auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
     dependencies  = (Relation, Contact, Calendar, Organisation)
     relation_type_deps = (REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
@@ -59,8 +59,8 @@ class ParticipantsBlock(QuerysetBlock):
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
                     )
         relations = btc['page'].object_list
-        #TODO: remove civility with better entity repr system ??
-        #TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
+        # TODO: remove civility with better entity repr system ??
+        # TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
         contacts = {c.id: c
                         for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations])
                                                 .select_related('user', 'is_user', 'civility')
@@ -82,7 +82,7 @@ class ParticipantsBlock(QuerysetBlock):
 
 class SubjectsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'subjects')
-    dependencies  = (Relation, Organisation) #see ParticipantsBlock.dependencies
+    dependencies  = (Relation, Organisation) # See ParticipantsBlock.dependencies
     relation_type_deps = (REL_OBJ_ACTIVITY_SUBJECT,)
     verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'
@@ -90,10 +90,12 @@ class SubjectsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         activity = context['object']
-        btc = self.get_block_template_context(context,
-                                              activity.relations.filter(type=REL_OBJ_ACTIVITY_SUBJECT).select_related('type', 'object_entity'),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                                             )
+        btc = self.get_block_template_context(
+                    context,
+                    activity.relations.filter(type=REL_OBJ_ACTIVITY_SUBJECT)
+                            .select_related('type', 'object_entity'),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                )
 
         Relation.populate_real_object_entities(btc['page'].object_list)
 
@@ -106,7 +108,6 @@ class FutureActivitiesBlock(QuerysetBlock):
     relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
     verbose_name  = _(u'Future activities')
     template_name = 'activities/templatetags/block_future_activities.html'
-    #configurable  = True
 
     _RTYPES_2_POP = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
 
@@ -119,19 +120,11 @@ class FutureActivitiesBlock(QuerysetBlock):
     def _get_queryset_for_ctypes(self, ct_ids, context):
         return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
 
-    #def _render(self, template_context):
-        ##optimisation
-        #CremeEntity.populate_relations(template_context['page'].object_list,
-                                       #self._RTYPES_2_POP, #template_context['user'],
-                                      #)
-
-        #return super(FutureActivitiesBlock, self)._render(template_context)
-
     def get_block_template_context(self, *args, **kwargs):
         ctxt = super(FutureActivitiesBlock, self).get_block_template_context(*args, **kwargs)
 
         activities = ctxt['page'].object_list
-        CremeEntity.populate_relations(activities, self._RTYPES_2_POP) #optimisation
+        CremeEntity.populate_relations(activities, self._RTYPES_2_POP) # Optimisation
 
         entity = ctxt.get('object')
         if entity is not None:
@@ -172,16 +165,17 @@ class FutureActivitiesBlock(QuerysetBlock):
                 ))
 
     def home_display(self, context):
-        user = context['request'].user
-        #cache the Contact related to the current user (used by PastActivitiesBlock too)
-        entity = context.get('user_contact')
-        if entity is None:
-            #context['user_contact'] = entity = Contact.get_user_contact_or_mock(user)
-            context['user_contact'] = entity = user.linked_contact
+#        user = context['request'].user
+#        #cache the Contact related to the current user (used by PastActivitiesBlock too)
+#        entity = context.get('user_contact')
+#        if entity is None:
+#            context['user_contact'] = entity = user.linked_contact
 
         return self._render(self.get_block_template_context(
                     context,
-                    self._get_queryset_for_entity(entity, context).select_related('status'),
+#                    self._get_queryset_for_entity(entity, context).select_related('status'),
+                    self._get_queryset_for_entity(context['user'].linked_contact, context)
+                        .select_related('status'),
                     update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
                     is_home=True,
                     display_review=Activity.display_review(),
@@ -210,12 +204,12 @@ class UserCalendars(QuerysetBlock):
     template_name = 'activities/templatetags/block_user_calendars.html'
     configurable  = False
     order_by      = 'name'
-    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'
+    permission    = None # NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'
 
     def detailview_display(self, context):
-        #NB: credentials are OK : we retrieve only Calendars related of the user
+        # NB: credentials are OK, because we retrieve only Calendars related of the user.
         user = context['user']
-        #in case the user has just been created, creates his default calendar
+        # In case the user has just been created, creates his default calendar
         Calendar.get_user_default_calendar(user)
         return self._render(self.get_block_template_context(
                     context,
