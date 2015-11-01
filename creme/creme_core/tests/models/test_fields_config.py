@@ -9,6 +9,7 @@ try:
     from ..fake_forms import FakeContactForm
     from ..fake_models import FakeContact, FakeOrganisation, FakeCivility, FakeAddress
 
+    from creme.creme_core.global_info import set_global_info
     from creme.creme_core.gui.fields_config import fields_config_registry
     from creme.creme_core.models import CremeEntity, FieldsConfig
 except Exception as e:
@@ -20,6 +21,14 @@ class FieldsConfigTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core')
+
+    def setUp(self):
+        super(FieldsConfigTestCase, self).setUp()
+        set_global_info(per_request_cache={})
+
+#    def tearDown(self):
+#        super(FieldsConfigTestCase, self).tearDown()
+#        set_global_info(per_request_cache={})
 
     def test_create01(self):
         h_field1 = 'phone'
@@ -110,12 +119,60 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(is_hidden(h_field2))
         self.assertFalse(is_hidden('description'))
 
+        with self.assertNumQueries(0): # cache
+            FieldsConfig.get_4_model(model)
+
     def test_get_4_model02(self):
         "No query for model which cannot be registered"
         with self.assertNumQueries(0):
             fc = FieldsConfig.get_4_model(CremeEntity)
 
         self.assertFalse(list(fc.hidden_fields))
+
+    def test_get_4_model03(self):
+        "Cache not created"
+        model = FakeContact
+        FieldsConfig.create(model,
+                            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        set_global_info(per_request_cache=None)
+
+        with self.assertNumQueries(1):
+            FieldsConfig.get_4_model(model)
+
+        with self.assertNumQueries(0):
+            FieldsConfig.get_4_model(model)
+
+    def test_get_4_models(self):
+        model1 = FakeContact
+        model2 = FakeOrganisation
+
+        h_field1 = 'phone'
+        h_field2 = 'url_site'
+
+        create_fc = FieldsConfig.create
+        create_fc(model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+        create_fc(model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+
+        with self.assertNumQueries(1):
+            fconfigs = FieldsConfig.get_4_models([model1, model2])
+
+        self.assertIsInstance(fconfigs, dict)
+        self.assertEqual(2, len(fconfigs))
+
+        fc1 = fconfigs.get(model1)
+        self.assertIsInstance(fc1, FieldsConfig)
+        self.assertEqual(model1, fc1.content_type.model_class())
+        self.assertTrue(fc1.is_fieldname_hidden(h_field1))
+
+        self.assertTrue(fconfigs.get(model2).is_fieldname_hidden(h_field2))
+
+        with self.assertNumQueries(0):
+            FieldsConfig.get_4_models([model1, model2])
+
+        with self.assertNumQueries(0):
+            FieldsConfig.get_4_model(model1)
 
     def _create_contact_conf(self):
         FieldsConfig.create(FakeContact,
@@ -227,3 +284,55 @@ class FieldsConfigTestCase(CremeTestCase):
             ct = fconf.content_type
 
         self.assertEqual(FakeContact, ct.model_class())
+
+    def test_localcache_get_4_model(self):
+        model1 = FakeContact
+        model2 = FakeOrganisation
+
+        h_field1 = 'phone'
+        h_field2 = 'url_site'
+
+        create_fc = FieldsConfig.create
+        create_fc(model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+        create_fc(model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+
+        lc = FieldsConfig.LocalCache()
+
+        with self.assertNumQueries(1):
+            fc1 = lc.get_4_model(model1)
+
+        self.assertIsInstance(fc1, FieldsConfig)
+        self.assertEqual(model1, fc1.content_type.model_class())
+        self.assertTrue(fc1.is_fieldname_hidden(h_field1))
+
+        with self.assertNumQueries(0):
+            lc.get_4_model(model1)
+
+        with self.assertNumQueries(1):
+            fc2 = lc.get_4_model(model2)
+
+        self.assertTrue(fc2.is_fieldname_hidden(h_field2))
+
+    def test_localcache_get_4_models(self):
+        model1 = FakeContact
+        model2 = FakeOrganisation
+
+        h_field1 = 'phone'
+        h_field2 = 'url_site'
+
+        create_fc = FieldsConfig.create
+        create_fc(model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+        create_fc(model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+
+        lc = FieldsConfig.LocalCache()
+        fconfigs = lc.get_4_models([model1, model2])
+
+        fc1 = fconfigs.get(model1)
+        self.assertIsInstance(fc1, FieldsConfig)
+        self.assertEqual(model1, fc1.content_type.model_class())
+        self.assertTrue(fc1.is_fieldname_hidden(h_field1))
+
+        self.assertTrue(fconfigs.get(model2).is_fieldname_hidden(h_field2))
+
+        with self.assertNumQueries(0):
+            lc.get_4_model(model1)

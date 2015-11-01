@@ -16,6 +16,7 @@ from django.utils.timezone import utc, get_current_timezone, make_aware
 
 from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType
 from ..management.commands.creme_populate import Command as PopulateCommand
+from ..global_info import clear_global_info
 from ..utils.xml_utils import xml_diff, XMLDiffError
 #from ..registry import creme_registry
 #from .. import autodiscover
@@ -45,7 +46,7 @@ class _AssertNoExceptionContext(object):
 
 
 class _CremeTestCase(object):
-    #NB: set this line in inherited classes to clean upload/documents directory in tearDown
+    # NB: set this line in inherited classes to clean upload/documents directory in tearDown
     #clean_files_in_teardown = True
 
     @classmethod
@@ -69,15 +70,15 @@ class _CremeTestCase(object):
         ready()
 
     def tearDown(self):
-        if not getattr(self, 'clean_files_in_teardown', False):
-            return
+        if getattr(self, 'clean_files_in_teardown', False):
+            existing_files = self.existing_doc_files
+            dir_path = self.documents_dir
 
-        existing_files = self.existing_doc_files
-        dir_path = self.documents_dir
+            for filename in listdir(dir_path):
+                if filename not in existing_files:
+                    delete_file(os_path.join(dir_path, filename))
 
-        for filename in listdir(dir_path):
-            if filename not in existing_files:
-                delete_file(os_path.join(dir_path, filename))
+        clear_global_info()
 
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
               creatable_models=None, admin_4_apps=()):

@@ -27,6 +27,7 @@ from django.db.models import TextField, FieldDoesNotExist
 from django.utils.translation import ugettext as _
 
 from ..core.entity_cell import EntityCellRegularField
+from ..global_info import get_global_info, set_global_info
 from .base import CremeModel
 from .fields import CTypeOneToOneField #CTypeForeignKey
 
@@ -58,13 +59,26 @@ class FieldsConfig(CremeModel):
             self._configs = {}
 
         def get_4_model(self, model):
+            return self.get_4_models((model,))[model]
+
+        def get_4_models(self, models):
+            result = {}
             configs = self._configs
-            fconf = configs.get(model)
+            missing_models = []
 
-            if fconf is None:
-                configs[model] = fconf = FieldsConfig.get_4_model(model)
+            for model in models:
+                fconf = configs.get(model)
 
-            return fconf
+                if fconf is None:
+                    missing_models.append(model)
+                else:
+                    result[model] = fconf
+
+            retrieved_configs = FieldsConfig.get_4_models(missing_models)
+            configs.update(retrieved_configs)
+            result.update(retrieved_configs)
+
+            return result
 
         def is_fieldinfo_hidden(self, model, field_info):
             """
@@ -197,22 +211,50 @@ class FieldsConfig(CremeModel):
                not fconfigs.is_fieldinfo_hidden(model, cell.field_info):
                 yield cell
 
-    # TODO: cache
+    # TODO: in a manager ?
+    @classmethod
+    def get_4_model(cls, model):
+        return cls.get_4_models((model,))[model]
+
     # TODO: in a manager ?
     @staticmethod
-    def get_4_model(model):
+    def get_4_models(models):
         from ..gui.fields_config import fields_config_registry
 
-        fc = None
-        ct = ContentType.objects.get_for_model(model)
+        result = {}
+        get_ct = ContentType.objects.get_for_model
+        cache_key_fmt = 'creme_core-fields_config-%s'
+        not_cached_ctypes = []
 
-        if fields_config_registry.is_model_valid(model):
-            fc = FieldsConfig.objects.filter(content_type=ct).first()
+        cache = get_global_info('per_request_cache')
+        if cache is None:
+            cache = {}
+            set_global_info(per_request_cache=cache)
 
-        if fc is None:
-            fc = FieldsConfig(content_type=ct, descriptions=())
+        # Step 1: fill 'result' with cached configs
+        for model in models:
+            ct = get_ct(model)
+            fc = cache.get(cache_key_fmt % ct.id)
 
-        return fc
+            if fc is None:
+                if fields_config_registry.is_model_valid(model): # Avoid useless queries
+                    not_cached_ctypes.append(ct)
+            else:
+                result[model] = fc
+
+        # Step 2: fill 'result' with configs in DB
+        for fc in FieldsConfig.objects.filter(content_type__in=not_cached_ctypes):
+            ct = fc.content_type
+            result[ct.model_class()] = cache[cache_key_fmt % ct.id] = fc
+
+        # Step 3: fill 'result' with empty configs for remaining models
+        for model in models:
+            if model not in result:
+                ct = get_ct(model)
+                result[model] = cache[cache_key_fmt % ct.id] = \
+                    FieldsConfig(content_type=ct, descriptions=())
+
+        return result
 
     @property
     def hidden_fields(self):
