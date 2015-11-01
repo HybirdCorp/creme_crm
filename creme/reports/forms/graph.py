@@ -55,26 +55,26 @@ class AbscissaGroupBySelect(Select):
 
 class ReportGraphForm(CremeEntityForm):
     chart             = ChoiceField(label=_(u'Chart type'), choices=report_chart_registry.choices())
-    abscissa_field    = ChoiceField(label=_(u'Abscissa field'), choices=(),
+    abscissa_field    = ChoiceField(label=_(u'Field'), choices=(),
                                     widget=DependentSelect(target_id='id_abscissa_group_by'),
-                                   ) #TODO: DependentSelect is kept until *Selector widgets accept optgroup
-    abscissa_group_by = AjaxChoiceField(label=_(u'Abscissa : Group by'), choices=(),
+                                   ) # TODO: DependentSelect is kept until *Selector widgets accept optgroup
+    abscissa_group_by = AjaxChoiceField(label=_(u'Grouping'), choices=(),
                                         widget=AbscissaGroupBySelect(attrs={'id': 'id_abscissa_group_by'}),
-                                       ) #TODO: coerce to int
-    aggregate         = ChoiceField(label=_(u'Ordinate aggregate'), required=False,
+                                       ) # TODO: coerce to int
+    aggregate         = ChoiceField(label=_(u'Aggregate'), required=False,
                                    choices=[(agg.name, agg.title)
                                                 for agg in field_aggregation_registry.itervalues()
                                            ],
                                   )
-    aggregate_field   = ChoiceField(label=_(u'Ordinate aggregate field'), choices=(), required=False)
+    aggregate_field   = ChoiceField(label=_(u'Field'), choices=(), required=False)
     is_count          = BooleanField(label=_(u'Entities count'), required=False,
                                      help_text=_(u'Make a count instead of aggregate ?'),
                                      widget=CheckboxInput(attrs={'onchange': "creme.reports.toggleDisableOthers(this, ['#id_aggregate', '#id_aggregate_field']);"}),
                                     )
 
     blocks = CremeEntityForm.blocks.new(
-                ('abscissa', _(u'Abscissa informations'),  ['abscissa_field', 'abscissa_group_by', 'days']),
-                ('ordinate', _(u'Ordinates informations'), ['is_count', 'aggregate', 'aggregate_field']),
+                ('abscissa', _(u'X axis'), ['abscissa_field', 'abscissa_group_by', 'days']),
+                ('ordinate', _(u'Y axis'), ['is_count', 'aggregate', 'aggregate_field']),
             )
 
     class Meta(CremeEntityForm.Meta):

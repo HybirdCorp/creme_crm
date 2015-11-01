@@ -42,7 +42,7 @@ from .fields import CreationDateTimeField, CremeUserForeignKey, CTypeForeignKey
 logger = logging.getLogger(__name__)
 _get_ct = ContentType.objects.get_for_model
 _EXCLUDED_FIELDS = ('modified',) #frozenset(('modified',)) #TODO: add a 'historisable' tag instead ??
-#TODO: ClassKeyedMap ??
+# TODO: ClassKeyedMap ??
 _SERIALISABLE_FIELDS = frozenset(('CharField',
 
                                   'IntegerField', 'BigIntegerField', 'PositiveIntegerField',
@@ -71,17 +71,16 @@ _SERIALISABLE_FIELDS = frozenset(('CharField',
                                 ))
 
 
-#TODO: in creme_core.utils ??
+# TODO: in creme_core.utils ??
 class _JSONEncoder(JSONEncoder):
-    def default(self, o): #TODO: manage datetime here
+    def default(self, o): # TODO: manage datetime here
         if isinstance(o, Decimal):
             return unicode(o)
 
         return JSONEncoder.default(self, o)
 
 
-#TODO: factorise with gui.field_printers ?? (html and text mode ??)
-#_basic_printer = lambda field, val: val
+# TODO: factorise with gui.field_printers ?? (html and text mode ??)
 def _basic_printer(field, val, user):
     if field.choices:
         # NB: django way for '_get_FIELD_display()' methods => would a linear search be faster ?
@@ -113,7 +112,7 @@ def _fk_printer(field, val, user):
 
     return unicode(out)
 
-#TODO: ClassKeyedMap ?
+# TODO: ClassKeyedMap ?
 _PRINTERS = {
 #        'BooleanField': (lambda field, val: ugettext(u'True') if val else ugettext(u'False')),
         'BooleanField': (lambda field, val, user: ugettext(u'True') if val else ugettext(u'False')),
@@ -265,7 +264,7 @@ class _HLTEntityCreation(_HistoryLineType):
     @classmethod
     def create_line(cls, entity):
         HistoryLine._create_line_4_instance(entity, cls.type_id, date=entity.created)
-        #we do not backup here, in order to keep a kind of 'creation session'.
+        # We do not backup here, in order to keep a kind of 'creation session'.
         # So when you create a CremeEntity, while you still use the same
         # python object, multiple save() will not generate several
         # HistoryLine objects.
@@ -308,7 +307,7 @@ class _HLTRelatedEntity(_HistoryLineType):
 
     @classmethod
     def create_lines(cls, entity, related_line):
-        items = HistoryConfigItem.objects.values_list('relation_type', flat=True) #TODO: cache ??
+        items = HistoryConfigItem.objects.values_list('relation_type', flat=True) # TODO: cache ??
         relations = Relation.objects.filter(subject_entity=entity.id, type__in=items) \
                                     .select_related('object_entity')
 
@@ -319,7 +318,7 @@ class _HLTRelatedEntity(_HistoryLineType):
                                   related_line_id=related_line.id,
                                  )
 
-            CremeEntity.populate_real_entities(object_entities) #optimisation
+            CremeEntity.populate_real_entities(object_entities) # Optimisation
 
             for related_entity in object_entities:
                 create_line(related_entity.get_real_entity())
@@ -341,7 +340,7 @@ class _HLTPropertyCreation(_HistoryLineType):
         ptype_id = modifications[0]
 
         try:
-            ptype_text = CremePropertyType.objects.get(pk=ptype_id).text #TODO: use cache ?
+            ptype_text = CremePropertyType.objects.get(pk=ptype_id).text # TODO: use cache ?
         except CremePropertyType.DoesNotExist:
             ptype_text = ptype_id
 
@@ -382,18 +381,17 @@ class _HLTRelation(_HistoryLineType):
 
     @classmethod
     def create_lines(cls, relation, created):
-        #if '-subject_' in relation.type_id and not created:
         if not created:
-            #cls._create_lines(relation,
             cls._create_lines(relation if '-subject_' in relation.type_id else relation.symmetric_relation,
-                              _HLTSymRelation, relation.modified)
+                              _HLTSymRelation, relation.modified,
+                             )
 
 #    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
         rtype_id = modifications[0]
 
         try:
-            predicate = RelationType.objects.get(pk=rtype_id).predicate #TODO: use cache ?
+            predicate = RelationType.objects.get(pk=rtype_id).predicate # TODO: use cache ?
         except RelationType.DoesNotExist:
             predicate = rtype_id
 
@@ -443,7 +441,7 @@ class _HLTAuxCreation(_HistoryLineType):
 
 #    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
-        ct_id, aux_id, str_obj = modifications #TODO; use aux_id to display an up-to-date value ??
+        ct_id, aux_id, str_obj = modifications # TODO: use aux_id to display an up-to-date value ??
 
         yield ugettext(u'Add <%(type)s>: “%(value)s”') % {
                         'type':  self._model_info(ct_id)[1],
@@ -457,8 +455,7 @@ class _HLTAuxEdition(_HLTAuxCreation):
 
     @classmethod
     def create_line(cls, related):
-        #TODO: factorise better ?
-        #fields_modifs = _HistoryLineType._build_fields_modifs(related)
+        # TODO: factorise better ?
         fields_modifs = cls._build_fields_modifs(related)
 
         if fields_modifs:
@@ -470,7 +467,7 @@ class _HLTAuxEdition(_HLTAuxCreation):
 
 #    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
-        ct_id, aux_id, str_obj = modifications[0] #TODO; idem (see _HLTAuxCreation)
+        ct_id, aux_id, str_obj = modifications[0] # TODO: idem (see _HLTAuxCreation)
         model_class, verbose_name = self._model_info(ct_id)
 
         yield ugettext(u'Edit <%(type)s>: “%(value)s”') % {
@@ -503,12 +500,12 @@ class _HLTAuxDeletion(_HLTAuxCreation):
 
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
-    entity_ctype = CTypeForeignKey()  #we do not use entity.entity_type because we keep history of the deleted entities
-    entity_owner = CremeUserForeignKey()    #we do not use entity.user because we keep history of the deleted entities
-    username     = CharField(max_length=30) #not a Fk to a User object because we want to keep the same line after the deletion of a User.
+    entity_ctype = CTypeForeignKey()        # We do not use entity.entity_type because we keep history of the deleted entities
+    entity_owner = CremeUserForeignKey()    # We do not use entity.user because we keep history of the deleted entities
+    username     = CharField(max_length=30) # Not a Fk to a User object because we want to keep the same line after the deletion of a User.
     date         = CreationDateTimeField()
-    type         = PositiveSmallIntegerField() #see TYPE_*
-    value        = TextField(null=True) #TODO: use a JSONField ? (see EntityFilter)
+    type         = PositiveSmallIntegerField() # See TYPE_*
+    value        = TextField(null=True) # TODO: use a JSONField ? (see EntityFilter)
 
     _line_type = None
     _entity_repr = None
@@ -642,13 +639,13 @@ class HistoryLine(Model):
         self.username = user.username if user else ''
         super(HistoryLine, self).save(*args, **kwargs)
 
-    #TODO: ?? (see HistoryBlock)
+    # TODO: ?? (see HistoryBlock)
     #@property
     #def user(self):
         #[...]
 
 
-#TODO: method of CremeEntity ??
+# TODO: method of CremeEntity ??
 def _final_entity(entity):
     "Is the instance an instance of a 'leaf' class"
     return entity.entity_type_id == _get_ct(entity).id
@@ -659,7 +656,7 @@ def _prepare_log(sender, instance, **kwargs):
         _HistoryLineType._create_entity_backup(instance)
     elif isinstance(instance, CremeEntity) and instance.id and _final_entity(instance):
         _HistoryLineType._create_entity_backup(instance)
-    #TODO: replace with this code
+    # TODO: replace with this code
     #      problem with billing lines : the update view does not retrieve
     #      final class, so 'instance.entity_type_id == _get_ct(instance).id'
     #      test avoid the creation of a line --> find a better way to test if a final object is alive ?
@@ -708,7 +705,7 @@ def _log_deletion(sender, instance, **kwargs):
     if getattr(instance, '_hline_disabled', False): #see HistoryLine.disable
         return
 
-    # when we are dealing with CremeEntities, we check that we are dealing
+    # When we are dealing with CremeEntities, we check that we are dealing
     # with the final class, because the signal is send several times, with
     # several 'level' of class. We don't want to create several HistoryLines
     # (and some things are deleted by higher levels that make objects
