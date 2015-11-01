@@ -37,9 +37,10 @@ from creme.creme_core.utils import update_model_instance
 
 from creme.media_managers.models import Image
 
-from ..import get_contact_model, get_address_model, get_organisation_model
+from ..import get_contact_model, get_organisation_model # get_address_model
 from ..constants import REL_OBJ_EMPLOYED_BY
 #from .address import Address
+from .base import PersonWithAddressesMixin
 from .other_models import Civility, Position, Sector
 
 
@@ -47,12 +48,12 @@ logger = logging.getLogger(__name__)
 
 
 #class Contact(CremeEntity):
-class AbstractContact(CremeEntity):
+class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     civility    = ForeignKey(Civility, verbose_name=_(u'Civility'),
                              blank=True, null=True, on_delete=SET_NULL,
                             )
-    last_name   = CharField(_(u'Last name'), max_length=100)  #NB: same max_length than CremeUser.last_name
-    first_name  = CharField(_(u'First name'), max_length=100, blank=True, null=True)  #NB: same max_length than CremeUser.first_name
+    last_name   = CharField(_(u'Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
+    first_name  = CharField(_(u'First name'), max_length=100, blank=True, null=True)  # NB: same max_length than CremeUser.first_name
     description = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
     skype       = CharField('Skype', max_length=100, blank=True, null=True)\
                            .set_tags(optional=True)
@@ -77,18 +78,18 @@ class AbstractContact(CremeEntity):
     language    = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
                                   blank=True, editable=False, # null=True,
                                  ).set_tags(viewable=False) # TODO: remove this field
-#    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
-    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-                                  verbose_name=_(u'Billing address'),
-                                  blank=True, null=True,  editable=False, on_delete=SET_NULL,
-                                  related_name='billing_address_contact_set', #TODO: remove ? (with '+')
-                                 ).set_tags(enumerable=False, optional=True) #clonable=False useless
-#    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
-    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-                                  verbose_name=_(u'Shipping address'),
-                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
-                                  related_name='shipping_address_contact_set',
-                                 ).set_tags(enumerable=False, optional=True)
+##    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+#    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
+#                                  verbose_name=_(u'Billing address'),
+#                                  blank=True, null=True,  editable=False, on_delete=SET_NULL,
+#                                  related_name='billing_address_contact_set',
+#                                 ).set_tags(enumerable=False, optional=True) #clonable=False useless
+##    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+#    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
+#                                  verbose_name=_(u'Shipping address'),
+#                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
+#                                  related_name='shipping_address_contact_set',
+#                                 ).set_tags(enumerable=False, optional=True)
     is_user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
                           blank=True, null=True, related_name='related_contact',
                           on_delete=SET_NULL, editable=False
@@ -100,8 +101,9 @@ class AbstractContact(CremeEntity):
                          ).set_tags(optional=True)
 
     #objects = CremeEntityManager()
+
     # Needed because we expand its function fields in other apps (ie. billing)
-    #TODO: refactor
+    # TODO: refactor
     function_fields = CremeEntity.function_fields.new()
 
     creation_label = _('Add a contact')
@@ -185,26 +187,26 @@ class AbstractContact(CremeEntity):
 #        super(Contact, self).delete()
         super(AbstractContact, self).delete()
 
-    #TODO: factorise with Contact (move in a base abstract class ?)
     def _post_save_clone(self, source):
-        save = False
-
-        if source.billing_address is not None:
-            self.billing_address = source.billing_address.clone(self)
-            save = True
-
-        if source.shipping_address is not None:
-            self.shipping_address = source.shipping_address.clone(self)
-            save = True
-
-        if save:
-            self.save()
-
-        excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
-#        for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
-        for address in get_address_model().objects.filter(object_id=source.id) \
-                                                  .exclude(pk__in=excl_source_addr_ids):
-            address.clone(self)
+#        save = False
+#
+#        if source.billing_address is not None:
+#            self.billing_address = source.billing_address.clone(self)
+#            save = True
+#
+#        if source.shipping_address is not None:
+#            self.shipping_address = source.shipping_address.clone(self)
+#            save = True
+#
+#        if save:
+#            self.save()
+#
+#        excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
+##        for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
+#        for address in get_address_model().objects.filter(object_id=source.id) \
+#                                                  .exclude(pk__in=excl_source_addr_ids):
+#            address.clone(self)
+        self._aux_post_save_clone(source)
 
     def save(self, *args, **kwargs):
 #        super(Contact, self).save(*args, **kwargs)
@@ -239,7 +241,7 @@ def _create_linked_contact(user):
                                   last_name=user.last_name or user.username.title(),
                                   first_name=user.first_name or _('N/A'),
                                   email=user.email or _('replaceMe@byYourAddress.com'),
-                                  #TODO assert user is not a team + enforec non team clean() ?
+                                  # TODO assert user is not a team + enforce non team clean() ?
                                   #last_name=user.last_name,
                                   #first_name=user.first_name,
                                   #email=user.email,
@@ -257,7 +259,7 @@ def _get_linked_contact(self):
             contact = _create_linked_contact(self)
         else:
             if len(contacts) > 1:
-                #TODO: repair ? (beware to race condition)
+                # TODO: repair ? (beware to race condition)
                 logger.critical('User "%s" has several related Contacts !', self.username)
 
             contact = contacts[0]

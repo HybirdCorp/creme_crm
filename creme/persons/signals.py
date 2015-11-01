@@ -66,10 +66,10 @@ def dispose_addresses(sender, instance, **kwargs):
 
 @receiver(pre_merge_related)
 def handle_merge(sender, other_entity, **kwargs):
-    #TODO: factorise with blocks.OtherAddressBlock.detailview_display()
-    excluded_pk = filter(None, [other_entity.billing_address_id, other_entity.shipping_address_id])
-
-    for address in get_address_model().objects.filter(object_id=other_entity.id) \
-                                              .exclude(pk__in=excluded_pk):
+#    excluded_pk = filter(None, [other_entity.billing_address_id, other_entity.shipping_address_id])
+#
+#    for address in get_address_model().objects.filter(object_id=other_entity.id) \
+#                                              .exclude(pk__in=excluded_pk):
+    for address in other_entity.other_addresses:
         address.owner = sender
         address.save()
