@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#see  middleware.global_info.GlobalInfoMiddleware
+# See  middleware.global_info.GlobalInfoMiddleware
 
 from collections import defaultdict
 
@@ -38,4 +38,5 @@ def set_global_info(**kwargs):
     _globals[currentThread()].update(kwargs)
 
 def clear_global_info():
-    _globals.pop(currentThread(), None)#Don't use del _globals[currentThread()], it causes problems with dev server.
+    # Don't use del _globals[currentThread()], it causes problems with dev server.
+    _globals.pop(currentThread(), None)

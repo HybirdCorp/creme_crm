@@ -25,20 +25,21 @@ from ..models import SearchConfigItem, FieldsConfig
 
 class Searcher(object):
     def __init__(self, models, user):
-        get_fconf = FieldsConfig.LocalCache().get_4_model # TODO: get_4_models() ?
         self._search_map = search_map = {}
+        models = list(models) # Several iterations
+        fconfigs = FieldsConfig.get_4_models(models)
 
         for sci in SearchConfigItem.get_4_models(models, user):
             if not sci.disabled:
                 model = sci.content_type.model_class()
-                is_hidden = get_fconf(model).is_fieldname_hidden
+                is_hidden = fconfigs[model].is_fieldname_hidden
                 # TODO: work with FieldInfo instead of strings + split() (see creme_config too)
                 search_map[model] = [sfield
                                         for sfield in sci.searchfields
                                             if not is_hidden(sfield.name.split('__', 1)[0])
                                     ]
 
-    def _build_query(self, research, fields): #TODO: inline ??
+    def _build_query(self, research, fields): # TODO: inline ??
         "Build a Q with all params fields"
         result_q = Q()
 
