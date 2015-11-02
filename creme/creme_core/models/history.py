@@ -41,7 +41,7 @@ from .fields import CreationDateTimeField, CremeUserForeignKey, CTypeForeignKey
 
 logger = logging.getLogger(__name__)
 _get_ct = ContentType.objects.get_for_model
-_EXCLUDED_FIELDS = ('modified',) #frozenset(('modified',)) #TODO: add a 'historisable' tag instead ??
+_EXCLUDED_FIELDS = ('modified',)  # frozenset(('modified',)) #TODO: add a 'historisable' tag instead ??
 # TODO: ClassKeyedMap ??
 _SERIALISABLE_FIELDS = frozenset(('CharField',
 
@@ -54,20 +54,20 @@ _SERIALISABLE_FIELDS = frozenset(('CharField',
 
                                   'ForeignKey',
 
-    #Display has to be improved (and value has to be 'jsonified')
-        #'DateField'
-        #'DateTimeField'
-        #'TimeField'
+    # Display has to be improved (and value has to be 'jsonified')
+        # 'DateField'
+        # 'DateTimeField'
+        # 'TimeField'
 
-    #To be tested
-        #'FloatField'
-        #'IPAddressField'
-        #'SlugField'
+    # To be tested
+        # 'FloatField'
+        # 'IPAddressField'
+        # 'SlugField'
 
-    #Excluded
-        #'FilePathField' => not useful
-        #'TextField' => too long
-        #'FileField' => not serialisable
+    # Excluded
+        # 'FilePathField' => not useful
+        # 'TextField' => too long
+        # 'FileField' => not serialisable
                                 ))
 
 
@@ -158,7 +158,7 @@ TYPE_PROP_DEL     = 13
 
 
 class _HistoryLineType(object):
-    type_id           = None #overload with TYPE_*
+    type_id           = None  # Overload with TYPE_*
     verbose_name      = u'OVERLOAD ME'
     has_related_line  = False
     is_about_relation = False
@@ -195,7 +195,7 @@ class _HistoryLineType(object):
                         continue
 
                 if old_value != new_value:
-                    if not new_value and not old_value: #ignore useless changes like : None -> ""
+                    if not new_value and not old_value:  # Ignore useless changes like : None -> ""
                         continue
 
                     if field.get_internal_type() not in _SERIALISABLE_FIELDS:
@@ -307,7 +307,7 @@ class _HLTRelatedEntity(_HistoryLineType):
 
     @classmethod
     def create_lines(cls, entity, related_line):
-        items = HistoryConfigItem.objects.values_list('relation_type', flat=True) # TODO: cache ??
+        items = HistoryConfigItem.objects.values_list('relation_type', flat=True)  # TODO: cache ??
         relations = Relation.objects.filter(subject_entity=entity.id, type__in=items) \
                                     .select_related('object_entity')
 
@@ -318,7 +318,7 @@ class _HLTRelatedEntity(_HistoryLineType):
                                   related_line_id=related_line.id,
                                  )
 
-            CremeEntity.populate_real_entities(object_entities) # Optimisation
+            CremeEntity.populate_real_entities(object_entities)  # Optimisation
 
             for related_entity in object_entities:
                 create_line(related_entity.get_real_entity())
@@ -507,6 +507,8 @@ class HistoryLine(Model):
     type         = PositiveSmallIntegerField() # See TYPE_*
     value        = TextField(null=True) # TODO: use a JSONField ? (see EntityFilter)
 
+    ENABLED = True  # False means that no new HistoryLines are created.
+
     _line_type = None
     _entity_repr = None
     _modifications = None
@@ -523,6 +525,9 @@ class HistoryLine(Model):
 
     @staticmethod
     def disable(instance):
+        """Disable history for this instance.
+        @type instance Can be an instance of CremeEntity, Relation, CremeProperty, an auxiliary model.
+        """
         instance._hline_disabled = True
 
     @staticmethod
@@ -635,9 +640,10 @@ class HistoryLine(Model):
         return HistoryLine.objects.create(**kwargs)
 
     def save(self, *args, **kwargs):
-        user = get_global_info('user')
-        self.username = user.username if user else ''
-        super(HistoryLine, self).save(*args, **kwargs)
+        if self.ENABLED:
+            user = get_global_info('user')
+            self.username = user.username if user else ''
+            super(HistoryLine, self).save(*args, **kwargs)
 
     # TODO: ?? (see HistoryBlock)
     #@property
@@ -670,7 +676,7 @@ def _prepare_log(sender, instance, **kwargs):
 
 @receiver(post_save)
 def _log_creation_edition(sender, instance, created, **kwargs):
-    if getattr(instance, '_hline_disabled', False): #see HistoryLine.disable
+    if getattr(instance, '_hline_disabled', False):  # see HistoryLine.disable
         return
 
     try:
@@ -702,7 +708,7 @@ def _get_deleted_entity_ids():
 
 @receiver(pre_delete)
 def _log_deletion(sender, instance, **kwargs):
-    if getattr(instance, '_hline_disabled', False): #see HistoryLine.disable
+    if getattr(instance, '_hline_disabled', False):  # See HistoryLine.disable
         return
 
     # When we are dealing with CremeEntities, we check that we are dealing
