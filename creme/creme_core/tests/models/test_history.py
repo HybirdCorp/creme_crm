@@ -38,8 +38,13 @@ class HistoryTestCase(CremeTestCase):
         HistoryLine.objects.all().delete()
 
     def setUp(self):
+        super(HistoryTestCase, self).setUp()
         self.old_time = now().replace(microsecond=0)
         self.login()
+
+    def tearDown(self):
+        super(HistoryTestCase, self).tearDown()
+        HistoryLine.ENABLED = True
 
     def _build_organisation(self, name, extra_args=None, **kwargs):
         data = {'name': name}
@@ -106,7 +111,7 @@ class HistoryTestCase(CremeTestCase):
         gainax.save()
 
         hlines = self._get_hlines()
-        self.assertEqual(old_count + 2, len(hlines)) #1 creation + 1 auxiliary (NB: not edition with double save)
+        self.assertEqual(old_count + 2, len(hlines))  # 1 creation + 1 auxiliary (NB: not edition with double save)
 
         hline = hlines[-2]
         self.assertEqual(gainax.id,          hline.entity.id)
@@ -162,7 +167,7 @@ class HistoryTestCase(CremeTestCase):
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertEqual([['capital', old_capital, capital]], hline.modifications)
 
-    #TODO: change 'name' but keep the old unicode() ???
+    # TODO: change 'name' but keep the old unicode() ???
     def test_edition02(self):
         old_count = HistoryLine.objects.count()
 
@@ -296,7 +301,7 @@ about this fantastic animation studio."""
         gainax = self.refresh(gainax)
         gainax.capital = str(capital)
         gainax.save()
-        self.assertEqual(capital, self.refresh(gainax).capital) #'capital' attribute is now an integer
+        self.assertEqual(capital, self.refresh(gainax).capital)  # 'capital' attribute is now an integer
         self.assertEqual(old_count, HistoryLine.objects.count())
 
     def test_edition06(self):
@@ -322,7 +327,7 @@ about this fantastic animation studio."""
                      )
 
     def test_edition07(self):
-        "New value is None: berbose prints ''"
+        "New value is None: verbose prints ''"
         old_capital = 1000
         gainax = Organisation.objects.create(user=self.user, name='Gainax', capital=old_capital)
         old_count = HistoryLine.objects.count()
@@ -357,7 +362,7 @@ about this fantastic animation studio."""
 
         creation_line = HistoryLine.objects.get(entity=gainax)
 
-        #TODO: log trashing ??
+        # TODO: log trashing ??
         gainax.trash()
 
         self.assertPOST200(gainax.get_delete_absolute_url(), follow=True)
@@ -427,7 +432,7 @@ about this fantastic animation studio."""
     def test_related_edition02(self):
         user = self.user
         ghibli = self._build_organisation(user=user.id, name='Ghibli')
-        sleep(1) #ensure that 'modified' fields are different
+        sleep(1)  # ensure that 'modified' fields are different
 
         first_name = 'Hayao'
         last_name  = 'Miyazaki'
@@ -473,7 +478,7 @@ about this fantastic animation studio."""
         gainax = Organisation.objects.create(user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
 
-        sleep(1) #ensure than 'modified' field is not 'now()'
+        sleep(1)  # ensure than 'modified' field is not 'now()'
 
         ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='Make animes')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
@@ -502,7 +507,7 @@ about this fantastic animation studio."""
         user = self.user
         gainax = Organisation.objects.create(user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
-        sleep(1) #ensure that 'modified' field is not 'now()'
+        sleep(1)  # ensure that 'modified' field is not 'now()'
 
         ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='make animes')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
@@ -536,13 +541,13 @@ about this fantastic animation studio."""
         rei  = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         old_count = HistoryLine.objects.count()
 
-        sleep(1) #ensure than relation is younger than entities
+        sleep(1)  # ensure than relation is younger than entities
 
         rtype, srtype = RelationType.create(('test-subject_works4', 'is employed'),
                                             ('test-object_works4',  'employs')
                                            )
         relation = Relation.objects.create(user=user, subject_entity=rei, object_entity=nerv, type=rtype)
-        relation = self.refresh(relation) #refresh to get the right modified value
+        relation = self.refresh(relation)  # Refresh to get the right modified value
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines))
@@ -855,7 +860,7 @@ about this fantastic animation studio."""
         rei = Contact.objects.create(user=self.user, first_name=old_first_name, last_name=old_last_name)
         self.assertEqual(1, HistoryLine.objects.filter(entity=rei.id).count())
 
-        rei = self.refresh(rei) #force internal backup, we can begin our edition stuffs
+        rei = self.refresh(rei)  # Force internal backup, we can begin our edition stuffs
 
         rei.last_name = new_last_name
         rei.save()
@@ -889,7 +894,7 @@ about this fantastic animation studio."""
     def test_invalid_field(self):
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
-        nerv = self.refresh(nerv) #force internal backup
+        nerv = self.refresh(nerv)  # Force internal backup
 
         nerv.name = nerv.name.upper()
         nerv.save()
@@ -909,7 +914,7 @@ about this fantastic animation studio."""
         fname = 'invalid'
         hline.value = hline.value.replace('name', fname)
         hline.save()
-        hline = self.refresh(hline) #clean cache
+        hline = self.refresh(hline)  # Clean cache
 
         with self.assertNoException():
 #            vmodifs = hline.verbose_modifications
@@ -926,7 +931,7 @@ about this fantastic animation studio."""
         nerv.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        #-----------------------
+        # -----------------------
         nerv = self.refresh(nerv)
         HistoryLine.disable(nerv)
 
@@ -934,7 +939,7 @@ about this fantastic animation studio."""
         nerv.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        #-----------------------
+        # -----------------------
         nerv = self.refresh(nerv)
         HistoryLine.disable(nerv)
 
@@ -952,12 +957,12 @@ about this fantastic animation studio."""
 
         old_count = HistoryLine.objects.count()
         rel = Relation(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
-        
+
         HistoryLine.disable(rel)
         rel.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        #-----------------------
+        # -----------------------
         rel = self.refresh(rel)
         HistoryLine.disable(rel)
 
@@ -995,7 +1000,7 @@ about this fantastic animation studio."""
         address.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        #-----------------------
+        # -----------------------
         address = self.refresh(address)
         HistoryLine.disable(address)
 
@@ -1003,11 +1008,26 @@ about this fantastic animation studio."""
         address.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        #-----------------------
+        # -----------------------
         address = self.refresh(address)
         HistoryLine.disable(address)
 
         address.delete()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-    #TODO: test populate related lines + query counter ??
+    def test_globally_disable(self):
+        old_count = HistoryLine.objects.count()
+
+        HistoryLine.ENABLED = False
+
+        nerv = Organisation.objects.create(user=self.user, name='nerv')
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+        nerv.name = nerv.name.title()
+        nerv.save()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+        address = Address.objects.create(entity=nerv, city='Tokyo')
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+    # TODO: test populate related lines + query counter ??
