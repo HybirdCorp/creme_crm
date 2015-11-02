@@ -31,7 +31,7 @@ class UnicodeReader(object):
 
     def __init__(self, f, guess_dialect=True, dialect=csv.excel, encoding="utf-8", **kwargs):
         if guess_dialect:
-            dialect = csv.Sniffer().sniff(f.read(1024))
+            dialect = csv.Sniffer().sniff(f.read(100 * 1024))
             f.seek(0)
 
         self.reader = csv.reader(UTF8Recoder(f, encoding), dialect=dialect, **kwargs)
