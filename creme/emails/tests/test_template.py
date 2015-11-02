@@ -10,15 +10,12 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('TemplatesTestCase',)
-
-
 @skipIfCustomEmailTemplate
 class TemplatesTestCase(_EmailsTestCase):
     def setUp(self):
         self.login()
 
-    def test_createview01(self): #TODO: test attachments & images
+    def test_createview01(self): # TODO: test attachments & images
 #        url = '/emails/template/add'
         url = reverse('emails__create_template')
         self.assertGET200(url)

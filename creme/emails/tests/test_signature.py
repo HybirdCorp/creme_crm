@@ -7,9 +7,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('SignaturesTestCase',)
-
-
 class SignaturesTestCase(_EmailsTestCase):
     def login(self, is_superuser=True):
         return super(SignaturesTestCase, self).login(is_superuser, allowed_apps=['emails'])

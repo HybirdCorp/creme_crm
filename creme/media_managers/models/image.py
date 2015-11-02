@@ -128,6 +128,3 @@ class Image(CremeEntity):
         p = PILImageFile.Parser()
         p.feed(base64.decodestring(image_base64_str))
         return p.close().format
-
-
-#    image_file = property(get_image_file)

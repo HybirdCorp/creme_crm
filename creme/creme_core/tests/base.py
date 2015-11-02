@@ -414,7 +414,7 @@ class _CremeTestCase(object):
 
     def create_image(self, ident=1, user=None):
         warnings.warn("_CremeTestCase.create_image() method is deprecated; "
-                      "use creme.media_managers.tests import create_image() instead",
+                      "use creme.media_managers.tests.create_image() instead",
                       DeprecationWarning
                      )
 
