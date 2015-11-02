@@ -717,6 +717,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         cls.contact_bulk_status = bulk_update_registry.status(Contact)
 
     def tearDown(self):
+        super(BulkEditTestCase, self).tearDown()
         bulk_update_registry.status(Contact)._innerforms = {}
 
     def _build_contact_url(self, field_name, *contact_ids):

@@ -31,6 +31,7 @@ def skipIfCustomFolder(test_func):
 
 
 class _DocumentsTestCase(CremeTestCase):
+    clean_files_in_teardown = True # see CremeTestCase
     #ADD_DOC_URL = '/documents/document/add'
 
     @classmethod
@@ -38,31 +39,30 @@ class _DocumentsTestCase(CremeTestCase):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'documents')
 
-        cls.dir_path = dir_path = join(settings.MEDIA_ROOT, 'upload', 'documents')
-
-        #TODO: factorise with CSVImportBaseTestCaseMixin
-        if exists(dir_path):
-            cls.existing_files = set(listdir(dir_path))
-        else:
-            makedirs(dir_path, 0755)
-            cls.existing_files = set()
+#        cls.dir_path = dir_path = join(settings.MEDIA_ROOT, 'upload', 'documents')
+#
+#        if exists(dir_path):
+#            cls.existing_files = set(listdir(dir_path))
+#        else:
+#            makedirs(dir_path, 0755)
+#            cls.existing_files = set()
 
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
-    def tearDown(self):
-        dir_path = self.dir_path
-        existing_files = self.existing_files
-
-        for filename in listdir(dir_path):
-            if filename not in existing_files:
-                delete_file(join(dir_path, filename))
+#    def tearDown(self):
+#        dir_path = self.dir_path
+#        existing_files = self.existing_files
+#
+#        for filename in listdir(dir_path):
+#            if filename not in existing_files:
+#                delete_file(join(dir_path, filename))
 
     def _build_filedata(self, content_str, suffix='.txt'):
         tmpfile = NamedTemporaryFile(suffix=suffix, delete=False)
         tmpfile.write(content_str)
         tmpfile.flush()
 
-        #we close and reopen in order to have a file with the right name (so we must specify delete=False)
+        # We close and reopen in order to have a file with the right name (so we must specify delete=False)
         tmpfile.close()
 
         name = tmpfile.name

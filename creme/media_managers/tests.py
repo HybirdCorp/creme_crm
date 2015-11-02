@@ -39,6 +39,7 @@ class MediaManagersTestCase(CremeTestCase):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'media_managers')
 
+    # TODO: remove when documents & images have been merged -> use the CremeTestCase.tearDown cleaning.
     def setUp(self):
         self.images = []
 #        self.login()
@@ -193,9 +194,9 @@ class MediaManagersTestCase(CremeTestCase):
         self._create_image()
         self.assertGET200('/media_managers/tiny_mce/image')
 
-        #TODO: improve this test....
+        # TODO: improve this test....
 
-    #TODO: remove when hack in creme_core has been removed
+    # TODO: remove when hack in creme_core has been removed
     @skipIfCustomContact
     def test_field_printers01(self):
         "Field printer with FK on Image"
@@ -274,7 +275,7 @@ class ImageQuickFormTestCase(CremeTestCase):
         tmpfile.write(content_str)
         tmpfile.flush()
 
-        #we close and reopen in order to have a file with the right name (so we must specify delete=False)
+        # We close and reopen in order to have a file with the right name (so we must specify delete=False)
         tmpfile.close()
 
         name = tmpfile.name

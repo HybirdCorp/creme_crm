@@ -21,6 +21,7 @@ class UtilsTestCase(_EmailsTestCase):
     def setUp(self):
         self.images = []
 
+    # TODO: remove when documents & images have been merged -> use the CremeTestCase.tearDown cleaning.
     def tearDown(self):
         for img in self.images:
             img.delete()

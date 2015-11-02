@@ -25,11 +25,13 @@ class MetaTestCase(CremeTestCase):
         cls._translation_deactvated = False
 
     def tearDown(self):
+        super(MetaTestCase, self).tearDown()
+
         if self._translation_deactvated:
             translation.activate(self._lang)
             self._translation_deactvated = False
 
-    def _deactivate_translation(self): #TODO: decorator ?? in CremeTestCase ?
+    def _deactivate_translation(self):  # TODO: decorator ?? in CremeTestCase ?
         translation.deactivate_all()
         self._translation_deactvated = True
 

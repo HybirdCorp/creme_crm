@@ -13,6 +13,7 @@ except Exception as e:
 #class MutexTestCase(CremeTestCase):
 class MutexTestCase(CremeTransactionTestCase):
     def tearDown(self):
+        super(MutexTestCase, self).tearDown()
         Mutex.graceful_release('dummy_lock')
 
     def _get_ids(self):
