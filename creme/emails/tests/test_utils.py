@@ -104,6 +104,7 @@ class UtilsTestCase(_EmailsTestCase):
         <p>blabla</p>
         <p><img title="My image#1" src="%s" alt="Image esc#1" width="159" height="130" /></p>
         <p>other blabla</p>
+        <p><img title="My image#2" src="http://external.image.org/12345.png" alt="Image esc#2" width="123" height="148" /></p>
         <p><img title="My image#2" src="%s" alt="Image esc#2" width="123" height="148" /></p>
     </body>
 </html>""" % (url1, url2)

@@ -37,12 +37,14 @@ from .constants import MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
 logger = logging.getLogger(__name__)
 ALLOWED_CHARS = ascii_letters + digits
 
+
 def generate_id():
     from .models.mail import ID_LENGTH
     return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
 
 
 _IMG_PATTERN = re_compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?\=.]*)["\']{1,1}')
+
 
 class ImageFromHTMLError(Exception):
     def __init__(self, filename, *args, **kwargs):
@@ -73,10 +75,14 @@ def get_images_from_html(html):
     @return Dict where keys are filenames, and values are tuples (Image object, source)
             Image object can be None if the Image entity was not found.
     """
+    MEDIA_URL  = settings.MEDIA_URL
     MEDIA_ROOT = settings.MEDIA_ROOT
-    images_info = {} # key=Image.id  Value=(source, basefilename)
+    images_info = {}  # key=Image.id  Value=(source, basefilename)
 
     for source in re_findall(_IMG_PATTERN, html):
+        if not source.startswith(MEDIA_URL):
+            continue  # External image
+
         filename = basename(source)
 
         if not exists(join(MEDIA_ROOT, "upload", "images", filename)):
@@ -97,6 +103,7 @@ def get_images_from_html(html):
 
 
 _MIME_IMG_CACHE = '_mime_image_cache'
+
 
 def get_mime_image(image_entity):
     try:
@@ -123,7 +130,7 @@ class EMailSender(object):
         "@throws ImageFromHTMLError"
         mime_images = []
 
-        # Replacing image sources with embbeded images
+        # Replacing image sources with embedded images
         for filename, (image_entity, src) in get_images_from_html(body_html).iteritems(): # Can throws ImageFromHTMLError
             if image_entity is None:
                 logger.error('Image with filename <%s> do not exist any more.')
@@ -165,7 +172,7 @@ class EMailSender(object):
 
     def send(self, mail, connection=None):
         """
-        @param mail Object with a class inherting emails.models.mail._Email
+        @param mail Object with a class inheriting emails.models.mail._Email
         @return True means: OK mail was sent
         """
         ok = False
@@ -194,7 +201,7 @@ class EMailSender(object):
                 mail.status = MAIL_STATUS_SENDINGERROR
             else:
                 mail.status = MAIL_STATUS_SENT
-                mail.sending_date = now() #####??
+                mail.sending_date = now()
                 ok = True
 
             mail.save()
