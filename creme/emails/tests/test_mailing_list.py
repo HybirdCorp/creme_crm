@@ -19,9 +19,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('MailingListsTestCase',)
-
-
 @skipIfCustomMailingList
 class MailingListsTestCase(_EmailsTestCase):
     def setUp(self):

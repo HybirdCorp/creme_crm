@@ -30,9 +30,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('EntityEmailTestCase',)
-
-
 @skipIfCustomEntityEmail
 class EntityEmailTestCase(_EmailsTestCase):
     clean_files_in_teardown = True #see CremeTestCase

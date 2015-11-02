@@ -16,9 +16,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('EmailsTestCase',)
-
-
 class EmailsTestCase(_EmailsTestCase):
     def test_populate(self):
         EntityEmail = get_entityemail_model()

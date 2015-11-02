@@ -153,16 +153,7 @@ class EmailSending(CremeModel):
 
             return SENDING_STATE_ERROR
 
-        ##SMTPConnection is deprecated but with mail.get_connection() we can't specify other settings than django settings
-        ##todo: Write a custom e-mail backend: http://docs.djangoproject.com/en/1.3/topics/email/#topic-custom-email-backend
-        #connection = SMTPConnection(host=settings.CREME_EMAIL_SERVER,
-                                    #port=settings.CREME_EMAIL_PORT,
-                                    #username=settings.CREME_EMAIL_USERNAME,
-                                    #password=settings.CREME_EMAIL_PASSWORD,
-                                    #use_tls=True
-                                   #)
-        connection = get_connection(#'django.core.mail.backends.smtp.EmailBackend',
-                                    host=settings.EMAILCAMPAIGN_HOST,
+        connection = get_connection(host=settings.EMAILCAMPAIGN_HOST,
                                     port=settings.EMAILCAMPAIGN_PORT,
                                     username=settings.EMAILCAMPAIGN_HOST_USER,
                                     password=settings.EMAILCAMPAIGN_PASSWORD,
@@ -184,12 +175,12 @@ class EmailSending(CremeModel):
                 logger.debug('Sending: waiting timeout')
 
                 mails_count = 0
-                sleep(SLEEP_TIME) #avoiding the mail to be classed as spam
+                sleep(SLEEP_TIME) # Avoiding the mail to be classed as spam
 
         if not one_mail_sent:
             return SENDING_STATE_ERROR
 
-        #TODO: close the connection ??
+        # TODO: close the connection ??
 
 
 class LightWeightEmail(_Email):
@@ -212,7 +203,7 @@ class LightWeightEmail(_Email):
 
         try:
             return Template(sending_body).render(Context(loads(body.encode('utf-8')) if body else {}))
-        except Exception as e: #Pickle raise too much differents exceptions...Catch'em all ?
+        except Exception as e: # Pickle raises too much differents exceptions... Catch'em all ?
             logger.debug('Error in LightWeightEmail._render_body(): %s', e)
             return ""
 
@@ -222,10 +213,10 @@ class LightWeightEmail(_Email):
     def get_body_html(self):
         return self._render_body(self.sending.body_html)
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self): # For generic views
         return self.sending.campaign
 
-    #TODO: factorise
+    # TODO: factorise
 #    @transaction.commit_manually
 #    def genid_n_save(self):
 #        #BEWARE: manage manually
@@ -264,7 +255,7 @@ class LightWeightEmailSender(EMailSender):
         super(LightWeightEmailSender, self).__init__(body=sending.body,
                                                      body_html=sending.body_html,
                                                      signature=sending.signature,
-                                                     attachments=sending.attachments.all()
+                                                     attachments=sending.attachments.all(),
                                                     )
         self._sending = sending
         self._body_template = Template(self._body)

@@ -30,7 +30,7 @@ def create_image(user, ident=1):
     return Image.objects.create(user=user,
                                 image=tmpfile,
                                 name=u'Image #%s' % ident,
-                                description=u"Desc"
+                                description=u"Desc",
                                )
 
 class MediaManagersTestCase(CremeTestCase):

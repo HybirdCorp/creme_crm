@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,7 @@ class ImageFromHTMLError(Exception):
 
 
 def get_images_from_html(html):
-    """Extract refernce to Image entities in an HTML string:
+    """Extract references to Image entities in an HTML string:
 
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html>
@@ -74,7 +74,7 @@ def get_images_from_html(html):
             Image object can be None if the Image entity was not found.
     """
     MEDIA_ROOT = settings.MEDIA_ROOT
-    images_info = {} #key=Image.id  Value=(source, basefilename)
+    images_info = {} # key=Image.id  Value=(source, basefilename)
 
     for source in re_findall(_IMG_PATTERN, html):
         filename = basename(source)
@@ -104,7 +104,7 @@ def get_mime_image(image_entity):
     except AttributeError:
         try:
             image_file = image_entity.image.file
-            image_file.open() #TODO: 'with' ??
+            image_file.open() # NB: 'with' seems not working
             mime_image = MIMEImage(image_file.read())
             mime_image.add_header('Content-ID','<img_%s>' % image_entity.id)
             mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
@@ -123,8 +123,8 @@ class EMailSender(object):
         "@throws ImageFromHTMLError"
         mime_images = []
 
-        #Replacing image sources with embbeded images
-        for filename, (image_entity, src) in get_images_from_html(body_html).iteritems(): #can throws ImageFromHTMLError
+        # Replacing image sources with embbeded images
+        for filename, (image_entity, src) in get_images_from_html(body_html).iteritems(): # Can throws ImageFromHTMLError
             if image_entity is None:
                 logger.error('Image with filename <%s> do not exist any more.')
             else:
@@ -175,7 +175,9 @@ class EMailSender(object):
         else:
             body, body_html = self._process_bodies(mail)
 
-            msg = EmailMultiAlternatives(self.get_subject(mail), body, mail.sender, [mail.recipient], connection=connection)
+            msg = EmailMultiAlternatives(self.get_subject(mail), body, mail.sender,
+                                         [mail.recipient], connection=connection,
+                                        )
             msg.attach_alternative(body_html, "text/html")
 
             for image in self._mime_images:
