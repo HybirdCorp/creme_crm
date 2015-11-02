@@ -24,15 +24,17 @@ class MiscViewsTestCase(ViewsTestCase):
         cls.populate()
 
     def setUp(self):
+        super(MiscViewsTestCase, self).setUp()
 #        self.login()
 
         self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
         settings.FORCE_JS_TESTVIEW = False
 
     def tearDown(self):
+        super(MiscViewsTestCase, self).tearDown()
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
-    def test_home(self): #TODO: improve test
+    def test_home(self):  # TODO: improve test
         self.login()
         response = self.assertGET200('/')
         self.assertTemplateUsed(response, 'creme_core/home.html')
@@ -129,7 +131,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def test_auth_decorators01(self):
         self.login(is_superuser=False,
-                   allowed_apps=['documents'], # not creme_core
+                   allowed_apps=['documents'],  # not creme_core
                    creatable_models=[FakeContact],
                   )
         self.assertGET403('/tests/contact/add')
@@ -137,7 +139,7 @@ class MiscViewsTestCase(ViewsTestCase):
     def test_auth_decorators02(self):
         self.login(is_superuser=False,
                    allowed_apps=['creme_core'],
-                   creatable_models=[FakeImage], # not FakeContact
+                   creatable_models=[FakeImage],  # not FakeContact
                   )
         self.assertGET403('/tests/contact/add')
 
@@ -150,7 +152,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def test_auth_decorators_multiperm01(self):
         self.login(is_superuser=False,
-                   allowed_apps=['documents'], # not creme_core
+                   allowed_apps=['documents'],  # not creme_core
                    creatable_models=[FakeOrganisation],
                   )
         self.assertGET403('/tests/organisation/add')
@@ -158,7 +160,7 @@ class MiscViewsTestCase(ViewsTestCase):
     def test_auth_decorators_multiperm02(self):
         self.login(is_superuser=False,
                    allowed_apps=['creme_core'],
-                   creatable_models=[FakeImage], # not FakeOrganisation
+                   creatable_models=[FakeImage],  # not FakeOrganisation
                   )
         self.assertGET403('/tests/organisation/add')
 

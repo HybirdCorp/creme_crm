@@ -57,7 +57,7 @@ class ViewsTestCase(CremeTestCase):
 
 
 class CSVImportBaseTestCaseMixin(object):
-    clean_files_in_teardown = True #see CremeTestCase
+    clean_files_in_teardown = True # See CremeTestCase
 
     def _build_file(self, content, extension=None):
         tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')

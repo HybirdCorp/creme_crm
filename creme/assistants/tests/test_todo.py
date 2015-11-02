@@ -39,13 +39,11 @@ class TodoTestCase(AssistantsTestCase):
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):
+        super(TodoTestCase, self).tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity):
         return '/assistants/todo/add/%s/' % entity.id
-
-    #def _build_edit_url(self, todo):
-        #return '/assistants/todo/edit/%s/' % todo.id
 
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
         entity = entity or self.entity
@@ -130,7 +128,6 @@ class TodoTestCase(AssistantsTestCase):
         description = 'Description'
         todo = self._create_todo(title, description)
 
-        #url = self._build_edit_url(todo)
         url = todo.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -159,7 +156,6 @@ class TodoTestCase(AssistantsTestCase):
             entity2 = todo.creme_entity
 
         self.assertEqual(entity, entity2)
-        #self.assertGET403(self._build_edit_url(todo))
         self.assertGET403(todo.get_edit_absolute_url())
 
     def test_delete_related01(self):
@@ -192,7 +188,6 @@ class TodoTestCase(AssistantsTestCase):
 
         todos = ToDo.get_todos(self.entity)
         self.assertEqual(3, len(todos))
-        #self.assertEqual(set(t.id for t in ToDo.objects.all()), set(t.id for t in todos))
         self.assertEqual(set(ToDo.objects.values_list('id', flat=True)),
                          {t.id for t in todos}
                         )
@@ -210,8 +205,6 @@ class TodoTestCase(AssistantsTestCase):
         with self.assertNoException():
             page = response.context['page']
 
-        #self.assertEqual(3, len(page.object_list))
-        #self.assertEqual(set(todos), set(page.object_list))
         size = min(3, settings.BLOCK_SIZE)
         self.assertEqual(size, len(page.object_list))
         self.assertEqual(size, len(set(todos) & set(page.object_list)))
@@ -415,7 +408,6 @@ class TodoTestCase(AssistantsTestCase):
 
         self.assertTrue(self.send_messages_called)
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
-        #self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
 
     def _get_hlines(self):
         return list(HistoryLine.objects.order_by('id'))

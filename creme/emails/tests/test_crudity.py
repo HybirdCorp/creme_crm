@@ -33,10 +33,12 @@ class EmailsCrudityTestCase(CremeTestCase):
         cls.populate('documents', 'crudity')
 
     def setUp(self):
+        super(EmailsCrudityTestCase, self).setUp()
         self.login()
         self._category_to_restore = None
 
     def tearDown(self):
+        super(EmailsCrudityTestCase, self).tearDown()
         cat = self._category_to_restore
 
         if cat is not None:
@@ -119,11 +121,11 @@ class EmailsCrudityTestCase(CremeTestCase):
 
         e_email = self.get_object_or_fail(EntityEmail, subject=email.subject)
         self.assertEqual(email.body, e_email.body)
-        self.assertEqual(other_user, e_email.user) #<== not 'user' !
+        self.assertEqual(other_user, e_email.user)  # <== not 'user' !
         self.assertEqual(email.dates[0], e_email.reception_date)
 
         history = self.get_object_or_fail(History, entity=e_email.id)
-        self.assertEqual(other_user, history.user) #<== not 'user' !
+        self.assertEqual(other_user, history.user)  # <== not 'user' !
 
 #    def test_create_with_deleted_category01(self):
 #        "Create category if it has been deleted"
@@ -172,5 +174,5 @@ class EmailsCrudityTestCase(CremeTestCase):
 #        backend.fetcher_fallback(email, user)
 #        self.get_object_or_fail(EntityEmail, subject=email.subject)
 
-    #TODO: authorize_senders return False
-    #TODO: attachments
+    # TODO: authorize_senders return False
+    # TODO: attachments

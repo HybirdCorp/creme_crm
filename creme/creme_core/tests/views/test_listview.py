@@ -54,13 +54,15 @@ class ListViewTestCase(ViewsTestCase):
         Civility.objects.bulk_create(cls._civ_backup)
 
     def setUp(self):
+        super(ListViewTestCase, self).setUp()
         self._address_ordering = Address._meta.ordering
         Address._meta.ordering = ()
 
     def tearDown(self):
+        super(ListViewTestCase, self).tearDown()
         Address._meta.ordering = self._address_ordering
 
-    def assertFound(self, x, string): #TODO: in CremeTestCase ??
+    def assertFound(self, x, string):  # TODO: in CremeTestCase ??
         idx = string.find(x)
         self.assertNotEqual(-1, idx, '"%s" not found' % x)
 
