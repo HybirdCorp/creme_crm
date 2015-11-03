@@ -3,15 +3,20 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+from .. import ticket_model_is_custom
+
 
 def populate_numbers(apps, schema_editor):
+    if ticket_model_is_custom():
+        return
+
+    # NB: we create, then delete, TicketNumbers in order to keep the sequence
     get_model = apps.get_model
     TicketNumber = get_model('tickets', 'TicketNumber')
     create_number = TicketNumber.objects.create
     last_number = None
 
-    # NB: we create, then delete, TicketNumbers in order to keep the sequence
-    # (PostgerSQL) correct, in an esay way.
+    # (PostgreSQL) correct, in an easy way.
     for ticket in get_model('tickets', 'Ticket').objects.order_by('id'):
         last_number = create_number()
         ticket.number = last_number.id
