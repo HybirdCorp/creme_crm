@@ -61,8 +61,6 @@ def copy_old_fields(apps, schema_editor):
         print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py copy_old_fields():' \
              ' cannot copy Activities fields because the model is custom. You should fix it with your custom model.'
 
-    #TODO: if custom task => do nothing
-
     for instance in tasks:
         activity_instance = instance.activity_ptr
         instance.id = activity_instance.pk
