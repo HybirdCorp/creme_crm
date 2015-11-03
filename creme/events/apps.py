@@ -28,11 +28,13 @@ class EventsConfig(CremeAppConfig):
     verbose_name = _(u'Events')
     dependencies = ['creme.persons', 'creme.opportunities']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_event_model
 
         self.Event = get_event_model()
-        super(EventsConfig, self).ready()
+#        super(EventsConfig, self).ready()
+        super(EventsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('events', _(u'Events'), '/events')

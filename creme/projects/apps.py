@@ -28,12 +28,14 @@ class ProjectsConfig(CremeAppConfig):
     verbose_name = _(u'Projects')
     dependencies = ['creme.persons', 'creme.activities']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_project_model, get_task_model
 
         self.Project     = get_project_model()
         self.ProjectTask = get_task_model()
-        super(ProjectsConfig, self).ready()
+#        super(ProjectsConfig, self).ready()
+        super(ProjectsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('projects', _(u'Projects'), '/projects')

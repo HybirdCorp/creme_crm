@@ -59,6 +59,7 @@ class CremeAppConfig(AppConfig):
 
         checks.register(Tags.settings)(check_deps)
 
+    def all_apps_ready(self):
         if not self.MIGRATION_MODE:
             self.register_creme_app(creme_registry)
             self.register_entity_models(creme_registry)

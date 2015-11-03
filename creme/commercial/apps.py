@@ -28,13 +28,15 @@ class CommercialConfig(CremeAppConfig):
     verbose_name = _(u'Commercial strategy')
     dependencies = ['creme.persons', 'creme.opportunities']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_act_model, get_pattern_model, get_strategy_model
 
         self.Act      = get_act_model()
         self.Pattern  = get_pattern_model()
         self.Strategy = get_strategy_model()
-        super(CommercialConfig, self).ready()
+#        super(CommercialConfig, self).ready()
+        super(CommercialConfig, self).all_apps_ready()
 
         from . import signals
 

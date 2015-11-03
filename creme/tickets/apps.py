@@ -28,12 +28,14 @@ class TicketsConfig(CremeAppConfig):
     verbose_name = _(u'Tickets')
     dependencies = ['creme.creme_core']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_ticket_model, get_tickettemplate_model
 
         self.Ticket         = get_ticket_model()
         self.TicketTemplate = get_tickettemplate_model()
-        super(TicketsConfig, self).ready()
+#        super(TicketsConfig, self).ready()
+        super(TicketsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('tickets', _(u'Tickets'), '/tickets')

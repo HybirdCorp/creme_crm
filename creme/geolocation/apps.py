@@ -28,8 +28,10 @@ class GeolocationConfig(CremeAppConfig):
     verbose_name = _(u'Geolocation')
     dependencies = ['creme.persons']
 
-    def ready(self):
-        super(GeolocationConfig, self).ready()
+#    def ready(self):
+#        super(GeolocationConfig, self).ready()
+    def all_apps_ready(self):
+        super(GeolocationConfig, self).all_apps_ready()
 
         from . import signals
 

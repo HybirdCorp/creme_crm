@@ -28,13 +28,15 @@ class SMSConfig(CremeAppConfig):
     verbose_name = _(u'SMS')
     dependencies = ['creme.persons']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_smscampaign_model, get_messaginglist_model, get_messagetemplate_model
 
         self.SMSCampaign     = get_smscampaign_model()
         self.MessagingList   = get_messaginglist_model()
         self.MessageTemplate = get_messagetemplate_model()
-        super(SMSConfig, self).ready()
+#        super(SMSConfig, self).ready()
+        super(SMSConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('sms', _(u'SMS'), '/sms')

@@ -28,7 +28,8 @@ class BillingConfig(CremeAppConfig):
     verbose_name = _(u'Billing')
     dependencies = ['creme.persons', 'creme.products']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import (get_credit_note_model, get_invoice_model, get_quote_model,
                 get_sales_order_model, get_template_base_model,
                 get_product_line_model, get_service_line_model)
@@ -40,7 +41,8 @@ class BillingConfig(CremeAppConfig):
         self.TemplateBase = get_template_base_model()
         self.ProductLine  = get_product_line_model()
         self.ServiceLine  = get_service_line_model()
-        super(BillingConfig, self).ready()
+#        super(BillingConfig, self).ready()
+        super(BillingConfig, self).all_apps_ready()
 
         from . import signals
         from .function_fields import hook_organisation

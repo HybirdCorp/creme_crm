@@ -28,13 +28,15 @@ class PollsConfig(CremeAppConfig):
     verbose_name = _(u'Polls')
     dependencies = ['creme.persons', 'creme.commercial']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_pollform_model, get_pollreply_model, get_pollcampaign_model
 
         self.PollCampaign = get_pollcampaign_model()
         self.PollForm     = get_pollform_model()
         self.PollReply    = get_pollreply_model()
-        super(PollsConfig, self).ready()
+#        super(PollsConfig, self).ready()
+        super(PollsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('polls', _(u'Polls'), '/polls')
