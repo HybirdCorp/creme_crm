@@ -24,7 +24,7 @@ CREME_ROOT = dirname(abspath(__file__)) #  BASE_DIR + '/creme'
 
 # NB: it's recommended to :
 #   - use a database engine that supports transactions (ie: not MyISAM for MySQL, which uses now INNODB by default).
-#   - configurate your database to use utf8 (eg: with MySQL, 'utf8_general_ci' is OK).
+#   - configure your database to use utf8 (eg: with MySQL, 'utf8_general_ci' is OK).
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql', # 'postgresql_psycopg2', 'mysql', 'sqlite3' ('oracle' backend is not working with creme for now).
@@ -69,7 +69,7 @@ TIME_ZONE = 'Europe/Paris'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'fr' #Choose in the LANGUAGES values
+LANGUAGE_CODE = 'fr'  # Choose in the LANGUAGES values
 
 DEFAULT_ENCODING = 'UTF8'
 
@@ -83,7 +83,7 @@ DATE_FORMAT_JS      = {
 DATE_FORMAT_JS_SEP = '-' # DATE_FORMAT_JS values separator
 DATE_INPUT_FORMATS = (
     '%d-%m-%Y', '%d/%m/%Y',
-    '%Y-%m-%d', # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
+    '%Y-%m-%d',  # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
     '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
     '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
     '%B %d, %Y', '%d %B %Y', '%d %B, %Y',
@@ -98,8 +98,8 @@ DATETIME_INPUT_FORMATS  = (
     '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
-    '%Y-%m-%dT%H:%M:%S.%fZ', # DO NOT REMOVE ! Needed by the core (eg: to store queries in session) (+for some activesync servers)
-    "%Y-%m-%dT%H:%M:%S", # Needed for infopath
+    '%Y-%m-%dT%H:%M:%S.%fZ',  # DO NOT REMOVE ! Needed by the core (eg: to store queries in session) (+for some activesync servers)
+    "%Y-%m-%dT%H:%M:%S",  # Needed for infopath
 )
 
 # I18N / L10N [END]#############################################################
@@ -108,11 +108,11 @@ DATETIME_INPUT_FORMATS  = (
 # SITE: URLs / PATHS / ... #####################################################
 
 SITE_ID = 1
-SITE_DOMAIN = 'http://mydomain' # No end slash!
+SITE_DOMAIN = 'http://mydomain'  # No end slash!
 
 APPEND_SLASH = False
 
-ROOT_URLCONF = 'creme.urls' # Means urls.py
+ROOT_URLCONF = 'creme.urls'  # Means urls.py
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/creme_login/'
@@ -203,7 +203,7 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_fields_configs',
             ],
             'loaders': [
-                ('django.template.loaders.cached.Loader', ( # Don't use cached loader when developping (in your local_settings.py)
+                ('django.template.loaders.cached.Loader', (  # Don't use cached loader when developping (in your local_settings.py)
                     'django.template.loaders.filesystem.Loader',
                     'django.template.loaders.app_directories.Loader',
                     #'django.template.loaders.eggs.Loader',
@@ -215,12 +215,12 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = (
-    'creme.creme_core.middleware.exceptions.Ajax500Middleware', # It must be last middleware that catch all exceptions
+    'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catch all exceptions
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
 
-    'mediagenerator.middleware.MediaMiddleware', # Media middleware has to come first
+    'mediagenerator.middleware.MediaMiddleware',  # Media middleware has to come first
 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -230,7 +230,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
-    'creme.creme_core.middleware.global_info.GlobalInfoMiddleware', # After AuthenticationMiddleware
+    'creme.creme_core.middleware.global_info.GlobalInfoMiddleware',  # After AuthenticationMiddleware
     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
 )
 
@@ -240,10 +240,9 @@ INSTALLED_DJANGO_APPS = (
     'django.contrib.sessions',
     #'django.contrib.sites', #remove ??
     #'django.contrib.admin',
-    #'django.contrib.admindocs',
 
     # EXTERNAL APPS
-    'mediagenerator', #It manages js/css/images
+    'mediagenerator',  # It manages js/css/images
 )
 
 INSTALLED_CREME_APPS = (
@@ -256,7 +255,7 @@ INSTALLED_CREME_APPS = (
     'creme.activities',
     'creme.persons',
 
-    # CREME OPTIONNAL APPS (can be safely commented)
+    # CREME OPTIONAL APPS (can be safely commented)
     'creme.graphs',
     'creme.reports',
     'creme.products',
@@ -308,7 +307,7 @@ EXPORT_BACKENDS = (
 # EMAILS [internal] ############################################################
 
 # Emails sent to the users of Creme (reminders, assistants.user_message, commercial.commercial_approach...)
-EMAIL_SENDER        = 'sender@domain.org' # This is a Creme parameter which specifies from_email (sender) when sending email.
+EMAIL_SENDER        = 'sender@domain.org'  # This is a Creme parameter which specifies from_email (sender) when sending email.
 EMAIL_HOST          = 'localhost'
 EMAIL_HOST_USER     = ''
 EMAIL_HOST_PASSWORD = ''
@@ -318,7 +317,7 @@ EMAIL_USE_TLS       = False
 # Tip: _developpement_ SMTP server
 # => python -m smtpd -n -c DebuggingServer localhost:1025
 
-DEFAULT_USER_EMAIL = '' # Email address used in case the user doesn't have filled his one.
+DEFAULT_USER_EMAIL = ''  # Email address used in case the user doesn't have filled his one.
 
 
 # EMAILS [END] #################################################################
@@ -348,7 +347,7 @@ LOGGING_FORMATTERS = {
 LOGGING_FILTERS = {}
 
 LOGGING_CONSOLE_HANDLER = {
-    'level': 'WARNING', # Available levels : DEBUG < INFO < WARNING < ERROR < CRITICAL
+    'level': 'WARNING',  # Available levels : DEBUG < INFO < WARNING < ERROR < CRITICAL
     'class': 'logging.StreamHandler',
     'formatter': 'simple',
 }
@@ -370,7 +369,7 @@ LOGGING_FILE_HANDLER = {
 
 LOGGING_DEFAULT_LOGGER = {
     'handlers': ['console', 'file'],
-    'level': 'WARNING', # Available levels : DEBUG < INFO < WARNING < ERROR < CRITICAL
+    'level': 'WARNING',  # Available levels : DEBUG < INFO < WARNING < ERROR < CRITICAL
 }
 
 LOGGING = {
@@ -383,7 +382,7 @@ LOGGING = {
         'file':    LOGGING_FILE_HANDLER,
     },
     'loggers': {
-        '': LOGGING_DEFAULT_LOGGER  # the empty key '' means that all logs are redirected to this logger.
+        '': LOGGING_DEFAULT_LOGGER  # The empty key '' means that all logs are redirected to this logger.
     },
 }
 
@@ -398,13 +397,13 @@ warnings.simplefilter("once")
 # GUI ##########################################################################
 
 # Main menu
-LOGO_URL = 'images/creme_256_cropped.png' # Big image in the side menu
-USE_STRUCT_MENU = True #True = use the per app menu
+LOGO_URL = 'images/creme_256_cropped.png'  # Big image in the side menu
+USE_STRUCT_MENU = True  # True = use the per app menu # DEPRECATED
 
-BLOCK_SIZE = 10 # Lines number in common blocks
-MAX_LAST_ITEMS = 9 # Max number of items in the 'Last viewed items' bar
+BLOCK_SIZE = 10  # Lines number in common blocks
+MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar
 
-HIDDEN_VALUE = u"??" # Used to replace contents which a user is not allowed to see.
+HIDDEN_VALUE = u"??"  # Used to replace contents which a user is not allowed to see.
 
 # GUI [END]#####################################################################
 
@@ -423,7 +422,7 @@ GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 THEMES = [('icecream',  _('Ice cream')),
           ('chantilly', _('Chantilly')),
          ]
-DEFAULT_THEME = 'icecream' # Other available choice: 'chantilly'
+DEFAULT_THEME = 'icecream'  # Other available choice: 'chantilly'
 
 CSS_DEFAULT_LISTVIEW = 'left_align'
 CSS_NUMBER_LISTVIEW = 'right_align'
@@ -459,7 +458,7 @@ CREME_CORE_CSS = ('main.css',
                     'persons/css/persons.css',
                  )
 
-CREME_OPT_CSS = ( # OPTIONNAL APPS
+CREME_OPT_CSS = ( # OPTIONAL APPS
                  ('creme.billing',     'billing/css/billing.css'),
                  ('creme.commercial',  'commercial/css/commercial.css'),
                  ('creme.crudity',     'crudity/css/crudity.css'),
@@ -468,11 +467,11 @@ CREME_OPT_CSS = ( # OPTIONNAL APPS
                 )
 
 CREME_I18N_JS = ('l10n.js',
-                    {'filter': 'mediagenerator.filters.i18n.I18N'}, # To build the i18n catalog statically.
+                    {'filter': 'mediagenerator.filters.i18n.I18N'},  # To build the i18n catalog statically.
                 )
 
 CREME_CORE_JS = ('main.js',
-                    {'filter': 'mediagenerator.filters.media_url.MediaURL'}, # To get the media_url() function in JS.
+                    {'filter': 'mediagenerator.filters.media_url.MediaURL'},  # To get the media_url() function in JS.
                     'creme_core/js/media.js',
                     'creme_core/js/jquery/jquery-1.11.2.js',
                     'creme_core/js/jquery/jquery-migrate-1.2.1.js',
@@ -601,7 +600,7 @@ CREME_CORE_JS = ('main.js',
                     'persons/js/persons.js',
                 )
 
-CREME_OPT_JS = ( # OPTIONNAL APPS
+CREME_OPT_JS = (  # OPTIONAL APPS
                 ('creme.billing',     'billing/js/billing.js'),
                 ('creme.reports',     'reports/js/reports.js'),
                 ('creme.emails',      'emails/js/emails.js'),
@@ -612,7 +611,7 @@ CREME_OPT_JS = ( # OPTIONNAL APPS
                 ('creme.geolocation', 'geolocation/js/block.js',),
                )
 
-TEST_CREME_CORE_JS = (# JS Unit test files
+TEST_CREME_CORE_JS = (  # JS Unit test files
     'test_core.js',
     'creme_core/js/tests/qunit/qunit-1.18.0.js',
     'creme_core/js/tests/component/component.js',
@@ -752,14 +751,14 @@ CREME_SAMOUSSA_PASSWORD = ''
 
 # CRUDITY -----------------------------------------------------------------------
 # EMail parameters to sync external emails in Creme
-CREME_GET_EMAIL              = "" # Creme gets email. e.g : creme@cremecrm.org
-CREME_GET_EMAIL_SERVER       = "" # Creme gets server. e.g : pop.cremecrm.org (only pop supported for now)
+CREME_GET_EMAIL              = ""  # Creme gets email. e.g : creme@cremecrm.org
+CREME_GET_EMAIL_SERVER       = ""  # Creme gets server. e.g : pop.cremecrm.org (only pop supported for now)
 CREME_GET_EMAIL_USERNAME     = ""
 CREME_GET_EMAIL_PASSWORD     = ""
 CREME_GET_EMAIL_PORT         = 110
-CREME_GET_EMAIL_SSL          = False # True or False #Not used for the moment
-CREME_GET_EMAIL_SSL_KEYFILE  = "" # Not used for the moment
-CREME_GET_EMAIL_SSL_CERTFILE = "" # Not used for the moment
+CREME_GET_EMAIL_SSL          = False  # True or False #Not used for the moment
+CREME_GET_EMAIL_SSL_KEYFILE  = ""  # Not used for the moment
+CREME_GET_EMAIL_SSL_CERTFILE = ""  # Not used for the moment
 
 # Only for job. Default user id which will handle the synchronization
 # User used to synchronize mails with management command.
@@ -808,13 +807,13 @@ IS_ZPUSH = True
 # 1 = Server object replaces client object.
 CONFLICT_MODE = 1
 
-ACTIVE_SYNC_DEBUG = DEBUG # Make appears some debug informations on the UI
+ACTIVE_SYNC_DEBUG = DEBUG  # Make appears some debug informations on the UI
 
-LIMIT_SYNC_KEY_HISTORY = 50 # Number of sync_keys kept in db by user
+LIMIT_SYNC_KEY_HISTORY = 50  # Number of sync_keys kept in db by user
 
 CONNECTION_TIMEOUT = 150
 
-PICTURE_LIMIT_SIZE = 55000 # E.g: 55Ko Active sync servers don't handle pictures > to this size
+PICTURE_LIMIT_SIZE = 55000  # E.g: 55Ko Active sync servers don't handle pictures > to this size
 
 # TICKETS ----------------------------------------------------------------------
 TICKETS_TICKET_MODEL   = 'tickets.Ticket'
