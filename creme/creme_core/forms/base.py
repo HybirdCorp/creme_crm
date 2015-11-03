@@ -44,12 +44,12 @@ class _FieldBlock(object):
     def __init__(self, verbose_name, field_names):
         """
         @param verbose_name name of the block (displayed in the output)
-        @param field_names sequence of strings (fields names in the form) or string '*' (wildcard->all remainings fields)
+        @param field_names sequence of strings (fields names in the form) or string '*' (wildcard->all remaining fields)
         """
         self.name        = verbose_name
         self.field_names = list(field_names) if field_names != '*' else field_names
 
-    def __unicode__(self): #to debug
+    def __unicode__(self):  # For debugging
         return u'<_FieldBlock: %s %s>' % (self.name, self.field_names)
 
 
@@ -95,7 +95,7 @@ class FieldBlocksGroup(object):
                                         )
 
     def __getitem__(self, category):
-        """Beware: it pops the retreieved value (__getitem__ is more confortable
+        """Beware: it pops the retrieved value (__getitem__ is more comfortable
         to be used in templates than a classical method with an argument).
         @return A block descriptor (see FieldBlocksGroup doc string).
         """
@@ -117,15 +117,18 @@ class FieldBlockManager(object):
                       3rd element can be instead a wildcard (the string '*') which mean 'all remaining fields'.
                       Only zero or one wildcard is allowed.
         """
-        #beware: use a list comprehension instead of a generator expression with this constructor
+        # Beware: use a list comprehension instead of a generator expression with this constructor
         self.__blocks = OrderedDict([(cat, _FieldBlock(name, field_names)) for cat, name, field_names in blocks])
 
     def new(self, *blocks):
         """Create a clone of self, updated with new blocks.
         @param blocks see __init__(). New blocks are merged with self's blocks.
         """
-        merged_blocks = OrderedDict([(cat, _FieldBlock(block.name, block.field_names)) for cat, block in self.__blocks.iteritems()])
-        to_add        = []
+        merged_blocks = OrderedDict([(cat, _FieldBlock(block.name, block.field_names))
+                                        for cat, block in self.__blocks.iteritems()
+                                    ]
+                                   )
+        to_add = []
 
         for cat, name, fields in blocks:
             field_block = merged_blocks.get(cat)
@@ -134,13 +137,13 @@ class FieldBlockManager(object):
                 field_block.name = name
                 field_block.field_names.extend(fields)
             else:
-                to_add.append((cat, _FieldBlock(name, fields))) #can't add during iteration
+                to_add.append((cat, _FieldBlock(name, fields)))  # Can't add during iteration
 
         for cat, field_block in to_add:
             merged_blocks[cat] = field_block
 
         fdm = FieldBlockManager()
-        fdm.__blocks = merged_blocks #bof....
+        fdm.__blocks = merged_blocks  # Yerk....
 
         return fdm
 
@@ -154,10 +157,10 @@ class FieldBlockManager(object):
 
 
 class HookableForm(object):
-    #Beware: use related method to manipulate
-    _creme_post_clean_callbacks = () # ==> add_post_clean_callback()
-    _creme_post_init_callbacks  = () # ==> add_post_init_callback()
-    _creme_post_save_callbacks  = () # ==> add_post_save_callback()
+    # Beware: use related method to manipulate
+    _creme_post_clean_callbacks = ()  # ==> add_post_clean_callback()
+    _creme_post_init_callbacks  = ()  # ==> add_post_init_callback()
+    _creme_post_save_callbacks  = ()  # ==> add_post_save_callback()
 
     @classmethod
     def __add_callback(cls, attrname, callback):
@@ -208,7 +211,7 @@ class CremeForm(Form, HookableForm):
         self.user = user
 
         for fn, field in self.fields.iteritems():
-            field.user = user #used by CreatorModelChoiceField for example
+            field.user = user  # Used by CreatorModelChoiceField for example
 
         self._creme_post_init()
 
@@ -236,7 +239,7 @@ class CremeModelForm(ModelForm, HookableForm):
         self.user = user
 
         for fn, field in self.fields.iteritems():
-            field.user = user #used by CreatorModelChoiceField for example
+            field.user = user  # Used by CreatorModelChoiceField for example
 
         self.fields_configs = fc = FieldsConfig.LocalCache()
         fc.get_4_model(self.instance.__class__).update_form_fields(self.fields)
@@ -261,7 +264,7 @@ class CremeModelWithUserForm(CremeModelForm):
     user = ModelChoiceField(label=_('Owner user'), empty_label=None,
 #                            queryset=get_user_model().objects.filter(is_staff=False),
                             queryset=None,
-                           ) #label=_('User')
+                           )
 
     def __init__(self, user, *args, **kwargs):
         super(CremeModelWithUserForm, self).__init__(user=user, *args, **kwargs)
@@ -281,9 +284,9 @@ class CremeEntityForm(CremeModelWithUserForm):
         assert self.instance, CremeEntity
         self._build_customfields()
 
-        #TODO: move in CremeModelForm ???
-        #Populate help_text in form widgets
-        #Rule is form field help text or model field help text
+        # TODO: move in CremeModelForm ???
+        # Populate help_text in form widgets
+        # Rule is form field help text or model field help text
         for field_name, form_field in self.fields.iteritems():
             try:
                 model_field = self.instance._meta.get_field(field_name)
@@ -297,7 +300,7 @@ class CremeEntityForm(CremeModelWithUserForm):
 
         fields = self.fields
 
-        #TODO: why not use cfield.id as 'i' ??
+        # TODO: why not use cfield.id as 'i' ??
         for i, (cfield, cvalue) in enumerate(self._customs):
             fields[_CUSTOM_NAME % i] = cfield.get_formfield(cvalue)
 
@@ -306,7 +309,7 @@ class CremeEntityForm(CremeModelWithUserForm):
         cleaned_data = self.cleaned_data
 
         for i, (custom_field, custom_value) in enumerate(self._customs):
-            value = cleaned_data[_CUSTOM_NAME % i] #TODO: factorize with _build_customfields() ?
+            value = cleaned_data[_CUSTOM_NAME % i]  # TODO: factorize with _build_customfields() ?
             CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
 
         return instance
