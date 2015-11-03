@@ -28,12 +28,14 @@ class ReportsConfig(CremeAppConfig):
     verbose_name = _(u'Reports')
     dependencies = ['creme.creme_core']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_report_model, get_rgraph_model
 
         self.Report = get_report_model()
         self.ReportGraph = get_rgraph_model()
-        super(ReportsConfig, self).ready()
+#        super(ReportsConfig, self).ready()
+        super(ReportsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('reports', _(u'Reports'), '/reports')

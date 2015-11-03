@@ -28,12 +28,14 @@ class RecurrentsConfig(CremeAppConfig):
     verbose_name = _(u'Recurrent documents')
     dependencies = ['creme.creme_core']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_rgenerator_model
 
         self.RecurrentGenerator = get_rgenerator_model()
 
-        super(RecurrentsConfig, self).ready()
+#        super(RecurrentsConfig, self).ready()
+        super(RecurrentsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('recurrents', _(u'Recurrent documents'), '/recurrents')

@@ -28,8 +28,10 @@ class ActivesyncConfig(CremeAppConfig):
     verbose_name = _(u'Mobile synchronization')
     dependencies = ['creme.persons', 'creme.activities']
 
-    def ready(self):
-        super(ActivesyncConfig, self).ready()
+#    def ready(self):
+#        super(ActivesyncConfig, self).ready()
+    def all_apps_ready(self):
+        super(ActivesyncConfig, self).all_apps_ready()
 
         from . import signals
 

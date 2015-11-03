@@ -33,13 +33,15 @@ class OpportunitiesConfig(CremeAppConfig):
     verbose_name = _(u'Opportunities')
     dependencies = ['creme.persons', 'creme.products']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from django.apps import apps
 
         from . import get_opportunity_model
 
         self.Opportunity = get_opportunity_model()
-        super(OpportunitiesConfig, self).ready()
+#        super(OpportunitiesConfig, self).ready()
+        super(OpportunitiesConfig, self).all_apps_ready()
 
         if self.MIGRATION_MODE:
             return

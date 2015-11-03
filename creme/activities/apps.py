@@ -28,11 +28,13 @@ class ActivitiesConfig(CremeAppConfig):
     verbose_name = _(u'Activities')
     dependencies = ['creme.persons', 'creme.assistants']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_activity_model
 
         self.Activity = get_activity_model()
-        super(ActivitiesConfig, self).ready()
+#        super(ActivitiesConfig, self).ready()
+        super(ActivitiesConfig, self).all_apps_ready()
 
         from . import signals
 

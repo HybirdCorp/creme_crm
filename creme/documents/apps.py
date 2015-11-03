@@ -28,12 +28,14 @@ class DocumentsConfig(CremeAppConfig):
     verbose_name = _(u'Documents')
     dependencies = ['creme.creme_core']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_document_model, get_folder_model
 
         self.Document = get_document_model()
         self.Folder   = get_folder_model()
-        super(DocumentsConfig, self).ready()
+#        super(DocumentsConfig, self).ready()
+        super(DocumentsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('documents', _(u'Documents'), '/documents')

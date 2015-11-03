@@ -28,12 +28,14 @@ class ProductsConfig(CremeAppConfig):
     verbose_name = _(u'Products and services')
     dependencies = ['creme.media_managers']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_product_model, get_service_model
 
         self.Product = get_product_model()
         self.Service = get_service_model()
-        super(ProductsConfig, self).ready()
+#        super(ProductsConfig, self).ready()
+        super(ProductsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('products', _(u'Products and services'), '/products')

@@ -2,6 +2,37 @@
 
 __version__ = '1.6 beta'
 
+# App registry hooking ---------------------------------------------------------
+
+from django.apps.config import AppConfig
+from django.apps.registry import Apps
+
+
+AppConfig.all_apps_ready = lambda self: None
+
+_original_populate = Apps.populate
+
+
+def _hooked_populate(self, installed_apps=None):
+    if self.ready:
+        return
+
+    if getattr(self, '_all_apps_ready', False):
+        return
+
+    _original_populate(self, installed_apps)
+
+    with self._lock:
+        if getattr(self, '_all_apps_ready', False):
+            return
+
+        for app_config in self.get_app_configs():
+            app_config.all_apps_ready()
+
+        self._all_apps_ready = True
+
+Apps.populate = _hooked_populate
+
 # TODO: to be removed, it seems fixed in Django 1.8.5
 ## FIX DJANGO 1.8.X #############################################################
 ## There's a bug with Django 1.8 migration code, which crashes with

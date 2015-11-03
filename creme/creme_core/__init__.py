@@ -24,8 +24,6 @@ import warnings
 
 #from django.conf import settings
 
-from creme.creme_core.core.field_tags import _add_tags_to_fields
-
 
 #logger = logging.getLogger(__name__)
 
@@ -44,6 +42,9 @@ def autodiscover():
     warnings.warn("creme_core.autodiscover() function is deprecated.",
                   DeprecationWarning
                  )
+
+# Model Fields Hooking ---------------------------------------------------------
+from creme.creme_core.core.field_tags import _add_tags_to_fields
 
 _add_tags_to_fields()
 

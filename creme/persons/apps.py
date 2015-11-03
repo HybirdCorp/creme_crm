@@ -30,13 +30,15 @@ class PersonsConfig(CremeAppConfig):
     verbose_name = _(u'Accounts and Contacts')
     dependencies = ['creme.creme_core']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import get_contact_model, get_organisation_model, get_address_model
 
         self.Contact = get_contact_model()
         self.Organisation = get_organisation_model()
         self.Address = get_address_model()
-        super(PersonsConfig, self).ready()
+#        super(PersonsConfig, self).ready()
+        super(PersonsConfig, self).all_apps_ready()
         self.hook_user()
         self.hook_user_form()
 

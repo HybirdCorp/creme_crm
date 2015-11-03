@@ -28,7 +28,8 @@ class EmailsConfig(CremeAppConfig):
     verbose_name = _(u'Emails')
     dependencies = ['creme.persons', 'creme.documents', 'creme.crudity']
 
-    def ready(self):
+#    def ready(self):
+    def all_apps_ready(self):
         from . import (get_emailcampaign_model, get_entityemail_model,
                 get_emailtemplate_model, get_mailinglist_model)
 
@@ -36,7 +37,8 @@ class EmailsConfig(CremeAppConfig):
         self.EmailTemplate = get_emailtemplate_model()
         self.EntityEmail   = get_entityemail_model()
         self.MailingList   = get_mailinglist_model()
-        super(EmailsConfig, self).ready()
+#        super(EmailsConfig, self).ready()
+        super(EmailsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('emails', _(u'Emails'), '/emails')
