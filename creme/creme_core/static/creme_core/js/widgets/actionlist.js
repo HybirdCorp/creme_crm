@@ -73,19 +73,21 @@ creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
                                                            popupDraggable: true,
                                                            popupWidth: window.screen.width / 2,
                                                            popupHeight: 356,
-                                                           url: '',
-                                                           title: ''});
+                                                           popupUrl: '',
+                                                           popupTitle: ''});
 
-        options.url = new creme.utils.Template(options.url).render(this._context);
-        options.title = new creme.utils.Template(options.title).render(this._context);
+        options.url = new creme.utils.Template(options.popupUrl).render(this._context);
+        options.title = new creme.utils.Template(options.popupTitle).render(this._context);
         return options;
     },
 
     updateButtonState: function()
     {
         var dialog_options = this._dialogOptions();
-        this._button.toggleAttr('disabled', Object.isEmpty(dialog_options.url));
-        this._button.text(dialog_options.title || gettext('Add'))
+        var label = dialog_options.title || gettext('Add');
+
+        this._button.toggleAttr('disabled', Object.isEmpty(dialog_options.url))
+                    .text(label);
     },
 
     _run: function(options)
