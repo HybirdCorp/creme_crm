@@ -566,9 +566,7 @@ class CTEntitySelector(ChainedInput):
                               )
 
         if self.creator:
-            actions.add_action('create', _(u'Add'), url='${ctype.create}',
-                               title='${ctype.create_label}',
-                              )
+            actions.add_action('create', _(u'Add'), popupUrl='${ctype.create}', popupTitle='${ctype.create_label}')
 
         self.add_input('entity', widget=actions)
 
