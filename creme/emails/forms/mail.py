@@ -61,8 +61,8 @@ class EntityEmailForm(CremeEntityForm):
     """
     sender       = EmailField(label=_(u'Sender'))
 
-    c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False})
-    o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False})
+    c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False, 'email__gt': ''})
+    o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False, 'email__gt': ''})
 
 #    body_html    = CharField(label=_(u'Body'), widget=TinyMCEEditor())
 
