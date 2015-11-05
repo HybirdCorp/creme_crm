@@ -400,6 +400,38 @@ class EntityEmailTestCase(_EmailsTestCase):
                              _(u'Select at least a Contact or an Organisation')
                             )
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_createview_empty_email(self):
+        "Empty email adress"
+        user = self.login()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        contact01 = create_contact(first_name='Vincent', last_name='Law',email=None)
+        contact02 = create_contact(first_name='Pino', last_name='AutoReiv', email='pino@autoreivs.rmd')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='Venus gate', email='')
+        orga02 = create_orga(name='Nerv',       email='contact@nerv.jp') #ok
+
+        response = self.assertPOST200(self._build_send_url(contact01),
+                                      data={'user':         user.id,
+                                            #'sender':       self.user_contact.email,
+                                            'sender':       user.linked_contact.email,
+                                            'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
+                                            'o_recipients': '[%d,%d]' % (orga01.id, orga02.id),
+                                            'subject':      'Under arrest',
+                                            'body':         'Freeze !',
+                                            'body_html':    '<p>Freeze !</p>',
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'c_recipients',
+                             _(u"This entity doesn't exist.")
+                            )
+        self.assertFormError(response, 'form', 'o_recipients',
+                             _(u"This entity doesn't exist.")
+                            )
+
     @skipIfCustomEmailTemplate
     @skipIfCustomContact
     def test_create_from_template01(self):
