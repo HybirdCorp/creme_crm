@@ -63,7 +63,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 .ui-creme-selectorlist .selectors { margin-bottom:2;}
 
 .ui-creme-selectorlist[disabled] img.delete { display: none; }
-.ui-creme-selectorlist[disabled] button[type="button"].ui-creme-actionbutton {
+.ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton {
     display: none;
 }
 
