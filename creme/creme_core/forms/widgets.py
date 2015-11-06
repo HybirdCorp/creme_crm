@@ -664,7 +664,7 @@ class EntityCreatorWidget(ActionButtonList):
             url = self.creation_url
             if url:
                 allowed = self.creation_allowed
-                self.add_action('create', model.creation_label, enabled=allowed, url=url,
+                self.add_action('create', model.creation_label, enabled=allowed, popupUrl=url,
                                 title=_(u'Create') if allowed else _(u"Can't create"),
                                )
 
@@ -709,7 +709,7 @@ class MultiEntityCreatorWidget(SelectorList):
             url = self.creation_url
             if url:
                 allowed = self.creation_allowed
-                add_action('create', model.creation_label, enabled=allowed, url=url,
+                add_action('create', model.creation_label, enabled=allowed, popupUrl=url,
                             title=_(u'Create') if allowed else _(u"Can't create")
                            )
 
