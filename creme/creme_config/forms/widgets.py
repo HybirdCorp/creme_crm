@@ -41,7 +41,7 @@ class CreatorModelChoiceWidget(Select):
                                  )
 
         allowed = self.creation_allowed
-        widget.add_action('create', _(u'Add'), enabled=allowed, url=url,
+        widget.add_action('create', _(u'Add'), enabled=allowed, popupUrl=url,
                           title=_(u'Add') if allowed else _(u"Can't add"),
                          )
 
