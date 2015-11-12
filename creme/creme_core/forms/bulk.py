@@ -25,6 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.fields.related import ForeignKey, RelatedField, ManyToManyField
+from django.db.models.query_utils import Q
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.models import ModelMultipleChoiceField #model_to_dict
@@ -142,26 +143,43 @@ class BulkForm(CremeForm):
     def _bulk_related_formfield(self, model_field, user, instance=None):
         form_field = model_field.formfield()
         related_to = model_field.rel.to
+        q_filter = None
 
-        if isinstance(model_field, ForeignKey):
-            if issubclass(related_to, CremeEntity):
+        if hasattr(model_field, 'limit_choices_to'):
+            related_filter = model_field.limit_choices_to
+            q_filter = related_filter() if callable(related_filter) else related_filter
+
+        if issubclass(related_to, CremeEntity):
+            if isinstance(q_filter, Q):
+                raise ValueError('Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
+
+            if isinstance(model_field, ForeignKey):
                 form_field = CreatorEntityField(model=related_to, label=form_field.label,
                                                 required=form_field.required,
+                                                q_filter=q_filter,
                                                )
-            else:
-                form_field = CreatorModelChoiceField(queryset=related_to.objects.all(),
-                                                     label=form_field.label,
-                                                     required=form_field.required,
-                                                    )
-        elif isinstance(model_field, ManyToManyField):
-            if issubclass(related_to, CremeEntity):
+            elif isinstance(model_field, ManyToManyField):
                 form_field = MultiCreatorEntityField(model=related_to,
                                                      label=form_field.label,
                                                      required=form_field.required,
+                                                     q_filter=q_filter,
                                                     )
+        else:
+            if isinstance(q_filter, Q):
+                choices = related_to.objects.filter(q_filter)
+            elif q_filter:
+                choices = related_to.objects.filter(**q_filter)
             else:
+                choices = related_to.objects.all()
+
+            if isinstance(model_field, ForeignKey):
+                form_field = CreatorModelChoiceField(queryset=choices,
+                                                     label=form_field.label,
+                                                     required=form_field.required,
+                                                    )
+            elif isinstance(model_field, ManyToManyField):
                 form_field = ModelMultipleChoiceField(label=form_field.label,
-                                                      queryset=related_to.objects.all(),
+                                                      queryset=choices,
                                                       required=form_field.required,
                                                       widget=UnorderedMultipleChoiceWidget,
                                                      )

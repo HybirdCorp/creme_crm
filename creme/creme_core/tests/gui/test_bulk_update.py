@@ -1,15 +1,26 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from datetime import datetime
     from functools import partial
     from itertools import chain
 
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models.query_utils import Q
+    from django.forms.models import ModelMultipleChoiceField
+    from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase # skipIfNotInstalled
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeAddress as Address,
-            FakeImage as Image, FakeActivity)
+            FakeCivility as Civility,
+            FakeImageCategory as ImageCategory,
+            FakeImage as Image, FakeActivity,
+            FakeEmailCampaign as EmailCampaign)
+
+    from creme.creme_config.forms.fields import CreatorModelChoiceField
+
+    from creme.creme_core.forms.fields import CreatorEntityField, MultiCreatorEntityField
     from creme.creme_core.forms.bulk import BulkDefaultEditForm
     from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry, FieldNotAllowed
     from creme.creme_core.models.custom_field import CustomField
@@ -30,6 +41,18 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def setUp(self):
         self.bulk_update_registry = _BulkUpdateRegistry()
         self.maxDiff = None
+
+    def tearDown(self):
+        self.remove_field_attr(Contact, 'image', 'limit_choices_to')
+        self.remove_field_attr(Contact, 'civility', 'limit_choices_to')
+        self.remove_field_attr(Image, 'categories', 'limit_choices_to')
+        self.remove_field_attr(EmailCampaign, 'mailing_lists', 'limit_choices_to')
+
+    def remove_field_attr(self, model, fieldname, attr):
+        field = model._meta.get_field(fieldname)
+
+        if hasattr(field, attr):
+            delattr(field, attr)
 
     def sortFields(self, fields):
         sort_key = collator.sort_key
@@ -310,7 +333,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 #        self.assertIsNone(bulk_update_registry.status(Activity).get_form('type'))
 #
 #        self.assertTrue(is_bulk_updatable(field_name='start'))
-#        self.assertEquals(_ActivityInnerStart, bulk_update_registry.status(Activity).get_form('start'))
+#        self.assertEqual(_ActivityInnerStart, bulk_update_registry.status(Activity).get_form('start'))
         is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Contact)
 
         class _ContactInnerBirthday(BulkDefaultEditForm):
@@ -324,7 +347,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertIsNone(bulk_update_registry.status(Contact).get_form('position'))
 
         self.assertTrue(is_bulk_updatable(field_name='birthday'))
-        self.assertEquals(_ContactInnerBirthday,
+        self.assertEqual(_ContactInnerBirthday,
                           bulk_update_registry.status(Contact).get_form('birthday')
                          )
 
@@ -366,20 +389,20 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 #        # subclass inherits inner forms from base class
 #        self.assertTrue(is_bulk_updatable(model=Contact,    field_name='first_name'))
 #        self.assertTrue(is_bulk_updatable(model=SubContact, field_name='first_name'))
-#        self.assertEquals(_ContactInnerEditForm, status(Contact).get_form('first_name'))
-#        self.assertEquals(_ContactInnerEditForm, status(SubContact).get_form('first_name'))
+#        self.assertEqual(_ContactInnerEditForm, status(Contact).get_form('first_name'))
+#        self.assertEqual(_ContactInnerEditForm, status(SubContact).get_form('first_name'))
 #
 #        # base class ignore changes of inner form made for subclass
 #        self.assertTrue(is_bulk_updatable(model=Contact, field_name='birthday'))
 #        self.assertTrue(is_bulk_updatable(model=SubContact, field_name='birthday'))
 #        self.assertIsNone(status(Contact).get_form('birthday'))
-#        self.assertEquals(_SubContactInnerEdit, status(SubContact).get_form('birthday'))
+#        self.assertEqual(_SubContactInnerEdit, status(SubContact).get_form('birthday'))
 #
 #        # subclass force bulk form for field
 #        self.assertTrue(is_bulk_updatable(model=Contact, field_name='last_name'))
 #        self.assertTrue(is_bulk_updatable(model=SubContact, field_name='last_name'))
-#        self.assertEquals(_ContactInnerEditForm, status(Contact).get_form('last_name'))
-#        self.assertEquals(_SubContactInnerEdit, status(SubContact).get_form('last_name'))
+#        self.assertEqual(_ContactInnerEditForm, status(Contact).get_form('last_name'))
+#        self.assertEqual(_SubContactInnerEdit, status(SubContact).get_form('last_name'))
 #
 #    def test_innerforms_inherit02(self):
 #        "Inheritance : registering child first"
@@ -411,14 +434,14 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 #
 #        status = bulk_update_registry.status
 #        self.assertTrue(is_bulk_updatable(model=SubContact, field_name='birthday'))
-#        self.assertEquals(_ContactInnerEditForm, status(Contact).get_form('birthday'))
-#        self.assertEquals(_ContactInnerEditForm, status(SubContact).get_form('birthday'))
+#        self.assertEqual(_ContactInnerEditForm, status(Contact).get_form('birthday'))
+#        self.assertEqual(_ContactInnerEditForm, status(SubContact).get_form('birthday'))
 #
 #        self.assertIsNone(bulk_update_registry.status(Contact).get_form('first_name'))
-#        self.assertEquals(_SubContactInnerEdit, status(SubContact).get_form('first_name'))
+#        self.assertEqual(_SubContactInnerEdit, status(SubContact).get_form('first_name'))
 #
-#        self.assertEquals(_ContactInnerEditForm, status(Contact).get_form('last_name'))
-#        self.assertEquals(_SubContactInnerEdit,  status(SubContact).get_form('last_name'))
+#        self.assertEqual(_ContactInnerEditForm, status(Contact).get_form('last_name'))
+#        self.assertEqual(_SubContactInnerEdit,  status(SubContact).get_form('last_name'))
 
     def test_subfield_innerforms(self):
         user = self.login()
@@ -465,6 +488,142 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         form = bulk_update_registry.get_form(Contact, 'address__zipcode', BulkDefaultEditForm)\
                                             (user=user, entities=[contact])
         self.assertIsInstance(form, BulkDefaultEditForm)
+
+    def test_fk_innerform(self):
+        user = self.login()
+
+        bulk_update_registry = self.bulk_update_registry
+        bulk_update_registry.register(Contact)
+
+        civility_field = Contact._meta.get_field('civility')
+        self.assertFalse(hasattr(civility_field, 'limit_choices_to'))
+
+        contact = Contact.objects.create(first_name='A', last_name='B', user=user)
+
+        form = BulkDefaultEditForm(civility_field, user, [contact])
+        self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
+        self.assertQuerysetEqual(Civility.objects.all(), form.fields['field_value'].queryset)
+
+        civility_field.limit_choices_to = {'title': _('Mister')}
+
+        form = BulkDefaultEditForm(civility_field, user, [contact])
+        self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
+        self.assertQuerysetEqual(Civility.objects.filter(title=_('Mister')), form.fields['field_value'].queryset)
+
+        civility_field.limit_choices_to = ~Q(**{'title': _('Mister')})
+
+        form = BulkDefaultEditForm(civility_field, user, [contact])
+        self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
+        self.assertQuerysetEqual(Civility.objects.exclude(title=_('Mister')), form.fields['field_value'].queryset)
+
+        civility_field.limit_choices_to = lambda: {'title': _('Miss')}
+
+        form = BulkDefaultEditForm(civility_field, user, [contact])
+        self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
+        self.assertQuerysetEqual(Civility.objects.filter(title=_('Miss')), form.fields['field_value'].queryset)
+
+    def test_fk_entity_innerform(self):
+        user = self.login()
+
+        bulk_update_registry = self.bulk_update_registry
+        bulk_update_registry.register(Contact)
+
+        image_field = Contact._meta.get_field('image')
+        self.assertFalse(hasattr(image_field, 'limit_choices_to'))
+
+        contact = Contact.objects.create(first_name='A', last_name='B', user=user)
+
+        form = BulkDefaultEditForm(image_field, user, [contact])
+        self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
+        self.assertIsNone(form.fields['field_value'].q_filter)
+
+        image_field.limit_choices_to = {'name': 'A'}
+
+        form = BulkDefaultEditForm(image_field, user, [contact])
+        self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
+        self.assertDictEqual({'name': 'A'}, form.fields['field_value'].q_filter)
+
+        image_field.limit_choices_to = ~Q(**{'name': 'B'})
+
+        with self.assertRaises(ValueError) as err:
+            BulkDefaultEditForm(image_field, user, [contact])
+
+        self.assertEqual(str(err.exception), 'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
+
+        today = datetime.today()
+        image_field.limit_choices_to = lambda: {'created__lte': today}
+
+        form = BulkDefaultEditForm(image_field, user, [contact])
+        self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
+        self.assertDictEqual({'created__lte': today}, form.fields['field_value'].q_filter)
+
+    def test_manytomany_innerform(self):
+        user = self.login()
+
+        bulk_update_registry = self.bulk_update_registry
+        bulk_update_registry.register(Image)
+
+        categories_field = Image._meta.get_field('categories')
+        self.assertFalse(hasattr(categories_field, 'limit_choices_to'))
+
+        image = Image.objects.create(name='A', user=user)
+
+        form = BulkDefaultEditForm(categories_field, user, [image])
+        self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
+        self.assertQuerysetEqual(ImageCategory.objects.all(), form.fields['field_value'].queryset)
+
+        categories_field.limit_choices_to = {'name': 'A'}
+
+        form = BulkDefaultEditForm(categories_field, user, [image])
+        self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
+        self.assertQuerysetEqual(ImageCategory.objects.filter(name='A'), form.fields['field_value'].queryset)
+
+        categories_field.limit_choices_to = ~Q(**{'name': 'A'})
+
+        form = BulkDefaultEditForm(categories_field, user, [image])
+        self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
+        self.assertQuerysetEqual(ImageCategory.objects.exclude(name='A'), form.fields['field_value'].queryset)
+
+        categories_field.limit_choices_to = lambda: {'name': 'B'}
+
+        form = BulkDefaultEditForm(categories_field, user, [image])
+        self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
+        self.assertQuerysetEqual(ImageCategory.objects.filter(name='B'), form.fields['field_value'].queryset)
+
+    def test_manytomany_entity_innerform(self):
+        user = self.login()
+
+        bulk_update_registry = self.bulk_update_registry
+        bulk_update_registry.register(EmailCampaign)
+
+        mailing_lists_field = EmailCampaign._meta.get_field('mailing_lists')
+        self.assertFalse(hasattr(mailing_lists_field, 'limit_choices_to'))
+
+        campaign = EmailCampaign.objects.create(name='A', user=user)
+
+        form = BulkDefaultEditForm(mailing_lists_field, user, [campaign])
+        self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
+        self.assertIsNone(form.fields['field_value'].q_filter)
+
+        mailing_lists_field.limit_choices_to = {'name': 'A'}
+
+        form = BulkDefaultEditForm(mailing_lists_field, user, [campaign])
+        self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
+        self.assertDictEqual({'name': 'A'}, form.fields['field_value'].q_filter)
+
+        mailing_lists_field.limit_choices_to = ~Q(**{'name': 'A'})
+
+        with self.assertRaises(ValueError) as err:
+            BulkDefaultEditForm(mailing_lists_field, user, [campaign])
+
+        self.assertEqual(str(err.exception), 'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
+
+        today = datetime.today()
+        mailing_lists_field.limit_choices_to = lambda: {'created__lte': today}
+
+        form = BulkDefaultEditForm(mailing_lists_field, user, [campaign])
+        self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
+        self.assertDictEqual({'created__lte': today}, form.fields['field_value'].q_filter)
 
     #def test_bulk_update_registry04_1(self): # Inheritance test case Parent / Child
         #bulk_update_registry = self.bulk_update_registry
