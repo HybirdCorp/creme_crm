@@ -718,24 +718,22 @@ class MultiEntityCreatorWidget(SelectorList):
 
 
 class FilteredEntityTypeWidget(ChainedInput):
-    def __init__(self, content_types=(), attrs=None, autocomplete=False):
+    def __init__(self, content_types=(), attrs=None, autocomplete=True):
         super(FilteredEntityTypeWidget, self).__init__(attrs)
         self.content_types = content_types
         self.autocomplete = autocomplete
 
     def render(self, name, value, attrs=None):
         add_dselect = partial(self.add_dselect,
-                              attrs={'auto': False, 'autocomplete': True}
-                                    if self.autocomplete else
-                                    {'auto': False},
+                              attrs={'auto': False, 'autocomplete': self.autocomplete},
                              )
         ctype_name = 'ctype'
-        add_dselect(ctype_name, options=self.content_types, attrs=attrs)
+        add_dselect(ctype_name, options=self.content_types)
 
         # TODO: 'all' as GET parameter ??
         # TODO: allow to omit the 'All' filter ??
         # TODO: do not make a request for ContentType ID == '0'
-        add_dselect('efilter', attrs=attrs,
+        add_dselect('efilter',
                     options='/creme_core/entity_filter/get_for_ctype/${%s}/all' % ctype_name,
                    )
 
