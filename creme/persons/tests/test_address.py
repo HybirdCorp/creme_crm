@@ -247,8 +247,7 @@ class AddressTestCase(CremeTestCase):
 
         self.assertTrue(Address(address='21 jump street', country='Yeeeha'))
 
-    def test_unicode(self):
-        name = 'Address#1'
+    def test_unicode01(self):
         address_value = '21 jump street'
         po_box = 'Popop'
         zipcode = '424242'
@@ -257,14 +256,14 @@ class AddressTestCase(CremeTestCase):
         state = '??'
         country = 'wtf'
 
-        address = Address(name=name,
+        address = Address(name='Address#1',
                           address=address_value,
                           po_box=po_box,
                           zipcode=zipcode,
                           city=city,
                           department=department,
                           state=state,
-                          country=country
+                          country=country,
                          )
         self.assertEqual(u'%s %s %s %s' % (address_value, zipcode, city, department),
                          unicode(address)
@@ -283,6 +282,31 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual('%s %s %s' % (po_box, state, country),
                          unicode(Address(po_box=po_box, state=state, country=country))
                         )
+
+    def test_unicode02(self):
+        FieldsConfig.create(Address,
+                            descriptions=[('zipcode',    {FieldsConfig.HIDDEN: True}),
+                                          ('department', {FieldsConfig.HIDDEN: True}),
+                                          ('state',      {FieldsConfig.HIDDEN: True}),
+                                         ],
+                           )
+
+        address_value = '21 jump street'
+        po_box = 'Popop'
+        city = 'Atlantis'
+        state = '??'
+        address = Address(name='Address#1',
+                          address=address_value,
+                          po_box=po_box,
+                          zipcode='424242',
+                          city=city,
+                          department='rucrazy',
+                          state=state,
+                          country='wtf',
+                         )
+        self.assertEqual(u'%s %s' % (address_value, city), unicode(address))
+
+        self.assertEqual(po_box, unicode(Address(po_box=po_box, state=state)))
 
     @skipIfCustomOrganisation
     def test_delete_orga(self):
