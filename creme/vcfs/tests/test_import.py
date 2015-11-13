@@ -582,28 +582,28 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf04(self):
+        "Related organisation exists & is not updated"
         self.login()
 
         contact_count = Contact.objects.count()
-        orga_count = Organisation.objects.count()
         orga = Organisation.objects.create(user=self.user, name='Corporate',
                                            phone='33 33 33 33 33', email='work@work.com',
                                            url_site='www.work.com',
                                           )
-        self.assertEqual(orga_count + 1, Organisation.objects.count())
+        orga_count = Organisation.objects.count()
 
         content = u"""BEGIN:VCARD
 FN:Haruna Saotome
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
-TEL;TYPE=WORK:33 33 33 33 33
+TEL;TYPE=WORK:44 44 44 44 44
 EMAIL;TYPE=HOME:email@email.com
-EMAIL;TYPE=WORK:work@work.com
-URL;TYPE=HOME:www.url.com
-URL;TYPE=WORK:www.work.com
-ORG:Corporate
-END:VCARD"""
+EMAIL;TYPE=WORK:work@work2.com
+URL;TYPE=HOME:www.url2.com
+URL;TYPE=WORK:www.work2.com
+ORG:%s
+END:VCARD""" % orga.name
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -612,6 +612,8 @@ END:VCARD"""
         fax        = fields['fax'].initial
         email      = fields['email'].initial
         url_site   = fields['url_site'].initial
+
+        self.assertEqual(orga.id, fields['organisation'].initial)
 
         self._post_step1(data={'user':          fields['user'].initial,
                                'first_name':    first_name,
@@ -627,19 +629,25 @@ END:VCARD"""
                                'organisation':          fields['organisation'].initial,
                                'relation':              REL_SUB_EMPLOYED_BY,
 
-                               'work_name':     fields['work_name'].initial,
-                               'work_phone':    fields['work_phone'].initial,
+                               'work_name':     orga.name + '_edited',  # <= should not be used,
+                               'work_phone':    fields['work_phone'].initial,  # <= idem
                                'work_email':    fields['work_email'].initial,
                                'work_url_site': fields['work_url_site'].initial,
                               }
                         )
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(orga_count + 1,    Organisation.objects.count())
+        self.assertEqual(orga_count,        Organisation.objects.count())
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name,
                                           phone=phone, mobile=mobile, fax=fax, email=email,
                                          )
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
+
+        orga_not_edited = self.refresh(orga)
+        self.assertEqual(orga.name,     orga_not_edited.name)
+        self.assertEqual(orga.email,    orga_not_edited.email)
+        self.assertEqual(orga.phone,    orga_not_edited.phone)
+        self.assertEqual(orga.url_site, orga_not_edited.url_site)
 
     @skipIfCustomContact
     @skipIfCustomAddress
@@ -793,47 +801,55 @@ END:VCARD"""
 
         contact_count = Contact.objects.count()
 
-        Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
-                                    email='corp@corp.com', url_site='www.corp.com',
-                                   )
+        orga = Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
+                                           email='corp@corp.com', url_site='www.corp.com',
+                                          )
+
+        orga_info = {
+            'name':     'New amazing name',
+            'phone':    '11 11 11 11',
+            'email':    'work@work.com',
+            'url_site': 'www.work.com',
+        }
         content = """BEGIN:VCARD
 FN:Setsuna Sakurazaki
 ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
-TEL;TYPE=WORK:11 11 11 11 11
-EMAIL;TYPE=WORK:work@work.com
-URL;TYPE=WORK:www.work.com
-ORG:Corporate
-END:VCARD"""
+TEL;TYPE=WORK:%(phone)s
+EMAIL;TYPE=WORK:%(email)s
+URL;TYPE=WORK:%(url_site)s
+ORG:%(name)s
+END:VCARD""" % orga_info
+
         fields = self._post_step0(content).context['form'].fields
-        response = self._post_step1(errors=True,
-                                    data={'user':       fields['user'].initial,
-                                          'first_name': fields['first_name'].initial,
-                                          'last_name':  fields['last_name'].initial,
+        data = {'user':       fields['user'].initial,
+                'first_name': fields['first_name'].initial,
+                'last_name':  fields['last_name'].initial,
 
-                                          'create_or_attach_orga': False,
-                                          'organisation':         fields['organisation'].initial,
-                                          'relation':             REL_SUB_EMPLOYED_BY,
+                'create_or_attach_orga': False,
+                'organisation':          fields['organisation'].initial,
+                'relation':              REL_SUB_EMPLOYED_BY,
 
-                                          'work_name':     fields['work_name'].initial,
-                                          'work_phone':    fields['work_phone'].initial,
-                                          'work_email':    fields['work_email'].initial,
-                                          'work_url_site': fields['work_url_site'].initial,
+                'work_name':     fields['work_name'].initial,
+                'work_phone':    fields['work_phone'].initial,
+                'work_fax':      '12345',
+                'work_email':    fields['work_email'].initial,
+                'work_url_site': fields['work_url_site'].initial,
 
-                                          'workaddr_name':     fields['workaddr_name'].initial,
-                                          'workaddr_address':  fields['workaddr_address'].initial,
-                                          'workaddr_city':     fields['workaddr_city'].initial,
-                                          'workaddr_country':  fields['workaddr_country'].initial,
-                                          'workaddr_code':     fields['workaddr_code'].initial,
-                                          'workaddr_region':   fields['workaddr_region'].initial,
+                'workaddr_name':     fields['workaddr_name'].initial,
+                'workaddr_address':  fields['workaddr_address'].initial,
+                'workaddr_city':     fields['workaddr_city'].initial,
+                'workaddr_country':  fields['workaddr_country'].initial,
+                'workaddr_code':     fields['workaddr_code'].initial,
+                'workaddr_region':   fields['workaddr_region'].initial,
 
-                                          'update_work_name':     True,
-                                          'update_work_phone':    True,
-                                          'update_work_email':    True,
-                                          'update_work_fax':      True,
-                                          'update_work_url_site': True,
-                                          'update_work_address':  True,
-                                         }
-                                    )
+                'update_work_name':     True,
+                'update_work_phone':    True,
+                'update_work_email':    True,
+                'update_work_fax':      True,
+                'update_work_url_site': True,
+                'update_work_address':  True,
+               }
+        response = self._post_step1(errors=True, data=data)
         validation_text = _(u'Create organisation not checked')
         self.assertFormError(response, 'form', 'update_work_name',     validation_text)
         self.assertFormError(response, 'form', 'update_work_phone',    validation_text)
@@ -842,6 +858,18 @@ END:VCARD"""
         self.assertFormError(response, 'form', 'update_work_url_site', validation_text)
 
         self.assertEqual(contact_count, Contact.objects.count())
+
+        # --------
+        data['create_or_attach_orga'] = True
+        data['organisation'] = orga.id
+        data['relation'] = REL_SUB_EMPLOYED_BY
+
+        self._post_step1(data=data)
+        orga = self.refresh(orga)
+        self.assertEqual(orga_info['name'],  orga.name)
+        self.assertEqual(orga_info['phone'], orga.phone)
+        self.assertEqual(orga_info['email'], orga.email)
+        self.assertEqual('http://' + orga_info['url_site'], orga.url_site)
 
     @skipIfCustomContact
     def test_add_contact_vcf08(self):
