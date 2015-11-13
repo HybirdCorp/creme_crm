@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-"""Generate a vCard from Contact object"""
+from creme.creme_core.models import FieldsConfig
 
 from creme.persons import get_address_model
 #from creme.persons.models import Address
@@ -31,71 +31,79 @@ Address = get_address_model()
 
 
 class VcfGenerator(object):
+    """Generate a vCard from Contact object"""
     def __init__(self, contact):
-#        self.first_name = contact.first_name    or ''
-#        self.last_name = contact.last_name
-#        self.civility = contact.civility
-#        self.phone = contact.phone
-#        self.mobile = contact.mobile            or ''
-#        self.fax = contact.fax                  or ''
-#        self.email = contact.email              or ''
-#        self.url = contact.url_site             or ''
-        self.first_name = getattr(contact, 'first_name', None) or ''
-        self.last_name  = getattr(contact, 'last_name', None) or ''
-        self.civility   = getattr(contact, 'civility', None)
-        self.phone      = getattr(contact, 'phone', None) #TODO: or ''  ??
-        self.mobile     = getattr(contact, 'mobile', None) or ''
-        self.fax        = getattr(contact, 'fax', None) or ''
-        self.email      = getattr(contact, 'email', None) or ''
-        self.url        = getattr(contact, 'url_site', None) or ''
+        is_hidden = FieldsConfig.get_4_model(contact.__class__).is_fieldname_hidden
 
-        # TODO Manage several employers
+        def get_field_value(fname, default=None):
+             return default if is_hidden(fname) else getattr(contact, fname, default)
+
+        self.first_name = get_field_value('first_name', None) or ''
+        self.last_name  = get_field_value('last_name', '')
+        self.civility   = get_field_value('civility')
+        self.phone      = get_field_value('phone')
+        self.mobile     = get_field_value('mobile')
+        self.fax        = get_field_value('fax')
+        self.email      = get_field_value('email')
+        self.url        = get_field_value('url_site')
+
+        # TODO: manage several employers
         #employer = contact.get_employers()[:1]
         #self.employer = employer[0] if employer else None
         self.employer = contact.get_employers().first()
 
-        self.address_field_names = Address.info_field_names()
+        self._address_field_names = set(Address.info_field_names())
         self.addresses = Address.objects.filter(object_id=contact.id).order_by('id')
 
 #    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
 #    @staticmethod
-#    def address_equality(address1, address2):  # TODO : overload __eq__() in Address?
+#    def address_equality(address1, address2):  # todo : overload __eq__() in Address?
     def address_equality(self, address1, address2):  # TODO : overload __eq__() in Address?
         if address1 is not None and address2 is not None:
             return all(getattr(address1, fname) == getattr(address2, fname)
-##                        for fname in VcfGenerator._INFO_FIELD_NAMES
-#                        for fname in Address.info_field_names()
-                        for fname in self.address_field_names
+#                        for fname in VcfGenerator._INFO_FIELD_NAMES
+                        for fname in self._address_field_names
                       )
 
         return False
 
-    @staticmethod
-    def generate_address(address):
-        return VcfAddress(address.address,
-                          address.city,
-                          address.department,
-                          address.zipcode,
-                          address.country,
-                          address.po_box,
+#    @staticmethod
+#    def generate_address(address):
+    def generate_address(self, address):
+        fnames = self._address_field_names
+        get_field_value = (lambda fname: '' if fname not in fnames else
+                                         getattr(address, fname) or '')
+
+        return VcfAddress(street=get_field_value('address'),
+                          city=get_field_value('city'),
+                          region=get_field_value('department'),
+                          code=get_field_value('zipcode'),
+                          country=get_field_value('country'),
+                          box=get_field_value('po_box'),
                          )
 
-    @staticmethod
-    def generate_name(last, first, civility=''):
-        return VcfName(last, first, '', civility, '')
+#    @staticmethod
+#    def generate_name(last, first, civility=''):
+#        return VcfName(last, first, '', civility, '')
 
     def serialize(self):
         vc = vCard()
 
+        last_name = self.last_name
+        first_name = self.first_name
+
         vc.add('n')
-        if self.civility:
-            vc.n.value = VcfGenerator.generate_name(self.last_name, self.first_name, self.civility.title)
-        else:
-            vc.n.value = VcfGenerator.generate_name(self.last_name, self.first_name)
+#        vc.n.value = VcfGenerator.generate_name(last_name, first_name, self.civility.title) \
+#                     if self.civility else \
+#                     VcfGenerator.generate_name(last_name, first_name)
+        civility = self.civility
+        vc.n.value = VcfName(family=last_name, given=first_name,
+                             prefix=civility.title if civility else '',
+                            )
 
         vc.add('fn')
-        vc.fn.value = self.first_name + ' ' + self.last_name
+        vc.fn.value = first_name + ' ' + last_name
 
 #        addr_equal = VcfGenerator.address_equality
         addr_equal = self.address_equality
@@ -105,8 +113,9 @@ class VcfGenerator(object):
                                 if not any(addr_equal(addr, other) for other in addresses)
                         )
 
+        generate_address = self.generate_address
         for address in addresses:
-            vc.add('adr').value = VcfGenerator.generate_address(address)
+            vc.add('adr').value = generate_address(address)
 
         if self.employer:
             vc.add('org')
