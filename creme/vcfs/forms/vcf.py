@@ -19,6 +19,7 @@
 ################################################################################
 
 import base64
+from itertools import chain
 import logging
 import os
 from urllib import urlretrieve
@@ -26,25 +27,26 @@ from urllib2 import urlopen
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.forms import (IntegerField,FileField, ModelChoiceField, CharField,
-                          EmailField, URLField, BooleanField, HiddenInput)
+        EmailField, URLField, BooleanField, HiddenInput)
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import (CremeForm, CremeEntityForm,
         CreatorEntityField, CremeModelWithUserForm)
 from creme.creme_core.forms.widgets import DynamicSelect
-from creme.creme_core.models import RelationType, Relation
+from creme.creme_core.models import RelationType, Relation, FieldsConfig
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from creme.creme_config.forms.fields import CreatorModelChoiceField
+# from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from creme.media_managers.models import Image
 
+from creme.persons import get_contact_model, get_organisation_model, get_address_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
-from creme.persons.models import Contact, Civility, Position, Organisation, Address
+from creme.persons.models import Civility, Position  # Contact Address Organisation
 
 from ..vcf_lib import readOne as read_vcf
 
@@ -52,6 +54,9 @@ from ..vcf_lib import readOne as read_vcf
 logger = logging.getLogger(__name__)
 URL_START = ('http://', 'https://', 'www.')
 IMG_UPLOAD_PATH = Image._meta.get_field('image').upload_to
+Contact = get_contact_model()
+Organisation = get_organisation_model()
+Address = get_address_model()
 
 
 class VcfForm(CremeForm):
@@ -73,64 +78,77 @@ class VcfForm(CremeForm):
 
         return vcf_data
 
+
 _get_ct = ContentType.objects.get_for_model
+
 
 class VcfImportForm(CremeModelWithUserForm):
     class Meta:
         model = Contact
-        fields = ('user',)
+        fields = ('user', 'civility', 'first_name', 'last_name', 'position')
 
-    vcf_step      = IntegerField(widget=HiddenInput)
+    vcf_step = IntegerField(widget=HiddenInput)
 
-    #civility      = ModelChoiceField(label=_('Civility'), required=False, queryset=Civility.objects.all())
-    civility      = CreatorModelChoiceField(label=_('Civility'), required=False, queryset=Civility.objects.all())
-    first_name    = CharField(label=_('First name'))
-    last_name     = CharField(label=_('Last name'))
-    #position      = ModelChoiceField(label=_('Position'), required=False, queryset=Position.objects.all())
-    position      = CreatorModelChoiceField(label=_('Position'), required=False, queryset=Position.objects.all())
+    # civility   = CreatorModelChoiceField(label=_('Civility'), required=False,
+    #                                      queryset=Civility.objects.all(),
+    #                                     )
+    # first_name = CharField(label=_('First name'))
+    # last_name  = CharField(label=_('Last name'))
+    # position   = CreatorModelChoiceField(label=_('Position'), required=False,
+    #                                      queryset=Position.objects.all(),
+    #                                     )
     image_encoded = CharField(required=False, widget=HiddenInput)
 
-    phone         = CharField(label=_('Phone number'),   required=False)
-    mobile        = CharField(label=_('Mobile'),         required=False)
-    fax           = CharField(label=_('Fax'),            required=False)
-    email         = EmailField(label=_('Email address'), required=False)
-    url_site      = URLField(label=_('Web Site'),        required=False)
-    adr_last_name = CharField(label=_('Name'),           required=False)
-    address       = CharField(label=_('Address'),        required=False)
-    city          = CharField(label=_('City'),           required=False)
-    country       = CharField(label=_('Country'),        required=False)
-    code          = CharField(label=_('Zip code'),       required=False)
-    region        = CharField(label=_('Region'),         required=False)
+    # Details
+    phone    = CharField(label=_('Phone number'),   required=False)
+    mobile   = CharField(label=_('Mobile'),         required=False)
+    fax      = CharField(label=_('Fax'),            required=False)
+    email    = EmailField(label=_('Email address'), required=False)
+    url_site = URLField(label=_('Web Site'),        required=False)
 
-    create_or_attach_orga = BooleanField(label=_('Create or attach organisation'), required=False, initial=False)
-    organisation          = CreatorEntityField(label=_('Organisation'), required=False, model=Organisation)
+    # Address
+    homeaddr_name     = CharField(label=_('Name'),     required=False)
+    homeaddr_address  = CharField(label=_('Address'),  required=False)
+    homeaddr_city     = CharField(label=_('City'),     required=False)
+    homeaddr_country  = CharField(label=_('Country'),  required=False)
+    homeaddr_code     = CharField(label=_('Zip code'), required=False)
+    homeaddr_region   = CharField(label=_('Region'),   required=False)
 
-    #TODO : Composite field
-    update_orga_name     = BooleanField(label=_('Update name'),     required=False, initial=False, help_text=_(u'Update organisation selected name'))
-    update_orga_phone    = BooleanField(label=_('Update phone'),    required=False, initial=False, help_text=_(u'Update organisation selected phone'))
-    update_orga_fax      = BooleanField(label=_('Update fax'),      required=False, initial=False, help_text=_(u'Update organisation selected fax'))
-    update_orga_email    = BooleanField(label=_('Update email'),    required=False, initial=False, help_text=_(u'Update organisation selected email'))
-    update_orga_url_site = BooleanField(label=_('Update web site'), required=False, initial=False, help_text=_(u'Update organisation selected web site'))
-    update_orga_address  = BooleanField(label=_('Update address'),  required=False, initial=False, help_text=_(u'Update organisation selected address'))
+    # Related Organisation
+    create_or_attach_orga = BooleanField(label=_('Create or attach organisation'),
+                                         required=False, initial=False,
+                                        )
+    organisation = CreatorEntityField(label=_('Organisation'), required=False, model=Organisation)
+    relation = ModelChoiceField(label=_('Position in the organisation'),
+                                #queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)),
+                                queryset=RelationType.objects.none(),
+                                initial=REL_SUB_EMPLOYED_BY, required=False,
+                                empty_label='',
+                                widget=DynamicSelect(attrs={'autocomplete': True}),
+                               )
 
-    relation      = ModelChoiceField(label=_('Position in the organisation'),
-                                     #queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)),
-                                     queryset=RelationType.objects.none(),
-                                     initial=REL_SUB_EMPLOYED_BY, required=False,
-                                     empty_label='',
-                                     widget=DynamicSelect(attrs={'autocomplete':True}),
-                                    )
+    # TODO: Composite field
+    update_work_name     = BooleanField(label=_('Update name'),     required=False, initial=False, help_text=_(u'Update organisation selected name'))
+    update_work_phone    = BooleanField(label=_('Update phone'),    required=False, initial=False, help_text=_(u'Update organisation selected phone'))
+    update_work_fax      = BooleanField(label=_('Update fax'),      required=False, initial=False, help_text=_(u'Update organisation selected fax'))
+    update_work_email    = BooleanField(label=_('Update email'),    required=False, initial=False, help_text=_(u'Update organisation selected email'))
+    update_work_url_site = BooleanField(label=_('Update web site'), required=False, initial=False, help_text=_(u'Update organisation selected web site'))
+    update_work_address  = BooleanField(label=_('Update address'),  required=False, initial=False, help_text=_(u'Update organisation selected address'))
+
+    # Organisation name & details
     work_name     = CharField(label=_('Name'),           required=False)
     work_phone    = CharField(label=_('Phone number'),   required=False)
     work_fax      = CharField(label=_('Fax'),            required=False)
     work_email    = EmailField(label=_('Email address'), required=False)
     work_url_site = URLField(label=_('Web Site'),        required=False)
-    work_adr_name = CharField(label=_('Name'),           required=False)
-    work_address  = CharField(label=_('Address'),        required=False)
-    work_city     = CharField(label=_('City'),           required=False)
-    work_country  = CharField(label=_('Country'),        required=False)
-    work_code     = CharField(label=_('Zip code'),       required=False)
-    work_region   = CharField(label=_('Region'),         required=False)
+
+    # Organisation address
+    workaddr_name    = CharField(label=_('Name'),     required=False)
+    workaddr_address = CharField(label=_('Address'),  required=False)
+    workaddr_city    = CharField(label=_('City'),     required=False)
+    workaddr_country = CharField(label=_('Country'),  required=False)
+    workaddr_code    = CharField(label=_('Zip code'), required=False)
+    workaddr_region  = CharField(label=_('Region'),   required=False)
 
     error_messages = {
         'required4orga': _(u'Required, if you want to create organisation'),
@@ -139,28 +157,54 @@ class VcfImportForm(CremeModelWithUserForm):
         'required2update': _(u'Required, if you want to update organisation'),
     }
 
-    blocks = CremeEntityForm.blocks.new(
-        ('coordinates',                  _(u'Coordinates'),                  ['phone', 'mobile', 'fax', 'email', 'url_site']),
-        ('contact_billing_address',      _(u'Billing address'),              ['adr_last_name', 'address', 'city', 'country', 'code', 'region']),
-        ('organisation',                 _(u'Organisation'),                 ['create_or_attach_orga', 'organisation', 'relation', 'update_orga_name', 'work_name', 'update_orga_phone', 'work_phone', 'update_orga_fax', 'work_fax', 'update_orga_email', 'work_email', 'update_orga_url_site', 'work_url_site']),
-        ('organisation_billing_address', _(u'Organisation billing address'), ['update_orga_address', 'work_adr_name', 'work_address', 'work_city', 'work_country', 'work_code', 'work_region']),
-    )
+    # Name of the fields corresponding to details.
+    contact_details = ['phone', 'mobile', 'fax', 'email', 'url_site']
+    orga_details    = ['phone', 'email', 'fax', 'url_site']
 
-    tel_dict = {'HOME': 'phone',
-                'CELL': 'mobile',
-                'FAX':  'fax',
-               }
-
+    # Correspondence between VCF field types & form-field names.
+    phone_dict = {'HOME': 'phone',
+                  'CELL': 'mobile',
+                  'FAX':  'fax',
+                  'WORK': 'work_phone',
+                 }
     email_dict = {'HOME':     'email',
                   'INTERNET': 'email',
+                  'WORK':     'work_email',
                  }
-
     url_dict = {'HOME':     'url_site',
                 'INTERNET': 'url_site',
+                'WORK':     'work_url_site',
                }
 
-    adr_dict = {'HOME': '',
-               }
+    # Form-field names prefix for address + correspondence with VCF field types.
+    HOME_ADDR_PREFIX = 'homeaddr_'
+    WORK_ADDR_PREFIX = 'workaddr_'
+    address_prefixes = {'HOME': HOME_ADDR_PREFIX,
+                        'WORK': WORK_ADDR_PREFIX,
+                       }
+    # Mapping between form fields names (which use vcf lib names) & Address fields names.
+    address_mapping = [('name',     'name'),
+                       ('address',  'address'),
+                       ('city',     'city'),
+                       ('country',  'country'),
+                       ('code',     'zipcode'),
+                       ('region',   'department'),
+                      ]
+
+    blocks = CremeEntityForm.blocks.new(
+        ('details', _(u'Details'), contact_details),
+        ('contact_address', _(u'Billing address'),
+         [HOME_ADDR_PREFIX + n[0] for n in address_mapping]
+        ),
+        ('organisation', _(u'Organisation'),
+         ['create_or_attach_orga', 'organisation', 'relation', 'update_work_name', 'work_name']
+         + list(chain.from_iterable(('update_work_' + fn, 'work_' + fn) for fn in orga_details)
+        )
+        ),
+        ('organisation_address', _(u'Organisation billing address'),
+         ['update_work_address'] + [WORK_ADDR_PREFIX + n[0] for n in address_mapping]
+        ),
+    )
 
     type_help_text  = _(u'Read in VCF File without type : ')
     other_help_text = _(u'Read in VCF File : ')
@@ -170,115 +214,160 @@ class VcfImportForm(CremeModelWithUserForm):
         fields = self.fields
 
         if vcf_data:
-            other_help_text = self.other_help_text
+            self._init_contact_fields(vcf_data)
+            self._init_orga_field(vcf_data)
+            self._init_addresses_fields(vcf_data)
 
-            tel_dict   = dict(self.tel_dict)
-            email_dict = dict(self.email_dict)
-            url_dict   = dict(self.url_dict)
-            adr_dict   = dict(self.adr_dict)
-
-            contents = vcf_data.contents
-
-            contact_data = contents.get('n')
-            if contact_data:
-                value = vcf_data.n.value
-                last_name = value.family
-                fields['first_name'].initial    = value.given
-                fields['last_name'].initial     = last_name
-                fields['adr_last_name'].initial = last_name
-                prefix = value.prefix
-                if prefix:
-                    ##civil = Civility.objects.filter(title__icontains=prefix)[:1]
-                    #civil = Civility.objects.filter(shortcut__icontains=prefix)[:1]
-                    #TODO: find in title too ?
-                    civil = Civility.objects.filter(shortcut__icontains=prefix).first()
-                    if civil:
-                        fields['civility'].initial = civil.id
-                    else:
-                        fields['civility'].help_text = other_help_text + prefix
-            else:
-                first_name, sep, last_name = vcf_data.fn.value.partition(' ')
-                fields['first_name'].initial    = first_name
-                fields['last_name'].initial     = last_name
-                fields['adr_last_name'].initial = last_name
-
-            if contents.get('org'):
-                org_name = vcf_data.org.value[0]
-                orga = Organisation.objects.filter(name=org_name).first()
-
-                if orga:
-                    fields['organisation'].initial = orga.id
-                    fields['create_or_attach_orga'].initial = True
-
-                fields['work_name'].initial     = org_name
-                fields['work_adr_name'].initial = org_name
-
-                tel_dict['WORK']   = 'work_phone'
-                email_dict['WORK'] = 'work_email'
-                url_dict['WORK']   = 'work_url_site'
-                adr_dict['WORK']   = 'work_'
-
-            if contents.get('title'):
-                title = vcf_data.title.value
-                position = Position.objects.filter(title__icontains=title).first()
-
-                if position:
-                    fields['position'].initial = position.id
-                else:
-                    fields['position'].help_text = other_help_text + title
-
-            if contents.get('photo'):
+            if vcf_data.contents.get('photo'):
                 fields['image_encoded'].initial = vcf_data.photo.value.replace('\n', '')
 
-            manage_coordinates = self._manage_coordinates
-            manage_coordinates(vcf_data, fields, 'tel',   tel_dict)
-            manage_coordinates(vcf_data, fields, 'email', email_dict)
-            manage_coordinates(vcf_data, fields, 'url',   url_dict)
+        # Beware: this queryset directly in the field declaration does not work on some systems in unit tests...
+        #         (it seems that the problem it caused by the M2M - other fields work, but why ???)
+        fields['relation'].queryset = RelationType.objects.filter(subject_ctypes=_get_ct(Contact),
+                                                                  object_ctypes=_get_ct(Organisation),
+                                                                 )
 
-            for adr in contents.get('adr', ()):
-                param = adr.params.get('TYPE')
-                value = adr.value
-                if param:
-                    param = param[0]
-                    if value.box:
-                        fields[adr_dict[param] + 'address'].initial = value.box + ' ' + value.street
-                    else:
-                        fields[adr_dict[param] + 'address'].initial = value.street
-                    fields[adr_dict[param] + 'city'].initial    = value.city
-                    fields[adr_dict[param] + 'country'].initial = value.country
-                    fields[adr_dict[param] + 'code'].initial    = value.code
-                    fields[adr_dict[param] + 'region'].initial  = value.region
+        self._hide_fields()
+
+    def _hide_fields(self):
+        fields = self.fields
+        address_mapping = self.address_mapping
+        fconfigs = FieldsConfig.get_4_models((Contact, Organisation, Address))
+
+        # TODO: use shipping address if not hidden ?
+        if fconfigs[Contact].is_fieldname_hidden('billing_address'):
+            prefix = self.HOME_ADDR_PREFIX
+
+            for form_fname, __ in address_mapping:
+                del fields[prefix + form_fname]
+
+        is_orga_field_hidden = fconfigs[Organisation].is_fieldname_hidden
+        for fname in fields:
+            # NB: 5 == len('work_')
+            if fname.startswith('work_') and is_orga_field_hidden(fname[5:]):
+                del fields[fname]
+                del fields['update_' + fname]
+
+        if is_orga_field_hidden('billing_address'):
+            prefix = self.WORK_ADDR_PREFIX
+
+            for form_fname, __ in address_mapping:
+                del fields[prefix + form_fname]
+
+            del fields['update_work_address']
+
+        is_addr_field_hidden = fconfigs[Address].is_fieldname_hidden
+        addr_prefixes = self.address_prefixes.values()
+        for form_fname, model_fname in address_mapping:
+            if is_addr_field_hidden(model_fname):
+                for prefix in addr_prefixes:
+                    fields.pop(prefix + form_fname, None)
+
+    def _init_contact_fields(self, vcf_data):
+        contents = vcf_data.contents
+        fields = self.fields
+        contact_data = contents.get('n')
+
+        if contact_data:
+            value = vcf_data.n.value
+            last_name = value.family
+            fields['first_name'].initial = value.given
+            fields['last_name'].initial  = last_name
+            fields['homeaddr_name'].initial = last_name
+            prefix = value.prefix
+
+            if prefix:
+                # TODO: find in title too ?
+                civ = Civility.objects.filter(shortcut__icontains=prefix).first()
+                if civ:
+                    fields['civility'].initial = civ.id
                 else:
-                    value = ', '.join([value.box, value.street, value.city, value.region, value.code, value.country])
-                    self._generate_help_text(fields, 'address', value)
+                    fields['civility'].help_text = self.other_help_text + prefix
+        else:
+            first_name, sep, last_name = vcf_data.fn.value.partition(' ')
+            fields['first_name'].initial = first_name
+            fields['last_name'].initial  = last_name
+            fields['homeaddr_name'].initial = last_name
 
-        #Beware: this queryset diretcly in the field declaration does not work on some systems in unit tests...
-        #        (it seems that the problem it caused by the M2M - other fields work, but why ???)
-        fields['relation'].queryset = RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation))
+        if contents.get('title'):
+            title = vcf_data.title.value
+            position = Position.objects.filter(title__icontains=title).first()
 
-    def _generate_help_text(self, fields, field_name, value):
-        field = fields[field_name]
+            if position:
+                fields['position'].initial = position.id
+            else:
+                fields['position'].help_text = self.other_help_text + title
 
-        if not field.help_text:
+        init_detail = self._init_detail_field
+        init_detail(contents.get('tel'),   self.phone_dict)
+        init_detail(contents.get('email'), self.email_dict)
+        init_detail(contents.get('url'),   self.url_dict)
+
+    def _init_detail_field(self, detail_data, field_dict):
+        if detail_data:
+            fields = self.fields
+
+            for key in detail_data:
+                param = key.params.get('TYPE')
+
+                if param:
+                    try:
+                        fields[field_dict[param[0]]].initial = key.value
+                    except KeyError:  # eg: invalid type, hidden field
+                        pass
+                else:
+                    self._generate_help_text(field_dict['HOME'], key.value)
+
+    def _init_orga_field(self, vcf_data):
+        if vcf_data.contents.get('org'):
+            fields = self.fields
+
+            org_name = vcf_data.org.value[0]
+            orga = Organisation.objects.filter(name=org_name).first()
+
+            if orga:
+                fields['organisation'].initial = orga.id
+                fields['create_or_attach_orga'].initial = True
+
+            fields['work_name'].initial = org_name
+            fields['workaddr_name'].initial = org_name
+
+    def _init_addresses_fields(self, vcf_data):
+        fields = self.fields
+        get_prefix = self.address_prefixes.get
+
+        for adr in vcf_data.contents.get('adr', ()):
+            param = adr.params.get('TYPE')
+            value = adr.value
+
+            if param:
+                prefix = get_prefix(param[0])
+
+                if prefix is None:
+                    continue
+
+                box = value.box
+                fields[prefix + 'address'].initial = (box + ' ' + value.street) if box else value.street
+                fields[prefix + 'city'].initial    = value.city
+                fields[prefix + 'country'].initial = value.country
+                fields[prefix + 'code'].initial    = value.code
+                fields[prefix + 'region'].initial  = value.region
+            else:
+                self._generate_help_text('homeaddr_address',
+                                         ', '.join([value.box, value.street, value.city,
+                                                    value.region, value.code, value.country,
+                                                   ]
+                                                  ),
+                                        )
+
+    def _generate_help_text(self, field_name, value):
+        field = self.fields[field_name]
+        help_text = field.help_text
+
+        if not help_text:
             field.help_text = self.type_help_text + value
         else:
-            field.help_text = '%s | %s' % (field.help_text, value)
-
-    def _manage_coordinates(self, vcf_data, fields, key, field_dict):
-        """
-        @param vcf_data (vcf_lib.base.Component) : data read in VCF file
-        @param fields : fields of form
-        @param key : key in dict vcf_data.contents
-        @param field_dict : dict used for field (tel_dict for field 'tel')
-        """
-        data = vcf_data.contents.get(key)
-        if data:
-            for key in data:
-                param = key.params.get('TYPE')
-                if param:
-                    fields[field_dict[param[0]]].initial = key.value
-                else:
-                    self._generate_help_text(fields, field_dict['HOME'], key.value)
+            field.help_text = '%s | %s' % (help_text, value)
 
     def _clean_orga_field(self, field_name):
         cleaned_data = self.cleaned_data
@@ -301,59 +390,66 @@ class VcfImportForm(CremeModelWithUserForm):
         if checked:
             if not cleaned_data['create_or_attach_orga']:
                 raise ValidationError(self.error_messages['no_orga_creation'],
-                                      code='no_orga_creation'
+                                      code='no_orga_creation',
                                      )
             elif not cleaned_data['organisation']:
                 raise ValidationError(self.error_messages['orga_not_selected'],
-                                      code='orga_not_selected'
+                                      code='orga_not_selected',
                                      )
 
         return checked
 
-    clean_update_orga_name     = lambda self: self._clean_update_checkbox('update_orga_name')
-    clean_update_orga_phone    = lambda self: self._clean_update_checkbox('update_orga_phone')
-    clean_update_orga_email    = lambda self: self._clean_update_checkbox('update_orga_email')
-    clean_update_orga_fax      = lambda self: self._clean_update_checkbox('update_orga_fax')
-    clean_update_orga_url_site = lambda self: self._clean_update_checkbox('update_orga_url_site')
-    clean_update_orga_address  = lambda self: self._clean_update_checkbox('update_orga_address')
+    clean_update_work_name     = lambda self: self._clean_update_checkbox('update_work_name')
+    clean_update_work_phone    = lambda self: self._clean_update_checkbox('update_work_phone')
+    clean_update_work_email    = lambda self: self._clean_update_checkbox('update_work_email')
+    clean_update_work_fax      = lambda self: self._clean_update_checkbox('update_work_fax')
+    clean_update_work_url_site = lambda self: self._clean_update_checkbox('update_work_url_site')
+    clean_update_work_address  = lambda self: self._clean_update_checkbox('update_work_address')
 
-    def clean_update_field(self, checkbox_name, field_name):
+    def clean_update_field(self, field_name):
         cleaned_data = self.cleaned_data
-        cleaned_data_field_name = cleaned_data[field_name]
+        value = cleaned_data[field_name]
 
-        if not cleaned_data_field_name and \
-           all(cleaned_data[k] for k in ('create_or_attach_orga', 'organisation', checkbox_name)):
+        if not value and \
+           all(cleaned_data[k] for k in ('create_or_attach_orga', 'organisation', 'update_' + field_name)):
             raise ValidationError(self.error_messages['required2update'], code='required2update')
 
-        return cleaned_data_field_name
+        return value
 
-    clean_work_phone    = lambda self: self.clean_update_field('update_orga_phone', 'work_phone')
-    clean_work_email    = lambda self: self.clean_update_field('update_orga_email', 'work_email')
-    clean_work_fax      = lambda self: self.clean_update_field('update_orga_fax', 'work_fax')
-    clean_work_url_site = lambda self: self.clean_update_field('update_orga_url_site', 'work_url_site')
-    clean_work_address  = lambda self: self.clean_update_field('update_orga_address', 'work_address')
+    clean_work_phone    = lambda self: self.clean_update_field('work_phone')
+    clean_work_email    = lambda self: self.clean_update_field('work_email')
+    clean_work_fax      = lambda self: self.clean_update_field('work_fax')
+    clean_work_url_site = lambda self: self.clean_update_field('work_url_site')
+    clean_work_address  = lambda self: self.clean_update_field('work_address')
 
-    def save(self, *args, **kwargs):
+    def _create_contact(self, cleaned_data):
+        get_data = cleaned_data.get
+        return Contact.objects.create(user=cleaned_data['user'],
+                                      civility=cleaned_data['civility'],
+                                      first_name=cleaned_data['first_name'],
+                                      last_name=cleaned_data['last_name'],
+                                      position=get_data('position'),
+                                      **{fname: get_data(fname) for fname in self.contact_details}
+                                     )
+
+    def _create_address(self, cleaned_data, owner, data_prefix):
+        get_data = cleaned_data.get
+        address = Address(owner=owner,
+                          **{model_fname: get_data(data_prefix + form_fname)
+                                 for form_fname, model_fname in self.address_mapping
+                            }
+                         )
+
+        if address:
+            address.save()
+            return address
+
+    def _create_image(self, contact):
         cleaned_data = self.cleaned_data
-        user         = cleaned_data['user']
-        save_contact = False
-        save_org     = False
-
-        contact = Contact.objects.create(user=user,
-                                         civility=cleaned_data['civility'],
-                                         first_name=cleaned_data['first_name'],
-                                         last_name=cleaned_data['last_name'],
-                                         phone=cleaned_data['phone'],
-                                         mobile=cleaned_data['mobile'],
-                                         fax=cleaned_data['fax'],
-                                         position=cleaned_data['position'],
-                                         email=cleaned_data['email'],
-                                         url_site=cleaned_data['url_site'],
-                                        )
-
         image_encoded = cleaned_data['image_encoded']
+
         if image_encoded:
-            img_name = secure_filename('_'.join([contact.last_name, contact.first_name, str(contact.id)]))
+            img_name = secure_filename(u'%s_%s_%s' % (contact.last_name, contact.first_name, contact.id))
             img_path = ''
 
             if image_encoded.startswith(URL_START):
@@ -370,97 +466,74 @@ class VcfImportForm(CremeModelWithUserForm):
 
                         urlretrieve(image_encoded, path)
                 except:
+                    logger.exception('Error with image')
                     img_path = ''
-            else: #TODO: manage urls encoded in base64 ??
+            else:  # TODO: manage urls encoded in base64 ??
                 try:
-                    #TODO: factorise with activesync ??
+                    # TODO: factorise with activesync ??
                     image_format = Image.get_image_format(image_encoded)
-                    img_path     = handle_uploaded_file(ContentFile(base64.decodestring(image_encoded)), path=[IMG_UPLOAD_PATH], name='.'.join([img_name, image_format]))
+                    img_path     = handle_uploaded_file(ContentFile(base64.decodestring(image_encoded)),
+                                                        path=[IMG_UPLOAD_PATH],
+                                                        name='%s.%s' % (img_name, image_format),
+                                                       )
                 except Exception:
                     logger.exception('VcfImportForm.save()')
                     img_path = ''
 
             if img_path:
-                contact.image = Image.objects.create(user=user,
-                                                     name=ugettext(u'Image of %s') % contact,
-                                                     image=img_path,
-                                                    )
-                save_contact = True
+                return Image.objects.create(user=cleaned_data['user'],
+                                            name=ugettext(u'Image of %s') % contact,
+                                            image=img_path,
+                                           )
 
-        if any(cleaned_data[k] for k in ('adr_last_name', 'address', 'city', 'country', 'code', 'region')):
-            contact.billing_address = Address.objects.create(name=cleaned_data['adr_last_name'],
-                                                             address=cleaned_data['address'],
-                                                             city=cleaned_data['city'],
-                                                             country=cleaned_data['country'],
-                                                             zipcode=cleaned_data['code'],
-                                                             department=cleaned_data['region'],
-                                                             content_type_id=_get_ct(Contact).id,
-                                                             object_id=contact.id,
-                                                            )
-            save_contact = True
+    def _create_orga(self, contact):
+        cleaned_data = self.cleaned_data
 
         if cleaned_data['create_or_attach_orga']:
-            organisation = cleaned_data.get('organisation')
+            get_data = cleaned_data.get
+            organisation = get_data('organisation')
+            save_orga    = False
+            user         = cleaned_data['user']
+            addr_prefix  = self.WORK_ADDR_PREFIX
+
             if organisation:
-                update_coordinates_dict = {'update_orga_phone':    'phone',
-                                           'update_orga_email':    'email',
-                                           'update_orga_fax':      'fax',
-                                           'update_orga_url_site': 'url_site',
-                                          }
+                for fname in self.orga_details:
+                    if get_data('update_work_' + fname):
+                         setattr(organisation, fname, get_data('work_' + fname))
 
-                for key, value in update_coordinates_dict.iteritems():
-                    if cleaned_data[key]:
-                         setattr(organisation, value, cleaned_data['work_' + value])
-
-                if cleaned_data['update_orga_address']:
+                if get_data('update_work_address'):
                     billing_address = organisation.billing_address
 
-                    if billing_address:
-                        update_address_dict = {'work_adr_name': 'name',
-                                               'work_address':  'address',
-                                               'work_city':     'city',
-                                               'work_country':  'country',
-                                               'work_code':     'zipcode',
-                                               'work_region':   'department',
-                                              }
+                    if billing_address is not None:
+                        for form_fname, model_fname in self.address_mapping:
+                            value = get_data(addr_prefix + form_fname)
 
-                        for key, value in update_address_dict.iteritems():
-                            if cleaned_data[key]:
-                                setattr(billing_address, value, cleaned_data[key])
+                            if value:
+                                setattr(billing_address, model_fname, value)
 
                         organisation.billing_address.save()
                     else:
-                        organisation.billing_address = Address.objects.create(name=cleaned_data['work_adr_name'],
-                                                                              address=cleaned_data['work_address'],
-                                                                              city=cleaned_data['work_city'],
-                                                                              country=cleaned_data['work_country'],
-                                                                              zipcode=cleaned_data['work_code'],
-                                                                              department=cleaned_data['work_region'],
-                                                                              content_type_id=_get_ct(Organisation).id,
-                                                                              object_id=organisation.id,
-                                                                             )
-                save_org = True
+                        organisation.billing_address = self._create_address(
+                            cleaned_data, owner=organisation, data_prefix=addr_prefix,
+                        )
+
+                save_orga = True
             else:
                 organisation = Organisation.objects.create(user=user,
                                                            name=cleaned_data['work_name'],
-                                                           phone=cleaned_data['work_phone'],
-                                                           email=cleaned_data['work_email'],
-                                                           url_site=cleaned_data['work_url_site'],
+                                                           **{fname: get_data('work_' + fname)
+                                                                for fname in self.orga_details
+                                                             }
                                                           )
 
-                if any(cleaned_data[k] for k in ('work_adr_name', 'work_address', 'work_city', 'work_country', 'work_code', 'work_region')):
-                    organisation.billing_address = Address.objects.create(name=cleaned_data['work_adr_name'],
-                                                                          address=cleaned_data['work_address'],
-                                                                          city=cleaned_data['work_city'],
-                                                                          country=cleaned_data['work_country'],
-                                                                          zipcode=cleaned_data['work_code'],
-                                                                          department=cleaned_data['work_region'],
-                                                                          content_type_id=_get_ct(Organisation).id,
-                                                                          object_id=organisation.id,
-                                                                         )
-                    save_org = True
+                orga_addr = self._create_address(cleaned_data, owner=organisation,
+                                                 data_prefix=addr_prefix,
+                                                )
+                if orga_addr is not None:
+                    organisation.billing_address = orga_addr
+                    save_orga = True
 
-            if save_org:
+            if save_orga:
                 organisation.save()
 
             Relation.objects.create(user=user,
@@ -468,6 +541,25 @@ class VcfImportForm(CremeModelWithUserForm):
                                     type=cleaned_data['relation'],
                                     object_entity=organisation,
                                    )
+
+    def save(self, *args, **kwargs):
+        cleaned_data = self.cleaned_data
+        save_contact = False
+        contact = self._create_contact(cleaned_data)
+
+        image = self._create_image(contact)
+        if image is not None:
+            contact.image = image
+            save_contact = True
+
+        contact_addr = self._create_address(cleaned_data, owner=contact,
+                                            data_prefix=self.HOME_ADDR_PREFIX,
+                                           )
+        if contact_addr is not None:
+            contact.billing_address = contact_addr
+            save_contact = True
+
+        self._create_orga(contact)
 
         if save_contact:
             contact.save()

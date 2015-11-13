@@ -5,12 +5,12 @@ try:
     from tempfile import NamedTemporaryFile
 
     from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils.encoding import smart_str
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.models import FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.media_managers.models import Image
@@ -89,7 +89,7 @@ class VcfImportTestCase(CremeTestCase):
         self.assertEqual(form['first_name'].field.initial, firt_name)
         self.assertEqual(form['last_name'].field.initial,  last_name)
 
-    def test_parsing_vcf01(self): #TODO: use BDAY
+    def test_parsing_vcf01(self):  # TODO: use BDAY
         self.login()
 
         first_name = u'Yûna'
@@ -152,7 +152,7 @@ END:VCARD""" % {'last_name':  last_name,
         self.assertEqual(last_name,  n_value.family)
         self.assertEqual(last_name, fields['last_name'].initial)
 
-        #print '=====>', vobj, vobj.bday, type(vobj.bday)
+        # print '=====>', vobj, vobj.bday, type(vobj.bday)
 
         tel = vobj.contents['tel']
         self.assertEqual(phone, tel[0].value)
@@ -176,23 +176,23 @@ END:VCARD""" % {'last_name':  last_name,
         self.assertEqual(site, fields['url_site'].initial)
 
         adr_value = vobj.adr.value
-        self.assertEqual(last_name, fields['adr_last_name'].initial)
+        self.assertEqual(last_name, fields['homeaddr_name'].initial)
 
         self.assertEqual(street, adr_value.street)
         self.assertEqual(box,    adr_value.box)
-        self.assertEqual(fields['address'].initial, '%s %s' %(box, street))
+        self.assertEqual(fields['homeaddr_address'].initial, '%s %s' %(box, street))
 
         self.assertEqual(city, adr_value.city)
-        self.assertEqual(city, fields['city'].initial)
+        self.assertEqual(city, fields['homeaddr_city'].initial)
 
         self.assertEqual(country, adr_value.country)
-        self.assertEqual(country, fields['country'].initial)
+        self.assertEqual(country, fields['homeaddr_country'].initial)
 
         self.assertEqual(code, adr_value.code)
-        self.assertEqual(code, fields['code'].initial)
+        self.assertEqual(code, fields['homeaddr_code'].initial)
 
         self.assertEqual(region, adr_value.region)
-        self.assertEqual(region, fields['region'].initial)
+        self.assertEqual(region, fields['homeaddr_region'].initial)
 
     def test_parsing_vcf02(self):
         self.login()
@@ -245,24 +245,24 @@ END:VCARD""" % {'name':  name,
         self.assertEqual(site, vobj.url.value)
         self.assertEqual(site, fields['work_url_site'].initial)
 
-        self.assertEqual(fields['work_adr_name'].initial, name)
+        self.assertEqual(fields['workaddr_name'].initial, name)
 
         adr = vobj.adr.value
         self.assertEqual(box,    adr.box)
         self.assertEqual(street, adr.street)
-        self.assertEqual(fields['work_address'].initial,  '%s %s' % (box, street))
+        self.assertEqual(fields['workaddr_address'].initial,  '%s %s' % (box, street))
 
         self.assertEqual(city, adr.city)
-        self.assertEqual(city, fields['work_city'].initial)
+        self.assertEqual(city, fields['workaddr_city'].initial)
 
         self.assertEqual(region, adr.region)
-        self.assertEqual(region, fields['work_region'].initial)
+        self.assertEqual(region, fields['workaddr_region'].initial)
 
         self.assertEqual(code, adr.code)
-        self.assertEqual(code, fields['work_code'].initial)
+        self.assertEqual(code, fields['workaddr_code'].initial)
 
         self.assertEqual(country, adr.country)
-        self.assertEqual(country, fields['work_country'].initial)
+        self.assertEqual(country, fields['workaddr_country'].initial)
 
     def test_parsing_vcf03(self):
         "Address without type"
@@ -307,7 +307,7 @@ end:vcard""" % {'box':     box,
         self.assertEqual(code,    adr_value.code)
         self.assertEqual(country, adr_value.country)
 
-        self.assertEqual(fields['address'].help_text,
+        self.assertEqual(fields['homeaddr_address'].help_text,
                          help_prefix + ', '.join([box, street, city, region, code, country])
                         )
         self.assertEqual(fields['phone'].help_text,    help_prefix + vobj.tel.value)
@@ -317,10 +317,10 @@ end:vcard""" % {'box':     box,
     @skipIfCustomOrganisation
     def test_parsing_vcf04(self):
         "Existing Organisation"
-        self.login()
+        user = self.login()
 
         name = 'Negima'
-        orga = Organisation.objects.create(user=self.user, name=name)
+        orga = Organisation.objects.create(user=user, name=name)
         content = u"""BEGIN:VCARD
 N:Konoe Konoka
 ORG:%(name)s
@@ -469,7 +469,6 @@ END:VCARD"""
         self.assertEqual(contact_count, Contact.objects.count())
         self.assertEqual(orga_count,    Organisation.objects.count())
 
-
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf02(self):
@@ -617,14 +616,17 @@ END:VCARD"""
         self._post_step1(data={'user':          fields['user'].initial,
                                'first_name':    first_name,
                                'last_name':     last_name,
+
                                'phone':         phone,
                                'mobile':        mobile,
                                'fax':           fax,
                                'email':         email,
                                'url_site':      url_site,
+
                                'create_or_attach_orga': True,
-                               'organisation':  fields['organisation'].initial,
-                               'relation':      REL_SUB_EMPLOYED_BY,
+                               'organisation':          fields['organisation'].initial,
+                               'relation':              REL_SUB_EMPLOYED_BY,
+
                                'work_name':     fields['work_name'].initial,
                                'work_phone':    fields['work_phone'].initial,
                                'work_email':    fields['work_email'].initial,
@@ -659,27 +661,30 @@ END:VCARD"""
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
 
-        adr_last_name = fields['adr_last_name'].initial
-        address       = fields['address'].initial
-        city          = fields['city'].initial
-        country       = fields['country'].initial
-        code          = fields['code'].initial
-        region        = fields['region'].initial
+        adr_name = fields['homeaddr_name'].initial
+        address  = fields['homeaddr_address'].initial
+        city     = fields['homeaddr_city'].initial
+        country  = fields['homeaddr_country'].initial
+        code     = fields['homeaddr_code'].initial
+        region   = fields['homeaddr_region'].initial
 
-        self._post_step1(data={'user':          fields['user'].initial,
-                               'first_name':    first_name,
-                               'last_name':     last_name,
-                               'phone':         fields['phone'].initial,
-                               'mobile':        fields['mobile'].initial,
-                               'fax':           fields['fax'].initial,
-                               'email':         fields['email'].initial,
-                               'url_site':      fields['url_site'].initial,
-                               'adr_last_name': adr_last_name,
-                               'address':       address,
-                               'city':          city,
-                               'country':       country,
-                               'code':          code,
-                               'region':        region,
+        self._post_step1(data={'user':       fields['user'].initial,
+                               'first_name': first_name,
+                               'last_name':  last_name,
+
+                               'phone':    fields['phone'].initial,
+                               'mobile':   fields['mobile'].initial,
+                               'fax':      fields['fax'].initial,
+                               'email':    fields['email'].initial,
+                               'url_site': fields['url_site'].initial,
+
+                               'homeaddr_name':     adr_name,
+                               'homeaddr_address':  address,
+                               'homeaddr_city':     city,
+                               'homeaddr_country':  country,
+                               'homeaddr_code':     code,
+                               'homeaddr_region':   region,
+
                                'create_or_attach_orga': False,
                               }
                         )
@@ -688,8 +693,9 @@ END:VCARD"""
         self.assertEqual(address_count + 1, Address.objects.count())
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        address = self.get_object_or_fail(Address, name=adr_last_name, address=address,
-                                          city=city, zipcode=code, country=country, department=region,
+        address = self.get_object_or_fail(Address, name=adr_name, address=address,
+                                          city=city, zipcode=code, country=country,
+                                          department=region,
                                          )
         self.assertEqual(contact.billing_address, address)
 
@@ -719,44 +725,49 @@ END:VCARD"""
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
 
-        adr_last_name = fields['adr_last_name'].initial
-        address       = fields['address'].initial
-        city          = fields['city'].initial
-        country       = fields['country'].initial
-        code          = fields['code'].initial
-        region        = fields['region'].initial
+        adr_name = fields['homeaddr_name'].initial
+        address  = fields['homeaddr_address'].initial
+        city     = fields['homeaddr_city'].initial
+        country  = fields['homeaddr_country'].initial
+        code     = fields['homeaddr_code'].initial
+        region   = fields['homeaddr_region'].initial
 
-        work_name      = fields['work_name'].initial
-        work_adr_name  = fields['work_adr_name'].initial
-        work_address   = fields['work_address'].initial
-        work_city      = fields['work_city'].initial
-        work_country   = fields['work_country'].initial
-        work_code      = fields['work_code'].initial
-        work_region    = fields['work_region'].initial
+        work_name = fields['work_name'].initial
 
-        self._post_step1(data={'user':          fields['user'].initial,
-                               'first_name':    first_name,
-                               'last_name':     last_name,
-                               'phone':         fields['phone'].initial,
-                               'mobile':        fields['mobile'].initial,
-                               'fax':           fields['fax'].initial,
-                               'email':         fields['email'].initial,
-                               'url_site':      fields['url_site'].initial,
-                               'adr_last_name': adr_last_name,
-                               'address':       address,
-                               'city':          city,
-                               'country':       country,
-                               'code':          code,
-                               'region':        region,
+        work_adr_name  = fields['workaddr_name'].initial
+        work_address   = fields['workaddr_address'].initial
+        work_city      = fields['workaddr_city'].initial
+        work_country   = fields['workaddr_country'].initial
+        work_code      = fields['workaddr_code'].initial
+        work_region    = fields['workaddr_region'].initial
+
+        self._post_step1(data={'user':       fields['user'].initial,
+                               'first_name': first_name,
+                               'last_name':  last_name,
+
+                               'phone':    fields['phone'].initial,
+                               'mobile':   fields['mobile'].initial,
+                               'fax':      fields['fax'].initial,
+                               'email':    fields['email'].initial,
+                               'url_site': fields['url_site'].initial,
+
+                               'homeaddr_name':     adr_name,
+                               'homeaddr_address':  address,
+                               'homeaddr_city':     city,
+                               'homeaddr_country':  country,
+                               'homeaddr_code':     code,
+                               'homeaddr_region':   region,
+
                                'create_or_attach_orga': True,
-                               'relation':      REL_SUB_EMPLOYED_BY,
-                               'work_name':     work_name,
-                               'work_adr_name': work_adr_name,
-                               'work_address':  work_address,
-                               'work_city':     work_city,
-                               'work_country':  work_country,
-                               'work_code':     work_code,
-                               'work_region':   work_region,
+                               'relation':              REL_SUB_EMPLOYED_BY,
+                               'work_name':             work_name,
+
+                               'workaddr_name':     work_adr_name,
+                               'workaddr_address':  work_address,
+                               'workaddr_city':     work_city,
+                               'workaddr_country':  work_country,
+                               'workaddr_code':     work_code,
+                               'workaddr_region':   work_region,
                               }
                              )
         self.assertEqual(contact_count + 1, Contact.objects.count())
@@ -765,11 +776,12 @@ END:VCARD"""
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         orga    = self.get_object_or_fail(Organisation, name=work_name)
-        c_addr  = self.get_object_or_fail(Address, name=adr_last_name, address=address, city=city,
+        c_addr  = self.get_object_or_fail(Address, name=adr_name, address=address, city=city,
                                           zipcode=code, country=country, department=region,
                                          )
-        o_addr  = self.get_object_or_fail(Address, name=work_adr_name, address=work_address, city=work_city,
-                                          zipcode=work_code, country=work_country, department=work_region,
+        o_addr  = self.get_object_or_fail(Address, name=work_adr_name, address=work_address,
+                                          city=work_city, zipcode=work_code,
+                                          country=work_country, department=work_region,
                                          )
         self.assertEqual(contact.billing_address, c_addr)
         self.assertEqual(orga.billing_address,    o_addr)
@@ -794,36 +806,40 @@ ORG:Corporate
 END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         response = self._post_step1(errors=True,
-                                    data={'user':                 fields['user'].initial,
-                                          'first_name':           fields['first_name'].initial,
-                                          'last_name':            fields['last_name'].initial,
+                                    data={'user':       fields['user'].initial,
+                                          'first_name': fields['first_name'].initial,
+                                          'last_name':  fields['last_name'].initial,
+
                                           'create_or_attach_orga': False,
                                           'organisation':         fields['organisation'].initial,
                                           'relation':             REL_SUB_EMPLOYED_BY,
-                                          'work_name':            fields['work_name'].initial,
-                                          'work_phone':           fields['work_phone'].initial,
-                                          'work_email':           fields['work_email'].initial,
-                                          'work_url_site':        fields['work_url_site'].initial,
-                                          'work_adr_name':        fields['work_adr_name'].initial,
-                                          'work_address':         fields['work_address'].initial,
-                                          'work_city':            fields['work_city'].initial,
-                                          'work_country':         fields['work_country'].initial,
-                                          'work_code':            fields['work_code'].initial,
-                                          'work_region':          fields['work_region'].initial,
-                                          'update_orga_name':     True,
-                                          'update_orga_phone':    True,
-                                          'update_orga_email':    True,
-                                          'update_orga_fax':      True,
-                                          'update_orga_url_site': True,
-                                          'update_orga_address':  True,
+
+                                          'work_name':     fields['work_name'].initial,
+                                          'work_phone':    fields['work_phone'].initial,
+                                          'work_email':    fields['work_email'].initial,
+                                          'work_url_site': fields['work_url_site'].initial,
+
+                                          'workaddr_name':     fields['workaddr_name'].initial,
+                                          'workaddr_address':  fields['workaddr_address'].initial,
+                                          'workaddr_city':     fields['workaddr_city'].initial,
+                                          'workaddr_country':  fields['workaddr_country'].initial,
+                                          'workaddr_code':     fields['workaddr_code'].initial,
+                                          'workaddr_region':   fields['workaddr_region'].initial,
+
+                                          'update_work_name':     True,
+                                          'update_work_phone':    True,
+                                          'update_work_email':    True,
+                                          'update_work_fax':      True,
+                                          'update_work_url_site': True,
+                                          'update_work_address':  True,
                                          }
                                     )
         validation_text = _(u'Create organisation not checked')
-        self.assertFormError(response, 'form', 'update_orga_name',     validation_text)
-        self.assertFormError(response, 'form', 'update_orga_phone',    validation_text)
-        self.assertFormError(response, 'form', 'update_orga_email',    validation_text)
-        self.assertFormError(response, 'form', 'update_orga_fax',      validation_text)
-        self.assertFormError(response, 'form', 'update_orga_url_site', validation_text)
+        self.assertFormError(response, 'form', 'update_work_name',     validation_text)
+        self.assertFormError(response, 'form', 'update_work_phone',    validation_text)
+        self.assertFormError(response, 'form', 'update_work_email',    validation_text)
+        self.assertFormError(response, 'form', 'update_work_fax',      validation_text)
+        self.assertFormError(response, 'form', 'update_work_url_site', validation_text)
 
         self.assertEqual(contact_count, Contact.objects.count())
 
@@ -842,36 +858,40 @@ ORG:Corporate
 END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         response = self._post_step1(errors=True,
-                                    data={'user':                 fields['user'].initial,
-                                          'first_name':           fields['first_name'].initial,
-                                          'last_name':            fields['last_name'].initial,
+                                    data={'user':       fields['user'].initial,
+                                          'first_name': fields['first_name'].initial,
+                                          'last_name':  fields['last_name'].initial,
+
                                           'create_or_attach_orga': True,
                                           'relation':             REL_SUB_EMPLOYED_BY,
                                           'work_name':            fields['work_name'].initial,
-                                          'work_phone':           fields['work_phone'].initial,
-                                          'work_email':           fields['work_email'].initial,
-                                          'work_url_site':        fields['work_url_site'].initial,
-                                          'work_adr_name':        fields['work_adr_name'].initial,
-                                          'work_address':         fields['work_address'].initial,
-                                          'work_city':            fields['work_city'].initial,
-                                          'work_country':         fields['work_country'].initial,
-                                          'work_code':            fields['work_code'].initial,
-                                          'work_region':          fields['work_region'].initial,
-                                          'update_orga_name':     True,
-                                          'update_orga_phone':    True,
-                                          'update_orga_email':    True,
-                                          'update_orga_fax':      True,
-                                          'update_orga_url_site': True,
-                                          'update_orga_address':  True,
+
+                                          'work_phone':    fields['work_phone'].initial,
+                                          'work_email':    fields['work_email'].initial,
+                                          'work_url_site': fields['work_url_site'].initial,
+
+                                          'workaddr_name':     fields['workaddr_name'].initial,
+                                          'workaddr_address':  fields['workaddr_address'].initial,
+                                          'workaddr_city':     fields['workaddr_city'].initial,
+                                          'workaddr_country':  fields['workaddr_country'].initial,
+                                          'workaddr_code':     fields['workaddr_code'].initial,
+                                          'workaddr_region':   fields['workaddr_region'].initial,
+
+                                          'update_work_name':     True,
+                                          'update_work_phone':    True,
+                                          'update_work_email':    True,
+                                          'update_work_fax':      True,
+                                          'update_work_url_site': True,
+                                          'update_work_address':  True,
                                          }
                                     )
         validation_text = _(u'Organisation not selected')
-        self.assertFormError(response, 'form', 'update_orga_name',     validation_text)
-        self.assertFormError(response, 'form', 'update_orga_phone',    validation_text)
-        self.assertFormError(response, 'form', 'update_orga_email',    validation_text)
-        self.assertFormError(response, 'form', 'update_orga_fax',      validation_text)
-        self.assertFormError(response, 'form', 'update_orga_url_site', validation_text)
-        self.assertFormError(response, 'form', 'update_orga_address',  validation_text)
+        self.assertFormError(response, 'form', 'update_work_name',     validation_text)
+        self.assertFormError(response, 'form', 'update_work_phone',    validation_text)
+        self.assertFormError(response, 'form', 'update_work_email',    validation_text)
+        self.assertFormError(response, 'form', 'update_work_fax',      validation_text)
+        self.assertFormError(response, 'form', 'update_work_url_site', validation_text)
+        self.assertFormError(response, 'form', 'update_work_address',  validation_text)
 
         self.assertEqual(contact_count, Contact.objects.count())
 
@@ -890,18 +910,20 @@ ORG:%s
 END:VCARD""" % name
         fields = self._post_step0(content).context['form'].fields
         response = self._post_step1(errors=True,
-                                    data={'user':                 fields['user'].initial,
-                                          'first_name':           fields['first_name'].initial,
-                                          'last_name':            fields['last_name'].initial,
+                                    data={'user':       fields['user'].initial,
+                                          'first_name': fields['first_name'].initial,
+                                          'last_name':  fields['last_name'].initial,
+
                                           'create_or_attach_orga': True,
-                                          'organisation':         fields['organisation'].initial,
-                                          'relation':             REL_SUB_EMPLOYED_BY,
-                                          'update_orga_name':     True,
-                                          'update_orga_phone':    True,
-                                          'update_orga_fax':      True,
-                                          'update_orga_email':    True,
-                                          'update_orga_url_site': True,
-                                          'update_orga_address':  True,
+                                          'organisation':          fields['organisation'].initial,
+                                          'relation':              REL_SUB_EMPLOYED_BY,
+
+                                          'update_work_name':     True,
+                                          'update_work_phone':    True,
+                                          'update_work_fax':      True,
+                                          'update_work_email':    True,
+                                          'update_work_url_site': True,
+                                          'update_work_address':  True,
                                          }
                                     )
         validation_text = _(u'Required, if you want to update organisation')
@@ -926,8 +948,7 @@ END:VCARD""" % name
                                                       country='Org_country',
                                                       zipcode='Org_zipcode',
                                                       department='Org_department',
-                                                      content_type_id=ContentType.objects.get_for_model(Organisation).id,
-                                                      object_id=orga.id,
+                                                      owner=orga,
                                                      )
         orga.save()
 
@@ -944,27 +965,31 @@ URL;TYPE=WORK:www.work.com
 ORG:%s
 END:VCARD""" % name
         fields = self._post_step0(content).context['form'].fields
-        self._post_step1(data={'user':                 fields['user'].initial,
-                               'first_name':           fields['first_name'].initial,
-                               'last_name':            fields['last_name'].initial,
+        self._post_step1(data={'user':       fields['user'].initial,
+                               'first_name': fields['first_name'].initial,
+                               'last_name':  fields['last_name'].initial,
+
                                'create_or_attach_orga': True,
-                               'organisation':         fields['organisation'].initial,
-                               'relation':             REL_SUB_EMPLOYED_BY,
-                               'work_name':            fields['work_name'].initial,
-                               'work_phone':           fields['work_phone'].initial,
-                               'work_email':           fields['work_email'].initial,
-                               'work_url_site':        fields['work_url_site'].initial,
-                               'work_adr_name':        fields['work_adr_name'].initial,
-                               'work_address':         fields['work_address'].initial,
-                               'work_city':            fields['work_city'].initial,
-                               'work_country':         fields['work_country'].initial,
-                               'work_code':            fields['work_code'].initial,
-                               'work_region':          fields['work_region'].initial,
-                               'update_orga_name':     True,
-                               'update_orga_phone':    True,
-                               'update_orga_email':    True,
-                               'update_orga_url_site': True,
-                               'update_orga_address':  True,
+                               'organisation':          fields['organisation'].initial,
+                               'relation':              REL_SUB_EMPLOYED_BY,
+                               'work_name':             fields['work_name'].initial,
+
+                               'work_phone':    fields['work_phone'].initial,
+                               'work_email':    fields['work_email'].initial,
+                               'work_url_site': fields['work_url_site'].initial,
+
+                               'workaddr_name':     fields['workaddr_name'].initial,
+                               'workaddr_address':  fields['workaddr_address'].initial,
+                               'workaddr_city':     fields['workaddr_city'].initial,
+                               'workaddr_country':  fields['workaddr_country'].initial,
+                               'workaddr_code':     fields['workaddr_code'].initial,
+                               'workaddr_region':   fields['workaddr_region'].initial,
+
+                               'update_work_name':     True,
+                               'update_work_phone':    True,
+                               'update_work_email':    True,
+                               'update_work_url_site': True,
+                               'update_work_address':  True,
                               }
                         )
 
@@ -1012,26 +1037,28 @@ ORG:%s
 END:VCARD""" % name
         fields = self._post_step0(content).context['form'].fields
         orga_id       = fields['organisation'].initial
-        work_adr_name = fields['work_adr_name'].initial
-        work_address  = fields['work_address'].initial
-        work_city     = fields['work_city'].initial
-        work_country  = fields['work_country'].initial
-        work_code     = fields['work_code'].initial
-        work_region   = fields['work_region'].initial
-        self._post_step1(data={'user':                 fields['user'].initial,
-                               'first_name':           fields['first_name'].initial,
-                               'last_name':            fields['last_name'].initial,
+        work_adr_name = fields['workaddr_name'].initial
+        work_address  = fields['workaddr_address'].initial
+        work_city     = fields['workaddr_city'].initial
+        work_country  = fields['workaddr_country'].initial
+        work_code     = fields['workaddr_code'].initial
+        work_region   = fields['workaddr_region'].initial
+        self._post_step1(data={'user':       fields['user'].initial,
+                               'first_name': fields['first_name'].initial,
+                               'last_name':  fields['last_name'].initial,
+
                                'create_or_attach_orga': True,
-                               'organisation':         orga_id,
-                               'relation':             REL_SUB_EMPLOYED_BY,
-                               'work_name':            fields['work_name'].initial,
-                               'work_adr_name':        work_adr_name,
-                               'work_address':         work_address,
-                               'work_city':            work_city,
-                               'work_country':         work_country,
-                               'work_code':            work_code,
-                               'work_region':          work_region,
-                               'update_orga_address':  True,
+                               'organisation':          orga_id,
+                               'relation':              REL_SUB_EMPLOYED_BY,
+                               'work_name':             fields['work_name'].initial,
+
+                               'workaddr_name':      work_adr_name,
+                               'workaddr_address':   work_address,
+                               'workaddr_city':      work_city,
+                               'workaddr_country':   work_country,
+                               'workaddr_code':      work_code,
+                               'workaddr_region':    work_region,
+                               'update_work_address': True,
                               }
                         )
         self.assertEqual(contact_count + 1, Contact.objects.count())
@@ -1150,8 +1177,8 @@ PHOTO:""" \
         self.assertEqual(self.user.id, user_id)
         self.assertEqual(first_name, first_name_f.initial)
         self.assertEqual(last_name, last_name_f.initial)
-        self.assertEqual(3, civility_id) #pk=3 see persons.populate
-        self.assertEqual(1, position_id) #pk=1 idem
+        self.assertEqual(3, civility_id)  # pk=3 see persons.populate
+        self.assertEqual(1, position_id)  # pk=1 idem
 
         self._post_step1(data={'user':       user_id,
                                'first_name': first_name,
@@ -1285,11 +1312,10 @@ END:VCARD"""
         self.assertEqual(image_count,       Image.objects.count())
 
     @skipIfCustomContact
-    @override_settings(VCF_IMAGE_MAX_SIZE=10240) #(10 kB)
+    @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
     def test_add_contact_vcf17(self):
         self.login()
 
-        #settings.VCF_IMAGE_MAX_SIZE = 10240 #(10 kB)
         vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
 
         contact_count = Contact.objects.count()
@@ -1307,3 +1333,246 @@ END:VCARD""" % os_path.normpath(os_path.join(settings.CREME_ROOT, 'static', 'ima
                         )
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(image_count,       Image.objects.count())
+
+    @skipIfCustomContact
+    def test_fields_config01(self):
+        self.login()
+
+        FieldsConfig.create(Contact,
+                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        contact_count = Contact.objects.count()
+        content = """BEGIN:VCARD
+FN:Asuna Kagurazaka
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+TEL;TYPE=WORK:33 33 33 33 33
+EMAIL;TYPE=HOME:email@email.com
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=HOME:http://www.url.com/
+URL;TYPE=WORK:www.work.com
+ORG:Corporate\nEND:VCARD"""
+        fields = self._post_step0(content).context['form'].fields
+        first_name = fields['first_name'].initial
+        last_name  = fields['last_name'].initial
+        phone      = fields['phone'].initial
+        mobile     = fields['mobile'].initial
+        fax        = fields['fax'].initial
+        url_site   = fields['url_site'].initial
+        self.assertNotIn('email', fields)
+
+        self._post_step1(data={'user':       fields['user'].initial,
+                               'first_name': first_name,
+                               'last_name':  last_name,
+
+                               'phone':    phone,
+                               'mobile':   mobile,
+                               'fax':      fax,
+                               'email':    'shouldnot@be.used',  # <==
+                               'url_site': url_site,
+
+                               'create_or_attach_orga': False,
+                               'work_name':     fields['work_name'].initial,
+                               'work_phone':    fields['work_phone'].initial,
+                               'work_email':    fields['work_email'].initial,
+                               'work_url_site': fields['work_url_site'].initial,
+                              }
+                        )
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+
+        c = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone,
+                                    mobile=mobile, fax=fax, url_site=url_site,
+                                   )
+        self.assertIsNone(c.email)
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
+    def test_fields_config02(self):
+        self.login()
+
+        create_fc = FieldsConfig.create
+        create_fc(Organisation,
+                  descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+                 )
+        create_fc(Address,
+                  descriptions=[('zipcode', {FieldsConfig.HIDDEN: True}),
+                                ('po_box',  {FieldsConfig.HIDDEN: True}),
+                               ],
+                 )
+
+        orga_count    = Organisation.objects.count()
+        content = """BEGIN:VCARD
+FN:Asuna Kagurazaka
+ADR;TYPE=HOME:56;;Second street;Kyoto;Kyoto region;7777;Japan
+ADR;TYPE=WORK:57;;Third street;Tokyo;Tokyo region;8888;Japan
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+TEL;TYPE=WORK:33 33 33 33 33
+EMAIL;TYPE=HOME:email@email.com
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=HOME:http://www.url.com/
+URL;TYPE=WORK:www.work.com
+ORG:Corporate\nEND:VCARD"""
+        fields = self._post_step0(content).context['form'].fields
+        first_name = fields['first_name'].initial
+        last_name  = fields['last_name'].initial
+
+        work_name     = fields['work_name'].initial
+        work_phone    = fields['work_phone'].initial
+        work_url_site = fields['work_url_site'].initial
+        self.assertNotIn('work_email', fields)
+        self.assertNotIn('update_work_email', fields)
+
+        adr_name = fields['homeaddr_name'].initial
+        city     = fields['homeaddr_city'].initial
+        region   = fields['homeaddr_region'].initial
+        self.assertEqual('Kyoto', city)
+
+        work_adr_name = fields['workaddr_name'].initial
+        work_city     = fields['workaddr_city'].initial
+        work_region   = fields['workaddr_region'].initial
+        self.assertEqual('Tokyo', work_city)
+        self.assertNotIn('workaddr_code', fields)
+        self.assertIn('update_work_address', fields)
+
+        self._post_step1(data={'user':       fields['user'].initial,
+                               'first_name': first_name,
+                               'last_name':  last_name,
+
+                               'phone':    fields['phone'].initial,
+                               'mobile':   fields['mobile'].initial,
+                               'fax':      fields['fax'].initial,
+                               'email':    fields['email'].initial,
+                               'url_site': fields['url_site'].initial,
+
+                               'homeaddr_name':    adr_name,
+                               'homeaddr_address': fields['homeaddr_address'].initial,
+                               'homeaddr_city':    city,
+                               'homeaddr_country': fields['homeaddr_country'].initial,
+                               'homeaddr_region':  region,
+
+                               'create_or_attach_orga': True,
+                               'relation':              REL_SUB_EMPLOYED_BY,
+                               'work_name':             work_name,
+
+                               'work_phone':    work_phone,
+                               'work_email':    'shouldnot@be.used',  # <==
+                               'work_url_site': work_url_site,
+
+                               'workaddr_name':     work_adr_name,
+                               'workaddr_address':  fields['workaddr_address'].initial,
+                               'workaddr_city':     work_city,
+                               'workaddr_country':  fields['workaddr_country'].initial,
+                               'workaddr_region':   work_region,
+                              }
+                        )
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+
+        self.assertEqual(orga_count + 1, Organisation.objects.count())
+        orga = self.get_object_or_fail(Organisation, name=work_name, phone=work_phone)
+        self.assertIsNone(orga.email)
+
+        addr = contact.billing_address
+        self.assertIsNotNone(addr)
+        self.assertEqual(adr_name, addr.name)
+        self.assertEqual(city,     addr.city)
+        self.assertEqual(region,   addr.department)
+
+        addr = orga.billing_address
+        self.assertIsNotNone(addr)
+        self.assertEqual(work_adr_name, addr.name)
+        self.assertEqual(work_city,     addr.city)
+        self.assertEqual(work_region,   addr.department)
+
+    @skipIfCustomContact
+    @skipIfCustomAddress
+    def test_fields_config03(self):
+        "Hide Contact.billing_address"
+        self.login()
+
+        create_fc = FieldsConfig.create
+        create_fc(Contact,
+                  descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                 )
+        create_fc(Address,
+                  descriptions=[('zipcode', {FieldsConfig.HIDDEN: True})],
+                 )
+
+        content = """BEGIN:VCARD
+FN:Asuna Kagurazaka
+ADR;TYPE=HOME:56;;Second street;Kyoto;Kyoto region;7777;Japan
+TEL;TYPE=HOME:00 00 00 00 00
+EMAIL;TYPE=HOME:email@email.com
+ORG:Corporate\nEND:VCARD"""
+        fields = self._post_step0(content).context['form'].fields
+        first_name = fields['first_name'].initial
+        last_name  = fields['last_name'].initial
+
+        self.assertNotIn('homeaddr_city', fields)
+        self.assertNotIn('homeaddr_code', fields)
+
+        self._post_step1(data={'user':       fields['user'].initial,
+                               'first_name': first_name,
+                               'last_name':  last_name,
+
+                               'phone': fields['phone'].initial,
+                               'email': fields['email'].initial,
+
+                               'homeaddr_name':    'Main',
+                               'homeaddr_address': 'Second street',
+                               'homeaddr_city':    'Kyoto',
+                               }
+                         )
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertIsNone(contact.billing_address)
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
+    def test_fields_config04(self):
+        "Hide Organisation.billing_address"
+        self.login()
+
+        create_fc = FieldsConfig.create
+        create_fc(Organisation,
+                  descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                 )
+        create_fc(Address,
+                  descriptions=[('zipcode', {FieldsConfig.HIDDEN: True}),
+                                ('po_box',  {FieldsConfig.HIDDEN: True}),
+                               ],
+                 )
+
+        content = """BEGIN:VCARD
+FN:Asuna Kagurazaka
+ADR;TYPE=WORK:57;;Third street;Tokyo;Tokyo region;8888;Japan
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=WORK:33 33 33 33 33
+ORG:Corporate\nEND:VCARD"""
+        fields = self._post_step0(content).context['form'].fields
+
+        work_name = fields['work_name'].initial
+
+        self.assertNotIn('workaddr_city', fields)
+        self.assertNotIn('workaddr_code', fields)
+        self.assertNotIn('update_work_address', fields)
+
+        self._post_step1(data={'user':       fields['user'].initial,
+                               'first_name': fields['first_name'].initial,
+                               'last_name':  fields['last_name'].initial,
+
+                               'create_or_attach_orga': True,
+                               'relation':              REL_SUB_EMPLOYED_BY,
+                               'work_name':             work_name,
+
+                               'workaddr_name':    'Billing address',
+                               'workaddr_city':    'Tokyo',
+                               'workaddr_country': 'Japan',
+                              }
+                        )
+        orga = self.get_object_or_fail(Organisation, name=work_name)
+        self.assertIsNone(orga.billing_address)
