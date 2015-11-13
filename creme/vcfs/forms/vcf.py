@@ -157,9 +157,11 @@ class VcfImportForm(CremeModelWithUserForm):
         'required2update': _(u'Required, if you want to update organisation'),
     }
 
-    # Name of the fields corresponding to details.
+    # Name of the fields corresponding to Contact details.
     contact_details = ['phone', 'mobile', 'fax', 'email', 'url_site']
-    orga_details    = ['phone', 'email', 'fax', 'url_site']
+
+    # Name of the fields corresponding to Organisation (but not its Address).
+    orga_fields = ['name', 'phone', 'email', 'fax', 'url_site']
 
     # Correspondence between VCF field types & form-field names.
     phone_dict = {'HOME': 'phone',
@@ -197,8 +199,8 @@ class VcfImportForm(CremeModelWithUserForm):
          [HOME_ADDR_PREFIX + n[0] for n in address_mapping]
         ),
         ('organisation', _(u'Organisation'),
-         ['create_or_attach_orga', 'organisation', 'relation', 'update_work_name', 'work_name']
-         + list(chain.from_iterable(('update_work_' + fn, 'work_' + fn) for fn in orga_details)
+         ['create_or_attach_orga', 'organisation', 'relation']
+         + list(chain.from_iterable(('update_work_' + fn, 'work_' + fn) for fn in orga_fields)
         )
         ),
         ('organisation_address', _(u'Organisation billing address'),
@@ -497,7 +499,7 @@ class VcfImportForm(CremeModelWithUserForm):
             addr_prefix  = self.WORK_ADDR_PREFIX
 
             if organisation:
-                for fname in self.orga_details:
+                for fname in self.orga_fields:
                     if get_data('update_work_' + fname):
                          setattr(organisation, fname, get_data('work_' + fname))
 
@@ -520,9 +522,8 @@ class VcfImportForm(CremeModelWithUserForm):
                 save_orga = True
             else:
                 organisation = Organisation.objects.create(user=user,
-                                                           name=cleaned_data['work_name'],
                                                            **{fname: get_data('work_' + fname)
-                                                                for fname in self.orga_details
+                                                                for fname in self.orga_fields
                                                              }
                                                           )
 
