@@ -41,13 +41,7 @@ def vcf_import(request):
 
     if request.method == 'POST':
         POST = request.POST
-
-        #try:
-            #step = int(POST.get('vcf_step', 0))
-        #except ValueError:
-            #raise Http404('"vcf_step" must be in {0, 1}')
         step = get_from_POST_or_404(POST, 'vcf_step', cast=int, default=0)
-
         form = VcfForm(user=user, data=POST, files=request.FILES)
 
         if step == 0:

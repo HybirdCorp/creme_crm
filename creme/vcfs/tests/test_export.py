@@ -5,7 +5,8 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, RelationType, SetCredentials, ButtonMenuItem
+    from creme.creme_core.models import (Relation, RelationType, SetCredentials,
+            ButtonMenuItem, FieldsConfig)
 
     from creme.persons.models import Contact, Organisation, Address, Civility    
     from creme.persons.constants import REL_OBJ_EMPLOYED_BY
@@ -30,16 +31,20 @@ class VcfExportTestCase(CremeTestCase):
 
         return response
 
-    def create_contact(self):
-        return Contact.objects.create(user=self.user,
-                                      last_name='Abitbol',
-                                      first_name='George',
-                                      phone='0404040404',
-                                      mobile='0606060606',
-                                      fax='0505050505',
-                                      email='a@aa.fr',
-                                      url_site='www.aaa.fr',
-                                     )
+    def create_contact(self, **kwargs):
+        fields = {
+            'user': self.user,
+            'last_name': 'Abitbol',
+            'first_name': 'George',
+            'phone': '0404040404',
+            'mobile': '0606060606',
+            'fax': '0505050505',
+            'email': 'a@aa.fr',
+            'url_site': 'www.aaa.fr',
+        }
+        fields.update(kwargs)
+
+        return Contact.objects.create(**fields)
 
     def create_address(self, contact, prefix):
         return Address.objects.create(address='%s_address' % prefix,
@@ -116,8 +121,7 @@ class VcfExportTestCase(CremeTestCase):
     @skipIfCustomAddress
     def test_get_vcf_billing_addr(self):
         self.login()
-        contact = self.create_contact()
-        contact.civility = Civility.objects.create(title='Mr')
+        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
         contact.billing_address = self.create_address(contact, 'Org')
         contact.save()
 
@@ -132,8 +136,7 @@ class VcfExportTestCase(CremeTestCase):
     @skipIfCustomAddress
     def test_get_vcf_shipping_addr(self):
         self.login()
-        contact = self.create_contact()
-        contact.civility = Civility.objects.create(title='Mr')
+        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'Org')
         contact.save()
 
@@ -149,8 +152,7 @@ class VcfExportTestCase(CremeTestCase):
     @skipIfCustomAddress
     def test_get_vcf_both_addr(self):
         self.login()
-        contact = self.create_contact()
-        contact.civility = Civility.objects.create(title='Mr')
+        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'shipping')
         contact.billing_address = self.create_address(contact, 'billing')
         contact.save()
@@ -168,12 +170,11 @@ class VcfExportTestCase(CremeTestCase):
     @skipIfCustomAddress
     def test_get_vcf_addr_eq(self):
         self.login()
-        contact = self.create_contact()
-        contact.civility = Civility.objects.create(title='Mr')
+        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'Org')
         contact.billing_address = self.create_address(contact, 'Org')
         contact.save()
-        self.create_address(contact, 'Org') #other_address
+        self.create_address(contact, 'Org')  # Other_address
 
         response = self._generate_vcf(contact)
         self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'
@@ -187,12 +188,11 @@ class VcfExportTestCase(CremeTestCase):
     @skipIfCustomAddress
     def test_person(self):
         self.login()
-        contact = self.create_contact()
-        contact.civility = Civility.objects.create(title='Mr')
+        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'shipping')
         contact.billing_address = self.create_address(contact, 'billing')
         contact.save()
-        self.create_address(contact, 'Org') #other_address
+        self.create_address(contact, 'Org')  # Other_address
 
         response = self._generate_vcf(contact)
         self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'
@@ -201,6 +201,30 @@ class VcfExportTestCase(CremeTestCase):
                          'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
                          'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
                          'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+                         'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+                         response.content
+                        )
+
+    @skipIfCustomAddress
+    def test_fields_config(self):
+        self.login()
+        contact = self.create_contact()
+        contact.billing_address = self.create_address(contact, 'billing')
+        contact.save()
+
+        create_fc = FieldsConfig.create
+        create_fc(Contact,
+                  descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+                 )
+        create_fc(Address,
+                  descriptions=[('zipcode', {FieldsConfig.HIDDEN: True})],
+                 )
+
+        response = self._generate_vcf(contact)
+        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'
+                         'ADR:billing_po_box;;billing_address;billing_city;billing_department;;billi\r\n ng_country\r\n'
+                         'TEL;TYPE=CELL:0606060606\r\n'
+                         'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;;\r\n'
                          'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )

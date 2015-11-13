@@ -4,11 +4,10 @@ from .base import behavior_registry, backslashEscape, ContentLine # ascii
 from .behavior import Behavior
 from .utils import stringToTextValues
 
-#------------------------ vCard structs ----------------------------------------
+# ------------------------ vCard structs ---------------------------------------
 
 class Name(object):
-    def __init__(self, family = '', given = '', additional = '', prefix = '',
-                 suffix = ''):
+    def __init__(self, family='', given='', additional='', prefix='', suffix=''):
         """Each name attribute can be a string or a list of strings."""
         self.family     = family
         self.given      = given
@@ -43,8 +42,8 @@ class Name(object):
             #return False
 
 class Address(object):
-    def __init__(self, street = '', city = '', region = '', code = '',
-                 country = '', box = '', extended = ''):
+    def __init__(self, street='', city='', region='', code='',
+                 country='', box='', extended=''):
         """Each name attribute can be a string or a list of strings."""
         self.box      = box
         self.extended = extended
@@ -87,7 +86,7 @@ class Address(object):
         #except:
             #return False
 
-#------------------------ Registered Behavior subclasses -----------------------
+# ------------------------ Registered Behavior subclasses ----------------------
 
 class VCardTextBehavior(Behavior):
     """Provide backslash escape encoding/decoding for single valued properties.
@@ -106,7 +105,8 @@ class VCardTextBehavior(Behavior):
         contain a ENCODING=b for base64 encoding, but Apple Addressbook seems to
         export a singleton parameter of 'BASE64', which does not match the 3.0
         vCard spec. If we encouter that, then we transform the parameter to
-        ENCODING=b"""
+        ENCODING=b
+        """
         if line.encoded:
             if 'BASE64' in line.singletonparams:
                 line.singletonparams.remove('BASE64')
@@ -114,7 +114,7 @@ class VCardTextBehavior(Behavior):
 
             encoding = getattr(line, 'encoding_param', None)
 
-            #original code of vobject 0.8.1c fixed by Yann PRIME :
+            # Original code of vobject 0.8.1c fixed by Yann PRIME :
             #if encoding:
             if encoding == cls.base64string:
                 line.value = line.value.decode('base64')
@@ -149,9 +149,9 @@ class VCard3_0(VCardBehavior):
     versionString = '3.0'
     isComponent = True
     sortFirst = ('version', 'prodid', 'uid')
-    knownChildren = {'N':         (1, 1, None),#min, max, behaviorRegistry id
+    knownChildren = {'N':         (1, 1, None),  # min, max, behaviorRegistry id
                      'FN':        (1, 1, None),
-                     'VERSION':   (1, 1, None),#required, auto-generated
+                     'VERSION':   (1, 1, None),  # required, auto-generated
                      'PRODID':    (0, 1, None),
                      'LABEL':     (0, None, None),
                      'UID':       (0, None, None),
@@ -199,8 +199,9 @@ class Photo(VCardTextBehavior):
     @classmethod
     def serialize(cls, obj, buf, lineLength, validate):
         """Apple's Address Book is *really* weird with images, it expects
-           base64 data to have very specific whitespace.  It seems Address Book
-           can handle PHOTO if it's not wrapped, so don't wrap it."""
+        base64 data to have very specific whitespace.  It seems Address Book
+        can handle PHOTO if it's not wrapped, so don't wrap it.
+        """
         if wacky_apple_photo_serialize:
             lineLength = REALLY_LARGE
 
@@ -214,11 +215,13 @@ def toListOrString(string):
     else:
         return stringList
 
+
 def splitFields(string):
     "Return a list of strings or lists from a Name or Address."
     return [toListOrString(i)
                 for i in stringToTextValues(string, listSeparator=';', charList=';')
            ]
+
 
 def toList(stringOrList):
     if isinstance(stringOrList, basestring):
@@ -226,8 +229,9 @@ def toList(stringOrList):
 
     return stringOrList
 
+
 def serializeFields(obj, order=None):
-    """Turn an object's fields into a ';' and ',' seperated string.
+    """Turn an object's fields into a ';' and ',' separated string.
 
     If order is None, obj should be a list, backslash escape each field and
     return a ';' separated string.
