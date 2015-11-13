@@ -21,8 +21,8 @@
 from future_builtins import filter
 import warnings
 
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
@@ -47,12 +47,18 @@ class AbstractAddress(CremeModel):
     country    = CharField(_(u"Country"), max_length=40, blank=True, null=True)\
                           .set_tags(optional=True)
 
-    #TODO: use a real ForeignKey to CremeEntity (+ remove signal handlers )
-    content_type = ForeignKey(ContentType, related_name="object_set", editable=False).set_tags(viewable=False)
+    # TODO: use a real ForeignKey to CremeEntity (+ remove signal handlers )
+    content_type = ForeignKey(ContentType, related_name="object_set", editable=False)\
+                             .set_tags(viewable=False)
     object_id    = PositiveIntegerField(editable=False).set_tags(viewable=False)
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
 #    _info_field_names = None
+    STR_FIELD_NAMES = [
+        ['address', 'zipcode', 'city', 'department'],
+        ['po_box', 'state', 'country'],
+    ]
+    STR_SEPARATOR = u' '
 
     class Meta:
         abstract = True
@@ -61,11 +67,21 @@ class AbstractAddress(CremeModel):
         verbose_name_plural = _(u'Addresses')
 
     def __unicode__(self):
-        # TODO: use FieldsConfig
-        s = u' '.join(filter(None, [self.address, self.zipcode, self.city, self.department]))
+#        s = u' '.join(filter(None, [self.address, self.zipcode, self.city, self.department]))
+#
+#        if not s:
+#            s = u' '.join(filter(None, [self.po_box, self.state, self.country]))
+        s = u''
+        join = self.STR_SEPARATOR.join
+        allowed_fnames = set(self.info_field_names())
+        get_field_value = (lambda fname: None if fname not in allowed_fnames else
+                                         getattr(self, fname))
 
-        if not s:
-            s = u' '.join(filter(None, [self.po_box, self.state, self.country]))
+        for field_names in self.STR_FIELD_NAMES:
+            s = join(filter(None, (get_field_value(fn) for fn in field_names)))
+
+            if s:
+                break
 
         return s
 
@@ -73,12 +89,12 @@ class AbstractAddress(CremeModel):
 #        return '/persons/address/edit/%s' % self.id
         return reverse('persons__edit_address', args=(self.id,))
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.owner
 
 #    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
-    def __nonzero__(self): #used by forms to detect empty addresses
+    def __nonzero__(self):  # Used by forms to detect empty addresses
         return any(fvalue for fname, fvalue in self.info_fields)
 
     def _get_info_fields(self):
