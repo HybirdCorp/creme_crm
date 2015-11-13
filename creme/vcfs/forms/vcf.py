@@ -157,10 +157,10 @@ class VcfImportForm(CremeModelWithUserForm):
         'required2update': _(u'Required, if you want to update organisation'),
     }
 
-    # Name of the fields corresponding to Contact details.
+    # Names of the fields corresponding to the Contact's details.
     contact_details = ['phone', 'mobile', 'fax', 'email', 'url_site']
 
-    # Name of the fields corresponding to Organisation (but not its Address).
+    # Names of the fields corresponding to the related Organisation (but not its Address).
     orga_fields = ['name', 'phone', 'email', 'fax', 'url_site']
 
     # Correspondence between VCF field types & form-field names.
