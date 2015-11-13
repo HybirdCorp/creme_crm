@@ -68,7 +68,7 @@ def vcf_import(request):
         submit_label = _('Import this VCF file')
         cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/generics/blockform/edit.html',
+    return render(request, 'creme_core/generics/blockform/add.html',
                   {'form':         form,
                    'title':        _('Import contact from VCF file'),
                    'submit_label': submit_label,
