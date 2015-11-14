@@ -34,12 +34,14 @@ TicketTemplate = get_tickettemplate_model()
 def edit(request, template_id):
     return edit_entity(request, template_id, TicketTemplate, TicketTemplateForm)
 
+
 @login_required
 @permission_required('tickets')
 def detailview(request, template_id):
     return view_entity(request, template_id, TicketTemplate, '/tickets/template',
                        'tickets/view_template.html',
                       )
+
 
 @login_required
 @permission_required('tickets')
