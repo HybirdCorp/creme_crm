@@ -18,10 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import jsonify, get_from_POST_or_404
@@ -38,29 +40,53 @@ Product = get_product_model()
 Service = get_service_model()
 
 
-@login_required
-@permission_required(('products', 'products.add_product'))
-def add(request):
-    return add_entity(request, ProductCreateForm,
-                      extra_template_dict={'submit_label': _('Save the product')},
+def abstract_add_product(request, form=ProductCreateForm,
+                         submit_label=_('Save the product'),
+                        ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_product(request, product_id, form=ProductEditForm):
+    return edit_entity(request, product_id, Product, form)
+
+
+def abstract_view_product(request, product_id,
+                          template='products/view_product.html',
+                         ):
+    return view_entity(request, product_id, Product, template=template,
+                       path='/products/product',
+                      )
+
+
+@login_required
+# @permission_required(('products', 'products.add_product'))
+@permission_required(('products', cperm(Product)))
+def add(request):
+    return abstract_add_product(request)
+
 
 @login_required
 @permission_required('products')
 def edit(request, product_id):
-    return edit_entity(request, product_id, Product, ProductEditForm)
+    return abstract_edit_product(request, product_id)
+
 
 @login_required
 @permission_required('products')
 def detailview(request, product_id):
-    return view_entity(request, product_id, Product, '/products/product',
-                       'products/view_product.html',
-                      )
+    return abstract_view_product(request, product_id)
+
 
 @login_required
 @permission_required('products')
 def listview(request):
-    return list_view(request, Product, extra_dict={'add_url': '/products/product/add'})
+    return list_view(request, Product,
+                     # extra_dict={'add_url': '/products/product/add'}
+                     extra_dict={'add_url': reverse('products__create_product')},
+                    )
+
 
 @jsonify
 @login_required
@@ -71,6 +97,7 @@ def get_subcategories(request, category_id):
                                    .values_list('id', 'name')
                )
 
+
 @login_required
 @permission_required('products')
 def add_images(request, product_id):
@@ -79,6 +106,7 @@ def add_images(request, product_id):
                          entity_class=Product,
                          submit_label=_('Link the images'),
                         )
+
 
 @login_required
 @permission_required('products')
