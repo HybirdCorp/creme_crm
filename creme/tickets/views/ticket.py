@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
@@ -31,29 +33,52 @@ from ..models import Priority, Criticity #Ticket
 Ticket = get_ticket_model()
 
 
-@login_required
-@permission_required(('tickets', 'tickets.add_ticket'))
-def add(request):
-    return add_entity(request, TicketCreateForm,
+def abstract_add_ticket(request, form=TicketCreateForm,
+                        submit_label=_('Save the ticket'),
+                       ):
+    return add_entity(request, form,
                       extra_initial={'priority':  Priority.objects.first(),
                                      'criticity': Criticity.objects.first(),
                                     },
-                      extra_template_dict={'submit_label': _('Save the ticket')},
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_ticket(request, ticket_id, form=TicketEditForm):
+    return edit_entity(request, ticket_id, Ticket, form)
+
+
+def abstract_view_ticket(request, ticket_id,
+                         template='tickets/view_ticket.html',
+                        ):
+    return view_entity(request, ticket_id, Ticket, template=template,
+                       path='/tickets/ticket',
+                      )
+
+
+@login_required
+# @permission_required(('tickets', 'tickets.add_ticket'))
+@permission_required(('tickets', cperm(Ticket)))
+def add(request):
+    return abstract_add_ticket(request)
+
 
 @login_required
 @permission_required('tickets')
 def edit(request, ticket_id):
-    return edit_entity(request, ticket_id, Ticket, TicketEditForm)
+    return abstract_edit_ticket(request, ticket_id)
+
 
 @login_required
 @permission_required('tickets')
 def detailview(request, ticket_id):
-    return view_entity(request, ticket_id, Ticket, '/tickets/ticket',
-                       'tickets/view_ticket.html',
-                      )
+    return abstract_view_ticket(request, ticket_id)
+
 
 @login_required
 @permission_required('tickets')
 def listview(request):
-    return list_view(request, Ticket, extra_dict={'add_url': '/tickets/ticket/add'})
+    return list_view(request, Ticket,
+                     # extra_dict={'add_url': '/tickets/ticket/add'}
+                     extra_dict={'add_url': reverse('tickets__create_ticket')},
+                    )
