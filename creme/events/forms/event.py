@@ -42,7 +42,7 @@ from ..constants import *
 
 class EventForm(CremeEntityForm):
     start_date = DateTimeField(label=_(u'Start date'), widget=DateTimeWidget)
-    end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)#TODO: start_date > end_date ?
+    end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)  # TODO: start_date > end_date ?
 
     class Meta(CremeEntityForm.Meta):
 #        model = Event
@@ -56,6 +56,7 @@ _SYMMETRICS = {
 
 _TYPES = [REL_OBJ_IS_INVITED_TO, REL_OBJ_CAME_EVENT, REL_OBJ_NOT_CAME_EVENT]
 
+
 class AddContactsToEventForm(CremeForm):
     related_contacts = MultiRelationEntityField(allowed_rtypes=_TYPES, label=_(u'Related contacts'))
 
@@ -67,12 +68,12 @@ class AddContactsToEventForm(CremeForm):
         self.event = kwargs.pop('instance')
         super(AddContactsToEventForm, self).__init__(*args, **kwargs)
 
-        #TODO: factorise (_RelationsCreateForm in creme_core) ??
+        # TODO: factorise (_RelationsCreateForm in creme_core) ??
         relations_field = self.fields['related_contacts']
         relations_field.initial = [(relations_field.allowed_rtypes.all()[0], None)]
 
     def clean_related_contacts(self):
-        #Because of the optimisations, the save() algo will be wrong with a contact that is present twice.
+        # Because of the optimisations, the save() algo will be wrong with a contact that is present twice.
         related_contacts = self.cleaned_data['related_contacts']
         contacts_set = set()
 
@@ -90,9 +91,9 @@ class AddContactsToEventForm(CremeForm):
         return related_contacts
 
     def save(self):
-        #BEWARE: chosen contacts can have already relations with the event ;
-        #        we avoid several 'REL_OBJ_IS_INVITED_TO' relations,
-        #        'REL_OBJ_CAME_EVENT' override existing 'REL_OBJ_NOT_CAME_EVENT' relations etc...
+        # BEWARE: chosen contacts can have already relations with the event ;
+        #         we avoid several 'REL_OBJ_IS_INVITED_TO' relations,
+        #         'REL_OBJ_CAME_EVENT' override existing 'REL_OBJ_NOT_CAME_EVENT' relations etc...
         event = self.event
         user  = self.user
         relations = Relation.objects
@@ -100,8 +101,8 @@ class AddContactsToEventForm(CremeForm):
 
         related_contacts = self.cleaned_data['related_contacts']
 
-        #NB: queries are regrouped to optimise
-        relations_map = defaultdict(list) #per contact relations lists
+        # NB: queries are regrouped to optimise
+        relations_map = defaultdict(list)  # per contact relations lists
         for relation in relations.filter(subject_entity=event.id, type__in=_TYPES,
                                          object_entity__in=[contact.id for relationtype, contact in related_contacts]):
             relations_map[relation.object_entity_id].append(relation)
@@ -112,7 +113,7 @@ class AddContactsToEventForm(CremeForm):
             relationtype_id = relationtype.id
             contact_relations = relations_map.get(contact.id, ())
 
-            if relationtype_id != REL_OBJ_IS_INVITED_TO: # => REL_OBJ_CAME_EVENT or REL_OBJ_NOT_CAME_EVENT
+            if relationtype_id != REL_OBJ_IS_INVITED_TO:  # => REL_OBJ_CAME_EVENT or REL_OBJ_NOT_CAME_EVENT
                 symmetric = _SYMMETRICS[relationtype_id]
                 rel2del = find_first(contact_relations, lambda relation: relation.type_id == symmetric, None)
 
@@ -153,7 +154,7 @@ class RelatedOpportunityCreateForm(OpportunityCreateForm):
         opp = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)
 
         Relation.objects.create(user=self.user, subject_entity=opp,
-                                type_id=REL_SUB_GEN_BY_EVENT, object_entity=self.event
+                                type_id=REL_SUB_GEN_BY_EVENT, object_entity=self.event,
                                )
 
         return opp

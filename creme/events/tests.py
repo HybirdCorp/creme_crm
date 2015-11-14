@@ -21,6 +21,7 @@ try:
     from creme.persons.models import Contact, Organisation
 
     from creme.opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities.tests import skipIfCustomOpportunity
 
     from . import event_model_is_custom
     from .models import Event, EventType
@@ -47,9 +48,7 @@ class EventsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('persons', 'opportunities', 'events') #'persons' -> HeaderFilters
-        #if not SalesPhase.objects.exists():
-            #SalesPhase.objects.create(name='Forthcoming', order=1)
+        cls.populate('persons', 'opportunities', 'events')  # 'persons' -> HeaderFilters
 
         cls.ADD_URL = reverse('events__create_event')
 
@@ -57,7 +56,8 @@ class EventsTestCase(CremeTestCase):
         return '/events/event/%s/link_contacts' % event.id
 
     def _build_related_opp_url(self, event, contact):
-        return '/events/event/%s/add_opportunity_with/%s' % (event.id, contact.id)
+#        return '/events/event/%s/add_opportunity_with/%s' % (event.id, contact.id)
+        return reverse('events__create_related_opportunity', args=(event.id, contact.id))
 
     def test_populate(self):
         rtypes_pks = [REL_SUB_IS_INVITED_TO,
@@ -76,11 +76,11 @@ class EventsTestCase(CremeTestCase):
     def _create_event(self, name, etype=None):
         etype = etype or EventType.objects.all()[0]
         self.assertNoFormError(self.client.post(self.ADD_URL, follow=True,
-                                                data={'user':        self.user.pk,
-                                                    'name':        name,
-                                                    'type':        etype.pk,
-                                                    'start_date':  '2010-11-3',
-                                                    }
+                                                data={'user':       self.user.pk,
+                                                      'name':       name,
+                                                      'type':       etype.pk,
+                                                      'start_date': '2010-11-3',
+                                                     }
                                                )
                               )
 
@@ -101,7 +101,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(self.create_datetime(2010, 11, 3), event.start_date)
 
     def test_event_editview(self):
-        self.login()
+        user = self.login()
 
         name  = 'Eclipse'
         etype = EventType.objects.all()[0]
@@ -113,10 +113,10 @@ class EventsTestCase(CremeTestCase):
 
         name += '_edited'
         self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'user':        self.user.pk,
-                                                      'name':        name,
-                                                      'type':        etype.pk,
-                                                      'start_date':  '2010-11-4',
+                                                data={'user':       user.pk,
+                                                      'name':       name,
+                                                      'type':       etype.pk,
+                                                      'start_date': '2010-11-4',
                                                      }
                                                )
                               )
@@ -159,10 +159,8 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual([0] * 4, stats_list)
 
     def test_stats02(self):
-        self.login()
-
+        user = self.login()
         event = self._create_event('Eclipse')
-        user = self.user
 
         create_contact = partial(Contact.objects.create, user=user)
         casca    = create_contact(first_name='Casca',    last_name='Miura')
@@ -175,7 +173,7 @@ class EventsTestCase(CremeTestCase):
             Relation.objects.create(subject_entity=subject,
                                     type_id=type_id,
                                     object_entity=event,
-                                    user=user
+                                    user=user,
                                    )
 
         create_relation(casca,    REL_SUB_IS_INVITED_TO)
@@ -208,10 +206,10 @@ class EventsTestCase(CremeTestCase):
                         )
 
     def test_set_invitation_status01(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         stats = event.get_stats()
         self.assertEqual(0, stats['invations_count'])
@@ -238,10 +236,10 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(0, stats['visitors_count'])
 
     def test_set_invitation_status02(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         url = self._build_invitation_url(event, casca)
         self.assertPOST200(url, data={'status': INV_STATUS_ACCEPTED})
@@ -258,10 +256,10 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
 
     def test_set_invitation_status03(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_invitation_status(event, casca, INV_STATUS_REFUSED)
         stats = event.get_stats()
@@ -276,10 +274,10 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
 
     def test_set_invitation_status04(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_invitation_status(event, casca, INV_STATUS_ACCEPTED)
         self._set_invitation_status(event, casca, INV_STATUS_REFUSED)
@@ -295,10 +293,10 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
 
     def test_set_invitation_status05(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_invitation_status(event, casca, INV_STATUS_REFUSED)
         self._set_invitation_status(event, casca, INV_STATUS_ACCEPTED)
@@ -309,9 +307,7 @@ class EventsTestCase(CremeTestCase):
 
     def test_set_invitation_status06(self):
         "Credentials errors"
-        self.login(is_superuser=False, allowed_apps=['persons', 'events'])
-
-        user = self.user
+        user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
         other_user = self.other_user
 
         create_creds = partial(SetCredentials.objects.create, role=user.role)
@@ -357,10 +353,10 @@ class EventsTestCase(CremeTestCase):
                                )
 
     def test_set_presence_status01(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self.assertEqual(200, self._set_presence_status(event, casca, PRES_STATUS_COME).status_code)
 
@@ -375,10 +371,10 @@ class EventsTestCase(CremeTestCase):
         self.assertRelationCount(0, casca, REL_SUB_NOT_CAME_EVENT, event)
 
     def test_set_presence_status02(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_presence_status(event, casca, PRES_STATUS_COME)
         self.assertEqual(1, event.get_stats()['visitors_count'])
@@ -392,10 +388,10 @@ class EventsTestCase(CremeTestCase):
         self.assertRelationCount(0, casca, REL_SUB_NOT_CAME_EVENT, event)
 
     def test_set_presence_status03(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_presence_status(event, casca, PRES_STATUS_NOT_COME)
         self.assertEqual(0, event.get_stats()['visitors_count'])
@@ -407,9 +403,7 @@ class EventsTestCase(CremeTestCase):
 
     def test_set_presence_status04(self):
         "Credentials errors"
-        self.login(is_superuser=False, allowed_apps=['persons', 'events'])
-
-        user = self.user
+        user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
         other_user = self.other_user
 
         create_creds = partial(SetCredentials.objects.create, role=user.role)
@@ -419,7 +413,7 @@ class EventsTestCase(CremeTestCase):
                      set_type=SetCredentials.ESET_OWN
                     )
         create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
+                           EntityCredentials.DELETE | EntityCredentials.UNLINK,  # No LINK
                      set_type=SetCredentials.ESET_ALL
                     )
 
@@ -444,11 +438,11 @@ class EventsTestCase(CremeTestCase):
                           )
 
     def test_list_contacts(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         casca    = create_contact(first_name='Casca',    last_name='Miura')
         judo     = create_contact(first_name='Judo',     last_name='Miura')
         griffith = create_contact(first_name='Griffith', last_name='Miura')
@@ -473,10 +467,10 @@ class EventsTestCase(CremeTestCase):
                    )
 
     def test_link_contacts01(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         url = self._build_link_contacts_url(event)
         self.assertGET200(url)
@@ -493,11 +487,11 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual([REL_SUB_CAME_EVENT], self.relations_types(casca, event))
 
     def test_link_contacts02(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         casca    = create_contact(first_name='Casca',    last_name='Miura')
         judo     = create_contact(first_name='Judo',     last_name='Miura')
         griffith = create_contact(first_name='Griffith', last_name='Miura')
@@ -544,10 +538,10 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(carcus, event))
 
     def test_link_contacts03(self):
-        self.login()
+        user = self.login()
 
         event = self._create_event('Eclipse')
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
         ct_id = ContentType.objects.get_for_model(Contact).id
 
         response = self.assertPOST200(self._build_link_contacts_url(event), follow=True,
@@ -567,15 +561,15 @@ class EventsTestCase(CremeTestCase):
 
     def test_link_contacts04(self):
         "Link credentials error"
-        self.login(is_superuser=False, allowed_apps=['persons', 'events'])
+        user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
+                                            EntityCredentials.DELETE | EntityCredentials.UNLINK,  # No LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
-        event = Event.objects.create(user=self.user, name='Eclipse',
+        event = Event.objects.create(user=user, name='Eclipse',
                                      type=EventType.objects.all()[0],
                                      start_date=now(),
                                     )
@@ -607,14 +601,14 @@ class EventsTestCase(CremeTestCase):
         event = self.assertStillExists(event)
         self.assertEqual(etype, event.type)
 
+    @skipIfCustomOpportunity
     def test_related_opportunity01(self):
         "Contact is not related to an Organisation"
-        self.login()
+        user = self.login()
 
-        name  = 'Opp01'
+        name = 'Opp01'
         self.assertFalse(Opportunity.objects.filter(name=name))
 
-        user = self.user
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
         event = Event.objects.create(user=user, name='Eclipse',
                                      type=EventType.objects.all()[0],
@@ -634,7 +628,7 @@ class EventsTestCase(CremeTestCase):
 
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data={'user':        self.user.pk,
+                                    data={'user':        user.pk,
                                           'name':        name,
                                           'sales_phase': phase.id,
                                           'target':      '{"ctype":"%s", "entity":"%s"}' % (
@@ -650,15 +644,15 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(phase, opp.sales_phase)
         self.assertRelationCount(1, opp,  REL_SUB_GEN_BY_EVENT, event)
 
+    @skipIfCustomOpportunity
     def test_related_opportunity02(self):
         "Contact is related to an Organisation"
-        self.login()
+        user = self.login()
 
-        user = self.user
         create_orga = partial(Organisation.objects.create, user=user)
         emitter = create_orga(name='My society')
         hawks   = create_orga(name='Hawks')
-        rhino   = create_orga(name='Rhino') #no related to the contact
+        rhino   = create_orga(name='Rhino')  # No related to the contact
 
         CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
 
@@ -682,7 +676,7 @@ class EventsTestCase(CremeTestCase):
         self.assertFalse(target_f.help_text)
 
         name  = 'Opp01'
-        data = {'user':        self.user.pk,
+        data = {'user':        user.pk,
                 'name':        name,
                 'sales_phase': SalesPhase.objects.all()[0].id,
                 'target':      rhino.id,
@@ -692,7 +686,7 @@ class EventsTestCase(CremeTestCase):
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', 'target', 
-                             [_(u'Select a valid choice. That choice is not one of the available choices.')]
+                             _(u'Select a valid choice. That choice is not one of the available choices.')
                             )
 
         data['target'] = hawks.id,
