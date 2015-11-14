@@ -33,34 +33,41 @@ from ..forms.quick import CSVDocumentWidgetQuickForm
 Document = get_document_model()
 
 
-@login_required
-def add_csv_from_widget(request, count):
+def abstract_add_doc_from_widget(request, count, form=CSVDocumentWidgetQuickForm,
+                                 template='creme_core/generics/form/add_innerpopup.html',
+                                 submit_label=_('Save the document'),
+                                ):
     user = request.user
 
     if not user.has_perm_to_create(Document):
         raise PermissionDenied('You are not allowed to create a document')
 
-    # TODO : see for permission issues
+    # TODO: see for permission issues
 
     if request.method == 'POST':
-        form = CSVDocumentWidgetQuickForm(user=user, data=request.POST,
-                                          files=request.FILES or None,
-                                          initial=None,
-                                         )
+        form_instance = form(user=user, data=request.POST,
+                             files=request.FILES or None,
+                             initial=None,
+                            )
     else:
-        form = CSVDocumentWidgetQuickForm(user=user, initial=None)
+        form_instance = form(user=user, initial=None)
 
-    if request.method == 'GET' or not form.is_valid():
-        return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
-                           {'form':         form,
+    if request.method == 'GET' or not form_instance.is_valid():
+        return inner_popup(request, template,
+                           {'form':         form_instance,
                             'title':        Document.creation_label,
-                            'submit_label': _('Save the document'),
+                            'submit_label': submit_label,
                            },
-                           is_valid=form.is_valid(),
+                           is_valid=form_instance.is_valid(),
                            reload=False,
                            delegate_reload=True,
                           )
 
-    form.save()
+    form_instance.save()
 
-    return json_quickform_response(form.instance)
+    return json_quickform_response(form_instance.instance)
+
+
+@login_required
+def add_csv_from_widget(request, count):
+    return abstract_add_doc_from_widget(request, count)
