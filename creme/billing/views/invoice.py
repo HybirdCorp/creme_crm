@@ -20,10 +20,12 @@
 
 from datetime import date
 
+from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _ #, ugettext
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 #from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.decorators import POST_only
@@ -40,13 +42,44 @@ from ..views.workflow import generic_add_related #_add_with_relations
 Invoice = get_invoice_model()
 
 
-@login_required
-@permission_required(('billing', 'billing.add_invoice'))
-def add(request):
-    return add_entity(request, InvoiceCreateForm,
-                      extra_initial={'status': DEFAULT_DRAFT_INVOICE_STATUS},
-                      extra_template_dict={'submit_label': _('Save the invoice')},
+def abstract_add_invoice(request, form=InvoiceCreateForm,
+                         initial_status=DEFAULT_DRAFT_INVOICE_STATUS,
+                         submit_label=_('Save the invoice'),
+                        ):
+    return add_entity(request, form,
+                      extra_initial={'status': initial_status},
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_add_related_invoice(request, target_id, form=InvoiceCreateForm,
+                                 initial_status=DEFAULT_DRAFT_INVOICE_STATUS,
+                                 title=_(u'Add an invoice for «%s»'),
+                                 submit_label=_(u'Save the invoice'),
+                                ):
+   return generic_add_related(request, target_id=target_id,
+                              form=form, title=title, submit_label=submit_label,
+                              status_id=initial_status,
+                             )
+
+
+def abstract_edit_invoice(request, invoice_id, form=InvoiceEditForm):
+    return edit_entity(request, invoice_id, Invoice, form)
+
+
+def abstract_view_invoice(request, invoice_id, template='billing/view_billing.html'):
+    return view_entity(request, invoice_id, Invoice,
+                       path='/billing/invoice',  # TODO: to be removed...
+                       template=template, extra_template_dict={'can_download': True},
+                      )
+
+
+@login_required
+# @permission_required(('billing', 'billing.add_invoice'))
+@permission_required(('billing', cperm(Invoice)))
+def add(request):
+    return abstract_add_invoice(request)
+
 
 #@login_required
 #@permission_required(('billing', 'billing.add_invoice'))
@@ -69,30 +102,31 @@ def add(request):
 #                               status_id=DEFAULT_DRAFT_INVOICE_STATUS,
 #                              )
 @login_required
-@permission_required(('billing', 'billing.add_invoice'))
+# @permission_required(('billing', 'billing.add_invoice'))
+@permission_required(('billing', cperm(Invoice)))
 def add_related(request, target_id):
-   return generic_add_related(request, target_id=target_id, form=InvoiceCreateForm,
-                              title=_(u'Add an invoice for «%s»'),
-                              submit_label=_(u'Save the invoice'),
-                              status_id=DEFAULT_DRAFT_INVOICE_STATUS,
-                             )
+   return abstract_add_related_invoice(request, target_id)
+
 
 @login_required
 @permission_required('billing')
 def edit(request, invoice_id):
-    return edit_entity(request, invoice_id, Invoice, InvoiceEditForm)
+    return abstract_edit_invoice(request, invoice_id)
+
 
 @login_required
 @permission_required('billing')
 def detailview(request, invoice_id):
-    return view_entity(request, invoice_id, Invoice, '/billing/invoice',
-                       'billing/view_billing.html', {'can_download': True},
-                      )
+    return abstract_view_invoice(request, invoice_id)
+
 
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, Invoice, extra_dict={'add_url': '/billing/invoice/add'})
+    return list_view(request, Invoice,
+                     extra_dict={'add_url': reverse('billing__create_invoice')},
+                    )
+
 
 @login_required
 @permission_required('billing')
@@ -102,7 +136,7 @@ def generate_number(request, invoice_id):
 
     request.user.has_perm_to_change_or_die(invoice)
 
-    #TODO: move in model ???
+    # TODO: move in model ???
     if not invoice.number:
         status = get_object_or_404(InvoiceStatus, pk=DEFAULT_INVOICE_STATUS)
 

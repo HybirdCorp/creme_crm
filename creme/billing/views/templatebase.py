@@ -32,10 +32,15 @@ SalesOrder = get_sales_order_model()
 Invoice = get_invoice_model()
 
 
+def abstract_edit_templatebase(request, template_id, form=TemplateBaseEditForm):
+    return edit_entity(request, template_id, TemplateBase, form)
+
+
 @login_required
 @permission_required('billing')
 def edit(request, template_id):
-    return edit_entity(request, template_id, TemplateBase, TemplateBaseEditForm)
+    return abstract_edit_templatebase(request, template_id)
+
 
 @login_required
 @permission_required('recurrents')
@@ -51,6 +56,7 @@ def detailview(request, template_id):
                         'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
                        }
                       )
+
 
 @login_required
 @permission_required('billing')

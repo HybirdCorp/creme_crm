@@ -24,7 +24,7 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.last_viewed import LastViewedItem
 
 
-#TODO: remove 'path' arg (use get_edit_absolute_url() etc...) ??
+# TODO: remove 'path' arg (use get_edit_absolute_url() etc...) ??
 def view_entity(request, object_id, model, path,
                 template='creme_core/generics/view_entity.html',
                 extra_template_dict=None):
@@ -38,6 +38,7 @@ def view_entity(request, object_id, model, path,
         template_dict.update(extra_template_dict)
 
     return render(request, template, template_dict)
+
 
 def view_real_entity(request, object_id, path, template='creme_core/generics/view_entity.html'):
     entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
