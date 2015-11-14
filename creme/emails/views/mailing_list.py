@@ -18,10 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.decorators import require_model_fields
@@ -43,16 +45,19 @@ MailingList  = get_mailinglist_model()
 
 
 @login_required
-@permission_required(('emails', 'emails.add_mailinglist'))
+# @permission_required(('emails', 'emails.add_mailinglist'))
+@permission_required(('emails', cperm(MailingList)))
 def add(request):
     return add_entity(request, MailingListForm,
                       extra_template_dict={'submit_label': _('Save the mailing list')},
                      )
 
+
 @login_required
 @permission_required('emails')
 def edit(request, ml_id):
     return edit_entity(request, ml_id, MailingList, MailingListForm)
+
 
 @login_required
 @permission_required('emails')
@@ -61,10 +66,15 @@ def detailview(request, ml_id):
                        'emails/view_mailing_list.html',
                       )
 
+
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, MailingList, extra_dict={'add_url': '/emails/mailing_list/add'})
+    return list_view(request, MailingList,
+                     # extra_dict={'add_url': '/emails/mailing_list/add'}
+                     extra_dict={'add_url': reverse('emails__create_mlist')},
+                    )
+
 
 @login_required
 @permission_required('emails')
@@ -76,6 +86,7 @@ def add_contacts(request, ml_id):
                          submit_label=_('Link the contacts'),
                         )
 
+
 @login_required
 @permission_required('emails')
 @require_model_fields(Contact, 'email')
@@ -85,6 +96,7 @@ def add_contacts_from_filter(request, ml_id):
                          entity_class=MailingList,
                          submit_label=_('Link the contacts'),
                         )
+
 
 @login_required
 @permission_required('emails')
@@ -96,6 +108,7 @@ def add_organisations(request, ml_id):
                          submit_label=_('Link the organisations'),
                         )
 
+
 @login_required
 @permission_required('emails')
 @require_model_fields(Organisation, 'email')
@@ -106,6 +119,7 @@ def add_organisations_from_filter(request, ml_id):
                          submit_label=_('Link the organisations'),
                         )
 
+
 @login_required
 @permission_required('emails')
 def add_children(request, ml_id):
@@ -114,6 +128,7 @@ def add_children(request, ml_id):
                          entity_class=MailingList,
                          submit_label=_('Link the mailing lists'),
                         )
+
 
 # TODO: Conflict error if 'email' field is hidden ?
 @login_required
@@ -131,11 +146,14 @@ def _delete_aux(request, ml_id, deletor):
 
     return redirect(ml)
 
+
 def delete_contact(request, ml_id):
     return _delete_aux(request, ml_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
 
+
 def delete_organisation(request, ml_id):
     return _delete_aux(request, ml_id, lambda ml, orga_id: ml.organisations.remove(orga_id))
+
 
 def delete_child(request, ml_id):
     return _delete_aux(request, ml_id, lambda ml, child_id: ml.children.remove(child_id))
