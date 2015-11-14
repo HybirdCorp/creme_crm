@@ -86,10 +86,11 @@ if not opportunity_model_is_custom():
 
 if not pattern_model_is_custom():
     urlpatterns += [
+        # TODO: a separated file for pattern ???
         url(r'^objective_patterns$',                            act.listview_objective_pattern,   name='commercial__list_patterns'),
         url(r'^objective_pattern/add$',                         act.add_objective_pattern,        name='commercial__create_pattern'),
         url(r'^objective_pattern/edit/(?P<objpattern_id>\d+)$', act.edit_objective_pattern,       name='commercial__edit_pattern'),
-        url(r'^objective_pattern/(?P<objpattern_id>\d+)$',      act.objective_pattern_detailview, name='commercial__view_pattern'), #TODO: a separated file for pattern ???
+        url(r'^objective_pattern/(?P<objpattern_id>\d+)$',      act.objective_pattern_detailview, name='commercial__view_pattern'),
     ]
 
 if not strategy_model_is_custom():

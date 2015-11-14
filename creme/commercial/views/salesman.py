@@ -22,6 +22,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import list_view
 
@@ -33,10 +34,19 @@ from ..constants import PROP_IS_A_SALESMAN
 from ..forms.salesman import SalesManCreateForm
 
 
+Contact = get_contact_model()
+
+
+def abstract_add_salesman(request, form=SalesManCreateForm,
+                          submit_label=_('Save the salesman'),
+                         ):
+    return abstract_add_contact(request, form=form, submit_label=submit_label)
+
+
 # TODO: factorise with generic list_view (list_contacts + property) ??
 #       problem: list_view can accept to filter on a property (register a filtered view in the menu etc...)
-def abstract_list_salesmen(request, model=get_contact_model(), title=_(u'List of salesmen')):
-    return list_view(request, model,
+def abstract_list_salesmen(request, title=_(u'List of salesmen')):
+    return list_view(request, Contact,
                      extra_dict={'list_title': title,
                                  # TODO: button registry to change the button label
                                  'add_url': reverse('commercial__create_salesman'),
@@ -44,12 +54,13 @@ def abstract_list_salesmen(request, model=get_contact_model(), title=_(u'List of
                      extra_q=Q(properties__type=PROP_IS_A_SALESMAN),
                     )
 
+
 @login_required
-@permission_required('persons', 'persons.add_contact')
+# @permission_required('persons', 'persons.add_contact')
+@permission_required('persons', cperm(Contact))
 def add(request):
-    return abstract_add_contact(request, form=SalesManCreateForm,
-                                submit_label=_('Save the salesman'),
-                               )
+    return abstract_add_salesman(request)
+
 
 @login_required
 @permission_required('persons')
