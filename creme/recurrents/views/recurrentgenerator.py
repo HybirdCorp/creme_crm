@@ -19,6 +19,7 @@
 ################################################################################
 
 #from django.contrib.formtools.wizard.views import SessionWizardView
+from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -26,6 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from formtools.wizard.views import SessionWizardView
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import view_entity, list_view, edit_entity
 
@@ -42,7 +44,8 @@ class RecurrentGeneratorWizard(SessionWizardView):
 
     @method_decorator(login_required)
     @method_decorator(permission_required('recurrents'))
-    @method_decorator(permission_required('recurrents.add_recurrentgenerator'))
+    # @method_decorator(permission_required('recurrents.add_recurrentgenerator'))
+    @method_decorator(permission_required(cperm(RecurrentGenerator)))
     def dispatch(self, *args, **kwargs):
         return super(RecurrentGeneratorWizard, self).dispatch(*args, **kwargs)
 
@@ -82,7 +85,7 @@ class RecurrentGeneratorWizard(SessionWizardView):
             kwargs.update(data=data,
                           files=files,
                           prefix=self.get_form_prefix(step, None),
-                          initial=self.get_form_initial(step), # Not really useful here...
+                          initial=self.get_form_initial(step),  # Not really useful here...
                           ct=ctype,
                          )
             form = form_class(**kwargs)
@@ -95,21 +98,35 @@ class RecurrentGeneratorWizard(SessionWizardView):
         return {'user': self.request.user}
 
 
+def abstract_edit_rgenerator(request, generator_id, form=RecurrentGeneratorEditForm):
+    return edit_entity(request, generator_id, RecurrentGenerator, form)
+
+
+def abstract_view_rgenerator(request, generator_id,
+                             template='recurrents/view_generator.html',
+                            ):
+    return view_entity(request, generator_id, RecurrentGenerator,
+                       path='/recurrents/generator',
+                       template=template,
+                      )
+
+
 @login_required
 @permission_required('recurrents')
 def edit(request, generator_id):
-    return edit_entity(request, generator_id, RecurrentGenerator, RecurrentGeneratorEditForm)
+    return abstract_edit_rgenerator(request, generator_id)
+
+
+@login_required
+@permission_required('recurrents')
+def detailview(request, generator_id):
+    return abstract_view_rgenerator(request, generator_id)
+
 
 @login_required
 @permission_required('recurrents')
 def listview(request):
     return list_view(request, RecurrentGenerator,
-                     extra_dict={'add_url': '/recurrents/generator/add'},
+                     # extra_dict={'add_url': '/recurrents/generator/add'},
+                     extra_dict={'add_url': reverse('recurrents__create_generator')},
                     )
-
-@login_required
-@permission_required('recurrents')
-def detailview(request, generator_id):
-    return view_entity(request, generator_id, RecurrentGenerator,
-                       '/recurrents/generator', 'recurrents/view_generator.html',
-                      )
