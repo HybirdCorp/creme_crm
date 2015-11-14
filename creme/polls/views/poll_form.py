@@ -19,12 +19,14 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.models import ProtectedError
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.translation import ugettext as _
 #from django.utils.encoding import smart_unicode
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import jsonify
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
@@ -35,35 +37,59 @@ from ..forms.poll_form import (PollFormForm, PollFormLineCreateForm, PollFormLin
         PollFormSectionCreateForm, PollFormSectionEditForm,
         PollFormLineConditionsForm)
 from ..models import PollFormSection, PollFormLine #PollForm
-from ..utils import StatsTree, NodeStyle #TODO: templatetag instead ?
+from ..utils import StatsTree, NodeStyle  # TODO: templatetag instead ?
 
 
 PollForm = get_pollform_model()
 
 
-@login_required
-@permission_required(('polls', 'polls.add_pollform'))
-def add(request):
-    return add_entity(request, PollFormForm,
-                      extra_template_dict={'submit_label': _('Save the form of poll')},
+def abstract_add_pollform(request, form=PollFormForm,
+                          submit_label=_('Save the form of poll'),
+                         ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_pollform(request, pform_id, form=PollFormForm):
+    return edit_entity(request, pform_id, PollForm, form)
+
+
+def abstract_view_pollform(request, pform_id,
+                           template='polls/view_pollform.html',
+                          ):
+    return view_entity(request, pform_id, PollForm, template=template,
+                       path='/polls/poll_form',
+                      )
+
+
+@login_required
+# @permission_required(('polls', 'polls.add_pollform'))
+@permission_required(('polls', cperm(PollForm)))
+def add(request):
+    return abstract_add_pollform(request)
+
 
 @login_required
 @permission_required('polls')
 def edit(request, pform_id):
-    return edit_entity(request, pform_id, PollForm, PollFormForm)
+    return abstract_edit_pollform(request, pform_id)
+
 
 @login_required
 @permission_required('polls')
 def detailview(request, pform_id):
-    return view_entity(request, pform_id, PollForm,
-                       '/polls/poll_form', 'polls/view_pollform.html'
-                      )
+    return abstract_view_pollform(request, pform_id)
+
 
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollForm, extra_dict={'add_url': '/polls/poll_form/add'})
+    return list_view(request, PollForm,
+                     # extra_dict={'add_url': '/polls/poll_form/add'},
+                     extra_dict={'add_url': reverse('polls__create_form')},
+                    )
+
 
 @login_required
 @permission_required('polls')
@@ -74,12 +100,14 @@ def add_line(request, pform_id):
                          submit_label=_('Save the question'),
                         )
 
+
 @login_required
 @permission_required('polls')
 def edit_line(request, line_id):
     return edit_related_to_entity(request, line_id, PollFormLine,
                                   PollFormLineEditForm, _(u'Question for «%s»'),
                                  )
+
 
 @login_required
 @permission_required('polls')
@@ -102,6 +130,7 @@ def disable_line(request, line_id):
 
     return redirect(pform)
 
+
 @login_required
 @permission_required('polls')
 def edit_line_conditions(request, line_id):
@@ -117,6 +146,7 @@ def edit_line_conditions(request, line_id):
                          submit_label=_('Save the condition'),
                         )
 
+
 @login_required
 @permission_required('polls')
 def add_section(request, pform_id):
@@ -126,12 +156,14 @@ def add_section(request, pform_id):
                          submit_label=_('Save the section'),
                         )
 
+
 @login_required
 @permission_required('polls')
 def edit_section(request, section_id):
     return edit_related_to_entity(request, section_id, PollFormSection,
                                   PollFormSectionEditForm, _(u'Section for «%s»'),
                                  )
+
 
 @login_required
 @permission_required('polls')
@@ -145,6 +177,7 @@ def add_section_child(request, section_id):
                          submit_label=_('Save the section'),
                         )
 
+
 @login_required
 @permission_required('polls')
 def add_line_to_section(request, section_id):
@@ -157,6 +190,7 @@ def add_line_to_section(request, section_id):
                          submit_label=_('Save the question'),
                         )
 
+
 @login_required
 @permission_required('polls')
 def stats(request, pform_id):
@@ -167,6 +201,7 @@ def stats(request, pform_id):
                    'style': NodeStyle(),
                   }
                  )
+
 
 @login_required
 @permission_required('polls')

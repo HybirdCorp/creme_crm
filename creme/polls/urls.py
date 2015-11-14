@@ -11,20 +11,20 @@ urlpatterns = [
 
     url(r'^poll_form/stats/(?P<pform_id>\d+)$', poll_form.stats),
 
-    #Form lines
+    # Form lines
     url(r'^poll_form/(?P<pform_id>\d+)/add/line$',        poll_form.add_line),
     url(r'^pform_line/(?P<line_id>\d+)/edit$',            poll_form.edit_line),
     url(r'^pform_line/(?P<line_id>\d+)/disable$',         poll_form.disable_line),
     url(r'^pform_line/(?P<line_id>\d+)/conditions/edit$', poll_form.edit_line_conditions),
     url(r'^pform_line/(?P<line_id>\d+)/choices$',         poll_form.get_choices),
 
-    #Form section
+    # Form section
     url(r'^poll_form/(?P<pform_id>\d+)/add/section$',     poll_form.add_section),
     url(r'^pform_section/(?P<section_id>\d+)/edit$',      poll_form.edit_section),
     url(r'^pform_section/(?P<section_id>\d+)/add/child$', poll_form.add_section_child),
     url(r'^pform_section/(?P<section_id>\d+)/add/line$',  poll_form.add_line_to_section),
 
-    #Replies
+    # Replies
     url(r'^poll_reply/fill/(?P<preply_id>\d+)$',           poll_reply.fill),
     url(r'^poll_reply/clean$',                             poll_reply.clean),
     url(r'^poll_reply/link_to_person/(?P<person_id>\d+)$', poll_reply.link_to_person),
