@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 #from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.views import generic
@@ -41,29 +43,53 @@ from ..models import (MarketSegmentDescription, CommercialAsset, CommercialAsset
 Strategy = get_strategy_model()
 
 
-@login_required
-@permission_required(('commercial', 'commercial.add_strategy'))
-def add(request):
-    return generic.add_entity(request, forms.StrategyForm,
-                              extra_template_dict={'submit_label': _('Save the strategy')},
+def abstract_add_strategy(request, form=forms.StrategyForm,
+                          submit_label=_('Save the strategy'),
+                         ):
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
                              )
+
+
+def abstract_edit_strategy(request, strategy_id, form=forms.StrategyForm):
+    return generic.edit_entity(request, strategy_id, Strategy, form)
+
+
+def abstract_view_strategy(request, strategy_id,
+                           template='commercial/view_strategy.html',
+                          ):
+    return generic.view_entity(request, strategy_id, Strategy, template=template,
+                               path='/commercial/strategy',  # TODO: to be removed
+                              )
+
+
+@login_required
+# @permission_required(('commercial', 'commercial.add_strategy'))
+@permission_required(('commercial', cperm(Strategy)))
+def add(request):
+    return abstract_add_strategy(request)
+
 
 @login_required
 @permission_required('commercial')
 def edit(request, strategy_id):
-    return generic.edit_entity(request, strategy_id, Strategy, forms.StrategyForm)
+    return abstract_edit_strategy(request, strategy_id)
+
 
 @login_required
 @permission_required('commercial')
 def detailview(request, strategy_id):
-    return generic.view_entity(request, strategy_id, Strategy, '/commercial/strategy',
-                               template='commercial/view_strategy.html',
-                              )
+    return abstract_view_strategy(request, strategy_id)
+
 
 @login_required
 @permission_required('commercial')
 def listview(request):
-    return generic.list_view(request, Strategy, extra_dict={'add_url': '/commercial/strategy/add'})
+    return generic.list_view(request, Strategy,
+                             # extra_dict={'add_url': '/commercial/strategy/add'}
+                             extra_dict={'add_url': reverse('commercial__create_strategy')}
+                            )
+
 
 @login_required
 @permission_required('commercial')
@@ -74,6 +100,7 @@ def add_segment(request, strategy_id):
                                  submit_label=_('Save the market segment'),
                                 )
 
+
 @login_required
 @permission_required('commercial')
 def link_segment(request, strategy_id):
@@ -83,6 +110,7 @@ def link_segment(request, strategy_id):
                                  submit_label=_('Save the market segment'),
                                 )
 
+
 @login_required
 @permission_required('commercial')
 def add_asset(request, strategy_id):
@@ -91,6 +119,7 @@ def add_asset(request, strategy_id):
                                  entity_class=Strategy,
                                  submit_label=_('Save the commercial asset'),
                                 )
+
 
 @login_required
 @permission_required('commercial')
@@ -110,12 +139,14 @@ def add_evalorga(request, strategy_id):
                                  submit_label=_('Link the organisation(s)'),
                                 )
 
+
 @login_required
 @permission_required('commercial')
 def edit_segment(request, strategy_id, seginfo_id):
     return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
                                           forms.SegmentEditForm, ugettext(u"Segment for «%s»")
                                          )
+
 
 @login_required
 @permission_required('commercial')
@@ -130,6 +161,7 @@ def edit_charm(request, charm_id):
     return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
                                           forms.CharmForm, ugettext(u"Charm for «%s»")
                                          )
+
 
 @login_required
 @permission_required('commercial')
@@ -147,6 +179,7 @@ def delete_evalorga(request, strategy_id):
 
     return redirect(strategy)
 
+
 def _get_strategy_n_orga(request, strategy_id, orga_id):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
     has_perm = request.user.has_perm_to_view_or_die
@@ -157,6 +190,7 @@ def _get_strategy_n_orga(request, strategy_id, orga_id):
     has_perm(orga)
 
     return strategy, orga
+
 
 @login_required
 @permission_required('commercial')
@@ -170,11 +204,14 @@ def _orga_view(request, strategy_id, orga_id, template):
 
     return render(request, template, {'orga': orga, 'strategy': strategy})
 
+
 def orga_evaluation(request, strategy_id, orga_id):
     return _orga_view(request, strategy_id, orga_id, 'commercial/orga_evaluation.html')
 
+
 def orga_synthesis(request, strategy_id, orga_id):
     return _orga_view(request, strategy_id, orga_id, 'commercial/orga_synthesis.html')
+
 
 @login_required
 @permission_required('commercial')
@@ -195,11 +232,14 @@ def _set_score(request, strategy_id, method_name):
 
     return HttpResponse('', content_type='text/javascript')
 
+
 def set_asset_score(request, strategy_id):
     return _set_score(request, strategy_id, 'set_asset_score')
 
+
 def set_charm_score(request, strategy_id):
     return _set_score(request, strategy_id, 'set_charm_score')
+
 
 @login_required
 @permission_required('commercial')
@@ -218,6 +258,7 @@ def set_segment_category(request, strategy_id):
         raise Http404(str(e))
 
     return HttpResponse('', content_type='text/javascript')
+
 
 @login_required
 @permission_required('commercial')
