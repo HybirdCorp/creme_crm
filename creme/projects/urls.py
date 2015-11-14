@@ -11,18 +11,20 @@ from .views import portal, project, task, resource
 urlpatterns = [
     url(r'^$', portal.portal),
 
-    # TODO : Define what user could do or not if projet is 'close' (with the use of the buttom that sets an effective end date)
-    url(r'^project/(?P<project_id>\d+)/close$',  project.close), #TODO: change url ?? project/close/(?P<project_id>\d+)
+    # TODO: Define what user could do or not if projet is 'close'
+    #       (with the use of the buttom that sets an effective end date)
+    # TODO: change url ?? project/close/(?P<project_id>\d+)
+    url(r'^project/(?P<project_id>\d+)/close$',  project.close),
 
     url(r'^task/parent/delete$',               task.delete_parent),
     url(r'^task/(?P<task_id>\d+)/parent/add$', task.add_parent),
 
-    #Task: Resource block
+    # Task: Resource block
     url(r'^task/(?P<task_id>\d+)/resource/add$', resource.add),
     url(r'^resource/edit/(?P<resource_id>\d+)$', resource.edit),
     url(r'^resource/delete$',                    resource.delete),
 
-    #Task: Working periods block
+    # Task: Working periods block
 #    (r'^task/(?P<task_id>\d+)/period/add$', 'workingperiod.add'),
 #    (r'^period/edit/(?P<period_id>\d+)$',   'workingperiod.edit'),
 #    (r'^period/delete$',                    'workingperiod.delete'),
