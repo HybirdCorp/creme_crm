@@ -18,10 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
@@ -34,30 +36,54 @@ from ..models import ProjectStatus # Project
 Project = get_project_model()
 
 
-@login_required
-@permission_required(('projects', 'projects.add_project'))
-def add(request):
-    return add_entity(request, ProjectCreateForm,
+def abstract_add_project(request, form=ProjectCreateForm,
+                         submit_label=_('Save the project'),
+                        ):
+    return add_entity(request, form,
                       extra_initial={'status': ProjectStatus.objects.first()},
-                      extra_template_dict={'submit_label': _('Save the project')},
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_project(request, project_id, form=ProjectEditForm):
+    return edit_entity(request, project_id, Project, form)
+
+
+def abstract_view_project(request, project_id,
+                          template='projects/view_project.html',
+                         ):
+    return view_entity(request, project_id, Project, path='/projects/project',
+                       template=template,
+                      )
+
+
+@login_required
+# @permission_required(('projects', 'projects.add_project'))
+@permission_required(('projects', cperm(Project)))
+def add(request):
+    return abstract_add_project(request)
+
 
 @login_required
 @permission_required('projects')
 def edit(request, project_id):
-    return edit_entity(request, project_id, Project, ProjectEditForm)
+    return abstract_edit_project(request, project_id)
+
 
 @login_required
 @permission_required('projects')
 def listview(request):
-    return list_view(request, Project, extra_dict={'add_url': '/projects/project/add'})
+    return list_view(request, Project,
+                     # extra_dict={'add_url': '/projects/project/add'},
+                     extra_dict={'add_url': reverse('projects__create_project')},
+                    )
+
 
 @login_required
 @permission_required('projects')
 def detailview(request, project_id):
-    return view_entity(request, project_id, Project, '/projects/project',
-                       'projects/view_project.html',
-                      )
+    return abstract_view_project(request, project_id)
+
 
 @login_required
 @POST_only
