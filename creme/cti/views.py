@@ -27,6 +27,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, RelationType, Relation, EntityCredentials
 from creme.creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
@@ -45,38 +46,90 @@ from creme.activities.constants import (ACTIVITYTYPE_PHONECALL,
 from creme.activities.models import Calendar #Activity
 
 
+Contact = get_contact_model()
+Organisation = get_organisation_model()
 Activity = get_activity_model()
 
 
-def _build_phonecall(user, entity_id, calltype_id, title_format):
+def _create_phonecall(user, title, calltype_id):
+    now_value = now()
+    return Activity.objects.create(user=user,
+                                   title=title,
+                                   description=_(u'Automatically created by CTI'),
+                                   status_id=STATUS_IN_PROGRESS,
+                                   type_id=ACTIVITYTYPE_PHONECALL,
+                                   sub_type_id=calltype_id,
+                                   start=now_value,
+                                   end=now_value + timedelta(minutes=5),
+                                  )
+
+
+def abstract_create_phonecall_as_caller(request, pcall_creator=_create_phonecall):
+    pcall = _build_related_phonecall(request.user,
+                                     get_from_POST_or_404(request.POST, 'entity_id'),
+                                     ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                                     _(u'Call to %s'),
+                                     pcall_creator=pcall_creator,
+                                    )
+
+    return u'%s<br/><a href="%s">%s</a>' % (
+                    _(u'Phone call successfully created.'),
+                    pcall.get_absolute_url(),
+                    unicode(pcall),
+                )
+
+def abstract_add_contact(request, number, form=ContactForm,
+                         template='persons/add_contact_form.html',
+                        ):
+    return add_entity(request, form, template=template,
+                      extra_initial={'phone': number},
+                     )
+
+
+def abstract_add_organisation(request, number, form=OrganisationForm,
+                              template='persons/add_organisation_form.html',
+                              ):
+    return add_entity(request, form, template=template,
+                      extra_initial={'phone': number},
+                     )
+
+
+def abstract_add_phonecall(request, entity_id, pcall_creator=_create_phonecall):
+    pcall = _build_related_phonecall(request.user, entity_id,
+                                     ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                                     _(u'Call from %s'),
+                                     pcall_creator=pcall_creator,
+                                    )
+
+    return redirect(pcall)
+
+
+def _build_related_phonecall(user, entity_id, calltype_id, title_format, pcall_creator=_create_phonecall):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
 
     user.has_perm_to_link_or_die(entity)
-
     user.has_perm_to_create_or_die(Activity)
 
-    #user_contact = get_object_or_404(Contact, is_user=user)
     entity = entity.get_real_entity()
-    now_value = now()
-    pcall = Activity.objects.create(user=user,
-                                    title=title_format % entity,
-                                    type_id=ACTIVITYTYPE_PHONECALL,
-                                    description=_(u'Automatically created by CTI'),
-                                    status_id=STATUS_IN_PROGRESS,
-                                    sub_type_id=calltype_id,
-                                    start=now_value,
-                                    end=now_value + timedelta(minutes=5),
-                                   )
+#    now_value = now()
+#    pcall = Activity.objects.create(user=user,
+#                                    title=title_format % entity,
+#                                    type_id=ACTIVITYTYPE_PHONECALL,
+#                                    description=_(u'Automatically created by CTI'),
+#                                    status_id=STATUS_IN_PROGRESS,
+#                                    sub_type_id=calltype_id,
+#                                    start=now_value,
+#                                    end=now_value + timedelta(minutes=5),
+#                                   )
+    pcall = pcall_creator(user, title=title_format % entity, calltype_id=calltype_id)
 
     pcall.calendars.add(Calendar.get_user_default_calendar(user))
 
-    Contact = get_contact_model()
-
-    # if the entity is a contact with related user, should add the phone call to his calendar
+    # If the entity is a contact with related user, should add the phone call to his calendar
     if isinstance(entity, Contact) and entity.is_user:
         pcall.calendars.add(Calendar.get_user_default_calendar(entity.is_user))
 
-    #TODO: link credentials
+    # TODO: link credentials
     caller_rtype = REL_SUB_PART_2_ACTIVITY
     entity_rtype = REL_SUB_PART_2_ACTIVITY if isinstance(entity, Contact) else REL_SUB_LINKED_2_ACTIVITY
     rtypes_ids   = {caller_rtype, entity_rtype}
@@ -94,20 +147,12 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
 
     return pcall
 
+
 @jsonify
 @login_required
 def create_phonecall_as_caller(request):
-    pcall = _build_phonecall(request.user,
-                             get_from_POST_or_404(request.POST, 'entity_id'),
-                             ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                             _(u'Call to %s'),
-                            )
+    return abstract_create_phonecall_as_caller(request)
 
-    return u'%s<br/><a href="%s">%s</a>' % (
-                    _(u'Phone call successfully created.'),
-                    pcall.get_absolute_url(),
-                    unicode(pcall),
-                )
 
 @login_required
 def respond_to_a_call(request):
@@ -115,47 +160,38 @@ def respond_to_a_call(request):
     user = request.user
     filter_viewable = EntityCredentials.filter
 
-    #TODO: get dynamically are PhoneField
-#    callers = list(filter_viewable(user, Contact.objects.filter(Q(phone=number) | Q(mobile=number))))
-#    callers.extend(filter_viewable(user, Organisation.objects.filter(phone=number)))
-    callers = list(filter_viewable(user, get_contact_model().objects.filter(Q(phone=number) | Q(mobile=number))))
-    callers.extend(filter_viewable(user, get_organisation_model().objects.filter(phone=number)))
+    # TODO: get dynamically are PhoneField
+    callers = list(filter_viewable(user, Contact.objects.filter(Q(phone=number) | Q(mobile=number))))
+    callers.extend(filter_viewable(user, Organisation.objects.filter(phone=number)))
 
     can_create = user.has_perm_to_create
 
     return render(request, 'cti/respond_to_a_call.html',
                   {'callers':              callers,
                    'number':               number,
-#                   'can_create_contact':   can_create(Contact),
-#                   'can_create_orga':      can_create(Organisation),
-                   'can_create_contact':   can_create(get_contact_model()),
-                   'can_create_orga':      can_create(get_organisation_model()),
+                   'can_create_contact':   can_create(Contact),
+                   'can_create_orga':      can_create(Organisation),
                    'can_create_activity':  can_create(Activity),
                   }
                  )
 
+
 @login_required
-@permission_required(('persons', 'persons.add_contact'))
+# @permission_required(('persons', 'persons.add_contact'))
+@permission_required(('persons', cperm(Contact)))
 def add_contact(request, number):
-    return add_entity(request, ContactForm,
-                      template="persons/add_contact_form.html",
-                      extra_initial={'phone': number},
-                     )
+    return abstract_add_contact(request, number)
+
 
 @login_required
-@permission_required(('persons', 'persons.add_organisation'))
+# @permission_required(('persons', 'persons.add_organisation'))
+@permission_required(('persons', cperm(Organisation)))
 def add_orga(request, number):
-    return add_entity(request, OrganisationForm,
-                      template="persons/add_organisation_form.html",
-                      extra_initial={'phone': number},
-                     )
+    return abstract_add_organisation(request, number)
+
 
 @login_required
-@permission_required(('activities', 'activities.add_activity'))
+# @permission_required(('activities', 'activities.add_activity'))
+@permission_required(('activities', cperm(Activity)))
 def add_phonecall(request, entity_id):
-    pcall = _build_phonecall(request.user, entity_id,
-                             ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                             _(u'Call from %s'),
-                            )
-
-    return redirect(pcall)
+    return abstract_add_phonecall(request, entity_id)
