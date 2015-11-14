@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
@@ -34,21 +36,24 @@ from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, Docu
 Document = get_document_model()
 
 
-@login_required
-@permission_required(('documents', 'documents.add_document'))
-def add(request):
+def abstract_add_document(request, form=DocumentCreateForm,
+                          submit_label=_('Save the document'),
+                         ):
 #    folder = Folder.objects.first()
     folder = get_folder_model().objects.first()
 
-    return add_entity(request, DocumentCreateForm,
-                      #extra_initial={'folder': Folder.objects.first()}, # TODO: uncomment when CreatorEntityField can be initialized with instance..
+    return add_entity(request, form,
+                      # TODO: uncomment when CreatorEntityField can be initialized with instance..
+                      # extra_initial={'folder': Folder.objects.first()},
                       extra_initial={'folder': folder.id if folder else None},
-                      extra_template_dict={'submit_label': _('Save the document')},
+                      extra_template_dict={'submit_label': submit_label},
                      )
 
-@login_required
-@permission_required(('documents', 'documents.add_document'))
-def add_related(request, entity_id):
+
+def abstract_add_related_document(request, entity_id, form=RelatedDocumentCreateForm,
+                                  title=_(u'New document for «%s»'),
+                                  submit_label=_('Save the document'),
+                                 ):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     user = request.user
 
@@ -56,25 +61,54 @@ def add_related(request, entity_id):
     user.has_perm_to_link_or_die(entity)
     user.has_perm_to_link_or_die(Document, owner=None)
 
-    return add_model_with_popup(request, RelatedDocumentCreateForm,
-                                ugettext(u'New document for «%s»') % entity,
+    return add_model_with_popup(request, form, title % entity,
                                 initial={'entity': entity},
-                                submit_label=_('Save the document'),
+                                submit_label=submit_label,
                                )
+
+
+def abstract_edit_document(request, document_id, form=DocumentEditForm):
+    return edit_entity(request, document_id, Document, form)
+
+
+def abstract_view_document(request, object_id,
+                           template='documents/view_document.html',
+                          ):
+    return view_entity(request, object_id, Document, template=template,
+                       path='/documents/document',  # TODO: to be removed
+                      )
+
+
+@login_required
+# @permission_required(('documents', 'documents.add_document'))
+@permission_required(('documents', cperm(Document)))
+def add(request):
+    return abstract_add_document(request)
+
+
+@login_required
+# @permission_required(('documents', 'documents.add_document'))
+@permission_required(('documents', cperm(Document)))
+def add_related(request, entity_id):
+    return abstract_add_related_document(request, entity_id)
+
 
 @login_required
 @permission_required('documents')
 def edit(request, document_id):
-    return edit_entity(request, document_id, Document, DocumentEditForm)
+    return abstract_edit_document(request, document_id)
+
 
 @login_required
 @permission_required('documents')
 def detailview(request, object_id):
-    return view_entity(request, object_id, Document, '/documents/document',
-                       'documents/view_document.html',
-                      )
+    return abstract_view_document(request, object_id)
+
 
 @login_required
 @permission_required('documents')
 def listview(request):
-    return list_view(request, Document, extra_dict={'add_url': '/documents/document/add'})
+    return list_view(request, Document,
+                     # extra_dict={'add_url': '/documents/document/add'}
+                     extra_dict={'add_url': reverse('documents__create_document')}
+                    )
