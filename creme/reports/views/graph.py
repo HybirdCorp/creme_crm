@@ -43,28 +43,44 @@ logger = logging.getLogger(__name__)
 ReportGraph = get_rgraph_model()
 
 
+def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
+                        title=_(u'Add a graph for «%s»'),
+                        submit_label=pgettext_lazy('reports-graphs', 'Save the graph'),
+                       ):
+    return add_to_entity(request, report_id, form, title, submit_label=submit_label)
+
+
+def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
+                         title=_(u'Edit a graph for «%s»'),
+                        ):
+    return edit_related_to_entity(request, graph_id, ReportGraph, form, title)
+
+
+def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
+    return view_entity(request, graph_id, ReportGraph,
+                       path='/reports/report',  # TODO: to be removed
+                       template=template,
+                       extra_template_dict={'report_charts': report_chart_registry},
+                      )
+
+
 @login_required
 @permission_required('reports')
 def add(request, report_id):
-    return add_to_entity(request, report_id, ReportGraphForm,
-                         _(u'Add a graph for «%s»'),
-                         submit_label=pgettext_lazy('reports-graphs', 'Save the graph'),
-                        )
+    return abstract_add_rgraph(request, report_id)
+
 
 @login_required
 @permission_required('reports')
 def edit(request, graph_id):
-    return edit_related_to_entity(request, graph_id, ReportGraph,
-                                  ReportGraphForm, _(u'Edit a graph for «%s»'),
-                                 )
+    return abstract_edit_rgraph(request, graph_id)
+
 
 @login_required
 @permission_required('reports')
 def detailview(request, graph_id):
-    return view_entity(request, graph_id, ReportGraph, '/reports/report',
-                       'reports/view_graph.html',
-                       extra_template_dict={'report_charts': report_chart_registry},
-                      )
+    return abstract_view_rgraph(request, graph_id)
+
 
 # TODO: use prefix ?? (rfield-, ctield-, rtype-)
 def _get_available_report_graph_types(ct, name):
@@ -82,7 +98,7 @@ def _get_available_report_graph_types(ct, name):
                 field_type = cf.field_type
 
                 if field_type == CustomField.DATETIME:
-                    return (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE)
+                    return RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE
 
                 if field_type == CustomField.ENUM:
                     return (RGT_CUSTOM_FK,)
@@ -98,23 +114,24 @@ def _get_available_report_graph_types(ct, name):
                 return (RGT_RELATION,)
     else:
         if isinstance(field, (DateField, DateTimeField)):
-            return (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE)
+            return RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE
 
         if isinstance(field, ForeignKey):
             return (RGT_FK,)
 
         logger.debug('get_available_report_graph_types(): "%s" is not a valid field for abscissa', name)
 
+
 # TODO: can be factorised with ReportGraphForm (use ReportGraphHand)
 @jsonify
 #@permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
     ct = get_ct_or_404(ct_id)
-    abscissa_field = get_from_POST_or_404(request.POST, 'record_id') #TODO: POST ??!
+    abscissa_field = get_from_POST_or_404(request.POST, 'record_id')  # TODO: POST ??!
     gtypes = _get_available_report_graph_types(ct, abscissa_field)
 
     if gtypes is None:
-        result = [{'id': '', 'text': _(u'Choose an abscissa field')}] #TODO: is the translation useful ??
+        result = [{'id': '', 'text': _(u'Choose an abscissa field')}]  # TODO: is the translation useful ??
     else:
         result = [{'id':   type_id,
                    'text': unicode(RGRAPH_HANDS_MAP[type_id].verbose_name),
@@ -123,9 +140,11 @@ def get_available_report_graph_types(request, ct_id):
 
     return {'result': result}
 
+
 def _check_order(order):
     if order != 'ASC' and order != 'DESC':
         raise Http404('Order must be in ("ASC", "DESC")')
+
 
 @jsonify
 #@permission_required('reports') ??
@@ -134,14 +153,15 @@ def fetch_graph(request, graph_id, order):
 
     x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(order=order)
 
-    return {'x': x, 'y': y, 'graph_id': graph_id} #TODO: graph_id useful ??
+    return {'x': x, 'y': y, 'graph_id': graph_id}  # TODO: graph_id useful ??
+
 
 @jsonify
 #@permission_required('reports') ??
 def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order):
     _check_order(order)
 
-    instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id) #TODO: rename
+    instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)  # TODO: rename
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     x, y = ReportGraph.get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
 
