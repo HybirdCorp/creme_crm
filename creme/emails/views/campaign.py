@@ -18,10 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
@@ -35,29 +37,53 @@ from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddML
 EmailCampaign = get_emailcampaign_model()
 
 
-@login_required
-@permission_required(('emails', 'emails.add_emailcampaign'))
-def add(request):
-    return add_entity(request, CampaignCreateForm,
-                      extra_template_dict={'submit_label': _('Save the emailing campaign')},
+def abstract_add_campaign(request, form=CampaignCreateForm,
+                          submit_label=_('Save the emailing campaign'),
+                         ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_campaign(request, campaign_id, form=CampaignEditForm):
+    return edit_entity(request, campaign_id, EmailCampaign, form)
+
+
+def abstract_view_campaign(request, campaign_id,
+                           template='emails/view_campaign.html'
+                          ):
+    return view_entity(request, campaign_id, EmailCampaign, path='/emails/campaign',
+                       template=template,
+                      )
+
+
+@login_required
+# @permission_required(('emails', 'emails.add_emailcampaign'))
+@permission_required(('emails', cperm(EmailCampaign)))
+def add(request):
+    return abstract_add_campaign(request)
+
 
 @login_required
 @permission_required('emails')
 def edit(request, campaign_id):
-    return edit_entity(request, campaign_id, EmailCampaign, CampaignEditForm)
+    return abstract_edit_campaign(request, campaign_id)
+
 
 @login_required
 @permission_required('emails')
 def detailview(request, campaign_id):
-    return view_entity(request, campaign_id, EmailCampaign, '/emails/campaign',
-                       'emails/view_campaign.html',
-                      )
+    return abstract_view_campaign(request, campaign_id)
+
 
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, EmailCampaign, extra_dict={'add_url': '/emails/campaign/add'})
+    return list_view(request, EmailCampaign,
+                     # extra_dict={'add_url': '/emails/campaign/add'}
+                     extra_dict={'add_url': reverse('emails__create_campaign')},
+                    )
+
 
 @login_required
 @permission_required('emails')
@@ -67,6 +93,7 @@ def add_ml(request, campaign_id):
                          entity_class=EmailCampaign,
                          submit_label=_('Link the mailing lists'),
                         )
+
 
 @login_required
 @permission_required('emails')

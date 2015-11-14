@@ -25,6 +25,7 @@ from django.template import Template, Context
 #from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import jsonify, get_from_POST_or_404
@@ -52,6 +53,7 @@ def get_lightweight_mail_body(request, mail_id):
     request.user.has_perm_to_view_or_die(email.sending.campaign)
     return HttpResponse(email.get_body_html())
 
+
 @login_required
 @permission_required('emails')
 def view_lightweight_mail(request, mail_id):
@@ -70,6 +72,7 @@ def view_lightweight_mail(request, mail_id):
 
     return render(request, template, ctx_dict)
 
+
 # TODO: credentials (don't forget templates)
 ## SYNCHRO PART ##
 @login_required
@@ -82,6 +85,7 @@ def synchronisation(request):
                         'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
                     }
                 )
+
 
 def set_emails_status(request, status):
     user = request.user
@@ -106,20 +110,24 @@ def set_emails_status(request, status):
 
     return HttpResponse(message, content_type="text/javascript", status=status)
 
+
 @login_required
 @permission_required('emails')
 def spam(request):
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_SPAM)
+
 
 @login_required
 @permission_required('emails')
 def validated(request):
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED)
 
+
 @login_required
 @permission_required('emails')
 def waiting(request):
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_WAITING)
+
 
 @jsonify
 @permission_required('emails')
@@ -133,33 +141,37 @@ def reload_sync_blocks(request):
 
 ## END SYNCHRO PART ##
 
-@login_required
-@permission_required('emails')
-def detailview(request, mail_id):
-    return generic.view_entity(request, mail_id, EntityEmail, '/emails/mail',
-                               'emails/view_entity_mail.html',
-                               extra_template_dict={'sent_status': MAIL_STATUS_SENT}
+
+def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html'):
+    return generic.view_entity(request, mail_id, EntityEmail,
+                               path='/emails/mail',  # TODO: to be removed
+                               template=template,
+                               extra_template_dict={'sent_status': MAIL_STATUS_SENT},
                               )
 
-@login_required
-@permission_required('emails')
-def listview(request):
-    return generic.list_view(request, EntityEmail)
 
-@login_required
-@permission_required(('emails', 'emails.add_entityemail'))
-def create_n_send(request, entity_id):
-    return generic.add_to_entity(request, entity_id, EntityEmailForm,
-                                 title=_(u'Sending an email to «%s»'),
-                                 link_perm=True,
-                                 submit_label=_('Send the email'),
-                                )
+def abstract_popupview(request, mail_id,
+                       template='emails/view_entity_mail_popup.html'
+                      ):
+    return generic.view_real_entity(request, mail_id, path='/emails/mail',
+                                    template=template,
+                                   )
 
-# TODO: use a wizard
-#      it seems hackish to work with inner popup & django.contrib.formtools.wizard.FormWizard
-@login_required
-@permission_required(('emails', 'emails.add_entityemail'))
-def create_from_template_n_send(request, entity_id):
+
+def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
+                           title=_(u'Sending an email to «%s»'),
+                           submit_label=_('Send the email'),
+                          ):
+    return generic.add_to_entity(request, entity_id, form, title=title,
+                                 link_perm=True, submit_label=submit_label,
+                                 )
+
+
+def abstract_create_from_template_n_send(request, entity_id,
+                                         selection_form=TemplateSelectionForm,
+                                         email_form=EntityEmailFromTemplateForm,
+                                         template='creme_core/generics/blockform/add_popup2.html',
+                                        ):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     user = request.user
 
@@ -174,31 +186,31 @@ def create_from_template_n_send(request, entity_id):
 
         if step == 1:
             step = 2
-            form = TemplateSelectionForm(user=user, data=POST)
+            form = selection_form(user=user, data=POST)
 
             if form.is_valid():
                 email_template = form.cleaned_data['template']
                 ctx = {varname: getattr(entity, varname, '') for varname in TEMPLATES_VARS}
-                form = EntityEmailFromTemplateForm(user=user, entity=entity,
-                                                   initial={'subject':     email_template.subject,
-                                                            'body':        Template(email_template.body).render(Context(ctx)),
-                                                            'body_html':   Template(email_template.body_html).render(Context(ctx)),
-                                                            'signature':   email_template.signature_id,
-                                                            'attachments': list(email_template.attachments.values_list('id', flat=True)),
-                                                           }
-                                                  )
+                form = email_form(user=user, entity=entity,
+                                  initial={'subject':     email_template.subject,
+                                           'body':        Template(email_template.body).render(Context(ctx)),
+                                           'body_html':   Template(email_template.body_html).render(Context(ctx)),
+                                           'signature':   email_template.signature_id,
+                                           'attachments': list(email_template.attachments.values_list('id', flat=True)),
+                                          }
+                                 )
                 submit_label = _('Send the email')
         else:
             assert step == 2
-            form = EntityEmailFromTemplateForm(user=user, entity=entity, data=POST)
+            form = email_form(user=user, entity=entity, data=POST)
 
             if form.is_valid():
                 form.save()
     else:
         step = 1
-        form = TemplateSelectionForm(user=user)
+        form = selection_form(user=user)
 
-    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return generic.inner_popup(request, template,
                                {'form':   form,
                                 'title':  ugettext(u'Sending an email to «%(entity)s» (step %(step)s/2)') % {
                                                 'entity': entity,
@@ -211,10 +223,45 @@ def create_from_template_n_send(request, entity_id):
                                delegate_reload=True,
                               )
 
+
+@login_required
+@permission_required('emails')
+def detailview(request, mail_id):
+    return abstract_view_email(request, mail_id)
+
+
+@login_required
+@permission_required('emails')
+def popupview(request, mail_id):
+    return abstract_popupview(request, mail_id)
+
+
+@login_required
+@permission_required('emails')
+def listview(request):
+    return generic.list_view(request, EntityEmail)
+
+
+@login_required
+# @permission_required(('emails', 'emails.add_entityemail'))
+@permission_required(('emails', cperm(EntityEmail)))
+def create_n_send(request, entity_id):
+    return abstract_create_n_send(request, entity_id)
+
+
+# TODO: use a wizard
+#      it seems hackish to work with inner popup & django.contrib.formtools.wizard.FormWizard
+@login_required
+# @permission_required(('emails', 'emails.add_entityemail'))
+@permission_required(('emails', cperm(EntityEmail)))
+def create_from_template_n_send(request, entity_id):
+    return abstract_create_from_template_n_send(request, entity_id)
+
+
 @login_required
 @permission_required('emails')
 @jsonify
-def resend_mails(request): #TODO: unit test
+def resend_mails(request):  # TODO: unit test
     ids = get_from_POST_or_404(request.POST, 'ids').split(',')
 
     for email in EntityEmail.objects.filter(pk__in=ids):
@@ -222,16 +269,10 @@ def resend_mails(request): #TODO: unit test
 
     return {}
 
-@login_required
-@permission_required('emails')
-def popupview(request, mail_id):
-    return generic.view_real_entity(request, mail_id, '/emails/mail',
-                                    'emails/view_entity_mail_popup.html',
-                                   )
 
 @login_required
 @permission_required('emails')
-def get_entity_mail_body(request, entity_id): #TODO: rename entity_id -> mail_id
+def get_entity_mail_body(request, entity_id):  # TODO: rename entity_id -> mail_id
     """Used to show an html document in an iframe """
     email = get_object_or_404(EntityEmail, pk=entity_id)
     request.user.has_perm_to_view_or_die(email)
