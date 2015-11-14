@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -47,28 +48,53 @@ Event   = get_event_model()
 Opportunity = get_opportunity_model()
 
 
-@login_required
-@permission_required(('events', 'events.add_event'))
-def add(request):
-    return add_entity(request, EventForm,
+def abstract_add_event(request, form=EventForm,
+                       submit_label=_('Save the event'),
+                      ):
+    return add_entity(request, form,
                       extra_initial={'type': EventType.objects.first()},
-                      extra_template_dict={'submit_label': _('Save the event')},
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_event(request, event_id, form=EventForm):
+    return edit_entity(request, event_id, Event, form)
+
+
+def abstract_view_event(request, event_id,
+                        template='events/view_event.html',
+                       ):
+    return view_entity(request, event_id, Event, path='/events/event',
+                       template=template,
+                      )
+
+
+@login_required
+# @permission_required(('events', 'events.add_event'))
+@permission_required(('events', cperm(Event)))
+def add(request):
+    return abstract_add_event(request)
+
 
 @login_required
 @permission_required('events')
 def edit(request, event_id):
-    return edit_entity(request, event_id, Event, EventForm)
+    return abstract_edit_event(request, event_id)
+
 
 @login_required
 @permission_required('events')
 def detailview(request, event_id):
-    return view_entity(request, event_id, Event, '/events/event', 'events/view_event.html')
+    return abstract_view_event(request, event_id)
+
 
 @login_required
 @permission_required('events')
 def listview(request):
-    return list_view(request, Event, extra_dict={'add_url': '/events/event/add'})
+    return list_view(request, Event,
+                     # extra_dict={'add_url': '/events/event/add'},
+                     extra_dict={'add_url': reverse('events__create_event')},
+                    )
 
 
 INV_STATUS_MAP = {
@@ -92,7 +118,10 @@ def build_get_actions(event, entity):
                                         user.has_perm_to_view(entity),
                                         icon="images/view_16.png",
                                        ),
-                'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
+                # 'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
+                'others':  [EntityAction(reverse('events__create_related_opportunity',
+                                                 args=(event.id, entity.id),
+                                                ),
                                          ugettext(u"Create an opportunity"),
                                          user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
                                          icon="images/opportunity_16.png",
@@ -102,13 +131,8 @@ def build_get_actions(event, entity):
 
     return _get_actions
 
+
 class ListViewPostProcessor(object):
-    #_HIDDEN_CELL_DESC = (('relations_invited',  u'Invited',  REL_SUB_IS_INVITED_TO),
-                         #('relations_accepted', u'Accepted', REL_SUB_ACCEPTED_INVITATION),
-                         #('relations_refused',  u'Refused',  REL_SUB_REFUSED_INVITATION),
-                         #('relations_came',     u'Came',     REL_SUB_CAME_EVENT),
-                         #('relations_notcame',  u'Not come', REL_SUB_NOT_CAME_EVENT),
-                        #)
     _RTYPE_IDS = (REL_SUB_IS_INVITED_TO,
                   REL_SUB_ACCEPTED_INVITATION,
                   REL_SUB_REFUSED_INVITATION,
@@ -125,7 +149,7 @@ class ListViewPostProcessor(object):
         cells = context['header_filters'].selected.cells
         rtypes = RelationType.objects.filter(pk__in=self._RTYPE_IDS)
 
-        #NB: add relations items to use the pre-cache system of HeaderFilter (TO: problem: retrieve other related events too)
+        # NB: add relations items to use the pre-cache system of HeaderFilter (TODO: problem: retrieve other related events too)
         cells.extend(EntityCellRelation(rtype=rtype, is_hidden=True) for rtype in rtypes)
 
         cells.append(EntityCellVolatile(value='invitation_management', title=_(u'Invitation'), render_func=self.invitation_render))
@@ -206,6 +230,7 @@ _FILTER_RELATIONTYPES = (REL_SUB_IS_INVITED_TO,
                          REL_SUB_NOT_CAME_EVENT,
                         )
 
+
 # TODO: remove the file 'events/list_events.html'
 @login_required
 @permission_required('events')
@@ -223,10 +248,12 @@ def list_contacts(request, event_id):
                      post_process=ListViewPostProcessor(event),
                     )
 
+
 @login_required
 @permission_required('events')
 def link_contacts(request, event_id):
     return edit_entity(request, event_id, Event, AddContactsToEventForm)
+
 
 def _get_status(request, valid_status):
     status_str = get_from_POST_or_404(request.POST, 'status')
@@ -241,6 +268,7 @@ def _get_status(request, valid_status):
 
     return status
 
+
 def _get_event_n_contact(event_id, contact_id, user):
     event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)
@@ -251,7 +279,8 @@ def _get_event_n_contact(event_id, contact_id, user):
 
     return event, contact
 
-#TODO: use jsonify ??
+
+# TODO: use jsonify ??
 @login_required
 @permission_required('events')
 def set_invitation_status(request, event_id, contact_id):
@@ -262,6 +291,7 @@ def set_invitation_status(request, event_id, contact_id):
     event.set_invitation_status(contact, status, user)
 
     return HttpResponse('', content_type='text/javascript')
+
 
 @login_required
 @permission_required('events')
@@ -274,14 +304,21 @@ def set_presence_status(request, event_id, contact_id):
 
     return HttpResponse('', content_type='text/javascript')
 
-@login_required
-@permission_required(('events', 'opportunities', 'opportunities.add_opportunity'))
-def add_opportunity(request, event_id, contact_id):
+
+def abstract_add_related_opportunity(request, event_id, contact_id,
+                                     form=RelatedOpportunityCreateForm,
+                                    ):
     event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)
 
     request.user.has_perm_to_link_or_die(event)
 
-    return add_entity(request, RelatedOpportunityCreateForm,
+    return add_entity(request, form,
                       extra_initial={'event': event, 'contact': contact},
                      )
+
+@login_required
+# @permission_required(('events', 'opportunities', 'opportunities.add_opportunity'))
+@permission_required(('events', 'opportunities', cperm(Opportunity)))
+def add_opportunity(request, event_id, contact_id):
+    return abstract_add_related_opportunity(request, event_id, contact_id)
