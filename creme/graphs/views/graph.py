@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from django.utils.translation import ugettext as _, pgettext_lazy
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
@@ -36,12 +38,32 @@ from ..forms.graph import GraphForm, AddRelationTypesForm
 Graph = get_graph_model()
 
 
-@login_required
-@permission_required(('graphs', 'graphs.add_graph'))
-def add(request):
-    return add_entity(request, GraphForm,
-                      extra_template_dict={'submit_label': pgettext_lazy('graphs', 'Save the graph')},
+def abstract_add_graph(request, form=GraphForm,
+                       submit_label=pgettext_lazy('graphs', 'Save the graph'),
+                      ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_graph(request, graph_id, form=GraphForm):
+    return edit_entity(request, graph_id, Graph, form)
+
+
+def abstract_view_graph(request, graph_id,
+                        template='graphs/view_graph.html',
+                       ):
+    return view_entity(request, graph_id, Graph, template=template,
+                       path='/graphs/graph',
+                      )
+
+
+@login_required
+# @permission_required(('graphs', 'graphs.add_graph'))
+@permission_required(('graphs', cperm(Graph)))
+def add(request):
+    return abstract_add_graph(request)
+
 
 @login_required
 @permission_required('graphs')
@@ -58,20 +80,27 @@ def dl_png(request, graph_id):
                       {'error_message': _(u"This graph is too big!")},
                      )
 
+
 @login_required
 @permission_required('graphs')
 def edit(request, graph_id):
-    return edit_entity(request, graph_id, Graph, GraphForm)
+    return abstract_edit_graph(request, graph_id)
+
 
 @login_required
 @permission_required('graphs')
 def detailview(request, graph_id):
-    return view_entity(request, graph_id, Graph, '/graphs/graph', 'graphs/view_graph.html')
+    return abstract_view_graph(request, graph_id)
+
 
 @login_required
 @permission_required('graphs')
 def listview(request):
-    return list_view(request, Graph, extra_dict={'add_url': '/graphs/graph/add'})
+    return list_view(request, Graph,
+                     # extra_dict={'add_url': '/graphs/graph/add'},
+                     extra_dict={'add_url': reverse('graphs__create_graph')},
+                    )
+
 
 @login_required
 @permission_required('graphs')
@@ -80,6 +109,7 @@ def add_relation_types(request, graph_id):
                          _(u'Add relation types to «%s»'),
                          entity_class=Graph,
                         )
+
 
 @login_required
 @permission_required('graphs')
@@ -90,4 +120,4 @@ def delete_relation_type(request, graph_id):
     request.user.has_perm_to_change_or_die(graph)
     graph.orbital_relation_types.remove(rtypes_id)
 
-    return HttpResponse("", content_type="text/javascript")
+    return HttpResponse('', content_type='text/javascript')
