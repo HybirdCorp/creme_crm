@@ -14,8 +14,8 @@ urlpatterns = [
     url(r'^export/filter/(?P<report_id>\d+)$',   export.filter),
     url(r'^export/(?P<report_id>\d+)$',          export.export),
 
-    #Fields block
-    #TODO: put field_id even on POST urls (instead of POST arg)
+    # Fields block
+    # TODO: put field_id even on POST urls (instead of POST arg)
     url(r'^report/field/unlink_report$',                   report.unlink_report),
     url(r'^report/field/change_order$',                    report.change_field_order),
     url(r'^report/field/set_selected$',                    report.set_selected),

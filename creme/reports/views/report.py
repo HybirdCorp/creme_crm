@@ -22,8 +22,9 @@ import logging
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404 #jsonify
@@ -40,32 +41,52 @@ logger = logging.getLogger(__name__)
 Report = get_report_model()
 
 
-@login_required
-@permission_required(('reports', 'reports.add_report'))
-def add(request):
-    return add_entity(request, ReportCreateForm, template="reports/add_report.html", #TODO: improve widgets & drop this template
-                      extra_template_dict={'submit_label': _('Save the report'),
-                                           #'help_messages': [],
-                                           #'ct_posted':     request.POST.get('ct'),
-                                          }
+def abstract_add_report(request, form=ReportCreateForm,
+                        # TODO: improve widgets & drop this template
+                        template='reports/add_report.html',
+                        submit_label=_('Save the report'),
+                       ):
+    return add_entity(request, form, template=template,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_report(request, report_id, form=ReportEditForm):
+    return edit_entity(request, report_id, Report, form)
+
+
+def abstract_view_report(request, report_id,
+                         template='reports/view_report.html',
+                        ):
+    return view_entity(request, report_id, Report, path='/reports/report',
+                       template=template,
+                      )
+
+
+@login_required
+# @permission_required(('reports', 'reports.add_report'))
+@permission_required(('reports', cperm(Report)))
+def add(request):
+    return abstract_add_report(request)
+
 
 @login_required
 @permission_required('reports')
 def edit(request, report_id):
-    return edit_entity(request, report_id, Report, ReportEditForm)
+    return abstract_edit_report(request, report_id)
+
 
 @login_required
 @permission_required('reports')
 def detailview(request, report_id):
-    return view_entity(request, report_id, Report, '/reports/report',
-                       'reports/view_report.html',
-                      )
+    return abstract_view_report(request, report_id)
+
 
 @login_required
 @permission_required('reports')
 def listview(request):
     return list_view(request, Report, extra_dict={'add_url': '/reports/report/add'})
+
 
 @login_required
 @permission_required('reports')
@@ -87,6 +108,7 @@ def unlink_report(request):
 
     return HttpResponse("", content_type="text/javascript")
 
+
 @login_required
 @permission_required('reports')
 def link_report(request, field_id):
@@ -98,7 +120,7 @@ def link_report(request, field_id):
     hand = rfield.hand
 
     if hand is None:
-        raise ConflictError('This field is invalid') #TODO: force block to reload
+        raise ConflictError('This field is invalid')  # TODO: force block to reload
 
     ctypes = rfield.hand.get_linkable_ctypes()
 
@@ -114,14 +136,15 @@ def link_report(request, field_id):
         link_form = LinkFieldToReportForm(rfield, ctypes, user=user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {'form':   link_form,
-                        'title': _(u'Link of the column «%s»') % rfield,
+                       {'form': link_form,
+                        'title': ugettext(u'Link of the column «%s»') % rfield,
                         'submit_label': _('Link'),
                        },
                        is_valid=link_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
                       )
+
 
 @login_required
 @permission_required('reports')
@@ -132,10 +155,12 @@ def edit_fields(request, report_id):
                          submit_label=_('Save the modifications'),
                         )
 
+
 _order_direction = {
     'up':   -1,
     'down':  1,
 }
+
 
 @login_required
 @permission_required('reports')
@@ -147,18 +172,19 @@ def change_field_order(request):
 
     request.user.has_perm_to_change_or_die(report)
 
-    field.order = field.order + _order_direction[direction] #TODO: manage bad direction arg
+    field.order += _order_direction[direction]  # TODO: manage bad direction arg
     try:
         other_field = report.fields.get(order=field.order)
     except Field.DoesNotExist:
         return HttpResponse("", status=403, content_type="text/javascript")
 
-    other_field.order = other_field.order - _order_direction[direction]
+    other_field.order -= _order_direction[direction]
 
     field.save()
     other_field.save()
 
     return HttpResponse("", status=200, content_type="text/javascript")
+
 
 # TODO: jsonify ?
 @login_required
@@ -180,7 +206,7 @@ def set_selected(request):
         checked = False
 
     if rfield.selected != checked:
-        if checked: # Only one Field should be selected
+        if checked:  # Only one Field should be selected
             report.fields.exclude(pk=rfield.pk).update(selected=False)
 
         rfield.selected = checked
