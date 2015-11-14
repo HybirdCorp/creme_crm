@@ -23,6 +23,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import RelationType
@@ -44,6 +45,7 @@ def abstract_add_contact(request, form=ContactForm,
                       extra_template_dict={'submit_label': submit_label},
                      )
 
+
 def abstract_add_related_contact(request, orga_id, rtype_id,
                                  form=RelatedContactForm,
                                  template='persons/add_contact_form.html',
@@ -53,7 +55,7 @@ def abstract_add_related_contact(request, orga_id, rtype_id,
 #    linked_orga = get_object_or_404(Organisation, pk=orga_id)
     linked_orga = get_object_or_404(get_organisation_model(), pk=orga_id)
     user.has_perm_to_link_or_die(linked_orga)
-    user.has_perm_to_view_or_die(linked_orga) #displayed in the form....
+    user.has_perm_to_view_or_die(linked_orga)  # Displayed in the form....
 
     user.has_perm_to_link_or_die(Contact)
 
@@ -77,51 +79,60 @@ def abstract_add_related_contact(request, orga_id, rtype_id,
 
 #    return add_entity(request, RelatedContactForm,
     return add_entity(request, form,
-                      #request.REQUEST.get('callback_url'),
+#                      request.REQUEST.get('callback_url'),
                       url_redirect=request.POST.get('callback_url') or
                                    request.GET.get('callback_url'),
                       template=template, extra_initial=initial,
                       extra_template_dict={'submit_label': submit_label},
                      )
 
-def abstract_edit_contact(request, contact_id, model=Contact, form=ContactForm,
+
+def abstract_edit_contact(request, contact_id, form=ContactForm,
                           template='persons/edit_contact_form.html',
                          ):
-    return edit_entity(request, contact_id, model=model, edit_form=form, template=template)
+    return edit_entity(request, contact_id, model=Contact, edit_form=form, template=template)
 
-def abstract_view_contact(request, contact_id, model=Contact,
+
+def abstract_view_contact(request, contact_id,
                           template='persons/view_contact.html',
                          ):
-    return view_entity(request, contact_id, model=model, template=template,
+    return view_entity(request, contact_id, model=Contact, template=template,
                        path='/persons/contact', # TODO: remove this sh*t
                       )
 
+
 @login_required
-@permission_required(('persons','persons.add_contact'))
+# @permission_required(('persons', 'persons.add_contact'))
+@permission_required(('persons', cperm(Contact)))
 def add(request):
     return abstract_add_contact(request)
 
+
 @login_required
-@permission_required(('persons','persons.add_contact'))
+# @permission_required(('persons', 'persons.add_contact'))
+@permission_required(('persons', cperm(Contact)))
 #def add_with_relation(request, orga_id, predicate_id=None):
-def add_with_relation(request, orga_id, rtype_id=None):
+def add_related_contact(request, orga_id, rtype_id=None):
     return abstract_add_related_contact(request, orga_id, rtype_id)
+
 
 @login_required
 @permission_required('persons')
 def edit(request, contact_id):
     return abstract_edit_contact(request, contact_id)
 
+
 @login_required
 @permission_required('persons')
 def detailview(request, contact_id):
     return abstract_view_contact(request, contact_id)
+
 
 @login_required
 @permission_required('persons')
 def listview(request):
 #    return list_view(request, Contact, extra_dict={'add_url': '/persons/contact/add'})
     return list_view(request, Contact,
-                     #TODO: add an get_add_absolute_url() & use it in listview()
+                     # TODO: add an get_add_absolute_url() & use it in listview()
                      extra_dict={'add_url': reverse('persons__create_contact')},
                     )

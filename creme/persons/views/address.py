@@ -28,34 +28,56 @@ from ..forms.address import AddressForm, BillingAddressForm, ShippingAddressForm
 #from ..models import Address
 
 
+Address = get_address_model()
+
+
+def abstract_add_address(request, entity_id, form=AddressForm,
+                         title=_(u'Adding address to «%s»'),
+                         submit_label=_('Save the address'),
+                        ):
+    return add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
+
+
+def abstract_add_billing_address(request, entity_id, form=BillingAddressForm,
+                                 title=_(u'Adding billing address to «%s»'),
+                                 submit_label=_('Save the address')
+                                ):
+    return add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
+
+
+def abstract_add_shipping_address(request, entity_id, form=ShippingAddressForm,
+                                  title=_(u'Adding shipping address to «%s»'),
+                                  submit_label=_('Save the address'),
+                                ):
+    return add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
+
+
+def abstract_edit_address(request, address_id,
+                          form=AddressForm, title=_(u'Address for «%s»'),
+                         ):
+    return edit_related_to_entity(request, address_id, Address, form, title_format=title)
+
+
 @login_required
 @permission_required('persons')
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, AddressForm,
-                         _(u'Adding address to «%s»'),
-                         submit_label=_('Save the address'),
-                        )
+    return abstract_add_address(request, entity_id)
+
 
 @login_required
 @permission_required('persons')
 def add_billing(request, entity_id):
-    return add_to_entity(request, entity_id, BillingAddressForm,
-                         _(u'Adding billing address to «%s»'),
-                         submit_label=_('Save the address'),
-                        )
+    return abstract_add_billing_address(request, entity_id)
+
 
 @login_required
 @permission_required('persons')
 def add_shipping(request, entity_id):
-    return add_to_entity(request, entity_id, ShippingAddressForm,
-                         _(u'Adding shipping address to «%s»'),
-                         submit_label=_('Save the address'),
-                        )
+    return abstract_add_shipping_address(request, entity_id)
+
 
 @login_required
 @permission_required('persons')
 def edit(request, address_id):
 #    return edit_related_to_entity(request, address_id, Address, AddressForm,
-    return edit_related_to_entity(request, address_id, get_address_model(), AddressForm,
-                                  _(u'Address for «%s»'),
-                                 )
+    return abstract_edit_address(request, address_id)
