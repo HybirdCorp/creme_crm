@@ -23,6 +23,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import permission_required, login_required
 from creme.creme_core.utils import get_from_POST_or_404
 
@@ -33,54 +34,66 @@ from ..forms.vcf import VcfForm, VcfImportForm
 from ..vcfgenerator import VcfGenerator
 
 
-@login_required
-@permission_required(('persons', 'persons.add_contact'))
-def vcf_import(request):
+Contact = get_contact_model()
+
+
+def abstract_vcf_import(request, file_form=VcfForm, import_form=VcfImportForm,
+                        template='creme_core/generics/blockform/add.html',
+                        title=_('Import contact from VCF file'),
+                       ):
     user = request.user
     submit_label = _('Save the contact')
 
     if request.method == 'POST':
         POST = request.POST
         step = get_from_POST_or_404(POST, 'vcf_step', cast=int, default=0)
-        form = VcfForm(user=user, data=POST, files=request.FILES)
+        form_instance = file_form(user=user, data=POST, files=request.FILES)
 
         if step == 0:
-            if form.is_valid():
-                form = VcfImportForm(user=user,
-                                     vcf_data=form.cleaned_data['vcf_file'],
-                                     initial={'vcf_step': 1},
-                                    )
+            if form_instance.is_valid():
+                form_instance = import_form(
+                        user=user,
+                        vcf_data=form_instance.cleaned_data['vcf_file'],
+                        initial={'vcf_step': 1},
+                    )
             else:
                 submit_label = _('Import this VCF file')
         else:
             if step != 1:
                 raise Http404('"vcf_step" must be in {0, 1}')
 
-            form = VcfImportForm(user=user, data=POST)
+            form_instance = import_form(user=user, data=POST)
 
-            if form.is_valid():
-                contact = form.save()
+            if form_instance.is_valid():
+                contact = form_instance.save()
                 return redirect(contact)
 
         cancel_url = POST.get('cancel_url')
     else:
-        form = VcfForm(user=user, initial={'vcf_step': 0})
+        form_instance = file_form(user=user, initial={'vcf_step': 0})
         submit_label = _('Import this VCF file')
         cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/generics/blockform/add.html',
-                  {'form':         form,
-                   'title':        _('Import contact from VCF file'),
+    return render(request, template,
+                  {'form':         form_instance,
+                   'title':        title,
                    'submit_label': submit_label,
                    'cancel_url':   cancel_url,
                   }
                  )
 
+
+@login_required
+# @permission_required(('persons', 'persons.add_contact'))
+@permission_required(('persons', cperm(Contact)))
+def vcf_import(request):
+    return abstract_vcf_import(request)
+
+
 @login_required
 @permission_required('persons')
 def vcf_export(request, contact_id):
-#    person = get_object_or_404(Contact, pk=contact_id)
-    person = get_object_or_404(get_contact_model(), pk=contact_id)
+    person = get_object_or_404(Contact, pk=contact_id)
     request.user.has_perm_to_view_or_die(person)
 
     vc = VcfGenerator(person).serialize()
