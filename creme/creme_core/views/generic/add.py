@@ -26,8 +26,9 @@ from creme.creme_core.models import CremeEntity
 from .popup import inner_popup
 
 
-#TODO: rename 'extra_initial' ??
-def add_entity(request, form_class, url_redirect='', template='creme_core/generics/blockform/add.html',
+# TODO: rename 'extra_initial' ??
+def add_entity(request, form_class, url_redirect='',
+               template='creme_core/generics/blockform/add.html',
                function_post_save=None, extra_initial=None, extra_template_dict=None):
     """
     @param url_redirect: string or format string with ONE argument replaced by the id of the created entity.
@@ -45,7 +46,7 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
 
             if not url_redirect:
                 url_redirect = entity_form.instance.get_absolute_url()
-            elif url_redirect.find("%") > -1: #TODO: still useful ???
+            elif url_redirect.find("%") > -1:  # TODO: still useful ???
                 url_redirect = url_redirect % entity_form.instance.id
 
             return HttpResponseRedirect(url_redirect)
@@ -65,6 +66,7 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
         template_dict.update(extra_template_dict)
 
     return render(request, template, template_dict)
+
 
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
                   template='creme_core/generics/blockform/add_popup2.html',
@@ -87,7 +89,9 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
         user.has_perm_to_change_or_die(entity)
 
     if request.method == 'POST':
-        form = form_class(entity=entity, user=user, data=request.POST, files=request.FILES or None, initial=initial)
+        form = form_class(entity=entity, user=user, data=request.POST,
+                          files=request.FILES or None, initial=initial,
+                         )
 
         if form.is_valid():
             form.save()
@@ -103,6 +107,7 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
                        reload=False,
                        delegate_reload=True,
                       )
+
 
 def add_model_with_popup(request, form_class, title=None, initial=None,
                          template='creme_core/generics/blockform/add_popup2.html',
