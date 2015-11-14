@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import (add_entity, add_model_with_popup,
@@ -34,56 +36,90 @@ from ..models import SalesPhase #Opportunity
 Opportunity = get_opportunity_model()
 
 
-@login_required
-@permission_required(('opportunities', 'opportunities.add_opportunity'))
-def add(request):
-    return add_entity(request, OpportunityCreateForm,
+def abstract_add_opportunity(request, form=OpportunityCreateForm,
+                             submit_label=_('Save the opportunity'),
+                            ):
+    return add_entity(request, form,
                       extra_initial={'sales_phase': SalesPhase.objects.first()},
-                      extra_template_dict={'submit_label': _('Save the opportunity')},
+                      extra_template_dict={'submit_label': submit_label},
                      )
 
-@login_required
-@permission_required(('opportunities', 'opportunities.add_opportunity'))
-def add_to(request, ce_id, inner_popup=False):
-    centity = get_object_or_404(CremeEntity, pk=ce_id).get_real_entity()
+
+def abstract_add_related_opportunity(request, entity_id, form=OpportunityCreateForm,
+                                     title=_(u'New opportunity related to «%s»'),
+                                     submit_label=_('Save the opportunity'),
+                                     inner_popup=False,
+                                    ):
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     user = request.user
 
-    user.has_perm_to_link_or_die(centity)
+    user.has_perm_to_link_or_die(entity)
     # We don't need the link credentials with future Opportunity because
     # Target/emitter relationships are internal (they are mandatory
     # and can be seen as ForeignKeys).
 
-    initial = {'target': OpportunityCreateForm(user).fields['target'].from_python(centity), #TODO: This is not an easy way to init the field...
+    # TODO: this is not an easy way to init the field...
+    initial = {'target': form(user).fields['target'].from_python(entity),
                'sales_phase': SalesPhase.objects.first(),
               }
 
     if inner_popup:
-        response = add_model_with_popup(request, OpportunityCreateForm,
-                                        title=_(u'New opportunity related to «%s»') %
-                                                    centity.allowed_unicode(user),
+        response = add_model_with_popup(request, form,
+                                        title=title % entity.allowed_unicode(user),
                                         initial=initial,
-                                        submit_label=_('Save the opportunity'),
+                                        submit_label=submit_label,
                                        )
     else:
-        response = add_entity(request, OpportunityCreateForm, extra_initial=initial,
-                              extra_template_dict={'submit_label': _('Save the opportunity')},
+        response = add_entity(request, form, extra_initial=initial,
+                              extra_template_dict={'submit_label': submit_label},
                              )
 
     return response
 
+
+def abstract_edit_opportunity(request, opp_id, form=OpportunityEditForm):
+    return edit_entity(request, opp_id, Opportunity, form)
+
+
+def abstract_view_opportunity(request, opp_id,
+                              template='opportunities/view_opportunity.html',
+                             ):
+    return view_entity(request, opp_id, model=Opportunity, template=template,
+                       path='/opportunities/opportunity',
+                      )
+
+
+@login_required
+# @permission_required(('opportunities', 'opportunities.add_opportunity'))
+@permission_required(('opportunities', cperm(Opportunity)))
+def add(request):
+    return abstract_add_opportunity(request)
+
+
+@login_required
+# @permission_required(('opportunities', 'opportunities.add_opportunity'))
+@permission_required(('opportunities', cperm(Opportunity)))
+def add_to(request, ce_id, inner_popup=False):
+    return abstract_add_related_opportunity(request, entity_id=ce_id,
+                                            inner_popup=inner_popup,
+                                           )
+
+
 @login_required
 @permission_required('opportunities')
 def edit(request, opp_id):
-    return edit_entity(request, opp_id, Opportunity, OpportunityEditForm)
+    return abstract_edit_opportunity(request, opp_id)
+
 
 @login_required
 @permission_required('opportunities')
 def detailview(request, opp_id):
-    return view_entity(request, opp_id, Opportunity, '/opportunities/opportunity',
-                       'opportunities/view_opportunity.html',
-                      )
+    return abstract_view_opportunity(request, opp_id)
+
 
 @login_required
 @permission_required('opportunities')
 def listview(request):
-    return list_view(request, Opportunity, extra_dict={'add_url': '/opportunities/opportunity/add'})
+    return list_view(request, Opportunity,
+                     extra_dict={'add_url': reverse('opportunities__create_opportunity')},
+                    )
