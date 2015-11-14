@@ -23,7 +23,7 @@ from json import loads as jsonloads
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
@@ -45,36 +45,55 @@ ProductLine = get_product_line_model()
 ServiceLine = get_service_line_model()
 
 
+def abstract_add_multiple_product_line(request, document_id,
+                                       form=ProductLineMultipleAddForm,
+                                       title=_(u"Add one or more product to «%s»"),
+                                       submit_label=_('Save the lines'),
+                                      ):
+    return add_to_entity(request, document_id, form, title,
+                         link_perm=True, submit_label=submit_label,
+                        )
+
+
+def abstract_add_multiple_service_line(request, document_id,
+                                       form=ServiceLineMultipleAddForm,
+                                       title=_(u"Add one or more service to «%s»"),
+                                       submit_label=_('Save the lines'),
+                                      ):
+    return add_to_entity(request, document_id, form, title,
+                         link_perm=True, submit_label=submit_label,
+                        )
+
+
 @login_required
 @permission_required('billing')
 def add_multiple_product_line(request, document_id):
-    return add_to_entity(request, document_id, ProductLineMultipleAddForm,
-                         _(u"Add one or more product to «%s»"), link_perm=True,
-                         submit_label=_('Save the lines'),
-                        )
+    return abstract_add_multiple_product_line(request, document_id)
+
 
 @login_required
 @permission_required('billing')
 def add_multiple_service_line(request, document_id):
-    return add_to_entity(request, document_id, ServiceLineMultipleAddForm,
-                         _(u"Add one or more service to «%s»"), link_perm=True,
-                         submit_label=_('Save the lines'),
-                        )
+    return abstract_add_multiple_service_line(request, document_id)
+
 
 #@login_required
 #@permission_required('billing')
 #def listview(request):
 #    return list_view(request, Line, show_actions=False)
 
+
 @login_required
 @permission_required('billing')
 def listview_product_line(request):
     return list_view(request, ProductLine, show_actions=False)
 
+
 @login_required
 @permission_required('billing')
 def listview_service_line(request):
     return list_view(request, ServiceLine, show_actions=False)
+
 
 @login_required
 @permission_required('billing')
@@ -83,7 +102,7 @@ def add_to_catalog(request, line_id):
 #    related_item_class = Product if line.type == PRODUCT_LINE_TYPE else Service
     line = get_object_or_404(CremeEntity, pk=line_id).get_real_entity()
 
-    #TODO: method in Line instead ?
+    # TODO: method in Line instead ?
     if isinstance(line, ProductLine):
         related_item_class = get_product_model()
     elif isinstance(line, ServiceLine):
@@ -119,6 +138,7 @@ LINE_FORMSET_PREFIX = {
     ServiceLine : 'service_line_formset',
 }
 
+
 @POST_only
 @login_required
 @permission_required('billing')
@@ -128,12 +148,12 @@ def multi_save_lines(request, document_id):
     request.user.has_perm_to_change_or_die(document)
 
     formset_to_save = []
-    # only modified formsets land here
+    # Only modified formsets land here
     for line_ct_id, data in request.POST.items():
         model_line = get_ct_or_404(line_ct_id).model_class()
-        qs = model_line.objects.filter(relations__object_entity=document.id) #TODO: relation type too...
+        qs = model_line.objects.filter(relations__object_entity=document.id)  # TODO: relation type too...
 
-        #TODO: move out the 'for' loop ?
+        # TODO: move out the 'for' loop ?
         class _LineForm(LineEditForm):
             def __init__(self, *args, **kwargs):
                 self.empty_permitted = False
@@ -149,23 +169,25 @@ def multi_save_lines(request, document_id):
         if lineformset.is_valid():
             formset_to_save.append(lineformset)
         else:
-            # TODO better display errors ??
+            # TODO: better display errors ?? (eg: return errors as json & let the JS format them)
             errors = []
 
             for form in lineformset:
                 if form.errors:
                     instance = form.instance
-                    # We retrieve the line again because the field 'on_the_fly_item' may have been cleaned #TODO: avoid this query
+                    # We retrieve the line again because the field 'on_the_fly_item' may have been cleaned
+                    # TODO: avoid this query
 #                    on_the_fly = Line.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
                     on_the_fly = model_line.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
-                                 _(u"on the fly [creation]")
+                                 ugettext(u"on the fly [creation]")
 
+                    # TODO: cached_ugettext ?
                     errors.append(u"%s <b>%s</b> : <br>%s" % (
-                                    _(u"Errors on the line"),
+                                    ugettext(u"Errors on the line"),
                                     on_the_fly if on_the_fly else instance.related_item,
-                                    u''.join(u"==> %s : %s" % (_(u"General"), msg) if field == "__all__" else
+                                    u''.join(u"==> %s : %s" % (ugettext(u"General"), msg) if field == "__all__" else
                                              u'==> %s "<i>%s</i>" : %s' % (
-                                                    _(u"Specific on the field"), #TODO: format string instead
+                                                    ugettext(u"Specific on the field"),  # TODO: format string instead
                                                     model_line._meta.get_field(field).verbose_name,
                                                     msg,
                                                 )
@@ -178,7 +200,7 @@ def multi_save_lines(request, document_id):
                                 content_type="text/plain", status=409,
                                )
 
-    # save all formset now that we haven't detect any errors
+    # Save all formset now that we haven't detect any errors
     for formset in formset_to_save:
         formset.save()
 

@@ -224,7 +224,7 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
 #        url = '/billing/credit_note/add_related_to/%d/' % invoice.id
-        url = reverse('billing__create_related_cnote', args=(invoice.id,))
+        url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         self.assertGET200(url)
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
@@ -247,7 +247,7 @@ class CreditNoteTestCase(_BillingTestCase):
     def test_addrelated_view_no_invoice(self):
         "cannot attach credit note to invalid invoice"
 #        self.assertGET404('/billing/credit_note/add_related_to/%d/' % 12445)
-        self.assertGET404(reverse('billing__create_related_cnote', args=(12445,)))
+        self.assertGET404(reverse('billing__link_to_cnotes', args=(12445,)))
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
@@ -263,7 +263,7 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
 #        url = '/billing/credit_note/add_related_to/%d/' % invoice.id
-        url = reverse('billing__create_related_cnote', args=(invoice.id,))
+        url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         self.assertGET200(url)
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
@@ -297,7 +297,7 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
 #        url = '/billing/credit_note/add_related_to/%d/' % invoice.id
-        url = reverse('billing__create_related_cnote', args=(invoice.id,))
+        url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         self.assertGET200(url)
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
@@ -333,7 +333,7 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
 #        url = '/billing/credit_note/add_related_to/%d/' % invoice.id
-        url = reverse('billing__create_related_cnote', args=(invoice.id,))
+        url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         self.assertGET200(url)
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')

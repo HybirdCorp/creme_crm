@@ -70,7 +70,7 @@ if not credit_note_model_is_custom():
         url(r'^credit_note/edit/(?P<credit_note_id>\d+)$',                                  credit_note.edit,                       name='billing__edit_cnote'),
         url(r'^credit_note/(?P<credit_note_id>\d+)$',                                       credit_note.detailview,                 name='billing__view_cnote'),
         url(r'^credit_note/editcomment/(?P<credit_note_id>\d+)/$',                          credit_note.edit_comment,               name='billing__edit_cnote_comment'),
-        url(r'^credit_note/add_related_to/(?P<base_id>\d+)/$',                              credit_note.add_related_credit_note,    name='billing__create_related_cnote'),
+        url(r'^credit_note/add_related_to/(?P<base_id>\d+)/$',                              credit_note.link_to_credit_notes,       name='billing__link_to_cnotes'),
         url(r'^credit_note/delete_related/(?P<credit_note_id>\d+)/from/(?P<base_id>\d+)/$', credit_note.delete_related_credit_note, name='billing__delete_related_cnote'),
     ]
 

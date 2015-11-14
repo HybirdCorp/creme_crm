@@ -9,8 +9,8 @@
             {% endblock %}
         </th>
         <th class="actions">
-            <div class="buttons">{% url 'billing__create_related_cnote' object.id as creation_url %}
-                {% get_line_linker at_url creation_url with_label _("Link to existing credit notes") with_perms link_perm %}
+            <div class="buttons">{% url 'billing__link_to_cnotes' object.id as link_url %}
+                {% get_line_linker at_url link_url with_label _("Link to existing credit notes") with_perms link_perm %}
             </div>
         </th>
     {% end_get_block_header %}
