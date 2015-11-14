@@ -44,7 +44,7 @@ def edit_entity(request, object_id, model, edit_form,
             return redirect(entity)
 
         cancel_url = POST.get('cancel_url')
-    else: #GET
+    else:  # GET
         form = edit_form(user=user, instance=entity)
         cancel_url = request.META.get('HTTP_REFERER')
 
@@ -54,6 +54,7 @@ def edit_entity(request, object_id, model, edit_form,
                    'submit_label': _('Save the modifications'),
                    'cancel_url': cancel_url,
                   })
+
 
 def edit_related_to_entity(request, pk, model, form_class, title_format,
                            submit_label=_('Save the modifications'),
@@ -75,7 +76,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
 
         if edit_form.is_valid():
             edit_form.save()
-    else: #return page on GET request
+    else:  # return page on GET request
         edit_form = form_class(entity=entity, user=user, instance=auxiliary)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
@@ -87,6 +88,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
                        reload=False,
                        delegate_reload=True,
                       )
+
 
 def edit_model_with_popup(request, query_dict, model, form_class,
                           title_format=None, can_change=None,
@@ -117,7 +119,7 @@ def edit_model_with_popup(request, query_dict, model, form_class,
 
         if edit_form.is_valid():
             edit_form.save()
-    else: #return page on GET request
+    else:  # return page on GET request
         edit_form = form_class(user=user, instance=instance)
 
     title_format = title_format or _(u'Edit «%s»')
