@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
@@ -33,29 +35,53 @@ from ..forms.service import ServiceCreateForm, ServiceEditForm
 Service = get_service_model()
 
 
-@login_required
-@permission_required(('products', 'products.add_service'))
-def add(request):
-    return add_entity(request, ServiceCreateForm,
-                      extra_template_dict={'submit_label': _('Save the service')},
+def abstract_add_service(request, form=ServiceCreateForm,
+                         submit_label=_('Save the service'),
+                        ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_service(request, service_id, form=ServiceEditForm):
+    return edit_entity(request, service_id, Service, form)
+
+
+def abstract_view_service(request, service_id,
+                          template='products/view_service.html',
+                         ):
+    return view_entity(request, service_id, Service, template=template,
+                       path='/products/service',
+                      )
+
+
+@login_required
+# @permission_required(('products', 'products.add_service'))
+@permission_required(('products', cperm(Service)))
+def add(request):
+    return abstract_add_service(request)
+
 
 @login_required
 @permission_required('products')
 def edit(request, service_id):
-    return edit_entity(request, service_id, Service, ServiceEditForm)
+    return abstract_edit_service(request, service_id)
+
 
 @login_required
 @permission_required('products')
 def detailview(request, service_id):
-    return view_entity(request, service_id, Service, '/products/service',
-                       'products/view_service.html',
-                      )
+    return abstract_view_service(request, service_id)
+
 
 @login_required
 @permission_required('products')
 def listview(request):
-    return list_view(request, Service, extra_dict={'add_url': '/products/service/add'})
+    return list_view(request, Service,
+                     # extra_dict={'add_url': '/products/service/add'},
+                     extra_dict={'add_url': reverse('products__create_service')},
+                    )
+
 
 @login_required
 @permission_required('products')
