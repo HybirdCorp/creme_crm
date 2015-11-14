@@ -20,6 +20,7 @@
 
 import logging
 
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
@@ -27,6 +28,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
@@ -37,27 +39,28 @@ from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
 from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Contact, Organisation
 
-from .. import get_pollform_model, get_pollreply_model
+from .. import get_pollform_model, get_pollreply_model, get_pollcampaign_model
 from ..core import MultiEnumPollLineType
 from ..forms.poll_reply import (PollRepliesCreateForm, PollReplyEditForm,
         PollReplyFillForm, PersonAddRepliesForm)
-from ..models import PollReplyLine, PollCampaign # PollForm, PollReply
+from ..models import PollReplyLine # PollCampaign PollForm, PollReply
 from ..utils import ReplySectionTree, NodeStyle
 
 
 logger = logging.getLogger(__name__)
 PollReply = get_pollreply_model()
+_CREATION_PERM = cperm(PollReply)
 
 
-# TODO: change url (reply->replies or add_several ??)
-@login_required
-@permission_required(('polls', 'polls.add_pollreply'))
-def add(request):
+def abstract_add_pollreply(request, form=PollRepliesCreateForm,
+                           template='creme_core/generics/blockform/add.html',
+                           submit_label=_('Save the replies'),
+                          ):
     #return add_entity(request, PollRepliesCreateForm)
 
     if request.method == 'POST':
         POST = request.POST
-        reply_form = PollRepliesCreateForm(user=request.user, data=POST)
+        reply_form = form(user=request.user, data=POST)
 
         if reply_form.is_valid():
             reply_form.save()
@@ -65,21 +68,44 @@ def add(request):
             return redirect(reply_form.instance)
 
         cancel_url = POST.get('cancel_url')
-    else: #GET
-        reply_form = PollRepliesCreateForm(user=request.user)
+    else:  # GET
+        reply_form = form(user=request.user)
         cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/generics/blockform/add.html',
+    return render(request, template,
                   {'form':         reply_form,
                    'title':        PollReply.creation_label,
-                   'submit_label': _('Save the replies'),
+                   'submit_label': submit_label,
                    'cancel_url':   cancel_url,
                   }
                  )
 
-@login_required
-@permission_required(('polls', 'polls.add_pollreply'))
-def add_from_pform(request, pform_id): #TODO: factorise ? (see documents.views)
+
+# TODO: factorise ?
+def abstract_add_preply_from_campaign(request, campaign_id,
+                                      form=PollRepliesCreateForm,
+                                      title=_(u'New replies for «%s»'),
+                                      submit_label=_('Save the replies'),
+                                     ):
+    # campaign = get_object_or_404(PollCampaign, pk=campaign_id)
+    campaign = get_object_or_404(get_pollcampaign_model(), pk=campaign_id)
+    user = request.user
+
+    user.has_perm_to_view_or_die(campaign)
+    user.has_perm_to_link_or_die(campaign)
+
+    return add_model_with_popup(request, form,
+                                title % campaign,
+                                initial={'campaign': campaign},
+                                submit_label=submit_label,
+                               )
+
+
+# TODO: factorise ? (see documents.views)
+def abstract_add_preply_from_pform(request, pform_id, form=PollRepliesCreateForm,
+                                   title=_(u'New replies for «%s»'),
+                                   submit_label=_('Save the replies'),
+                                  ):
 #    pform = get_object_or_404(PollForm, pk=pform_id)
     pform = get_object_or_404(get_pollform_model(), pk=pform_id)
     user = request.user
@@ -87,30 +113,18 @@ def add_from_pform(request, pform_id): #TODO: factorise ? (see documents.views)
     user.has_perm_to_view_or_die(pform)
     user.has_perm_to_link_or_die(pform)
 
-    return add_model_with_popup(request, PollRepliesCreateForm,
-                                ugettext(u'New replies for «%s»') % pform,
+    return add_model_with_popup(request, form,
+                                title % pform,
                                 initial={'pform': pform},
-                                submit_label=_('Save the replies'),
+                                submit_label=submit_label,
                                )
 
-@login_required
-@permission_required(('polls', 'polls.add_pollreply'))
-def add_from_campaign(request, campaign_id): #TODO: factorise ?
-    campaign = get_object_or_404(PollCampaign, pk=campaign_id)
-    user = request.user
 
-    user.has_perm_to_view_or_die(campaign)
-    user.has_perm_to_link_or_die(campaign)
-
-    return add_model_with_popup(request, PollRepliesCreateForm,
-                                ugettext(u'New replies for «%s»') % campaign,
-                                initial={'campaign': campaign},
-                                submit_label=_('Save the replies'),
-                               )
-
-@login_required
-@permission_required(('polls', 'polls.add_pollreply'))
-def add_from_person(request, person_id):
+def abstract_add_preply_from_person(request, person_id,
+                                    form=PollRepliesCreateForm,
+                                    title=_(u'New replies for «%s»'),
+                                    submit_label=_('Save the replies'),
+                                   ):
     person = get_object_or_404(CremeEntity, pk=person_id)
     user = request.user
 
@@ -123,28 +137,74 @@ def add_from_person(request, person_id):
     if not isinstance(person, (get_contact_model(), get_organisation_model())):
         raise Http404('You can only create from Contacts & Organisations')
 
-    return add_model_with_popup(request, PollRepliesCreateForm,
-                                ugettext(u'New replies for «%s»') % person,
+    return add_model_with_popup(request, form,
+                                title % person,
                                 initial={'persons': [person]},
-                                submit_label=_('Save the replies'),
+                                submit_label=submit_label,
                                )
+
+
+def abstract_edit_pollreply(request, preply_id, form=PollReplyEditForm):
+    return edit_entity(request, preply_id, PollReply, form)
+
+
+def abstract_view_pollreply(request, preply_id,
+                            template='polls/view_pollreply.html',
+                           ):
+    return view_entity(request, preply_id, PollReply, template=template,
+                       path='/polls/poll_reply',  # TODO: to be removed
+                      )
+
+
+# TODO: change url (reply->replies or add_several ??)
+@login_required
+# @permission_required(('polls', 'polls.add_pollreply'))
+@permission_required(('polls', _CREATION_PERM))
+def add(request):
+    return abstract_add_pollreply(request)
+
+
+@login_required
+# @permission_required(('polls', 'polls.add_pollreply'))
+@permission_required(('polls', _CREATION_PERM))
+def add_from_pform(request, pform_id):
+    return abstract_add_preply_from_pform(request, pform_id)
+
+
+@login_required
+# @permission_required(('polls', 'polls.add_pollreply'))
+@permission_required(('polls', _CREATION_PERM))
+def add_from_campaign(request, campaign_id):
+    return abstract_add_preply_from_campaign(request, campaign_id)
+
+
+@login_required
+# @permission_required(('polls', 'polls.add_pollreply'))
+@permission_required(('polls', _CREATION_PERM))
+def add_from_person(request, person_id):
+    return abstract_add_preply_from_person(request, person_id)
+
 
 @login_required
 @permission_required('polls')
 def edit(request, preply_id):
-    return edit_entity(request, preply_id, PollReply, PollReplyEditForm)
+    return abstract_edit_pollreply(request, preply_id)
+
 
 @login_required
 @permission_required('polls')
 def detailview(request, preply_id):
-    return view_entity(request, preply_id, PollReply,
-                       '/polls/poll_reply', 'polls/view_pollreply.html'
-                      )
+    return abstract_view_pollreply(request, preply_id)
+
 
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollReply, extra_dict={'add_url': '/polls/poll_reply/add'})
+    return list_view(request, PollReply,
+                     # extra_dict={'add_url': '/polls/poll_reply/add'},
+                     extra_dict={'add_url': reverse('polls__create_reply')},
+                    )
+
 
 @login_required
 @permission_required(('polls', 'persons'))
@@ -154,11 +214,12 @@ def link_to_person(request, person_id):
                          submit_label=(u'Link to the replies'),
                         )
 
+
 # TODO: do this job in template instead ??
 def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
         answer = pgettext('polls', u'N/A')
-    elif isinstance(line.poll_line_type, MultiEnumPollLineType): #TODO: isinstance(answer, list) ??
+    elif isinstance(line.poll_line_type, MultiEnumPollLineType):  # TODO: isinstance(answer, list) ??
         answer = u", ".join(escape(choice) for choice in line.answer)
     else:
         answer = escape(line.answer)
@@ -179,11 +240,11 @@ def _format_previous_answered_question(preply_id, line, style):
                           }
                     )
 
+
 @login_required
 @permission_required('polls')
 def edit_line_wizard(request, preply_id, line_id):
-#    preply = get_object_or_404(PollReply, pk=preply_id)
-    preply = get_object_or_404(get_pollreply_model(), pk=preply_id)
+    preply = get_object_or_404(PollReply, pk=preply_id)
     user = request.user
 
     user.has_perm_to_change_or_die(preply)
@@ -209,7 +270,7 @@ def edit_line_wizard(request, preply_id, line_id):
             with transaction.atomic():
                 form.save()
 
-                #optimize 'next_question_to_answer' & cie
+                # Optimize 'next_question_to_answer' & cie
                 PollReplyLine.populate_conditions([node for node in tree if not node.is_section])
 
                 _clear_dependant_answers(tree, line_node)
@@ -240,11 +301,11 @@ def edit_line_wizard(request, preply_id, line_id):
                   }
                  )
 
+
 @login_required
 @permission_required('polls')
 def fill(request, preply_id):
-#    preply = get_object_or_404(PollReply, pk=preply_id)
-    preply = get_object_or_404(get_pollreply_model(), pk=preply_id)
+    preply = get_object_or_404(PollReply, pk=preply_id)
     user = request.user
 
     user.has_perm_to_change_or_die(preply)
@@ -294,24 +355,23 @@ def fill(request, preply_id):
                   }
                  )
 
+
 @login_required
 @permission_required('polls')
 def clean(request):
-#    preply = get_object_or_404(PollReply, pk=get_from_POST_or_404(request.POST, 'id'))
-    preply = get_object_or_404(get_pollreply_model(),
-                               pk=get_from_POST_or_404(request.POST, 'id'),
-                              )
+    preply = get_object_or_404(PollReply, pk=get_from_POST_or_404(request.POST, 'id'))
 
     request.user.has_perm_to_change_or_die(preply)
 
     with transaction.atomic():
-        preply.lines.update(raw_answer=None, applicable=True) # Avoids statistics artefacts
+        preply.lines.update(raw_answer=None, applicable=True)  # Avoids statistics artifacts
         update_model_instance(preply, is_complete=False)
 
     if request.is_ajax():
         return HttpResponse("", content_type="text/javascript")
 
     return redirect(preply)
+
 
 def _clear_dependant_answers(tree, line_node):
     find_line = tree.find_line
@@ -322,20 +382,16 @@ def _clear_dependant_answers(tree, line_node):
         update_model_instance(dep_line_node, raw_answer=None)
         _clear_dependant_answers(tree, dep_line_node)
 
+
 # TODO: if not line's type.editable ??
 @login_required
 @permission_required('polls')
 def edit_line(request, preply_id, line_id):
-    #return edit_related_to_entity(request, line_id, PollReplyLine,
-                                  #PollReplyLineEditForm, _(u'Answer for «%s»')
-                                 #)
-
     # NB: we do not use the generic view edit_related_to_entity(), because it would
     #     oblige us to transform PollReplyLine in a True auxiliary model
     #     (get_related_entity() method), so the delete view could be called without
-    #     our consent
-#    preply = get_object_or_404(PollReply, pk=preply_id)
-    preply = get_object_or_404(get_pollreply_model(), pk=preply_id)
+    #     our consent.
+    preply = get_object_or_404(PollReply, pk=preply_id)
     user = request.user
 
     user.has_perm_to_change_or_die(preply)
@@ -358,7 +414,7 @@ def edit_line(request, preply_id, line_id):
                 edit_form.save()
                 _clear_dependant_answers(tree, line_node)
                 update_model_instance(preply, is_complete=not bool(tree.next_question_to_answer))
-    else: # GET
+    else:  # GET
         edit_form = PollReplyFillForm(line_node=line_node, user=user)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',

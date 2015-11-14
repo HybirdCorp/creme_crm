@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import view_entity, add_entity, edit_entity, list_view
 
@@ -31,28 +33,49 @@ from ..forms.campaign import PollCampaignForm
 PollCampaign = get_pollcampaign_model()
 
 
-@login_required
-@permission_required(('polls', 'polls.add_pollcampaign'))
-def add(request):
-    return add_entity(request, PollCampaignForm,
-                      extra_template_dict={'submit_label': _('Save the campaign of polls')},
+def abstract_add_pcampaign(request, form=PollCampaignForm,
+                           submit_label=_('Save the campaign of polls'),
+                          ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_pcampaign(request, campaign_id, form=PollCampaignForm):
+    return edit_entity(request, campaign_id, PollCampaign, form)
+
+
+def abstract_view_pcampaign(request, campaign_id,
+                            template='polls/view_campaign.html',
+                           ):
+    return view_entity(request, campaign_id, PollCampaign, template=template,
+                       path='/polls/campaign',
+                      )
+
+
+@login_required
+# @permission_required(('polls', 'polls.add_pollcampaign'))
+@permission_required(('polls', cperm(PollCampaign)))
+def add(request):
+    return abstract_add_pcampaign(request)
+
 
 @login_required
 @permission_required('polls')
 def edit(request, campaign_id):
-    return edit_entity(request, campaign_id, PollCampaign, PollCampaignForm)
+    return abstract_edit_pcampaign(request, campaign_id)
+
 
 @login_required
 @permission_required('polls')
 def detailview(request, campaign_id):
-    return view_entity(request, campaign_id, PollCampaign,
-                       '/polls/campaign', 'polls/view_campaign.html',
-                      )
+    return abstract_view_pcampaign(request, campaign_id)
+
 
 @login_required
 @permission_required('polls')
 def listview(request):
     return list_view(request, PollCampaign,
-                     extra_dict={'add_url': '/polls/campaign/add'},
+                     # extra_dict={'add_url': '/polls/campaign/add'},
+                     extra_dict={'add_url': reverse('polls__create_campaign')},
                     )
