@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import timedelta, date #datetime
+    from datetime import timedelta, date
     from decimal import Decimal
     from functools import partial
 
@@ -13,16 +13,19 @@ try:
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             SetCredentials, Relation, RelationType, Currency)
 
-    from creme.persons import get_organisation_model
+    # from creme.persons import get_organisation_model
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
-    from creme.persons.models import Organisation, Address
+    # from creme.persons.models import Organisation, Address
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from .. import get_invoice_model
-    from ..models import *
+    # from .. import get_invoice_model
+    from ..models import (AdditionalInformation, PaymentInformation, PaymentTerms,
+            InvoiceStatus, QuoteStatus, SalesOrderStatus)
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomInvoice,
-            skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine)
+            skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine,
+            Organisation, Address,
+            Invoice, Quote, SalesOrder, ProductLine, ServiceLine)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -143,7 +146,7 @@ class ConvertTestCase(_BillingTestCase):
     def test_convert03(self):
         "Credentials (creation) errors"
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
-        Invoice = get_invoice_model()
+        # Invoice = get_invoice_model()
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote)] #not get_ct(Invoice)
@@ -162,7 +165,7 @@ class ConvertTestCase(_BillingTestCase):
     def test_convert04(self):
         "Credentials (view) errors"
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
-        Invoice = get_invoice_model()
+        # Invoice = get_invoice_model()
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote), get_ct(Invoice)]
@@ -293,8 +296,8 @@ class ConvertTestCase(_BillingTestCase):
     def test_not_copiable_relations(self):
         self.login()
         self.assertEqual(0, Relation.objects.count())
-        Organisation = get_organisation_model()
-        Invoice = get_invoice_model()
+        # Organisation = get_organisation_model()
+        # Invoice = get_invoice_model()
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving', (Quote, Invoice)),
@@ -345,8 +348,8 @@ class ConvertTestCase(_BillingTestCase):
         self.login()
         from ..registry import relationtype_converter
 
-        Organisation = get_organisation_model()
-        Invoice = get_invoice_model()
+        # Organisation = get_organisation_model()
+        # Invoice = get_invoice_model()
 
         self.assertEqual(0, Relation.objects.count())
         quote, source, target = self.create_quote_n_orgas('My Quote')

@@ -24,10 +24,12 @@ from creme.creme_core import get_concrete_model
 
 
 def opportunity_model_is_custom():
-    return settings.OPPORTUNITIES_OPPORTUNITY_MODEL != 'opportunities.Opportunity'
+    return settings.OPPORTUNITIES_OPPORTUNITY_MODEL != 'opportunities.Opportunity' and \
+           not settings.OPPORTUNITIES_OPPORTUNITY_FORCE_NOT_CUSTOM
+
 
 def get_opportunity_model():
-    "Returns the Opportunity model that is active in this project."
+    """Returns the Opportunity model that is active in this project."""
     return get_concrete_model('OPPORTUNITIES_OPPORTUNITY_MODEL')
 
 

@@ -32,7 +32,8 @@ try:
 #        from creme.billing.models import Invoice
 #        from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
-    from .base import BaseReportsTestCase, skipIfCustomReport, skipIfCustomRGraph
+    from .base import (BaseReportsTestCase, skipIfCustomReport, skipIfCustomRGraph,
+            Report, ReportGraph)
     from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document
 
     from ..blocks import ReportGraphBlock
@@ -40,7 +41,7 @@ try:
             RGT_CUSTOM_RANGE, RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH,
             RGT_YEAR, RGT_RANGE, RGT_FK, RFT_FIELD, RFT_RELATION)
     from ..core.graph import ListViewURLBuilder
-    from ..models import Report, ReportGraph #Field
+    # from ..models import Report, ReportGraph #Field
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

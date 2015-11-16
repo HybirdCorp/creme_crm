@@ -6,10 +6,10 @@ try:
     from functools import partial
 
     from django.conf import settings
+    from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.db.models.deletion import ProtectedError
     from django.utils.translation import ugettext as _
-    from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTransactionTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -17,14 +17,15 @@ try:
             SetCredentials, Currency, Vat) # CremeProperty
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME # REL_SUB_HAS
 
-    from creme.persons.models import Organisation, Address
+    # from creme.persons.models import Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..models import *
     from ..constants import *
+    from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
     from .base import (_BillingTestCase, _BillingTestCaseMixin, skipIfCustomInvoice,
-            skipIfCustomProductLine, skipIfCustomServiceLine)
+            skipIfCustomProductLine, skipIfCustomServiceLine,
+            Organisation, Address, Invoice, ProductLine, ServiceLine)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -32,11 +33,6 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class InvoiceTestCase(_BillingTestCase):
-    #@classmethod
-    #def setUpClass(cls):
-        ##cls.populate('creme_core', 'creme_config', 'persons', 'billing')
-        #cls.populate('creme_config', 'billing')
-
     def _build_gennumber_url(self, invoice):
 #        return '/billing/invoice/generate_number/%s' % invoice.id
         return reverse('billing__generate_invoice_number', args=(invoice.id,))

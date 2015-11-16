@@ -10,21 +10,42 @@ try:
 #    from creme.creme_core.models import CremePropertyType
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.persons import get_contact_model, get_organisation_model
+
+    from creme.activities import get_activity_model
+
+    from creme.opportunities import get_opportunity_model
+
     from ..models import MarketSegment
-    from .. import act_model_is_custom, pattern_model_is_custom, strategy_model_is_custom
+    from .. import (act_model_is_custom, pattern_model_is_custom, strategy_model_is_custom,
+            get_act_model, get_pattern_model, get_strategy_model)
 
     skip_act_tests      = act_model_is_custom()
     skip_pattern_tests  = pattern_model_is_custom()
     skip_strategy_tests = strategy_model_is_custom()
+
+    Act = get_act_model()
+    ActObjectivePattern = get_pattern_model()
+    Strategy = get_strategy_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Contact = get_contact_model()
+Organisation = get_organisation_model()
+
+Activity = get_activity_model()
+
+Opportunity = get_opportunity_model()
 
 
 def skipIfCustomAct(test_func):
     return skipIf(skip_act_tests, 'Custom Act model in use')(test_func)
 
+
 def skipIfCustomPattern(test_func):
     return skipIf(skip_pattern_tests, 'Custom ActObjectivePattern model in use')(test_func)
+
 
 def skipIfCustomStrategy(test_func):
     return skipIf(skip_strategy_tests, 'Custom Strategy model in use')(test_func)

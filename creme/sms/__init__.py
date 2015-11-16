@@ -24,24 +24,32 @@ from creme.creme_core import get_concrete_model
 
 
 def smscampaign_model_is_custom():
-    return settings.SMS_CAMPAIGN_MODEL != 'sms.SMSCampaign'
+    return settings.SMS_CAMPAIGN_MODEL != 'sms.SMSCampaign' and \
+           not settings.SMS_CAMPAIGN_FORCE_NOT_CUSTOM
+
 
 def messaginglist_model_is_custom():
-    return settings.SMS_MLIST_MODEL != 'sms.MessagingList'
+    return settings.SMS_MLIST_MODEL != 'sms.MessagingList' and \
+           not settings.SMS_MLIST_FORCE_NOT_CUSTOM
+
 
 def messagetemplate_model_is_custom():
-    return settings.SMS_TEMPLATE_MODEL != 'sms.MessageTemplate'
+    return settings.SMS_TEMPLATE_MODEL != 'sms.MessageTemplate' and \
+           not settings.SMS_TEMPLATE_FORCE_NOT_CUSTOM
+
 
 def get_smscampaign_model():
-    "Returns the SMSCampaign model that is active in this project."
+    """Returns the SMSCampaign model that is active in this project."""
     return get_concrete_model('SMS_CAMPAIGN_MODEL')
 
+
 def get_messaginglist_model():
-    "Returns the MessagingList model that is active in this project."
+    """Returns the MessagingList model that is active in this project."""
     return get_concrete_model('SMS_MLIST_MODEL')
 
+
 def get_messagetemplate_model():
-    "Returns the MessageTemplate model that is active in this project."
+    """Returns the MessageTemplate model that is active in this project."""
     return get_concrete_model('SMS_TEMPLATE_MODEL')
 
 

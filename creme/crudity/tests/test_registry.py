@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme.persons.models import Contact, Organisation
+    # from creme.persons.models import Contact, Organisation
 
-    from creme.documents.models import Document
+    # from creme.documents.models import Document
 
     from ..registry import CRUDityRegistry
     from .base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
-                       OrganisationFakeBackend, DocumentFakeBackend, FakeInput)
+            OrganisationFakeBackend, DocumentFakeBackend, FakeInput,
+            Document, Contact, Organisation)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

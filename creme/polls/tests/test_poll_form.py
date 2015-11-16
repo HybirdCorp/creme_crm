@@ -10,17 +10,17 @@ try:
     from django.utils.encoding import smart_unicode
     from django.utils.translation import ugettext as _
 
-    from .base import _PollsTestCase, skipIfCustomPollForm
+    from .base import _PollsTestCase, skipIfCustomPollForm, PollForm
     from ..core import PollLineType
     from ..blocks import pform_lines_block, preplies_block
-    from ..models import PollType, PollForm, PollFormSection, PollFormLine, PollFormLineCondition
+    from ..models import PollType, PollFormSection, PollFormLine, PollFormLineCondition  # PollForm
     from ..templatetags.polls_tags import print_node_number, print_node_css, print_line_condition
     from ..utils import SectionTree, NodeStyle
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PollFormsTestCase', )
+# __all__ = ('PollFormsTestCase', )
 
 get_ct = ContentType.objects.get_for_model
 DELETE_RELATED_URL = '/creme_core/entity/delete_related/%s'

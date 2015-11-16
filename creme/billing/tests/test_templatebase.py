@@ -8,15 +8,15 @@ try:
 
     from creme.creme_core.models import Relation
 
-    from creme.persons.models import Organisation
+    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import (TemplateBase, Invoice, InvoiceStatus,
-            Quote, QuoteStatus, SalesOrder, SalesOrderStatus,
-            AdditionalInformation, PaymentTerms)
+    from ..models import (InvoiceStatus, QuoteStatus, SalesOrderStatus,
+            AdditionalInformation, PaymentTerms)  # TemplateBase Invoice Quote SalesOrder
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import (_BillingTestCase, skipIfCustomTemplateBase,
-            skipIfCustomInvoice, skipIfCustomQuote, skipIfCustomSalesOrder)
+            skipIfCustomInvoice, skipIfCustomQuote, skipIfCustomSalesOrder,
+            Organisation, TemplateBase, Invoice, Quote, SalesOrder)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

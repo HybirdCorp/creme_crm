@@ -1,22 +1,26 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-from os import remove as delete_file, listdir, makedirs
+# from os import remove as delete_file, listdir, makedirs
 from os.path import basename, join, exists
 from tempfile import NamedTemporaryFile
 from unittest import skipIf
 
-from django.conf import settings
+# from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from creme.creme_core.tests.base import CremeTestCase
 
-from ..models import Folder, Document
+# from ..models import Folder, Document
 
 try:
-    from .. import document_model_is_custom, folder_model_is_custom
+    from .. import (document_model_is_custom, folder_model_is_custom,
+            get_document_model, get_folder_model)
 
     skip_document_tests = document_model_is_custom()
     skip_folder_tests   = folder_model_is_custom()
+
+    Document = get_document_model()
+    Folder = get_folder_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -25,6 +29,7 @@ except Exception as e:
 
 def skipIfCustomDocument(test_func):
     return skipIf(skip_document_tests, 'Custom document model in use')(test_func)
+
 
 def skipIfCustomFolder(test_func):
     return skipIf(skip_folder_tests, 'Custom folder model in use')(test_func)

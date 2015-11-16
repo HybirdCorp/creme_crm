@@ -17,23 +17,33 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import RelationType, Relation, CremeProperty, SetCredentials
 
+    from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
-    from creme.persons.models import Contact, Organisation
+    # from creme.persons.models import Contact, Organisation
 
-    from creme.opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities import get_opportunity_model
+    from creme.opportunities.models import SalesPhase  # Opportunity
     from creme.opportunities.tests import skipIfCustomOpportunity
 
-    from . import event_model_is_custom
-    from .models import Event, EventType
+    from . import event_model_is_custom, get_event_model
+    from .models import EventType  # Event
     from .constants import *
 
     skip_event_tests = event_model_is_custom()
+    Event = get_event_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+Contact = get_contact_model()
+Organisation = get_organisation_model()
+
+Opportunity = get_opportunity_model()
+
+
 def skipIfCustomEvent(test_func):
     return skipIf(skip_event_tests, 'Custom Event model in use')(test_func)
+
 
 @skipIfCustomEvent
 class EventsTestCase(CremeTestCase):

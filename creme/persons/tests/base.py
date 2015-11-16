@@ -9,20 +9,27 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from .. import address_model_is_custom, contact_model_is_custom, organisation_model_is_custom
+    from .. import (address_model_is_custom, contact_model_is_custom, organisation_model_is_custom,
+            get_address_model, get_contact_model, get_organisation_model)
 
     skip_address_tests = address_model_is_custom()
     skip_contact_tests = contact_model_is_custom()
     skip_organisation_tests = organisation_model_is_custom()
+
+    Address = get_address_model()
+    Contact = get_contact_model()
+    Organisation = get_organisation_model()
 except Exception as e:
-     print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 def skipIfCustomAddress(test_func):
     return skipIf(skip_address_tests, 'Custom Address model in use')(test_func)
 
+
 def skipIfCustomContact(test_func):
     return skipIf(skip_contact_tests, 'Custom Contact model in use')(test_func)
+
 
 def skipIfCustomOrganisation(test_func):
     return skipIf(skip_organisation_tests, 'Custom Organisation model in use')(test_func)

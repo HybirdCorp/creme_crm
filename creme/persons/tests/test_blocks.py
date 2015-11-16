@@ -19,15 +19,16 @@ try:
             ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL)
     from creme.activities.tests.base import skipIfCustomActivity
 
-    from .base import skipIfCustomOrganisation, skipIfCustomContact
-    from ..models import *
+    from .base import (skipIfCustomOrganisation, skipIfCustomContact,
+            Contact, Organisation, Address)
+    # from ..models import *
     from ..constants import *
     from ..blocks import NeglectedOrganisationsBlock, address_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('BlocksTestCase',)
+# __all__ = ('BlocksTestCase',)
 
 
 def find_node_by_attr(node, tag, name, value):

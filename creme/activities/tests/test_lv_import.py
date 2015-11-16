@@ -11,16 +11,20 @@ try:
     from creme.creme_core.models import (SetCredentials, RelationType, Relation,
             CremePropertyType, CremeProperty)
 
-    from creme.documents.models import Document
+    from creme.documents import get_document_model
+    # from creme.documents.models import Document
+    from creme.documents.tests.base import skipIfCustomDocument
 
-    from creme.persons.models import Contact, Civility, Organisation
+    from creme.persons import get_contact_model, get_organisation_model
+    from creme.persons.models import Civility  # Contact Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import _ActivitiesTestCase, skipIfCustomActivity
+    from .base import _ActivitiesTestCase, skipIfCustomActivity, Contact, Organisation, Activity
+    from .. import get_activity_model
     from ..forms.lv_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
             MultiColumnsParticipantsExtractor, SplittedColumnParticipantsExtractor,
             SubjectsExtractor)
-    from ..models import Activity, Calendar
+    from ..models import Calendar  # Activity
     from ..constants import (ACTIVITYTYPE_TASK, NARROW, FLOATING, FLOATING_TIME,
             REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT,
             ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK)
@@ -28,9 +32,10 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-__all__ = ('CSVImportActivityTestCase',)
+Document = get_document_model()
 
 
+@skipIfCustomDocument
 @skipIfCustomActivity
 class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin):
     lv_import_data = {

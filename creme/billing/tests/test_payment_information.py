@@ -6,11 +6,11 @@ try:
 
     from creme.creme_core.models import Currency, FieldsConfig
 
-    from creme.persons.models import Organisation
+    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import PaymentInformation, Invoice
-    from .base import _BillingTestCase, skipIfCustomInvoice
+    from ..models import PaymentInformation  # Invoice
+    from .base import _BillingTestCase, skipIfCustomInvoice, Invoice, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

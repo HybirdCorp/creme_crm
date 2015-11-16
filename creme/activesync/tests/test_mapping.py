@@ -16,7 +16,8 @@ try:
     from creme.creme_core.models import Relation, RelationType
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.models import Address, Contact, Organisation, Civility
+    from creme.persons import get_address_model, get_contact_model, get_organisation_model
+    from creme.persons.models import Civility  # Address, Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation)
@@ -26,9 +27,13 @@ try:
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
-#TODO: where are the asserttions ???
+# TODO: where are the assertions ???
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
+Address = get_address_model()
+Contact = get_contact_model()
+Organisation = get_organisation_model()
+
 
 class MappingTestCase(CremeTestCase):
     def setUp(self):

@@ -9,13 +9,13 @@ try:
 
     from creme.creme_core.models import Language
 
-    from creme.documents.models import Document, Folder
+    # from creme.documents.models import Document, Folder
     from creme.documents.tests.base import skipIfCustomFolder, skipIfCustomDocument
 
-    from creme.persons.models import Contact
+    # from creme.persons.models import Contact
     from creme.persons.tests.base import skipIfCustomContact
 
-    from creme.activities.models import Activity
+    # from creme.activities.models import Activity
     from creme.activities.constants import ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_MEETING
     from creme.activities.tests.base import skipIfCustomActivity
 
@@ -25,7 +25,8 @@ try:
     from ..models.actions import WaitingAction
     from ..models.history import History
     from ..utils import decode_b64binary
-    from .base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, ActivityFakeBackend
+    from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, ActivityFakeBackend,
+            Contact, Activity, Document, Folder)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -707,8 +708,9 @@ description3=[[<br>]]
         self.assertEqual(date(year=1987, month=8, day=2), contact.birthday)
         self.assertEqual("A plumber", contact.description)
 
+    # TODO: move some validation code from Activity form to model (start<end etc...)
     @skipIfCustomActivity
-    def test_create_activity01(self): #TODO: move some validation code from Activity form to model (start<end etc...)
+    def test_create_activity01(self):
         "Datetimes with or without timezone"
         self.populate('activities')
 

@@ -24,10 +24,12 @@ from creme.creme_core import get_concrete_model
 
 
 def activity_model_is_custom():
-    return settings.ACTIVITIES_ACTIVITY_MODEL != 'activities.Activity'
+    return settings.ACTIVITIES_ACTIVITY_MODEL != 'activities.Activity' and \
+           not settings.ACTIVITIES_ACTIVITY_FORCE_NOT_CUSTOM
+
 
 def get_activity_model():
-    "Returns the Activity model that is active in this project."
+    """Returns the Activity model that is active in this project."""
     return get_concrete_model('ACTIVITIES_ACTIVITY_MODEL')
 
 

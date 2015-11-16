@@ -24,17 +24,22 @@ from creme.creme_core import get_concrete_model
 
 
 def document_model_is_custom():
-    return settings.DOCUMENTS_DOCUMENT_MODEL != 'documents.Document'
+    return settings.DOCUMENTS_DOCUMENT_MODEL != 'documents.Document' and \
+           not settings.DOCUMENTS_DOCUMENT_FORCE_NOT_CUSTOM
+
 
 def folder_model_is_custom():
-    return settings.DOCUMENTS_FOLDER_MODEL != 'documents.Folder'
+    return settings.DOCUMENTS_FOLDER_MODEL != 'documents.Folder' and \
+           not settings.DOCUMENTS_FOLDER_FORCE_NOT_CUSTOM
+
 
 def get_document_model():
-    "Returns the Document model that is active in this project."
+    """Returns the Document model that is active in this project."""
     return get_concrete_model('DOCUMENTS_DOCUMENT_MODEL')
 
+
 def get_folder_model():
-    "Returns the Folder model that is active in this project."
+    """Returns the Folder model that is active in this project."""
     return get_concrete_model('DOCUMENTS_FOLDER_MODEL')
 
 

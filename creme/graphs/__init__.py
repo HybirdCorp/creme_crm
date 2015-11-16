@@ -24,10 +24,12 @@ from creme.creme_core import get_concrete_model
 
 
 def graph_model_is_custom():
-    return settings.GRAPHS_GRAPH_MODEL != 'graphs.Graph'
+    return settings.GRAPHS_GRAPH_MODEL != 'graphs.Graph' and \
+           not settings.GRAPHS_GRAPH_FORCE_NOT_CUSTOM
+
 
 def get_graph_model():
-    "Returns the Graph model that is active in this project."
+    """Returns the Graph model that is active in this project."""
     return get_concrete_model('GRAPHS_GRAPH_MODEL')
 
 

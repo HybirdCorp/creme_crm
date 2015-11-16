@@ -10,11 +10,12 @@ try:
 
     from creme.creme_core.models import EntityFilter, EntityFilterCondition, FieldsConfig
 
-    from creme.persons.models import Contact, Organisation
+    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import _EmailsTestCase, skipIfCustomMailingList
-    from creme.emails.models import MailingList, EmailCampaign, EmailRecipient
+    from .base import (_EmailsTestCase, skipIfCustomMailingList,
+            Contact, Organisation, MailingList, EmailCampaign)
+    from creme.emails.models import EmailRecipient  # MailingList, EmailCampaign
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

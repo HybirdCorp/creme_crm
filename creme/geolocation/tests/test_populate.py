@@ -5,17 +5,17 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.models import Address, Organisation
+    # from creme.persons.models import Address, Organisation
     from creme.persons.tests.base import skipIfCustomAddress, skipIfCustomOrganisation
 
     from ..models import Town, GeoAddress
     from ..populate import Populator, CSVPopulator
-    from .base import GeoLocationBaseTestCase
+    from .base import GeoLocationBaseTestCase, Address, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('CSVPopulatorTestCase', 'TownPopulatorTestCase')
+# __all__ = ('CSVPopulatorTestCase', 'TownPopulatorTestCase')
 
 
 class MockCSVPopulator(CSVPopulator):

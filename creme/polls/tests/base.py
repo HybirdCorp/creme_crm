@@ -12,13 +12,18 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
 
     from .. import (pollcampaign_model_is_custom, pollform_model_is_custom,
-            pollreply_model_is_custom)
+            pollreply_model_is_custom, get_pollform_model,
+            get_pollreply_model, get_pollcampaign_model)
     from ..core import PollLineType
     from ..models import PollFormLine
 
     skip_pollcampaign_tests = pollcampaign_model_is_custom()
     skip_pollform_tests = pollform_model_is_custom()
     skip_pollreply_tests = pollreply_model_is_custom()
+
+    PollCampaign = get_pollcampaign_model()
+    PollForm     = get_pollform_model()
+    PollReply    = get_pollreply_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -26,8 +31,10 @@ except Exception as e:
 def skipIfCustomPollCampaign(test_func):
     return skipIf(skip_pollcampaign_tests, 'Custom PollCampaign model in use')(test_func)
 
+
 def skipIfCustomPollForm(test_func):
     return skipIf(skip_pollform_tests, 'Custom PollForm model in use')(test_func)
+
 
 def skipIfCustomPollReply(test_func):
     return skipIf(skip_pollreply_tests, 'Custom PollReply model in use')(test_func)

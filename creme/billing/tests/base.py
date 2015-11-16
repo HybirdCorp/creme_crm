@@ -24,13 +24,15 @@ try:
             CremePropertyType, CremeProperty) #Vat
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME # DEFAULT_VAT
 
-    from creme.persons.models import Contact, Organisation, Address
+    from creme.persons import get_address_model, get_contact_model, get_organisation_model
+    # from creme.persons.models import Contact, Organisation, Address
 
-    from creme.products.models import Product, Service, Category, SubCategory
+    from creme.products import get_product_model, get_service_model
+    from creme.products.models import Category, SubCategory  # Product, Service
 
     from .. import *
     from ..constants import *
-    from ..models import *
+    from ..models import QuoteStatus
 
     skip_cnote_tests    = credit_note_model_is_custom()
     skip_invoice_tests  = invoice_model_is_custom()
@@ -39,27 +41,50 @@ try:
     skip_template_tests = template_base_model_is_custom()
     skip_pline_tests    = product_line_model_is_custom()
     skip_sline_tests    = service_line_model_is_custom()
+
+    CreditNote   = get_credit_note_model()
+    Invoice      = get_invoice_model()
+    Quote        = get_quote_model()
+    SalesOrder   = get_sales_order_model()
+    TemplateBase = get_template_base_model()
+
+    ProductLine = get_product_line_model()
+    ServiceLine = get_service_line_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Address = get_address_model()
+Contact = get_contact_model()
+Organisation = get_organisation_model()
+
+Product = get_product_model()
+Service = get_service_model()
 
 
 def skipIfCustomCreditNote(test_func):
     return skipIf(skip_cnote_tests, 'Custom CreditNote model in use')(test_func)
 
+
 def skipIfCustomInvoice(test_func):
     return skipIf(skip_invoice_tests, 'Custom Invoice model in use')(test_func)
+
 
 def skipIfCustomQuote(test_func):
     return skipIf(skip_quote_tests, 'Custom Quote model in use')(test_func)
 
+
 def skipIfCustomSalesOrder(test_func):
     return skipIf(skip_order_tests, 'Custom SalesOrder model in use')(test_func)
+
 
 def skipIfCustomTemplateBase(test_func):
     return skipIf(skip_template_tests, 'Custom TemplateBase model in use')(test_func)
 
+
 def skipIfCustomProductLine(test_func):
     return skipIf(skip_pline_tests, 'Custom ProductLine model in use')(test_func)
+
 
 def skipIfCustomServiceLine(test_func):
     return skipIf(skip_sline_tests, 'Custom ServiceLine model in use')(test_func)
@@ -501,10 +526,10 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
             self.assertEqual(expected_b_addr.address, b_addr.address)
             self.assertEqual(expected_b_addr.city,    b_addr.city)
         else:
-            self.assertEqual(b_addr2, b_addr) # no change
+            self.assertEqual(b_addr2, b_addr)  # No change
 
         expected_s_addr = s_addr1 if override_shipping_addr else s_addr2
         self.assertEqual(expected_s_addr.address, s_addr.address)
         self.assertEqual(expected_s_addr.city,    s_addr.city)
 
-        self.assertEqual(addr_count, Address.objects.count()) #no new Address should be created
+        self.assertEqual(addr_count, Address.objects.count())  # No new Address should be created

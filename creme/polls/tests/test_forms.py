@@ -5,15 +5,15 @@ try:
 
     from creme.creme_core.tests.forms.base import FieldTestCase
 
-    from .base import skipIfCustomPollForm
+    from .base import skipIfCustomPollForm, PollForm
     from ..core import PollLineType
     from ..forms.fields import PollFormLineConditionsField
-    from ..models import PollForm, PollFormLine, PollFormLineCondition
+    from ..models import PollFormLine, PollFormLineCondition # PollForm
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PollFormLineConditionsFieldTestCase',)
+# __all__ = ('PollFormLineConditionsFieldTestCase',)
 
 
 class PollFormLineConditionsFieldTestCase(FieldTestCase):

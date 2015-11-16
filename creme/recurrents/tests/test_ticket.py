@@ -16,14 +16,19 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.utils.date_period import date_period_registry, DatePeriod
 
-    from creme.tickets.models import Ticket, TicketTemplate, Status, Priority, Criticity
+    from creme.tickets import get_ticket_model, get_tickettemplate_model
+    from creme.tickets.models import Status, Priority, Criticity  # Ticket, TicketTemplate
     from creme.tickets.tests import skipIfCustomTicket, skipIfCustomTicketTemplate
 
-    from .base import skipIfCustomGenerator
+    from .base import skipIfCustomGenerator, RecurrentGenerator
     from ..management.commands.recurrents_gendocs import Command as GenDocsCommand
-    from ..models import RecurrentGenerator
+    # from ..models import RecurrentGenerator
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Ticket = get_ticket_model()
+TicketTemplate = get_tickettemplate_model()
 
 
 @skipIfCustomGenerator
@@ -200,7 +205,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         "last_generation has been filled => cannot edit first_generation"
         user = self.user
 
-        now_value = now().replace(microsecond=0)  #MySQL does not record microseconds...
+        now_value = now().replace(microsecond=0)  # MySQL does not record microseconds...
         gen = RecurrentGenerator.objects.create(name='Gen1',
                                                 user=user,
                                                 first_generation=now_value,
@@ -303,7 +308,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     def test_command03(self):
         "last_generation is far enough"
         tpl = self._create_ticket_template()
-        now_value = now().replace(microsecond=0) #MySQL does not record microseconds...
+        now_value = now().replace(microsecond=0)  # MySQL does not record microseconds...
         gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
                                                 periodicity=self._get_weekly(),
                                                 ct=self.ct, template=tpl,

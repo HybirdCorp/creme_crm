@@ -209,9 +209,11 @@ class UserMessageTestCase(AssistantsTestCase):
     @skipIfCustomActivity
     def test_activity_createview01(self):
         "Test activity form hooking"
-        from creme.persons.models import Contact
+        # from creme.persons.models import Contact
+        from creme.persons  import get_contact_model
 
-        from creme.activities.models import Activity, Calendar
+        from creme.activities import get_activity_model
+        from creme.activities.models import Calendar # Activity
         from creme.activities.constants import (ACTIVITYTYPE_MEETING,
                 ACTIVITYSUBTYPE_MEETING_NETWORK, REL_SUB_PART_2_ACTIVITY,
                 REL_SUB_ACTIVITY_SUBJECT)
@@ -223,7 +225,8 @@ class UserMessageTestCase(AssistantsTestCase):
         me    = user.linked_contact
         ranma = other_user.linked_contact
 
-        create_contact = partial(Contact.objects.create, user=user)
+        # create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(get_contact_model().objects.create, user=user)
         #me    = create_contact(is_user=user,       first_name='Ryoga', last_name='Hibiki')
         #ranma = create_contact(is_user=other_user, first_name='Ranma', last_name='Saotome')
         genma = create_contact(first_name='Genma', last_name='Saotome')
@@ -259,7 +262,10 @@ class UserMessageTestCase(AssistantsTestCase):
                                    )
         self.assertNoFormError(response)
 
-        meeting = self.get_object_or_fail(Activity, title=title, type=ACTIVITYTYPE_MEETING)
+        # meeting = self.get_object_or_fail(Activity, title=title, type=ACTIVITYTYPE_MEETING)
+        meeting = self.get_object_or_fail(get_activity_model(), title=title,
+                                          type=ACTIVITYTYPE_MEETING,
+                                         )
 
         self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,  meeting)
         self.assertRelationCount(1, ranma, REL_SUB_PART_2_ACTIVITY,  meeting)

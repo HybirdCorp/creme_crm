@@ -26,7 +26,7 @@ try:
 #    from creme.documents.models import Document
 
     from creme.persons import get_contact_model, get_organisation_model
-    from creme.persons.models import Organisation, Contact
+    # from creme.persons.models import Organisation, Contact
     from creme.persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
 
@@ -35,20 +35,32 @@ try:
     from creme.products import get_product_model, get_service_model
 
     if apps.is_installed('creme.billing'):
-        from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine, QuoteStatus
+        from creme.billing import (get_invoice_model, get_quote_model,
+                get_sales_order_model, get_service_line_model)
+        from creme.billing.models import QuoteStatus  # Quote, SalesOrder, Invoice, ServiceLine
         from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
         skip_billing = False
+        Invoice = get_invoice_model()
+        Quote = get_quote_model()
+        SalesOrder = get_sales_order_model()
+        ServiceLine = get_service_line_model()
     else:
         skip_billing = True
 
-    from . import opportunity_model_is_custom
-    from .models import Opportunity, SalesPhase, Origin
+    from . import opportunity_model_is_custom, get_opportunity_model
+    from .models import SalesPhase, Origin  # Opportunity
     from .constants import *
 
     skip_opportunity_tests = opportunity_model_is_custom()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Organisation = get_organisation_model()
+Contact = get_contact_model()
+
+Opportunity = get_opportunity_model()
 
 
 def skipIfCustomOpportunity(test_func):

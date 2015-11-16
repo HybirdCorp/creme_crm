@@ -18,24 +18,23 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.models import RelationType, Relation, SetCredentials, EntityFilter, SettingValue
+    from creme.creme_core.models import (RelationType, Relation, SetCredentials,
+             EntityFilter, SettingValue)
     #from creme.creme_core.utils import create_or_update
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-    from creme.persons.models import Contact, Organisation
+    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.assistants.models import Alert
 
-    from .base import _ActivitiesTestCase, skipIfCustomActivity
+    from .base import (_ActivitiesTestCase, skipIfCustomActivity, Activity,
+           Contact, Organisation)
     from ..constants import *
-    from ..models import *
+    from ..models import ActivityType, ActivitySubType, Calendar, Status
     from ..utils import check_activity_collisions
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-__all__ = ('ActivityTestCase',)
 
 
 @skipIfCustomActivity
@@ -65,7 +64,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE     | EntityCredentials.UNLINK, #not LINK
+                  EntityCredentials.DELETE     | EntityCredentials.UNLINK,  # Not LINK
                   set_type=SetCredentials.ESET_ALL,
                  )
 
@@ -120,8 +119,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                          ActivitySubType.objects.filter(pk__in=subtype_ids).count()
                         )
 
-        #Filters
-        self.login() #user
+        # Filters
+        self.login()
         acts = [self._create_meeting('Meeting01', subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK, hour=14),
                 self._create_meeting('Meeting02', subtype_id=ACTIVITYSUBTYPE_MEETING_REVIVAL, hour=15),
                 self._create_phonecall('Call01', subtype_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=14),
@@ -150,14 +149,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         efilter = self.get_object_or_fail(EntityFilter, pk=EFILTER_TASKS)
         check_content(efilter, 'Task01', 'Task02')
 
-        #sk = self.get_object_or_fail(SettingKey, pk=DISPLAY_REVIEW_ACTIVITIES_BLOCKS)
-        #sv = self.get_object_or_fail(SettingValue, key=sk)
         sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_REVIEW_ACTIVITIES_BLOCKS)
         self.assertIsNone(sv.user)
         self.assertIs(sv.value, True)
 
-        #sk = self.get_object_or_fail(SettingKey, pk=SETTING_AUTO_ORGA_SUBJECTS)
-        #sv = self.get_object_or_fail(SettingValue, key=sk)
         sv = self.get_object_or_fail(SettingValue, key_id=SETTING_AUTO_ORGA_SUBJECTS)
         self.assertIsNone(sv.user)
         self.assertIs(sv.value, True)
@@ -170,23 +165,23 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
         self.assertGET404(self.GET_TYPES % 'unknown')
 
-        # empty
+        # Empty
         response = self.assertGET200(self.GET_TYPES % '')
         self.assertListEqual([], json_loads(response.content))
 
-        # valid type
+        # Valid type
         response = self.assertGET200(self.GET_TYPES % ACTIVITYTYPE_TASK)
-        self.assertListEqual(list(ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).order_by('id').values_list('id', 'name')),
+        self.assertListEqual(list(ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK)
+                                                         .order_by('id')
+                                                         .values_list('id', 'name')
+                                 ),
                              json_loads(response.content)
                             )
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_createview01(self):
-        self.login()
-
-        #me = self.contact
-        user = self.user
+        user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
         ranma = create_contact(first_name='Ranma', last_name='Saotome')
@@ -231,7 +226,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
-        #self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   act)
         self.assertRelationCount(1, user.linked_contact, REL_SUB_PART_2_ACTIVITY,   act)
         self.assertRelationCount(1, genma,               REL_SUB_PART_2_ACTIVITY,   act)
         self.assertRelationCount(1, ranma,               REL_SUB_ACTIVITY_SUBJECT,  act)
@@ -244,17 +238,12 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomOrganisation
     def test_createview02(self):
         "Credentials errors"
-        #self.login(is_superuser=False, other_is_owner=True)
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
         self._build_nolink_setcreds()
         self.role.creatable_ctypes = [ContentType.objects.get_for_model(Activity)]
 
-        user = self.user
         other_user = self.other_user
 
-        #kirika   = self.other_contact
-
-        #mireille = self.contact
         mireille = user.linked_contact
         mireille.user = other_user
         mireille.save()
@@ -284,13 +273,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'my_participation',
-                             #_(u'You are not allowed to link this entity: %s') % kirika
                              _(u'You are not allowed to link this entity: %s') % mireille
                             )
 
         msg = _(u'Some entities are not linkable: %s')
-        #self.assertFormError(response, 'form', 'participating_users', msg % mireille)
-        #self.assertFormError(response, 'form', 'participating_users', msg % kirika)
         self.assertFormError(response, 'form', 'participating_users', msg % other_user.linked_contact)
         self.assertFormError(response, 'form', 'other_participants',  msg % genma)
         self.assertFormError(response, 'form', 'subjects',            msg % akane)
@@ -300,9 +286,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomOrganisation
     def test_createview03(self):
         "No end given ; auto subjects"
-        self.login()
-        #me   = self.contact
-        user = self.user
+        user = self.login()
         me   = user.linked_contact
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -363,10 +347,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRelationCount(1, ranma,  REL_SUB_ACTIVITY_SUBJECT,  act)
         self.assertRelationCount(1, dojo_s, REL_SUB_LINKED_2_ACTIVITY, act)
         self.assertRelationCount(0, dojo_s, REL_SUB_ACTIVITY_SUBJECT,  act)
-        self.assertRelationCount(1, dojo_t, REL_SUB_ACTIVITY_SUBJECT,  act) #auto subject #1
-        self.assertRelationCount(1, school, REL_SUB_ACTIVITY_SUBJECT,  act) #auto subject #2
-        self.assertRelationCount(0, mngd,   REL_SUB_ACTIVITY_SUBJECT,  act) #no auto subject with managed organisations
-        self.assertRelationCount(1, rest,   REL_SUB_ACTIVITY_SUBJECT,  act) #auto subject #3 -> no doublon 
+        self.assertRelationCount(1, dojo_t, REL_SUB_ACTIVITY_SUBJECT,  act)  # Auto subject #1
+        self.assertRelationCount(1, school, REL_SUB_ACTIVITY_SUBJECT,  act)  # Auto subject #2
+        self.assertRelationCount(0, mngd,   REL_SUB_ACTIVITY_SUBJECT,  act)  # No auto subject with managed organisations
+        self.assertRelationCount(1, rest,   REL_SUB_ACTIVITY_SUBJECT,  act)  # Auto subject #3 -> no doublon
 
         self.assertEqual(8, Relation.objects.filter(subject_entity=act.id).count())
 
@@ -469,12 +453,10 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview11(self):
         "Auto subjects disabled"
         user = self.login()
-        #me   = self.contact
         me   = user.linked_contact
 
-        #sv = self.get_object_or_fail(SettingValue, key=SETTING_AUTO_ORGA_SUBJECTS)
         sv = self.get_object_or_fail(SettingValue, key_id=SETTING_AUTO_ORGA_SUBJECTS)
-        sv.value = False #we disable the auto subjects feature
+        sv.value = False  # We disable the auto subjects feature
         sv.save()
 
         dojo = Organisation.objects.create(user=user, name='Tendo Dojo')
@@ -499,14 +481,13 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRelationCount(1, me,   REL_SUB_PART_2_ACTIVITY,  act)
         self.assertRelationCount(0, dojo, REL_SUB_ACTIVITY_SUBJECT, act)
 
-        #better in a teardown method...
+        # Better in a teardown method...
         sv.value = True
         sv.save()
 
     def test_createview12(self):
         "Teams are not allowed as participants"
         user = self.login()
-        #activity = self._create_meeting()
 
         create_user = get_user_model().objects.create
         musashi = create_user(username='musashi', first_name='Musashi',
@@ -517,7 +498,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                              )
 
         team = create_user(username='Samurais', is_team=True, role=None)
-        team.teammates = [musashi, kojiro, user] #TODO: user + my_participation !!!!!!
+        team.teammates = [musashi, kojiro, user]  # TODO: user + my_participation !!!!!!
 
         title = 'Fight !!'
         response = self.client.post(self.ADD_URL, follow=True,
@@ -589,8 +570,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         "other_participants contains contact of user"
         user = self.login()
 
-        #create_contact = partial(Contact.objects.create, user=user)
-        #ranma = create_contact(first_name='Ranma', last_name='Saotome')
         ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
 
         response = self.assertPOST200(self.ADD_URL, follow=True,
@@ -600,7 +579,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'my_participation': True,
                                             'my_calendar':      Calendar.get_user_default_calendar(user).pk,
                                             'subjects':         self._relation_field_value(ranma),
-                                            #'other_participants': '[%d]' % self.other_contact.id,
                                             'other_participants': '[%d]' % self.other_user.linked_contact.id,
                                         }
                                      )
@@ -634,7 +612,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         act = self.get_object_or_fail(Activity, title=title)
         create_dt = self.create_datetime
-        #self.assertEqual(date(year=2010, month=1, day=10), act.start.date())
         self.assertEqual(create_dt(year=2010, month=1, day=10), act.start)
         self.assertEqual(ACTIVITYTYPE_MEETING, act.type.id)
         self.assertEqual(ACTIVITYSUBTYPE_MEETING_QUALIFICATION, act.sub_type.id)
@@ -667,7 +644,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'my_calendar':      my_calendar.pk,
 
                                           'alert_trigger_number': 2,
-                                          #'alert_trigger_unit':  'days' #missing,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -683,21 +659,21 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         atype = self.get_object_or_fail(ActivityType, pk=ACTIVITYTYPE_MEETING)
         self.assertEqual(0,          atype.default_day_duration)
-        self.assertEqual('00:15:00', atype.default_hour_duration) #TODO: timedelta instead ??
+        self.assertEqual('00:15:00', atype.default_hour_duration)  # TODO: timedelta instead ??
 
         subtype = self.get_object_or_fail(ActivitySubType, pk=ACTIVITYSUBTYPE_MEETING_NETWORK)
 
-        #me   = self.contact
         create_contact = partial(Contact.objects.create, user=user)
         ranma = create_contact(first_name='Ranma', last_name='Saotome')
         genma = create_contact(first_name='Genma', last_name='Saotome')
 
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
-        url = '/activities/activity/add/meeting'
+        # url = '/activities/activity/add/meeting'
+        url = reverse('activities__create_activity', args=('meeting',))
         self.assertGET200(url)
 
-        #TODO: help text of end (duration)
+        # TODO: help text of end (duration)
 
         title  = 'My meeting'
         status = Status.objects.all()[0]
@@ -729,7 +705,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                          meeting.end,
                         )
 
-        #self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   meeting)
         self.assertRelationCount(1, user.linked_contact, REL_SUB_PART_2_ACTIVITY,   meeting)
         self.assertRelationCount(1, genma,               REL_SUB_PART_2_ACTIVITY,   meeting)
         self.assertRelationCount(1, ranma,               REL_SUB_ACTIVITY_SUBJECT,  meeting)
@@ -741,7 +716,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         type_id = ACTIVITYTYPE_PHONECALL
         subtype = self.get_object_or_fail(ActivitySubType, pk=ACTIVITYSUBTYPE_PHONECALL_OUTGOING)
 
-        url = '/activities/activity/add/phonecall'
+        # url = '/activities/activity/add/phonecall'
+        url = reverse('activities__create_activity', args=('phonecall',))
         self.assertGET200(url)
 
         title  = 'My call'
@@ -764,10 +740,12 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertGET404('/activities/activity/add/invalid')
 
     def test_create_view_unallowedtype(self):
-        self.login()
+        user = self.login()
 
-        response = self.assertPOST200('/activities/activity/add/phonecall', follow=True,
-                                      data={'user':          self.user.pk,
+        # response = self.assertPOST200('/activities/activity/add/phonecall',
+        response = self.assertPOST200(reverse('activities__create_activity', args=('phonecall',)),
+                                      follow=True,
+                                      data={'user':          user.pk,
                                             'title':         'My meeting',
                                             'type_selector': self._acttype_field_value(ACTIVITYTYPE_MEETING,
                                                                                        ACTIVITYSUBTYPE_MEETING_NETWORK,
@@ -784,7 +762,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
         type_id = ACTIVITYTYPE_TASK
 
-        url = '/activities/activity/add/task'
+        # url = '/activities/activity/add/task'
+        url = reverse('activities__create_activity', args=('task',))
         self.assertGET200(url)
 
         title  = 'My call'
@@ -954,7 +933,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            start=create_dt(hour=14, minute=0),
                                            end=create_dt(hour=15, minute=0),
                                           )
-        response = self.assertGET200('/activities/activity/%s/popup' % activity.id)
+        # response = self.assertGET200('/activities/activity/%s/popup' % activity.id)
+        response = self.assertGET200(reverse('activities__view_activity_popup', args=(activity.id,)))
         self.assertContains(response, activity.type)
 
     def test_editview01(self):
@@ -1346,7 +1326,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(subtype,              activity.sub_type)
 
     def test_bulk_edit_type01(self):
-        "Indisponibilities cannot be changed when they are mixed with other types"
+        "Unavailabilities cannot be changed when they are mixed with other types"
         user = self.login()
 
         create_dt = self.create_datetime
@@ -1383,10 +1363,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                    )
                               )
         self.assertEqual(ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
-        self.assertEqual(ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id) # no change
+        self.assertEqual(ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)  # No change
 
     def test_bulk_edit_type02(self):
-        "Indisponibilities cannot be changed when they are mixed with other types"
+        "Unavailabilities cannot be changed when they are mixed with other types"
         user = self.login()
 
         subtype = ActivitySubType.objects.create(id='hollydays', name='Hollydays',
@@ -1467,22 +1447,22 @@ class ActivityTestCase(_ActivitiesTestCase):
         check_coll = partial(self._check_activity_collisions, participants=[c1, c2])
 
         try:
-            #no collision
-            #next day
+            # No collision
+            # Next day
             check_coll(activity_start=create_dt(year=2010, month=10, day=2, hour=12, minute=0),
                        activity_end=create_dt(year=2010,   month=10, day=2, hour=13, minute=0),
                       )
 
-            #one minute before
+            # One minute before
             check_coll(activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
                        activity_end=create_dt(year=2010,   month=10, day=1, hour=11, minute=59),
                       )
 
-            #one minute after
+            # One minute after
             check_coll(activity_start=create_dt(year=2010, month=10, day=1, hour=13, minute=1),
                        activity_end=create_dt(year=2010,   month=10, day=1, hour=13, minute=10),
                       )
-            #not busy
+            # Not busy
             check_coll(activity_start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
                        activity_end=create_dt(year=2010,   month=10, day=1, hour=15, minute=0),
                        busy=False
@@ -1490,41 +1470,41 @@ class ActivityTestCase(_ActivitiesTestCase):
         except ValidationError as e:
             self.fail(str(e))
 
-        #collision with act01
-        #before
+        # Collision with act01
+        # Before
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=30),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
                           participants=[c1, c2]
                          )
 
-        #after
+        # After
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
                           participants=[c1, c2]
                          )
 
-        #shorter
+        # Shorter
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=10),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
                           participants=[c1, c2]
                          )
 
-        #longer
+        # Longer
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
                           participants=[c1, c2]
                          )
-        #busy1
+        # Busy1
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=17, minute=30),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
                           participants=[c1, c2]
                          )
-        #busy2
+        # Busy2
         self.assertRaises(ValidationError, self._check_activity_collisions,
                           activity_start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
                           activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
@@ -1598,7 +1578,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(0, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
         self.assertEqual(1, contact.relations.filter(pk=r4.id).count())
 
-        #errors
+        # Errors
         self.assertPOST404(url, data={'id': activity.id})
         self.assertPOST404(url, data={'object_id': contact.id})
         self.assertPOST404(url)
@@ -1718,9 +1698,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_participants04(self):
         "Remove participants (relationships deleted)"
         user = self.login()
-        #logged   = self.contact
         logged   = user.linked_contact
-        #other    = self.other_contact
         other    = self.other_user.linked_contact
         contact3 = Contact.objects.create(user=user, first_name='Roy', last_name='Mustang')
         dt_now = now()
@@ -1859,7 +1837,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(1, len(relations))
         self.assertEqual(orga.id, relations[0].object_entity_id)
 
-        # avoid duplicates
+        # Avoid duplicates
         response = self.assertPOST200(uri, data=data)
         self.assertFormError(response, 'form', 'subjects',
                              ungettext(u'This entity is already a subject: %(duplicates)s',
@@ -1952,8 +1930,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_indisponibility_createview02(self):
         user = self.login()
-        #contact1 = self.contact
-        #contact2 = self.other_contact
         other_user = self.other_user
 
         title = 'Away'
@@ -1980,8 +1956,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(year=2010, month=1, day=10, hour=9, minute=8, second=7), act.start)
         self.assertEqual(create_dt(year=2010, month=1, day=12, hour=6, minute=5, second=4), act.end)
 
-        #self.assertRelationCount(1, contact1, REL_SUB_PART_2_ACTIVITY, act)
-        #self.assertRelationCount(1, contact2, REL_SUB_PART_2_ACTIVITY, act)
         self.assertRelationCount(1, user.linked_contact,       REL_SUB_PART_2_ACTIVITY, act)
         self.assertRelationCount(1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, act)
 
@@ -1990,7 +1964,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         title  = 'AFK'
-        subtype = ActivitySubType.objects.create(id='hollydays', name='Hollydays',
+        subtype = ActivitySubType.objects.create(id='hollydays', name='Holidays',
                                                  type_id=ACTIVITYTYPE_INDISPO,
                                                 )
         response = self.client.post(self.ADD_INDISPO_URL, follow=True,
@@ -2085,7 +2059,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             end_f = fields['end']
 
         self.assertTemplateUsed(response, 'activities/frags/activity_form_content.html')
-        self.assertContains(response, 'name="title"') #it seems TemplateDoesNotExists is not raised in unit tests
+        self.assertContains(response, 'name="title"')  # It seems TemplateDoesNotExists is not raised in unit tests
 
         initial_start = start_f.initial
         self.assertIsInstance(initial_start, datetime)
@@ -2223,8 +2197,8 @@ class ActivityTestCase(_ActivitiesTestCase):
             self.assertEqual(create_today_dt(hour=0,  minute=0,  second=0), activity.start)
             self.assertEqual(create_today_dt(hour=23, minute=59, second=0), activity.end)
 
-        post("meeting activity popup 3a", create_dt(year=2013, month=10, day=28, hour=11)) #No DST change for Europe/Paris
-        post("meeting activity popup 3b", create_dt(year=2013, month=10, day=27, hour=11)) #Timezone DST change for Europe/Paris
+        post("meeting activity popup 3a", create_dt(year=2013, month=10, day=28, hour=11))  # No DST change for Europe/Paris
+        post("meeting activity popup 3b", create_dt(year=2013, month=10, day=27, hour=11))  # Timezone DST change for Europe/Paris
 
     def test_createview_popup4(self):
         "Beware when it's 23 o clock (bugfix)"

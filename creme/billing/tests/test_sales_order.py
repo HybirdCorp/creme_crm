@@ -10,9 +10,9 @@ try:
 
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..models import SalesOrderStatus, SalesOrder
+    from ..models import SalesOrderStatus  # SalesOrder
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import _BillingTestCase, skipIfCustomSalesOrder
+    from .base import _BillingTestCase, skipIfCustomSalesOrder, SalesOrder
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

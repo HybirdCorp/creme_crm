@@ -19,8 +19,8 @@ try:
 
     from ..constants import MAIL_STATUS_SYNCHRONIZED_WAITING
     from ..crudity_register import EntityEmailBackend
-    from ..models import EntityEmail
-    from .base import skipIfCustomEntityEmail
+    # from ..models import EntityEmail
+    from .base import skipIfCustomEntityEmail, EntityEmail
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

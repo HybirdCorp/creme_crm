@@ -24,10 +24,12 @@ from creme.creme_core import get_concrete_model
 
 
 def rgenerator_model_is_custom():
-    return settings.RECURRENTS_RGENERATOR_MODEL != 'recurrents.RecurrentGenerator'
+    return settings.RECURRENTS_RGENERATOR_MODEL != 'recurrents.RecurrentGenerator' and \
+           not settings.RECURRENTS_RGENERATOR_FORCE_NOT_CUSTOM
+
 
 def get_rgenerator_model():
-    "Returns the RecurrentGenerator model that is active in this project."
+    """Returns the RecurrentGenerator model that is active in this project."""
     return get_concrete_model('RECURRENTS_RGENERATOR_MODEL')
 
 

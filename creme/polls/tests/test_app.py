@@ -8,8 +8,8 @@ try:
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
     from creme.persons.models import Contact, Organisation
 
-    from .base import _PollsTestCase
-    from .. import get_pollform_model, get_pollreply_model, get_pollcampaign_model
+    from .base import _PollsTestCase, PollCampaign, PollForm, PollReply
+    # from .. import get_pollform_model, get_pollreply_model, get_pollcampaign_model
     from ..blocks import PersonPollRepliesBlock
 #    from ..models import PollType, PollForm, PollReply, PollCampaign
     from ..models import PollType
@@ -17,7 +17,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PollsAppTestCase', )
+# __all__ = ('PollsAppTestCase', )
 
 
 class PollsAppTestCase(_PollsTestCase):
@@ -26,9 +26,9 @@ class PollsAppTestCase(_PollsTestCase):
         self.assertGET200('/polls/')
 
     def test_populate(self):
-        PollCampaign = get_pollcampaign_model()
-        PollForm     = get_pollform_model()
-        PollReply    = get_pollreply_model()
+        # PollCampaign = get_pollcampaign_model()
+        # PollForm     = get_pollform_model()
+        # PollReply    = get_pollreply_model()
         
         get_ct = ContentType.objects.get_for_model
         filter_hf = HeaderFilter.objects.filter

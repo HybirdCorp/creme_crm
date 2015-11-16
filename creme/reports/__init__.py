@@ -24,14 +24,19 @@ from creme.creme_core import get_concrete_model
 
 
 def report_model_is_custom():
-    return settings.REPORTS_REPORT_MODEL != 'reports.Report'
+    return settings.REPORTS_REPORT_MODEL != 'reports.Report' and \
+           not settings.REPORTS_REPORT_FORCE_NOT_CUSTOM
+
 
 def rgraph_model_is_custom():
-    return settings.REPORTS_GRAPH_MODEL != 'reports.ReportGraph'
+    return settings.REPORTS_GRAPH_MODEL != 'reports.ReportGraph' and \
+           not settings.REPORTS_GRAPH_FORCE_NOT_CUSTOM
+
 
 def get_report_model():
     "Returns the Report model that is active in this project."
     return get_concrete_model('REPORTS_REPORT_MODEL')
+
 
 def get_rgraph_model():
     "Returns the ReportGraph model that is active in this project."

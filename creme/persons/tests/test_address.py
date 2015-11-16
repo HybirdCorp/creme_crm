@@ -9,14 +9,15 @@ try:
     from creme.creme_core.models import FieldsConfig
     from creme.creme_core.models.history import HistoryLine, TYPE_CREATION, TYPE_AUX_CREATION
 
-    from .base import skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation
-    from ..models import Address, Organisation, Contact
+    from .base import (skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation,
+            Address, Organisation, Contact)
+    # from ..models import Address, Organisation, Contact
     from ..blocks import other_address_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('AddressTestCase',)
+# __all__ = ('AddressTestCase',)
 
 
 @skipIfCustomAddress

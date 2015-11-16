@@ -5,7 +5,7 @@ try:
 
     from creme.creme_core.models import SettingValue
 
-    from creme.persons.models import Organisation, Contact, Address
+    # from creme.persons.models import Organisation, Contact, Address
     from creme.persons.tests.base import (skipIfCustomAddress,
             skipIfCustomContact, skipIfCustomOrganisation)
 
@@ -13,12 +13,12 @@ try:
     from ..models import GeoAddress
     from ..setting_keys import NEIGHBOURHOOD_DISTANCE
     from ..utils import get_setting, address_as_dict, addresses_from_persons, location_bounding_box
-    from .base import GeoLocationBaseTestCase
+    from .base import GeoLocationBaseTestCase, Organisation, Contact, Address
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('GeoLocationUtilsTestCase',)
+# __all__ = ('GeoLocationUtilsTestCase',)
 
 class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation

@@ -24,24 +24,31 @@ from creme.creme_core import get_concrete_model
 
 
 def address_model_is_custom():
-    return settings.PERSONS_ADDRESS_MODEL != 'persons.Address'
+    return settings.PERSONS_ADDRESS_MODEL != 'persons.Address' and \
+           not settings.PERSONS_ADDRESS_FORCE_NOT_CUSTOM
+
 
 def contact_model_is_custom():
-    return settings.PERSONS_CONTACT_MODEL != 'persons.Contact'
+    return settings.PERSONS_CONTACT_MODEL != 'persons.Contact' and \
+           not settings.PERSONS_CONTACT_FORCE_NOT_CUSTOM
 
 def organisation_model_is_custom():
-    return settings.PERSONS_ORGANISATION_MODEL != 'persons.Organisation'
+    return settings.PERSONS_ORGANISATION_MODEL != 'persons.Organisation' and \
+           not settings.PERSONS_ORGANISATION_FORCE_NOT_CUSTOM
+
 
 def get_address_model():
-    "Returns the Address model that is active in this project."
+    """Returns the Address model that is active in this project."""
     return get_concrete_model('PERSONS_ADDRESS_MODEL')
 
+
 def get_contact_model():
-    "Returns the Contact model that is active in this project."
+    """Returns the Contact model that is active in this project."""
     return get_concrete_model('PERSONS_CONTACT_MODEL')
 
+
 def get_organisation_model():
-    "Returns the Organisation model that is active in this project."
+    """Returns the Organisation model that is active in this project."""
     return get_concrete_model('PERSONS_ORGANISATION_MODEL')
 
 

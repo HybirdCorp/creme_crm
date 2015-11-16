@@ -26,12 +26,16 @@ try:
 
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
-    from . import ticket_model_is_custom, tickettemplate_model_is_custom
-    from .models import *
+    from . import (ticket_model_is_custom, tickettemplate_model_is_custom,
+            get_ticket_model, get_tickettemplate_model)
+    from .models import Status, Priority, Criticity, TicketNumber
     from .models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 
     skip_ticket_tests = ticket_model_is_custom()
     skip_tickettemplate_tests = tickettemplate_model_is_custom()
+
+    Ticket = get_ticket_model()
+    TicketTemplate = get_tickettemplate_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

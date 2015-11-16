@@ -13,9 +13,13 @@ try:
     from creme.media_managers.tests import create_image
 
     from .base import _ProductsTestCase, skipIfCustomService
-    from ..models import Category, SubCategory, Service
+    from .. import get_service_model
+    from ..models import Category, SubCategory  # Service
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Service = get_service_model()
 
 
 @skipIfCustomService

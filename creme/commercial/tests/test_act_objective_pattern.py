@@ -13,8 +13,8 @@ try:
 
     #from creme.persons.models import Contact, Organisation
 
-    from ..models import ActObjectivePattern, ActObjectivePatternComponent
-    from .base import CommercialBaseTestCase, skipIfCustomPattern
+    from ..models import ActObjectivePatternComponent  # ActObjectivePattern
+    from .base import CommercialBaseTestCase, skipIfCustomPattern, ActObjectivePattern
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

@@ -24,31 +24,42 @@ from creme.creme_core import get_concrete_model
 
 
 def emailcampaign_model_is_custom():
-    return settings.EMAILS_CAMPAIGN_MODEL != 'emails.EmailCampaign'
+    return settings.EMAILS_CAMPAIGN_MODEL != 'emails.EmailCampaign' and \
+           not settings.EMAILS_CAMPAIGN_FORCE_NOT_CUSTOM
+
 
 def emailtemplate_model_is_custom():
-    return settings.EMAILS_TEMPLATE_MODEL != 'emails.EmailTemplate'
+    return settings.EMAILS_TEMPLATE_MODEL != 'emails.EmailTemplate' and \
+           not settings.EMAILS_TEMPLATE_FORCE_NOT_CUSTOM
+
 
 def entityemail_model_is_custom():
-    return settings.EMAILS_EMAIL_MODEL != 'emails.EntityEmail'
+    return settings.EMAILS_EMAIL_MODEL != 'emails.EntityEmail' and \
+           not settings.EMAILS_EMAIL_FORCE_NOT_CUSTOM
+
 
 def mailinglist_model_is_custom():
-    return settings.EMAILS_MLIST_MODEL != 'emails.MailingList'
+    return settings.EMAILS_MLIST_MODEL != 'emails.MailingList' and \
+           not settings.EMAILS_MLIST_FORCE_NOT_CUSTOM
+
 
 def get_emailcampaign_model():
-    "Returns the EmailCampaign model that is active in this project."
+    """Returns the EmailCampaign model that is active in this project."""
     return get_concrete_model('EMAILS_CAMPAIGN_MODEL')
 
+
 def get_emailtemplate_model():
-    "Returns the EmailTemplate model that is active in this project."
+    """Returns the EmailTemplate model that is active in this project."""
     return get_concrete_model('EMAILS_TEMPLATE_MODEL')
 
+
 def get_entityemail_model():
-    "Returns the EntityEmail model that is active in this project."
+    """Returns the EntityEmail model that is active in this project."""
     return get_concrete_model('EMAILS_EMAIL_MODEL')
 
+
 def get_mailinglist_model():
-    "Returns the MailingList model that is active in this project."
+    """Returns the MailingList model that is active in this project."""
     return get_concrete_model('EMAILS_MLIST_MODEL')
 
 

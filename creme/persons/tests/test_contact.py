@@ -19,14 +19,14 @@ try:
     from creme.media_managers.models import Image
 
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
-            skipIfCustomOrganisation)
-    from ..models import Contact, Organisation, Address, Position, Civility, Sector
+            skipIfCustomOrganisation, Contact, Organisation, Address)
+    from ..models import Position, Civility, Sector  # Contact, Organisation, Address
     from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('ContactTestCase',)
+# __all__ = ('ContactTestCase',)
 
 
 @skipIfCustomContact

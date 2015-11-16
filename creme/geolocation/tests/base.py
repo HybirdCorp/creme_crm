@@ -4,11 +4,17 @@ try:
     from creme.creme_core.utils import safe_unicode
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.models.address import Address
+    from creme.persons import get_address_model, get_contact_model, get_organisation_model
+    # from creme.persons.models.address import Address
 
     from ..models import GeoAddress, Town
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Address = get_address_model()
+Contact = get_contact_model()
+Organisation = get_organisation_model()
 
 
 class GeoLocationBaseTestCase(CremeTestCase):
