@@ -1,13 +1,15 @@
 # FR LOCALISATION OF 'CTI' APP
-# Copyright (C) 2011 Hybird
+# Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the PACKAGE package.
+#
+# > django-admin.py makemessages -l fr
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme CTI 1.1\n"
+"Project-Id-Version: Creme CTI 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-21 15:45+0100\n"
+"POT-Creation-Date: 2015-11-16 18:20+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -15,31 +17,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: creme_core_register.py:12
+#: apps.py:28 apps.py:32
 msgid "Computer Telephony Integration"
 msgstr "Couplage Téléphonique Informatique"
-
-#: utils.py:36
-msgid "Call"
-msgstr "Appeler"
-
-#: views.py:59
-msgid "Automatically created by CTI"
-msgstr "Créé automatiquement par CTI"
-
-#: views.py:95
-#, python-format
-msgid "Call to %s"
-msgstr "Appel à %s"
-
-#: views.py:99
-msgid "Phone call successfully created."
-msgstr "Appel téléphonique créé avec succés."
-
-#: views.py:146
-#, python-format
-msgid "Call from %s"
-msgstr "Appel de %s"
 
 #: templates/cti/respond_to_a_call.html:10
 #, python-format
@@ -76,9 +56,37 @@ msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
 msgid "Create a contact"
 msgstr "Créer un contact"
 
-#: templates/cti/respond_to_a_call.html:50
+#: templates/cti/respond_to_a_call.html:54
 msgid "Create an organisation"
 msgstr "Créer une société"
+
+#: utils.py:40
+msgid "Call"
+msgstr "Appeler"
+
+#: views.py:64
+msgid "Automatically created by CTI"
+msgstr "Créé automatiquement par CTI"
+
+#: views.py:77
+#, python-format
+msgid "Call to %s"
+msgstr "Appel à %s"
+
+#: views.py:82
+msgid "Phone call successfully created."
+msgstr "Appel téléphonique créé avec succés."
+
+#: views.py:107
+#, python-format
+msgid "Call from %s"
+msgstr "Appel de %s"
+
+#: views.py:185
+msgid "All phone fields are hidden ; please contact your administrator."
+msgstr ""
+"Tous les champs téléphoniques sont cachés ; veuillez contacter votre "
+"administrateur."
 
 #~ msgid "Phone call"
 #~ msgstr "Appel téléphonique"
