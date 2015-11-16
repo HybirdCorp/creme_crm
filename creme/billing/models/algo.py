@@ -38,6 +38,11 @@ class ConfigBillingAlgo(CremeModel):
         app_label = 'billing'
         # TODO unique_together = ("organisation", "name_algo", "ct") ??
 
+    def __unicode__(self):
+        return u'ConfigBillingAlgo(organisation="%s", name_algo="%s", ct="%s")' % (
+            self.organisation, self.name_algo, self.ct,
+        )
+
 
 class SimpleBillingAlgo(Model):
 #    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
