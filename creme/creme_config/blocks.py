@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
+
 from collections import defaultdict
 
 from django.contrib.auth import get_user_model
@@ -394,13 +396,15 @@ class BlockPortalLocationsBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         get_app = creme_registry.get_app
-        apps = [get_app(name) for name in BlockPortalLocation.objects.exclude(app_name='creme_core')
-                                                             .order_by('app_name') #in order that distinct() works correctly
-                                                             .distinct()
-                                                             .values_list('app_name', flat=True)
-                                  if name
-               ]
-
+        apps = list(filter(None,
+                           (get_app(name, silent_fail=True)
+                                for name in BlockPortalLocation.objects.exclude(app_name='creme_core')
+                                                               .order_by('app_name')  # In order that distinct() works correctly
+                                                               .distinct()
+                                                               .values_list('app_name', flat=True)
+                                       if name
+                           )
+                   ))
         sort_key = collator.sort_key
         apps.sort(key=lambda app: sort_key(app.verbose_name))
 

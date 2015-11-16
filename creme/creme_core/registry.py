@@ -69,11 +69,15 @@ class CremeRegistry(object):
 
         self._apps[name] = CremeApp(name, verbose_name, url, credentials, extended_app)
 
-    def get_app(self, name):
+    def get_app(self, name, silent_fail=False):
         app = self._apps.get(name)
 
         if app is None:
-            raise NotRegistered("%s.get_app(): No app registered with this name: %s" % (self.__class__, name))
+            error_msg = "%s.get_app(): No app registered with this name: %s" % (self.__class__, name)
+            if silent_fail:
+                logger.critical(error_msg)
+            else:
+                raise NotRegistered(error_msg)
 
         return app
 
