@@ -629,7 +629,7 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertGET404(url, data=dict(base_data, values=''))
         self.assertGET404(url, data=dict(base_data, models=''))
         self.assertGET404(url, data=dict(base_data), fields='')
-        self.assertGET404(url, data=dict(base_data, models='persons-civility')) #not CremeEntity
+        self.assertGET404(url, data=dict(base_data, models='persons-civility'))  # Not CremeEntity
 
     def test_search_and_view05(self):
         "Credentials"
@@ -647,10 +647,10 @@ class EntityViewsTestCase(ViewsTestCase):
                }
 
         create_contact = Contact.objects.create
-        onizuka = create_contact(user=self.other_user, first_name='Eikichi', last_name='Onizuka', mobile=phone) #phone Ok and but not readable
-        ryuji   = create_contact(user=user,            first_name='Ryuji',   last_name='Danma',   phone='987654') #phone KO
+        onizuka = create_contact(user=self.other_user, first_name='Eikichi', last_name='Onizuka', mobile=phone)  # phone Ok and but not readable
+        ryuji   = create_contact(user=user,            first_name='Ryuji',   last_name='Danma',   phone='987654') # phone KO
 
-        onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone) #phone Ok and readable
+        onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone)  # phone Ok and readable
 
         has_perm = user.has_perm_to_view
         self.assertFalse(has_perm(onizuka))
@@ -663,7 +663,7 @@ class EntityViewsTestCase(ViewsTestCase):
 #        user = self.login(is_superuser=False)
 #        self.role.allowed_apps = ['creme_core'] #not 'persons'
 #        self.role.save()
-        user = self.login(is_superuser=False, allowed_apps=['documents']) # not 'creme_core'
+        user = self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
 
         phone = '31337'
 #        data = {'models': 'persons-contact',
@@ -671,8 +671,23 @@ class EntityViewsTestCase(ViewsTestCase):
                 'fields': 'phone',
                 'value':  phone,
                }
-        Contact.objects.create(user=user, first_name='Eikichi', last_name='Onizuka', phone=phone)#would match if apps was allowed
+        Contact.objects.create(user=user, first_name='Eikichi', last_name='Onizuka', phone=phone)  # Would match if apps was allowed
         self.assertGET403(self.SEARCHNVIEW_URL, data=data)
+
+    def test_search_and_view07(self):
+        "FieldsConfig"
+        user = self.login()
+
+        FieldsConfig.create(Contact,
+                            descriptions=[('phone',  {FieldsConfig.HIDDEN: True})],
+                           )
+
+        self.assertGET409(self.SEARCHNVIEW_URL,
+                          data={'models': 'creme_core-fakecontact',
+                                'fields': 'phone',
+                                'value':  '123456789',
+                               },
+                         )
 
 
 class _BulkEditTestCase(ViewsTestCase):

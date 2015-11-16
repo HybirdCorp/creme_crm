@@ -119,7 +119,7 @@ def search_and_view(request):
     fields    = get_from_GET_or_404(GET, 'fields').split(',')
     value     = get_from_GET_or_404(GET, 'value')
 
-    if not value: # Avoid useless queries
+    if not value:  # Avoid useless queries
         raise Http404(u'Void "value" arg')
 
     user = request.user
@@ -143,19 +143,23 @@ def search_and_view(request):
     if not models:
         raise Http404(u'No valid model')
 
+    fconfigs = FieldsConfig.get_4_models(models)
+
     for model in models:
         query = Q()
 
-        for field in fields:
+        for field_name in fields:
             try:
-#                model._meta.get_field_by_name(field)
-                model._meta.get_field(field)
+                field = model._meta.get_field(field_name)
             except FieldDoesNotExist:
                 pass
             else:
-                query |= Q(**{str(field): value})
+                if fconfigs[model].is_field_hidden(field):
+                    raise ConflictError(_('This field is hidden.'))
 
-        if query: # Avoid useless query
+                query |= Q(**{field.name: value})
+
+        if query:  # Avoid useless query
             found = EntityCredentials.filter(user, model.objects.filter(query)).first()
 
             if found:
