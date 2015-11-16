@@ -9,6 +9,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.gui.field_printers import field_printers_registry
+    from creme.creme_core.models import FieldsConfig
 
     from creme.persons import get_contact_model, get_organisation_model
     # from creme.persons.models import Contact, Organisation
@@ -147,10 +148,11 @@ class CTITestCase(CremeTestCase):
     def test_respond_to_a_call01(self):
         user = self.login()
 
-        phone='558899'
+        phone = '558899'
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
 
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
+        self.assertTemplateUsed(response, 'cti/respond_to_a_call.html')
 
         with self.assertNoException():
             callers = response.context['callers']
@@ -162,7 +164,7 @@ class CTITestCase(CremeTestCase):
     def test_respond_to_a_call02(self):
         user = self.login()
 
-        phone='558899'
+        phone = '558899'
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', mobile=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertEqual([contact.id], [c.id for c in response.context['callers']])
@@ -171,10 +173,42 @@ class CTITestCase(CremeTestCase):
     def test_respond_to_a_call03(self):
         user = self.login()
 
-        phone='558899'
+        phone = '558899'
         orga = Organisation.objects.create(user=user, name='Gunsmith Cats', phone=phone)
         response = self.client.get(self.RESPOND_URL, data={'number': phone})
         self.assertEqual([orga.id], [o.id for o in response.context['callers']])
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_respond_to_a_call04(self):
+        """FieldsConfig"""
+        self.login()
+
+        fc_create= FieldsConfig.create
+        fc_create(Contact,
+                  descriptions=[('phone',  {FieldsConfig.HIDDEN: True}),
+                                ('mobile', {FieldsConfig.HIDDEN: True}),
+                               ]
+                 )
+        fc_create(Organisation,
+                  descriptions=[('phone', {FieldsConfig.HIDDEN: True})]
+                 )
+
+        self.assertGET409(self.RESPOND_URL, data={'number': '558899'})
+
+    @skipIfCustomContact
+    def test_respond_to_a_call05(self):
+        """All fields are hidden"""
+        user = self.login()
+
+        FieldsConfig.create(Contact,
+                            descriptions=[('phone', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        phone='558899'
+        Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
+        response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
+
 
     @skipIfCustomContact
     def test_create_contact(self):

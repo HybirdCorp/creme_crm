@@ -20,6 +20,7 @@
 
 from datetime import timedelta # datetime
 from functools import partial
+from operator import or_
 
 from django.db.models.query_utils import Q
 from django.http import Http404
@@ -29,7 +30,10 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeEntity, RelationType, Relation, EntityCredentials
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.models import (CremeEntity, RelationType, Relation,
+         EntityCredentials, FieldsConfig)
+from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.views.generic import add_entity
 
@@ -49,6 +53,8 @@ from creme.activities.models import Calendar #Activity
 Contact = get_contact_model()
 Organisation = get_organisation_model()
 Activity = get_activity_model()
+
+RESPOND_TO_A_CALL_MODELS = (Contact, Organisation)
 
 
 def _create_phonecall(user, title, calltype_id):
@@ -77,6 +83,7 @@ def abstract_create_phonecall_as_caller(request, pcall_creator=_create_phonecall
                     pcall.get_absolute_url(),
                     unicode(pcall),
                 )
+
 
 def abstract_add_contact(request, number, form=ContactForm,
                          template='persons/add_contact_form.html',
@@ -159,10 +166,23 @@ def respond_to_a_call(request):
     number = get_from_GET_or_404(request.GET, 'number')
     user = request.user
     filter_viewable = EntityCredentials.filter
+    fconfigs = FieldsConfig.get_4_models(RESPOND_TO_A_CALL_MODELS)
+    all_fields_hidden = True
+    callers = []
 
-    # TODO: get dynamically are PhoneField
-    callers = list(filter_viewable(user, Contact.objects.filter(Q(phone=number) | Q(mobile=number))))
-    callers.extend(filter_viewable(user, Organisation.objects.filter(phone=number)))
+    for model in RESPOND_TO_A_CALL_MODELS:
+        is_hidden = fconfigs[model].is_field_hidden
+        queries = [Q(**{field.name: number})
+                       for field in model._meta.fields
+                           if isinstance(field, PhoneField) and not is_hidden(field)
+                  ]
+
+        if queries:
+            all_fields_hidden = False
+            callers.extend(filter_viewable(user, model.objects.filter(reduce(or_, queries))))
+
+    if all_fields_hidden:
+        raise ConflictError(_('All phone fields are hidden ; please contact your administrator.'))
 
     can_create = user.has_perm_to_create
 

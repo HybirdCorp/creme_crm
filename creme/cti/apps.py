@@ -33,6 +33,13 @@ class CTIConfig(CremeAppConfig):
                                     '/cti', credentials=creme_registry.CRED_NONE,
                                    )
 
+    def register_fields_config(self, fields_config_registry):
+        from creme.persons import get_contact_model, get_organisation_model
+
+        reg_fields = fields_config_registry.register_needed_fields
+        reg_fields('cti', get_contact_model(),      'phone', 'mobile')
+        reg_fields('cti', get_organisation_model(), 'phone')
+
     def register_field_printers(self, field_printers_registry):
         from creme.creme_core.models.fields  import PhoneField
 
