@@ -1438,7 +1438,11 @@ class SalesPhaseTestCase(CremeTestCase):
     @classmethod
     def tearDownClass(cls):
         CremeTestCase.tearDownClass()
-        SalesPhase.objects.bulk_create(cls._phase_backup)
+
+        try:
+            SalesPhase.objects.bulk_create(cls._phase_backup)
+        except:
+            print('SalesPhaseTestCase: test-data backup problem.')
 
     def test_create_n_order(self):
         create_phase = SalesPhase.objects.create

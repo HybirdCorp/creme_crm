@@ -120,7 +120,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
     def _ids_list(self, queryset, length):
         ids_list = list(queryset.values_list('id', flat=True))
-        self.assertEqual(3, len(ids_list))
+        self.assertEqual(length, len(ids_list))
 
         return ids_list
 
@@ -162,7 +162,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
         cba_filter = ConfigBillingAlgo.objects.filter
         sba_filter = SimpleBillingAlgo.objects.filter
-        cba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+        cba_ids_list1 = self._ids_list(cba_filter(organisation=orga1), 3)
         sba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
 
         cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)
@@ -190,7 +190,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
         cba_filter = ConfigBillingAlgo.objects.filter
         sba_filter = SimpleBillingAlgo.objects.filter
-        cba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+        cba_ids_list1 = self._ids_list(cba_filter(organisation=orga1), 3)
         sba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
 
         cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)
@@ -219,7 +219,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
         cba_filter = ConfigBillingAlgo.objects.filter
         sba_filter = SimpleBillingAlgo.objects.filter
-        cba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+        cba_ids_list1 = self._ids_list(cba_filter(organisation=orga1), 3)
         sba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
 
         cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)

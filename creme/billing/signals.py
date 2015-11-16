@@ -39,9 +39,9 @@ def set_simple_conf_billing(sender, instance, created, **kwargs):
     if not created:
         return
 
-    Invoice      = get_invoice_model()
-    Quote        = get_quote_model()
-    SalesOrder   = get_sales_order_model()
+    Invoice    = get_invoice_model()
+    Quote      = get_quote_model()
+    SalesOrder = get_sales_order_model()
 
     get_ct = ContentType.objects.get_for_model
 
@@ -62,12 +62,13 @@ def set_simple_conf_billing(sender, instance, created, **kwargs):
                                                  prefix=prefix, ct=ct,
                                                 )
 
+
 @receiver(pre_merge_related)
 def handle_merge_organisations(sender, other_entity, **kwargs):
     # NB: we assume that all CTs are covered if at least one CT is covered
     #     because ConfigBillingAlgo/SimpleBillingAlgo instances are only
     #     created in _simple_conf_billing_for_org_managed_by_creme().
-    orga_2_clean = None # 'cache'
+    orga_2_clean = None  # 'cache'
 
     def get_orga_2_clean():
         managed_ids = set(CremeProperty.objects
@@ -87,15 +88,17 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
             orga_2_clean = orga_2_clean or get_orga_2_clean()
             model_filter(organisation=orga_2_clean).delete()
         else:
-            return # we avoid the queries for the next model (if it's the first iteration)
+            return  # We avoid the queries for the next model (if it's the first iteration)
+
 
 @receiver((post_save, post_delete), sender=Relation)
 def manage_linked_credit_notes(sender, instance, **kwargs):
-    "the calculated totals of Invoices have to be refreshed."
+    "The calculated totals of Invoices have to be refreshed."
     if instance.type_id == REL_SUB_CREDIT_NOTE_APPLIED:
         instance.object_entity.get_real_entity().save()
 
-#TODO: problem, if several lines are deleted at once, lots of useless queries (workflow engine ??)
+
+# TODO: problem, if several lines are deleted at once, lots of useless queries (workflow engine ??)
 @receiver(post_delete, sender=Relation)
 def manage_line_deletion(sender, instance, **kwargs):
     "The calculated totals (Invoice, Quote...) have to be refreshed"
