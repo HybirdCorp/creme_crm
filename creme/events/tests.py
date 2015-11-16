@@ -15,7 +15,8 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import RelationType, Relation, CremeProperty, SetCredentials
+    from creme.creme_core.models import (RelationType, Relation, CremeProperty,
+            SetCredentials, FieldsConfig)
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
@@ -43,6 +44,7 @@ Opportunity = get_opportunity_model()
 
 def skipIfCustomEvent(test_func):
     return skipIf(skip_event_tests, 'Custom Event model in use')(test_func)
+
 
 
 @skipIfCustomEvent
@@ -705,3 +707,38 @@ class EventsTestCase(CremeTestCase):
 
         opp = self.get_object_or_fail(Opportunity, name=name)
         self.assertRelationCount(1, opp,  REL_SUB_GEN_BY_EVENT, event)
+
+    @skipIfCustomOpportunity
+    def test_related_opportunity03(self):
+        """Opportunity.description is hidden"""
+        user = self.login()
+
+        FieldsConfig.create(Opportunity,
+                            descriptions=[('description', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
+        event = Event.objects.create(user=user, name='Eclipse',
+                                     type=EventType.objects.first(),
+                                     start_date=now(),
+                                    )
+
+        emitter = Organisation.objects.create(user=user, name='My society')
+        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+
+        name = 'Opp01'
+        response = self.client.post(self._build_related_opp_url(event, casca), follow=True,
+                                    data={'user':        user.pk,
+                                          'name':        name,
+                                          'sales_phase': SalesPhase.objects.first().id,
+                                          'target':      '{"ctype":"%s", "entity":"%s"}' % (
+                                                                casca.entity_type_id, casca.id
+                                                            ),
+                                          'emitter':     emitter.id,
+                                          'currency':    DEFAULT_CURRENCY_PK,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        opp = self.get_object_or_fail(Opportunity, name=name)
+        self.assertFalse(opp.description)
