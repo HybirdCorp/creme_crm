@@ -11,14 +11,15 @@ try:
     from creme.commercial.models import MarketSegment
 
     from .base import (_PollsTestCase, skipIfCustomPollCampaign,
-            skipIfCustomPollForm, skipIfCustomPollReply)
+            skipIfCustomPollForm, skipIfCustomPollReply,
+            PollCampaign, PollForm, PollReply)
     from ..blocks import pcampaign_replies_block
-    from ..models import PollCampaign, PollForm, PollReply
+    # from ..models import PollCampaign, PollForm, PollReply
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PollCampaignsTestCase', )
+# __all__ = ('PollCampaignsTestCase', )
 
 
 @skipIfCustomPollCampaign
@@ -26,7 +27,7 @@ class PollCampaignsTestCase(_PollsTestCase):
     def setUp(self):
         self.login()
 
-    def _create_segment(self, name, label): #TODO: inline ?
+    def _create_segment(self, name, label):  # TODO: inline ?
         ptype = CremePropertyType.create('polls-prop_%s' % name, u'is from segment "%s"' % label)
         return MarketSegment.objects.create(name=label, property_type=ptype)
 

@@ -5,17 +5,17 @@ try:
 
     from django.utils.translation import ugettext as _
 
-    from creme.persons.models import Address, Organisation, Contact
+    # from creme.persons.models import Address, Organisation, Contact
     from creme.persons.tests.base import (skipIfCustomAddress,
             skipIfCustomContact, skipIfCustomOrganisation)
 
     from ..models import GeoAddress, Town
-    from .base import GeoLocationBaseTestCase
+    from .base import GeoLocationBaseTestCase, Address, Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('GeoLocationModelsTestCase',)
+# __all__ = ('GeoLocationModelsTestCase',)
 
 
 @skipIfCustomOrganisation

@@ -3,8 +3,8 @@
 try:
     from django.core.urlresolvers import reverse
 
-    from .base import _EmailsTestCase, skipIfCustomEmailCampaign
-    from ..models import EmailCampaign
+    from .base import _EmailsTestCase, skipIfCustomEmailCampaign, EmailCampaign
+    # from ..models import EmailCampaign
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

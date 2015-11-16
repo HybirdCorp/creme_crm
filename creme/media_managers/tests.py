@@ -14,11 +14,15 @@ try:
     from creme.creme_core.gui.field_printers import field_printers_registry
 
     from creme.persons.tests.base import skipIfCustomContact
-    from creme.persons.models import Contact
+    from creme.persons import get_contact_model
+    # from creme.persons.models import Contact
 
     from .models import *
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Contact = get_contact_model()
 
 
 def create_image(user, ident=1):
@@ -32,6 +36,7 @@ def create_image(user, ident=1):
                                 name=u'Image #%s' % ident,
                                 description=u"Desc",
                                )
+
 
 class MediaManagersTestCase(CremeTestCase):
     @classmethod
@@ -216,7 +221,7 @@ class MediaManagersTestCase(CremeTestCase):
                          field_printers_registry.get_csv_field_value(casca, 'image', user)
                         )
 
-    #TODO: remove when hack in creme_core has been removed
+    # TODO: remove when hack in creme_core has been removed
     @skipIfCustomContact
     def test_field_printers02(self):
         "Field printer with FK on Image + credentials"

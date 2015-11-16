@@ -10,8 +10,8 @@ try:
     from creme.media_managers.tests import create_image
     from creme.media_managers.models import Image
 
-    from .base import _EmailsTestCase
-    from ..models import EntityEmail, EmailSignature
+    from .base import _EmailsTestCase, EntityEmail
+    from ..models import EmailSignature  # EntityEmail
     from ..utils import get_mime_image, get_images_from_html, EMailSender
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))

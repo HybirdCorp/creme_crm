@@ -14,17 +14,17 @@ try:
     from creme.creme_core.models import SetCredentials, SettingValue
     from creme.creme_core.auth.entity_credentials import EntityCredentials
 
-    from creme.persons.models import Contact, Organisation
+    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from .base import (_EmailsTestCase, skipIfCustomEmailCampaign,
-            skipIfCustomEmailTemplate, skipIfCustomMailingList)
+            skipIfCustomEmailTemplate, skipIfCustomMailingList,
+            Contact, Organisation, EmailCampaign, EmailTemplate, MailingList)
+    from ..constants import SETTING_EMAILCAMPAIGN_SENDER, MAIL_STATUS_NOTSENT
     from ..management.commands.emails_send import Command as EmailsSendCommand
-    from ..models import (EmailSending, EmailCampaign, EmailRecipient,
-            EmailTemplate, MailingList, LightWeightEmail)
+    from ..models import EmailSending, EmailRecipient, LightWeightEmail  # EmailCampaign EmailTemplate MailingList
     from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
             SENDING_STATE_DONE, SENDING_STATE_PLANNED)
-    from ..constants import SETTING_EMAILCAMPAIGN_SENDER, MAIL_STATUS_NOTSENT
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

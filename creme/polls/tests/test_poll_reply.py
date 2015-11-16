@@ -13,25 +13,31 @@ try:
     from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
     from creme.creme_core.models import SetCredentials
 
-    from creme.persons.models import Contact, Organisation
+    from creme.persons import get_contact_model, get_organisation_model
+    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from creme.activities.models import Activity, ActivityType
+    from creme.activities import get_activity_model
+    from creme.activities.models import ActivityType  # Activity
     from creme.activities.tests.base import skipIfCustomActivity
 
     from .base import (_PollsTestCase, skipIfCustomPollForm,
-            skipIfCustomPollReply, skipIfCustomPollCampaign)
+            skipIfCustomPollReply, skipIfCustomPollCampaign,
+            PollCampaign, PollForm, PollReply)
     from ..blocks import preply_lines_block
     from ..core import PollLineType
-    from ..models import (PollType, PollCampaign,
-            PollForm,  PollFormSection,  PollFormLine,  PollFormLineCondition,
-            PollReply, PollReplySection, PollReplyLine, PollReplyLineCondition)
+    from ..models import (PollType,
+            PollFormSection,  PollFormLine,  PollFormLineCondition,
+            PollReplySection, PollReplyLine, PollReplyLineCondition) # PollCampaign PollForm PollReply
     from ..utils import SectionTree, StatsTree
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PollRepliesTestCase', )
+# __all__ = ('PollRepliesTestCase', )
+Contact = get_contact_model()
+Organisation = get_organisation_model()
+Activity = get_activity_model()
 
 
 @skipIfCustomPollForm
@@ -335,14 +341,14 @@ class PollRepliesTestCase(_PollsTestCase):
         line_ids = list(l.id for l in lines)
         self.assertEqual(sorted(line_ids), line_ids)
 
-        #-----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         line1 = lines[0]
         self.assertIsInstance(line1, PollReplyLine)
         self.assertPollLinesEqual(fline1, line1)
         self.assertIsNone(line1.section)
         self.assertIs(line1.applicable, True)
 
-        #-----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         line2 = lines[1]
         self.assertPollLinesEqual(fline2, line2)
 
@@ -354,7 +360,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertEqual(preply,         reply_section2.preply)
         self.assertIsNone(reply_section2.parent)
 
-        #-----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         line3 = lines[2]
         self.assertPollLinesEqual(fline3, line3)
 
@@ -365,12 +371,12 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertEqual(section11.order, reply_section3.order)
         self.assertEqual(reply_section2,  reply_section3.parent)
 
-        #-----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         line4 = lines[3]
         self.assertPollLinesEqual(fline4, line4)
         self.assertEqual(line3, line4.conditions.all()[0].source)
 
-        #-----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         response = self.assertGET200(preply.get_absolute_url())
         self.assertContains(response, 'id="%s"' % preply_lines_block.id_)
         self.assertContains(response, line1.question)
@@ -408,7 +414,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         PollFormLine.objects.create(pform=pform, type=PollLineType.STRING, order=1,
                                     question='What is the difference between a swallow ?',
-                                    disabled=True, #<=========
+                                    disabled=True,  # <=========
                                    )
 
         response = self.assertPOST200(self.ADD_REPLY_URL, follow=True,
@@ -427,7 +433,7 @@ class PollRepliesTestCase(_PollsTestCase):
         pform = PollForm.objects.create(user=user, name='Form#1', type=PollType.objects.all()[0])
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.STRING)
-        create_line(question='What is the name of your swallow ?', order=2) #the 1rst line is not 1 !
+        create_line(question='What is the name of your swallow ?', order=2)  # The 1rst line is not 1 !
         create_line(question='What type of swallow is it ?',       order=5)
         create_line(question='What is its favorite nut ?',         order=7)
 
@@ -496,7 +502,7 @@ class PollRepliesTestCase(_PollsTestCase):
                                     data={'user':    user.id,
                                           'name':    name,
                                           'pform':   pform.id,
-                                          'number':  3, #should be  ignored
+                                          'number':  3,  # Should be ignored
                                           'persons': '[{"ctype": %s, "entity": %s},'
                                                      ' {"ctype": %s, "entity": %s},'
                                                      ' {"ctype": %s, "entity": %s},'
@@ -550,7 +556,7 @@ class PollRepliesTestCase(_PollsTestCase):
         pform = PollForm.objects.create(user=user, name='Form#1')
         self._get_formline_creator(pform)('What is the difference between a swallow ?',
                                       qtype=PollLineType.STRING,
-                                      disabled=True, #<=========
+                                      disabled=True,  # <=========
                                      )
         self.assertGET404(self._build_preply_from_pform_url(pform))
 
@@ -653,7 +659,7 @@ class PollRepliesTestCase(_PollsTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN)
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
-                        EntityCredentials.LINK | EntityCredentials.UNLINK, #not CHANGE
+                        EntityCredentials.LINK | EntityCredentials.UNLINK,  # Not CHANGE
                   set_type=SetCredentials.ESET_ALL,
                  )
 
@@ -693,9 +699,9 @@ class PollRepliesTestCase(_PollsTestCase):
 
         name = 'Reply'
         response = self.client.post(url,
-                                    data={'user':   user.id,
-                                          'name':   name,
-                                          'pform':  pform.id,
+                                    data={'user':  user.id,
+                                          'name':  name,
+                                          'pform': pform.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -745,16 +751,16 @@ class PollRepliesTestCase(_PollsTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user':  user.id,
                                           'name':  name,
-                                          'pform': pform2.id, #will not change
-                                          'type':  ptype3.id  #should not be editable
+                                          'pform': pform2.id,  # Will not change
+                                          'type':  ptype3.id   # Should not be editable
                                          }
                                    )
         self.assertNoFormError(response)
 
         preply = self.refresh(preply)
         self.assertEqual(name,   preply.name)
-        self.assertEqual(pform1, preply.pform) #not changed
-        self.assertEqual(ptype1, preply.type)  #not changed
+        self.assertEqual(pform1, preply.pform)  # Not changed
+        self.assertEqual(ptype1, preply.type)   # Not changed
         self.assertFalse(preply.lines.all())
         self.assertIsNone(preply.campaign)
         self.assertIsNone(preply.person)
@@ -1649,7 +1655,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         self.assertEqual(date(year=2012, month=9, day=19), answer_f.initial)
 
-    #TODO: test other type initial ???
+    # TODO: test other type initial ???
 
     def test_edit_answer_n_fill(self):
         "Does fill view manage answers already filled"
@@ -1767,7 +1773,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         preply1 = self._build_preply_from_pform(pform, 'Reply#1')
         preply2 = self._build_preply_from_pform(pform, 'Reply#2')
-        preply3 = self._build_preply_from_pform(pform, 'Reply#3') #no answser --> no stats
+        preply3 = self._build_preply_from_pform(pform, 'Reply#3')  # No answser --> no stats
         preply4 = self._build_preply_from_pform(pform, 'Reply#4')
 
         answer_1_1 = u'They are cool'
@@ -1781,7 +1787,7 @@ class PollRepliesTestCase(_PollsTestCase):
         answer_2_4 = 10
         self._fill(preply4, answer_1_4, answer_2_4, 2, [1, 2, 4], {'answer_0': 0, 'answer_1': 'Red'})
 
-        with self.assertNumQueries(3): #1 for sections, 1 for lines, 1 for replies
+        with self.assertNumQueries(3):  # 1 for sections, 1 for lines, 1 for replies
             stree = StatsTree(pform)
 
         with self.assertNumQueries(0):

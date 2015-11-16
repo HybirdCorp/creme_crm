@@ -24,10 +24,12 @@ from creme.creme_core import get_concrete_model
 
 
 def event_model_is_custom():
-    return settings.EVENTS_EVENT_MODEL != 'events.Event'
+    return settings.EVENTS_EVENT_MODEL != 'events.Event' and \
+           not settings.EVENTS_EVENT_FORCE_NOT_CUSTOM
+
 
 def get_event_model():
-    "Returns the Event model that is active in this project."
+    """Returns the Event model that is active in this project."""
     return get_concrete_model('EVENTS_EVENT_MODEL')
 
 

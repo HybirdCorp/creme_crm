@@ -7,10 +7,11 @@ try:
     from creme.persons.models import Contact
     from creme.persons.tests.base import skipIfCustomContact
 
-    from .. import get_act_model
+    # from .. import get_act_model
     from ..models import ActType, MarketSegment #Act
     from ..constants import (REL_SUB_SOLD_BY, REL_OBJ_SOLD_BY,
             REL_SUB_COMPLETE_GOAL, PROP_IS_A_SALESMAN)
+    from .base import Act, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -27,11 +28,11 @@ class CommercialTestCase(CremeTestCase):
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
         self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
-#        self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
-        self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [get_act_model()])
+        self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
+#         self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [get_act_model()])
 
-#        self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
-        self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [get_contact_model()])
+        self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
+        # self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [get_contact_model()])
 
         self.assertEqual(3, ActType.objects.count())
 

@@ -5,8 +5,8 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from ..models import SMSCampaign
-    from .base import skipIfCustomSMSCampaign
+    # from ..models import SMSCampaign
+    from .base import skipIfCustomSMSCampaign, SMSCampaign
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

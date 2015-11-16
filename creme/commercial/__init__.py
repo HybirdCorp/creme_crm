@@ -24,24 +24,32 @@ from creme.creme_core import get_concrete_model
 
 
 def act_model_is_custom():
-    return settings.COMMERCIAL_ACT_MODEL != 'commercial.Act'
+    return settings.COMMERCIAL_ACT_MODEL != 'commercial.Act' and \
+           not settings.COMMERCIAL_ACT_FORCE_NOT_CUSTOM
+
 
 def pattern_model_is_custom():
-    return settings.COMMERCIAL_PATTERN_MODEL != 'commercial.ActObjectivePattern'
+    return settings.COMMERCIAL_PATTERN_MODEL != 'commercial.ActObjectivePattern' and \
+           not settings.COMMERCIAL_PATTERN_FORCE_NOT_CUSTOM
+
 
 def strategy_model_is_custom():
-    return settings.COMMERCIAL_STRATEGY_MODEL != 'commercial.Strategy'
+    return settings.COMMERCIAL_STRATEGY_MODEL != 'commercial.Strategy' and \
+           not settings.COMMERCIAL_STRATEGY_FORCE_NOT_CUSTOM
+
 
 def get_act_model():
-    "Returns the Act model that is active in this project."
+    """Returns the Act model that is active in this project."""
     return get_concrete_model('COMMERCIAL_ACT_MODEL')
 
+
 def get_pattern_model():
-    "Returns the ActObjectivePattern model that is active in this project."
+    """Returns the ActObjectivePattern model that is active in this project."""
     return get_concrete_model('COMMERCIAL_PATTERN_MODEL')
 
+
 def get_strategy_model():
-    "Returns the Strategy model that is active in this project."
+    """Returns the Strategy model that is active in this project."""
     return get_concrete_model('COMMERCIAL_STRATEGY_MODEL')
 
 

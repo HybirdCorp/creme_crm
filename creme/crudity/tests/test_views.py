@@ -4,7 +4,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.test.utils import override_settings
 
-    from creme.persons.models import Contact
+    # from creme.persons.models import Contact
     from creme.persons.tests.base import skipIfCustomContact
 
     from ..backends.models import CrudityBackend
@@ -13,12 +13,12 @@ try:
     from ..management.commands.crudity_synchronize import Command as SyncCommand
     from ..models import WaitingAction, History
     from ..registry import FetcherInterface, crudity_registry
-    from .base import CrudityTestCase, ContactFakeBackend, FakeFetcher, FakeInput
+    from .base import CrudityTestCase, ContactFakeBackend, FakeFetcher, FakeInput, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-#TODO: use test models instead of skipping
+# TODO: use test models instead of skipping
 
 
 class CrudityViewsTestCase(CrudityTestCase):

@@ -6,7 +6,8 @@ try:
     from creme.creme_core.models.relation import Relation
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.models import Contact, Organisation
+    from creme.persons import get_contact_model, get_organisation_model
+    # from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -17,6 +18,10 @@ try:
     from ..models import UserSynchronizationHistory, CremeExchangeMapping
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Contact = get_contact_model()
+Organisation = get_organisation_model()
 
 
 class ActiveSyncModelsTestCase(CremeTestCase):
@@ -136,18 +141,19 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         self.assertTrue(self.refresh(mapping).was_deleted)
 
     @skipIfCustomContact
-    def test_user_synchronization_history01(self):#test the property and the cache
+    def test_user_synchronization_history01(self):
+        """Property and cache"""
         u = UserSynchronizationHistory()
         self.assertIsNone(u.entity)
 
         contact = Contact.objects.create(user=self.user, first_name='Mario', last_name='Bros')
 
         u.entity = contact
-        self.assertEqual(contact, u.entity)#Set
-        self.assertEqual(contact, u.entity)#Hit
+        self.assertEqual(contact, u.entity)  # Set
+        self.assertEqual(contact, u.entity)  # Hit
 
         u._entity = None
-        self.assertEqual(contact, u.entity)#Set again
+        self.assertEqual(contact, u.entity)  # Set again
 
         u._entity   = None
         u.entity_pk = None

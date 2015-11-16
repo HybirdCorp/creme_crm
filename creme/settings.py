@@ -670,14 +670,45 @@ COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
 
 # APPS CONFIGURATION ###########################################################
 
+# If you change a <APP>_<MODEL>_MODEL setting (eg: PERSONS_CONTACT_MODEL) in order
+# to use your own model class (eg: 'my_persons.MyContact') :
+#   - It will be easier to inherit the corresponding abstract class
+#     (eg: persons.model.AbstractContact).
+#   - You have to manage the migrations of your model
+#     (see the django command 'makemigrations').
+#   - In your file my_app.urls.py, you have to define the URLs which are only
+#     defined for vanilla models
+#     (eg: see persons.urls.py => 'if not contact_model_is_custom()' block).
+#     You can use the vanilla views or define your own ones (by calling
+#     the abstract views or by writing them from scratch).
+#   - You probably should copy (in your 'tests' module) then modify the unit
+#     tests which are skipped for custom models, & make them pass.
+#
+# But if you set the related <APP>_<MODEL>_FORCE_NOT_CUSTOM setting
+# (eg: PERSONS_CONTACT_FORCE_NOT_CUSTOM for PERSONS_CONTACT_MODEL) to 'True'
+# when you use a custom model, the model will not be considered as custom.
+# So the vanilla URLs will be defined on the vanilla views (& tests will not
+# be skipped). YOU MUST USE THIS FEATURE WITH CAUTION ; it's OK if your model
+# is identical to the vanilla model (eg: he just inherits the abstract class)
+# or it has some not required additional fields. In the other cases it is
+# probably a bad idea to set the *_FORCE_NOT_CUSTOM setting to 'True' (ie
+# you should define URLs etc...).
+
 # DOCUMENTS --------------------------------------------------------------------
 DOCUMENTS_FOLDER_MODEL   = 'documents.Folder'
 DOCUMENTS_DOCUMENT_MODEL = 'documents.Document'
+
+DOCUMENTS_FOLDER_FORCE_NOT_CUSTOM   = False
+DOCUMENTS_DOCUMENT_FORCE_NOT_CUSTOM = False
 
 # PERSONS ----------------------------------------------------------------------
 PERSONS_ADDRESS_MODEL      = 'persons.Address'
 PERSONS_CONTACT_MODEL      = 'persons.Contact'
 PERSONS_ORGANISATION_MODEL = 'persons.Organisation'
+
+PERSONS_ADDRESS_FORCE_NOT_CUSTOM      = False
+PERSONS_CONTACT_FORCE_NOT_CUSTOM      = False
+PERSONS_ORGANISATION_FORCE_NOT_CUSTOM = False
 
 # ASSISTANTS -------------------------------------------------------------------
 DEFAULT_TIME_ALERT_REMIND = 10
@@ -687,18 +718,27 @@ DEFAULT_TIME_TODO_REMIND = 120
 REPORTS_REPORT_MODEL = 'reports.Report'
 REPORTS_GRAPH_MODEL  = 'reports.ReportGraph'
 
+REPORTS_REPORT_FORCE_NOT_CUSTOM = False
+REPORTS_GRAPH_FORCE_NOT_CUSTOM  = False
+
 # ACTIVITIES -------------------------------------------------------------------
 ACTIVITIES_ACTIVITY_MODEL = 'activities.Activity'
+ACTIVITIES_ACTIVITY_FORCE_NOT_CUSTOM = False
 
 # GRAPHS -----------------------------------------------------------------------
 GRAPHS_GRAPH_MODEL = 'graphs.Graph'
+GRAPHS_GRAPH_FORCE_NOT_CUSTOM = False
 
 # PRODUCTS ---------------------------------------------------------------------
 PRODUCTS_PRODUCT_MODEL = 'products.Product'
 PRODUCTS_SERVICE_MODEL = 'products.Service'
 
+PRODUCTS_PRODUCT_FORCE_NOT_CUSTOM = False
+PRODUCTS_SERVICE_FORCE_NOT_CUSTOM = False
+
 # RECURRENTS -------------------------------------------------------------------
 RECURRENTS_RGENERATOR_MODEL = 'recurrents.RecurrentGenerator'
+RECURRENTS_RGENERATOR_FORCE_NOT_CUSTOM = False
 
 # BILLING ----------------------------------------------------------------------
 BILLING_CREDIT_NOTE_MODEL   = 'billing.CreditNote'
@@ -709,6 +749,14 @@ BILLING_SALES_ORDER_MODEL   = 'billing.SalesOrder'
 BILLING_SERVICE_LINE_MODEL  = 'billing.ServiceLine'
 BILLING_TEMPLATE_BASE_MODEL = 'billing.TemplateBase'
 
+BILLING_CREDIT_NOTE_FORCE_NOT_CUSTOM   = False
+BILLING_INVOICE_FORCE_NOT_CUSTOM       = False
+BILLING_PRODUCT_LINE_FORCE_NOT_CUSTOM  = False
+BILLING_QUOTE_FORCE_NOT_CUSTOM         = False
+BILLING_SALES_ORDER_FORCE_NOT_CUSTOM   = False
+BILLING_SERVICE_LINE_FORCE_NOT_CUSTOM  = False
+BILLING_TEMPLATE_BASE_FORCE_NOT_CUSTOM = False
+
 # Prefixes used to generate the numbers of the billing documents
 # (with the 'vanilla' number generator)
 QUOTE_NUMBER_PREFIX = "DE"
@@ -717,17 +765,27 @@ SALESORDER_NUMBER_PREFIX = "BC"
 
 # OPPORTUNITIES ----------------------------------------------------------------
 OPPORTUNITIES_OPPORTUNITY_MODEL = 'opportunities.Opportunity'
+OPPORTUNITIES_OPPORTUNITY_FORCE_NOT_CUSTOM = False
 
 # COMMERCIAL -------------------------------------------------------------------
 COMMERCIAL_ACT_MODEL      = 'commercial.Act'
 COMMERCIAL_PATTERN_MODEL  = 'commercial.ActObjectivePattern'
 COMMERCIAL_STRATEGY_MODEL = 'commercial.Strategy'
 
+COMMERCIAL_ACT_FORCE_NOT_CUSTOM      = False
+COMMERCIAL_PATTERN_FORCE_NOT_CUSTOM  = False
+COMMERCIAL_STRATEGY_FORCE_NOT_CUSTOM = False
+
 # EMAILS [external] ------------------------------------------------------------
 EMAILS_CAMPAIGN_MODEL = 'emails.EmailCampaign'
 EMAILS_TEMPLATE_MODEL = 'emails.EmailTemplate'
 EMAILS_EMAIL_MODEL    = 'emails.EntityEmail'
 EMAILS_MLIST_MODEL    = 'emails.MailingList'
+
+EMAILS_CAMPAIGN_FORCE_NOT_CUSTOM = False
+EMAILS_TEMPLATE_FORCE_NOT_CUSTOM = False
+EMAILS_EMAIL_FORCE_NOT_CUSTOM    = False
+EMAILS_MLIST_FORCE_NOT_CUSTOM    = False
 
 # Emails campaigns sent to the customers
 EMAILCAMPAIGN_HOST      = 'localhost'
@@ -744,6 +802,10 @@ EMAILCAMPAIGN_SLEEP_TIME = 2
 SMS_CAMPAIGN_MODEL = 'sms.SMSCampaign'
 SMS_MLIST_MODEL    = 'sms.MessagingList'
 SMS_TEMPLATE_MODEL = 'sms.MessageTemplate'
+
+SMS_CAMPAIGN_FORCE_NOT_CUSTOM = False
+SMS_MLIST_FORCE_NOT_CUSTOM    = False
+SMS_TEMPLATE_FORCE_NOT_CUSTOM = False
 
 CREME_SAMOUSSA_URL = 'http://localhost:8001/'
 CREME_SAMOUSSA_USERNAME = ''
@@ -764,25 +826,25 @@ CREME_GET_EMAIL_SSL_CERTFILE = ""  # Not used for the moment
 # User used to synchronize mails with management command.
 CREME_GET_EMAIL_JOB_USER_ID  = 1
 
-# CRUDITY_BACKENDS configurates the backends (it's a list of dict)
+# CRUDITY_BACKENDS configures the backends (it's a list of dict)
 # Here a template of a crudity backend configuration:
 #CRUDITY_BACKENDS = [
 #    {
-#        "fetcher": "email",                #The name of the fetcher (which is registered with). Available choices: 'email'
-#        "input": "infopath",               #The name of the input (which is registered with). Available choices: 'raw', 'infopath' (that needs "lcab" program)
-#        "method": "create",                #The method of the input to call. Available choices: 'create'
-#        "model": "activities.activity",    #The targeted model
-#        "password": "meeting",             #Password to be authorized in the input
-#        "limit_froms": (),                 #A white list of sender (Example with an email:
-#                                           # If a recipient email's address not in this drop email, let empty to allow all email addresses)
-#        "in_sandbox": True,                #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-#        "body_map"   : {                   #Allowed keys format : "key": "default value".
+#        "fetcher": "email",                # The name of the fetcher (which is registered with). Available choices: 'email'
+#        "input": "infopath",               # The name of the input (which is registered with). Available choices: 'raw', 'infopath' (that needs "lcab" program)
+#        "method": "create",                # The method of the input to call. Available choices: 'create'
+#        "model": "activities.activity",    # The targeted model
+#        "password": "meeting",             # Password to be authorized in the input
+#        "limit_froms": (),                 # A white list of sender (Example with an email:
+#                                           #  If a recipient email's address not in this drop email, let empty to allow all email addresses)
+#        "in_sandbox": True,                # True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+#        "body_map"   : {                   # Allowed keys format : "key": "default value".
 #            "title": "",                   # Keys have to be real field names of the model
 #            "user_id": 1,
 #        },
-#        "subject": u"CREATEACTIVITYIP"     #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase.
-#                                           #You can specify * as a fallback (no previous backend handle the data returned by the fetcher,
-#                                           # but be careful your backend has to have the method:'fetcher_fallback').
+#        "subject": u"CREATEACTIVITYIP"     # Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase.
+#                                           #  You can specify * as a fallback (no previous backend handle the data returned by the fetcher,
+#                                           #  but be careful your backend has to have the method:'fetcher_fallback').
 #    },
 #]
 CRUDITY_BACKENDS = [
@@ -819,11 +881,15 @@ PICTURE_LIMIT_SIZE = 55000  # E.g: 55Ko Active sync servers don't handle picture
 TICKETS_TICKET_MODEL   = 'tickets.Ticket'
 TICKETS_TEMPLATE_MODEL = 'tickets.TicketTemplate'
 
+TICKETS_TICKET_FORCE_NOT_CUSTOM   = False
+TICKETS_TEMPLATE_FORCE_NOT_CUSTOM = False
+
 # If a Ticket is still open TICKETS_COLOR_DELAY days after its creation, it is red in the listview
 TICKETS_COLOR_DELAY = 7
 
 # EVENTS -----------------------------------------------------------------------
 EVENTS_EVENT_MODEL = 'events.Event'
+EVENTS_EVENT_FORCE_NOT_CUSTOM = False
 
 # CTI --------------------------------------------------------------------------
 ABCTI_URL = 'http://127.0.0.1:8087'
@@ -837,13 +903,19 @@ VCF_IMAGE_MAX_SIZE = 3145728
 PROJECTS_PROJECT_MODEL = 'projects.Project'
 PROJECTS_TASK_MODEL    = 'projects.ProjectTask'
 
+PROJECTS_PROJECT_FORCE_NOT_CUSTOM = False
+PROJECTS_TASK_FORCE_NOT_CUSTOM    = False
+
 # POLLS ------------------------------------------------------------------------
 POLLS_CAMPAIGN_MODEL = 'polls.PollCampaign'
 POLLS_FORM_MODEL     = 'polls.PollForm'
 POLLS_REPLY_MODEL    = 'polls.PollReply'
 
-# MOBILE -----------------------------------------------------------------------
+POLLS_CAMPAIGN_FORCE_NOT_CUSTOM = False
+POLLS_FORM_FORCE_NOT_CUSTOM     = False
+POLLS_REPLY_FORCE_NOT_CUSTOM    = False
 
+# MOBILE -----------------------------------------------------------------------
 # Domain of the complete version (in order to go to it from the mobile version).
 # eg: 'http://mydomain' #No end slash!
 # '' means that there is only one domain for the complete & the mobile versions ;
@@ -852,7 +924,7 @@ NON_MOBILE_SITE_DOMAIN = ''
 
 # GEOLOCATION ------------------------------------------------------------------
 # Files containing towns with their location.
-# It can be an url or a local file ; zip files are also supported.
+# It can be an URL or a local file ; zip files are also supported.
 GEOLOCATION_TOWNS = ((join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'),
                       {'country': 'France'},
                      ),

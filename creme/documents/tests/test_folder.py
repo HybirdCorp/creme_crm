@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 try:
     from functools import partial
@@ -9,8 +9,8 @@ try:
     from django.utils.encoding import smart_str, smart_unicode
     from django.utils.translation import ugettext as _
 
-    from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder
-    from creme.documents.models import Folder, FolderCategory # Document
+    from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder, Folder
+    from creme.documents.models import FolderCategory  # Folder Document
 #    from creme.documents.blocks import folder_docs_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))

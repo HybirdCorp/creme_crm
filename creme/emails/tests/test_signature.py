@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from .base import _EmailsTestCase, skipIfCustomEmailTemplate
-    from ..models import EmailSignature, EmailTemplate
+    from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
+    from ..models import EmailSignature  # EmailTemplate
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -27,7 +27,7 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertEqual(self.user, signature.user)
         self.assertEqual(0,         signature.images.count())
 
-    #TODO: create with images....
+    # TODO: create with images....
 
     def test_edit01(self):
         user = self.login()
@@ -50,7 +50,7 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertEqual(user, signature.user)
         self.assertFalse(signature.images.exists())
 
-    #TODO: edit with images....
+    # TODO: edit with images....
 
     def test_edit02(self):
         "'perm' error"

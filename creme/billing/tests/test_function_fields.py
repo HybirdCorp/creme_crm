@@ -13,15 +13,16 @@ try:
     from creme.creme_core.core.function_field import FunctionField
     from creme.creme_core.models import CremeProperty, FieldsConfig
 
-    from creme.persons import get_contact_model
-    from creme.persons.models import Organisation #, Contact
+    # from creme.persons import get_contact_model
+    # from creme.persons.models import Organisation #, Contact
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..function_fields import (get_total_pending,
             get_total_won_quote_last_year, get_total_won_quote_this_year)
-    from ..models import Quote, QuoteStatus, InvoiceStatus, ProductLine
+    from ..models import QuoteStatus, InvoiceStatus  # Quote ProductLine
     from .base import (_BillingTestCase, skipIfCustomProductLine,
-            skipIfCustomQuote, skipIfCustomInvoice)
+            skipIfCustomQuote, skipIfCustomInvoice,
+            Organisation, Contact, Quote, ProductLine)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -184,8 +185,8 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         with self.assertNoException():
             off_mngr = Organisation.function_fields
-#            cff_mngr = Contact.function_fields
-            cff_mngr = get_contact_model().function_fields
+            cff_mngr = Contact.function_fields
+#             cff_mngr = get_contact_model().function_fields
 
         for funf in chain(off_mngr, cff_mngr):
             self.assertIsInstance(funf, FunctionField)

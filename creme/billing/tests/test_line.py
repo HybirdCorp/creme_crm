@@ -21,9 +21,10 @@ try:
     from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
     from ..constants import *
-    from ..models import *
+    # from ..models import *
     from .base import (_BillingTestCase, skipIfCustomInvoice,
-            skipIfCustomProductLine, skipIfCustomServiceLine)
+            skipIfCustomProductLine, skipIfCustomServiceLine,
+            Invoice, ProductLine, ServiceLine)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -280,7 +281,7 @@ class LineTestCase(_BillingTestCase):
         service_line2 = self.refresh(service_line2)
         self.assertEqual(invoice2, service_line2.related_document)
         self.assertEqual(service, service_line2.related_item)
-        self.assertNotEqual(service_line, service_line2)
+        self.assertNotEqual(service_line1, service_line2)
 
         rel_filter = Relation.objects.filter
         self.assertEqual([service_line1.pk], list(rel_filter(type=REL_SUB_HAS_LINE, subject_entity=invoice1).values_list('object_entity', flat=True)))

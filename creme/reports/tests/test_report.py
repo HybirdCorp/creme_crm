@@ -49,12 +49,12 @@ try:
 #    if apps.is_installed('creme.emails'):
 #        from creme.emails.models import EmailCampaign, MailingList
 
-    from .base import BaseReportsTestCase, skipIfCustomReport
+    from .base import BaseReportsTestCase, skipIfCustomReport, Report
     from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document
 
     from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
             RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
-    from ..models import Field, Report
+    from ..models import Field  # Report
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

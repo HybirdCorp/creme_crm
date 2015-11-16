@@ -16,17 +16,17 @@ try:
 
     from creme.creme_core.models import CremeEntity, Language
 
-    from creme.documents.models import Document
+    # from creme.documents.models import Document
     from creme.documents.tests.base import skipIfCustomDocument
 
-    from creme.persons.models import Contact
+    # from creme.persons.models import Contact
     from creme.persons.tests.base import skipIfCustomContact
 
     from ..backends.models import CrudityBackend
     from ..builders.infopath import InfopathFormBuilder, InfopathFormField
     from ..registry import crudity_registry #CRUDityRegistry
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend,
-            FakeFetcher, FakeInput)
+            FakeFetcher, FakeInput, Contact, Document)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -40,7 +40,8 @@ except OSError as e:
         print 'It seems that "lcab" is not installed -> skip some tests'
 
 
-#TODO use test models instead of skipping
+# TODO use test models instead of skipping
+
 
 @skipIfCustomContact
 class InfopathFormBuilderTestCase(CrudityTestCase):

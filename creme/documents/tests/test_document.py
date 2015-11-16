@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 try:
     from functools import partial
@@ -15,8 +15,9 @@ try:
 
     #from creme.persons.models import Organisation
 
-    from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder
-    from ..models import Folder, FolderCategory, Document
+    from .base import (_DocumentsTestCase, skipIfCustomDocument,
+            skipIfCustomFolder, Folder, Document)
+    from ..models import FolderCategory  # Folder Document
     from ..constants import REL_SUB_RELATED_2_DOC
     from ..utils import get_csv_folder_or_create
 except Exception as e:

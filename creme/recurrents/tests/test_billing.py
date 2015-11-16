@@ -12,18 +12,30 @@ try:
     from creme.creme_core.models import Currency, Vat
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 
-    from creme.persons.models import Organisation, Address
+    from creme.persons import get_address_model, get_organisation_model
+    # from creme.persons.models import Organisation, Address
 
-    from creme.billing.models import (Invoice, InvoiceStatus, TemplateBase,
-            Quote, QuoteStatus, SalesOrder, SalesOrderStatus,
-            CreditNote, CreditNoteStatus)
+    from creme.billing import (get_credit_note_model, get_invoice_model,
+           get_quote_model, get_sales_order_model, get_template_base_model)
+    from creme.billing.models import (InvoiceStatus, QuoteStatus, SalesOrderStatus,
+            CreditNoteStatus)  # Invoice TemplateBase Quote SalesOrder CreditNote
     from creme.billing.tests.base import (skipIfCustomInvoice, skipIfCustomQuote,
             skipIfCustomSalesOrder, skipIfCustomCreditNote)
 
-    from .base import skipIfCustomGenerator
-    from ..models import RecurrentGenerator
+    from .base import skipIfCustomGenerator, RecurrentGenerator
+    # from ..models import RecurrentGenerator
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Address = get_address_model()
+Organisation = get_organisation_model()
+
+CreditNote = get_credit_note_model()
+Invoice = get_invoice_model()
+Quote = get_quote_model()
+SalesOrder = get_sales_order_model()
+TemplateBase = get_template_base_model()
 
 
 @skipIfCustomGenerator

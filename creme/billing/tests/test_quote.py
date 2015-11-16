@@ -10,12 +10,13 @@ try:
     from creme.creme_core.models import Currency
 
     from creme.persons.constants import REL_SUB_PROSPECT
-    from creme.persons.models import Organisation, Address
+    # from creme.persons.models import Organisation, Address
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..models import QuoteStatus, Quote, ServiceLine
+    from ..models import QuoteStatus  # Quote, ServiceLine
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import _BillingTestCase, skipIfCustomQuote, skipIfCustomServiceLine
+    from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomServiceLine,
+           Organisation, Address, Quote, ServiceLine)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

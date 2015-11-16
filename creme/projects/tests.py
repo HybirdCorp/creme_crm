@@ -27,19 +27,24 @@ try:
     from creme.activities.models import Activity, Calendar
     from creme.activities.tests.base import skipIfCustomActivity
 
-    from . import project_model_is_custom, task_model_is_custom
-    from .models import Project, ProjectStatus, ProjectTask, TaskStatus, Resource # WorkingPeriod
+    from . import (project_model_is_custom, task_model_is_custom,
+            get_project_model, get_task_model)
+    from .models import ProjectStatus, TaskStatus, Resource # Project ProjectTask WorkingPeriod
     from .constants import (NOT_STARTED_PK, COMPLETED_PK, REL_SUB_PROJECT_MANAGER,
             REL_OBJ_PROJECT_MANAGER, REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE)
 
     skip_projects_tests = project_model_is_custom()
     skip_tasks_tests = task_model_is_custom()
+
+    Project = get_project_model()
+    ProjectTask = get_task_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 def skipIfCustomProject(test_func):
     return skipIf(skip_projects_tests, 'Custom Project model in use')(test_func)
+
 
 def skipIfCustomTask(test_func):
     return skipIf(skip_tasks_tests, 'Custom ProjectTask model in use')(test_func)
@@ -1370,4 +1375,4 @@ class ProjectsTestCase(CremeTestCase):
         self.assertStillExists(activity)
         self.assertRedirects(response, project.get_absolute_url())
 
-    #TODO: test better get_project_cost(), get_effective_duration(), get_delay()
+    # TODO: test better get_project_cost(), get_effective_duration(), get_delay()

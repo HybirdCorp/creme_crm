@@ -10,12 +10,14 @@ try:
 
     from creme.creme_core.models import CremePropertyType
 
-    from creme.persons.models import Organisation
+    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
-    from ..models import *
-    from .base import CommercialBaseTestCase, skipIfCustomStrategy
+    from ..models import (CommercialAsset, CommercialAssetScore,
+            MarketSegmentCharm, MarketSegmentCharmScore,
+            MarketSegment, MarketSegmentCategory, MarketSegmentDescription)
+    from .base import CommercialBaseTestCase, skipIfCustomStrategy, Organisation, Strategy
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

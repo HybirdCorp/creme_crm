@@ -14,18 +14,19 @@ try:
     from creme.creme_core.models import Relation, SetCredentials, FieldsConfig
     from creme.creme_core.forms.widgets import Label
 
-    from creme.persons.models import Contact, Organisation
+    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from creme.documents.models import Document, Folder, FolderCategory
+    from creme.documents.models import FolderCategory  # Document, Folder
 
-    from .base import _EmailsTestCase, skipIfCustomEntityEmail, skipIfCustomEmailTemplate
+    from .base import (_EmailsTestCase, skipIfCustomEntityEmail, skipIfCustomEmailTemplate,
+            Contact, Organisation, Document, Folder, EntityEmail, EmailTemplate)
     from ..constants import (MAIL_STATUS_NOTSENT, MAIL_STATUS_SENT,
             MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SYNCHRONIZED,
             MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING,
             REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
     from ..management.commands.entity_emails_send import Command as EmailsSendCommand
-    from ..models import EntityEmail, EmailSignature, EmailTemplate
+    from ..models import EmailSignature  # EntityEmail EmailTemplate
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

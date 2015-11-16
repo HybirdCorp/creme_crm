@@ -20,8 +20,8 @@ class VcfsTestCase(CremeTestCase):
 
         self.assertIn('creme_core', apps_choices)
         self.assertIn('persons',    apps_choices)
-        self.assertNotIn('vcfs',    apps_choices) #<==
+        self.assertNotIn('vcfs',    apps_choices)  # <==
 
         self.assertIn('creme_core', admin_choices)
         self.assertIn('persons',    admin_choices)
-        self.assertNotIn('vcfs',    admin_choices) #<==
+        self.assertNotIn('vcfs',    admin_choices)  # <==

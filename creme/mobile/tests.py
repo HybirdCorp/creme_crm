@@ -18,22 +18,29 @@ try:
     from creme.creme_core.models import Relation
     #from creme.creme_core.utils.dates import make_aware_dt
 
+    from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-    from creme.persons.models import Contact, Organisation
+    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
+    from creme.activities  import get_activity_model
     from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
             REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
             STATUS_PLANNED, STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED,
             ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK,
             ACTIVITYTYPE_PHONECALL,
             ACTIVITYSUBTYPE_PHONECALL_OUTGOING, ACTIVITYSUBTYPE_PHONECALL_FAILED)
-    from creme.activities.models import Activity, Calendar
+    from creme.activities.models import Calendar  # Activity
     from creme.activities.tests.base import skipIfCustomActivity
 
     from creme.mobile.models import MobileFavorite
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Contact = get_contact_model()
+Organisation = get_organisation_model()
+Activity = get_activity_model()
 
 
 class MobileTestCase(CremeTestCase):

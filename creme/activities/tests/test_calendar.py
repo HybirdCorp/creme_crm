@@ -14,13 +14,14 @@ try:
     from creme.creme_core.models import Relation, SetCredentials
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity
-    from ..models import Calendar, Activity
+    from .. import get_activity_model
+    from ..models import Calendar  # Activity
     from ..constants import *
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('CalendarTestCase',)
+Activity = get_activity_model()
 
 
 class CalendarTestCase(_ActivitiesTestCase):
@@ -34,7 +35,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         return self.get_object_or_fail(Calendar, is_default=True, user=user)
 
     def _build_ts(self, dt):
-        return float(dt.strftime('%s')) * 1000 #simulates JS that sends milliseconds
+        return float(dt.strftime('%s')) * 1000  # Simulates JS that sends milliseconds
 
     def build_link_url(self, activity_id):
         return '/activities/calendar/link/%s' % activity_id
@@ -95,7 +96,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.objects.create(user=user, name='Cal #1')
         Calendar.objects.filter(id=cal.id).update(is_default=False)
 
-        #be sure that we well managed the automatic save() behaviour
+        # Be sure that we well managed the automatic save() behaviour
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
         with self.assertNumQueries(2):
@@ -173,17 +174,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         act4 = create_act(title='Act#4', user=other_user)
         act5 = create_act(title='Act#5', floating_type=NARROW)
 
-        #create_rel = partial(Relation.objects.create, user=self.user, type_id=REL_SUB_PART_2_ACTIVITY)
-        #create_rel(subject_entity=self.contact, object_entity=act1)
-        #act1.calendars.add(cal1)
-        #create_rel(subject_entity=self.contact, object_entity=act2)
-        #act2.calendars.add(cal1)
-        #create_rel(subject_entity=self.contact, object_entity=act3)
-        #act3.calendars.add(cal1)
-        #create_rel(subject_entity=self.contact, object_entity=act4)
-        #act4.calendars.add(cal1)
-        #create_rel(subject_entity=self.contact, object_entity=act5)
-        #act5.calendars.add(cal1)
         create_rel = partial(Relation.objects.create, user=user,
                              subject_entity=user.linked_contact,
                              type_id=REL_SUB_PART_2_ACTIVITY,
@@ -229,17 +219,6 @@ class CalendarTestCase(_ActivitiesTestCase):
                          creme_calendars_by_user
                         )
         self.assertIs(creation_perm, True)
-
-    #def test_my_calendar(self):
-        #self.login()
-
-        #response = self.assertGET200('/activities/calendar/my')
-        #self.assertTemplateUsed(response, 'activities/calendar.html')
-
-        #with self.assertNoException():
-            #users = response.context['current_users']
-
-        #self.assertEqual([self.user], list(users))
 
     def test_add_user_calendar01(self):
         user = self.login()
@@ -446,8 +425,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.get_user_default_calendar(user)
         Calendar.objects.create(user=user, name='Other Cal #1', is_custom=True)
 
-        #start = datetime(year=2013, month=3, day=1)
-        #end   = datetime(year=2013, month=3, day=31, hour=23, minute=59)
         create_dt = self.create_datetime
         start = create_dt(year=2013, month=3, day=1)
         end   = create_dt(year=2013, month=3, day=31, hour=23, minute=59)
@@ -469,8 +446,6 @@ class CalendarTestCase(_ActivitiesTestCase):
             act.calendars = [cal]
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
-        #create_rel(subject_entity=self.contact, object_entity=act3)
-        #create_rel(subject_entity=self.other_contact, object_entity=act3)
         create_rel(subject_entity=user.linked_contact,            object_entity=act3)
         create_rel(subject_entity=self.other_user.linked_contact, object_entity=act3)
 
@@ -493,15 +468,11 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'allDay':         False,
                           'calendar':       cal.id,
                           'calendar_color': '#%s' % cal.color,
-                          # 'start':          act1.start.isoformat(),
-                          #'end':             act1.end.isoformat(),
                           'start':          formated_dt(act1.start),
                           'end':            formated_dt(act1.end),
                           'url':            url_fmt % act1.id,
-                          # 'entity_color':   '#987654',
                           'editable':       True,
                           'title':          'Act#1',
-                          #'type':           u'T\xe2che',
                           'type':           _(u'Task'),
                          },
                          data[0]
@@ -511,12 +482,9 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'allDay':         True,
                           'calendar':       cal.id,
                           'calendar_color': '#%s' % cal.color,
-                          # 'start':          act3.start.isoformat(),
-                          #'end':             act3.end.isoformat(),
                           'start':          formated_dt(act3.start),
                           'end':            formated_dt(act3.end),
                           'url':            url_fmt % act3.id,
-                          # 'entity_color': '#456FFF',
                           'editable':       True,
                           'title':         'Act#3',
                           'type':          _('Meeting'),
@@ -528,12 +496,9 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'allDay':         False,
                           'calendar':       cal.id,
                           'calendar_color': '#%s' % cal.color,
-                          # 'start':          act3.start.isoformat(),
-                          #'end':             act3.end.isoformat(),
                           'start':          formated_dt(act0.start),
                           'end':            formated_dt(act0.end + timedelta(seconds=1)),
                           'url':            url_fmt % act0.id,
-                          # 'entity_color':   '#456FFF',
                           'editable':       True,
                           'title':          'Act#0',
                           'type':           _(u'Task'),
@@ -548,9 +513,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login()
         other_user = self.other_user
 
-        #contact1 = self.contact
-        #contact2 = self.other_contact
-
         cal1 = Calendar.get_user_default_calendar(user)
         cal2 = Calendar.get_user_default_calendar(other_user)
         cal3 = Calendar.objects.create(user=other_user, name='Cal #3',
@@ -559,13 +521,12 @@ class CalendarTestCase(_ActivitiesTestCase):
                                       )
         self.assertFalse(cal2.is_public)
 
-        #start = datetime(year=2013, month=4, day=1)
         start = self.create_datetime(year=2013, month=4, day=1)
 
         create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
         act1 = create(title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2))
-        act2 = create(title='Act#2', start=start + timedelta(days=1),  end=start + timedelta(days=2)) #not in [cal1, cal3]
-        act3 = create(title='Act#3', start=start + timedelta(days=32), end=start + timedelta(days=33)) #start KO
+        act2 = create(title='Act#2', start=start + timedelta(days=1),  end=start + timedelta(days=2))  # Not in [cal1, cal3]
+        act3 = create(title='Act#3', start=start + timedelta(days=32), end=start + timedelta(days=33))  # Start KO
         act4 = create(title='Act#4', start=start + timedelta(days=29), end=start + timedelta(days=30))
 
         act1.calendars = [cal1]
@@ -579,12 +540,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         act8 = create_ind(title='Ind#3', start=start + timedelta(days=9), end=start + timedelta(days=10))
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
-        #create_rel(subject_entity=contact2, object_entity=act6)
-        #create_rel(subject_entity=contact1, object_entity=act8)
         create_rel(subject_entity=other_user.linked_contact, object_entity=act6)
         create_rel(subject_entity=user.linked_contact,       object_entity=act8)
 
-        response = self._get_cal_activities([cal1, cal2], #cal2 should not be used, it does not belong to user (so, no 'act2')
+        # cal2 should not be used, it does not belong to user (so, no 'act2')
+        response = self._get_cal_activities([cal1, cal2],
                                             start=start.strftime('%s'),
                                            )
 
@@ -604,7 +564,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_update_activity_date01(self):
         user = self.login()
 
-        #start = datetime(year=2013, month=4, day=1, hour=9)
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
         act = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_TASK,
@@ -618,7 +577,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         new_start = start + offset
         new_end   = end  + offset
         self.assertPOST(400, url, data={'id': act.id})
-        self.assertPOST200(url, data={'id':     act.id,
+        self.assertPOST200(url, data={'id':    act.id,
                                       'start': self._build_ts(new_start),
                                       'end':   self._build_ts(new_end),
                                      }
@@ -633,7 +592,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_update_activity_date02(self):
         "Collision"
         user = self.login()
-        #contact = self.contact
         contact = user.linked_contact
 
         create_act = partial(Activity.objects.create, user=user,
@@ -641,14 +599,10 @@ class CalendarTestCase(_ActivitiesTestCase):
                             )
         create_dt = self.create_datetime
         act1 = create_act(title='Act#1',
-                          #start=datetime(year=2013, month=4, day=1, hour=9),
-                          #end=datetime(year=2013,   month=4, day=1, hour=10),
                           start=create_dt(year=2013, month=4, day=1, hour=9),
                           end=create_dt(year=2013,   month=4, day=1, hour=10),
                          )
         act2 = create_act(title='Act#2',
-                          #start=datetime(year=2013, month=4, day=2, hour=9),
-                          #end=datetime(year=2013,   month=4, day=2, hour=10),
                           start=create_dt(year=2013, month=4, day=2, hour=9),
                           end=create_dt(year=2013,   month=4, day=2, hour=10),
                          )

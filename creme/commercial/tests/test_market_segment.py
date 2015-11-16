@@ -7,11 +7,11 @@ try:
 
     from creme.creme_core.models import RelationType, CremePropertyType, CremeProperty
 
-    from creme.persons.models import Organisation
+    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import Strategy, MarketSegment
-    from .base import CommercialBaseTestCase
+    from ..models import MarketSegment  # Strategy
+    from .base import CommercialBaseTestCase, Organisation, Strategy
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

@@ -16,10 +16,11 @@ try:
 
     #from creme.persons.models import Contact, Organisation
 
-    from . import graph_model_is_custom
-    from .models import *
+    from . import graph_model_is_custom, get_graph_model
+    from .models import RootNode
 
     skip_graph_tests = graph_model_is_custom()
+    Graph = get_graph_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

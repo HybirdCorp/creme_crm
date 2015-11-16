@@ -9,18 +9,18 @@ try:
     from creme.creme_core.models.auth import SetCredentials
     from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
 
-    from creme.persons.models import Organisation, Contact # Address
+    # from creme.persons.models import Organisation, Contact # Address
     from creme.persons.tests.base import (skipIfCustomAddress,
             skipIfCustomContact, skipIfCustomOrganisation)
 
     from ..models import GeoAddress, Town
     from ..utils import address_as_dict
-    from .base import GeoLocationBaseTestCase
+    from .base import GeoLocationBaseTestCase, Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('SetAddressInfoTestCase', 'GetAddressesTestCase', 'GetNeighboursTestCase')
+# __all__ = ('SetAddressInfoTestCase', 'GetAddressesTestCase', 'GetNeighboursTestCase')
 
 
 create_town = Town.objects.create

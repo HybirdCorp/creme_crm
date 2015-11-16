@@ -5,15 +5,15 @@ try:
 
     from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
     from creme.persons.constants import FILTER_MANAGED_ORGA
-    from creme.persons.models import Organisation, Contact
+    # from creme.persons.models import Organisation, Contact
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from ..blocks import _MapBlock
-    from .base import GeoLocationBaseTestCase
+    from .base import GeoLocationBaseTestCase, Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
-__all__ = ('_MapBlockTestCase',)
+# __all__ = ('_MapBlockTestCase',)
 
 
 @skipIfCustomContact

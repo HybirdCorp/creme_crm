@@ -12,19 +12,21 @@ try:
     from creme.creme_core.models import (RelationType, Relation, CremeProperty,
             EntityFilter, EntityFilterCondition)
 
-    from creme.persons.models import Contact, Organisation
+    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from creme.opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities.models import SalesPhase  # Opportunity
     from creme.opportunities.tests import skipIfCustomOpportunity
 
-    from creme.activities.models import Activity
+    # from creme.activities.models import Activity
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, ACTIVITYTYPE_MEETING
     from creme.activities.tests.base import skipIfCustomActivity
 
-    from ..models import *
     from ..constants import REL_SUB_COMPLETE_GOAL
-    from .base import CommercialBaseTestCase, skipIfCustomAct, skipIfCustomPattern
+    from ..models import ActType, ActObjective, ActObjectivePatternComponent
+    from .base import (CommercialBaseTestCase, skipIfCustomAct, skipIfCustomPattern,
+            Contact, Organisation, Opportunity, Activity,
+            Act, ActObjectivePattern)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

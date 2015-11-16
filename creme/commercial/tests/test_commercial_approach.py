@@ -19,15 +19,15 @@ try:
 
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
             REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
-    from creme.persons.models import Organisation, Contact
+    # from creme.persons.models import Organisation, Contact
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
 
-    from creme.activities.models import Activity, Status, Calendar
+    from creme.activities.models import Status, Calendar  # Activity
     from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY,
             ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_QUALIFICATION)
     from creme.activities.tests.base import skipIfCustomActivity
 
-    from creme.opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities.models import SalesPhase  # Opportunity
     from creme.opportunities.tests import skipIfCustomOpportunity
 
     from ..blocks import approaches_block
@@ -35,6 +35,7 @@ try:
             IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED)
     from ..management.commands.com_approaches_emails_send import Command as EmailsSendCommand
     from ..models import CommercialApproach
+    from .base import Organisation, Contact, Activity, Opportunity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

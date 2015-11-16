@@ -24,17 +24,22 @@ from creme.creme_core import get_concrete_model
 
 
 def product_model_is_custom():
-    return settings.PRODUCTS_PRODUCT_MODEL != 'products.Product'
+    return settings.PRODUCTS_PRODUCT_MODEL != 'products.Product' and \
+           not settings.PRODUCTS_PRODUCT_FORCE_NOT_CUSTOM
+
 
 def service_model_is_custom():
-    return settings.PRODUCTS_SERVICE_MODEL != 'products.Service'
+    return settings.PRODUCTS_SERVICE_MODEL != 'products.Service' and \
+           not settings.PRODUCTS_SERVICE_FORCE_NOT_CUSTOM
+
 
 def get_product_model():
-    "Returns the Product model that is active in this project."
+    """Returns the Product model that is active in this project."""
     return get_concrete_model('PRODUCTS_PRODUCT_MODEL')
 
+
 def get_service_model():
-    "Returns the Service model that is active in this project."
+    """Returns the Service model that is active in this project."""
     return get_concrete_model('PRODUCTS_SERVICE_MODEL')
 
 

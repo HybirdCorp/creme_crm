@@ -8,7 +8,8 @@ try:
     from creme.creme_core.models import (Relation, RelationType, SetCredentials,
             ButtonMenuItem, FieldsConfig)
 
-    from creme.persons.models import Contact, Organisation, Address, Civility    
+    from creme.persons import get_address_model, get_contact_model, get_organisation_model
+    from creme.persons.models import Civility  # Contact Organisation Address
     from creme.persons.constants import REL_OBJ_EMPLOYED_BY
     from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation)
@@ -16,6 +17,11 @@ try:
     from creme.vcfs.buttons import generate_vcf_button
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Address = get_address_model()
+Contact = get_contact_model()
+Organisation = get_organisation_model()
 
 
 @skipIfCustomContact

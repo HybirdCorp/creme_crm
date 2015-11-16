@@ -17,9 +17,13 @@ try:
     from creme.media_managers.tests import create_image
 
     from .base import _ProductsTestCase, skipIfCustomProduct
-    from ..models import Category, SubCategory, Product
+    from .. import get_product_model
+    from ..models import Category, SubCategory  # Product
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+Product = get_product_model()
 
 
 @skipIfCustomProduct

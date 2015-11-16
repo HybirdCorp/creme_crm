@@ -24,17 +24,22 @@ from creme.creme_core import get_concrete_model
 
 
 def ticket_model_is_custom():
-    return settings.TICKETS_TICKET_MODEL != 'tickets.Ticket'
+    return settings.TICKETS_TICKET_MODEL != 'tickets.Ticket' and \
+           not settings.TICKETS_TICKET_FORCE_NOT_CUSTOM
+
 
 def tickettemplate_model_is_custom():
-    return settings.TICKETS_TEMPLATE_MODEL != 'tickets.TicketTemplate'
+    return settings.TICKETS_TEMPLATE_MODEL != 'tickets.TicketTemplate' and \
+           not settings.TICKETS_TEMPLATE_FORCE_NOT_CUSTOM
+
 
 def get_ticket_model():
-    "Returns the Ticket model that is active in this project."
+    """Returns the Ticket model that is active in this project."""
     return get_concrete_model('TICKETS_TICKET_MODEL')
 
+
 def get_tickettemplate_model():
-    "Returns the TicketTemplate model that is active in this project."
+    """Returns the TicketTemplate model that is active in this project."""
     return get_concrete_model('TICKETS_TEMPLATE_MODEL')
 
 

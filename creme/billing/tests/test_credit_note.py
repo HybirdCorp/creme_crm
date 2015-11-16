@@ -9,13 +9,14 @@ try:
 
     from creme.creme_core.models import Relation, Currency, FieldsConfig
 
-    from creme.persons.models import Organisation
+    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import CreditNoteStatus, CreditNote, ProductLine
+    from ..models import CreditNoteStatus  # CreditNote, ProductLine
     from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
     from .base import (_BillingTestCase, skipIfCustomCreditNote,
-            skipIfCustomProductLine, skipIfCustomInvoice)
+            skipIfCustomProductLine, skipIfCustomInvoice,
+            Organisation, CreditNote, ProductLine)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

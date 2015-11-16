@@ -12,14 +12,14 @@ try:
     from creme.creme_core.models import Relation, CremeProperty, SetCredentials, FieldsConfig
 
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
-            skipIfCustomOrganisation)
-    from ..models import *
+            skipIfCustomOrganisation, Organisation, Address, Contact)
+    from ..models import StaffSize, Sector, LegalForm
     from ..constants import *
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('OrganisationTestCase',)
+# __all__ = ('OrganisationTestCase',)
 
 
 @skipIfCustomOrganisation

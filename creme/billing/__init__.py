@@ -24,52 +24,72 @@ from creme.creme_core import get_concrete_model
 
 
 def credit_note_model_is_custom():
-    return settings.BILLING_CREDIT_NOTE_MODEL != 'billing.CreditNote'
+    return settings.BILLING_CREDIT_NOTE_MODEL != 'billing.CreditNote' and \
+           not settings.BILLING_CREDIT_NOTE_FORCE_NOT_CUSTOM
+
 
 def invoice_model_is_custom():
-    return settings.BILLING_INVOICE_MODEL != 'billing.Invoice'
+    return settings.BILLING_INVOICE_MODEL != 'billing.Invoice' and \
+           not settings.BILLING_INVOICE_FORCE_NOT_CUSTOM
+
 
 def product_line_model_is_custom():
-    return settings.BILLING_PRODUCT_LINE_MODEL != 'billing.ProductLine'
+    return settings.BILLING_PRODUCT_LINE_MODEL != 'billing.ProductLine' and \
+           not settings.BILLING_PRODUCT_LINE_FORCE_NOT_CUSTOM
+
 
 def quote_model_is_custom():
-    return settings.BILLING_QUOTE_MODEL != 'billing.Quote'
+    return settings.BILLING_QUOTE_MODEL != 'billing.Quote' and \
+           not settings.BILLING_QUOTE_FORCE_NOT_CUSTOM
+
 
 def sales_order_model_is_custom():
-    return settings.BILLING_SALES_ORDER_MODEL != 'billing.SalesOrder'
+    return settings.BILLING_SALES_ORDER_MODEL != 'billing.SalesOrder' and \
+           not settings.BILLING_SALES_ORDER_FORCE_NOT_CUSTOM
+
 
 def service_line_model_is_custom():
-    return settings.BILLING_SERVICE_LINE_MODEL != 'billing.ServiceLine'
+    return settings.BILLING_SERVICE_LINE_MODEL != 'billing.ServiceLine' and \
+           not settings.BILLING_SERVICE_LINE_FORCE_NOT_CUSTOM
+
 
 def template_base_model_is_custom():
-    return settings.BILLING_TEMPLATE_BASE_MODEL != 'billing.TemplateBase'
+    return settings.BILLING_TEMPLATE_BASE_MODEL != 'billing.TemplateBase' and \
+           not settings.BILLING_TEMPLATE_BASE_FORCE_NOT_CUSTOM
+
 
 def get_credit_note_model():
-    "Returns the CreditNote model that is active in this project."
+    """Returns the CreditNote model that is active in this project."""
     return get_concrete_model('BILLING_CREDIT_NOTE_MODEL')
 
+
 def get_invoice_model():
-    "Returns the Invoice model that is active in this project."
+    """Returns the Invoice model that is active in this project."""
     return get_concrete_model('BILLING_INVOICE_MODEL')
 
+
 def get_product_line_model():
-    "Returns the ProductLine model that is active in this project."
+    """Returns the ProductLine model that is active in this project."""
     return get_concrete_model('BILLING_PRODUCT_LINE_MODEL')
 
+
 def get_quote_model():
-    "Returns the Quote model that is active in this project."
+    """Returns the Quote model that is active in this project."""
     return get_concrete_model('BILLING_QUOTE_MODEL')
 
+
 def get_sales_order_model():
-    "Returns the SalesOrder model that is active in this project."
+    """Returns the SalesOrder model that is active in this project."""
     return get_concrete_model('BILLING_SALES_ORDER_MODEL')
 
+
 def get_service_line_model():
-    "Returns the ServiceLine model that is active in this project."
+    """Returns the ServiceLine model that is active in this project."""
     return get_concrete_model('BILLING_SERVICE_LINE_MODEL')
 
+
 def get_template_base_model():
-    "Returns the TemplateBase model that is active in this project."
+    """Returns the TemplateBase model that is active in this project."""
     return get_concrete_model('BILLING_TEMPLATE_BASE_MODEL')
 
 

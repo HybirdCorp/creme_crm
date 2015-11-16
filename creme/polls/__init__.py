@@ -24,24 +24,32 @@ from creme.creme_core import get_concrete_model
 
 
 def pollcampaign_model_is_custom():
-    return settings.POLLS_CAMPAIGN_MODEL != 'polls.PollCampaign'
+    return settings.POLLS_CAMPAIGN_MODEL != 'polls.PollCampaign' and \
+           not settings.POLLS_CAMPAIGN_FORCE_NOT_CUSTOM
+
 
 def pollform_model_is_custom():
-    return settings.POLLS_FORM_MODEL != 'polls.PollForm'
+    return settings.POLLS_FORM_MODEL != 'polls.PollForm' and \
+           not settings.POLLS_FORM_FORCE_NOT_CUSTOM
+
 
 def pollreply_model_is_custom():
-    return settings.POLLS_REPLY_MODEL != 'polls.PollReply'
+    return settings.POLLS_REPLY_MODEL != 'polls.PollReply' and \
+           not settings.POLLS_REPLY_FORCE_NOT_CUSTOM
+
 
 def get_pollcampaign_model():
-    "Returns the PollCampaign model that is active in this project."
+    """Returns the PollCampaign model that is active in this project."""
     return get_concrete_model('POLLS_CAMPAIGN_MODEL')
 
+
 def get_pollform_model():
-    "Returns the PollForm model that is active in this project."
+    """Returns the PollForm model that is active in this project."""
     return get_concrete_model('POLLS_FORM_MODEL')
 
+
 def get_pollreply_model():
-    "Returns the PollReply model that is active in this project."
+    """Returns the PollReply model that is active in this project."""
     return get_concrete_model('POLLS_REPLY_MODEL')
 
 

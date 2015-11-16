@@ -4,8 +4,8 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from .base import _EmailsTestCase, skipIfCustomEmailTemplate
-    from ..models import EmailTemplate
+    from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
+    # from ..models import EmailTemplate
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -15,7 +15,7 @@ class TemplatesTestCase(_EmailsTestCase):
     def setUp(self):
         self.login()
 
-    def test_createview01(self): # TODO: test attachments & images
+    def test_createview01(self):  # TODO: test attachments & images
 #        url = '/emails/template/add'
         url = reverse('emails__create_template')
         self.assertGET200(url)
