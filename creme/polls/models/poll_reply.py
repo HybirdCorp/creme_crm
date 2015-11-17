@@ -70,6 +70,10 @@ class AbstractPollReply(CremeEntity):
 #        return "/polls/poll_reply/%s" % self.id
         return reverse('polls__view_reply', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('polls__create_reply')
+
     def get_edit_absolute_url(self):
 #        return "/polls/poll_reply/edit/%s" % self.id
         return reverse('polls__edit_reply', args=(self.id,))

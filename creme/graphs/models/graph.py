@@ -53,6 +53,10 @@ class AbstractGraph(CremeEntity):
 #        return "/graphs/graph/%s" % self.id
         return reverse('graphs__view_graph', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('graphs__create_graph')
+
     def get_edit_absolute_url(self):
 #        return "/graphs/graph/edit/%s" % self.id
         return reverse('graphs__edit_graph', args=(self.id,))

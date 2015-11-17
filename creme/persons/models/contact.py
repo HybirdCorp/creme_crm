@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
+# from future_builtins import filter
 import logging
 #import warnings
 
@@ -161,6 +161,10 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 #        return "/persons/contact/%s" % self.id
         return reverse('persons__view_contact', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('persons__create_contact')
+
     def get_edit_absolute_url(self):
 #        return "/persons/contact/edit/%s" % self.id
         return reverse('persons__edit_contact', args=(self.id,))
@@ -183,7 +187,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 #        return contact
 
     def delete(self):
-        self._check_deletion() #should not be useful (trashing should be blocked too)
+        self._check_deletion()  # Should not be useful (trashing should be blocked too)
 #        super(Contact, self).delete()
         super(AbstractContact, self).delete()
 

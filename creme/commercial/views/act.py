@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -78,7 +78,7 @@ def abstract_view_act(request, act_id,
                       template='creme_core/generics/view_entity.html',
                      ):
     return generic.view_entity(request, act_id, Act, template=template,
-                               path='/commercial/act',  # TODO: to be removed
+                               # path='/commercial/act',
                               )
 
 
@@ -86,7 +86,7 @@ def abstract_view_objective_pattern(request, objpattern_id,
                                     template='commercial/view_pattern.html',
                                    ):
     return generic.view_entity(request, objpattern_id, ActObjectivePattern,
-                               path='/commercial/objective_pattern',  # TODO: to be removed
+                               # path='/commercial/objective_pattern',
                                template=template,
                               )
 
@@ -171,7 +171,7 @@ def objective_pattern_detailview(request, objpattern_id):
 def listview(request):
     return generic.list_view(request, Act,
                              # extra_dict={'add_url': '/commercial/act/add'}
-                             extra_dict={'add_url': reverse('commercial__create_act')}
+                             # extra_dict={'add_url': reverse('commercial__create_act')}
                             )
 
 
@@ -180,7 +180,7 @@ def listview(request):
 def listview_objective_pattern(request):
     return generic.list_view(request, ActObjectivePattern,
                              # extra_dict={'add_url': '/commercial/objective_pattern/add'},
-                             extra_dict={'add_url': reverse('commercial__create_pattern')},
+                             # extra_dict={'add_url': reverse('commercial__create_pattern')},
                             )
 
 

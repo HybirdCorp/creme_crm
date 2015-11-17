@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -51,7 +51,7 @@ def abstract_view_service(request, service_id,
                           template='products/view_service.html',
                          ):
     return view_entity(request, service_id, Service, template=template,
-                       path='/products/service',
+                       # path='/products/service',
                       )
 
 
@@ -79,7 +79,7 @@ def detailview(request, service_id):
 def listview(request):
     return list_view(request, Service,
                      # extra_dict={'add_url': '/products/service/add'},
-                     extra_dict={'add_url': reverse('products__create_service')},
+                     # extra_dict={'add_url': reverse('products__create_service')},
                     )
 
 

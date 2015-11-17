@@ -58,7 +58,7 @@ def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
 
 def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
     return view_entity(request, graph_id, ReportGraph,
-                       path='/reports/report',  # TODO: to be removed
+                       # path='/reports/report',
                        template=template,
                        extra_template_dict={'report_charts': report_chart_registry},
                       )

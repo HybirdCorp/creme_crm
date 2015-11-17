@@ -20,7 +20,7 @@
 
 import logging
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -71,7 +71,7 @@ def abstract_view_folder(request, folder_id,
                          template='documents/view_folder.html',
                         ):
     return view_entity(request, folder_id, Folder, template=template,
-                       path='/documents/folder',
+                       # path='/documents/folder',
                       )
 
 
@@ -104,7 +104,7 @@ def abstract_list_folders(request, **extra_kwargs):
 
     return list_view(request, Folder, extra_q=extra_q,
 #                     extra_dict={'add_url': '/documents/folder/add',
-                     extra_dict={'add_url': reverse('documents__create_folder'),
+                     extra_dict={#'add_url': reverse('documents__create_folder'),
                                  'parent_id': parent_id or "",
                                  'extra_bt_templates': ('documents/frags/previous.html', ),
                                  'previous_id': previous_id,

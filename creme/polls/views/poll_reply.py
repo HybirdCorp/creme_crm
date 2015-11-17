@@ -152,7 +152,7 @@ def abstract_view_pollreply(request, preply_id,
                             template='polls/view_pollreply.html',
                            ):
     return view_entity(request, preply_id, PollReply, template=template,
-                       path='/polls/poll_reply',  # TODO: to be removed
+                       # path='/polls/poll_reply',
                       )
 
 
@@ -202,7 +202,7 @@ def detailview(request, preply_id):
 def listview(request):
     return list_view(request, PollReply,
                      # extra_dict={'add_url': '/polls/poll_reply/add'},
-                     extra_dict={'add_url': reverse('polls__create_reply')},
+                     # extra_dict={'add_url': reverse('polls__create_reply')},
                     )
 
 

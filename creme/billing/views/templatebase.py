@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
+
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import edit_entity, list_view, view_entity
@@ -49,16 +51,20 @@ def detailview(request, template_id):
     has_perm = user.has_perm
     isnt_staff = not user.is_staff
 
-    return view_entity(request, template_id, TemplateBase, '/billing/template',
-                       'billing/view_template.html',
-                       {'can_download':       False,
-                        'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
-                        'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
-                       }
+    return view_entity(request, template_id, TemplateBase, # '/billing/template',
+                       template='billing/view_template.html',
+                       extra_template_dict={
+                            'can_download':       False,
+                            'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
+                            'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
+                       },
                       )
 
 
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, TemplateBase, extra_dict={'add_url': '/recurrents/generator/add'})
+    return list_view(request, TemplateBase,
+                     # extra_dict={'add_url': '/recurrents/generator/add'}
+                     extra_dict={'add_url': reverse('recurrents__create_generator')},
+                    )

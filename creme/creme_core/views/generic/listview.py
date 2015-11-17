@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
 class NoHeaderFilterAvailable(Exception):
     pass
 
+
 def _clean_value(value, converter, default=None):
     try:
         return converter(value)
@@ -52,6 +53,7 @@ def _clean_value(value, converter, default=None):
             return default
 
         raise e
+
 
 def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter, header_filter):
     queryset = model.objects.filter(is_deleted=False)
@@ -63,7 +65,7 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
         queryset = queryset.filter(extra_q)
 
     list_view_state.extra_q = extra_q
-    #TODO: method in ListViewState that returns the improved queryset
+    # TODO: method in ListViewState that returns the improved queryset
     try:
         queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.cells))
     except Exception:
@@ -73,6 +75,7 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
     queryset = list_view_state.sort_query(queryset)
 
     return queryset
+
 
 def _build_entities_page(request, list_view_state, queryset, size):
     paginator = Paginator(queryset, size)
@@ -90,6 +93,7 @@ def _build_entities_page(request, list_view_state, queryset, size):
 
     return entities_page
 
+
 def _build_extrafilter(request, extra_filter=None):
     json_q_filter = request.GET.get('q_filter')
     q_filter = _clean_value(json_q_filter, json_load, {})
@@ -105,6 +109,7 @@ def _build_extrafilter(request, extra_filter=None):
 
     return json_q_filter, filter
 
+
 def _select_entityfilter(request, entity_filters, default_filter):
     efilter_id = request.GET.get('filter')
 
@@ -112,6 +117,7 @@ def _select_entityfilter(request, entity_filters, default_filter):
         efilter_id = request.POST.get('filter', default_filter)
 
     return entity_filters.select_by_id(efilter_id)
+
 
 def list_view_content(request, model, hf_pk='', extra_dict=None,
                       template='creme_core/generics/list_entities.html',
@@ -128,7 +134,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     current_lvs = ListViewState.get_state(request)
 
     if current_lvs is None:
-        current_lvs = ListViewState.build_from_request(request) #TODO: move to ListViewState.get_state() ???
+        current_lvs = ListViewState.build_from_request(request)  # TODO: move to ListViewState.get_state() ???
 
     try:
         current_lvs.rows = rows = int(POST_get('rows'))
@@ -143,8 +149,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
 
     ct = ContentType.objects.get_for_model(model)
     header_filters = HeaderFilterList(ct, request.user)
-    #Try first to get the posted header filter which is the most recent.
-    #Then try to retrieve the header filter from session, then fallback
+    # Try first to get the posted header filter which is the most recent.
+    # Then try to retrieve the header filter from session, then fallback
     hf = header_filters.select_by_id(POST_get('hfilter', -1),
                                      current_lvs.header_filter_id,
                                      hf_pk,
@@ -191,7 +197,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         #'list_view_template': 'creme_core/frags/list_view.html',
         'content_template':   content_template,
         'o2m':                o2m,
-        'add_url':            None,
+        # 'add_url':            None,
+        'add_url':            model.get_create_absolute_url(),
         'extra_bt_templates': None, # () instead ???,
         'show_actions':       show_actions,
         'q_filter':           json_q_filter,
@@ -202,17 +209,18 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     if extra_dict:
         template_dict.update(extra_dict)
 
-    if request.GET.get('ajax', False): #TODO: request.is_ajax() ?
+    if request.GET.get('ajax', False):  # TODO: request.is_ajax() ?
 #        template = 'creme_core/frags/list_view_content.html'
         template = template_dict['content_template']
 
     if post_process:
         post_process(template_dict, request)
 
-    #optimisation time !!
+    # Optimisation time !!
     hf.populate_entities(entities.object_list)
 
     return template, template_dict
+
 
 def list_view(request, model, *args, **kwargs):
     """See list_view_content() for arguments"""
@@ -226,8 +234,9 @@ def list_view(request, model, *args, **kwargs):
 
     return render(request, template_name, template_dict)
 
-#TODO: remove the file 'creme_core/frags/list_view_popup.html'
-#TODO: remove the file 'creme_core/generics/list_entities_popup.html'
+
+# TODO: remove the file 'creme_core/frags/list_view_popup.html'
+# TODO: remove the file 'creme_core/generics/list_entities_popup.html'
 def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
     """@param kwargs See list_view_content()"""
     ct = get_ct_or_404(ct_id)
@@ -259,7 +268,7 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
                                                          **kwargs
                                                         )
     except NoHeaderFilterAvailable:
-        #TODO: true HeaderFilter creation in inner popup
+        # TODO: true HeaderFilter creation in inner popup
         return inner_popup(request, '', {}, is_valid=False,
                            html=_(u"The desired list does not have any view, please create one.")
                           )

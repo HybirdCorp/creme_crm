@@ -55,6 +55,10 @@ class AbstractPollCampaign(CremeEntity):
 #        return '/polls/campaign/%s' % self.id
         return reverse('polls__view_campaign', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('polls__create_campaign')
+
     def get_edit_absolute_url(self):
 #        return '/polls/campaign/edit/%s' % self.id
         return reverse('polls__edit_campaign', args=(self.id,))

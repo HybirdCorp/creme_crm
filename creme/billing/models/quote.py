@@ -38,6 +38,10 @@ class AbstractQuote(Base):
 #        return "/billing/quote/%s" % self.id
         return reverse('billing__view_quote', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('billing__create_quote')
+
     def get_edit_absolute_url(self):
 #        return "/billing/quote/edit/%s" % self.id
         return reverse('billing__edit_quote', args=(self.id,))

@@ -54,6 +54,10 @@ class AbstractMailingList(CremeEntity):
 #        return "/emails/mailing_list/%s" % self.id
         return reverse('emails__view_mlist', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('emails__create_mlist')
+
     def get_edit_absolute_url(self):
 #        return "/emails/mailing_list/edit/%s" % self.id
         return reverse('emails__edit_mlist', args=(self.id,))

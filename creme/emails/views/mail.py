@@ -144,7 +144,7 @@ def reload_sync_blocks(request):
 
 def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html'):
     return generic.view_entity(request, mail_id, EntityEmail,
-                               path='/emails/mail',  # TODO: to be removed
+                               # path='/emails/mail',
                                template=template,
                                extra_template_dict={'sent_status': MAIL_STATUS_SENT},
                               )
@@ -153,9 +153,13 @@ def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html
 def abstract_popupview(request, mail_id,
                        template='emails/view_entity_mail_popup.html'
                       ):
-    return generic.view_real_entity(request, mail_id, path='/emails/mail',
-                                    template=template,
-                                   )
+#    return generic.view_real_entity(request, mail_id, path='/emails/mail',
+#                                    template=template,
+#                                   )
+    return generic.view_entity(request, mail_id, EntityEmail,
+                               template=template,
+                               # path='/emails/mail',
+                              )
 
 
 def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
@@ -164,7 +168,7 @@ def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
                           ):
     return generic.add_to_entity(request, entity_id, form, title=title,
                                  link_perm=True, submit_label=submit_label,
-                                 )
+                                )
 
 
 def abstract_create_from_template_n_send(request, entity_id,

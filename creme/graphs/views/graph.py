@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -54,7 +54,7 @@ def abstract_view_graph(request, graph_id,
                         template='graphs/view_graph.html',
                        ):
     return view_entity(request, graph_id, Graph, template=template,
-                       path='/graphs/graph',
+                       # path='/graphs/graph',
                       )
 
 
@@ -98,7 +98,7 @@ def detailview(request, graph_id):
 def listview(request):
     return list_view(request, Graph,
                      # extra_dict={'add_url': '/graphs/graph/add'},
-                     extra_dict={'add_url': reverse('graphs__create_graph')},
+                     # extra_dict={'add_url': reverse('graphs__create_graph')},
                     )
 
 

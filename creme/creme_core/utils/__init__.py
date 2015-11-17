@@ -43,6 +43,7 @@ def creme_entity_content_types():
     get_for_model = ContentType.objects.get_for_model
     return (get_for_model(model) for model in creme_registry.iter_entity_models())
 
+
 def get_ct_or_404(ct_id):
     try:
         ct = ContentType.objects.get_for_id(ct_id)
@@ -50,6 +51,7 @@ def get_ct_or_404(ct_id):
         raise Http404('No content type with this id: %s' % ct_id)
 
     return ct
+
 
 def build_ct_choices(ctypes):
     from .unicode_collation import collator
@@ -59,6 +61,7 @@ def build_ct_choices(ctypes):
     choices.sort(key=lambda k: sort_key(k[1]))
 
     return choices
+
 
 def create_or_update(model, pk=None, **attrs):
     """Get a model instance by its PK, or create a new one ; then set its attributes.
@@ -85,6 +88,7 @@ def create_or_update(model, pk=None, **attrs):
 
     return instance
 
+
 def create_if_needed(model, get_dict, **attrs):
     try:
         instance = model.objects.get(**get_dict)
@@ -94,7 +98,8 @@ def create_if_needed(model, get_dict, **attrs):
 
     return instance
 
-def update_model_instance(obj, **fields): #TODO: django 1.5: save only modified fields
+
+def update_model_instance(obj, **fields):  # TODO: django 1.5: save only modified fields
     """Update the field values of an instance, and save it only if it has changed."""
     save = False
 
@@ -107,6 +112,7 @@ def update_model_instance(obj, **fields): #TODO: django 1.5: save only modified 
         obj.save()
 
     return save
+
 
 def replace_related_object(old_instance, new_instance):
     "Replace the references to an instance by references to another one."
@@ -138,7 +144,7 @@ def replace_related_object(old_instance, new_instance):
             m2m_mngr.remove(old_instance)
 
 
-# MUST BE REMOVED WHEN JSON STANDARD LIB HANDLES DECIMAL
+# TODO: MUST BE REMOVED WHEN JSON STANDARD LIB HANDLES DECIMAL
 class Number2Str(float):
     def __init__(self, value):
         self.value = value
@@ -179,6 +185,7 @@ def jsonify(func):
 
     return _aux
 
+
 def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
     """@param cast A function that cast the return value, and raise an Exception if it is not possible (eg: int)
     """
@@ -198,15 +205,18 @@ def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
 
     return value
 
+
 def get_from_GET_or_404(GET, key, cast=None, **kwargs):
     return _get_from_request_or_404(GET, 'GET', key, cast, **kwargs)
+
 
 def get_from_POST_or_404(POST, key, cast=None, **kwargs):
     return _get_from_request_or_404(POST, 'POST', key, cast, **kwargs)
 
+
 def find_first(iterable, function, *default):
     """
-    @param default Optionnal argument.
+    @param default Optional argument.
     """
     for elt in iterable:
         if function(elt):
@@ -216,6 +226,7 @@ def find_first(iterable, function, *default):
         return default[0]
 
     raise IndexError
+
 
 def split_filter(predicate, iterable):
     ok = []
@@ -229,11 +240,13 @@ def split_filter(predicate, iterable):
 
     return ok, ko
 
+
 def entities2unicode(entities, user):
     """Return a unicode objects representing a sequence of CremeEntities,
     with care of permissions.
     """
     return u', '.join(entity.allowed_unicode(user) for entity in entities)
+
 
 def related2unicode(entity, user):
     """Return a unicode object representing a related entity with its owner,
@@ -241,10 +254,12 @@ def related2unicode(entity, user):
     """
     return u'%s - %s' % (entity.get_related_entity().allowed_unicode(user), unicode(entity))
 
+
 __BFS_MAP = {
         'true':  True,
         'false': False,
     }
+
 
 def bool_from_str(string):
     b = __BFS_MAP.get(string.lower())
@@ -253,6 +268,7 @@ def bool_from_str(string):
         return b
 
     raise ValueError('Can not be coerced to a boolean value: %s' % str(string))
+
 
 def bool_as_html(b):
     if b:
@@ -264,12 +280,14 @@ def bool_as_html(b):
 
     return mark_safe(u'<input type="checkbox" %sdisabled/>%s' % (checked, label))
 
+
 _I2R_NUMERAL_MAP = [(1000, 'M'),  (900, 'CM'), (500, 'D'),  (400, 'CD'), (100, 'C'),
                     (90,   'XC'), (50,  'L'),  (40,  'XL'), (10,  'X'),  (9,   'IX'),
                     (5,    'V'),  (4,   'IV'), (1,   'I'),
                    ]
 
-#thx to: http://www.daniweb.com/software-development/python/code/216865/roman-numerals-python
+
+# Thx to: http://www.daniweb.com/software-development/python/code/216865/roman-numerals-python
 def int_2_roman(i):
     "Convert an integer to its roman representation (string)"
     assert i < 4000
@@ -282,6 +300,7 @@ def int_2_roman(i):
             i -= value
 
     return ''.join(result)
+
 
 def truncate_str(str, max_length, suffix=""):
     if max_length <= 0:
@@ -299,11 +318,13 @@ def truncate_str(str, max_length, suffix=""):
     else:
         return str[:total]
 
+
 def ellipsis(s, length):
     if len(s) > length:
         s = s[:length - 1] + u'…'
 
     return s
+
 
 def ellipsis_multi(strings, length):
     str_2_truncate = [[len(s), s] for s in strings]
@@ -322,8 +343,10 @@ def ellipsis_multi(strings, length):
 
     return [ellipsis(elt[1], elt[0]) for elt in str_2_truncate]
 
+
 def is_testenvironment(request):
     return request.META.get('SERVER_NAME') == 'testserver'
+
 
 def safe_unicode(value, encodings=None):
     if isinstance(value, unicode):
@@ -343,10 +366,11 @@ def safe_unicode(value, encodings=None):
 
     return unicode(value, encoding='utf-8', errors='replace')
 
+
 def safe_unicode_error(err, encodings=None):
     #return safe_unicode(err.message)
 
-    #Is this method deprecated for python 3.* (but str/unicode conversions won't be useful at all) ??
+    # Is this method deprecated for python 3.* (but str/unicode conversions won't be useful at all) ??
     try:
         return unicode(err)
     except:
@@ -365,12 +389,14 @@ def safe_unicode_error(err, encodings=None):
 
     #return unicode(err.__class__.__name__)
 
+
 def log_traceback(logger, limit=10):
     exc_type, exc_value, exc_traceback = sys.exc_info()
 
     for line in traceback.format_exception(exc_type, exc_value, exc_traceback, limit=limit):
         for split_line in line.split('\n'):
             logger.error(split_line)
+
 
 def print_traceback(limit=10):
     exc_type, exc_value, exc_traceback = sys.exc_info()

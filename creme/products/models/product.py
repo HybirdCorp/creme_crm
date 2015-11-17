@@ -74,6 +74,10 @@ class AbstractProduct(CremeEntity):
 #        return "/products/product/%s" % self.id
         return reverse('products__view_product', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('products__create_product')
+
     def get_edit_absolute_url(self):
 #        return "/products/product/edit/%s" % self.id
         return reverse('products__edit_product', args=(self.id,))

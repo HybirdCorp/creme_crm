@@ -63,6 +63,10 @@ class AbstractProject(CremeEntity):
 #        return "/projects/project/%s" % self.id
         return reverse('projects__view_project', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('projects__create_project')
+
     def get_edit_absolute_url(self):
 #        return "/projects/project/edit/%s" % self.id
         return reverse('projects__edit_project', args=(self.id,))

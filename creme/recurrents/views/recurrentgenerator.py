@@ -19,7 +19,7 @@
 ################################################################################
 
 #from django.contrib.formtools.wizard.views import SessionWizardView
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -106,7 +106,7 @@ def abstract_view_rgenerator(request, generator_id,
                              template='recurrents/view_generator.html',
                             ):
     return view_entity(request, generator_id, RecurrentGenerator,
-                       path='/recurrents/generator',
+                       # path='/recurrents/generator',
                        template=template,
                       )
 
@@ -128,5 +128,5 @@ def detailview(request, generator_id):
 def listview(request):
     return list_view(request, RecurrentGenerator,
                      # extra_dict={'add_url': '/recurrents/generator/add'},
-                     extra_dict={'add_url': reverse('recurrents__create_generator')},
+                     # extra_dict={'add_url': reverse('recurrents__create_generator')},
                     )

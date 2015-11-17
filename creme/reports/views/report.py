@@ -58,8 +58,8 @@ def abstract_edit_report(request, report_id, form=ReportEditForm):
 def abstract_view_report(request, report_id,
                          template='reports/view_report.html',
                         ):
-    return view_entity(request, report_id, Report, path='/reports/report',
-                       template=template,
+    return view_entity(request, report_id, Report, template=template,
+                       # path='/reports/report',
                       )
 
 
@@ -85,7 +85,9 @@ def detailview(request, report_id):
 @login_required
 @permission_required('reports')
 def listview(request):
-    return list_view(request, Report, extra_dict={'add_url': '/reports/report/add'})
+    return list_view(request, Report,
+                     # extra_dict={'add_url': '/reports/report/add'}
+                    )
 
 
 @login_required

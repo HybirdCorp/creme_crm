@@ -47,7 +47,7 @@ class EntityAction(object):
 class _PrettyPropertiesField(FunctionField):
     name         = "get_pretty_properties"
     verbose_name = _(u'Properties')
-    has_filter   = True #==> quick search in ListView
+    has_filter   = True  # ==> quick search in ListView
 
     @classmethod
     def filter_in_result(cls, search_string):
@@ -55,7 +55,9 @@ class _PrettyPropertiesField(FunctionField):
         return Q(properties__type__text__icontains=search_string)
 
     def __call__(self, entity):
-        return FunctionFieldResultsList(FunctionFieldResult(unicode(p)) for p in entity.get_properties())
+        return FunctionFieldResultsList(FunctionFieldResult(unicode(p))
+                                            for p in entity.get_properties()
+                                       )
 
     @classmethod
     def populate_entities(cls, entities):
@@ -64,7 +66,11 @@ class _PrettyPropertiesField(FunctionField):
 
 class CremeEntity(CremeAbstractEntity):
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField())
-    allowed_related = set() # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields #TODO: use tag instead
+
+    # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
+    # TODO: use tag instead.
+    allowed_related = set()
+
     creation_label = _('Add an entity')
 
     class Meta:
@@ -119,9 +125,17 @@ class CremeEntity(CremeAbstractEntity):
         real_entity = self.get_real_entity()
 
         if self is real_entity:
-            return "/creme_core/entity/%s" % self.id
+            return "/creme_core/entity/%s" % self.id  # TODO: '' instead ?
 
         return real_entity.get_absolute_url()
+
+    @staticmethod
+    def get_create_absolute_url():
+        """Returns the url of the creation view of this entity type.
+        If '' (void string) is returned, the type can not be created directly.
+        eg: return "/my_app/my_model/add"
+        """
+        return ''
 
     def get_edit_absolute_url(self):
         """Returns the url of the edition view for this instance.
@@ -291,11 +305,9 @@ class CremeEntity(CremeAbstractEntity):
         if not entities:
             return
 
-#        get_field = entities[0]._meta.get_field_by_name
         get_field = entities[0]._meta.get_field
 
         for fname in field_names:
-#            field = get_field(fname)[0]
             field = get_field(fname)
 
             if isinstance(field, ForeignKey):

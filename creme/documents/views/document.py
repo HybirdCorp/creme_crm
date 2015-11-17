@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -75,7 +75,7 @@ def abstract_view_document(request, object_id,
                            template='documents/view_document.html',
                           ):
     return view_entity(request, object_id, Document, template=template,
-                       path='/documents/document',  # TODO: to be removed
+                       # path='/documents/document',
                       )
 
 
@@ -110,5 +110,5 @@ def detailview(request, object_id):
 def listview(request):
     return list_view(request, Document,
                      # extra_dict={'add_url': '/documents/document/add'}
-                     extra_dict={'add_url': reverse('documents__create_document')}
+                     # extra_dict={'add_url': reverse('documents__create_document')}
                     )

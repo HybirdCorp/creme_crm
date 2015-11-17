@@ -63,6 +63,10 @@ class AbstractInvoice(Base):
 #        return "/billing/invoice/%s" % self.id
         return reverse('billing__view_invoice', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('billing__create_invoice')
+
     def get_edit_absolute_url(self):
 #        return "/billing/invoice/edit/%s" % self.id
         return reverse('billing__edit_invoice', args=(self.id,))

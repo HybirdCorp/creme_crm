@@ -25,22 +25,23 @@ import os
 
 from django.contrib.contenttypes.models import ContentType
 #from django.db import transaction
-from django.db.models import Model, CharField, BooleanField, FileField, Manager  # ForeignKey
+from django.db.models import Model, CharField, BooleanField, FileField, Manager
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
 
 from ..core.function_field import FunctionFieldsManager
-from .fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey, CTypeForeignKey
+from .fields import (CreationDateTimeField, ModificationDateTimeField,
+         CremeUserForeignKey, CTypeForeignKey)
 
 
 logger = logging.getLogger(__name__)
 
 
 class CremeModel(Model):
-    _delete_files = True #Delegate the deletion of the file on system when a model has one or more FileField subclasses
+    _delete_files = True  # Delegate the deletion of the file on system when a model has one or more FileField subclasses
     creation_label = _('Add')
-    #TODO : do a complete refactor for _CremeModel.selection_label  
+    # TODO : do a complete refactor for _CremeModel.selection_label
     #selection_label = _('Select') 
 
     class Meta:
@@ -104,7 +105,7 @@ class CremeModel(Model):
 
             for field_name, full_path, chrooted_path in file_fields:
                 if not obj_filter(Q(**{field_name: chrooted_path})).exists():
-                    os_remove(full_path)#TODO: Catch OSError ?
+                    os_remove(full_path)  # TODO: Catch OSError ?
 
 
 #class CremeEntityManager(Manager):
@@ -119,17 +120,17 @@ class CremeModel(Model):
 
 _SEARCH_FIELD_MAX_LENGTH = 200
 
+
 class CremeAbstractEntity(CremeModel):
     created  = CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
     modified = ModificationDateTimeField(_('Last modification'), editable=False).set_tags(clonable=False)
 
-    #entity_type = ForeignKey(ContentType, editable=False).set_tags(viewable=False)
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     header_filter_search_field = CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False).set_tags(viewable=False)
 
     is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
     is_actived = BooleanField(default=False, editable=False).set_tags(viewable=False)
-    user       = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_('User'
+    user       = CremeUserForeignKey(verbose_name=_('Owner user'))
 
     #objects = CremeEntityManager()
     objects = Manager()
@@ -150,8 +151,6 @@ class CremeAbstractEntity(CremeModel):
             has_arg = kwargs.has_key
             if not has_arg('entity_type') and not has_arg('entity_type_id'):
                 self.entity_type = ContentType.objects.get_for_model(self)
-        #else:
-            #self.entity_type = ContentType.objects.get_for_id(self.entity_type_id)
 
     def _get_real_entity(self, base_model):
         entity = self._real_entity
@@ -164,7 +163,7 @@ class CremeAbstractEntity(CremeModel):
             get_ct = ContentType.objects.get_for_model
 
             if ct == get_ct(base_model) or ct == get_ct(self.__class__):
-                self._real_entity = True #avoid reference to 'self' (cyclic reference)
+                self._real_entity = True  # Avoid reference to 'self' (cyclic reference)
                 entity = self
             else:
                 entity = self._real_entity = ct.get_object_for_this_type(id=self.id)

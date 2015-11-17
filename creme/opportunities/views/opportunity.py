@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
@@ -85,7 +85,7 @@ def abstract_view_opportunity(request, opp_id,
                               template='opportunities/view_opportunity.html',
                              ):
     return view_entity(request, opp_id, model=Opportunity, template=template,
-                       path='/opportunities/opportunity',
+                       # path='/opportunities/opportunity',
                       )
 
 
@@ -121,5 +121,5 @@ def detailview(request, opp_id):
 @permission_required('opportunities')
 def listview(request):
     return list_view(request, Opportunity,
-                     extra_dict={'add_url': reverse('opportunities__create_opportunity')},
+                     # extra_dict={'add_url': reverse('opportunities__create_opportunity')},
                     )

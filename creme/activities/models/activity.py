@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 #class Activity(CremeEntity):
 class AbstractActivity(CremeEntity):
-    "Activity : task, meeting, phone call, indisponibility, ..."
+    """Activity : task, meeting, phone call, indisponibility, ..."""
     title         = CharField(_(u'Title'), max_length=100)
     start         = DateTimeField(_(u'Start'), blank=True, null=True)
     end           = DateTimeField(_(u'End'), blank=True, null=True)
@@ -115,6 +115,10 @@ END:VEVENT
     def get_absolute_url(self):
 #        return "/activities/activity/%s" % self.id
         return reverse('activities__view_activity', args=(self.id,))
+
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('activities__create_activity')
 
     def get_edit_absolute_url(self):
 #        return "/activities/activity/edit/%s" % self.id
