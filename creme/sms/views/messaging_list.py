@@ -22,6 +22,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
@@ -35,29 +36,52 @@ from ..forms.messaging_list import MessagingListForm, AddContactsForm, AddContac
 MessagingList = get_messaginglist_model()
 
 
-@login_required
-@permission_required(('sms', 'sms.add_messaginglist'))
-def add(request):
-    return add_entity(request, MessagingListForm,
-                      extra_template_dict={'submit_label': _('Save the messaging list')},
+def abstract_add_messaginglist(request, form=MessagingListForm,
+                               submit_label=_('Save the messaging list'),
+                              ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_messaginglist(request, mlist_id, form=MessagingListForm):
+    return edit_entity(request, mlist_id, MessagingList, form)
+
+
+def abstract_view_messaginglist(request, mlist_id,
+                                template='sms/view_messaginglist.html',
+                               ):
+    return view_entity(request, mlist_id, MessagingList, template=template,
+                       # path='/sms/messaging_list',
+                      )
+
+
+@login_required
+# @permission_required(('sms', 'sms.add_messaginglist'))
+@permission_required(('sms', cperm(MessagingList)))
+def add(request):
+    return abstract_add_messaginglist(request)
+
 
 @login_required
 @permission_required('sms')
 def edit(request, mlist_id):
-    return edit_entity(request, mlist_id, MessagingList, MessagingListForm)
+    return abstract_edit_messaginglist(request, mlist_id)
+
 
 @login_required
 @permission_required('sms')
 def detailview(request, mlist_id):
-    return view_entity(request, mlist_id, MessagingList, '/sms/messaging_list',
-                       'sms/view_messaginglist.html'
-                      )
+    return abstract_view_messaginglist(request, mlist_id)
+
 
 @login_required
 @permission_required('sms')
 def listview(request):
-    return list_view(request, MessagingList, extra_dict={'add_url': '/sms/messaging_list/add'})
+    return list_view(request, MessagingList,
+                     # extra_dict={'add_url': '/sms/messaging_list/add'}
+                    )
+
 
 @login_required
 @permission_required('sms')
@@ -68,6 +92,7 @@ def add_contacts(request, mlist_id):
                          submit_label=_('Link the contacts'),
                         )
 
+
 @login_required
 @permission_required('sms')
 def add_contacts_from_filter(request, mlist_id):
@@ -76,6 +101,7 @@ def add_contacts_from_filter(request, mlist_id):
                          entity_class=MessagingList,
                          submit_label=_('Link the contacts'),
                         )
+
 
 @login_required
 @permission_required('sms')
@@ -88,9 +114,10 @@ def _delete_aux(request, mlist_id, deletor):
     deletor(messaging_list, subobject_id)
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse('', content_type='text/javascript')
 
     return redirect(messaging_list)
+
 
 def delete_contact(request, mlist_id):
     return _delete_aux(request, mlist_id, lambda ml, contact_id: ml.contacts.remove(contact_id))

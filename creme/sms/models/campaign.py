@@ -35,7 +35,8 @@ class AbstractSMSCampaign(CremeEntity):
     #lists = ManyToManyField(MessagingList, verbose_name=_(u'Related messaging lists'))
     lists = ManyToManyField(settings.SMS_MLIST_MODEL, verbose_name=_(u'Related messaging lists'))
 
-    creation_label = _('Add a campaign') #TODO: pgettext (BUT beware because PreferredMenuItem does not manage context currently...)
+    # TODO: pgettext (BUT beware because PreferredMenuItem does not manage context currently...)
+    creation_label = _('Add a campaign')
 
     class Meta:
         abstract = True
@@ -50,6 +51,10 @@ class AbstractSMSCampaign(CremeEntity):
     def get_absolute_url(self):
 #        return "/sms/campaign/%s" % self.id
         return reverse('sms__view_campaign', args=(self.id,))
+
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('sms__create_campaign')
 
     def get_edit_absolute_url(self):
 #        return "/sms/campaign/edit/%s" % self.id
@@ -72,7 +77,7 @@ class AbstractSMSCampaign(CremeEntity):
     def all_recipients(self):
         mlists = self.lists.filter(is_deleted=False)
 
-        #TODO: remove doublons
+        # TODO: remove doublons
         #manual recipients
         #recipients = list(number for number in Recipient.objects.filter(messaging_list__id__in=(mlist.id for mlist in lists)).values_list('phone', flat=True))
         recipients = [number for number in Recipient.objects.filter(messaging_list__in=mlists)

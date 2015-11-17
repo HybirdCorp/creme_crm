@@ -18,6 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _
+
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
@@ -29,26 +32,48 @@ from ..forms.template import TemplateCreateForm, TemplateEditForm
 MessageTemplate = get_messagetemplate_model()
 
 
-@login_required
-@permission_required(('sms', 'sms.add_messagetemplate'))
-def add(request):
-    return add_entity(request, TemplateCreateForm
-                      #extra_template_dict={'submit_label': _('Save the message template')}, TODO
+def abstract_add_messagetemplate(request, form=TemplateCreateForm,
+                                 submit_label=_('Save the message template'),
+                                ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
                      )
+
+
+def abstract_edit_messagetemplate(request, template_id, form=TemplateEditForm):
+    return edit_entity(request, template_id, MessageTemplate, form)
+
+
+def abstract_view_messagetemplate(request, template_id,
+                                  template='sms/view_template.html',
+                                 ):
+    return view_entity(request, template_id, MessageTemplate, template=template,
+                       # path='/sms/template',
+                      )
+
+
+@login_required
+# @permission_required(('sms', 'sms.add_messagetemplate'))
+@permission_required(('sms', cperm(MessageTemplate)))
+def add(request):
+    return abstract_add_messagetemplate(request)
+
 
 @login_required
 @permission_required('sms')
 def edit(request, template_id):
-    return edit_entity(request, template_id, MessageTemplate, TemplateEditForm)
+    return abstract_edit_messagetemplate(request, template_id)
+
 
 @login_required
 @permission_required('sms')
 def detailview(request, template_id):
-    return view_entity(request, template_id, MessageTemplate, '/sms/template',
-                       'sms/view_template.html',
-                      )
+    return abstract_view_messagetemplate(request, template_id)
+
 
 @login_required
 @permission_required('sms')
 def listview(request):
-    return list_view(request, MessageTemplate, extra_dict={'add_url': '/sms/template/add'})
+    return list_view(request, MessageTemplate,
+                     # extra_dict={'add_url': '/sms/template/add'}
+                    )

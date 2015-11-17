@@ -40,7 +40,7 @@ MESSAGE_STATUS_ACCEPT = SAMOUSSA_STATUS_ACCEPT
 MESSAGE_STATUS_SENT = SAMOUSSA_STATUS_SENT
 MESSAGE_STATUS_ERROR = SAMOUSSA_STATUS_ERROR
 
-#TODO: can we manage plural in a better way ?
+# TODO: can we manage plural in a better way ?
 MESSAGE_STATUS = {
     MESSAGE_STATUS_NOTSENT: (pgettext_lazy('sms', u'Not sent'), pgettext_lazy('sms-plural', u'Not sent')),
     MESSAGE_STATUS_WAITING: (pgettext_lazy('sms', u'Waiting'),  pgettext_lazy('sms-plural', u'Waiting')),
@@ -80,7 +80,7 @@ class Sending(CremeModel):
         return super(Sending, self).delete()
 
 
-#TODO: keep the related entity (to hide the number when the entity is not viewable)
+# TODO: keep the related entity (to hide the number when the entity is not viewable)
 class Message(CremeModel):
     sending = ForeignKey(Sending, verbose_name=_(u'Sending'), related_name='messages')
     phone  = CharField(_(u'Number'), max_length=100)
