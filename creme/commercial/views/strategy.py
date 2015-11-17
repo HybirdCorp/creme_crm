@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 #from django.template import RequestContext
@@ -59,7 +59,7 @@ def abstract_view_strategy(request, strategy_id,
                            template='commercial/view_strategy.html',
                           ):
     return generic.view_entity(request, strategy_id, Strategy, template=template,
-                               path='/commercial/strategy',  # TODO: to be removed
+                               # path='/commercial/strategy',
                               )
 
 
@@ -87,7 +87,7 @@ def detailview(request, strategy_id):
 def listview(request):
     return generic.list_view(request, Strategy,
                              # extra_dict={'add_url': '/commercial/strategy/add'}
-                             extra_dict={'add_url': reverse('commercial__create_strategy')}
+                             # extra_dict={'add_url': reverse('commercial__create_strategy')}
                             )
 
 
@@ -273,11 +273,14 @@ def _reload_matrix(request, strategy_id, orga_id, block):
 
     return [(block.id_, block.detailview_display(context))]
 
+
 def reload_assets_matrix(request, strategy_id, orga_id):
     return _reload_matrix(request, strategy_id, orga_id, assets_matrix_block)
 
+
 def reload_charms_matrix(request, strategy_id, orga_id):
     return _reload_matrix(request, strategy_id, orga_id, charms_matrix_block)
+
 
 def reload_assets_charms_matrix(request, strategy_id, orga_id):
     return _reload_matrix(request, strategy_id, orga_id, assets_charms_matrix_block)

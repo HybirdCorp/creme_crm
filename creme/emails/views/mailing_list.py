@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -44,27 +44,43 @@ Organisation = get_organisation_model()
 MailingList  = get_mailinglist_model()
 
 
+def abstract_add_mailinglist(request, form=MailingListForm,
+                             submit_label=_('Save the mailing list')
+                            ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
+                     )
+
+
+def abstract_edit_mailinglist(request, ml_id, form=MailingListForm):
+    return edit_entity(request, ml_id, MailingList, form)
+
+
+def abstract_view_mailinglist(request, ml_id,
+                              template='emails/view_mailing_list.html'
+                             ):
+    return view_entity(request, ml_id, MailingList, template=template,
+                       # '/emails/mailing_list',
+                      )
+
+
 @login_required
 # @permission_required(('emails', 'emails.add_mailinglist'))
 @permission_required(('emails', cperm(MailingList)))
 def add(request):
-    return add_entity(request, MailingListForm,
-                      extra_template_dict={'submit_label': _('Save the mailing list')},
-                     )
+    return abstract_add_mailinglist(request)
 
 
 @login_required
 @permission_required('emails')
 def edit(request, ml_id):
-    return edit_entity(request, ml_id, MailingList, MailingListForm)
+    return abstract_edit_mailinglist(request, ml_id)
 
 
 @login_required
 @permission_required('emails')
 def detailview(request, ml_id):
-    return view_entity(request, ml_id, MailingList, '/emails/mailing_list',
-                       'emails/view_mailing_list.html',
-                      )
+    return abstract_view_mailinglist(request, ml_id)
 
 
 @login_required
@@ -72,7 +88,7 @@ def detailview(request, ml_id):
 def listview(request):
     return list_view(request, MailingList,
                      # extra_dict={'add_url': '/emails/mailing_list/add'}
-                     extra_dict={'add_url': reverse('emails__create_mlist')},
+                     # extra_dict={'add_url': reverse('emails__create_mlist')},
                     )
 
 

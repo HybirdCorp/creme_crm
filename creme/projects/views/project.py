@@ -52,8 +52,8 @@ def abstract_edit_project(request, project_id, form=ProjectEditForm):
 def abstract_view_project(request, project_id,
                           template='projects/view_project.html',
                          ):
-    return view_entity(request, project_id, Project, path='/projects/project',
-                       template=template,
+    return view_entity(request, project_id, Project, template=template,
+                       # path='/projects/project',
                       )
 
 
@@ -75,7 +75,7 @@ def edit(request, project_id):
 def listview(request):
     return list_view(request, Project,
                      # extra_dict={'add_url': '/projects/project/add'},
-                     extra_dict={'add_url': reverse('projects__create_project')},
+                     # extra_dict={'add_url': reverse('projects__create_project')},
                     )
 
 

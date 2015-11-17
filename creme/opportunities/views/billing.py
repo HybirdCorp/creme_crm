@@ -88,9 +88,9 @@ def current_quote(request, opp_id, quote_id, action):
 
 
 _GEN_BEHAVIOURS = {
-    #Value is (Relation type ID between the new doc & the opportunity,
-    #          Set the Relationship 'Current doc' ?,
-    #          Workflow function,
+    # Value is (Relation type ID between the new doc & the opportunity,
+    #           Set the Relationship 'Current doc' ?,
+    #           Workflow function,
     #         )
     Quote:      (REL_SUB_LINKED_QUOTE,      True,  transform_target_into_prospect),
     Invoice:    (REL_SUB_LINKED_INVOICE,    False, transform_target_into_customer),
@@ -111,7 +111,7 @@ def generate_new_doc(request, opp_id, ct_id):
 
     user = request.user
     user.has_perm_to_create_or_die(klass)
-    user.has_perm_to_link_or_die(klass, owner=user) #TODO: check in template too (must upgrade 'has_perm' to use owner!=None)
+    user.has_perm_to_link_or_die(klass, owner=user)  # TODO: check in template too (must upgrade 'has_perm' to use owner!=None)
 
 #    opp = get_object_or_404(Opportunity, id=opp_id)
     opp = get_object_or_404(get_opportunity_model(), pk=opp_id)
@@ -134,7 +134,7 @@ def generate_new_doc(request, opp_id, ct_id):
                                         type__in=[REL_OBJ_LINKED_PRODUCT, REL_OBJ_LINKED_SERVICE],
                                        ).select_related('object_entity')
 
-    #TODO: Missing test case
+    # TODO: Missing test case
     if relations:
         Relation.populate_real_object_entities(relations)
         vat_value = Vat.get_default_vat()

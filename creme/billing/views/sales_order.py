@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _ #ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -62,10 +62,12 @@ def abstract_edit_salesorder(request, order_id, form=SalesOrderEditForm):
 def abstract_view_salesorder(request, order_id, template='billing/view_sales_order.html'):
     user = request.user
 
-    return view_entity(request, order_id, SalesOrder, '/billing/sales_order',
-                       template,
-                       {'can_download':       True,
-                        'can_create_invoice': user.has_perm(cperm(Invoice)) and not user.is_staff,
+    return view_entity(request, order_id, SalesOrder,
+                       # '/billing/sales_order',
+                       template=template,
+                       extra_template_dict={
+                            'can_download':       True,
+                            'can_create_invoice': user.has_perm(cperm(Invoice)) and not user.is_staff,
                        }
                       )
 
@@ -104,4 +106,6 @@ def detailview(request, order_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, SalesOrder, extra_dict={'add_url': reverse('billing__create_order')})
+    return list_view(request, SalesOrder,
+                     # extra_dict={'add_url': reverse('billing__create_order')}
+                    )

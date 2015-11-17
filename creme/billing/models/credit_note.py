@@ -47,6 +47,10 @@ class AbstractCreditNote(Base):
 #        return "/billing/credit_note/%s" % self.id
         return reverse('billing__view_cnote', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('billing__create_cnote')
+
     def get_edit_absolute_url(self):
 #        return "/billing/credit_note/edit/%s" % self.id
         return reverse('billing__edit_cnote', args=(self.id,))

@@ -144,7 +144,7 @@ class AbstractOpportunity(CremeEntity):
         return self.name
 
     def _clean_emitter_n_target(self):
-        if not self.pk: #creation
+        if not self.pk:  # Creation
             if not self._opp_emitter:
                 raise ValidationError(ugettext('Emitter is required.'))
 
@@ -169,6 +169,10 @@ class AbstractOpportunity(CremeEntity):
     def get_absolute_url(self):
 #        return "/opportunities/opportunity/%s" % self.id
         return reverse('opportunities__view_opportunity', args=(self.id,))
+
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('opportunities__create_opportunity')
 
     def get_edit_absolute_url(self):
 #        return "/opportunities/opportunity/edit/%s" % self.id
@@ -202,7 +206,7 @@ class AbstractOpportunity(CremeEntity):
         if self.made_sales:
             return self.made_sales
         else:
-            return (self.estimated_sales or 0)
+            return self.estimated_sales or 0
 
     def get_total_with_tax(self):
         tax = 1 + Vat.get_default_vat().value / 100
@@ -212,7 +216,7 @@ class AbstractOpportunity(CremeEntity):
         else:
             return (self.estimated_sales or 0) * tax
 
-    #TODO: test
+    # TODO: test
     def get_products(self):
 #        return Product.objects.filter(is_deleted=False,
         return get_product_model().objects.filter(is_deleted=False,
@@ -220,7 +224,7 @@ class AbstractOpportunity(CremeEntity):
                                       relations__type=REL_SUB_LINKED_PRODUCT,
                                      )
 
-    #TODO: test
+    # TODO: test
     def get_services(self):
 #        return Service.objects.filter(is_deleted=False,
         return get_service_model().objects.filter(is_deleted=False,
@@ -228,7 +232,7 @@ class AbstractOpportunity(CremeEntity):
                                       relations__type=REL_SUB_LINKED_SERVICE,
                                      )
 
-    #TODO: test
+    # TODO: test
     def get_contacts(self):
 #        return Contact.objects.filter(is_deleted=False,
         return get_contact_model().objects.filter(is_deleted=False,
@@ -236,7 +240,7 @@ class AbstractOpportunity(CremeEntity):
                                       relations__type=REL_SUB_LINKED_CONTACT,
                                      )
 
-    #TODO: test
+    # TODO: test
     def get_responsibles(self):
 #        return Contact.objects.filter(is_deleted=False,
         return get_contact_model().objects.filter(is_deleted=False,
@@ -269,7 +273,7 @@ class AbstractOpportunity(CremeEntity):
 
     @target.setter
     def target(self, organisation):
-        if self.pk: #edition:
+        if self.pk:  # Edition:
             old_target = self.target
             if old_target != organisation:
                 self._opp_target = organisation

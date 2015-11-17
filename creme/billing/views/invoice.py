@@ -20,7 +20,7 @@
 
 from datetime import date
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _  # ugettext
@@ -69,7 +69,7 @@ def abstract_edit_invoice(request, invoice_id, form=InvoiceEditForm):
 
 def abstract_view_invoice(request, invoice_id, template='billing/view_billing.html'):
     return view_entity(request, invoice_id, Invoice,
-                       path='/billing/invoice',  # TODO: to be removed...
+                       # path='/billing/invoice',
                        template=template, extra_template_dict={'can_download': True},
                       )
 
@@ -124,7 +124,7 @@ def detailview(request, invoice_id):
 @permission_required('billing')
 def listview(request):
     return list_view(request, Invoice,
-                     extra_dict={'add_url': reverse('billing__create_invoice')},
+                     # extra_dict={'add_url': reverse('billing__create_invoice')},
                     )
 
 

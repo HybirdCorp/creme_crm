@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -58,7 +58,7 @@ def abstract_view_organisation(request,organisation_id,
                               ):
     return view_entity(request, organisation_id, model=Organisation,
                        template=template,
-                       path='/persons/organisation',  # TODO: to be removed...
+                       # path='/persons/organisation',
                       )
 
 
@@ -86,7 +86,7 @@ def detailview(request, organisation_id):
 def listview(request):
     # return list_view(request, Organisation, extra_dict={'add_url': '/persons/organisation/add'})
     return list_view(request, Organisation,
-                     extra_dict={'add_url': reverse('persons__create_organisation')},
+                     # extra_dict={'add_url': reverse('persons__create_organisation')},
                     )
 
 

@@ -55,6 +55,10 @@ class AbstractPollForm(CremeEntity):
 #        return '/polls/poll_form/%s' % self.id
         return reverse('polls__view_form', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('polls__create_form')
+
     def get_edit_absolute_url(self):
 #        return '/polls/poll_form/edit/%s' % self.id
         return reverse('polls__edit_form', args=(self.id,))

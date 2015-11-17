@@ -57,6 +57,10 @@ class AbstractRecurrentGenerator(CremeEntity):
 #        return "/recurrents/generator/%s" % self.id
         return reverse('recurrents__view_generator', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('recurrents__create_generator')
+
     def get_edit_absolute_url(self):
 #        return "/recurrents/generator/edit/%s" % self.id
         return reverse('recurrents__edit_generator', args=(self.id,))

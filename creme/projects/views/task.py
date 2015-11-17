@@ -70,11 +70,12 @@ def abstract_edit_ptask_popup(request, task_id, form=TaskEditForm):
 #                                  TaskEditForm, _(u'Edit a task for «%s»'),
 #                                 )
 
+
 def abstract_view_ptask(request, task_id,
                         template='projects/view_task.html',
                        ):
-    return view_entity(request, task_id, ProjectTask, path='/projects/task',
-                       template=template,
+    return view_entity(request, task_id, ProjectTask, template=template,
+                       # path='/projects/task',
                       )
 
 
@@ -181,8 +182,7 @@ def edit_activity(request, activity_id):
 @login_required
 @permission_required('projects')
 def delete_activity(request):
-#    activity = get_object_or_404(Activity, pk=request.POST.get('id'))
-    activity = get_object_or_404(get_activity_model(), pk=request.POST.get('id'))
+    activity = get_object_or_404(Activity, pk=request.POST.get('id'))
     get_rel = Relation.objects.get
 
     try:

@@ -44,6 +44,10 @@ class AbstractSalesOrder(Base):
 #        return "/billing/sales_order/%s" % self.id
         return reverse('billing__view_order', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('billing__create_order')
+
     def get_edit_absolute_url(self):
 #        return "/billing/sales_order/edit/%s" % self.id
         return reverse('billing__edit_order', args=(self.id,))

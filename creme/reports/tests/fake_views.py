@@ -10,7 +10,7 @@ from ..tests import fake_models
 @permission_required('reports')
 def folder_detailview(request, folder_id):
     return view_entity(request, folder_id, fake_models.FakeReportsFolder,
-                       '/reports/tests/folder',
+                       # '/reports/tests/folder',
                       )
 
 @login_required

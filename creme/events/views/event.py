@@ -64,8 +64,8 @@ def abstract_edit_event(request, event_id, form=EventForm):
 def abstract_view_event(request, event_id,
                         template='events/view_event.html',
                        ):
-    return view_entity(request, event_id, Event, path='/events/event',
-                       template=template,
+    return view_entity(request, event_id, Event, template=template,
+                       # path='/events/event',
                       )
 
 
@@ -93,7 +93,7 @@ def detailview(request, event_id):
 def listview(request):
     return list_view(request, Event,
                      # extra_dict={'add_url': '/events/event/add'},
-                     extra_dict={'add_url': reverse('events__create_event')},
+                     # extra_dict={'add_url': reverse('events__create_event')},
                     )
 
 

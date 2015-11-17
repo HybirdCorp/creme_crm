@@ -55,6 +55,10 @@ class AbstractDocument(CremeEntity):
 #        return "/documents/document/%s" % self.id
         return reverse('documents__view_document', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('documents__create_document')
+
     def get_edit_absolute_url(self):
 #        return "/documents/document/edit/%s" % self.id
         return reverse('documents__edit_document', args=(self.id,))

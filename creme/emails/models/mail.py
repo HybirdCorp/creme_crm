@@ -56,14 +56,10 @@ class _Email(CremeModel):
 
     sender         = CharField(_(u'Sender'), max_length=100)
     recipient      = CharField(_(u'Recipient'), max_length=100)
-    #cc             = CharField(_(u'cc'), max_length=100)
     subject        = CharField(_(u'Subject'), max_length=100, blank=True, null=True)
-    #body_html      = TextField()
     body           = TextField(_(u'Body'))
     sending_date   = DateTimeField(_(u"Sending date"), blank=True, null=True, editable=False)
     reception_date = DateTimeField(_(u"Reception date"), blank=True, null=True, editable=False)
-    #signature      = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
-    #attachments    = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     class Meta:
         abstract = True
@@ -87,7 +83,7 @@ class _Email(CremeModel):
 class AbstractEntityEmail(_Email, CremeEntity):
     identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH,
                             null=False, blank=False, editable=False,
-                            default=generate_id, # TODO: lambda for this
+                            default=generate_id,  # TODO: lambda for this
                            )
     body_html   = TextField(_(u'Body (HTML)'))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
@@ -123,7 +119,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
 #
 #        transaction.commit()
     def genid_n_save(self):
-        while True: # TODO: xrange(10000) to avoid infinite loop ??
+        while True:  # TODO: xrange(10000) to avoid infinite loop ??
             self.identifier = generate_id()
 
             try:
@@ -152,7 +148,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
 #        return "/emails/mails"
         return reverse('emails__list_emails')
 
-    #TODO: in a manager ?
+    # TODO: in a manager ?
     #@staticmethod
     #def create_n_send_mail(sender, recipient, subject, user, body, body_html=u"", signature=None, attachments=None):
     @classmethod
@@ -177,9 +173,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
     def _pre_save_clone(self, source):
         self.genid_n_save()
-
-    #def get_edit_absolute_url(self):
-        #return ""
 
     def get_body(self):
         if self.body_html:

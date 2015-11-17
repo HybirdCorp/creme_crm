@@ -40,10 +40,10 @@ __all__ = ('AbstractStrategy', 'Strategy',
           )
 
 _CATEGORY_MAP = {
-         0: 4, # Weak charms   & weak assets
-         1: 2, # Strong charms & weak assets
-        10: 3, # Weak charms   & strong assets
-        11: 1, # Strong charms & strong assets
+         0: 4,  # Weak charms   & weak assets
+         1: 2,  # Strong charms & weak assets
+        10: 3,  # Weak charms   & strong assets
+        11: 1,  # Strong charms & strong assets
     }
 
 
@@ -78,10 +78,10 @@ class AbstractStrategy(CremeEntity):
         self._segments_list = None
 
         self._assets_list = None
-        self._assets_scores_map = {} #dict of dict of dict for hierarchy: organisation/segment_description/asset
+        self._assets_scores_map = {}  # Dict of dict of dict for hierarchy: organisation/segment_description/asset
 
         self._charms_list = None
-        self._charms_scores_map = {} #dict of dict of dict for hierarchy: organisation/segment_description/charm
+        self._charms_scores_map = {}  # Dict of dict of dict for hierarchy: organisation/segment_description/charm
 
         self._segments_categories = {}
 
@@ -100,6 +100,10 @@ class AbstractStrategy(CremeEntity):
     def get_absolute_url(self):
 #        return "/commercial/strategy/%s" % self.id
         return reverse('commercial__view_strategy', args=(self.id,))
+
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('commercial__create_strategy')
 
     def get_edit_absolute_url(self):
 #        return "/commercial/strategy/edit/%s" % self.id

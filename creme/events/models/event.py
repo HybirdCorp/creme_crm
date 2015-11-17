@@ -85,6 +85,10 @@ class AbstractEvent(CremeEntity):
 #        return "/events/event/%s" % self.id
         return reverse('events__view_event', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('events__create_event')
+
     def get_edit_absolute_url(self):
 #        return "/events/event/edit/%s" % self.id
         return reverse('events__edit_event', args=(self.id,))

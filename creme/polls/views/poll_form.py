@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.db.models import ProtectedError
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
@@ -59,7 +59,7 @@ def abstract_view_pollform(request, pform_id,
                            template='polls/view_pollform.html',
                           ):
     return view_entity(request, pform_id, PollForm, template=template,
-                       path='/polls/poll_form',
+                       # path='/polls/poll_form',
                       )
 
 
@@ -87,7 +87,7 @@ def detailview(request, pform_id):
 def listview(request):
     return list_view(request, PollForm,
                      # extra_dict={'add_url': '/polls/poll_form/add'},
-                     extra_dict={'add_url': reverse('polls__create_form')},
+                     # extra_dict={'add_url': reverse('polls__create_form')},
                     )
 
 

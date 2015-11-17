@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
@@ -30,7 +30,7 @@ from creme.creme_core.models import RelationType
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from .. import get_contact_model, get_organisation_model
-#from ..models import Contact # Organisation
+#from ..models import Contact, Organisation
 from ..forms.contact import RelatedContactForm, ContactForm
 
 
@@ -97,7 +97,7 @@ def abstract_view_contact(request, contact_id,
                           template='persons/view_contact.html',
                          ):
     return view_entity(request, contact_id, model=Contact, template=template,
-                       path='/persons/contact', # TODO: remove this sh*t
+                       # path='/persons/contact',
                       )
 
 
@@ -133,6 +133,5 @@ def detailview(request, contact_id):
 def listview(request):
 #    return list_view(request, Contact, extra_dict={'add_url': '/persons/contact/add'})
     return list_view(request, Contact,
-                     # TODO: add an get_add_absolute_url() & use it in listview()
-                     extra_dict={'add_url': reverse('persons__create_contact')},
+                     # extra_dict={'add_url': reverse('persons__create_contact')},
                     )

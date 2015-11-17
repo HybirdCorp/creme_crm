@@ -67,6 +67,10 @@ class AbstractFolder(CremeEntity):
 #        return "/documents/folder/%s" % self.id
         return reverse('documents__view_folder', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('documents__create_folder')
+
     def get_edit_absolute_url(self):
 #        return "/documents/folder/edit/%s" % self.id
         return reverse('documents__edit_folder', args=(self.id,))

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _ # ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -65,11 +65,13 @@ def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
     has_perm = user.has_perm
     isnt_staff = not user.is_staff
 
-    return view_entity(request, quote_id, Quote, '/billing/quote',
-                       template,
-                       {'can_download':       True,
-                        'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
-                        'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
+    return view_entity(request, quote_id, Quote,
+                       # '/billing/quote',
+                       template=template,
+                       extra_template_dict={
+                            'can_download':       True,
+                            'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
+                            'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
                        },
                       )
 
@@ -108,4 +110,6 @@ def detailview(request, quote_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, Quote, extra_dict={'add_url': reverse('billing__create_quote')})
+    return list_view(request, Quote,
+                     # extra_dict={'add_url': reverse('billing__create_quote')}
+                    )

@@ -62,6 +62,10 @@ class AbstractReport(CremeEntity):
 #        return "/reports/report/%s" % self.id
         return reverse('reports__view_report', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('reports__create_report')
+
     def get_edit_absolute_url(self):
 #        return "/reports/report/edit/%s" % self.id
         return reverse('reports__edit_report', args=(self.id,))

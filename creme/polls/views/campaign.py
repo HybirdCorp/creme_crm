@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -49,7 +49,7 @@ def abstract_view_pcampaign(request, campaign_id,
                             template='polls/view_campaign.html',
                            ):
     return view_entity(request, campaign_id, PollCampaign, template=template,
-                       path='/polls/campaign',
+                       # path='/polls/campaign',
                       )
 
 
@@ -77,5 +77,5 @@ def detailview(request, campaign_id):
 def listview(request):
     return list_view(request, PollCampaign,
                      # extra_dict={'add_url': '/polls/campaign/add'},
-                     extra_dict={'add_url': reverse('polls__create_campaign')},
+                     # extra_dict={'add_url': reverse('polls__create_campaign')},
                     )

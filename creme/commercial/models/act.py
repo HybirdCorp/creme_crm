@@ -92,6 +92,10 @@ class AbstractAct(CremeEntity):
 #        return "/commercial/act/%s" % self.id
         return reverse('commercial__view_act', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('commercial__create_act')
+
     def get_edit_absolute_url(self):
 #        return "/commercial/act/edit/%s" % self.id
         return reverse('commercial__edit_act', args=(self.id,))
@@ -226,6 +230,10 @@ class AbstractActObjectivePattern(CremeEntity):
     def get_absolute_url(self):
 #        return "/commercial/objective_pattern/%s" % self.id
         return reverse('commercial__view_pattern', args=(self.id,))
+
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('commercial__create_pattern')
 
     def get_edit_absolute_url(self):
 #        return "/commercial/objective_pattern/edit/%s" % self.id

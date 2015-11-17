@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
+# from future_builtins import filter
 
 #from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -129,6 +129,10 @@ class AbstractOrganisation(CremeEntity, PersonWithAddressesMixin):
     def get_absolute_url(self):
 #        return "/persons/organisation/%s" % self.id
         return reverse('persons__view_organisation', args=(self.id,))
+
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('persons__create_organisation')
 
     def get_edit_absolute_url(self):
 #        return "/persons/organisation/edit/%s" % self.id

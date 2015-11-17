@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -56,7 +56,7 @@ def abstract_view_product(request, product_id,
                           template='products/view_product.html',
                          ):
     return view_entity(request, product_id, Product, template=template,
-                       path='/products/product',
+                       # path='/products/product',
                       )
 
 
@@ -84,7 +84,7 @@ def detailview(request, product_id):
 def listview(request):
     return list_view(request, Product,
                      # extra_dict={'add_url': '/products/product/add'}
-                     extra_dict={'add_url': reverse('products__create_product')},
+                     # extra_dict={'add_url': reverse('products__create_product')},
                     )
 
 

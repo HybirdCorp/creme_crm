@@ -114,6 +114,10 @@ class AbstractTicket(TicketMixin):
 #        return "/tickets/ticket/%s" % self.id
         return reverse('tickets__view_ticket', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('tickets__create_ticket')
+
     def get_edit_absolute_url(self):
 #        return "/tickets/ticket/edit/%s" % self.id
         return reverse('tickets__edit_ticket', args=(self.id,))

@@ -21,7 +21,7 @@
 from datetime import datetime
 from functools import partial
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -181,7 +181,7 @@ def abstract_view_activity(request, activity_id,
                            template='activities/view_activity.html',
                           ):
     return view_entity(request, activity_id, model=Activity, template=template,
-                       path='/activities/activity',  # TODO: to be removed...
+                       # path='/activities/activity',
                       )
 
 
@@ -189,7 +189,7 @@ def abstract_view_activity_popup(request, activity_id,
                                  template='activities/view_activity_popup.html',
                                 ):
     return view_entity(request, activity_id, model=Activity, template=template,
-                       path='/activities/activity',  # TODO: to be removed...
+                       # path='/activities/activity',
                       )
 
 
@@ -260,7 +260,6 @@ def detailview(request, activity_id):
 @login_required
 @permission_required('activities')
 def popupview(request, activity_id):
-#    # todo: use view_entity instead ? (see below)
 #    return view_real_entity(request, activity_id, '/activities/activity',
 #                            'activities/view_activity_popup.html',
 #                           )
@@ -277,7 +276,7 @@ def listview(request, type_id=None):
         kwargs['extra_q'] = Q(type=type_id)
 
     return list_view(request, Activity,
-                     extra_dict={'add_url': reverse('activities__create_activity'),
+                     extra_dict={# 'add_url': reverse('activities__create_activity'),
                                  'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )
                                 },
                      **kwargs

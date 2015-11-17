@@ -51,6 +51,10 @@ class AbstractEmailCampaign(CremeEntity):
 #        return "/emails/campaign/%s" % self.id
         return reverse('emails__view_campaign', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('emails__create_campaign')
+
     def get_edit_absolute_url(self):
 #        return "/emails/campaign/edit/%s" % self.id
         return reverse('emails__edit_campaign', args=(self.id,))

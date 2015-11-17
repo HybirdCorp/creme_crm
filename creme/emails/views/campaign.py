@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -52,7 +52,8 @@ def abstract_edit_campaign(request, campaign_id, form=CampaignEditForm):
 def abstract_view_campaign(request, campaign_id,
                            template='emails/view_campaign.html'
                           ):
-    return view_entity(request, campaign_id, EmailCampaign, path='/emails/campaign',
+    return view_entity(request, campaign_id, EmailCampaign,
+                       # path='/emails/campaign',
                        template=template,
                       )
 
@@ -81,7 +82,7 @@ def detailview(request, campaign_id):
 def listview(request):
     return list_view(request, EmailCampaign,
                      # extra_dict={'add_url': '/emails/campaign/add'}
-                     extra_dict={'add_url': reverse('emails__create_campaign')},
+                     # extra_dict={'add_url': reverse('emails__create_campaign')},
                     )
 
 

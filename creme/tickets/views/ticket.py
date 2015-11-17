@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -52,7 +52,7 @@ def abstract_view_ticket(request, ticket_id,
                          template='tickets/view_ticket.html',
                         ):
     return view_entity(request, ticket_id, Ticket, template=template,
-                       path='/tickets/ticket',
+                       # path='/tickets/ticket',
                       )
 
 
@@ -80,5 +80,5 @@ def detailview(request, ticket_id):
 def listview(request):
     return list_view(request, Ticket,
                      # extra_dict={'add_url': '/tickets/ticket/add'}
-                     extra_dict={'add_url': reverse('tickets__create_ticket')},
+                     # extra_dict={'add_url': reverse('tickets__create_ticket')},
                     )

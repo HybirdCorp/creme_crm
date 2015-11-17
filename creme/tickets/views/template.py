@@ -29,18 +29,28 @@ from ..forms.template import TicketTemplateForm
 TicketTemplate = get_tickettemplate_model()
 
 
+def abstract_edit_ticket_template(request, template_id, form=TicketTemplateForm):
+    return edit_entity(request, template_id, TicketTemplate, form)
+
+
+def abstract_view_ticket_template(request, template_id,
+                                  template='tickets/view_template.html',
+                                 ):
+    return view_entity(request, template_id, TicketTemplate, template=template,
+                       # '/tickets/template',
+                      )
+
+
 @login_required
 @permission_required('tickets')
 def edit(request, template_id):
-    return edit_entity(request, template_id, TicketTemplate, TicketTemplateForm)
+    return abstract_edit_ticket_template(request, template_id)
 
 
 @login_required
 @permission_required('tickets')
 def detailview(request, template_id):
-    return view_entity(request, template_id, TicketTemplate, '/tickets/template',
-                       'tickets/view_template.html',
-                      )
+    return abstract_view_ticket_template(request, template_id)
 
 
 @login_required

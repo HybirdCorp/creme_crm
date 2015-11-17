@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
@@ -68,7 +68,7 @@ def abstract_edit_cnote_comment(request, credit_note_id, form=CreditNotePopupEdi
 
 def abstract_view_creditnote(request, credit_note_id, template='billing/view_billing.html'):
     return view_entity(request, credit_note_id, CreditNote,
-                       path='/billing/credit_note',  # TODO: to be removed...
+                       # path='/billing/credit_note',
                        template=template,
                        extra_template_dict={'can_download': True},
                       )
@@ -110,7 +110,7 @@ def detailview(request, credit_note_id):
 @permission_required('billing')
 def listview(request):
     return list_view(request, CreditNote,
-                     extra_dict={'add_url': reverse('billing__create_cnote')},
+                     # extra_dict={'add_url': reverse('billing__create_cnote')},
                     )
 
 
