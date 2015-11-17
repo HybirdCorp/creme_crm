@@ -10,26 +10,26 @@ from .views import portal, campaign, sending, recipient, messaging_list
 urlpatterns = [
     url(r'^$', portal.portal),
 
-    #Campaign: messaging_lists block
+    # Campaign: messaging_lists block
     url(r'^campaign/(?P<campaign_id>\d+)/messaging_list/add$',    campaign.add_messaging_list),
     url(r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete$', campaign.delete_messaging_list),
 
-    #Campaign: sending block
+    # Campaign: sending block
     url(r'^campaign/(?P<campaign_id>\d+)/sending/add$', sending.add),
     url(r'^campaign/sending/delete$',                   sending.delete),
 
-    #Campaign: sending details block
+    # Campaign: sending details block
     url(r'^campaign/sending/(?P<id>\d+)$',                  sending.detailview),
     url(r'^campaign/sending/message/delete$',               sending.delete_message),
     url(r'^campaign/sending/(?P<id>\d+)/messages/sync/$',   sending.sync_messages),
     url(r'^campaign/sending/(?P<id>\d+)/messages/send/$',   sending.send_messages),
     url(r'^campaign/sending/(?P<id>\d+)/messages/reload/$', sending.reload_block_messages),
 
-    #MessagingList list: recipients block
+    # MessagingList list: recipients block
     url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add$',     recipient.add),
     url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add_csv$', recipient.add_from_csv),
 
-    #MessagingList list: contacts block
+    # MessagingList list: contacts block
     url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add$',             messaging_list.add_contacts),
     url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add_from_filter$', messaging_list.add_contacts_from_filter),
     url(r'^messaging_list/(?P<mlist_id>\d+)/contact/delete',           messaging_list.delete_contact),

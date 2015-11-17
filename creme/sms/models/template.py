@@ -47,6 +47,10 @@ class AbstractMessageTemplate(CremeEntity):
 #        return "/sms/template/%s" % self.id
         return reverse('sms__view_template', args=(self.id,))
 
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('sms__create_template')
+
     def get_edit_absolute_url(self):
 #        return "/sms/template/edit/%s" % self.id
         return reverse('sms__edit_template', args=(self.id,))

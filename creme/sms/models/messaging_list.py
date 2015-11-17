@@ -31,7 +31,9 @@ from creme.creme_core.models import CremeEntity
 #class MessagingList(CremeEntity):
 class AbstractMessagingList(CremeEntity):
     name     = CharField(_(u'Name of the messaging list'), max_length=80)
-    contacts = ManyToManyField(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contacts recipients'))
+    contacts = ManyToManyField(settings.PERSONS_CONTACT_MODEL,
+                               verbose_name=_(u'Contacts recipients'),
+                              )
 
     creation_label = _('Add a messaging list')
 
@@ -42,12 +44,16 @@ class AbstractMessagingList(CremeEntity):
         verbose_name_plural = _(u'SMS messaging lists')
         ordering = ('name',)
 
-    def __unicode__(self) :
+    def __unicode__(self):
         return self.name
 
     def get_absolute_url(self):
 #        return "/sms/messaging_list/%s" % self.id
         return reverse('sms__view_mlist', args=(self.id,))
+
+    @staticmethod
+    def get_create_absolute_url():
+        return reverse('sms__create_mlist')
 
     def get_edit_absolute_url(self):
 #        return "/sms/messaging_list/edit/%s" % self.id
