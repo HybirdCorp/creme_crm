@@ -69,6 +69,7 @@ def get_creme_entities_repr(request, entities_ids):
                 if entity is not None
            ]
 
+
 # TODO: bake the result in HTML instead of ajax view ??
 @jsonify
 @login_required
@@ -98,11 +99,15 @@ def get_info_fields(request, ct_id):
                                       .exclude(lambda f, deep: is_hidden(f))\
                                       .choices(**kwargs)
 
+
 @login_required
 def clone(request):
     # TODO: Improve credentials ?
     entity_id = get_from_POST_or_404(request.POST, 'id')
     entity    = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+
+    if entity.get_clone_absolute_url() != CremeEntity.get_clone_absolute_url():
+        raise Http404(_(u'This model does not use the generic clone view.'))
 
     user = request.user
     user.has_perm_to_create_or_die(entity)
@@ -111,6 +116,7 @@ def clone(request):
     new_entity = entity.clone()
 
     return redirect(new_entity)
+
 
 @login_required
 def search_and_view(request):
@@ -167,15 +173,17 @@ def search_and_view(request):
 
     raise Http404(_(u'No entity corresponding to your search was found.'))
 
+
 def _bulk_has_perm(entity, user):
     owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
     return user.has_perm_to_change(owner)
+
 
 @login_required
 def inner_edit_field(request, ct_id, id, field_name):
     user   = request.user
     model  = get_ct_or_404(ct_id).model_class()
-    entity = get_object_or_404(model, pk=id) #TODO: rename (& 'entities' arg too ?) because not always an entity...
+    entity = get_object_or_404(model, pk=id)  # TODO: rename (& 'entities' arg too ?) because not always an entity...
 
     if not _bulk_has_perm(entity, user):
         raise PermissionDenied(_(u'You are not allowed to edit this entity'))
@@ -200,6 +208,7 @@ def inner_edit_field(request, ct_id, id, field_name):
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,
                       )
+
 
 @login_required
 def bulk_edit_field(request, ct_id, id, field_name):
@@ -241,6 +250,7 @@ def bulk_edit_field(request, ct_id, id, field_name):
                        reload=False, delegate_reload=True,
                       )
 
+
 @login_required
 def select_entity_for_merge(request, entity1_id):
     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
@@ -256,6 +266,7 @@ def select_entity_for_merge(request, entity1_id):
     return list_view_popup_from_widget(request, entity1.entity_type_id, o2m=True,
                                        extra_q=~Q(pk=entity1_id)
                                       )
+
 
 @login_required
 def merge(request, entity1_id, entity2_id):
@@ -274,7 +285,7 @@ def merge(request, entity1_id, entity2_id):
     can_view(entity1); user.has_perm_to_change_or_die(entity1)
     can_view(entity2); user.has_perm_to_delete_or_die(entity2)
 
-    #TODO: try to swap 1 & 2
+    # TODO: try to swap 1 & 2
 
     entity1 = entity1.get_real_entity()
     entity2 = entity2.get_real_entity()
@@ -326,9 +337,11 @@ def merge(request, entity1_id, entity2_id):
                   }
                  )
 
+
 @login_required
 def trash(request):
     return render(request, 'creme_core/trash.html')
+
 
 @login_required
 @POST_only
@@ -341,8 +354,8 @@ def empty_trash(request):
     # It will not work with cyclic references (but it is certainly very unusual).
     while True:
         progress = False
-        errors = [] #TODO: LimitedList
-        #NB: we do not use delete() method of queryset in order to send signals
+        errors = []  # TODO: LimitedList
+        # NB: we do not use delete() method of queryset in order to send signals
         entities = EntityCredentials.filter(user,
                                             #CremeEntity.objects.only_deleted(),
                                             CremeEntity.objects.filter(is_deleted=True),
@@ -374,7 +387,7 @@ def empty_trash(request):
         if not errors or not progress:
             break
 
-    #TODO: factorise ??
+    # TODO: factorise ??
     if not errors:
         status = 200
         message = _('Operation successfully completed')
@@ -384,6 +397,7 @@ def empty_trash(request):
                   u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
 
     return HttpResponse(message, content_type='text/javascript', status=status)
+
 
 @login_required
 @POST_only
@@ -456,6 +470,7 @@ def _delete_entity(user, entity):
                     }
                )
 
+
 @login_required
 def delete_entities(request):
     "Delete several CremeEntities, with a Ajax call (POST method)."
@@ -497,8 +512,9 @@ def delete_entities(request):
 
     return HttpResponse(message, content_type='text/javascript', status=status)
 
+
 @login_required
-#TODO: @redirect_if_not_ajax
+# TODO: @redirect_if_not_ajax
 @POST_only
 def delete_entity(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
@@ -510,7 +526,7 @@ def delete_entity(request, entity_id):
 
         if code == 404: raise Http404(msg)
         #if code == 403: raise PermissionDenied(msg)
-        #TODO: 400 => ConflictError ??
+        # TODO: 400 => ConflictError ??
 
         #if request.is_ajax():
             #return HttpResponse(smart_unicode(msg), content_type='text/javascript', status=code)
@@ -529,6 +545,7 @@ def delete_entity(request, entity_id):
         url = '/'
 
     return HttpResponseRedirect(url)
+
 
 @login_required
 def delete_related_to_entity(request, ct_id):

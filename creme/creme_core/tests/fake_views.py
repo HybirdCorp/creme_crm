@@ -16,6 +16,12 @@ def document_listview(request):
 
 @login_required
 @permission_required('creme_core')
+def image_detailview(request, image_id):
+    return generic.view_entity(request, image_id, fake_models.FakeImage)
+
+
+@login_required
+@permission_required('creme_core')
 def image_listview(request):
     return generic.list_view(request, fake_models.FakeImage)
 

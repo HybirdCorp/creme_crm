@@ -1,6 +1,8 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load creme_widgets %}
 
+{% comment %}
 {% block add_new_button %}
     <li>{% get_clone_button object user %}</li>
 {% endblock %}
+{% endcomment %}

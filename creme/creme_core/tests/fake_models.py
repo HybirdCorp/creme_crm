@@ -139,8 +139,12 @@ else:
         def __unicode__(self):
             return self.name
 
-#        def get_absolute_url(self):
-#            return "/media_managers/image/%s" % self.id
+        def get_absolute_url(self):
+            return '/tests/image/%s' % self.id
+
+        @staticmethod
+        def get_clone_absolute_url():
+            return ''
 
         @staticmethod
         def get_lv_absolute_url():
@@ -520,5 +524,5 @@ else:
         def get_lv_absolute_url():
             return '/tests/invoice_lines'
 
-        def get_related_entity(self): #for generic views & delete
+        def get_related_entity(self):  # For generic views & delete
             return self.invoice

@@ -268,7 +268,7 @@ class _CremeTestCase(object):
                                 )
                              )
 
-    #TODO: add an argument 'field' like assertNoFormsetError()
+    # TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
         status_code = response.status_code
 
