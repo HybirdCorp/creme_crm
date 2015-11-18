@@ -35,7 +35,7 @@ urlpatterns = [
         }
        ),
 
-    #NB: useful if mobile app is separated from the main domain (so not /mobile/* urls can be redirected)
+    # NB: useful if mobile app is separated from the main domain (so not /mobile/* urls can be redirected)
     url(r'^logout/$', auth_views.logout_then_login),
 ]
 
