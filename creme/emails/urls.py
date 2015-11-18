@@ -42,10 +42,10 @@ urlpatterns = [
     url(r'^template/(?P<template_id>\d+)/attachment/add$',    template.add_attachment),
     url(r'^template/(?P<template_id>\d+)/attachment/delete$', template.delete_attachment),
 
-    # mails history blocks
+    # Mails history blocks
     url(r'^mails_history/(?P<mail_id>\w+)$',          mail.view_lightweight_mail),
     url(r'^mail/get_body/(?P<mail_id>\w+)$',          mail.get_lightweight_mail_body),
-    url(r'^mail/get_entity_body/(?P<entity_id>\w+)$', mail.get_entity_mail_body),
+    url(r'^mail/get_entity_body/(?P<entity_id>\d+)$', mail.get_entity_mail_body),
     url(r'^mail/resend$',                             mail.resend_mails),
     url(r'^mail/spam$',                               mail.spam),
     url(r'^mail/validated$',                          mail.validated),
@@ -78,10 +78,10 @@ if not emailtemplate_model_is_custom():
 if not entityemail_model_is_custom():
     urlpatterns += [
         url(r'^mails$',                                     mail.listview,                    name='emails__list_emails'),
-        url(r'^mail/add/(?P<entity_id>\w+)$',               mail.create_n_send,               name='emails__create_email'),
-        url(r'^mail/add_from_template/(?P<entity_id>\w+)$', mail.create_from_template_n_send, name='emails__create_email_from_template'),
-        url(r'^mail/(?P<mail_id>\w+)$',                     mail.detailview,                  name='emails__view_email'),
-        url(r'^mail/(?P<mail_id>\w+)/popup$',               mail.popupview,                   name='emails__view_email_popup'),
+        url(r'^mail/add/(?P<entity_id>\d+)$',               mail.create_n_send,               name='emails__create_email'),
+        url(r'^mail/add_from_template/(?P<entity_id>\d+)$', mail.create_from_template_n_send, name='emails__create_email_from_template'),
+        url(r'^mail/(?P<mail_id>\d+)$',                     mail.detailview,                  name='emails__view_email'),
+        url(r'^mail/(?P<mail_id>\d+)/popup$',               mail.popupview,                   name='emails__view_email_popup'),
     ]
 
 if not mailinglist_model_is_custom():
