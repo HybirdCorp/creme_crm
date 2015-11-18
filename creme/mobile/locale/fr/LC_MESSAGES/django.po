@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-18 17:42+0200\n"
+"POT-Creation-Date: 2015-11-18 10:05+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -412,7 +412,7 @@ msgstr "Marquer comme favori"
 
 #: templates/mobile/templatetags/block_favorite.html:39
 msgid "This entity is not a favorite for the moment"
-msgstr "Cette n'est pas une favorie pour le moment"
+msgstr "Cette fiche n'est pas une favorie pour le moment"
 
 # Already in creme_core
 #: templates/mobile/templatetags/footer.html:3
