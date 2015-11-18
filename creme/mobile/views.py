@@ -32,6 +32,7 @@ from django.utils.encoding import smart_unicode
 from django.utils.timezone import now, localtime
 from django.utils.translation import ugettext as _
 
+from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, Relation, EntityCredentials
@@ -60,15 +61,19 @@ from .templatetags.mobile_tags import orga_subjects
 
 logger = logging.getLogger(__name__)
 Activity = get_activity_model()
+Contact = get_contact_model()
+Organisation = get_organisation_model()
 
-#TODO: in constants.py ? in settings ??
+# TODO: in constants.py ? in settings ??
 FLOATING_SIZE = 30
 
-#TODO: in settings
+# TODO: in settings
 WORKED_HOURS = (7, 18)
 
+done_activity_creator = failed_activity_creator = Activity.objects.create
 
 mobile_login_required = partial(login_required, login_url='/mobile/login/')
+
 
 def lw_exceptions(view):
     "Lightweight exceptions handling (templates are not the legacy ones)."
@@ -102,7 +107,8 @@ def lw_exceptions(view):
 
     return _aux
 
-#TODO: in creme_core ? factorise with @jsonify ?
+
+# TODO: in creme_core ? factorise with @jsonify ?
 def lw_ajax_exceptions(view):
     @wraps(view)
     def _aux(*args, **kwargs):
@@ -127,6 +133,7 @@ def lw_ajax_exceptions(view):
         return HttpResponse(content, status=status) #, content_type='text/javascript'
 
     return _aux
+
 
 @lw_exceptions
 @mobile_login_required
@@ -155,18 +162,18 @@ def portal(request):
                     .order_by('start')
         )
 
-    #TODO: an activity which starts before now, & ends before now too, with status != PROGRESS
-    #      -> should it be displayed in this hot_activities (or in today_activities) ????
+    # TODO: an activity which starts before now, & ends before now too, with status != PROGRESS
+    #       -> should it be displayed in this hot_activities (or in today_activities) ????
 
-    #NB: FLOATING_TIME activities will naturally be the first activities in
-    #    'today_activities' as we want (they are ordered by start, and NARROW
-    #    activities which start at 0h00 will be in 'hot_activities').
+    # NB: FLOATING_TIME activities will naturally be the first activities in
+    #     'today_activities' as we want (they are ordered by start, and NARROW
+    #     activities which start at 0h00 will be in 'hot_activities').
     hot_activities, today_activities = split_filter(
             lambda a: a.floating_type == NARROW and
                       (a.status_id == STATUS_IN_PROGRESS or a.start < now_val),
             activities
         )
-    #TODO: populate participants (regroup queries for Relation + real entities) ??
+    # TODO: populate participants (regroup queries for Relation + real entities) ??
 
     used_worked_hours = frozenset(localtime(a.start).hour
                                     for a in today_activities
@@ -183,15 +190,16 @@ def portal(request):
                   }
                  )
 
+
 @lw_exceptions
 @mobile_login_required
 def persons_portal(request):
-    #TODO: populate employers
+    # TODO: populate employers
     user = request.user
     cred_filter = partial(EntityCredentials.filter, user)
 
-    Contact = get_contact_model()
-    Organisation = get_organisation_model()
+    # Contact = get_contact_model()
+    # Organisation = get_organisation_model()
 
     return render(request, 'mobile/directory.html',
                   {'favorite_contacts': cred_filter(Contact.objects.filter(is_deleted=False,
@@ -208,29 +216,45 @@ def persons_portal(request):
                   }
                  )
 
-@lw_exceptions
-@mobile_login_required
-@permission_required('persons.add_contact')
-def create_contact(request):
+
+def abstract_create_contact(request, form=MobileContactCreateForm,
+                            template='mobile/add_contact.html',
+                           ):
     last_name = request.GET.get('last_name')
 
-    return add_entity(request, MobileContactCreateForm,
+    return add_entity(request, form,
                       url_redirect='/mobile/persons',
-                      template='mobile/add_contact.html',
+                      template=template,
                       extra_initial={'last_name': last_name.title()} if last_name else None,
                      )
 
+
 @lw_exceptions
 @mobile_login_required
-@permission_required('persons.add_organisation')
-def create_organisation(request):
+# @permission_required('persons.add_contact')
+@permission_required(cperm(Contact))
+def create_contact(request):
+    return abstract_create_contact(request)
+
+
+def abstract_create_organisation(request, form=MobileOrganisationCreateForm,
+                                 template='mobile/add_orga.html'
+                                ):
     name = request.GET.get('name')
 
-    return add_entity(request, MobileOrganisationCreateForm,
+    return add_entity(request, form,
                       url_redirect='/mobile/persons',
-                      template='mobile/add_orga.html',
+                      template=template,
                       extra_initial={'name': name.title()} if name else None,
                      )
+
+@lw_exceptions
+@mobile_login_required
+# @permission_required('persons.add_organisation')
+@permission_required(cperm(Organisation))
+def create_organisation(request):
+    return abstract_create_organisation(request)
+
 
 @lw_exceptions
 @mobile_login_required
@@ -238,12 +262,12 @@ def search_person(request):
     search = get_from_GET_or_404(request.GET, 'search')
 
     if len(search) < 3:
-        raise ConflictError(_('Your search is too short.')) #TODO: client-side validation
+        raise ConflictError(_('Your search is too short.'))  # TODO: client-side validation
 
-    Contact = get_contact_model()
-    Organisation = get_organisation_model()
+    # Contact = get_contact_model()
+    # Organisation = get_organisation_model()
 
-    #TODO: populate employers
+    # TODO: populate employers
     contacts = EntityCredentials.filter(
             request.user,
             Contact.objects.exclude(is_deleted=True)
@@ -273,8 +297,10 @@ def search_person(request):
                   }
                  )
 
+
 def _get_page_url(request):
-  return request.META.get('HTTP_REFERER', '/mobile/')
+    return request.META.get('HTTP_REFERER', '/mobile/')
+
 
 @lw_exceptions
 @mobile_login_required
@@ -295,6 +321,7 @@ def start_activity(request, activity_id):
 
     return HttpResponseRedirect('%s#activity_%s' % (_get_page_url(request), activity_id))
 
+
 @lw_exceptions
 @mobile_login_required
 @POST_only
@@ -313,6 +340,7 @@ def stop_activity(request, activity_id):
     activity.save()
 
     return HttpResponseRedirect(_get_page_url(request))
+
 
 @lw_exceptions
 @mobile_login_required
@@ -336,15 +364,16 @@ def activities_portal(request):
     floating = floating_qs[:FLOATING_SIZE]
     floating_count = len(floating)
 
-    if floating_count == FLOATING_SIZE: #NB: max size is reached ; we are obliged to make a query to know the real count
-        floating_count = floating_qs.count()
+    # NB: max size is reached ; we are obliged to make a query to know the real count
+    if floating_count == FLOATING_SIZE:
+      floating_count = floating_qs.count()
 
     #tomorrow = now_val + timedelta(days=1)
     #build_dt = lambda h, m, s: make_aware_dt(datetime.combine(tomorrow, time(hour=h, minute=m, second=s)))
     tomorrow = localtime(now_val + timedelta(days=1))
     build_dt = lambda h, m, s: datetime(year=tomorrow.year, month=tomorrow.month, day=tomorrow.day,
                                         hour=h, minute=m, second=s,
-                                        tzinfo=tomorrow.tzinfo
+                                        tzinfo=tomorrow.tzinfo,
                                        )
     tomorrow_act = cred_filter(activities.filter(start__range=(build_dt(0,  0,  0),
                                                                build_dt(23, 59, 59),
@@ -352,7 +381,7 @@ def activities_portal(request):
                                                 )
                               )
 
-    #TODO: populate participants (regroup queries for Relation + real entities) ??
+    # TODO: populate participants (regroup queries for Relation + real entities) ??
 
     return render(request, 'mobile/activities.html',
                   {'phone_calls':               phone_calls,
@@ -365,14 +394,16 @@ def activities_portal(request):
                   }
                  )
 
+
 def _build_date_or_404(date_str):
     try:
         return get_dt_from_json_str(date_str)
     except ValueError as e:
         raise Http404(e)
 
+
 @mobile_login_required
-@lw_ajax_exceptions #TODO: remove and send popup with a close button instead
+@lw_ajax_exceptions  # TODO: remove and send popup with a close button instead
 def phonecall_panel(request):
     user = request.user
 
@@ -403,14 +434,12 @@ def phonecall_panel(request):
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()
     user.has_perm_to_view_or_die(person)
 
-#    if isinstance(person, Contact):
-    if isinstance(person, get_contact_model()):
+    if isinstance(person, Contact):
         context['called_contact'] = person
 
         if not pcall:
           context['participant_contacts'] = [person]
-#    elif isinstance(person, Organisation):
-    elif isinstance(person, get_organisation_model()):
+    elif isinstance(person, Organisation):
         context['called_orga'] = person
 
         if not pcall:
@@ -419,6 +448,7 @@ def phonecall_panel(request):
         raise Http404('"person_id" must be the ID of a Contact/Organisation')
 
     return render(request, 'mobile/workflow_panel.html', context)
+
 
 def _get_pcall(request):
     pcall_id = request.POST.get('pcall_id')
@@ -431,6 +461,7 @@ def _get_pcall(request):
     request.user.has_perm_to_change_or_die(pcall)
 
     return pcall
+
 
 @mobile_login_required
 @POST_only
@@ -447,15 +478,16 @@ def phonecall_workflow_done(request, pcall_id):
 
     return HttpResponseRedirect(_get_page_url(request))
 
+
 def _get_person_or_404(person_id, user):
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()
-    user.has_perm_to_view_or_die(person) #TODO: test
+    user.has_perm_to_view_or_die(person)  # TODO: test
 
-#    if not isinstance(person, (Contact, Organisation)):
-    if not isinstance(person, (get_contact_model(), get_organisation_model())):
+    if not isinstance(person, (Contact, Organisation)):
         raise Http404('"person_id" must be the ID of a Contact/Organisation')
 
     return person
+
 
 def _get_participants(user, POST):
     me = user.linked_contact
@@ -471,24 +503,26 @@ def _get_participants(user, POST):
 
     return me, person
 
-#TODO: factorise with activities.form
+
+# TODO: factorise with activities.form
 def _add_participants(activity, persons):
     create_relation = partial(Relation.objects.create,
                               subject_entity=activity, user=activity.user,
                               #type_id=REL_OBJ_PART_2_ACTIVITY TODO: when orga can participate
                              )
-    Contact = get_contact_model()
+    # Contact = get_contact_model()
 
-    #TODO: when orga can participate
+    # TODO: when orga can participate
     for person in persons:
         if isinstance(person, Contact):
             create_relation(object_entity=person, type_id=REL_OBJ_PART_2_ACTIVITY)
 
-            #TODO: we should move this in a signal in activities
+            # TODO: we should move this in a signal in activities
             if person.is_user:
               activity.calendars.add(Calendar.get_user_default_calendar(person.is_user))
         else:
             create_relation(object_entity=person, type_id=REL_OBJ_ACTIVITY_SUBJECT)
+
 
 def _improve_minutes(pcall, minutes):
     if minutes:
@@ -496,12 +530,13 @@ def _improve_minutes(pcall, minutes):
         pcall.minutes = minutes if old_minutes is None else \
                         u'%s\n%s' % (old_minutes, minutes)
 
+
 @mobile_login_required
 @POST_only
 @jsonify
 def _phonecall_workflow_set_end(request, end_function):
     POST = request.POST
-    start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start')) #TODO: assert in the past
+    start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))  # TODO: assert in the past
     end = end_function(start)
     minutes = POST.get('minutes')
 
@@ -520,29 +555,32 @@ def _phonecall_workflow_set_end(request, end_function):
         me, person = _get_participants(user, POST)
 
         with atomic():
-            pcall = Activity.objects.create(user=user,
-                                            title=_('%(status)s call to %(person)s from Creme Mobile') % {
-                                                    'status': _('Successful'),
-                                                    'person': person,
-                                                },
-                                            type_id=ACTIVITYTYPE_PHONECALL,
-                                            sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                                            status_id=STATUS_DONE,
-                                            start=start,
-                                            end=end,
-                                            minutes=minutes,
-                                           )
+            pcall = done_activity_creator(user=user,
+                                          title=_('%(status)s call to %(person)s from Creme Mobile') % {
+                                                  'status': _('Successful'),
+                                                  'person': person,
+                                              },
+                                          type_id=ACTIVITYTYPE_PHONECALL,
+                                          sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                                          status_id=STATUS_DONE,
+                                          start=start,
+                                          end=end,
+                                          minutes=minutes,
+                                         )
             _add_participants(pcall, (me, person))
 
     return ''
+
 
 def phonecall_workflow_lasted_5_minutes(request):
     return _phonecall_workflow_set_end(request,
                                        lambda start: min(now(), start + timedelta(minutes=5))
                                       )
 
+
 def phonecall_workflow_just_done(request):
     return _phonecall_workflow_set_end(request, lambda start: now())
+
 
 def _create_failed_pcall(request):
     POST = request.POST
@@ -554,7 +592,7 @@ def _create_failed_pcall(request):
     me, person = _get_participants(user, POST)
 
     with atomic():
-        pcall = Activity.objects.create(user=user,
+        pcall = failed_activity_creator(user=user,
                                         title=_('%(status)s call to %(person)s from Creme Mobile') % {
                                                 'status': _('Failed'),
                                                 'person':  person,
@@ -570,6 +608,7 @@ def _create_failed_pcall(request):
 
     return pcall, me, person
 
+
 def _set_pcall_as_failed(pcall, request):
     POST = request.POST
 
@@ -580,6 +619,7 @@ def _set_pcall_as_failed(pcall, request):
     _improve_minutes(pcall, POST.get('minutes'))
 
     pcall.save()
+
 
 @mobile_login_required
 @POST_only
@@ -594,6 +634,7 @@ def phonecall_workflow_failed(request):
 
     return ''
 
+
 @mobile_login_required
 @POST_only
 @jsonify
@@ -602,13 +643,14 @@ def phonecall_workflow_postponed(request):
     pcall = _get_pcall(request)
 
     if pcall is not None:
-        postponed = copy(pcall) #NB: we avoid a double save here (clone() + save()) by modifying our live copy before cloning
+        # NB: we avoid a double save here (clone() + save()) by modifying our live copy before cloning
+        postponed = copy(pcall)
 
         _set_pcall_as_failed(pcall, request)
     else:
         pcall, me, person = _create_failed_pcall(request)
 
-        postponed = copy(pcall) #NB: idem
+        postponed = copy(pcall)  # NB: idem
         postponed.title = _('Call to %s from Creme Mobile') % person
         postponed.sub_type_id = ACTIVITYSUBTYPE_PHONECALL_OUTGOING
         postponed.status = None
@@ -624,6 +666,7 @@ def phonecall_workflow_postponed(request):
 
     return ''
 
+
 @mobile_login_required
 @POST_only
 def mark_as_favorite(request, entity_id):
@@ -634,6 +677,7 @@ def mark_as_favorite(request, entity_id):
     MobileFavorite.objects.get_or_create(entity=entity, user=user)
 
     return HttpResponse()
+
 
 @mobile_login_required
 @POST_only
