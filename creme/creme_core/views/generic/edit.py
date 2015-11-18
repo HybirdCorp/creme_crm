@@ -58,6 +58,7 @@ def edit_entity(request, object_id, model, edit_form,
 
 def edit_related_to_entity(request, pk, model, form_class, title_format,
                            submit_label=_('Save the modifications'),
+                           template='creme_core/generics/blockform/edit_popup.html',
                           ):
     """Edit a model related to a CremeEntity.
     @param model A django model class which implements the method get_related_entity().
@@ -79,7 +80,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
     else:  # return page on GET request
         edit_form = form_class(entity=entity, user=user, instance=auxiliary)
 
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+    return inner_popup(request, template,
                        {'form':  edit_form,
                         'title': title_format % entity,
                         'submit_label': submit_label,
