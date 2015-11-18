@@ -544,6 +544,13 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(mario.last_name, oiram.last_name)
         self.assertRedirects(response, oiram.get_absolute_url())
 
+    def test_clone06(self):
+        """Not clonable entity type"""
+        user = self.login()
+
+        image = Image.objects.create(user=user, name='Img1')
+        self.assertPOST404(self.CLONE_URL, data={'id': image.id}, follow=True)
+
     def _assert_detailview(self, response, entity):
         self.assertEqual(200, response.status_code)
         self.assertRedirects(response, entity.get_absolute_url())

@@ -58,11 +58,11 @@ property_patterns = [
 blocks_patterns = [
     url(r'^relations_block/(?P<entity_id>\d+)/$',                                  blocks.reload_relations_block),
     url(r'^relations_block/(?P<entity_id>\d+)/(?P<relation_type_ids>[\w,-]+)/$',   blocks.reload_relations_block),
-    url(r'^(?P<block_id>[\w\-\|]+)/(?P<entity_id>\d+)/$',                          blocks.reload_detailview), #TODO: change url to detailview/(?P<block_id>[\w-]+)....
+    url(r'^(?P<block_id>[\w\-\|]+)/(?P<entity_id>\d+)/$',                          blocks.reload_detailview),  # TODO: change url to detailview/(?P<block_id>[\w-]+)....
     url(r'^home/(?P<block_id>[\w\-\|]+)/$',                                        blocks.reload_home),
     url(r'^portal/(?P<block_id>[\w\-\|]+)/(?P<ct_ids>[\d,]+)/$',                   blocks.reload_portal),
-    url(r'^basic/(?P<block_id>[\w\-\|]+)/$',                                       blocks.reload_basic), #most of blocks in creme_config for example
-    url(r'^set_state/(?P<block_id>[\w\-\|]+)/$',                                   blocks.set_state),#TODO: change url (reload not fit here...)
+    url(r'^basic/(?P<block_id>[\w\-\|]+)/$',                                       blocks.reload_basic),  # Most of blocks in creme_config for example
+    url(r'^set_state/(?P<block_id>[\w\-\|]+)/$',                                   blocks.set_state),  # TODO: change url (reload not fit here...)
 ]
 
 entity_filter_patterns = [
@@ -115,7 +115,7 @@ urlpatterns = [
     url(r'^$',        index.home),
     url(r'^my_page$', index.my_page),
 
-    url(r'^download_file/(?P<location>.*)$', file_handling.download_file), #TODO : To be replaced
+    url(r'^download_file/(?P<location>.*)$', file_handling.download_file), # TODO : To be replaced
 
     url(r'^creme_core/', include(creme_core_patterns)),
 
@@ -136,7 +136,7 @@ if settings.TESTS_ON:
         url(r'^tests/images$',                     fake_views.image_listview),
         #(r'^tests/image/add$',                    'image_add'),
         #(r'^tests/image/edit/(?P<image_id>\d+)$', 'image_edit'),
-        #(r'^tests/image/(?P<image_id>\d+)$',      'image_detailview'),
+        url(r'^tests/image/(?P<image_id>\d+)$',    fake_views.image_detailview),
 
         url(r'^tests/contacts$',                         fake_views.contact_listview),
         url(r'^tests/contact/add$',                      fake_views.contact_add),

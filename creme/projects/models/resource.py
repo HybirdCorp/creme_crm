@@ -46,12 +46,17 @@ class Resource(CremeEntity):
         app_label = 'projects'
         verbose_name = _(u'Resource of project')
         verbose_name_plural = _(u'Resources of project')
+        # TODO: unique_together (linked_contact, task)
 
     def __unicode__(self):
         return unicode(self.linked_contact)
 
     def get_absolute_url(self):
         return self.linked_contact.get_absolute_url()
+
+    @staticmethod
+    def get_clone_absolute_url():
+        return ''
 
     def get_edit_absolute_url(self):
         return "/projects/resource/edit/%s" % self.id

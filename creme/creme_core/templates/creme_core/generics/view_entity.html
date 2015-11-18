@@ -5,7 +5,7 @@
     {% comment %}{% if path %}{% endcomment %}
     <li>{% get_add_button object user %}</li>
     {% comment %}{% endif %}{% endcomment %}
-    {% if not object.is_deleted %}<li>{% get_clone_button object user %}</li>{% endif %}
+    <li>{% get_clone_button object user %}</li>
 {% endblock %}
 
 {% block entity_buttons %}

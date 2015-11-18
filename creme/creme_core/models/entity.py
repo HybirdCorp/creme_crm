@@ -130,6 +130,14 @@ class CremeEntity(CremeAbstractEntity):
         return real_entity.get_absolute_url()
 
     @staticmethod
+    def get_clone_absolute_url():
+        """Returns the url of the clone view of this entity type.
+        This URL should only accept POST method, and take an 'id' POST parameter.
+        If '' (void string) is returned, the type can not be cloned.
+        """
+        return '/creme_core/entity/clone'
+
+    @staticmethod
     def get_create_absolute_url():
         """Returns the url of the creation view of this entity type.
         If '' (void string) is returned, the type can not be created directly.

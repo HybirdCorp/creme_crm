@@ -66,6 +66,10 @@ class AbstractTemplateBase(Base):
 #        return "/billing/template/%s" % self.id
         return reverse('billing__view_template', args=(self.id,))
 
+    @staticmethod
+    def get_clone_absolute_url():
+        return ''
+
     def get_edit_absolute_url(self):
 #        return "/billing/template/edit/%s" % self.id
         return reverse('billing__edit_template', args=(self.id,))

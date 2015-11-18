@@ -188,6 +188,10 @@ class AbstractTicketTemplate(TicketMixin):
 #        return "/tickets/template/%s" % self.id
         return reverse('tickets__view_template', args=(self.id,))
 
+    @staticmethod
+    def get_clone_absolute_url():
+        return ''
+
     def get_edit_absolute_url(self):
 #        return "/tickets/template/edit/%s" % self.id
         return reverse('tickets__edit_template', args=(self.id,))

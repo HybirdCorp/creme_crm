@@ -88,6 +88,10 @@ class AbstractProjectTask(CremeEntity):
 #        return "/projects/task/%s" % self.id
         return reverse('projects__view_task', args=(self.id,))
 
+    @staticmethod
+    def get_clone_absolute_url():
+        return ''
+
     def get_edit_absolute_url(self):
 #        return "/projects/task/edit/%s" % self.id
         return reverse('projects__edit_task', args=(self.id,))
