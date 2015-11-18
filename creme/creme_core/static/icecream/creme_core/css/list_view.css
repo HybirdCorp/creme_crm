@@ -119,27 +119,32 @@
 }
 
 .list_view tr#list_thead_toolbar button.clear-search {
+    height: 26px;
     padding: 4px;
 }
 
-.list_view tr#list_thead_toolbar button.do-search {
+/* .list_view tr#list_thead_toolbar button.do-search { */
+.list_view tr#list_thead_toolbar button.listview-header-button-with-icon {
     position: relative;
     top: 6px;
 }
 
-.list_view tr#list_thead_toolbar button.do-search > div {
+/* .list_view tr#list_thead_toolbar button.do-search > div { */
+.list_view tr#list_thead_toolbar button.listview-header-button-with-icon > div {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
 }
 
-.list_view tr#list_thead_toolbar button.do-search img {
+/* .list_view tr#list_thead_toolbar button.do-search img { */
+.list_view tr#list_thead_toolbar button.listview-header-button-with-icon img {
     -webkit-align-self: center;
         -ms-flex-item-align: center;
             align-self: center;
 }
 
-.list_view tr#list_thead_toolbar button.do-search span {
+/* .list_view tr#list_thead_toolbar button.do-search span { */
+.list_view tr#list_thead_toolbar button.listview-header-button-with-icon span {
     -webkit-align-self: center;
         -ms-flex-item-align: center;
             align-self: center;

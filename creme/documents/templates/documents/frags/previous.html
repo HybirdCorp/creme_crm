@@ -1,6 +1,9 @@
-{% load i18n %}{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
 <input value="{{parent_id}}" id="parent_id" type="hidden" name="parent_id"/>
-<button onclick="$(this.form).list_view('getSubmit')(this);" name="parent_id" value="{{previous_id}}" type="button">
-    <input value="{{parent_id}}" id="parent_id" type="hidden" name="parent_id"/>
-    {% trans "Previous folder" as label %}<img src="{% creme_media_url 'images/previous_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
+<button class="listview-header-button-with-icon parent-folder" onclick="$(this.form).list_view('getSubmit')(this);" name="parent_id" value="{{previous_id}}" type="button">
+    <div>
+        <input value="{{parent_id}}" id="parent_id" type="hidden" name="parent_id"/>
+        {% trans "Previous folder" as label %}<img src="{% creme_media_url 'images/previous_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />
+        <span>{{label}}</span>
+    </div>
 </button>&nbsp;
