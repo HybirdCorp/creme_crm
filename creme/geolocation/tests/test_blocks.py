@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
     from creme.persons.constants import FILTER_MANAGED_ORGA
@@ -39,8 +39,8 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
     def test_filter_choices(self):
         managed_orgas = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
 
-        organisations_title = ugettext(Organisation._meta.verbose_name_plural)
-        contacts_title = ugettext(Contact._meta.verbose_name_plural)
+        organisations_title = unicode(Organisation._meta.verbose_name_plural)
+        contacts_title = unicode(Contact._meta.verbose_name_plural)
 
         self.assertEqual([], self.block.get_filter_choices(self.user))
         self.assertEqual([], self.block.get_filter_choices(self.user, Contact))
@@ -58,7 +58,7 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
                           )
                          ],
                          self.block.get_filter_choices(self.user, Contact))
-        self.assertEqual([(ugettext('Contacts'),
+        self.assertEqual([(_('Contacts'),
                            [('filter-1', '%s - %s' % (contacts_title, 'Contact filter'))]
                           ),
                           (organisations_title,
@@ -72,8 +72,8 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
     def test_filter_choices_private(self):
         managed_orgas = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
 
-        organisations_title = ugettext(Organisation._meta.verbose_name_plural)
-        contacts_title = ugettext(Contact._meta.verbose_name_plural)
+        organisations_title = unicode(Organisation._meta.verbose_name_plural)
+        contacts_title = unicode(Contact._meta.verbose_name_plural)
 
         self.assertEqual([], self.block.get_filter_choices(self.user))
         self.assertEqual([], self.block.get_filter_choices(self.user, Contact))
@@ -91,7 +91,7 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
                           )
                          ],
                          self.block.get_filter_choices(self.user, Contact))
-        self.assertEqual([(ugettext('Contacts'),
+        self.assertEqual([(_('Contacts'),
                            [('filter-1', '%s - %s' % (contacts_title, 'Contact filter'))]
                           ),
                           (organisations_title,
