@@ -501,8 +501,7 @@
 
 .list_view tbody .lv-cell-content ul {
     margin: 2px;
-    padding: 0px;
-    list-style: none;
+    padding: 0 0 0 15px;
 }
 
 .list_view tbody .lv-cell-content a img {
