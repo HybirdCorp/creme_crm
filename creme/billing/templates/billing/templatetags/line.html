@@ -18,7 +18,7 @@
                     <a class="add add_on_the_fly_{{ct_id}}" onclick="creme.billing.showEmptyForm($(this), '{{ct_id}}', '{{formset.prefix}}', {{item_count}});return false;">
                         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{add_label}}" alt="{{add_label}}" />{{add_label}}
                     </a>
-                    <a class="add" onclick="creme.billing.multi_save_lines('{{object.pk}}');return false;">
+                    <a class="add" onclick="creme.billing.multiSaveLines('{{object.pk}}');return false;">
                         <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{save_label}}" alt="{{save_label}}" />{{save_label}}
                     </a>
                 {% else %}

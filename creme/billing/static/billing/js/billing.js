@@ -378,8 +378,8 @@ creme.billing.serializeForm = function(form) {
     return data;
 }
 
-//TODO: rename (eg: multiSaveLines)...
-creme.billing.multi_save_lines = function (document_id) {
+//creme.billing.multi_save_lines = function (document_id) {
+creme.billing.multiSaveLines = function (document_id) {
 //     creme.dialogs.confirm(gettext("Do you really want to save all the modifications done on the lines of this document ?"))
 //                  .onOk(function() {
     var forms = $('tbody[id^=form_id_]');
