@@ -17,46 +17,39 @@
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr class="header">
-                <td class="block_header_line_dark"></td>
-                <td class="block_header_line_dark" align="center" width="20%">{% trans "Name" %}</td>
-                <td class="block_header_line_dark" align="center" width="5%">{% trans "Number" %}</td>
-                <td class="block_header_line_dark" align="center" width="10%">{% trans "Status" %}</td>
-                {% if 'comment' not in hidden_fields %}<td class="block_header_line_dark" align="center" width="25%">{% trans "Comment" %}</td>{% endif %}
-                {% if 'issuing_date' not in hidden_fields %}<td class="block_header_line_dark" align="center" width="10%">{% trans "Issuing date" %}</td>{% endif %}
-                {% if 'expiration_date' not in hidden_fields %}<td class="block_header_line_dark" align="center" width="10%">{% trans "Expiration date" %}</td>{% endif %}
-                <td class="block_header_line_dark" align="center" width="10%">{% trans "Total (exclusive of tax)" %}</td>
-                <td class="block_header_line_dark" align="center" width="10%">{% trans "Total (inclusive of tax)" %}</td>
+                <th class="block_header_line_dark cnote-name">{% trans "Name" %}</th>
+                <th class="block_header_line_dark cnote-number">{% trans "Number" %}</th>
+                <th class="block_header_line_dark cnote-status">{% trans "Status" %}</th>
+                {% if 'comment' not in hidden_fields %}<th class="block_header_line_dark cnote-comment">{% trans "Comment" %}</th>{% endif %}
+                {% if 'issuing_date' not in hidden_fields %}<th class="block_header_line_dark cnote-issuing">{% trans "Issuing date" %}</th>{% endif %}
+                {% if 'expiration_date' not in hidden_fields %}<th class="block_header_line_dark cnote-expiration">{% trans "Expiration date" %}</th>{% endif %}
+                <th class="block_header_line_dark cnote-total-no-tax">{% trans "Total (exclusive of tax)" %}</th>
+                <th class="block_header_line_dark cnote-total">{% trans "Total (inclusive of tax)" %}</th>
+                <th class="block_header_line_dark cnote-unlink">{% trans "Unlink" %}</th>
             </tr>
             {% for credit_note in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">{% has_perm_to view credit_note as credit_note_view_perm %}{% has_perm_to change credit_note as credit_note_edit_perm %}{% has_perm_to unlink credit_note as credit_note_unlink_perm %}
                     {% if credit_note_view_perm %}
-                        <th class="block_header_line_dark" align="center" width="2%">
-                            {{forloop.counter}}
-                            &nbsp;{% url 'billing__delete_related_cnote' credit_note.pk object.pk as unlink_url %}
-                            {% get_line_unlinker at_url unlink_url with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{credit_note.pk}} }" with_perms unlink_perm|and_op:credit_note_unlink_perm %}
-                        </th>
-
-                        <td class="{{row_color}}" align="center">{% widget_entity_hyperlink credit_note user %}</td>
-                        <td class="{{row_color}}" align="center">{{credit_note.number}}</td>
-                        <td class="{{row_color}}" align="center">{{credit_note.status}}</td>
+                        <td class="{{row_color}} cnote-name">#{{forloop.counter}} - {% widget_entity_hyperlink credit_note user %}</td>
+                        <td class="{{row_color}} cnote-number">{{credit_note.number}}</td>
+                        <td class="{{row_color}} cnote-status">{{credit_note.status}}</td>
                         {% if 'comment' not in hidden_fields %}
-                            <td class="{{row_color}}" align="center" id="comment{{credit_note.pk}}" {% if credit_note.comment %}title="{{credit_note.comment}}"{% endif %}>
+                            <td class="{{row_color}} cnote-comment" id="comment{{credit_note.pk}}" {% if credit_note.comment %}title="{{credit_note.comment}}"{% endif %}>
                                 {% if credit_note.comment %}
                                     {{credit_note.comment|linebreaksbr}}
                                 {% endif %}
                                 {% url 'billing__edit_cnote_comment' credit_note.id as edit_comment_url %}{% get_line_editor at_url edit_comment_url with_perms credit_note_edit_perm %}
                             </td>
                         {% endif %}
-                        {% if 'issuing_date' not in hidden_fields %}<td class="{{row_color}}" align="center">{% print_field object=credit_note field='issuing_date' %}</td>{% endif %}
-                        {% if 'expiration_date' not in hidden_fields %}<td class="{{row_color}}" align="center">{% print_field object=credit_note field='expiration_date' %}</td>{% endif %}
-                        <td class="{{row_color}}" align="center">
-                            -{{credit_note.total_no_vat|format_amount:credit_note.currency}}
-                        </td>
-                        <td class="{{row_color}}" align="center">
-                            -{{credit_note.total_vat|format_amount:credit_note.currency}}
+                        {% if 'issuing_date' not in hidden_fields %}<td class="{{row_color}} cnote-issuing">{% print_field object=credit_note field='issuing_date' %}</td>{% endif %}
+                        {% if 'expiration_date' not in hidden_fields %}<td class="{{row_color}} cnote-expiration">{% print_field object=credit_note field='expiration_date' %}</td>{% endif %}
+                        <td class="{{row_color}} cnote-total-no-tax">-{{credit_note.total_no_vat|format_amount:credit_note.currency}}</td>
+                        <td class="{{row_color}} cnote-total">-{{credit_note.total_vat|format_amount:credit_note.currency}}</td>
+                        <td class="{{row_color}} cnote-unlink">{% url 'billing__delete_related_cnote' credit_note.pk object.pk as unlink_url %}
+                            {% get_line_unlinker at_url unlink_url with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{credit_note.pk}} }" with_perms unlink_perm|and_op:credit_note_unlink_perm %}
                         </td>
                     {% else %}
-                        <td class="{{row_color}}">{% widget_entity_hyperlink credit_note user %}</td>
+                        <td class="{{row_color}}" colspan="{{colspan}}">{% widget_entity_hyperlink credit_note user %}</td>
                     {% endif %}
                 </tr>
             {% endfor %}

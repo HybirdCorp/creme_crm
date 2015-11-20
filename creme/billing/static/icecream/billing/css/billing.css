@@ -49,16 +49,16 @@ select.line-vat {
     text-align: right;
 }
 
-line-background-color {
+/* line-background-color {
     background-color: #ffffff;
-}
+}*/
 
 .linetable-container, .linetable {
     width: 100%;
-    
+
     margin: 0;
     padding: 0;
-    
+
     border: 0;
     border-spacing: 0;
 }
@@ -75,4 +75,66 @@ line-background-color {
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
     background: #f0f0f0;
+}
+
+.linetable th {
+    color: #4b6671; /* See .table_detail_view > tbody > tr > th { */
+    text-align: center;
+}
+
+.linetable td {
+    text-align: center;
+}
+
+.linetable .readonly {
+    background-color: #f7f7f7; /* See 'block_line_light' */
+    color: #666;
+}
+
+.bline-quantity {
+    width: 5%;
+}
+
+.bline-unit-price {
+    width: 9%;
+}
+
+.bline-unit {
+    width: 12%;
+}
+
+.bline-discount {
+    width: 15%;
+}
+
+.bline-vat {
+    width: 7%;
+}
+
+.bline-total-no-tax, .bline-total-discounted, .bline-total {
+    width: 10%;
+}
+
+.linetable .bline-comment {
+    text-align: left;
+}
+
+#block_billing-credit_notes .cnote-total-no-tax,
+#block_billing-credit_notes .cnote-total,
+#block_billing-credit_notes .cnote-unlink {
+    text-align: right;
+}
+
+#block_billing-credit_notes .cnote-number {
+    text-align: right;
+    width: 5%;
+}
+
+#block_billing-credit_notes .cnote-comment {
+    width: 25%;
+}
+
+#block_billing-credit_notes .cnote-status {
+    text-align: center;
+    width: 10%;
 }
