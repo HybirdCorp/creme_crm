@@ -2,13 +2,13 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i "migrations/*" -i "tests/*"
+# > django-admin.py makemessages -l fr -i "tests/*"
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-14 18:11+0200\n"
+"POT-Creation-Date: 2015-11-20 20:40+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,19 +16,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:28 apps.py:37
+#: apps.py:28 apps.py:39
 msgid "Geolocation"
 msgstr "Géolocalisation"
 
-#: blocks.py:90
+#: blocks.py:78
 msgid "Maps"
 msgstr "Cartes"
 
-#: blocks.py:107
+#: blocks.py:96
 msgid "Maps By Filter"
 msgstr "Cartes par filtre"
 
-#: blocks.py:124
+#: blocks.py:114
 msgid "Around this address"
 msgstr "Autour de cette adresse"
 
@@ -97,12 +97,9 @@ msgstr "Ville"
 msgid "Towns"
 msgstr "Villes"
 
-#: setting_keys.py:28
-#, python-format
-msgid "Maximum distance to find neighbours in meters, default %(default)s m."
-msgstr ""
-"Distance maximale pour trouver des voisins en mètres, par défaut %(default)s "
-"m."
+#: setting_keys.py:27
+msgid "Maximum distance to find neighbours in meters."
+msgstr "Distance maximale pour trouver des voisins en mètres."
 
 #: templates/geolocation/templatetags/block_persons_filters_google_map.html:10
 #: templates/geolocation/templatetags/block_persons_google_map.html:9
@@ -160,11 +157,11 @@ msgid_plural "%(distance).1f Km"
 msgstr[0] "%(distance).1f Km"
 msgstr[1] "%(distance).1f Km"
 
-#: utils.py:70
+#: utils.py:78
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: utils.py:73
+#: utils.py:82
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 

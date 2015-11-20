@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.setting_key import SettingKey
 
-from .constants import DEFAULT_SEPARATING_NEIGHBOURS
 
 NEIGHBOURHOOD_DISTANCE = SettingKey(id="geolocation-neighbourhood_distance",
-                                    description=ugettext(u"Maximum distance to find neighbours in meters, default %(default)s m.") % {'default': DEFAULT_SEPARATING_NEIGHBOURS},
-                                    app_label='geolocation', type=SettingKey.INT
+                                    description=_(u'Maximum distance to find neighbours in meters.'),
+                                    app_label='geolocation',
+                                    type=SettingKey.INT,
                                    )
