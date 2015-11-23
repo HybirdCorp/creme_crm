@@ -104,7 +104,8 @@ class Populator(BasePopulator):
 
 
         create_hf = HeaderFilter.create
-        create_hf(pk='persons-hf_contact', name=_(u'Contact view'), model=Contact,
+        create_hf(pk='persons-hf_contact', model=Contact,
+                  name=_(u'Contact view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                               (EntityCellRegularField, {'name': 'first_name'}),
                               (EntityCellRegularField, {'name': 'phone'}),
@@ -113,7 +114,16 @@ class Populator(BasePopulator):
                               EntityCellRelation(rt_map[REL_SUB_EMPLOYED_BY]),
                              ],
                  )
-        create_hf(pk='persons-hf_leadcustomer', name=_(u'Prospect/Suspect view'), model=Organisation,
+        create_hf(pk=DEFAULT_HFILTER_ORGA, model=Organisation,
+                  name=_(u'Organisation view'),
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'phone'}),
+                              (EntityCellRegularField, {'name': 'user'}),
+                              EntityCellRelation(rt_map[REL_OBJ_MANAGES]),
+                             ],
+                 )
+        create_hf(pk='persons-hf_leadcustomer', model=Organisation,
+                  name=_(u'Prospect/Suspect view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'sector'}),
                               (EntityCellRegularField, {'name': 'phone'}),
@@ -122,13 +132,6 @@ class Populator(BasePopulator):
                               EntityCellRelation(rt_map[REL_SUB_CUSTOMER_SUPPLIER]),
                               EntityCellRelation(rt_map[REL_SUB_PROSPECT]),
                               EntityCellRelation(rt_map[REL_SUB_SUSPECT]),
-                             ],
-                 )
-        create_hf(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation,
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'phone'}),
-                              (EntityCellRegularField, {'name': 'user'}),
-                              EntityCellRelation(rt_map[REL_OBJ_MANAGES]),
                              ],
                  )
 
