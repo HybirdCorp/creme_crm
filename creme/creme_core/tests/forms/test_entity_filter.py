@@ -280,6 +280,23 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [False]}, condition.decoded_value)
 
+    def test_equals_boolean_condition(self):
+        clean = RegularFieldsConditionsField(model=Organisation).clean
+        operator = EntityFilterCondition.EQUALS
+        name = 'subject_to_vat'
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    'true',
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,          condition.type)
+        self.assertEqual(name,                                     condition.name)
+        self.assertEqual({'operator': operator, 'values': [True]}, condition.decoded_value)
+
     def test_fk_subfield(self):
         "FK subfield"
         clean = RegularFieldsConditionsField(model=Contact).clean
@@ -1076,7 +1093,19 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                             'operator': {'id': EQUALS,
                                          'types': self._get_allowed_types(EQUALS),
                                         },
-                            'value': u'False',
+                            'value': u'false',
+                          }
+                         ], data)
+
+        # Old format
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_bool, EQUALS, ['False'])
+        data = field._value_to_jsonifiable([condition])
+
+        self.assertEqual([{'field': {'id': self.cfield_bool.id, 'type': 'boolean__null'},
+                            'operator': {'id': EQUALS,
+                                         'types': self._get_allowed_types(EQUALS),
+                                        },
+                            'value': u'false',
                           }
                          ], data)
 
@@ -1354,6 +1383,24 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(str(self.cfield_str.id),               condition.name)
         self.assertEqual({'operator': operator, 'rname': 'customfieldstring', 'value': []},
+                         condition.decoded_value
+                        )
+
+    def test_equals_boolean_condition(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                'field':   self.cfield_bool.id,
+                                'operator': operator,
+                                'value':    'false',
+                            }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_bool.id),               condition.name)
+        self.assertEqual({'operator': operator, 'rname': 'customfieldboolean', 'value': ['False']},
                          condition.decoded_value
                         )
 

@@ -45,7 +45,7 @@ from ..utils.date_range import date_range_registry
 from ..utils.dates import make_aware_dt, date_2_dict
 from ..utils.meta import is_date_field, FieldInfo #get_model_field_info
 from .relation import RelationType, Relation
-from .custom_field import CustomField
+from .custom_field import CustomField, CustomFieldBoolean
 from .fields import CremeUserForeignKey, CTypeForeignKey
 
 
@@ -862,8 +862,11 @@ class EntityFilterCondition(Model):
         if custom_field.field_type == CustomField.DATETIME:
             raise EntityFilterCondition.ValueError('build_4_customfield(): does not manage DATE CustomFields')
 
-        if custom_field.field_type == CustomField.BOOL and operator != EntityFilterCondition.EQUALS:
-            raise EntityFilterCondition.ValueError('build_4_customfield(): BOOL type is only compatible with EQUALS operator')
+        # TODO : A bit ugly way to validate operators, but needed for compatibility.
+        if custom_field.field_type == CustomField.BOOL and operator not in (EntityFilterCondition.EQUALS,
+                                                                            EntityFilterCondition.EQUALS_NOT,
+                                                                            EntityFilterCondition.ISEMPTY):
+            raise EntityFilterCondition.ValueError('build_4_customfield(): BOOL type is only compatible with EQUALS, EQUALS_NOT and ISEMPTY operators')
 
         if not isinstance(value, (list, tuple)):
             raise EntityFilterCondition.ValueError('build_4_customfield(): value is not an array')
@@ -1073,6 +1076,11 @@ class EntityFilterCondition(Model):
 
         values = [resolve(value, user) for value in values]
 
+        # HACK : compatibility with older format
+        if CustomFieldBoolean.get_related_name() == related_name:
+            clean_bool = BooleanField().to_python
+            values = [clean_bool(v) for v in values]
+
         if isinstance(operator, _IsEmptyOperator):
             query = Q(**{'%s__isnull' % related_name: values[0]})
         else:
@@ -1118,6 +1126,12 @@ class EntityFilterCondition(Model):
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
         resolve = EntityFilter.resolve_variable
         values = [resolve(value, user) for value in search_info['values']]
+        field_info = FieldInfo(self.filter.entity_type.model_class(), self.name)
+
+        # HACK : old format compatibility for boolean fields.
+        if isinstance(field_info[-1], BooleanField):
+            clean = BooleanField().to_python
+            values = [clean(v) for v in values]
 
         query = operator.get_q(self, values)
 
