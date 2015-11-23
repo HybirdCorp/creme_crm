@@ -37,7 +37,7 @@ from django.utils.translation import ugettext_lazy as _ #ugettext
 from django.utils.formats import date_format
 
 from ..models import (CremeEntity, EntityFilter, EntityFilterCondition,
-        RelationType, CremePropertyType, CustomField, FieldsConfig)
+        RelationType, CremePropertyType, CustomField, CustomFieldBoolean, FieldsConfig)
 from ..models.entity_filter import _ConditionBooleanOperator, _IsEmptyOperator
 from ..utils.date_range import date_range_registry
 from ..utils.id_generator import generate_string_id_and_save
@@ -583,15 +583,17 @@ class RegularFieldsConditionsField(_ConditionsField):
             operator_id = search_info['operator']
             operator = EntityFilterCondition._OPERATOR_MAP.get(operator_id)
 
+            field = fields[condition.name][-1]
+            field_entry = {'name': condition.name, 'type': field_choicetype(field)}
+
             # TODO: use polymorphism instead ??
             if isinstance(operator, _ConditionBooleanOperator):
+                values = search_info['values'][0]
+            elif isinstance(field, ModelBooleanField):
                 values = search_info['values'][0]
             else:
                 values = u','.join(unicode(value) for value in search_info['values'])
 
-#            field = self._fields[condition.name][-1]
-            field = fields[condition.name][-1]
-            field_entry = {'name': condition.name, 'type': field_choicetype(field)}
 
             if field_entry['type'] in EntityFilterCondition._FIELDTYPES_RELATED:
                 field_entry['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
@@ -627,13 +629,14 @@ class RegularFieldsConditionsField(_ConditionsField):
 
         if isinstance(operator_class, _ConditionBooleanOperator):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
+        elif entry is None:
+            values = self._return_none_or_raise(self.required, 'invalidvalue')
+        elif isinstance(entry.get('value'), list):
+            values = [v for v in clean_value(entry, 'value', list, required_error_key='invalidvalue') if v]
+        elif isinstance(entry.get('value'), bool):
+            values = [entry.get('value')]
         else:
-            if entry is not None and isinstance(entry.get('value'), list):
-                values = clean_value(entry, 'value', list, required_error_key='invalidvalue')
-            else:
-                values = clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',')
-
-            values = [v for v in values if v]
+            values = [v for v in clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',') if v]
 
         return operator, values
 
@@ -896,6 +899,10 @@ class CustomFieldsConditionsField(_ConditionsField):
 
             value = u','.join(unicode(v) for v in search_info['value'])
 
+            # HACK : lower serialisation of boolean (combobox waiting for 'true' and not 'True')
+            if search_info['rname'] == CustomFieldBoolean.get_related_name():
+                value = value.lower()
+
             dicts.append({'field':    field_entry,
                           'operator': {'id': operator_id, 'types': ' '.join(operator.allowed_fieldtypes)},
                           'value':    value,
@@ -943,13 +950,14 @@ class CustomFieldsConditionsField(_ConditionsField):
 
         if isinstance(operator_class, _ConditionBooleanOperator):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
+        elif entry is None:
+            values = self._return_none_or_raise(self.required, 'invalidvalue')
+        elif isinstance(entry.get('value'), list):
+            values = [v for v in clean_value(entry, 'value', list, required_error_key='invalidvalue') if v]
+        elif isinstance(entry.get('value'), bool):
+            values = [entry.get('value')]
         else:
-            if entry is not None and isinstance(entry.get('value'), list):
-                values = clean_value(entry, 'value', list, required_error_key='invalidvalue')
-            else:
-                values = clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',')
-
-            values = [v for v in values if v]
+            values = [v for v in clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',') if v]
 
         return operator, values
 

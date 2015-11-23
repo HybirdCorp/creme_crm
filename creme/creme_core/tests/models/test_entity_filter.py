@@ -555,6 +555,35 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(self.refresh(efilter), Contact, self._list_contact_ids('spike', 'faye'))
 
+    def test_filter_field_equals_boolean(self):
+        "Boolean field"
+        contacts = self.contacts
+        ed  = contacts['ed'];  ed.is_a_nerd = True;  ed.save()
+        yui = contacts['yui']; yui.is_a_nerd = True; yui.save()
+
+        def build_cond(value):
+            return EntityFilterCondition.build_4_field(model=Contact,
+                                                       operator=EntityFilterCondition.EQUALS,
+                                                       name='is_a_nerd',
+                                                       values=[value],
+                                                      )
+
+        efilter = EntityFilter.create(pk='test-filter01', name='is a nerd', model=Contact, is_custom=True,
+                                      conditions=[build_cond(True)],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('ed', 'yui'))
+
+        efilter = EntityFilter.create(pk='test-filter02', name='is a not nerd', model=Contact, is_custom=True,
+                                      conditions=[build_cond(False)],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('ed', 'yui', exclude=True))
+
+        # Old (buggy ?) format
+        efilter = EntityFilter.create(pk='test-filter02', name='is a not nerd v2', model=Contact, is_custom=True,
+                                      conditions=[build_cond('False')],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('ed', 'yui', exclude=True))
+
     def test_filter_field_equals_currentuser(self):
         set_global_info(user=self.user)
 
@@ -1837,6 +1866,84 @@ class EntityFiltersTestCase(CremeTestCase):
                                      )
         self.assertExpectedFiltered(efilter, Contact, [ed.id, rei.id])
 
+    def test_customfield_boolean(self):
+        "Boolean field"
+        contacts = self.contacts
+        ed  = contacts['ed']
+        rei = contacts['rei']
+
+        custom_field = CustomField.objects.create(name='Is Valid ?', content_type=self.contact_ct, field_type=CustomField.BOOL)
+        klass = custom_field.get_value_class()
+        klass(custom_field=custom_field, entity=ed).set_value_n_save(True)
+        klass(custom_field=custom_field, entity=rei).set_value_n_save(True)
+        klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save(False)
+
+        self.assertEqual(3, CustomFieldBoolean.objects.count())
+
+        efilter = EntityFilter.create('test-filter01', name='is valid', model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_customfield(
+                                                            custom_field=custom_field,
+                                                            operator=EntityFilterCondition.EQUALS,
+                                                            value=[True]
+                                                        ),
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, [ed.id, rei.id])
+
+        # Old filter format compatibility
+        cfield_rname = custom_field.get_value_class().get_related_name()
+        efilter = EntityFilter.create('test-filter01-old', name='is valid', model=Contact,
+                                      conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                                                                        name=str(custom_field.id),
+                                                                        value=EntityFilterCondition.encode_value({
+                                                                            'operator': EntityFilterCondition.EQUALS,
+                                                                            'value': 'True',
+                                                                            'rname': cfield_rname,
+                                                                        })
+                                                                       )
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, [ed.id, rei.id])
+
+    def test_customfield_boolean_false(self):
+        "Boolean field"
+        contacts = self.contacts
+        ed  = contacts['ed']
+        rei = contacts['rei']
+
+        custom_field = CustomField.objects.create(name='Is Valid ?', content_type=self.contact_ct, field_type=CustomField.BOOL)
+        klass = custom_field.get_value_class()
+        klass(custom_field=custom_field, entity=ed).set_value_n_save(True)
+        klass(custom_field=custom_field, entity=rei).set_value_n_save(True)
+        klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save(False)
+
+        self.assertEqual(3, CustomFieldBoolean.objects.count())
+
+        efilter = EntityFilter.create('test-filter01', name='is valid', model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_customfield(
+                                                            custom_field=custom_field,
+                                                            operator=EntityFilterCondition.EQUALS,
+                                                            value=[False]
+                                                        ),
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, [contacts['asuka'].id])
+
+        # Old filter format compatibility
+        cfield_rname = custom_field.get_value_class().get_related_name()
+        efilter = EntityFilter.create('test-filter01-old', name='is valid', model=Contact,
+                                      conditions=[EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
+                                                                        name=str(custom_field.id),
+                                                                        value=EntityFilterCondition.encode_value({
+                                                                            'operator': EntityFilterCondition.EQUALS,
+                                                                            'value': 'False',
+                                                                            'rname': cfield_rname,
+                                                                        })
+                                                                       )
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, [contacts['asuka'].id])
+
     def test_customfield06(self):
         "ENUM"
         rei = self.contacts['rei']
@@ -1925,6 +2032,32 @@ class EntityFiltersTestCase(CremeTestCase):
                                                  ]
                                      )
         self.assertExpectedFiltered(efilter, Contact, [rei.id])
+
+        efilter = EntityFilter.create('test-filter02', name='Cuties', model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_customfield(
+                                                            custom_field=custom_field,
+                                                            operator=EntityFilterCondition.EQUALS_NOT,
+                                                            value=[True],
+                                                           ),
+                                                 ]
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', exclude=True))
+
+    def test_customfield_boolean_unsupported(self): #BOOL
+        rei = self.contacts['rei']
+
+        custom_field = CustomField.objects.create(name='cute ??', content_type=self.contact_ct, field_type=CustomField.BOOL)
+        value_class = custom_field.get_value_class()
+        value_class(custom_field=custom_field, entity=rei).set_value_n_save(True)
+        value_class(custom_field=custom_field, entity=self.contacts['jet']).set_value_n_save(False)
+        self.assertEqual(2, CustomFieldBoolean.objects.count())
+
+        with self.assertRaises(EntityFilterCondition.ValueError) as err:
+            EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                      operator=EntityFilterCondition.GT,
+                                                      value=[True])
+
+        self.assertEqual(str(err.exception), 'build_4_customfield(): BOOL type is only compatible with EQUALS, EQUALS_NOT and ISEMPTY operators')
 
     def test_customfield08(self): #CustomField is deleted
         custom_field01 = CustomField.objects.create(name='Size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
@@ -2030,6 +2163,35 @@ class EntityFiltersTestCase(CremeTestCase):
                                                  ],
                                      )
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'shinji'))
+
+    def test_customfield_boolean_isempty(self):
+        custom_field = CustomField.objects.create(name='Eva ?', content_type=self.contact_ct, field_type=CustomField.BOOL)
+        klass = custom_field.get_value_class()
+        klass(custom_field=custom_field, entity=self.contacts['rei']).set_value_n_save(True)
+        klass(custom_field=custom_field, entity=self.contacts['shinji']).set_value_n_save(True)
+        klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save(True)
+
+        self.assertEqual(3, CustomFieldBoolean.objects.count())
+
+        efilter = EntityFilter.create('test-filter01', name='empty', model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_customfield(
+                                                            custom_field=custom_field,
+                                                            operator=EntityFilterCondition.ISEMPTY,
+                                                            value=[True],
+                                                           )
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'shinji', 'asuka', exclude=True))
+
+        efilter = EntityFilter.create('test-filter01', name='not empty', model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_customfield(
+                                                        custom_field=custom_field,
+                                                        operator=EntityFilterCondition.ISEMPTY,
+                                                        value=[False],
+                                                       ),
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'shinji', 'asuka'))
 
     def test_build_customfield(self): #errors
         custom_field = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
