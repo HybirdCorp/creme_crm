@@ -49,8 +49,9 @@ def edit(request, image_id):
 @login_required
 @permission_required('media_managers')
 def detailview(request, image_id):
-    return view_entity(request, image_id, Image, '/media_managers/image',
-                       'media_managers/view_image.html',
+    return view_entity(request, image_id, Image,
+                       # '/media_managers/image',
+                       template='media_managers/view_image.html',
                       )
 
 @login_required

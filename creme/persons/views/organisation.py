@@ -28,7 +28,8 @@ from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from .. import get_organisation_model
-from ..constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+from ..constants import (REL_SUB_SUSPECT, REL_SUB_PROSPECT,
+        REL_SUB_CUSTOMER_SUPPLIER, DEFAULT_HFILTER_ORGA)
 from ..forms.organisation import OrganisationForm
 #from ..models import Organisation
 
@@ -85,7 +86,7 @@ def detailview(request, organisation_id):
 @permission_required('persons')
 def listview(request):
     # return list_view(request, Organisation, extra_dict={'add_url': '/persons/organisation/add'})
-    return list_view(request, Organisation,
+    return list_view(request, Organisation, hf_pk=DEFAULT_HFILTER_ORGA,
                      # extra_dict={'add_url': reverse('persons__create_organisation')},
                     )
 
