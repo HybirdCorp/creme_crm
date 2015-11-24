@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from decimal import Decimal, ROUND_UP # ROUND_DOWN, ROUND_HALF_EVEN
+from decimal import Decimal, ROUND_HALF_UP  # ROUND_UP ROUND_DOWN ROUND_HALF_EVEN
 
 #from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 DEFAULT_DECIMAL = Decimal()
 
-ROUND_POLICY = ROUND_UP
+ROUND_POLICY = ROUND_HALF_UP
 CURRENCY = "Euro" #TODO: in settings.py ??
 
 REL_SUB_BILL_ISSUED = 'billing-subject_bill_issued'
