@@ -223,6 +223,9 @@ class Base(CremeEntity):
                                     relations__type=REL_OBJ_HAS_LINE,
                                    )
 
+    # TODO: round_to_2 is already used when processing per lines prices.
+    # Summing already rounded values has no effect, so the next 4 calls to round_to_2
+    # could be deleted.
     def get_product_lines_total_price_exclusive_of_tax(self): # TODO: inline ???
         return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.product_lines))
 

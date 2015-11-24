@@ -779,6 +779,37 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(invoice.total_vat, discount_zero)
 
     @skipIfCustomProductLine
+    def test_rounding_policy(self):
+        user = self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice0001')[0]
+
+        kwargs = {'user': user, 'related_document': invoice}
+        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
+                                                  unit_price=Decimal('0.014'), quantity=1,
+                                                  total_discount=False,
+                                                  **kwargs
+                                                 )
+        # 0.014 rounded down to 0.01
+        self.assertEqual(Decimal('0.01'), product_line.get_price_exclusive_of_tax())
+
+        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
+                                                  unit_price=Decimal('0.015'), quantity=1,
+                                                  total_discount=False,
+                                                  **kwargs
+                                                 )
+        # 0.015 rounded up to 0.02
+        self.assertEqual(Decimal('0.02'), product_line.get_price_exclusive_of_tax())
+
+        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
+                                                  unit_price=Decimal('0.016'), quantity=1,
+                                                  total_discount=False,
+                                                  **kwargs
+                                                 )
+        # 0.016 rounded up to 0.02
+        self.assertEqual(Decimal('0.02'), product_line.get_price_exclusive_of_tax())
+
+    @skipIfCustomProductLine
     def test_inneredit(self):
         user = self.login()
 
