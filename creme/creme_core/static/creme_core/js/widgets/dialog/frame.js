@@ -27,6 +27,7 @@ creme.dialog.Frame = creme.component.Component.sub({
 
         this._overlay = new creme.dialog.Overlay();
         this._overlayDelay = 200;
+        this._contentReady = false;
 
         this._backend = options.backend || new creme.ajax.Backend({dataType: 'html'});
         this._events = new creme.component.EventHandler();
@@ -92,18 +93,24 @@ creme.dialog.Frame = creme.component.Component.sub({
         return {content: response, type: 'text/html'};
     },
 
-    _deactivateContent: function(content)
+    deactivateContent: function(content)
     {
-        if (this._autoActivate) {
+        if (this._contentReady) {
             creme.widget.shutdown(content);
+            this._contentReady = false;
         }
     },
 
-    _activateContent: function(content)
+    activateContent: function(content)
     {
-        if (this._autoActivate) {
+        if (!this._contentReady) {
             creme.widget.ready(content);
+            this._contentReady = true;
         }
+    },
+
+    isContentReady: function() {
+        return this._contentReady;
     },
 
     fill: function(data, action)
@@ -120,7 +127,7 @@ creme.dialog.Frame = creme.component.Component.sub({
             overlay.unbind(delegate).update(false);
 
             this._events.trigger('cleanup', [delegate, action], this);
-            this._deactivateContent(delegate);
+            this.deactivateContent(delegate);
             delegate.empty();
             overlay.bind(delegate);
 
@@ -134,7 +141,9 @@ creme.dialog.Frame = creme.component.Component.sub({
                 }
             }
 
-            this._activateContent(delegate);
+            if (this._autoActivate) {
+                this.activateContent(delegate);
+            }
         } catch(e) {
         }
 

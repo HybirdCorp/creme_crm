@@ -25,14 +25,14 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         this.options = $.extend({
             url:        undefined,
+            data:       undefined,
             backend:    undefined,
             resizable:  true,
             draggable:  true,
             width:      640,
             height:     350,
             scroll:     'frame',
-            fitFrame:   true,
-            initWidget: true,
+            fitFrame:    true,
             useFrameActions: true
         }, options || {});
 
@@ -42,7 +42,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     _initFrame: function(options)
     {
         var self = this;
-        var frame = this._frame = new creme.dialog.Frame({backend: options.backend});
+        var frame = this._frame = new creme.dialog.Frame({backend: options.backend, autoActivate: false});
 
         frame.onCleanup($.proxy(this._onFrameCleanup, this))
              .onUpdate($.proxy(this._onFrameUpdate, this));
@@ -65,15 +65,29 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     _onFrameUpdate: function()
     {
+        this._events.trigger('frame-update', [this.frame()], this);
+
+        if (this.isOpened()) {
+            this._activateFrameContent();
+        } else {
+            this._deferFrameActivation = true;
+        }
+    },
+
+    _activateFrameContent: function()
+    {
         if (this.options.useFrameActions) {
             var buttons = Object.values(this._frameActionButtons(this.options));
             this.replaceButtons(buttons);
         }
 
-        if (this.options.fitFrame)
-            this.fitToFrameSize();
+        this.frame().activateContent();
 
-        this._events.trigger('frame-update', [this.frame()], this);
+        if (this.options.fitFrame) {
+            this.fitToFrameSize();
+        }
+
+        this._events.trigger('frame-activated', [this.frame()], this);
     },
 
     _dialogBackground: function() {
@@ -112,15 +126,15 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         if (!Object.isEmpty(options.url)) {
-            this.fetch(options.url);
+            var data = Object.isFunc(options.data) ? options.data(this) : options.data || {};
+            this.fetch(options.url, {}, data);
         } else if (!Object.isEmpty(options.html)) {
             this.fill(options.html);
-        } else if (this.options.fitFrame) {
-            if (Object.isEmpty(this._frame.lastFetchUrl()) === false) {
-                this.fitToFrameSize();
-            } else {
-                this.resizeToDefault();
-            }
+        }
+
+        if (this._deferFrameActivation) {
+            this._activateFrameContent();
+            this._deferFrameActivation = false;
         }
 
         this._events.trigger('open', [options], this);
@@ -533,8 +547,6 @@ creme.dialogs = $.extend(creme.dialogs, {
                                     .selector(function(frame) {
                                          return $('select', frame).val();
                                      });
-
-        return dialog;
     },
 
     alert: function(message, options)
