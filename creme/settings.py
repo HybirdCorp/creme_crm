@@ -507,6 +507,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/jquery.tinymce.js',
                     'creme_core/js/jquery/extensions/jquery.debounce.js',
                     'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
+                    'creme_core/js/jquery/extensions/jquery.bind-first.js',
 
                     'creme_core/js/lib/fallbacks/object-0.1.js',
                     'creme_core/js/lib/fallbacks/array-0.9.js',

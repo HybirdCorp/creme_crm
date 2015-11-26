@@ -18,12 +18,12 @@
 <p>{% trans "Fields marked with * are required."%}</p>
 
 <div id="editforms">
-    {% if form.errors %}
-        <script type="text/javascript">
-            $(document).ready(function() {
-                creme.blocks.scrollToError();
-            });
-        </script>
+    {% if not is_inner_popup %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            creme.forms.initialize($('#editforms form'));
+        });
+    </script>
     {% endif %}
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}

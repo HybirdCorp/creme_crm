@@ -502,3 +502,25 @@ creme.forms.toImportField = function(table_id) {
 
     $csv_select.change(handleColChange);
 }
+
+creme.forms.initialize = function(form)
+{
+    if (form.is(':not(.is-form-active)'))
+    {
+        form.addClass('.is-form-active');
+
+        form.onFirst('submit', function() {
+            html5Valid = Object.isFunc(this.checkValidity) ? this.checkValidity() : true;
+            jqueryValid = Object.isFunc(this.valid) ? this.valid() : true;
+
+            if (html5Valid && jqueryValid)
+            {
+                this.submit();
+                $("[type=submit]").prop("disabled", true);
+                return false;
+            }
+        });
+
+        creme.utils.scrollTo($('.errorlist:first, .non_field_errors', form));
+    }
+}
