@@ -29,11 +29,11 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
         this._super_(creme.dialog.Dialog, '_init_', options);
 
-        var validator = options.validator || function(data, statusText, dataType) {
-            return dataType !== 'text/html' || data.match(/<form[^>]*>/) === null;
-        };
-
-        this.validator(validator);
+        if (Object.isFunc(options.validator)) {
+            this.validator(options.validator);
+        } else {
+            this.validator(options.compatible ? this._compatibleValidator : this._defaultValidator);
+        }
 
         var disable_buttons = function() {
             self._updateButtonState("send", false);
@@ -60,6 +60,17 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
         this._validator = validator;
         return this;
+    },
+
+    _defaultValidator: function(data, statusText, dataType) {
+        return dataType !== 'text/html' || data.match(/<form[^>]*>/) === null;
+    },
+
+    _compatibleValidator: function(data, statusText, dataType)
+    {
+        return dataType !== 'text/html' ||
+               data.startsWith('<div class="in-popup" closing="true"') ||
+               (data.startsWith('<div class="in-popup"') && data.match(/<form[^>]*>/) === null);
     },
 
     _validate: function(data, statusText, dataType)
