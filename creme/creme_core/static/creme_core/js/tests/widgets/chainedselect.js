@@ -766,7 +766,7 @@ test('creme.widgets.chainedselect.change (multi selector, multiple dependencies)
     equal(widget.val(), $.toJSON({ctype: '3', rtype: null, entity: null}), 'updated ctype, no rtype, no entity');
     assertDSelectAt(widget, 'ctype', '3', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     assertDSelectAt(widget, 'rtype', null, ['ctype'], 'mock/rtype/3/options', []);
-    assertDSelectAt(widget, 'entity', null, ['rtype', 'ctype'], 'mock/entity/null/3/options', []);
+    assertDSelectAt(widget, 'entity', null, ['rtype', 'ctype'], null, []);
 
     ctype.creme().widget().val(5);
     equal(widget.val(), $.toJSON({ctype: '5', rtype: 'rtype.7', entity: null}), 'updated ctype');
