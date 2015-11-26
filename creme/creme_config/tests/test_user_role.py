@@ -251,7 +251,7 @@ class UserRoleTestCase(CremeTestCase):
         exportable_ctypes = [get_ct(Contact).id, get_ct(Activity).id]
 #        apps = ['persons', 'tickets']
 #        admin_apps = ['persons']
-        apps = ['creme_core', 'tickets']
+        apps = ['creme_core', 'documents']
         admin_apps = ['creme_core']
         response = self.client.post(url, follow=True,
                                     data={'name':                    name,

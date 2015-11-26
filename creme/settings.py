@@ -260,20 +260,20 @@ INSTALLED_CREME_APPS = (
     'creme.reports',
     'creme.products',
     'creme.recurrents',
-    'creme.billing',       # Need 'products'
-    'creme.opportunities', # Need 'products'
-    'creme.commercial',    # Need 'opportunities'
-    'creme.events',        # Need 'opportunities'
+    'creme.billing',  # Need 'products'
+    'creme.opportunities',  # Need 'products'
+    'creme.commercial',  # Need 'opportunities'
+    'creme.events',  # Need 'opportunities'
     'creme.crudity',
-    'creme.emails', # Need 'crudity'
-    #creme.'sms', # Work In Progress
+    'creme.emails',  # Need 'crudity'
+    # 'creme.sms',  # Work In Progress
     'creme.projects',
     'creme.tickets',
-    #'creme.cti',
+    # 'creme.cti',
     'creme.activesync',
     'creme.vcfs',
-    #'creme.polls',  # Need 'commercial'
-    #'creme.mobile',
+    # 'creme.polls',  # Need 'commercial'
+    # 'creme.mobile',
     'creme.geolocation',
 )
 
@@ -393,6 +393,10 @@ import warnings
 warnings.simplefilter("once")
 
 # LOGS [END]####################################################################
+
+# TESTING ######################################################################
+
+TEST_RUNNER = 'creme.creme_core.utils.test.CremeDiscoverRunner'
 
 # GUI ##########################################################################
 

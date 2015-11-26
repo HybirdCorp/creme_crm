@@ -54,6 +54,16 @@ class SettingKey(object):
 
         self._castor = self._CASTORS[type]
 
+    def __unicode__(self):
+        return u'SettingKey(id="%(id)s", description="%(description)s", ' \
+               u'app_label="%(app_label)s", type=%(type)s, hidden=%(hidden)s)' % {
+            'id': self.id,
+            'description': self.description,
+            'app_label': self.app_label,
+            'type': self.type,
+            'hidden': self.hidden,
+        }
+
     def cast(self, value_str):
         return self._castor(value_str)
 

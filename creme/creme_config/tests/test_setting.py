@@ -10,7 +10,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-#TODO: clean registry in teardDown....
+# TODO: clean registry in teardDown....
 class SettingTestCase(CremeTestCase):
     def setUp(self):
         self.populate('creme_core')
@@ -113,7 +113,7 @@ class SettingTestCase(CremeTestCase):
         self.login()
 
         sk = SettingKey(id='persons-test_edit_email', description='Campaign Sender',
-                        app_label='emails', type=SettingKey.EMAIL,
+                        app_label='persons', type=SettingKey.EMAIL,
                        )
         setting_key_registry.register(sk)
 
