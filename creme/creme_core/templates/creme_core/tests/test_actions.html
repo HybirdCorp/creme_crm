@@ -20,7 +20,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('.action-start').click(function() {
-            var action = $('input[type="radio"][name="action"]').val();
+            var action = $('input[type="radio"][name="action"]:checked').val();
             var confirm = $('input[type="checkbox"][name="confirm"]:checked').val() === '1';
             var waitingOverlay = $('input[type="checkbox"][name="waitingOverlay"]:checked').val() === '1';
             var reloadOnSuccess = $('input[type="checkbox"][name="reloadOnSuccess"]:checked').val() === '1';
@@ -58,17 +58,17 @@
     <li>
         <h4>Action</h4>
         <div class="action-options">
-            <input type="radio" value="post" name="action">POST</input>
-            <input type="radio" value="get" name="action" checked>GET</input>
+            <label><input type="radio" value="post" name="action"/>POST</label>
+            <label><input type="radio" value="get" name="action" checked/>GET</label>
             &nbsp;|&nbsp;
-            <input type="checkbox" value="1" name="waitingOverlay">Loading overlay</input>
+            <label><input type="checkbox" value="1" name="waitingOverlay"/>Loading overlay</label>
             &nbsp;|&nbsp;
-            <input type="checkbox" value="1" name="confirm">Confirm</input>
+            <label><input type="checkbox" value="1" name="confirm"/>Confirm</label>
             &nbsp;|&nbsp;
-            <input type="checkbox" value="All done !" name="messageOnSuccess">Message on success</input>&nbsp;
-            <input type="checkbox" value="1" name="warnOnFail">Message on error</input>
+            <label><input type="checkbox" value="All done !" name="messageOnSuccess"/>Message on success</label>&nbsp;
+            <label><input type="checkbox" value="1" name="warnOnFail"/>Message on error</label>
             &nbsp;|&nbsp;
-            <input type="checkbox" value="1" name="reloadOnSuccess">Reload on success</input>
+            <label><input type="checkbox" value="1" name="reloadOnSuccess"/>Reload on success</label>
             &nbsp;|&nbsp;
             <select class="action-delay">
                 <option value="0">---</option>

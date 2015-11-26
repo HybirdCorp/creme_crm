@@ -92,7 +92,7 @@
     }
 
     $(document).ready(function() {
-        var mockbackend = new creme.ajax.MockAjaxBackend({sync:false, delay: 500});
+        var mockbackend = new creme.ajax.MockAjaxBackend({sync:false, delay: 500, debug: true});
 
         mockbackend.GET = {'mock/notfound':         mockbackend.response(404, 'HTTP - Not Found'),
                            'mock/forbidden':        mockbackend.response(403, 'HTTP - Forbidden'),
@@ -234,11 +234,11 @@
         <form class="popup-form" action="%s">
             <div class="popup-form-field">
                 <label for="value">Value</label>
-                <input type="number" name="value"></input>
+                <input type="number" name="value"/>
             </div>
             <div class="popup-form-field">
                 <label for="name">Name</label>
-                <input type="text" name="name" required></input>
+                <input type="text" name="name" required/>
             </div>
             <div class="popup-form-field">
                 <label for="comment">Comment</label>
@@ -246,7 +246,7 @@
             </div>
             <div class="popup-form-field">
                 <label for="image">Image</label>
-                <input type="file"></input>
+                <input type="file"/>
             </div>
             <div class="popup-form-field">
                 <label for="response">Response</label>
@@ -265,7 +265,7 @@
         <form class="popup-form" action="mock/wizard/A">
             <div class="popup-form-field">
                 <label for="name">Name</label>
-                <input type="text" name="name" required></input>
+                <input type="text" name="name" required/>
             </div>
             <div class="popup-form-field">
                 <label for="response">Response</label>
@@ -278,14 +278,14 @@
                     </options>
                 </select>
             </div>
-            <input type="submit" class="ui-creme-dialog-action" value="Next"></input>
+            <input type="submit" class="ui-creme-dialog-action" value="Next"/>
         </form>
     </script>
     <script type="text/html" id="mock-wizard-B">
         <form class="popup-form" action="mock/wizard/B">
             <div class="popup-form-field">
                 <label for="value">Value</label>
-                <input type="number" name="value"></input>
+                <input type="number" name="value"/>
             </div>
             <div class="popup-form-field">
                 <label for="response">Response</label>
@@ -299,14 +299,14 @@
                 </select>
             </div>
             <a class="ui-creme-dialog-action" href="mock/wizard/A">Step A</button>
-            <input class="ui-creme-dialog-action" type="submit" value="Next"></input>
+            <input class="ui-creme-dialog-action" type="submit" value="Next"/>
         </form>
     </script>
     <script type="text/html" id="mock-wizard-C">
         <form class="popup-form" action="mock/wizard/C">
             <div class="popup-form-field">
                 <label for="value">Value</label>
-                <input type="number" name="value"></input>
+                <input type="number" name="value"/>
             </div>
             <div class="popup-form-field">
                 <label for="response">Response</label>
@@ -320,12 +320,12 @@
                 </select>
             </div>
             <a class="ui-creme-dialog-action" href="mock/wizard/B">Step B</button>
-            <input class="ui-creme-dialog-action" type="submit" value="Finish"></input>
+            <input class="ui-creme-dialog-action" type="submit" value="Finish"/>
         </form>
     </script>
     <script type="text/html" id="mock-blocklist">
         <button class="block-refresh">Refresh</button>
-        <input type="number" id="test-blocklist-min" value="1" min="1" max="100"></input>
+        <input type="number" id="test-blocklist-min" value="1" min="1" max="100"/>
         {% import_block from_app 'creme_core' named 'test_dummy_list' as 'test_dummy_list_block' %}
         {% display_block_detailview 'test_dummy_list_block' %}
         {% get_blocks_dependencies %}
@@ -342,8 +342,8 @@
         <li id="popup">
             <h4>Popup</h4>
             <div>
-                Options:&nbsp;<input type="checkbox" value="1" class="popup-confirm">Confirm</input>
-                &nbsp;<input type="checkbox" value="1" class="popup-scroll-background">Scroll background</input>
+                Options:&nbsp;<label><input type="checkbox" value="1" class="popup-confirm"/>Confirm</label>
+                &nbsp;<label><input type="checkbox" value="1" class="popup-scroll-background"/>Scroll background</label>
             </div>
             <div>
                 <button type="button" class="popup-html">Static</button>
@@ -363,12 +363,12 @@
             <div class="popup-form">
                 <button type="button" data-url="mock/form">Form</button>
                 <button type="button" data-url="mock/wizard/A">Wizard</button>
-                <input type="checkbox" value="1" name="autofocus" checked>Auto focus</input>&nbsp;
-                <input type="checkbox" value="1" name="submitkey" checked>Submit on enter</input>
+                <label><input type="checkbox" value="1" name="autofocus" checked/>Auto focus</label>&nbsp;
+                <label><input type="checkbox" value="1" name="submitkey" checked/>Submit on enter</label>
             </div>
             <div class="popup-fetch">
                 <button>Dynamic</button>
-                Url:&nbsp;mock/<input type="text" class="popup-url" value="content/1"></input>
+                Url:&nbsp;mock/<input type="text" class="popup-url" value="content/1"/>
             </div>
             <div>
                 <button type="button" class="popup-error-url">Error</button>
@@ -386,7 +386,7 @@
             <div>
                 <button type="button" class="reload-frame">Reload</button>
                 <button type="button" class="reset-frame">Reset</button>
-                Url:&nbsp;mock/<input type="text" class="redirect-frame"></input>
+                Url:&nbsp;mock/<input type="text" class="redirect-frame"/>
             </div>
             <div class="ui-creme-widget ui-creme-frame" widget="ui-creme-frame" url="mock/content/1"></div>
             <table>

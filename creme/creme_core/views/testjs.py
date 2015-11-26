@@ -45,7 +45,7 @@ from ..gui.field_printers import (print_image, print_urlfield, print_datetime,
 from ..utils import is_testenvironment
 from ..utils.media import get_current_theme, creme_media_themed_url as media_url
 
-from creme.persons.models.contact import Contact
+from ..models import CremeProperty
 
 
 logger = logging.getLogger(__name__)
@@ -91,8 +91,8 @@ class Dummy(object):
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(self, '%d:%d:%d' % (randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
-        self.foreignkey = mark_safe(print_foreignkey(self, Contact.objects.filter(is_user=True)[0], user, None))
-        self.manytomany = mark_safe(print_many2many(self, MockManyToMany(Contact), user, None))
+        self.foreignkey = mark_safe(print_foreignkey(self, CremeProperty.objects.all()[0], user, None))
+        self.manytomany = mark_safe(print_many2many(self, MockManyToMany(CremeProperty), user, None))
 
     def __unicode__(self):
         return self.name
