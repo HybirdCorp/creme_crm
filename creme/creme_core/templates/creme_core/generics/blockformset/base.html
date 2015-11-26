@@ -16,6 +16,13 @@
 <p>{% trans "Fields marked with * are required."%} </p>
 
 <div id="editforms">
+    {% if not is_inner_popup %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            creme.forms.initialize($('#editforms form'));
+        });
+    </script>
+    {% endif %}
     <form method="POST" action="" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         <table style="width: 100%;" border="0" cellpadding="0" cellspacing="4">
@@ -60,7 +67,7 @@
         {% block submit_buttons %}
             {% if not is_inner_popup %}
                 <div class="submit_buttons">
-                    <input type="submit" value="{{submit_label|default:_("Save")}}" />
+                    <input type="submit" value="{{submit_label|default:_("Save")}}"/>
                     {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}
                 </div>
             {% else %}

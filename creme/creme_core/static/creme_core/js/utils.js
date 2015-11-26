@@ -261,8 +261,10 @@ creme.utils.handleDialogSubmit = function(dialog) {
 creme.utils.scrollTo = function(element) {
     var position = $(element).position();
 
-    if (position !== null)
+    if (Object.isNone(position) === false) {
+        console.log(position);
         scrollTo(position.left, position.top);
+    }
 }
 
 creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url) {

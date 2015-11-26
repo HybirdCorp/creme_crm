@@ -5,6 +5,13 @@
 {% block page_title %}{{title}} - {% endblock %}
 
 {% block content %}
+    {% if not is_inner_popup %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            creme.forms.initialize($('#wizard_form form'));
+        });
+    </script>
+    {% endif %}
     {% with form=wizard.form steps=wizard.steps %}
         {% block title %}
             <table class="table_header" cellpadding="0" cellspacing="0">
@@ -16,14 +23,6 @@
                 </tr>
             </table>
         {% endblock %}
-
-        {% if form.errors %}
-            <script type="text/javascript">
-                $(document).ready(function() {
-                    creme.blocks.scrollToError();
-                });
-            </script>
-        {% endif %}
 
         {% if help_message %}
             <div class="help_box">{{help_message|linebreaksbr}}</div>
