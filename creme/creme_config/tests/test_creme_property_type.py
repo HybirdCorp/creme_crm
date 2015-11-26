@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import CremePropertyType
+    from creme.creme_core.models import CremePropertyType, CremeProperty
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation)
@@ -15,6 +15,7 @@ except Exception as e:
 
 class PropertyTypeTestCase(CremeTestCase):
     ADD_URL = '/creme_config/property_type/add/'
+    DELETE_URL = '/creme_config/property_type/delete'
 
     @classmethod
     def setUpClass(cls):
@@ -105,9 +106,19 @@ class PropertyTypeTestCase(CremeTestCase):
 
     def test_delete01(self):
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=False)
-        self.assertPOST404('/creme_config/property_type/delete', data={'id': pt.id})
+        self.assertPOST404(self.DELETE_URL, data={'id': pt.id})
 
     def test_delete02(self):
-        pt = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=True)
-        self.assertPOST200('/creme_config/property_type/delete', data={'id': pt.id})
-        self.assertDoesNotExist(pt)
+        create_ptype = CremePropertyType.create
+        pt1 = create_ptype('test-foo', 'is beautiful', [], is_custom=True)
+        pt2 = create_ptype('test-bar', 'is smart')
+
+        zap = Contact.objects.create(user=self.user, first_name='Zap', last_name='Brannigan')
+        prop = CremeProperty.objects.create(creme_entity=zap, type=pt1)
+
+        self.assertPOST200(self.DELETE_URL, data={'id': pt1.id})
+        self.assertDoesNotExist(pt1)
+        self.assertDoesNotExist(prop)
+
+        self.assertStillExists(pt2)
+

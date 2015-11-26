@@ -46,10 +46,9 @@ class CremePropertyType(CremeModel):
     def __unicode__(self):
         return self.text
 
-    def delete(self):
-        #self.property_i18n_set.all().delete()
-        CremeProperty.objects.filter(type=self).delete()
-        super(CremePropertyType, self).delete()
+    # def delete(self):
+    #     CremeProperty.objects.filter(type=self).delete()
+    #     super(CremePropertyType, self).delete()
 
     def get_absolute_url(self):
         return '/creme_core/property/type/%s' % self.id
