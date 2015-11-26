@@ -26,6 +26,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from .. import get_sales_order_model, get_invoice_model
+from ..constants import DEFAULT_HFILTER_ORDER
 from ..forms.sales_order import SalesOrderCreateForm, SalesOrderEditForm
 #from ..models import SalesOrder
 from ..views.workflow import generic_add_related #_add_with_relations
@@ -106,6 +107,6 @@ def detailview(request, order_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, SalesOrder,
+    return list_view(request, SalesOrder, hf_pk=DEFAULT_HFILTER_ORDER,
                      # extra_dict={'add_url': reverse('billing__create_order')}
                     )

@@ -33,7 +33,8 @@ from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         view_entity) #add_model_with_popup
 
 from .. import get_invoice_model
-from ..constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
+from ..constants import (DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS,
+         DEFAULT_HFILTER_INVOICE)
 from ..forms.invoice import InvoiceCreateForm, InvoiceEditForm
 from ..models import InvoiceStatus #Invoice
 from ..views.workflow import generic_add_related #_add_with_relations
@@ -123,7 +124,7 @@ def detailview(request, invoice_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, Invoice,
+    return list_view(request, Invoice, hf_pk=DEFAULT_HFILTER_INVOICE,
                      # extra_dict={'add_url': reverse('billing__create_invoice')},
                     )
 

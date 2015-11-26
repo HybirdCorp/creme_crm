@@ -31,6 +31,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         view_entity, edit_entity, list_view)
 
 from .. import get_graph_model
+from ..constants import DEFAULT_HFILTER_GRAPH
 from ..forms.graph import GraphForm, AddRelationTypesForm
 #from ..models import Graph
 
@@ -96,7 +97,7 @@ def detailview(request, graph_id):
 @login_required
 @permission_required('graphs')
 def listview(request):
-    return list_view(request, Graph,
+    return list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH,
                      # extra_dict={'add_url': '/graphs/graph/add'},
                      # extra_dict={'add_url': reverse('graphs__create_graph')},
                     )

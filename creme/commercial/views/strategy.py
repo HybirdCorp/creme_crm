@@ -34,6 +34,7 @@ from creme.persons import get_organisation_model
 #from creme.persons.models import Organisation
 
 from .. import get_strategy_model
+from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 from ..forms import strategy as forms
 from ..models import (MarketSegmentDescription, CommercialAsset, CommercialAssetScore,
@@ -85,7 +86,7 @@ def detailview(request, strategy_id):
 @login_required
 @permission_required('commercial')
 def listview(request):
-    return generic.list_view(request, Strategy,
+    return generic.list_view(request, Strategy, hf_pk=DEFAULT_HFILTER_STRATEGY,
                              # extra_dict={'add_url': '/commercial/strategy/add'}
                              # extra_dict={'add_url': reverse('commercial__create_strategy')}
                             )

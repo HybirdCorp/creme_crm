@@ -26,6 +26,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import view_entity, add_entity, edit_entity, list_view
 
 from .. import get_pollcampaign_model
+from ..constants import DEFAULT_HFILTER_PCAMPAIGN
 from ..forms.campaign import PollCampaignForm
 #from ..models import PollCampaign
 
@@ -75,7 +76,7 @@ def detailview(request, campaign_id):
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollCampaign,
+    return list_view(request, PollCampaign, hf_pk=DEFAULT_HFILTER_PCAMPAIGN,
                      # extra_dict={'add_url': '/polls/campaign/add'},
                      # extra_dict={'add_url': reverse('polls__create_campaign')},
                     )

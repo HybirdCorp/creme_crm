@@ -29,6 +29,7 @@ from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
 
 from .. import get_project_model
+from ..constants import DEFAULT_HFILTER_PROJECT
 from ..forms.project import ProjectCreateForm, ProjectEditForm
 from ..models import ProjectStatus # Project
 
@@ -73,7 +74,7 @@ def edit(request, project_id):
 @login_required
 @permission_required('projects')
 def listview(request):
-    return list_view(request, Project,
+    return list_view(request, Project, hf_pk=DEFAULT_HFILTER_PROJECT,
                      # extra_dict={'add_url': '/projects/project/add'},
                      # extra_dict={'add_url': reverse('projects__create_project')},
                     )

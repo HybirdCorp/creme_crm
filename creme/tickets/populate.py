@@ -34,7 +34,8 @@ from creme.creme_core.utils import create_if_needed
 
 from . import get_ticket_model, get_tickettemplate_model
 #from .models import *
-from .constants import REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET
+from .constants import (REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET,
+    DEFAULT_HFILTER_TICKET, DEFAULT_HFILTER_TTEMPLATE)
 from .models import Status, Priority, Criticity
 from .models.status import BASE_STATUS
 
@@ -67,7 +68,9 @@ class Populator(BasePopulator):
 
 
         create_hf = HeaderFilter.create
-        create_hf(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket,
+        create_hf(pk=DEFAULT_HFILTER_TICKET,
+                  model=Ticket,
+                  name=_(u'Ticket view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'number'}),
                               (EntityCellRegularField, {'name': 'title'}),
                               (EntityCellRegularField, {'name': 'status'}),
@@ -76,7 +79,9 @@ class Populator(BasePopulator):
                               (EntityCellRegularField, {'name': 'closing_date'}),
                              ],
                  )
-        create_hf(pk='tickets-hf_template', name=_(u'Ticket template view'), model=TicketTemplate,
+        create_hf(pk=DEFAULT_HFILTER_TTEMPLATE,
+                  model=TicketTemplate,
+                  name=_(u'Ticket template view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'title'}),
                               (EntityCellRegularField, {'name': 'status'}),
                               (EntityCellRegularField, {'name': 'priority'}),

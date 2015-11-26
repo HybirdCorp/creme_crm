@@ -91,7 +91,7 @@ def detailview(request, event_id):
 @login_required
 @permission_required('events')
 def listview(request):
-    return list_view(request, Event,
+    return list_view(request, Event, hf_pk=DEFAULT_HFILTER_EVENT,
                      # extra_dict={'add_url': '/events/event/add'},
                      # extra_dict={'add_url': reverse('events__create_event')},
                     )

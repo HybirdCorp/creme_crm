@@ -30,7 +30,7 @@ from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         view_entity, add_to_entity, edit_model_with_popup)
 
 from .. import get_credit_note_model
-from ..constants import REL_OBJ_CREDIT_NOTE_APPLIED
+from ..constants import REL_OBJ_CREDIT_NOTE_APPLIED, DEFAULT_HFILTER_CNOTE
 from ..forms.credit_note import (CreditNoteCreateForm,
         CreditNoteEditForm, CreditNotePopupEditForm, CreditNoteRelatedForm)
 #from creme.billing.models import CreditNote
@@ -109,7 +109,7 @@ def detailview(request, credit_note_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, CreditNote,
+    return list_view(request, CreditNote, hf_pk=DEFAULT_HFILTER_CNOTE,
                      # extra_dict={'add_url': reverse('billing__create_cnote')},
                     )
 

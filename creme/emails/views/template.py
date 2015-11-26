@@ -30,6 +30,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
 from .. import get_emailtemplate_model
+from ..constants import DEFAULT_HFILTER_TEMPLATE
 #from ..models import EmailTemplate
 from ..forms.template import EmailTemplateForm, EmailTemplateAddAttachment
 
@@ -60,9 +61,9 @@ def detailview(request, template_id):
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, EmailTemplate,
+    return list_view(request, EmailTemplate, hf_pk=DEFAULT_HFILTER_TEMPLATE,
                      # extra_dict={'add_url': '/emails/template/add'}
-                     extra_dict={'add_url': reverse('emails__create_template')},
+                     # extra_dict={'add_url': reverse('emails__create_template')},
                     )
 
 @login_required

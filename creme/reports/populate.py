@@ -30,6 +30,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 
 from . import get_report_model
+from .constants import DEFAULT_HFILTER_REPORT
 from .blocks import report_fields_block, report_graphs_block
 #from .models import Report
 
@@ -43,7 +44,7 @@ class Populator(BasePopulator):
     def populate(self):
         Report = get_report_model()
 
-        HeaderFilter.create(pk='reports-hf', name=_(u'Report view'), model=Report,
+        HeaderFilter.create(pk=DEFAULT_HFILTER_REPORT, name=_(u'Report view'), model=Report,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                         (EntityCellRegularField, {'name': 'ct'}),
                                        ],

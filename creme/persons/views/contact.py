@@ -30,6 +30,7 @@ from creme.creme_core.models import RelationType
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from .. import get_contact_model, get_organisation_model
+from ..constants import DEFAULT_HFILTER_CONTACT
 #from ..models import Contact, Organisation
 from ..forms.contact import RelatedContactForm, ContactForm
 
@@ -133,5 +134,6 @@ def detailview(request, contact_id):
 def listview(request):
 #    return list_view(request, Contact, extra_dict={'add_url': '/persons/contact/add'})
     return list_view(request, Contact,
+                     hf_pk=DEFAULT_HFILTER_CONTACT,
                      # extra_dict={'add_url': reverse('persons__create_contact')},
                     )

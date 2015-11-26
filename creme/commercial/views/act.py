@@ -37,7 +37,7 @@ from creme.opportunities.forms.opportunity import OpportunityCreateForm
 # from creme.opportunities.models import Opportunity
 
 from .. import get_act_model, get_pattern_model
-from ..constants import REL_SUB_COMPLETE_GOAL
+from ..constants import REL_SUB_COMPLETE_GOAL, DEFAULT_HFILTER_ACT, DEFAULT_HFILTER_PATTERN
 from ..forms import act as forms
 from ..models import ActType, ActObjective, MarketSegment, ActObjectivePatternComponent # Act ActObjectivePattern
 
@@ -169,7 +169,7 @@ def objective_pattern_detailview(request, objpattern_id):
 @login_required
 @permission_required('commercial')
 def listview(request):
-    return generic.list_view(request, Act,
+    return generic.list_view(request, Act, hf_pk=DEFAULT_HFILTER_ACT,
                              # extra_dict={'add_url': '/commercial/act/add'}
                              # extra_dict={'add_url': reverse('commercial__create_act')}
                             )
@@ -178,7 +178,7 @@ def listview(request):
 @login_required
 @permission_required('commercial')
 def listview_objective_pattern(request):
-    return generic.list_view(request, ActObjectivePattern,
+    return generic.list_view(request, ActObjectivePattern, hf_pk=DEFAULT_HFILTER_PATTERN,
                              # extra_dict={'add_url': '/commercial/objective_pattern/add'},
                              # extra_dict={'add_url': reverse('commercial__create_pattern')},
                             )

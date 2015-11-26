@@ -40,7 +40,7 @@ from creme.persons import get_contact_model
 
 from .. import get_activity_model
 from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING,
-        ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK,
+        ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK, DEFAULT_HFILTER_ACTIVITY,
         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..forms.activity import (ActivityCreateForm, IndisponibilityCreateForm,
         RelatedActivityCreateForm, CalendarActivityCreateForm, ActivityEditForm)
@@ -275,7 +275,7 @@ def listview(request, type_id=None):
         # TODO: change 'add' button too ??
         kwargs['extra_q'] = Q(type=type_id)
 
-    return list_view(request, Activity,
+    return list_view(request, Activity, hf_pk=DEFAULT_HFILTER_ACTIVITY,
                      extra_dict={# 'add_url': reverse('activities__create_activity'),
                                  'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )
                                 },

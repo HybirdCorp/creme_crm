@@ -30,4 +30,6 @@ REL_OBJ_RESPONSIBLE = 'opportunities-object_responsible'
 REL_SUB_CURRENT_DOC = 'opportunities-subject_current_doc'
 REL_OBJ_CURRENT_DOC = 'opportunities-object_current_doc'
 
+DEFAULT_HFILTER_OPPORTUNITY = 'opportunities-hf'
+
 SETTING_USE_CURRENT_QUOTE = 'opportunities-use_current_quote'

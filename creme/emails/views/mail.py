@@ -36,7 +36,8 @@ from creme.crudity.views.actions import fetch
 from .. import get_entityemail_model
 from ..blocks import mail_waiting_sync_block, mail_spam_sync_block
 from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM,
-        MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING)
+        MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING,
+        DEFAULT_HFILTER_EMAIL)
 from ..forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
 from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail # EntityEmail
@@ -243,7 +244,7 @@ def popupview(request, mail_id):
 @login_required
 @permission_required('emails')
 def listview(request):
-    return generic.list_view(request, EntityEmail)
+    return generic.list_view(request, EntityEmail, hf_pk=DEFAULT_HFILTER_EMAIL)
 
 
 @login_required

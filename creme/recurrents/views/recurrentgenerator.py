@@ -32,6 +32,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import view_entity, list_view, edit_entity
 
 from .. import get_rgenerator_model
+from ..constants import DEFAULT_HFILTER_RGENERATOR
 from ..forms.recurrentgenerator import RecurrentGeneratorEditForm
 #from ..models import RecurrentGenerator
 
@@ -126,7 +127,7 @@ def detailview(request, generator_id):
 @login_required
 @permission_required('recurrents')
 def listview(request):
-    return list_view(request, RecurrentGenerator,
+    return list_view(request, RecurrentGenerator, hf_pk=DEFAULT_HFILTER_RGENERATOR,
                      # extra_dict={'add_url': '/recurrents/generator/add'},
                      # extra_dict={'add_url': reverse('recurrents__create_generator')},
                     )

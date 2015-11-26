@@ -25,6 +25,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from .. import get_messagetemplate_model
+from ..constants import DEFAULT_HFILTER_MTEMPLATE
 from ..forms.template import TemplateCreateForm, TemplateEditForm
 #from ..models import MessageTemplate
 
@@ -74,6 +75,6 @@ def detailview(request, template_id):
 @login_required
 @permission_required('sms')
 def listview(request):
-    return list_view(request, MessageTemplate,
+    return list_view(request, MessageTemplate, hf_pk=DEFAULT_HFILTER_MTEMPLATE,
                      # extra_dict={'add_url': '/sms/template/add'}
                     )

@@ -29,6 +29,7 @@ from creme.creme_core.views.generic import (add_entity, add_model_with_popup,
         edit_entity, view_entity, list_view)
 
 from .. import get_opportunity_model
+from ..constants import DEFAULT_HFILTER_OPPORTUNITY
 from ..forms.opportunity import OpportunityCreateForm, OpportunityEditForm
 from ..models import SalesPhase #Opportunity
 
@@ -120,6 +121,6 @@ def detailview(request, opp_id):
 @login_required
 @permission_required('opportunities')
 def listview(request):
-    return list_view(request, Opportunity,
+    return list_view(request, Opportunity, hf_pk=DEFAULT_HFILTER_OPPORTUNITY,
                      # extra_dict={'add_url': reverse('opportunities__create_opportunity')},
                     )

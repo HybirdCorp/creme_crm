@@ -31,6 +31,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 
 from . import get_smscampaign_model, get_messaginglist_model, get_messagetemplate_model
+from . import constants
 from .blocks import messaging_lists_block, recipients_block, contacts_block, sendings_block
 #from .models import MessagingList, SMSCampaign, MessageTemplate
 
@@ -47,13 +48,19 @@ class Populator(BasePopulator):
         MessageTemplate = get_messagetemplate_model()
 
         create_hf = HeaderFilter.create
-        create_hf(pk='sms-hf_mlist', name=_(u'Messaging list view'), model=MessagingList,
+        create_hf(pk=constants.DEFAULT_HFILTER_MLIST,
+                   model=MessagingList,
+                  name=_(u'Messaging list view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
-        create_hf(pk='sms-hf_campaign', name=_(u'Campaign view'), model=SMSCampaign,
+        create_hf(pk=constants.DEFAULT_HFILTER_SMSCAMPAIGN,
+                  model=SMSCampaign,
+                  name=_(u'Campaign view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
-        create_hf(pk='sms-hf_template', name=_(u'Message template view'), model=MessageTemplate,
+        create_hf(pk=constants.DEFAULT_HFILTER_MTEMPLATE,
+                  model=MessageTemplate,
+                  name=_(u'Message template view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
 

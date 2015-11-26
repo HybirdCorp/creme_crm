@@ -33,6 +33,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
 from creme.persons import get_contact_model, get_organisation_model
 
 from .. import get_mailinglist_model
+from ..constants import DEFAULT_HFILTER_MAILINGLIST
 from ..forms.mailing_list import (MailingListForm, AddChildForm,
         AddContactsForm, AddOrganisationsForm,
         AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
@@ -86,7 +87,7 @@ def detailview(request, ml_id):
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, MailingList,
+    return list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST,
                      # extra_dict={'add_url': '/emails/mailing_list/add'}
                      # extra_dict={'add_url': reverse('emails__create_mlist')},
                     )

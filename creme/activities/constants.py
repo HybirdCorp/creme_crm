@@ -57,14 +57,16 @@ EFILTER_MEETINGS   = 'activities-meetings'
 EFILTER_PHONECALLS = 'activities-phonecalls'
 EFILTER_TASKS      = 'activities-tasks'
 
+DEFAULT_HFILTER_ACTIVITY = 'activities-hf_activity'
+
 DEFAULT_CALENDAR_COLOR = 'C1D9EC'
-COLOR_POOL = ('c1d9ec', '94c6db', #blue icecream
-              'f7cbc6', 'f7b5ad', #pink icecream
-              'b9fae5', '61ffcd', #turquoises
-              'fff4b8', 'ffe96e', #yellows
-              'd4ffb8', 'b4ff82', #greens
-              'f9b3ff', 'f36bff', #pink-mallow
-              'ffcea6', 'ffab66', #oranges
+COLOR_POOL = ('c1d9ec', '94c6db',  # Blue icecream
+              'f7cbc6', 'f7b5ad',  # Pink icecream
+              'b9fae5', '61ffcd',  # Turquoises
+              'fff4b8', 'ffe96e',  # Yellows
+              'd4ffb8', 'b4ff82',  # Greens
+              'f9b3ff', 'f36bff',  # Pink-mallow
+              'ffcea6', 'ffab66',  # Oranges
              )
 
 MAX_ELEMENT_SEARCH = 10

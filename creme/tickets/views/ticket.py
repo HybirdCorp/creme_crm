@@ -26,6 +26,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from .. import get_ticket_model
+from ..constants import DEFAULT_HFILTER_TICKET
 from ..forms.ticket import TicketCreateForm, TicketEditForm
 from ..models import Priority, Criticity #Ticket
 
@@ -78,7 +79,7 @@ def detailview(request, ticket_id):
 @login_required
 @permission_required('tickets')
 def listview(request):
-    return list_view(request, Ticket,
+    return list_view(request, Ticket, hf_pk=DEFAULT_HFILTER_TICKET,
                      # extra_dict={'add_url': '/tickets/ticket/add'}
                      # extra_dict={'add_url': reverse('tickets__create_ticket')},
                     )
