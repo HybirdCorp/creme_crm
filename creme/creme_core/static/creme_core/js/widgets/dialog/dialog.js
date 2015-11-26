@@ -33,10 +33,15 @@ creme.dialog.Dialog = creme.component.Component.sub({
             height:     350,
             scroll:     'frame',
             fitFrame:    true,
-            useFrameActions: true
+            useFrameActions: true,
+            compatible: false
         }, options || {});
 
         this._initFrame(this.options);
+
+        if (options.compatible) {
+            this._enableCompatibility(this.options);
+        }
     },
 
     _initFrame: function(options)
@@ -402,6 +407,13 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     isOpened: function() {
         return this._dialog != undefined;
+    },
+
+    _enableCompatibility: function(options)
+    {
+        this.on('frame-update', function(frame) {
+            creme.blocks.bindEvents(this.content());
+        });
     }
 });
 
@@ -464,13 +476,6 @@ creme.dialogs = $.extend(creme.dialogs, {
         return this.html(source, options);
     },
 
-    _initBlockCompatibility: function(dialog, options)
-    {
-        dialog.on('frame-update', function(frame) {
-            creme.blocks.bindEvents(this.content());
-        });
-    },
-
     url: function(url, options, data)
     {
         var options = $.extend({compatible: true}, options || {});
@@ -480,10 +485,6 @@ creme.dialogs = $.extend(creme.dialogs, {
             dialog.onClose(function() {creme.utils.reload();});
         }
 
-        if (options.compatible === true) {
-            this._initBlockCompatibility(dialog, options);
-        }
-
         return dialog;
     },
 
@@ -491,19 +492,6 @@ creme.dialogs = $.extend(creme.dialogs, {
     {
         var options = $.extend({compatible: true}, options || {});
         var dialog = new creme.dialog.FormDialog(options);
-
-        if (options.compatible === true)
-        {
-            var compatibility = function(data, statusText, dataType) {
-                return dataType !== 'text/html' ||
-                       data.startsWith('<div class="in-popup" closing="true"') ||
-                       (data.startsWith('<div class="in-popup"') && data.match(/<form[^>]*>/) === null);
-            }
-
-            dialog.validator(compatibility);
-
-            this._initBlockCompatibility(dialog, options);
-        }
 
         dialog.fetch(url, {}, data);
 
@@ -521,10 +509,6 @@ creme.dialogs = $.extend(creme.dialogs, {
 
         if (options.reloadOnClose) {
             dialog.onClose(function() {creme.utils.reload();});
-        }
-
-        if (options.compatible === true) {
-            this._initBlockCompatibility(dialog, options);
         }
 
         return dialog;
