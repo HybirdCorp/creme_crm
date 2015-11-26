@@ -43,7 +43,7 @@ from ..global_info import get_global_info
 from ..utils import update_model_instance
 from ..utils.date_range import date_range_registry
 from ..utils.dates import make_aware_dt, date_2_dict
-from ..utils.meta import is_date_field, FieldInfo #get_model_field_info
+from ..utils.meta import is_date_field, FieldInfo
 from .relation import RelationType, Relation
 from .custom_field import CustomField, CustomFieldBoolean
 from .fields import CremeUserForeignKey, CTypeForeignKey
@@ -56,9 +56,6 @@ class EntityFilterList(list):
     """Contains all the EntityFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's as a cache.
     """
-    #def __init__(self, content_type):
-        #super(EntityFilterList, self).__init__(EntityFilter.objects.filter(entity_type=content_type))
-        #self._selected = None
     def __init__(self, content_type, user):
         super(EntityFilterList, self).__init__(EntityFilter.get_for_user(user, content_type))
         self._selected = None
@@ -69,7 +66,7 @@ class EntityFilterList(list):
 
     def select_by_id(self, *ids):
         """Try several EntityFilter ids"""
-        #linear search but with few items after all....
+        # Linear search but with few items after all...
         for efilter_id in ids:
             for efilter in self:
                 if efilter.id == efilter_id:
@@ -100,7 +97,7 @@ class _CurrentUserVariable(EntityFilterVariable):
         field.formfield().clean(value)
 
 
-class EntityFilter(Model): #CremeModel ???
+class EntityFilter(Model):  # CremeModel ???
     """A model that contains conditions that filter queries on CremeEntity objects.
     They are principally used in the list views.
     Conditions can be :
@@ -114,10 +111,9 @@ class EntityFilter(Model): #CremeModel ???
     id          = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name        = CharField(max_length=100, verbose_name=_('Name'))
     user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True).set_tags(viewable=False) #verbose_name=_(u'Owner')
-    #entity_type = ForeignKey(ContentType, editable=False)
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     is_custom   = BooleanField(editable=False, default=True).set_tags(viewable=False)
-    is_private  = BooleanField(pgettext_lazy('creme_core-entity_filter', u'Is private?'), default=False) #'True' means: can only be viewed (and so edited/deleted) by its owner.
+    is_private  = BooleanField(pgettext_lazy('creme_core-entity_filter', u'Is private?'), default=False)  # 'True' means: can only be viewed (and so edited/deleted) by its owner.
     use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False).set_tags(viewable=False)
 
     creation_label = _('Add a filter')
@@ -155,7 +151,7 @@ class EntityFilter(Model): #CremeModel ???
         if not self.is_custom:
             return (False, ugettext(u"This filter can't be edited/deleted"))
 
-        if not self.user_id: #all users allowed
+        if not self.user_id:  # All users allowed
             return (True, 'OK')
 
         if user.is_superuser:
@@ -181,7 +177,7 @@ class EntityFilter(Model): #CremeModel ???
     def can_edit(self, user):
         assert not user.is_team
 
-        if not self.user_id: #all users allowed
+        if not self.user_id:  # All users allowed
             return (True, 'OK')
 
         if user.is_staff:
@@ -212,7 +208,7 @@ class EntityFilter(Model): #CremeModel ???
     def check_cycle(self, conditions):
         assert self.id
 
-        #Ids of EntityFilters that are referenced by these conditions
+        # Ids of EntityFilters that are referenced by these conditions
         ref_filter_ids = {sf_id for sf_id in (cond._get_subfilter_id() for cond in conditions) if sf_id}
 
         if self.id in ref_filter_ids:
@@ -223,10 +219,10 @@ class EntityFilter(Model): #CremeModel ???
 
     def _check_privacy_parent_filters(self, is_private, owner):
         if not self.id:
-            return # cannot have a parent because we are creating the filter
+            return  # Cannot have a parent because we are creating the filter
 
         if not is_private:
-            return # public children filters cannot cause problem to their parents
+            return  # Public children filters cannot cause problem to their parents
 
         for cond in self._iter_parent_conditions():
             parent_filter = cond.filter
@@ -276,7 +272,7 @@ class EntityFilter(Model): #CremeModel ???
                             )
 
     def _check_privacy_sub_filters(self, conditions, is_private, owner):
-        #TODO: factorise
+        # TODO: factorise
         ref_filter_ids = {sf_id for sf_id in (cond._get_subfilter_id() for cond in conditions) if sf_id}
 
         if is_private:
@@ -335,17 +331,6 @@ class EntityFilter(Model): #CremeModel ???
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
 
-    #@staticmethod
-    #def create(pk, name, model, is_custom=False, user=None, use_or=False):
-        #"""Creation helper ; useful for populate.py scripts."""
-        #from creme.creme_core.utils import create_or_update
-
-        #ef = create_or_update(EntityFilter, pk=pk,
-                              #name=name, is_custom=is_custom, user=user, use_or=use_or,
-                              #entity_type=ContentType.objects.get_for_model(model)
-                             #)
-
-        #return ef
     @staticmethod
     def create(pk, name, model, is_custom=False, user=None, use_or=False,
                is_private=False, conditions=(),
@@ -450,7 +435,7 @@ class EntityFilter(Model): #CremeModel ???
 
         return ef
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         parents = {unicode(cond.filter) for cond in self._iter_parent_conditions()}
 
         if parents:
@@ -458,10 +443,10 @@ class EntityFilter(Model): #CremeModel ???
                                                     u', '.join(parents)
                                                 )
 
-        super(EntityFilter, self).delete()
+        super(EntityFilter, self).delete(*args, **kwargs)
 
     def filter(self, qs, user=None):
-        #distinct is useful with condition on m2m that can retrieve several times the same Entity
+        # Distinct is useful with condition on m2m that can retrieve several times the same Entity
         return qs.filter(self.get_q(user)).distinct()
 
     def _get_subfilter_conditions(self):
@@ -485,7 +470,7 @@ class EntityFilter(Model): #CremeModel ???
                 yield cond
 
     def get_connected_filter_ids(self):
-        #NB: 'level' means a level of filters connected to this filter :
+        # NB: 'level' means a level of filters connected to this filter :
         #  - 1rst level is 'self'.
         #  - 2rst level is filters with a sub-filter conditions relative to 'self'.
         #  - 3rd level  is filters with a sub-filter conditions relative to a filter of the 2nd level.
@@ -495,7 +480,7 @@ class EntityFilter(Model): #CremeModel ???
 
         self._connected_filter_cache = connected = level_ids = {self.id}
 
-        #Sub-filters conditions
+        # Sub-filters conditions
         sf_conds = [(cond, cond._get_subfilter_id()) for cond in self._get_subfilter_conditions()]
 
         while level_ids:
@@ -560,7 +545,6 @@ class EntityFilter(Model): #CremeModel ???
 
         return self._conditions_cache
 
-    #def set_conditions(self, conditions, check_cycles=True):
     def set_conditions(self, conditions, check_cycles=True, check_privacy=True):
         if check_cycles:
             self.check_cycle(conditions)
@@ -572,21 +556,21 @@ class EntityFilter(Model): #CremeModel ???
         conds2del = []
 
         for old_condition, condition in izip_longest(old_conditions, conditions):
-            if not condition: #less new conditions that old conditions => delete conditions in excess
+            if not condition:  # Less new conditions that old conditions => delete conditions in excess
                 conds2del.append(old_condition.id)
             elif not old_condition:
                 condition.filter = self
                 condition.save()
             elif old_condition.update(condition):
                 old_condition.save()
-                condition.pk = old_condition.pk #if there is an error we delete it
+                condition.pk = old_condition.pk  # If there is an error we delete it
 
         if conds2del:
             EntityFilterCondition.objects.filter(pk__in=conds2del).delete()
 
         self._build_conditions_cache(conditions)
 
-    #TODO: in the manager ?
+    # TODO: in the manager ?
     @staticmethod
     def get_latest_version(base_pk):
         """Get the latest EntityFilter from the family which uses the 'base_pk'.
@@ -613,25 +597,25 @@ class EntityFilter(Model): #CremeModel ???
                 return ((-1,),)
 
             groupdict = search.groupdict()
-            version_num = groupdict['version_num'] # eg '1.5'
+            version_num = groupdict['version_num']  # eg '1.5'
             if not version_num:
                 return ((0,),)
 
             version_num_tuple = tuple(int(x) for x in version_num.split('.'))
 
-            version_mod = groupdict['version_mod'] or '' # '', alpha', 'beta' or 'rc' -> yeah, they are already alphabetically sorted
+            version_mod = groupdict['version_mod'] or ''  # '', alpha', 'beta' or 'rc' -> yeah, they are already alphabetically sorted
 
             version_modnum_str = groupdict['version_modnum'] # eg '11' in 'rc11'
             version_modnum = int(version_modnum_str) if version_modnum_str else 1
 
-            copy_num_str = groupdict['copy_num'] # eg '11' in 'base_pk[1.5]11'
+            copy_num_str = groupdict['copy_num']  # eg '11' in 'base_pk[1.5]11'
             copy_num = int(copy_num_str) if copy_num_str else 0
 
             return (version_num_tuple, version_mod, version_modnum, copy_num)
 
         efilters.sort(key=key)
 
-        return efilters[-1] #TODO: max()
+        return efilters[-1]  # TODO: max()
 
     @staticmethod
     def get_variable(value):
@@ -646,7 +630,7 @@ class EntityFilter(Model): #CremeModel ???
 class _ConditionOperator(object):
     __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern', '_allowed_fieldtypes')
 
-    #Fields for which the subpart of a valid value is not valid
+    # Fields for which the subpart of a valid value is not valid
     _NO_SUBPART_VALIDATION_FIELDS = {models.EmailField, models.IPAddressField}
 
     def __init__(self, name, key_pattern, exclude=False, accept_subpart=True, allowed_fieldtypes=None):
@@ -655,7 +639,7 @@ class _ConditionOperator(object):
         self._accept_subpart     = accept_subpart
         self.name                = name
 
-        # needed by javascript widget to filter operators for each field type 
+        # Needed by javascript widget to filter operators for each field type
         self._allowed_fieldtypes = allowed_fieldtypes or tuple()
 
     @property
@@ -719,17 +703,15 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
     def get_q(self, efcondition, values):
         field_name = efcondition.name
 
-        # as default, set isnull operator (allways true, negate is done later)
+        # As default, set isnull operator (allways true, negate is done later)
         query = Q(**{self.key_pattern % field_name: True})
 
-        # add filter for text fields, "isEmpty" should mean null or empty string 
-        #finfo = get_model_field_info(efcondition.filter.entity_type.model_class(), field_name)
+        # Add filter for text fields, "isEmpty" should mean null or empty string
         finfo = FieldInfo(efcondition.filter.entity_type.model_class(), field_name)
-        #if isinstance(finfo[-1]['field'], (CharField, TextField)):
         if isinstance(finfo[-1], (CharField, TextField)):
             query |= Q(**{field_name: ''})
 
-        # negate filter on false value
+        # Negate filter on false value
         if not values[0]:
             query.negate()
 
@@ -750,9 +732,9 @@ class _RangeOperator(_ConditionOperator):
 class EntityFilterCondition(Model):
     """Tip: Use the helper methods build_4_* instead of calling constructor."""
     filter = ForeignKey(EntityFilter, related_name='conditions')
-    type   = PositiveSmallIntegerField() #NB: see EFC_*
+    type   = PositiveSmallIntegerField()  # NB: see EFC_*  # TODO: choices ?
     name   = CharField(max_length=100)
-    value  = TextField() #TODO: use a JSONField ?
+    value  = TextField()  # TODO: use a JSONField ?
 
     EFC_SUBFILTER          = 1
     EFC_FIELD              = 5
@@ -763,7 +745,7 @@ class EntityFilterCondition(Model):
     EFC_CUSTOMFIELD        = 20
     EFC_DATECUSTOMFIELD    = 21
 
-    #OPERATORS (fields, custom_fields)
+    # OPERATORS (fields, custom_fields)
     EQUALS          =  1
     IEQUALS         =  2
     EQUALS_NOT      =  3
@@ -918,14 +900,10 @@ class EntityFilterCondition(Model):
     @staticmethod
     def build_4_date(model, name, date_range=None, start=None, end=None):
         try:
-            ##field = model._meta.get_field(name)
-            #finfo = get_model_field_info(model, name, silent=False)
             finfo = FieldInfo(model, name)
         except FieldDoesNotExist as e:
             raise EntityFilterCondition.ValueError(str(e))
 
-        ##if not is_date_field(field):
-        #if not is_date_field(finfo[-1]['field']):
         if not is_date_field(finfo[-1]):
             raise EntityFilterCondition.ValueError('build_4_date(): field must be a date field.')
 
@@ -946,7 +924,7 @@ class EntityFilterCondition(Model):
                                      value=EntityFilterCondition.encode_value(value),
                                     )
 
-    #TODO multivalue is stupid for some operator (LT, GT etc...) => improve checking ???
+    # TODO multivalue is stupid for some operator (LT, GT etc...) => improve checking ???
     @staticmethod
     def build_4_field(model, name, operator, values):
         """Search in the values of a model field.
@@ -961,13 +939,11 @@ class EntityFilterCondition(Model):
             raise EntityFilterCondition.ValueError('Unknown operator: %s' % operator)
 
         try:
-            #finfo = get_model_field_info(model, name, silent=False)
             finfo = FieldInfo(model, name)
         except FieldDoesNotExist as e:
             raise EntityFilterCondition.ValueError(str(e))
 
         try:
-            #values = operator_obj.validate_field_values(finfo[-1]['field'], values)
             values = operator_obj.validate_field_values(finfo[-1], values)
         except Exception as e:
             raise EntityFilterCondition.ValueError(str(e))
@@ -1039,30 +1015,26 @@ class EntityFilterCondition(Model):
         return jsondumps(value)
 
     @property
-    def error(self): #TODO: map of validators
+    def error(self):  # TODO: map of validators
         etype = self.type
         if etype == EntityFilterCondition.EFC_FIELD:
             try:
-                #get_model_field_info(self.filter.entity_type.model_class(), self.name, silent=False)
                 FieldInfo(self.filter.entity_type.model_class(), self.name)
             except FieldDoesNotExist as e:
                 return str(e)
         elif etype == EntityFilterCondition.EFC_DATEFIELD:
-            try: #TODO: factorise
-                ##self.filter.entity_type.model_class()._meta.get_field(self.name)
-                #finfo = get_model_field_info(self.filter.entity_type.model_class(), self.name, silent=False)
+            try:  # TODO: factorise
                 finfo = FieldInfo(self.filter.entity_type.model_class(), self.name)
             except FieldDoesNotExist as e:
                 return str(e)
 
-            #if not is_date_field(finfo[-1]['field']):
             if not is_date_field(finfo[-1]):
                 return '%s is not a date field' % self.name #TODO: test
 
     def _get_q_customfield(self, user):
-        #NB: Sadly we retrieve the ids of the entity that match with this condition
-        #    instead of use a 'JOIN', in order to avoid the interaction between
-        #    several conditions on the same type of CustomField (ie: same table).
+        # NB: Sadly we retrieve the ids of the entity that match with this condition
+        #     instead of use a 'JOIN', in order to avoid the interaction between
+        #     several conditions on the same type of CustomField (ie: same table).
         search_info = self.decoded_value
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
         related_name = search_info['rname']
@@ -1105,13 +1077,12 @@ class EntityFilterCondition(Model):
         for key in ('start', 'end'):
             date_kwargs = get(key)
             if date_kwargs:
-                #kwargs[key] = date(**date_kwargs)
                 kwargs[key] = make_aware_dt(datetime(**date_kwargs))
 
         return date_range_registry.get_range(**kwargs)
 
     def _get_q_datecustomfield(self, user):
-        #NB: see _get_q_customfield() remark
+        # NB: see _get_q_customfield() remark
         search_info = self.decoded_value
         related_name = search_info['rname']
         fname = '%s__value' % related_name
@@ -1140,14 +1111,12 @@ class EntityFilterCondition(Model):
 
         return query
 
-    #TODO: "relations__*" => old method that does not work with several conditions
-    #      on relations use it when there is only one condition on relations ??
+    # TODO: "relations__*" => old method that does not work with several conditions
+    #       on relations use it when there is only one condition on relations ??
     def _get_q_relation(self, user):
-        #kwargs = {'relations__type': self.name}
         kwargs = {'type': self.name}
         value = self.decoded_value
 
-        #for key, query_key in (('entity_id', 'relations__object_entity'), ('ct_id', 'relations__object_entity__entity_type')):
         for key, query_key in (('entity_id', 'object_entity'), ('ct_id', 'object_entity__entity_type')):
             arg = value.get(key)
 
@@ -1155,7 +1124,6 @@ class EntityFilterCondition(Model):
                 kwargs[query_key] = arg
                 break
 
-        #query = Q(**kwargs)
         query = Q(pk__in=Relation.objects.filter(**kwargs).values_list('subject_entity_id', flat=True))
 
         if not value['has']:
@@ -1163,14 +1131,13 @@ class EntityFilterCondition(Model):
 
         return query
 
-    #TODO: "relations__*" => old method that does not work with several conditions
-    #      on relations use it when there is only one condition on relations ??
+    # TODO: "relations__*" => old method that does not work with several conditions
+    #       on relations use it when there is only one condition on relations ??
     def _get_q_relation_subfilter(self, user):
         value = self.decoded_value
         subfilter = EntityFilter.objects.get(pk=value['filter_id'])
         filtered = subfilter.filter(subfilter.entity_type.model_class().objects.all()).values_list('id', flat=True)
 
-        #query = Q(relations__type=self.name, relations__object_entity__in=filtered)
         query = Q(pk__in=Relation.objects.filter(type=self.name, object_entity__in=filtered)
                                          .values_list('subject_entity_id', flat=True)
                  )
@@ -1183,7 +1150,7 @@ class EntityFilterCondition(Model):
     def _get_q_property(self, user):
         query = Q(properties__type=self.name)
 
-        if not self.decoded_value: #is a boolean indicating if got or has not got the property type
+        if not self.decoded_value:  # Is a boolean indicating if got or has not got the property type
             query.negate()
 
         return query
@@ -1225,6 +1192,7 @@ class EntityFilterCondition(Model):
 
         return changed
 
+
 @receiver(pre_delete, sender=RelationType)
 def _delete_relationtype_efc(sender, instance, **kwargs):
     EntityFilterCondition.objects.filter(type__in=(EntityFilterCondition.EFC_RELATION,
@@ -1233,6 +1201,7 @@ def _delete_relationtype_efc(sender, instance, **kwargs):
                                          name=instance.id
                                         )\
                                  .delete()
+
 
 @receiver(pre_delete, sender=CustomField)
 def _delete_customfield_efc(sender, instance, **kwargs):

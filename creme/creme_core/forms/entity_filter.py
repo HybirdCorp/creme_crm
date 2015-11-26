@@ -79,7 +79,7 @@ _HAS_RELATION_OPTIONS = OrderedDict([
 boolean_str = lambda val: TRUE if val else FALSE
 
 
-class FieldConditionWidget(ChainedInput): # TODO: rename FieldConditionSelecor ??
+class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector ??
     def __init__(self, fields=(), operators=(), attrs=None, autocomplete=False):
         super(FieldConditionWidget, self).__init__(attrs)
         self.fields = fields
@@ -163,7 +163,7 @@ class FieldConditionWidget(ChainedInput): # TODO: rename FieldConditionSelecor ?
         return category, (json.dumps(choice_value), choice_label)
 
     def _build_fieldchoices(self, fields):
-        categories = defaultdict(list) # Fields grouped by category (a category by FK)
+        categories = defaultdict(list)  # Fields grouped by category (a category by FK)
 
 #        for fieldname, fieldlist in fields.iteritems():
         for fieldname, fieldlist in fields:
@@ -208,7 +208,7 @@ class RegularFieldsConditionsWidget(SelectorList):
 
     def render(self, name, value, attrs=None):
         self.selector = FieldConditionWidget(fields=self.fields,
-                                             operators=EntityFilterCondition._OPERATOR_MAP, # TODO: given by form field ?
+                                             operators=EntityFilterCondition._OPERATOR_MAP,  # TODO: given by form field ?
                                              autocomplete=True,
                                             )
 
@@ -240,7 +240,7 @@ class DateFieldsConditionsWidget(SelectorList):
 
         if subfield is not None:
             category = field.verbose_name
-            choice_label = u'[%s] - %s' % (category, subfield.verbose_name) #TODO: factorise
+            choice_label = u'[%s] - %s' % (category, subfield.verbose_name)  # TODO: factorise
             is_null = subfield.null
         else:
             category = ''
@@ -252,14 +252,13 @@ class DateFieldsConditionsWidget(SelectorList):
 
     # TODO: factorise (see FieldConditionWidget)
     def _build_fieldchoices(self, fields):
-        categories = defaultdict(list) #fields grouped by category (a category by FK)
+        categories = defaultdict(list)  # Fields grouped by category (a category by FK)
 
 #        for fieldname, fieldlist in fields.iteritems():
         for fieldname, fieldlist in fields:
             category, choice = self._build_fieldchoice(fieldname, fieldlist)
             categories[category].append(choice)
 
-        # use collation sort
         return [(cat, sorted(categories[cat], key=lambda item: collator.sort_key(item[1])))
                     for cat in sorted(categories.keys(), key=collator.sort_key)
                ]
@@ -338,7 +337,7 @@ class CustomFieldConditionWidget(SelectorList):
             return _('No custom field at present.')
 
         self.selector = CustomFieldConditionSelector(fields=fields, autocomplete=True,
-                                                     operators=EntityFilterCondition._OPERATOR_MAP, # TODO: given by form field ?
+                                                     operators=EntityFilterCondition._OPERATOR_MAP,  # TODO: given by form field ?
                                                     )
 
         return super(CustomFieldConditionWidget, self).render(name, value, attrs)
