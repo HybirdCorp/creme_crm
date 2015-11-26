@@ -78,7 +78,7 @@
                                         plot-name="${graph}"
                                         style="width:100%;margin:0px;padding:0px;border:0px;">
                                         {% for name, chart in report_charts %}
-                                            <script name="{{name}}" type="text/json">{% report_chart_json graph chart %}</script>
+                                            <script name="{{name}}" type="text/json">{% report_chart_json graph chart is_small=True %}</script>
                                         {% endfor %}
                                         <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable" widget="ui-creme-jqueryplot"
                                             savable="false" style="height:300px;padding:5px;border:0px;" format="creme.graphael.BargraphData">
