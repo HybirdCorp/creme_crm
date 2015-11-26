@@ -10,14 +10,14 @@
         <h5>no key, default selector</h5>
         <span class="ui-creme-widget ui-creme-polymorphicselect widget-auto" widget="ui-creme-polymorphicselect">
             <script selector-key="*" type="text/template">
-                <input widget="ui-creme-dinput" type="text" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                <input widget="ui-creme-dinput" type="text" class="ui-creme-input ui-creme-widget ui-creme-dinput"/>
             </script>
         </span>
     </li>
     <li>
         <h5>any key, default selector template</h5>
         <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
-             <input type="hidden" class="ui-creme-input ui-creme-chainedselect"></input>
+             <input type="hidden" class="ui-creme-input ui-creme-chainedselect"/>
              <ul class="ui-layout hbox">
                   <li chained-name="type" class="ui-creme-chainedselect-item">
                        <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-dselect ui-creme-widget">
@@ -41,7 +41,7 @@
                   <li chained-name="value" class="ui-creme-chainedselect-item">
                        <span class="ui-creme-widget ui-creme-polymorphicselect" widget="ui-creme-polymorphicselect" key="${type}">
                             <script selector-key="*" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"/>
                             </script>
                         </span>
                   </li>
@@ -51,7 +51,7 @@
     <li>
         <h5>any key, multiple selectors</h5>
         <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
-             <input type="hidden" class="ui-creme-input ui-creme-chainedselect"></input>
+             <input type="hidden" class="ui-creme-input ui-creme-chainedselect"/>
              <ul class="ui-layout hbox">
                   <li chained-name="type" class="ui-creme-chainedselect-item">
                        <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-dselect ui-creme-widget">
@@ -75,19 +75,19 @@
                   <li chained-name="value" class="ui-creme-chainedselect-item">
                        <span class="ui-creme-widget ui-creme-polymorphicselect" widget="ui-creme-polymorphicselect" key="${type}">
                             <script selector-key="button" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"></input>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"/>
                             </script>
                             <script selector-key="search|text|tel|password" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" placeholder="enter ${type}"></input>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" placeholder="enter ${type}"/>
                             </script>
                             <script selector-key="checkbox|radio" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"></input><span>${type}</span>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"/><span>${type}</span>
                             </script>
                             <script selector-key="hidden" type="text/template">
                                  <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"/><span>hidden...</span>
                             </script>
                             <script selector-key="*" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"/>
                             </script>
                        </span>
                   </li>
@@ -97,7 +97,7 @@
     <li>
         <h5>any key, multiple selectors, value set</h5>
         <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
-             <input type="hidden" class="ui-creme-input ui-creme-chainedselect" value="{&quot;type&quot;:&quot;number&quot;, &quot;value&quot;:&quot;12&quot;}"></input>
+             <input type="hidden" class="ui-creme-input ui-creme-chainedselect" value="{&quot;type&quot;:&quot;number&quot;, &quot;value&quot;:&quot;12&quot;}"/>
              <ul class="ui-layout hbox">
                   <li chained-name="type" class="ui-creme-chainedselect-item">
                        <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-dselect ui-creme-widget">
@@ -121,19 +121,19 @@
                   <li chained-name="value" class="ui-creme-chainedselect-item">
                        <span class="ui-creme-widget ui-creme-polymorphicselect" widget="ui-creme-polymorphicselect" key="${type}">
                             <script selector-key="button" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"></input>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"/>
                             </script>
                             <script selector-key="search|text|tel|password" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" placeholder="enter ${type}"></input>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" placeholder="enter ${type}"/>
                             </script>
                             <script selector-key="checkbox|radio" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"></input><span>${type}</span>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"/><span>${type}</span>
                             </script>
                             <script selector-key="hidden" type="text/template">
                                  <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"/><span>hidden...</span>
                             </script>
                             <script selector-key="*" type="text/template">
-                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"/>
                             </script>
                        </span>
                   </li>
