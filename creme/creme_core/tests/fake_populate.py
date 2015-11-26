@@ -8,7 +8,7 @@ from .fake_models import *
 from .fake_constants import *
 
 
-#TODO: use fixture instead ?
+# TODO: use fixture instead ?
 def populate():
     create_rtype = RelationType.create
     create_rtype((FAKE_REL_SUB_EMPLOYED_BY, u'is an employee of', [FakeContact]),
