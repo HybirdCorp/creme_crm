@@ -337,7 +337,7 @@ test('creme.widget.DynamicSelect.reload (template url)', function() {
     mock_dselect_add_choice(element, 'c', 3);
 
     creme.widget.create(element);
-    equal(element.creme().widget().url(), '');
+    equal(element.creme().widget().url(), null);
 
     var response = [];
     element.creme().widget().reload({name:'options', content:''},

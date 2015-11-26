@@ -250,7 +250,7 @@ test('creme.widets.selectorlist.create (invalid value, multiple dependencies)', 
 
     assertDSelectAt(widget.selector(0).creme().widget(), 'ctype', '3', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     assertDSelectAt(widget.selector(0).creme().widget(), 'rtype', null, ['ctype'], 'mock/rtype/3/options', []);
-    assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], 'mock/entity/null/3/options', []);
+    assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], null, []);
 });
 
 test('creme.widets.selectorlist.value (value, no selector)', function() {
@@ -387,7 +387,7 @@ test('creme.widets.selectorlist.value (value, multiple dependencies)', function(
 
     assertDSelectAt(widget.selector(0).creme().widget(), 'ctype', '3', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     assertDSelectAt(widget.selector(0).creme().widget(), 'rtype', null, ['ctype'], 'mock/rtype/3/options', []);
-    assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], 'mock/entity/null/3/options', []);
+    assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], null, []);
 
     assertDSelectAt(widget.selector(1).creme().widget(), 'ctype', '5', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     assertDSelectAt(widget.selector(1).creme().widget(), 'rtype', 'rtype.22', ['ctype'], 'mock/rtype/5/options', [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]);
@@ -516,7 +516,7 @@ test('creme.widets.selectorlist.append (not empty, multiple dependencies, value)
 
     assertDSelectAt(widget.selector(0).creme().widget(), 'ctype', '3', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     assertDSelectAt(widget.selector(0).creme().widget(), 'rtype', null, ['ctype'], 'mock/rtype/3/options', []);
-    assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], 'mock/entity/null/3/options', []);
+    assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], null, []);
 
     var last = widget.appendSelector({ctype: '5', rtype: 'rtype.22', entity: '789'});
     notEqual(last, undefined);
@@ -527,7 +527,7 @@ test('creme.widets.selectorlist.append (not empty, multiple dependencies, value)
 
     assertDSelectAt(widget.selector(0).creme().widget(), 'ctype', '3', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     assertDSelectAt(widget.selector(0).creme().widget(), 'rtype', null, ['ctype'], 'mock/rtype/3/options', []);
-    assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], 'mock/entity/null/3/options', []);
+    assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], null, []);
 
     assertDSelectAt(widget.selector(1).creme().widget(), 'ctype', '5', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     assertDSelectAt(widget.selector(1).creme().widget(), 'rtype', 'rtype.22', ['ctype'], 'mock/rtype/5/options', [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]);
