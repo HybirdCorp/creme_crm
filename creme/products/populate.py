@@ -31,6 +31,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from . import get_product_model, get_service_model
 from .blocks import images_block
+from .constants import DEFAULT_HFILTER_PRODUCT, DEFAULT_HFILTER_SERVICE
 #from .models import Product, Service, Category, SubCategory
 from .models import Category, SubCategory
 
@@ -46,7 +47,9 @@ class Populator(BasePopulator):
         Service = get_service_model()
 
         create_hf = HeaderFilter.create
-        create_hf(pk='products-hf_product', name=_(u'Product view'), model=Product,
+        create_hf(pk=DEFAULT_HFILTER_PRODUCT,
+                  model=Product,
+                  name=_(u'Product view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'images__name'}),
                               (EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'code'}),
@@ -54,7 +57,9 @@ class Populator(BasePopulator):
                              ],
                  )
 
-        create_hf(pk='products-hf_service', name=_(u'Service view'), model=Service,
+        create_hf(pk=DEFAULT_HFILTER_SERVICE,
+                  model=Service,
+                  name=_(u'Service view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'images__name'}),
                               (EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'reference'}),

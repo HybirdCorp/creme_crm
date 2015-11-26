@@ -36,11 +36,8 @@ from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Contact, Organisation
 
 from . import get_act_model, get_pattern_model, get_strategy_model
-from .blocks import *
-from .buttons import complete_goal_button
-from .constants import *
-from .models import *
-from .setting_keys import notification_key, orga_approaches_key
+from . import blocks, buttons, constants, setting_keys
+from .models import MarketSegment, ActType
 
 
 logger = logging.getLogger(__name__)
@@ -50,7 +47,7 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=REL_SUB_SOLD_BY).exists()
+        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_SOLD_BY).exists()
 
         Act = get_act_model()
         ActObjectivePattern = get_pattern_model()
@@ -58,13 +55,13 @@ class Populator(BasePopulator):
         Contact = get_contact_model()
         Organisation = get_organisation_model()
 
-        RelationType.create((REL_SUB_SOLD_BY,       _(u'has sold')),
-                            (REL_OBJ_SOLD_BY,       _(u'has been sold by')))
-        RelationType.create((REL_SUB_COMPLETE_GOAL, _(u'completes a goal of the commercial action')),
-                            (REL_OBJ_COMPLETE_GOAL, _(u'is completed thanks to'), [Act]))
+        RelationType.create((constants.REL_SUB_SOLD_BY,       _(u'has sold')),
+                            (constants.REL_OBJ_SOLD_BY,       _(u'has been sold by')))
+        RelationType.create((constants.REL_SUB_COMPLETE_GOAL, _(u'completes a goal of the commercial action')),
+                            (constants.REL_OBJ_COMPLETE_GOAL, _(u'is completed thanks to'), [Act]))
 
 
-        CremePropertyType.create(PROP_IS_A_SALESMAN, _(u'is a salesman'), [Contact])
+        CremePropertyType.create(constants.PROP_IS_A_SALESMAN, _(u'is a salesman'), [Contact])
 
 
         MarketSegment.objects.get_or_create(property_type=None,
@@ -77,63 +74,74 @@ class Populator(BasePopulator):
 
 
         create_hf = HeaderFilter.create
-        create_hf(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act,
+        create_hf(pk=constants.DEFAULT_HFILTER_ACT, model=Act,
+                  name=_(u'Com Action view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'expected_sales'}),
                               (EntityCellRegularField, {'name': 'due_date'}),
                              ],
                  )
-        create_hf(pk='commercial-hf_strategy', name=_(u"Strategy view"), model=Strategy,
+        create_hf(pk=constants.DEFAULT_HFILTER_STRATEGY, model=Strategy,
+                  name=_(u"Strategy view"),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
-        create_hf(pk='commercial-hf_objpattern', name=_(u"Objective pattern view"), model=ActObjectivePattern,
+        create_hf(pk=constants.DEFAULT_HFILTER_PATTERN, model=ActObjectivePattern,
+                  name=_(u"Objective pattern view"),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'segment'}),
                              ]
                  )
 
 
-        SearchConfigItem.create_if_needed(Act, ['name', 'expected_sales', 'cost', 'goal'])
-        SearchConfigItem.create_if_needed(Strategy, ['name'])
-        SearchConfigItem.create_if_needed(ActObjectivePattern, [], disabled=True)
+        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf(Act, ['name', 'expected_sales', 'cost', 'goal'])
+        create_searchconf(Strategy, ['name'])
+        create_searchconf(ActObjectivePattern, [], disabled=True)
 
 
-        SettingValue.create_if_needed(key=notification_key,    user=None, value=True)
-        SettingValue.create_if_needed(key=orga_approaches_key, user=None, value=True)
+        create_svalue = SettingValue.create_if_needed
+        create_svalue(key=setting_keys.notification_key,    user=None, value=True)
+        create_svalue(key=setting_keys.orga_approaches_key, user=None, value=True)
 
 
         if not already_populated:
-            ButtonMenuItem.create_if_needed(pk='commercial-complete_goal_button', model=None, button=complete_goal_button, order=60)
+            ButtonMenuItem.create_if_needed(pk='commercial-complete_goal_button',
+                                            model=None, button=buttons.complete_goal_button, order=60,
+                                           )
 
             create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT)
-            create_bdl(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Contact)
-            create_bdl(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            TOP = BlockDetailviewLocation.TOP
+            RIGHT = BlockDetailviewLocation.RIGHT
+            LEFT = BlockDetailviewLocation.LEFT
 
-            BlockDetailviewLocation.create_4_model_block(order=5,           zone=BlockDetailviewLocation.LEFT,  model=Act)
-            create_bdl(block_id=act_objectives_block.id_,        order=10,  zone=BlockDetailviewLocation.LEFT,  model=Act)
-            create_bdl(block_id=related_opportunities_block.id_, order=20,  zone=BlockDetailviewLocation.LEFT,  model=Act)
-            create_bdl(block_id=customfields_block.id_,          order=40,  zone=BlockDetailviewLocation.LEFT,  model=Act)
-            create_bdl(block_id=properties_block.id_,            order=450, zone=BlockDetailviewLocation.LEFT,  model=Act)
-            create_bdl(block_id=relations_block.id_,             order=500, zone=BlockDetailviewLocation.LEFT,  model=Act)
-            create_bdl(block_id=history_block.id_,               order=20,  zone=BlockDetailviewLocation.RIGHT, model=Act)
+            create_bdl(block_id=blocks.approaches_block.id_, order=10, zone=RIGHT)
+            create_bdl(block_id=blocks.approaches_block.id_, order=10, zone=RIGHT, model=Contact)
+            create_bdl(block_id=blocks.approaches_block.id_, order=10, zone=RIGHT, model=Organisation)
 
-            create_bdl(block_id=pattern_components_block.id_, order=10,  zone=BlockDetailviewLocation.TOP,   model=ActObjectivePattern)
-            BlockDetailviewLocation.create_4_model_block(order=5,        zone=BlockDetailviewLocation.LEFT,  model=ActObjectivePattern)
-            create_bdl(block_id=customfields_block.id_,       order=40,  zone=BlockDetailviewLocation.LEFT,  model=ActObjectivePattern)
-            create_bdl(block_id=properties_block.id_,         order=450, zone=BlockDetailviewLocation.LEFT,  model=ActObjectivePattern)
-            create_bdl(block_id=relations_block.id_,          order=500, zone=BlockDetailviewLocation.LEFT,  model=ActObjectivePattern)
-            create_bdl(block_id=history_block.id_,            order=20,  zone=BlockDetailviewLocation.RIGHT, model=ActObjectivePattern)
+            BlockDetailviewLocation.create_4_model_block(order=5,                  zone=LEFT,  model=Act)
+            create_bdl(block_id=blocks.act_objectives_block.id_,        order=10,  zone=LEFT,  model=Act)
+            create_bdl(block_id=blocks.related_opportunities_block.id_, order=20,  zone=LEFT,  model=Act)
+            create_bdl(block_id=customfields_block.id_,                 order=40,  zone=LEFT,  model=Act)
+            create_bdl(block_id=properties_block.id_,                   order=450, zone=LEFT,  model=Act)
+            create_bdl(block_id=relations_block.id_,                    order=500, zone=LEFT,  model=Act)
+            create_bdl(block_id=history_block.id_,                      order=20,  zone=RIGHT, model=Act)
 
-            create_bdl(block_id=segment_descriptions_block.id_, order=10,  zone=BlockDetailviewLocation.TOP,   model=Strategy)
-            BlockDetailviewLocation.create_4_model_block(order=5,          zone=BlockDetailviewLocation.LEFT,  model=Strategy)
-            create_bdl(block_id=customfields_block.id_,         order=40,  zone=BlockDetailviewLocation.LEFT,  model=Strategy)
-            create_bdl(block_id=evaluated_orgas_block.id_,      order=50,  zone=BlockDetailviewLocation.LEFT,  model=Strategy)
-            create_bdl(block_id=assets_block.id_,               order=60,  zone=BlockDetailviewLocation.LEFT,  model=Strategy)
-            create_bdl(block_id=charms_block.id_,               order=70,  zone=BlockDetailviewLocation.LEFT,  model=Strategy)
-            create_bdl(block_id=properties_block.id_,           order=450, zone=BlockDetailviewLocation.LEFT,  model=Strategy)
-            create_bdl(block_id=relations_block.id_,            order=500, zone=BlockDetailviewLocation.LEFT,  model=Strategy)
-            create_bdl(block_id=history_block.id_,              order=20,  zone=BlockDetailviewLocation.RIGHT, model=Strategy)
+            create_bdl(block_id=blocks.pattern_components_block.id_, order=10,  zone=TOP,   model=ActObjectivePattern)
+            BlockDetailviewLocation.create_4_model_block(order=5,               zone=LEFT,  model=ActObjectivePattern)
+            create_bdl(block_id=customfields_block.id_,              order=40,  zone=LEFT,  model=ActObjectivePattern)
+            create_bdl(block_id=properties_block.id_,                order=450, zone=LEFT,  model=ActObjectivePattern)
+            create_bdl(block_id=relations_block.id_,                 order=500, zone=LEFT,  model=ActObjectivePattern)
+            create_bdl(block_id=history_block.id_,                   order=20,  zone=RIGHT, model=ActObjectivePattern)
+
+            create_bdl(block_id=blocks.segment_descriptions_block.id_, order=10,  zone=TOP,   model=Strategy)
+            BlockDetailviewLocation.create_4_model_block(order=5,                 zone=LEFT,  model=Strategy)
+            create_bdl(block_id=customfields_block.id_,                order=40,  zone=LEFT,  model=Strategy)
+            create_bdl(block_id=blocks.evaluated_orgas_block.id_,      order=50,  zone=LEFT,  model=Strategy)
+            create_bdl(block_id=blocks.assets_block.id_,               order=60,  zone=LEFT,  model=Strategy)
+            create_bdl(block_id=blocks.charms_block.id_,               order=70,  zone=LEFT,  model=Strategy)
+            create_bdl(block_id=properties_block.id_,                  order=450, zone=LEFT,  model=Strategy)
+            create_bdl(block_id=relations_block.id_,                   order=500, zone=LEFT,  model=Strategy)
+            create_bdl(block_id=history_block.id_,                     order=20,  zone=RIGHT, model=Strategy)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
@@ -141,8 +149,8 @@ class Populator(BasePopulator):
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
                 for model in (Act, ActObjectivePattern, Strategy):
-                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)
 

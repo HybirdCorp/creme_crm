@@ -29,6 +29,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
 from creme.creme_core.utils import get_from_POST_or_404
 
 from .. import get_messaginglist_model
+from ..constants import DEFAULT_HFILTER_MLIST
 from ..forms.messaging_list import MessagingListForm, AddContactsForm, AddContactsFromFilterForm
 #from ..models import MessagingList
 
@@ -78,7 +79,7 @@ def detailview(request, mlist_id):
 @login_required
 @permission_required('sms')
 def listview(request):
-    return list_view(request, MessagingList,
+    return list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST,
                      # extra_dict={'add_url': '/sms/messaging_list/add'}
                     )
 

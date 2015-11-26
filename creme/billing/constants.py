@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 DEFAULT_DECIMAL = Decimal()
 
 ROUND_POLICY = ROUND_HALF_UP
-CURRENCY = "Euro" #TODO: in settings.py ??
+CURRENCY = "Euro"  # TODO: in settings.py ??
 
 REL_SUB_BILL_ISSUED = 'billing-subject_bill_issued'
 REL_OBJ_BILL_ISSUED = 'billing-object_bill_issued'
@@ -29,12 +29,18 @@ REL_OBJ_CREDIT_NOTE_APPLIED = 'billing-object_credit_note_applied'
 DEFAULT_DRAFT_INVOICE_STATUS = 1
 DEFAULT_INVOICE_STATUS = 2
 
+DEFAULT_HFILTER_INVOICE  = 'billing-hf_invoice'
+DEFAULT_HFILTER_QUOTE    = 'billing-hf_quote'
+DEFAULT_HFILTER_ORDER    = 'billing-hf_salesorder'
+DEFAULT_HFILTER_CNOTE    = 'billing-hf_creditnote'
+DEFAULT_HFILTER_TEMPLATE = 'billing-hf_template'
+
 DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
 
 #ISSUED_CREDIT_NOTE = 2 # TODO workflow status
 
 ############################################
-#DEPRECATED
+# DEPRECATED
 PERCENT_PK = 1
 AMOUNT_PK  = 2
 
@@ -42,7 +48,7 @@ DISCOUNT_UNIT = {PERCENT_PK: _(u"Percent"),
                  AMOUNT_PK:  _(u"Amount"),
                 }
 
-#NEW
+# NEW
 DISCOUNT_PERCENT     = 1
 DISCOUNT_LINE_AMOUNT = 2
 DISCOUNT_ITEM_AMOUNT = 3

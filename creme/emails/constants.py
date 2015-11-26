@@ -12,6 +12,11 @@ REL_OBJ_MAIL_SENDED = 'email-object_mail_sended'
 REL_SUB_RELATED_TO = 'email-subject_related_to'
 REL_OBJ_RELATED_TO = 'email-object_related_to'
 
+DEFAULT_HFILTER_MAILINGLIST = 'emails-hf_mailinglist'
+DEFAULT_HFILTER_CAMPAIGN    = 'emails-hf_campaign'
+DEFAULT_HFILTER_TEMPLATE    = 'emails-hf_template'
+DEFAULT_HFILTER_EMAIL       = 'emails-hf_email'
+
 MAIL_STATUS_SENT                 = 1
 MAIL_STATUS_NOTSENT              = 2
 MAIL_STATUS_SENDINGERROR         = 3

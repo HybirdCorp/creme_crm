@@ -29,6 +29,7 @@ from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity
         list_view, add_model_with_popup)
 
 from .. import get_folder_model, get_document_model
+from ..constants import DEFAULT_HFILTER_DOCUMENT
 from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, DocumentEditForm
 #from ..models import Document, Folder
 
@@ -108,7 +109,7 @@ def detailview(request, object_id):
 @login_required
 @permission_required('documents')
 def listview(request):
-    return list_view(request, Document,
+    return list_view(request, Document, hf_pk=DEFAULT_HFILTER_DOCUMENT,
                      # extra_dict={'add_url': '/documents/document/add'}
                      # extra_dict={'add_url': reverse('documents__create_document')}
                     )

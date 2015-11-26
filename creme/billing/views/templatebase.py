@@ -25,6 +25,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import edit_entity, list_view, view_entity
 
 from .. import get_template_base_model, get_sales_order_model, get_invoice_model
+from ..constants import DEFAULT_HFILTER_TEMPLATE
 from ..forms.templatebase import TemplateBaseEditForm
 #from ..models import TemplateBase
 
@@ -64,7 +65,7 @@ def detailview(request, template_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, TemplateBase,
+    return list_view(request, TemplateBase, hf_pk=DEFAULT_HFILTER_TEMPLATE,
                      # extra_dict={'add_url': '/recurrents/generator/add'}
                      extra_dict={'add_url': reverse('recurrents__create_generator')},
                     )

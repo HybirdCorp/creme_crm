@@ -33,6 +33,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, edit_related_to_entity, view_entity, list_view)
 
 from .. import get_pollform_model
+from ..constants import DEFAULT_HFILTER_PFORM
 from ..forms.poll_form import (PollFormForm, PollFormLineCreateForm, PollFormLineEditForm,
         PollFormSectionCreateForm, PollFormSectionEditForm,
         PollFormLineConditionsForm)
@@ -85,7 +86,7 @@ def detailview(request, pform_id):
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollForm,
+    return list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM,
                      # extra_dict={'add_url': '/polls/poll_form/add'},
                      # extra_dict={'add_url': reverse('polls__create_form')},
                     )

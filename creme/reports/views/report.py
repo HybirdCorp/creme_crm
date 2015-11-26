@@ -32,6 +32,7 @@ from creme.creme_core.views.generic import (add_entity, edit_entity,
         view_entity, list_view, inner_popup, add_to_entity)
 
 from .. import get_report_model
+from ..constants import DEFAULT_HFILTER_REPORT
 from ..forms.report import (ReportCreateForm, ReportEditForm,
         LinkFieldToReportForm, ReportFieldsForm)
 from ..models import Field # Report
@@ -85,7 +86,7 @@ def detailview(request, report_id):
 @login_required
 @permission_required('reports')
 def listview(request):
-    return list_view(request, Report,
+    return list_view(request, Report, hf_pk=DEFAULT_HFILTER_REPORT,
                      # extra_dict={'add_url': '/reports/report/add'}
                     )
 

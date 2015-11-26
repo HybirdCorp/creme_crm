@@ -35,10 +35,10 @@ from creme.creme_core.models import (RelationType, BlockDetailviewLocation,
 from creme.creme_core.utils import create_if_needed
 
 from . import get_document_model, get_folder_model, folder_model_is_custom
+from . import constants
 #from .models import Document, FolderCategory, Folder
+from .blocks import folder_docs_block, child_folders_block
 from .models import FolderCategory
-from .blocks import folder_docs_block, child_folders_block #linked_docs_block
-from .constants import *
 
 
 logger = logging.getLogger(__name__)
@@ -48,22 +48,22 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists()
+        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_RELATED_2_DOC).exists()
 
         Document = get_document_model()
         Folder   = get_folder_model()
 
-        RelationType.create((REL_SUB_RELATED_2_DOC, _(u'related to the document')),
-                            (REL_OBJ_RELATED_2_DOC, _(u'document related to'),      [Document])
+        RelationType.create((constants.REL_SUB_RELATED_2_DOC, _(u'related to the document')),
+                            (constants.REL_OBJ_RELATED_2_DOC, _(u'document related to'),      [Document])
                            )
 
 
-        #TODO: pk string (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??
-        entities_cat = create_if_needed(FolderCategory, {'pk': DOCUMENTS_FROM_ENTITIES}, name=unicode(DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False)
-        create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=unicode(DOCUMENTS_FROM_EMAILS_NAME),   is_custom=False)
+        # TODO: pk string (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??
+        entities_cat = create_if_needed(FolderCategory, {'pk': constants.DOCUMENTS_FROM_ENTITIES}, name=unicode(constants.DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False)
+        create_if_needed(FolderCategory,                {'pk': constants.DOCUMENTS_FROM_EMAILS},   name=unicode(constants.DOCUMENTS_FROM_EMAILS_NAME),   is_custom=False)
 
         if not folder_model_is_custom():
-            if not Folder.objects.filter(title="Creme").exists(): #TODO: UUID ??
+            if not Folder.objects.filter(title="Creme").exists():  # TODO: UUID ??
                 Folder.objects.create(user=get_user_model().objects.get(pk=1),
                                     title="Creme", category=entities_cat,
                                     description=_(u"Folder containing all the documents related to entities"),
@@ -72,12 +72,14 @@ class Populator(BasePopulator):
                 logger.info("A Folder with title 'Creme' already exists => no re-creation")
 
 
-        HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document,
+        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_DOCUMENT, model=Document,
+                            name=_(u'Document view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'title'}),
                                         (EntityCellRegularField, {'name': 'folder__title'}),
                                        ]
                                 )
-        HeaderFilter.create(pk='documents-hf_folder', name=_(u"Folder view"), model=Folder,
+        HeaderFilter.create(pk=constants.DEFAULT_HFILTER_FOLDER, model=Folder,
+                            name=_(u'Folder view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'title'}),
                                         (EntityCellRegularField, {'name': 'description'}),
                                         (EntityCellRegularField, {'name': 'category'}),

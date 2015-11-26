@@ -40,6 +40,7 @@ from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Contact, Organisation
 
 from .. import get_pollform_model, get_pollreply_model, get_pollcampaign_model
+from ..constants import DEFAULT_HFILTER_PREPLY
 from ..core import MultiEnumPollLineType
 from ..forms.poll_reply import (PollRepliesCreateForm, PollReplyEditForm,
         PollReplyFillForm, PersonAddRepliesForm)
@@ -200,7 +201,7 @@ def detailview(request, preply_id):
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollReply,
+    return list_view(request, PollReply, hf_pk=DEFAULT_HFILTER_PREPLY,
                      # extra_dict={'add_url': '/polls/poll_reply/add'},
                      # extra_dict={'add_url': reverse('polls__create_reply')},
                     )

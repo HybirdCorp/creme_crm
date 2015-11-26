@@ -37,10 +37,8 @@ from creme.persons import get_contact_model, get_organisation_model
 from . import (get_emailcampaign_model, get_entityemail_model,
         get_emailtemplate_model, get_mailinglist_model)
 #from .models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
-from .blocks import *
+from . import blocks, constants
 from .buttons import entityemail_link_button
-from .constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
-        REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO)
 from .setting_keys import emailcampaign_sender
 
 logger = logging.getLogger(__name__)
@@ -50,7 +48,7 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=REL_SUB_MAIL_RECEIVED).exists()
+        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_MAIL_RECEIVED).exists()
 
         EmailCampaign = get_emailcampaign_model()
         EmailTemplate = get_emailtemplate_model()
@@ -62,27 +60,35 @@ class Populator(BasePopulator):
 
         SettingValue.create_if_needed(key=emailcampaign_sender, user=None, value="")
 
-        RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"),  [EntityEmail]),
-                            (REL_OBJ_MAIL_RECEIVED, _(u"received the email"),   [Organisation, Contact]))
-        RelationType.create((REL_SUB_MAIL_SENDED,   _(u"(email) sended"),       [EntityEmail]),
-                            (REL_OBJ_MAIL_SENDED,   _(u"sended the email"),     [Organisation, Contact]))
-        RelationType.create((REL_SUB_RELATED_TO,    _(u'(email) related to'),   [EntityEmail]),
-                            (REL_OBJ_RELATED_TO,    _(u'related to the email'), []))
+        RelationType.create((constants.REL_SUB_MAIL_RECEIVED, _(u"(email) received by"),  [EntityEmail]),
+                            (constants.REL_OBJ_MAIL_RECEIVED, _(u"received the email"),   [Organisation, Contact]))
+        RelationType.create((constants.REL_SUB_MAIL_SENDED,   _(u"(email) sended"),       [EntityEmail]),
+                            (constants.REL_OBJ_MAIL_SENDED,   _(u"sended the email"),     [Organisation, Contact]))
+        RelationType.create((constants.REL_SUB_RELATED_TO,    _(u'(email) related to'),   [EntityEmail]),
+                            (constants.REL_OBJ_RELATED_TO,    _(u'related to the email'), []))
 
 
         create_hf = HeaderFilter.create
-        create_hf(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList,
+        create_hf(pk=constants.DEFAULT_HFILTER_MAILINGLIST,
+                  model=MailingList,
+                  name=_(u'Mailing list view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
-        create_hf(pk='emails-hf_campaign', name=_(u"Campaign view"), model=EmailCampaign,
+        create_hf(pk=constants.DEFAULT_HFILTER_CAMPAIGN,
+                  model=EmailCampaign,
+                  name=_(u'Campaign view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                  )
-        create_hf(pk='emails-hf_template', name=_(u"Email template view"), model=EmailTemplate,
+        create_hf(pk=constants.DEFAULT_HFILTER_TEMPLATE,
+                  model=EmailTemplate,
+                  name=_(u'Email template view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'subject'}),
                              ],
                  )
-        create_hf(pk='emails-hf_email', name=_(u"Email view"), model=EntityEmail,
+        create_hf(pk=constants.DEFAULT_HFILTER_EMAIL,
+                  model=EntityEmail,
+                  name=_(u'Email view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'sender'}),
                               (EntityCellRegularField, {'name': 'recipient'}),
                               (EntityCellRegularField, {'name': 'subject'}),
@@ -99,37 +105,41 @@ class Populator(BasePopulator):
 
         if not already_populated:
             create_bdl = BlockDetailviewLocation.create
-            BlockDetailviewLocation.create_4_model_block(order=5,      zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=customfields_block.id_,     order=40,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=email_recipients_block.id_, order=80,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=contacts_block.id_,         order=90,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=organisations_block.id_,    order=95,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=child_lists_block.id_,      order=100, zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=parent_lists_block.id_,     order=105, zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=properties_block.id_,       order=450, zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=relations_block.id_,        order=500, zone=BlockDetailviewLocation.LEFT,  model=MailingList)
-            create_bdl(block_id=history_block.id_,          order=20,  zone=BlockDetailviewLocation.RIGHT, model=MailingList)
+            TOP   = BlockDetailviewLocation.TOP
+            LEFT  = BlockDetailviewLocation.LEFT
+            RIGHT = BlockDetailviewLocation.RIGHT
 
-            create_bdl(block_id=sendings_block.id_,      order=2,   zone=BlockDetailviewLocation.TOP,   model=EmailCampaign)
-            BlockDetailviewLocation.create_4_model_block(order=5,   zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
-            create_bdl(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
-            create_bdl(block_id=mailing_lists_block.id_, order=120, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
-            create_bdl(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
-            create_bdl(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
-            create_bdl(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=EmailCampaign)
+            BlockDetailviewLocation.create_4_model_block(order=5,             zone=LEFT,  model=MailingList)
+            create_bdl(block_id=customfields_block.id_,            order=40,  zone=LEFT,  model=MailingList)
+            create_bdl(block_id=blocks.email_recipients_block.id_, order=80,  zone=LEFT,  model=MailingList)
+            create_bdl(block_id=blocks.contacts_block.id_,         order=90,  zone=LEFT,  model=MailingList)
+            create_bdl(block_id=blocks.organisations_block.id_,    order=95,  zone=LEFT,  model=MailingList)
+            create_bdl(block_id=blocks.child_lists_block.id_,      order=100, zone=LEFT,  model=MailingList)
+            create_bdl(block_id=blocks.parent_lists_block.id_,     order=105, zone=LEFT,  model=MailingList)
+            create_bdl(block_id=properties_block.id_,              order=450, zone=LEFT,  model=MailingList)
+            create_bdl(block_id=relations_block.id_,               order=500, zone=LEFT,  model=MailingList)
+            create_bdl(block_id=history_block.id_,                 order=20,  zone=RIGHT, model=MailingList)
 
-            BlockDetailviewLocation.create_4_model_block(order=5,   zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
-            create_bdl(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
-            create_bdl(block_id=attachments_block.id_,   order=60,  zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
-            create_bdl(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
-            create_bdl(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
-            create_bdl(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=EmailTemplate)
+            create_bdl(block_id=blocks.sendings_block.id_,      order=2,   zone=TOP,   model=EmailCampaign)
+            BlockDetailviewLocation.create_4_model_block(order=5,          zone=LEFT,  model=EmailCampaign)
+            create_bdl(block_id=customfields_block.id_,         order=40,  zone=LEFT,  model=EmailCampaign)
+            create_bdl(block_id=blocks.mailing_lists_block.id_, order=120, zone=LEFT,  model=EmailCampaign)
+            create_bdl(block_id=properties_block.id_,           order=450, zone=LEFT,  model=EmailCampaign)
+            create_bdl(block_id=relations_block.id_,            order=500, zone=LEFT,  model=EmailCampaign)
+            create_bdl(block_id=history_block.id_,              order=20,  zone=RIGHT, model=EmailCampaign)
 
-            #'persons' app
-            create_bdl(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Contact)
-            create_bdl(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            BlockDetailviewLocation.create_4_model_block(order=5,          zone=LEFT,  model=EmailTemplate)
+            create_bdl(block_id=customfields_block.id_,         order=40,  zone=LEFT,  model=EmailTemplate)
+            create_bdl(block_id=blocks.attachments_block.id_,   order=60,  zone=LEFT,  model=EmailTemplate)
+            create_bdl(block_id=properties_block.id_,           order=450, zone=LEFT,  model=EmailTemplate)
+            create_bdl(block_id=relations_block.id_,            order=500, zone=LEFT,  model=EmailTemplate)
+            create_bdl(block_id=history_block.id_,              order=20,  zone=RIGHT, model=EmailTemplate)
 
-            BlockPortalLocation.create(app_name='emails', block_id=signatures_block.id_, order=10)
+            # 'persons' app
+            create_bdl(block_id=blocks.mails_history_block.id_, order=600, zone=RIGHT, model=Contact)
+            create_bdl(block_id=blocks.mails_history_block.id_, order=600, zone=RIGHT, model=Organisation)
+
+            BlockPortalLocation.create(app_name='emails', block_id=blocks.signatures_block.id_, order=10)
             BlockPortalLocation.create(app_name='emails', block_id=history_block.id_,    order=30)
 
             if apps.is_installed('creme.assistants'):
@@ -138,10 +148,10 @@ class Populator(BasePopulator):
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
                 for model in (MailingList, EmailCampaign, EmailTemplate):
-                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)
 
                 BlockPortalLocation.create(app_name='emails', block_id=memos_block.id_,    order=100)
                 BlockPortalLocation.create(app_name='emails', block_id=alerts_block.id_,   order=200)

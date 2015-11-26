@@ -30,6 +30,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
 from creme.creme_core.utils import get_from_POST_or_404
 
 from .. import get_emailcampaign_model
+from ..constants import DEFAULT_HFILTER_CAMPAIGN
 from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddMLForm
 #from ..models import EmailCampaign
 
@@ -80,7 +81,7 @@ def detailview(request, campaign_id):
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, EmailCampaign,
+    return list_view(request, EmailCampaign, hf_pk=DEFAULT_HFILTER_CAMPAIGN,
                      # extra_dict={'add_url': '/emails/campaign/add'}
                      # extra_dict={'add_url': reverse('emails__create_campaign')},
                     )

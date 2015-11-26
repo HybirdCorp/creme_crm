@@ -27,6 +27,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
 from .. import get_service_model
+from ..constants import DEFAULT_HFILTER_SERVICE
 from ..forms.base import AddImagesForm
 from ..forms.service import ServiceCreateForm, ServiceEditForm
 #from ..models import Service
@@ -77,7 +78,7 @@ def detailview(request, service_id):
 @login_required
 @permission_required('products')
 def listview(request):
-    return list_view(request, Service,
+    return list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE,
                      # extra_dict={'add_url': '/products/service/add'},
                      # extra_dict={'add_url': reverse('products__create_service')},
                     )

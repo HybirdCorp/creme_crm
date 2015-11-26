@@ -22,6 +22,7 @@
 import logging
 
 from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _, pgettext
 
 from creme.creme_core.core.entity_cell import (EntityCellRegularField,
@@ -43,13 +44,10 @@ from creme.products import get_product_model, get_service_model
 from . import (get_credit_note_model, get_invoice_model, get_quote_model,
         get_sales_order_model, get_template_base_model,
         get_product_line_model, get_service_line_model)
-from .blocks import *
-from .buttons import *
-from .constants import *
+from . import blocks, buttons, constants, setting_keys
 #from .models import *
 from .models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
         SettlementTerms, AdditionalInformation, PaymentTerms)
-from .setting_keys import payment_info_key
 
 
 logger = logging.getLogger(__name__)
@@ -69,7 +67,7 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=REL_SUB_BILL_ISSUED).exists()
+        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_BILL_ISSUED).exists()
 
         Contact      = get_contact_model()
         Organisation = get_organisation_model()
@@ -78,25 +76,25 @@ class Populator(BasePopulator):
 
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
         line_entities = [ProductLine, ServiceLine] # Line
-        RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
-                            (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]),
+        RelationType.create((constants.REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
+                            (constants.REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]),
                             is_internal=True
                            )
         rt_sub_bill_received = \
-        RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by"),  billing_entities),
-                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact]),
+        RelationType.create((constants.REL_SUB_BILL_RECEIVED, _(u"received by"),  billing_entities),
+                            (constants.REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact]),
                             is_internal=True
                            )[0]
-        RelationType.create((REL_SUB_HAS_LINE, _(u"had the line"),   billing_entities),
-                            (REL_OBJ_HAS_LINE, _(u"is the line of"), line_entities),
+        RelationType.create((constants.REL_SUB_HAS_LINE, _(u"had the line"),   billing_entities),
+                            (constants.REL_OBJ_HAS_LINE, _(u"is the line of"), line_entities),
                             is_internal=True
                            )
-        RelationType.create((REL_SUB_LINE_RELATED_ITEM, _(u"has the related item"),   line_entities),
-                            (REL_OBJ_LINE_RELATED_ITEM, _(u"is the related item of"), [Product, Service]),
+        RelationType.create((constants.REL_SUB_LINE_RELATED_ITEM, _(u"has the related item"),   line_entities),
+                            (constants.REL_OBJ_LINE_RELATED_ITEM, _(u"is the related item of"), [Product, Service]),
                             is_internal=True
                            )
-        RelationType.create((REL_SUB_CREDIT_NOTE_APPLIED, _(u"is used in the billing document"), [CreditNote]),
-                            (REL_OBJ_CREDIT_NOTE_APPLIED, _(u"used the credit note"),            [Quote, SalesOrder, Invoice]),
+        RelationType.create((constants.REL_SUB_CREDIT_NOTE_APPLIED, _(u"is used in the billing document"), [CreditNote]),
+                            (constants.REL_OBJ_CREDIT_NOTE_APPLIED, _(u"used the credit note"),            [Quote, SalesOrder, Invoice]),
                             is_internal=True
                            )
 
@@ -207,11 +205,11 @@ class Populator(BasePopulator):
                                            ],
                                )
 
-        create_hf('billing-hf_invoice',    _(u'Invoice view'),     Invoice)
-        create_hf('billing-hf_quote',      _(u'Quote view'),       Quote)
-        create_hf('billing-hf_salesorder', _(u'Sales order view'), SalesOrder)
-        create_hf('billing-hf_creditnote', _(u'Credit note view'), CreditNote)
-        create_hf('billing-hf_template',   _(u'Template view'),    TemplateBase, status=False)
+        create_hf(constants.DEFAULT_HFILTER_INVOICE,  _(u'Invoice view'),     Invoice)
+        create_hf(constants.DEFAULT_HFILTER_QUOTE,    _(u'Quote view'),       Quote)
+        create_hf(constants.DEFAULT_HFILTER_ORDER,    _(u'Sales order view'), SalesOrder)
+        create_hf(constants.DEFAULT_HFILTER_CNOTE,    _(u'Credit note view'), CreditNote)
+        create_hf(constants.DEFAULT_HFILTER_TEMPLATE, _(u'Template view'),    TemplateBase, status=False)
 
 
 #        def create_hf_lines(hf_pk, name, model, include_type=True):
@@ -238,7 +236,7 @@ class Populator(BasePopulator):
         for model in (ProductLine, ServiceLine): #Line
             SearchConfigItem.create_if_needed(model, [], disabled=True)
 
-        SettingValue.create_if_needed(key=payment_info_key, user=None, value=True)
+        SettingValue.create_if_needed(key=setting_keys.payment_info_key, user=None, value=True)
 
 
         if not already_populated:
@@ -261,15 +259,15 @@ class Populator(BasePopulator):
 
 
             create_bmi = ButtonMenuItem.create_if_needed
-            create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
+            create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=buttons.generate_invoice_number_button, order=0)
 
-            create_bmi(pk='billing-quote_orga_button',      model=Organisation, button=add_related_quote,      order=100)
-            create_bmi(pk='billing-salesorder_orga_button', model=Organisation, button=add_related_salesorder, order=101)
-            create_bmi(pk='billing-invoice_orga_button',    model=Organisation, button=add_related_invoice,    order=102)
+            create_bmi(pk='billing-quote_orga_button',      model=Organisation, button=buttons.add_related_quote,      order=100)
+            create_bmi(pk='billing-salesorder_orga_button', model=Organisation, button=buttons.add_related_salesorder, order=101)
+            create_bmi(pk='billing-invoice_orga_button',    model=Organisation, button=buttons.add_related_invoice,    order=102)
 
-            create_bmi(pk='billing-quote_contact_button',      model=Contact, button=add_related_quote,      order=100)
-            create_bmi(pk='billing-salesorder_contact_button', model=Contact, button=add_related_salesorder, order=101)
-            create_bmi(pk='billing-invoice_contact_button',    model=Contact, button=add_related_invoice,    order=102)
+            create_bmi(pk='billing-quote_contact_button',      model=Contact, button=buttons.add_related_quote,      order=100)
+            create_bmi(pk='billing-salesorder_contact_button', model=Contact, button=buttons.add_related_salesorder, order=101)
+            create_bmi(pk='billing-invoice_contact_button',    model=Contact, button=buttons.add_related_invoice,    order=102)
 
 
             get_ct = ContentType.objects.get_for_model
@@ -333,25 +331,28 @@ class Populator(BasePopulator):
                                (TemplateBase, cbci_tbase,   False),
                               ]
             create_bdl = BlockDetailviewLocation.create
+            TOP = BlockDetailviewLocation.TOP
+            LEFT = BlockDetailviewLocation.LEFT
+            RIGHT = BlockDetailviewLocation.RIGHT
 
             for model, cbci, has_credit_notes in models_4_blocks:
-                create_bdl(block_id=product_lines_block.id_,   order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
-                create_bdl(block_id=service_lines_block.id_,   order=20,  zone=BlockDetailviewLocation.TOP,   model=model)
+                create_bdl(block_id=blocks.product_lines_block.id_,   order=10,  zone=TOP,   model=model)
+                create_bdl(block_id=blocks.service_lines_block.id_,   order=20,  zone=TOP,   model=model)
 
                 if has_credit_notes:
-                    create_bdl(block_id=credit_note_block.id_, order=30,  zone=BlockDetailviewLocation.TOP,   model=model)
+                    create_bdl(block_id=blocks.credit_note_block.id_, order=30,  zone=TOP,   model=model)
 
-#                BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=model)
-                create_bdl(block_id=cbci.generate_id(),        order=5,   zone=BlockDetailviewLocation.LEFT,  model=model)
-                create_bdl(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
-                create_bdl(block_id=billing_payment_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=model)
-                create_bdl(block_id=billing_address_block.id_, order=70,  zone=BlockDetailviewLocation.LEFT,  model=model)
-                create_bdl(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=model)
-                create_bdl(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
+#                BlockDetailviewLocation.create_4_model_block(order=5, zone=LEFT, model=model)
+                create_bdl(block_id=cbci.generate_id(),               order=5,   zone=LEFT,  model=model)
+                create_bdl(block_id=customfields_block.id_,           order=40,  zone=LEFT,  model=model)
+                create_bdl(block_id=blocks.billing_payment_block.id_, order=60,  zone=LEFT,  model=model)
+                create_bdl(block_id=blocks.billing_address_block.id_, order=70,  zone=LEFT,  model=model)
+                create_bdl(block_id=properties_block.id_,             order=450, zone=LEFT,  model=model)
+                create_bdl(block_id=relations_block.id_,              order=500, zone=LEFT,  model=model)
 
-                create_bdl(block_id=target_block.id_,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=model)
-                create_bdl(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
-                create_bdl(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
+                create_bdl(block_id=blocks.target_block.id_,          order=2,   zone=RIGHT, model=model)
+                create_bdl(block_id=blocks.total_block.id_,           order=3,   zone=RIGHT, model=model)
+                create_bdl(block_id=history_block.id_,                order=20,  zone=RIGHT, model=model)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
@@ -360,15 +361,15 @@ class Populator(BasePopulator):
 
                 for t in models_4_blocks:
                     model = t[0]
-                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)
 
-            create_bdl(block_id=payment_information_block.id_, order=300, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
-            create_bdl(block_id=received_invoices_block.id_,   order=14,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-#            create_bdl(block_id=received_billing_document_block.id_, order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-            create_bdl(block_id=received_quotes_block.id_,     order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            create_bdl(block_id=blocks.payment_information_block.id_, order=300, zone=LEFT,  model=Organisation)
+            create_bdl(block_id=blocks.received_invoices_block.id_,   order=14,  zone=RIGHT, model=Organisation)
+#            create_bdl(block_id=blocks.received_billing_document_block.id_, order=18,  zone=RIGHT, model=Organisation)
+            create_bdl(block_id=blocks.received_quotes_block.id_,     order=18,  zone=RIGHT, model=Organisation)
 
 
             if apps.is_installed('creme.reports'):

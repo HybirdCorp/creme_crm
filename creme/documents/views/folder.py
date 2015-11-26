@@ -31,6 +31,7 @@ from creme.creme_core.views.generic import add_entity, add_model_with_popup, edi
 from creme.creme_core.views.generic.listview import list_view
 
 from .. import get_folder_model
+from ..constants import DEFAULT_HFILTER_FOLDER
 from ..forms.folder import FolderForm, ChildFolderForm
 #from ..models import Folder
 
@@ -102,7 +103,9 @@ def abstract_list_folders(request, **extra_kwargs):
             template_dict['list_title'] = _(u"List sub-folders of %s") % folder
             template_dict['list_sub_title'] = u" > ".join(f.title for f in parents)
 
-    return list_view(request, Folder, extra_q=extra_q,
+    return list_view(request, Folder,
+                     hf_pk=DEFAULT_HFILTER_FOLDER,
+                     extra_q=extra_q,
 #                     extra_dict={'add_url': '/documents/folder/add',
                      extra_dict={#'add_url': reverse('documents__create_folder'),
                                  'parent_id': parent_id or "",

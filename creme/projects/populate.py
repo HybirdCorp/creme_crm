@@ -24,10 +24,12 @@ from django.apps import apps
 #from django.conf import settings
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.blocks import (properties_block, relations_block,
+        customfields_block, history_block)
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import RelationType, SearchConfigItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.models import (RelationType, SearchConfigItem,
+        HeaderFilter, BlockDetailviewLocation)
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model
@@ -37,10 +39,7 @@ from creme.activities import get_activity_model
 #from creme.activities.models import Activity
 
 from . import get_project_model, get_task_model
-from .blocks import *
-from .constants import (REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER,
-        REL_SUB_LINKED_2_PTASK, REL_OBJ_LINKED_2_PTASK,
-        REL_SUB_PART_AS_RESOURCE, REL_OBJ_PART_AS_RESOURCE, TASK_STATUS)
+from . import blocks, constants
 from .models import ProjectStatus, TaskStatus, Resource
 
 
@@ -51,7 +50,7 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER).exists()
+        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_PROJECT_MANAGER).exists()
         Contact = get_contact_model()
         Activity = get_activity_model()
 
@@ -59,40 +58,42 @@ class Populator(BasePopulator):
         ProjectTask = get_task_model()
 
         create_rtype = RelationType.create
-        create_rtype((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
-                     (REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]),
+        create_rtype((constants.REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
+                     (constants.REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]),
                     )
-        create_rtype((REL_SUB_LINKED_2_PTASK, _(u'is related to the task of project'), [Activity]),
-                     (REL_OBJ_LINKED_2_PTASK, _(u'includes the activity'),             [ProjectTask]),
+        create_rtype((constants.REL_SUB_LINKED_2_PTASK, _(u'is related to the task of project'), [Activity]),
+                     (constants.REL_OBJ_LINKED_2_PTASK, _(u'includes the activity'),             [ProjectTask]),
                      is_internal=True,
                     )
-        create_rtype((REL_SUB_PART_AS_RESOURCE, _(u'is a resource of'),  [Contact]),
-                     (REL_OBJ_PART_AS_RESOURCE, _(u'has as a resource'), [Activity]),
+        create_rtype((constants.REL_SUB_PART_AS_RESOURCE, _(u'is a resource of'),  [Contact]),
+                     (constants.REL_OBJ_PART_AS_RESOURCE, _(u'has as a resource'), [Activity]),
                      is_internal=True,
                     )
 
 
-        for pk, statusdesc in TASK_STATUS.iteritems():
+        for pk, statusdesc in constants.TASK_STATUS.iteritems():
             create_if_needed(TaskStatus, {'pk': pk}, name=unicode(statusdesc.name), order=pk,
                              description=unicode(statusdesc.verbose_name), is_custom=False,
                             )
 
 
         create_hf = HeaderFilter.create
-        create_hf(pk='projects-hf_project', name=_(u'Project view'), model=Project,
+        create_hf(pk=constants.DEFAULT_HFILTER_PROJECT,
+                  model=Project,
+                  name=_(u'Project view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'description'}),
                              ],
                  )
 
-        #used in form
+        # Used in form
         create_hf(pk='projects-hf_task', name=_(u'Task view'), model=ProjectTask,
                   cells_desc=[(EntityCellRegularField, {'name': 'title'}),
                               (EntityCellRegularField, {'name': 'description'}),
                              ],
                  )
 
-        #used in form
+        # Used in form
         create_hf(pk='projects-hf_resource', name=_(u'Resource view'), model=Resource,
                   cells_desc=[(EntityCellRegularField, {'name': 'linked_contact'}),
                               (EntityCellRegularField, {'name': 'hourly_cost'}),
@@ -117,24 +118,28 @@ class Populator(BasePopulator):
 
 
             create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=project_tasks_block.id_, order=2,   zone=BlockDetailviewLocation.TOP,   model=Project)
-            BlockDetailviewLocation.create_4_model_block(order=5,   zone=BlockDetailviewLocation.LEFT,  model=Project)
-            create_bdl(block_id=project_extra_info.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Project)
-            create_bdl(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Project)
-            create_bdl(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Project)
-            create_bdl(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Project)
-            create_bdl(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Project)
+            TOP = BlockDetailviewLocation.TOP
+            LEFT = BlockDetailviewLocation.LEFT
+            RIGHT = BlockDetailviewLocation.RIGHT
 
-            create_bdl(block_id=task_resources_block.id_,      order=2,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
-#            create_bdl(block_id=task_workingperiods_block.id_, order=4,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
-            create_bdl(block_id=task_activities_block.id_,     order=4,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
-            BlockDetailviewLocation.create_4_model_block(order=5,         zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-            create_bdl(block_id=task_extra_info.id_,           order=30,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-            create_bdl(block_id=customfields_block.id_,        order=40,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-            create_bdl(block_id=parent_tasks_block.id_,        order=50,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-            create_bdl(block_id=properties_block.id_,          order=450, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-            create_bdl(block_id=relations_block.id_,           order=500, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-            create_bdl(block_id=history_block.id_,             order=20,  zone=BlockDetailviewLocation.RIGHT, model=ProjectTask)
+            create_bdl(block_id=blocks.project_tasks_block.id_, order=2,   zone=TOP,   model=Project)
+            BlockDetailviewLocation.create_4_model_block(order=5,          zone=LEFT,  model=Project)
+            create_bdl(block_id=blocks.project_extra_info.id_,  order=30,  zone=LEFT,  model=Project)
+            create_bdl(block_id=customfields_block.id_,         order=40,  zone=LEFT,  model=Project)
+            create_bdl(block_id=properties_block.id_,           order=450, zone=LEFT,  model=Project)
+            create_bdl(block_id=relations_block.id_,            order=500, zone=LEFT,  model=Project)
+            create_bdl(block_id=history_block.id_,              order=20,  zone=RIGHT, model=Project)
+
+            create_bdl(block_id=blocks.task_resources_block.id_,  order=2,   zone=TOP,   model=ProjectTask)
+#            create_bdl(block_id=task_workingperiods_block.id_, order=4,   zone=TOP,   model=ProjectTask)
+            create_bdl(block_id=blocks.task_activities_block.id_, order=4,   zone=TOP,   model=ProjectTask)
+            BlockDetailviewLocation.create_4_model_block(order=5,            zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=blocks.task_extra_info.id_,       order=30,  zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=customfields_block.id_,           order=40,  zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=blocks.parent_tasks_block.id_,    order=50,  zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=properties_block.id_,             order=450, zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=relations_block.id_,              order=500, zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=history_block.id_,                order=20,  zone=RIGHT, model=ProjectTask)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
@@ -142,7 +147,7 @@ class Populator(BasePopulator):
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
                 for model in (Project, ProjectTask):
-                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)

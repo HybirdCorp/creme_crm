@@ -33,3 +33,5 @@ REL_OBJ_LINKED_2_PTASK = 'projects-object_linked_2_projecttask'
 
 REL_SUB_PART_AS_RESOURCE = 'projects-subject_part_as_resource'
 REL_OBJ_PART_AS_RESOURCE = 'projects-object_part_as_resource'
+
+DEFAULT_HFILTER_PROJECT = 'projects-hf_project'

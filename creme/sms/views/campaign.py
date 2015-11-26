@@ -28,6 +28,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
 from .. import get_smscampaign_model
+from ..constants import DEFAULT_HFILTER_SMSCAMPAIGN
 from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
 #from ..models import SMSCampaign
 
@@ -91,7 +92,7 @@ def detailview(request, campaign_id):
 @login_required
 @permission_required('sms')
 def listview(request):
-    return list_view(request, SMSCampaign,
+    return list_view(request, SMSCampaign, hf_pk=DEFAULT_HFILTER_SMSCAMPAIGN,
                      # extra_dict={'add_url': '/sms/campaign/add'}
                     )
 

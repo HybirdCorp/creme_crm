@@ -32,6 +32,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 #from .models import Graph
 from . import get_graph_model
 from .blocks import root_nodes_block, orbital_rtypes_block
+from .constants import DEFAULT_HFILTER_GRAPH
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ class Populator(BasePopulator):
     def populate(self):
         Graph = get_graph_model()
 
-        HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph,
+        HeaderFilter.create(pk=DEFAULT_HFILTER_GRAPH, name=_(u'Graph view'), model=Graph,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                            )
 
@@ -51,7 +52,7 @@ class Populator(BasePopulator):
         SearchConfigItem.create_if_needed(Graph, ['name'])
 
 
-        if not BlockDetailviewLocation.config_exists(Graph): # NB: no straightforward way to test that this populate script has not been already runned
+        if not BlockDetailviewLocation.config_exists(Graph):  # NB: no straightforward way to test that this populate script has not been already runned
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Graph)
             BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
             BlockDetailviewLocation.create(block_id=root_nodes_block.id_,     order=60,  zone=BlockDetailviewLocation.LEFT,  model=Graph)

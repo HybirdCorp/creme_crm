@@ -25,6 +25,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SearchConfigItem, HeaderFilter
 
 from . import get_rgenerator_model
+from .constants import DEFAULT_HFILTER_RGENERATOR
 #from .models import RecurrentGenerator
 
 
@@ -34,7 +35,9 @@ class Populator(BasePopulator):
     def populate(self):
         RecurrentGenerator = get_rgenerator_model()
 
-        HeaderFilter.create(pk='recurrents-hf', name=_(u'Generator view'), model=RecurrentGenerator,
+        HeaderFilter.create(pk=DEFAULT_HFILTER_RGENERATOR,
+                            model=RecurrentGenerator,
+                            name=_(u'Generator view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                            )
 

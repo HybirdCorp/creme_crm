@@ -26,6 +26,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from .. import get_quote_model, get_invoice_model, get_sales_order_model
+from ..constants import DEFAULT_HFILTER_QUOTE
 from ..forms.quote import QuoteCreateForm, QuoteEditForm
 #from ..models import Quote
 from ..views.workflow import generic_add_related #_add_with_relations
@@ -110,6 +111,6 @@ def detailview(request, quote_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, Quote,
+    return list_view(request, Quote, hf_pk=DEFAULT_HFILTER_QUOTE,
                      # extra_dict={'add_url': reverse('billing__create_quote')}
                     )
