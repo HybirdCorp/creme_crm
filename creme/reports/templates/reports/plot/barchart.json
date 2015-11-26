@@ -26,38 +26,38 @@
         "xaxis": {
             "renderer": "jqplot.CategoryAxisRenderer",
             "ticks": [],
-            {% if is_small %}
-            "tickRenderer": "jqplot.CanvasAxisTickRenderer",
-            "tickOptions": {
-                "angle": -30,
-                "fontSize": "9pt",
-                "textColor":  "black"
-            },
-            {% else %}
             "tickRenderer": "jqplot.AxisTickRenderer",
             "tickOptions": {
                 "textColor":  "black",
-                "fontSize":   "9pt"
+                "fontSize":   {% if is_small %}"8pt"{% else %}"9pt"{% endif %}
             },
-            {% endif %}
+            "pad": 1.0,
             {% comment %}"label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% if report.days %} ({{report.days}}){% endif %}{% endif %}",{% endcomment %}
             "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.type %} - {{rgraph.hand.verbose_name}}{% if rgraph.days %} ({{rgraph.days}}){% endif %}{% endif %}",
             "labelOptions": {
                 "fontWeight": "bold",
-                "fontSize":   "10pt",
+                "fontSize":   "9pt",
                 "textColor":  "black"
-                {% if plotXAxisAngle and not is_small %}
+                {% if plotXAxisAngle %}
                 "angle": {{plotXAxisAngle}},
                 {% endif %}
             },
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         },
         "yaxis": {
+            "numberTicks": "preprocess.numberTicks",
+            "numberTicksOptions": {
+                "serieIndex": 0,
+                "entryIndex": 1,
+                "maxTicksCount": 20,
+                "minTickInterval": 1
+            },
+            "pad": 1.0,
             "tickRenderer": "jqplot.CanvasAxisTickRenderer",
             "tickOptions": {
                 "formatString": {% if rgraph.is_count %}"%d"{% else %}"%d"{% endif %},
                 "textColor":  "black",
-                "fontSize":   "9pt"
+                "fontSize":   {% if is_small %}"8pt"{% else %}"9pt"{% endif %}
             },
             {% comment %}"label": "{{rgraph|verbose_ordinate:rgraph.ordinate}}",{% endcomment %}
             "label": "{{rgraph.hand.verbose_ordinate}}",

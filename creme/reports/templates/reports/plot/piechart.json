@@ -2,7 +2,7 @@
     "title": {
         "text":       "<b>{{rgraph}}</b>",
         "textColor":  "black",
-        "fontSize":   "13pt",
+        "fontSize":   {% if is_small %}"12pt"{% else %}"13pt"{% endif %},
         "renderer":   "jqplot.DivTitleRenderer"
     },
     "seriesDefaults": {
@@ -10,21 +10,22 @@
         "rendererOptions": {
             "showDataLabels": true,
             "shadow": false,
-            "padding": 5,
-            "dataLabelFormatString": "<span style='color:black'>%1$.2f %%</span>"
+            "padding": {% if is_small %}5{% else %}1{% endif %},
+            "dataLabelFormatString": "<span style='color:black'>%1$.2f %%</span>",
+            "dataLabelPositionFactor": 0.70
         }
     },
     "legend": {
         "show": true,
         "renderer": "jqplot.EnhancedLegendRenderer",
         "rendererOptions": {
-            "numberRows": 1,
+            "numberColumns": 1,
             "disableIEFading": false,
             "fontSize":   "9pt"
         },
         "labels": "preprocess.formatSerieLabel",
         "formatSerieLabelOptions": {
-            "format": "<span style='color:black;'>%0$s&nbsp;&nbsp;<span style='float:right;'>%3$.2f&nbsp;%%</span></span>"
+            "format": "<span style='color:black;'><span>%0$s</span><span style='float:right;'>%3$.2f&nbsp;%%</span></span>"
         },
         "location": "e"
     },
@@ -46,6 +47,7 @@
         {"action": "redirect", "event": "click", "url": "%2$s"}
     ],
     "dataFormat": "creme.graphael.BargraphData",
+    "dataDefaults": [[["", 100.0, ""]]],
     "dataPreprocessors": [{
                               "preprocessor": "percentEntry",
                               "options": {

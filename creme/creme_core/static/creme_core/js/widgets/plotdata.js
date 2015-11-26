@@ -60,7 +60,11 @@ $.extend(creme.widget.PlotProcessors, {
                 if (preprocessor_options !== undefined)
                     delete options[preprocessor_name + 'Options'];
 
-                options[key] = preprocessor(data, preprocessor_options);
+                try {
+                    options[key] = preprocessor(data, preprocessor_options);
+                } catch(e) {
+                    //console.log(e);
+                }
             }
         }
     },
@@ -91,6 +95,13 @@ $.extend(creme.widget.PlotProcessors, {
         var built_data = this.preprocessData(options.dataPreprocessors || [], data);
 
         this.preprocessOptions(built_options, built_data);
+
+        /*
+        console.log($.toJSON({
+            options: built_options || {},
+            data: built_data || []
+        }));
+        */
 
         return {
             options: built_options || {}, 
@@ -130,6 +141,50 @@ creme.widget.PlotProcessors.register('ticksLabel', function(series, options) {
     var serie = seriesIndex < series.length ? series[seriesIndex] : [];
 
     return serie.map(new Generator().get(labelIndex).iterator());
+});
+
+creme.widget.PlotProcessors.register('numberTicks', function(series, options) {
+    var options = $.extend({serieIndex: 0, entryIndex: 0, maxTicksCount: 1, minTickInterval: 0.0}, options);
+    var serieIndex = options.serieIndex;
+    var entryIndex = options.entryIndex;
+    var maxTicksCount = options.maxTicksCount;
+    var minTickInterval = options.minTickInterval;
+    var serie = serieIndex < series.length ? series[serieIndex] : [];
+    var entries = serie.map(function(entry, index) {return entry[entryIndex];})
+
+    entries = entries.filter(function(element, index, array) {
+        return array.indexOf(element) >= index;
+    });
+
+    entries.sort(function(a, b) {return a - b;});
+
+    var max = entries[entries.length - 1];
+    var min = entries[0];
+    var range = max > min ? Math.abs(max - min) : Math.abs(max); // handle case of empty range.
+
+    // Try to get as many ticks as different values under the maxTicksCount and find a default interval.
+    var baseTicksCount = Math.min(entries.length, maxTicksCount);
+    var baseInterval = Math.max(range / baseTicksCount, minTickInterval);
+    var tickInterval = baseInterval;
+
+    // Use log algorithm to find the best interval for the default interval.
+    var exponent = Math.floor(Math.log(baseInterval) / Math.LN10);
+    var magnitude = Math.pow(10, exponent);
+    var residual = Math.round(baseInterval / magnitude + 0.5);
+
+    // promote the MSD to either 1, 2, or 5
+    if (residual > 5.0) {
+        tickInterval = 10.0 * magnitude;
+    } else if (residual > 2.0) {
+        tickInterval = 5.0 * magnitude;
+    } else if (residual > 1.0) {
+        tickInterval = 2.0 * magnitude;
+    } else {
+        tickInterval = magnitude;
+    }
+
+    // retrieve ticks number from best interval (clamp with maxTicksCount)
+    return Math.min(Math.ceil(max / tickInterval) + 1, maxTicksCount);
 });
 
 creme.widget.PlotProcessors.register('seriesLabel', function(series, options) {

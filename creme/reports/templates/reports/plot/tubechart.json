@@ -4,7 +4,7 @@
     "title": {
         "text":       "<b>{{rgraph}}</b>",
         "textColor":  "black",
-        "fontSize":   "13pt",
+        "fontSize":   {% if is_small %}"12pt"{% else %}"13pt"{% endif %},
         "renderer":   "jqplot.DivTitleRenderer"
     },
     "stackSeries": true,
@@ -93,6 +93,7 @@
         {"action": "redirect", "event": "click", "url": "%5$s"}
     ],
     "dataFormat": "creme.graphael.BargraphData",
+    "dataDefaults": [[["", 100.0]]],
     "dataPreprocessors": ["tee",
                           {
                               "preprocessor": "fill", 
