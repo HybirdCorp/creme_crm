@@ -147,6 +147,7 @@ if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [
 
 creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload) {
     var reload_on_close = creme.object.isTrue(reload);
+    var options = options || {};
 
     var $div = $('#' + div_id);
     if ($div.size() == 0) {
@@ -179,19 +180,27 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
                                        open: function(event, ui) {
                                             var $me = $(event.target);
                                             var $form = $('[name=inner_body]', $me).find('form');
-
-                                            if (options === undefined) //TODO: move this code in the start of the function ?
-                                                options = {};
-
                                             var send_button = options['send_button']; //function or boolean (if defined)
+
+                                            // HACK : initialize widgets AFTER dialog opening.
+                                            creme.widget.ready($me);
 
                                             if ($form.size() || send_button) {
                                                 var submit_handler;
 
-                                                if ($.isFunction(send_button))
-                                                    submit_handler = function() {send_button($me);};
-                                                else
-                                                    submit_handler = function() {creme.utils.handleDialogSubmit($me);};
+                                                if ($.isFunction(send_button)) {
+                                                    submit_handler = function(e) {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        send_button($me);
+                                                    };
+                                                } else {
+                                                    submit_handler = function(e) {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        creme.utils.handleDialogSubmit($me);
+                                                    };
+                                                }
 
                                                 //$form.live('submit', function() {creme.utils.handleDialogSubmit($me);});
 
@@ -240,12 +249,30 @@ creme.utils.handleDialogSubmit = function(dialog) {
               creme.utils.loading('loading', false, {});
           },
           success: function(data, status) {
-              data += '<input type="hidden" name="whoami" value="' + div_id + '"/>'
+              is_closing = data.startsWith('<div class="in-popup" closing="true"')
 
-              creme.widget.shutdown(dialog);
-              $('[name=inner_body]', '#' + div_id).html(data);
+              if (!is_closing) {
+                  data += '<input type="hidden" name="whoami" value="' + div_id + '"/>';
 
-              creme.utils.scrollTo($('.errorlist:first', '.non_field_errors'));
+                  creme.widget.shutdown(dialog);
+                  $('[name=inner_body]', '#' + div_id).html(data);
+                  creme.widget.ready(dialog);
+
+                  creme.utils.scrollTo($('.errorlist:first', '.non_field_errors'));
+              } else {
+                  var content = $(data);
+                  var redirect_url = content.attr('redirect');
+                  var force_reload = content.is('[force-reload]');
+                  var delegate_reload = content.is('[delegate-reload]');
+
+                  if (redirect_url) {
+                      creme.utils.closeDialog(dialog, force_reload, undefined, callback_url);
+                  } else if (!delegate_reload) {
+                      creme.utils.closeDialog(dialog, force_reload);
+                  } else {
+                      dialog.dialog('close');
+                  }
+              }
           },
           error: function(request, status, error) {
             creme.utils.showErrorNReload();
