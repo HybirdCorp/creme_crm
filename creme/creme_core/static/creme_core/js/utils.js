@@ -289,7 +289,6 @@ creme.utils.scrollTo = function(element) {
     var position = $(element).position();
 
     if (Object.isNone(position) === false) {
-        console.log(position);
         scrollTo(position.left, position.top);
     }
 }
