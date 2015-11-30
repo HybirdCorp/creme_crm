@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.apps import apps
 from django.db import migrations
 
 
 RFT_RELATED = 7
+
 
 def fix_reports(apps, schema_editor):
     get_model = apps.get_model
@@ -25,9 +27,13 @@ def fix_reports(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('projects', '0007_v1_6__change_activities_block_id'),
-        ('reports', '0001_initial'),
+        # ('reports', '0001_initial'),
     ]
 
     operations = [
-        migrations.RunPython(fix_reports),
+        # migrations.RunPython(fix_reports),
     ]
+
+    if apps.is_installed('creme.reports'):
+        dependencies.append(('reports', '0001_initial'))
+        operations.append(migrations.RunPython(fix_reports))
