@@ -71,7 +71,8 @@
     font-weight: bolder;
     color: #376e86;
 /*    background-color: #dcedf4;*/
-    background: #f0f0f0;
+/*    background: #f0f0f0;  94% */
+    background: #f5f5f5; /* 96% */
 }
 
 .table_detail_view thead .title {
@@ -187,28 +188,45 @@
 }
 /**/
 
-/* zebra striping on block withs multiple lines */
+/* zebra striping on blocks with multiple lines */
 
 .block_header_line_light {
-/*    background-color: #dcedf4;*/
-    background-color: #f0f0f0; /* desaturate */
+/*    background-color: #f0f0f0;  desaturate */
+    background-color: #f7f7f7; /* lighten */
 }
 
 .block_line_light {
     padding: 2px 4px;
-/*    background-color: #f2f9fd;*/
-    background-color: #f7f7f7; /* desaturate */
+/*    background-color: #f7f7f7;  desaturate */
+    background-color: #ffffff; /* lighten */
 }
 
 .block_header_line_dark  {
-/*    background-color: #cde5ef;*/
-    background-color: #e3e3e3; /* desaturate */
+/*    background-color: #e3e3e3;  desaturate */
+    background-color: #f0f0f0; /* lighten */
 }
 
 .block_line_dark {
     padding: 2px 4px;
-/*    background-color: #e8f3f8;*/
-    background-color: #e8e8e8; /* desaturate */
+/*    background-color: #e8e8e8;  desaturate */
+    background-color: #f5f5f5; /* lighten */
+}
+
+/* blocks with sortable header fields use the striping styles, differentiate them from the content */
+.table_detail_view.with-header .header > .block_header_line_light,
+.table_detail_view.with-header .header > .block_header_line_dark {
+    background-color: #fafafa;
+}
+
+.table_detail_view.with-header .header > .block_header_line_light,
+.table_detail_view.with-header .header > .block_header_line_dark {
+    border-bottom: 1px solid #ededed;
+}
+
+/* empty states - disable striping on empty blocks, regardless of what the template says */
+.table_detail_view .content.empty .block_line_light,
+.table_detail_view .content.empty .block_line_dark {
+    background-color: white;
 }
 
 /* zebra striping on blocks with multiple lines - end */
@@ -285,11 +303,15 @@ table.collapsed .collapsable {
 }
 
 table.hide_empty_fields tr.content.collapsable-field {
-	display: none;
+    display: none;
 }
 
 table.collapsed {
     opacity: 0.5;
+}
+
+.table_detail_view.collapsed .block_header {
+    border-bottom: none;
 }
 
 .creme-block-pager-container {
@@ -374,4 +396,21 @@ table.collapsed {
 .scrollable-block-container .table_detail_view {
     margin: 0;
     box-shadow: none;
+}
+
+/* Block containers - end */
+
+/* TMP: Core blocks overrides — until most of the presentational classes are removed from the templates */
+
+/* TODO: vertical alignment in most blocks should be set to top when columns' sizes and content linebreaks are better controlled
+.table_detail_view#block_creme_core-history tr.content {
+    vertical-align: top;
+}
+*/
+
+/* TODO: all table blocks should better control the default margin & padding of the elements they
+         add in tds, so that they don't break the layout (like ul, p, etc currently do. Until then: */
+.table_detail_view#block_creme_core-history tr.content ul {
+    margin: 2px 0;
+    padding-left: 15px;
 }

@@ -90,7 +90,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 
 /*----------------------------------*/
 .ui-creme-entityselector > button[type="button"] {
-    padding: 2px 6px; 
+    padding: 2px 6px;
     background-color: #f5f5f5;
     color: #22439f;
     border-radius: 4px;
@@ -335,7 +335,7 @@ td.td_info > ul.ui-creme-actionbuttonlist li.delegate > * { width: 100%; }
 
 /*-------------------------*/
 span.ui-creme-datepicker-trigger {
-	vertical-align:middle;
+    vertical-align:middle;
 }
 
 /*----------------------------------*/
@@ -648,7 +648,7 @@ span.ui-creme-datepicker-trigger {
 /* HACK: the dialog title uses the same structure as the page title, creating side effects modifying both; Override those values here, until both templates are cleaned up */
 .ui-dialog-content .table_header {
     margin-top: 0;
-    padding-top: 5px; 
+    padding-top: 5px;
     border: 0;
 }
 
@@ -663,6 +663,11 @@ span.ui-creme-datepicker-trigger {
 }
 
 /* Left-side menu overrides - until its removal */
+
+.fg-menu-container, .fg-menu {
+    background: #fff;
+}
+
 .fg-menu-container, .fg-menu, .fg-menu a {
     border-radius: 0;
 }
