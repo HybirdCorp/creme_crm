@@ -12,8 +12,13 @@
     margin-right: 0px;
 }
 
+/* TODO: switch to the modern 'border-box' box-sizing everywhere,
+         and just use regular width and padding to visually separate those columns */
+/* TMP: using calc() ensures only modern browsers will see the width change until then.
+        Since the 2 columns are floated on opposite sides, shortening their width by x will create a 2x margin between them */
 .detailview .east, .detailview .west {
     width: 49.9%;
+    width: calc(49.9% - 3px);
 }
 
 .detailview .clear {

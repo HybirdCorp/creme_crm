@@ -1,8 +1,8 @@
 /* base */
 html {
     color: black;
-/*    background-color: #f6fcff;*/
-    background-color: #ebebeb;
+/*    background-color: #ebebeb;  92% */
+    background-color: #fcfcfc; /* 99% */
     margin: 0;
     padding: 0;
 }
@@ -13,8 +13,7 @@ html.central_panel {
 
 body {
     color: black;
-/*    background-color: #f6fcff;*/
-    background-color: #ebebeb;
+    /* background-color: #ebebeb; */
     /* margin-left: auto ; margin-right: auto ;*/
     padding: 0;
     margin: 0;
@@ -48,7 +47,7 @@ a {
     color: #22439f;
     text-decoration: none;
 /*    background-color: transparent;*/
-    
+
     /* animated color transition */
 /*
     -webkit-transition: color .4s linear;
@@ -206,8 +205,8 @@ a img:hover {
     padding: 7px;
 
     color: #2c596c;
-/*    background: #E6F2F7;*/
-    background: #f5f5f5;
+/*    background: #f5f5f5;*/
+    background: #fafafa;
     border: 1px solid #d7e2e7;
 
 /*
@@ -226,8 +225,8 @@ a img:hover {
     margin: 4px 0 4px 5px;
 
     color: #2c596c;
-/*    background: #E6F2F7;*/
-    background: #f5f5f5;
+/*    background: #f5f5f5;*/
+    background: #fafafa;
     border: 1px solid #d7e2e7;
 
     /*-moz-border-radius: 4px;
@@ -296,13 +295,13 @@ ul.button_list.vbox li {
     color:  #22439f;
 /*    background-color: #E6F2F7;*/
     background-color: #fafafa;
-    
+
     margin-left: 0.1em;
     padding: 5px;
 
 /*    border: 1px solid #D7E2E7;*/
     border: 1px solid #ccc;
-    
+
     /*-moz-border-radius: 4px;
     -webkit-border-radius: 4px;*/
 }
@@ -799,7 +798,7 @@ div#sub_content > div:nth-child(3) {
     font-weight: bold;
 }
 
-.ui-pg-selbox { 
+.ui-pg-selbox {
     height: 20px !important;
 }
 

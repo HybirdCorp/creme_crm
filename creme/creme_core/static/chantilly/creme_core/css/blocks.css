@@ -261,3 +261,12 @@ table.collapsed {
 .scrollable-block-container .table_detail_view {
     margin: 0;
 }
+
+/* Block containers - end */
+
+/* TODO: all table blocks should better control the default margin & padding of the elements they
+         add in tds, so that they don't break the layout (like ul, p, etc currently do. Until then: */
+.table_detail_view#block_creme_core-history tr.content ul {
+    margin: 2px 0;
+    padding-left: 15px;
+}
