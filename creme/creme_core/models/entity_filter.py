@@ -45,6 +45,7 @@ from ..utils.date_range import date_range_registry
 from ..utils.dates import make_aware_dt, date_2_dict
 from ..utils.meta import is_date_field, FieldInfo
 from .relation import RelationType, Relation
+from .creme_property import CremeProperty
 from .custom_field import CustomField, CustomFieldBoolean
 from .fields import CremeUserForeignKey, CTypeForeignKey
 
@@ -1029,7 +1030,7 @@ class EntityFilterCondition(Model):
                 return str(e)
 
             if not is_date_field(finfo[-1]):
-                return '%s is not a date field' % self.name #TODO: test
+                return '%s is not a date field' % self.name  # TODO: test
 
     def _get_q_customfield(self, user):
         # NB: Sadly we retrieve the ids of the entity that match with this condition
@@ -1147,8 +1148,12 @@ class EntityFilterCondition(Model):
 
         return query
 
+    # TODO: see remark on _get_q_relation()
     def _get_q_property(self, user):
-        query = Q(properties__type=self.name)
+        # query = Q(properties__type=self.name)
+        query = Q(pk__in=CremeProperty.objects.filter(type=self.name)
+                                              .values_list('creme_entity_id', flat=True)
+                 )
 
         if not self.decoded_value:  # Is a boolean indicating if got or has not got the property type
             query.negate()
