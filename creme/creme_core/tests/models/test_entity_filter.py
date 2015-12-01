@@ -16,7 +16,11 @@ try:
     from ..fake_models import (FakeContact as Contact, FakeCivility as Civility,
             FakeOrganisation as Organisation, FakeImage as Image)
     from creme.creme_core.global_info import set_global_info
-    from creme.creme_core.models import *
+    from creme.creme_core.models import (CremeEntity, Language,
+            Relation, RelationType, CremeProperty, CremePropertyType,
+            CustomField, CustomFieldInteger, CustomFieldString, CustomFieldFloat,
+            CustomFieldBoolean, CustomFieldDateTime, CustomFieldEnum, CustomFieldEnumValue,
+            EntityFilter, EntityFilterCondition)
     from creme.creme_core.models.entity_filter import EntityFilterList
 
 #    from creme.documents.models import Document, Folder
@@ -1242,6 +1246,32 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=ptype, has=False)])
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*cute_ones, exclude=True))
+
+    def test_properties02(self):
+        "Several conditions on properties"
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_pretty',    text=u'Pretty')
+        ptype2 = create_ptype(str_pk='test-prop_beautiful', text=u'Beautiful')
+
+        pretty_ones    = ('rei', 'asuka')
+        beautiful_ones = ('asuka', 'misato')
+
+        create_prop = CremeProperty.objects.create
+
+        for fn in pretty_ones:
+             create_prop(type=ptype1, creme_entity=self.contacts[fn])
+
+        for fn in beautiful_ones:
+             create_prop(type=ptype2, creme_entity=self.contacts[fn])
+
+        build_cond = EntityFilterCondition.build_4_property
+        efilter = EntityFilter.create(pk='test-filter', name='Cute & pretty',
+                                      model=Contact, is_custom=True,
+                                      conditions=[build_cond(ptype=ptype1, has=True),
+                                                  build_cond(ptype=ptype2, has=True),
+                                                 ]
+                                     )
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('asuka'))
 
     def _aux_test_relations(self):
         self.loves, self.loved = RelationType.create(('test-subject_love', u'Is loving'),
