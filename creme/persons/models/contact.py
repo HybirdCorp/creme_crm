@@ -93,7 +93,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     is_user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
                           blank=True, null=True, related_name='related_contact',
                           on_delete=SET_NULL, editable=False
-                         ).set_tags(clonable=False, enumerable=False) \
+                         ).set_tags(clonable=False) \
                           .set_null_label(pgettext_lazy('persons-is_user', u'None'))
     birthday = DateField(_(u'Birthday'), blank=True, null=True).set_tags(optional=True)
     image    = ForeignKey(Image, verbose_name=_(u'Photograph'),
