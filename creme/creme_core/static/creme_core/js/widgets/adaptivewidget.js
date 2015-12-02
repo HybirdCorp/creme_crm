@@ -16,6 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/*
+ * TODO : remove this deprecated widget in next version.
+ */
 creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
     options : {
         url: '',
