@@ -23,7 +23,7 @@ from functools import partial
 from itertools import chain
 from json import dumps as json_dump
 from types import GeneratorType
-#import warnings
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -1137,12 +1137,17 @@ class ListEditionWidget(Widget):
                ]
 
 
+# TODO : Deprecated widget. will be removed in 1.7.
+# TODO : Think to remove javascript file creme_core/js/widgets/adaptivewidget.js
 class AdaptiveWidget(Select):
     def __init__(self, ct_id, object_id="", attrs=None, choices=()):
         super(AdaptiveWidget, self).__init__(attrs, choices)
         self.ct_id = ct_id
         self.object_id = object_id
         self.url = "/creme_core/entity/get_widget/%s" % ct_id
+        warnings.warn("AdaptiveWidget is deprecated and will be removed in 1.7",
+                      DeprecationWarning
+                     )
 
     def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
