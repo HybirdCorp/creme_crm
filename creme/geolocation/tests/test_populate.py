@@ -9,7 +9,8 @@ try:
     from creme.persons.tests.base import skipIfCustomAddress, skipIfCustomOrganisation
 
     from ..models import Town, GeoAddress
-    from ..populate import Populator, CSVPopulator
+    from ..management.commands.geolocation import CSVPopulator, Command as GeolocationCommand
+    from ..populate import Populator
     from .base import GeoLocationBaseTestCase, Address, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -71,7 +72,7 @@ class CSVPopulatorTestCase(CremeTestCase):
         populator = MockCSVPopulator(['name', 'code', 'other', 'value'])
         self.assertListEqual(populator.columns, ['name', 'code', 'other', 'value'])
 
-        with self.assertRaises(Exception) as error:
+        with self.assertRaises(CSVPopulator.ParseError) as error:
             populator._mapper(['name', 'other'])
 
         self.assertEqual(str(error.exception),
@@ -139,7 +140,7 @@ class CSVPopulatorTestCase(CremeTestCase):
     def test_populate_from_missing_file(self):
         populator = MockCSVPopulator(['name', 'code'])
 
-        with self.assertRaises(Exception) as error:
+        with self.assertRaises(CSVPopulator.ReadError) as error:
             populator._open('unknown')
 
         self.assertIn('Unable to open CSV data from %s' % 'unknown', str(error.exception))
@@ -147,7 +148,7 @@ class CSVPopulatorTestCase(CremeTestCase):
     def test_populate_from_invalid_file(self):
         populator = MockCSVPopulator(['name', 'code'])
 
-        with self.assertRaises(Exception) as error:
+        with self.assertRaises(CSVPopulator.ParseError) as error:
             populator.populate('creme/geolocation/populate.py')
 
         self.assertEqual(str(error.exception),
@@ -158,11 +159,11 @@ class CSVPopulatorTestCase(CremeTestCase):
         populator = MockCSVPopulator(['name', 'code'])
         url = 'unknown://creme/geolocation/populate.py'
 
-        with self.assertRaises(Exception) as error:
+        with self.assertRaises(CSVPopulator.ProtocolError) as error:
             populator.populate(url)
 
         self.assertEqual(str(error.exception),
-                         'Unable to open CSV data from %s : %s' % (url, 'unsupported protocol unknown')
+                         'Unable to open CSV data from %s : unsupported protocol.' % url
                         )
 
     def test_populate_from_file(self):
@@ -179,7 +180,7 @@ class CSVPopulatorTestCase(CremeTestCase):
         populator = MockCSVPopulator(['name', 'code'])
         url = 'creme/geolocation/tests/data/not_archive.csv.zip'
 
-        with self.assertRaises(Exception) as error:
+        with self.assertRaises(CSVPopulator.ReadError) as error:
             populator.populate(url)
 
         self.assertEqual(str(error.exception),
@@ -206,12 +207,13 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     INVALID  = ["36810","976","acoua","ACOUA","acoua","Acoua","A200","AK",None,"601","97601","0","01",None,"4714","4714","4714","373","12.62","45.0645","-12.7239",None,None,None,None,None,None]
 
     def setUp(self):
-        self.populator = Populator(verbosity=3, app='geolocation',
-                                   all_apps=frozenset(('creme_core', 'persons')),
-                                   options={'verbosity': 3},
-                                   stdout=None, # TODO: fake stdout ?
-                                   style=None, #TODO: fake style ?
-                                  )
+        self.command = GeolocationCommand()
+#         self.populator = Populator(verbosity=3, app='geolocation',
+#                                    all_apps=frozenset(('creme_core', 'persons')),
+#                                    options={'verbosity': 3},
+#                                    stdout=None, # TODO: fake stdout ?
+#                                    style=None, #TODO: fake style ?
+#                                   )
 
     def assertTown(self, town, **kwargs):
         self.assertModelInstance(town, Town, **kwargs)
@@ -219,7 +221,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     def test_populate_does_not_exist(self):
         self.assertEqual(0, Town.objects.count())
 
-        self.populator.populate_towns([self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET], {'country': 'France'})
+        self.command.import_town_database([self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET], {'country': 'France'})
         self.assertEqual(4, Town.objects.count())
 
         get_town = partial(Town.objects.get, country='France')
@@ -232,7 +234,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         Town.objects.create(zipcode='01190', name='Ozan', slug='ozan', longitude=0.0, latitude=0.0)
         self.assertEqual(1, Town.objects.count())
 
-        self.populator.populate_towns([self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET], {'country': 'FRANCE'})
+        self.command.import_town_database([self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET], {'country': 'FRANCE'})
         self.assertEqual(4, Town.objects.count())
 
         get_town = Town.objects.get
@@ -242,7 +244,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         self.assertTown(get_town(zipcode='17150'), zipcode='17150', name='Saint-Bonnet-sur-Gironde', slug='saint-bonnet-sur-gironde', longitude=-0.666667, latitude=45.35)
 
     def test_populate_invalid_ignored(self):
-        self.populator.populate_towns([self.HEADER, self.OZAN, self.PERON, self.INVALID, self.ACOUA], {'country': 'FRANCE'})
+        self.command.import_town_database([self.HEADER, self.OZAN, self.PERON, self.INVALID, self.ACOUA], {'country': 'FRANCE'})
         self.assertEqual(3, Town.objects.count())
 
         get_town = Town.objects.get
@@ -257,7 +259,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
         self.assertEqual(0, GeoAddress.objects.count())
 
-        self.populator.populate_addresses()
+        self.command.populate_addresses()
         self.assertEqual(0, GeoAddress.objects.count())
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
@@ -277,7 +279,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         with self.assertRaises(GeoAddress.DoesNotExist):
             Address.objects.get().geoaddress
 
-        self.populator.populate_addresses()
+        self.command.populate_addresses()
         self.assertEqual(1, GeoAddress.objects.count())
 
         address = Address.objects.get()
@@ -291,9 +293,9 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     @skipIfCustomAddress
     def test_create_geoaddress_with_town(self):
         user = self.login()
-        self.populator.populate_towns([self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],
-                                      {'country': 'FRANCE'},
-                                     )
+        self.command.import_town_database([self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],
+                                          {'country': 'FRANCE'},
+                                         )
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
         Address.objects.create(name='Addresse',
@@ -312,7 +314,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         with self.assertRaises(GeoAddress.DoesNotExist):
             Address.objects.get().geoaddress
 
-        self.populator.populate_addresses()
+        self.command.populate_addresses()
         self.assertEqual(1, GeoAddress.objects.count())
 
         address = Address.objects.get()
