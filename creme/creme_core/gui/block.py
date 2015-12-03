@@ -68,7 +68,7 @@ class _BlockContext(object): #TODO: rename to Context ?? (so Context-> TemplateC
 
 
 class Block(object):
-    """ A block of informations.
+    """ A block of information.
     Blocks can be displayed on (see creme_core.templatetags.creme_block):
         - a detailview (and so are related to a CremeEntity),
         - a portal (related to the content types of an app)
