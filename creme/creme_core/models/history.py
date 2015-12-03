@@ -29,6 +29,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
         ForeignKey, OneToOneField, SET_NULL, FieldDoesNotExist) #DateTimeField
 from django.db.models.signals import post_save, post_init, pre_delete
+from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -138,6 +139,9 @@ class _HistoryLineTypeRegistry(object):
 
     def __getitem__(self, i):
         return self._hltypes[i]
+
+    def __iter__(self):
+        return self._hltypes.itervalues()
 
 
 TYPES_MAP = _HistoryLineTypeRegistry()
@@ -467,7 +471,7 @@ class _HLTAuxEdition(_HLTAuxCreation):
 
 #    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
-        ct_id, aux_id, str_obj = modifications[0] # TODO: idem (see _HLTAuxCreation)
+        ct_id, aux_id, str_obj = modifications[0]  # TODO: idem (see _HLTAuxCreation)
         model_class, verbose_name = self._model_info(ct_id)
 
         yield ugettext(u'Edit <%(type)s>: “%(value)s”') % {
@@ -505,7 +509,7 @@ class HistoryLine(Model):
     username     = CharField(max_length=30) # Not a Fk to a User object because we want to keep the same line after the deletion of a User.
     date         = CreationDateTimeField()
     type         = PositiveSmallIntegerField() # See TYPE_*
-    value        = TextField(null=True) # TODO: use a JSONField ? (see EntityFilter)
+    value        = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
     ENABLED = True  # False means that no new HistoryLines are created.
 
@@ -522,6 +526,40 @@ class HistoryLine(Model):
         return 'HistoryLine(entity_id=%s, entity_owner_id=%s, date=%s, type=%s, value=%s)' % (
                     self.entity_id, self.entity_owner_id, self.date, self.type, self.value
                 )
+
+    @staticmethod
+    @atomic
+    def delete_lines(line_qs):
+        """Delete the given HistoryLines & the lines related to them.
+        @param line_qs QurySet on HistoryLine
+        """
+        from ..utils.chunktools import iter_as_slices
+
+        deleted_ids = set()
+
+        for hlines_slice in iter_as_slices(line_qs, 1024):
+            for hline in hlines_slice:
+                deleted_ids.add(hline.id)
+                hline.delete()
+
+        related_types = [type_cls.type_id for type_cls in TYPES_MAP if type_cls.has_related_line]
+
+        # TODO: a 'populate_related_lines()' method would be cool
+        while True:
+            progress = False
+            qs = HistoryLine.objects.filter(type__in=related_types)
+
+            for hlines_slice in iter_as_slices(qs, 1024):
+                for hline in hlines_slice:
+                    related_line_id = hline._get_related_line_id()
+
+                    if related_line_id is not None and related_line_id in deleted_ids:
+                        deleted_ids.add(hline.id)
+                        hline.delete()
+                        progress = True
+
+            if not progress:
+                break
 
     @staticmethod
     def disable(instance):
@@ -656,12 +694,15 @@ def _final_entity(entity):
     "Is the instance an instance of a 'leaf' class"
     return entity.entity_type_id == _get_ct(entity).id
 
+
 @receiver(post_init)
 def _prepare_log(sender, instance, **kwargs):
     if hasattr(instance, 'get_related_entity'):
         _HistoryLineType._create_entity_backup(instance)
     elif isinstance(instance, CremeEntity) and instance.id and _final_entity(instance):
         _HistoryLineType._create_entity_backup(instance)
+    # XXX: following billing lines problem should not exist anymore
+    #      (several inheritance levels are avoided).
     # TODO: replace with this code
     #      problem with billing lines : the update view does not retrieve
     #      final class, so 'instance.entity_type_id == _get_ct(instance).id'
@@ -673,6 +714,7 @@ def _prepare_log(sender, instance, **kwargs):
         #return
 
     #_HistoryLineType._create_entity_backup(instance)
+
 
 @receiver(post_save)
 def _log_creation_edition(sender, instance, created, **kwargs):
@@ -697,6 +739,7 @@ def _log_creation_edition(sender, instance, created, **kwargs):
     except Exception:
         logger.exception('Error in _log_creation_edition() ; HistoryLine may not be created.')
 
+
 def _get_deleted_entity_ids():
     del_ids = get_global_info('deleted_entity_ids')
 
@@ -705,6 +748,7 @@ def _get_deleted_entity_ids():
         set_global_info(deleted_entity_ids=del_ids)
 
     return del_ids
+
 
 @receiver(pre_delete)
 def _log_deletion(sender, instance, **kwargs):
@@ -715,7 +759,7 @@ def _log_deletion(sender, instance, **kwargs):
     # with the final class, because the signal is send several times, with
     # several 'level' of class. We don't want to create several HistoryLines
     # (and some things are deleted by higher levels that make objects
-    # inconsistant & that can cause 'crashes').
+    # inconsistent & that can cause 'crashes').
     try:
         if isinstance(instance, CremeProperty):
             _HLTPropertyDeletion.create_line(instance)

@@ -386,8 +386,7 @@ about this fantastic animation studio."""
 
     def test_deletion02(self):
         "With auxiliary models"
-        user = self.user
-        gainax = Organisation.objects.create(user=user, name='Gainax')
+        gainax = Organisation.objects.create(user=self.user, name='Gainax')
         #ToDo.objects.create(user=user, creme_entity=gainax, title='Todo#1')
         Address.objects.create(entity=gainax, city='Tokyo')
         old_count = HistoryLine.objects.count()
@@ -399,21 +398,22 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_DELETION, hlines[-1].type)
 
     def test_related_edition01(self):
-        ghibli = self._build_organisation(user=self.user.id, name='Ghibli')
+        user = self.user
+        ghibli = self._build_organisation(user=user.id, name='Ghibli')
 
         first_name = 'Hayao'
         last_name  = 'Miyazaki'
-        hayao  = self._build_contact(user=self.user.id, first_name=first_name, last_name=last_name)
+        hayao = self._build_contact(user=user.id, first_name=first_name, last_name=last_name)
 
         rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'),
                                             ('test-object_employed', 'employs')
                                            )
-        Relation.objects.create(user=self.user, subject_entity=hayao, object_entity=ghibli, type=rtype)
+        Relation.objects.create(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
 
         old_count = HistoryLine.objects.count()
         description = 'A great animation movie maker'
         response = self.client.post(hayao.get_edit_absolute_url(), follow=True,
-                                    data={'user':        self.user.id,
+                                    data={'user':        user.id,
                                           'first_name':  first_name,
                                           'last_name':   last_name,
                                           'description': description,
@@ -432,11 +432,11 @@ about this fantastic animation studio."""
     def test_related_edition02(self):
         user = self.user
         ghibli = self._build_organisation(user=user.id, name='Ghibli')
-        sleep(1)  # ensure that 'modified' fields are different
+        sleep(1)  # Ensure that 'modified' fields are different
 
         first_name = 'Hayao'
         last_name  = 'Miyazaki'
-        hayao  = self._build_contact(user=user.id, first_name=first_name, last_name=last_name)
+        hayao = self._build_contact(user=user.id, first_name=first_name, last_name=last_name)
         self.assertNotEqual(hayao.modified, ghibli.modified)
 
         rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'),
@@ -478,7 +478,7 @@ about this fantastic animation studio."""
         gainax = Organisation.objects.create(user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
 
-        sleep(1)  # ensure than 'modified' field is not 'now()'
+        sleep(1)  # Ensure that 'modified' field is not 'now()'
 
         ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='Make animes')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
@@ -507,7 +507,7 @@ about this fantastic animation studio."""
         user = self.user
         gainax = Organisation.objects.create(user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
-        sleep(1)  # ensure that 'modified' field is not 'now()'
+        sleep(1)  # Ensure that 'modified' field is not 'now()'
 
         ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='make animes')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
@@ -541,7 +541,7 @@ about this fantastic animation studio."""
         rei  = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         old_count = HistoryLine.objects.count()
 
-        sleep(1)  # ensure than relation is younger than entities
+        sleep(1)  # Ensure than relation is younger than entities
 
         rtype, srtype = RelationType.create(('test-subject_works4', 'is employed'),
                                             ('test-object_works4',  'employs')
@@ -982,7 +982,7 @@ about this fantastic animation studio."""
         prop.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        #-----------------------
+        # -----------------------
         prop = self.refresh(prop)
         HistoryLine.disable(prop)
 
@@ -1027,7 +1027,34 @@ about this fantastic animation studio."""
         nerv.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        address = Address.objects.create(entity=nerv, city='Tokyo')
+        Address.objects.create(entity=nerv, city='Tokyo')
         self.assertEqual(old_count, HistoryLine.objects.count())
+
+    def test_delete_lines(self):
+        user = self.user
+        hayao = Contact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
+        ghibli = Organisation.objects.create(user=user, name='Ghibli')
+
+        rtype = RelationType.create(('test-subject_delline_works', 'is employed'),
+                                    ('test-object_delline_works',  'employs')
+                                   )[0]
+        Relation.objects.create(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
+
+        HistoryConfigItem.objects.create(relation_type=rtype)
+        hayao = self.refresh(hayao)
+        hayao.description = 'Dream maker'
+        hayao.save()
+
+        hayao_line_qs = HistoryLine.objects.filter(entity=hayao)
+        ghibli_line_qs = HistoryLine.objects.filter(entity=ghibli)
+        self.assertEqual(3, hayao_line_qs.count())
+        self.assertEqual(3, ghibli_line_qs.count())
+
+        HistoryLine.delete_lines(hayao_line_qs)
+        self.assertFalse(hayao_line_qs.all())
+
+        ghibli_lines = list(ghibli_line_qs.all())
+        self.assertEqual(1, len(ghibli_lines))
+        self.assertEqual(TYPE_CREATION, ghibli_lines[0].type)
 
     # TODO: test populate related lines + query counter ??

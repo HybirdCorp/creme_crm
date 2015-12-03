@@ -24,23 +24,24 @@ from future_builtins import map
 class DependenciesLoopError(Exception):
     pass
 
-#TODO: can we recycle the temporary lists or do an 'in-place' implementation ?
+
+# TODO: can we recycle the temporary lists or do an 'in-place' implementation ?
 def dependence_sort(l, get_key, get_dependencies):
     """Sort a sequence of objects that have dependencies between them
     eg: if A depends on B, B will be before A.
     @param l Sequence
-    @param get_key Callable that take one element from 'l', and returns a 
+    @param get_key Callable that takes one element from 'l', and returns a
            unique key (in 'l') that identifies this element.
     @param get_dependencies Callable that take one element from 'l', and 
            returns a list(-like) of keys (see get_key()).
-    @return A sorted list wich contains all elements from l.
+    @return A sorted list which contains all elements from l.
     @throws DependenciesLoopError
     """
-    sortedl = [] #sorted elements
-    resolved = set() #dependencies that have been resolved (ie: sorted)
+    sortedl = []  # Sorted elements
+    resolved = set()  # Dependencies that have been resolved (ie: sorted)
 
     while True:
-        nosortedl = [] #elements that are not sorted yet
+        nosortedl = []  # Elements that are not sorted yet
         changed = False
 
         for e in l:

@@ -436,13 +436,16 @@ class EntityFilter(Model):  # CremeModel ???
 
         return ef
 
-    def delete(self, *args, **kwargs):
-        parents = {unicode(cond.filter) for cond in self._iter_parent_conditions()}
+    def delete(self, check_orphan=True, *args, **kwargs):
+        if check_orphan:
+            parents = {unicode(cond.filter) for cond in self._iter_parent_conditions()}
 
-        if parents:
-            raise EntityFilter.DependenciesError(ugettext(u'You can not delete this filter, because it is used as subfilter by : %s') % \
-                                                    u', '.join(parents)
-                                                )
+            if parents:
+                raise EntityFilter.DependenciesError(
+                        ugettext(u'You can not delete this filter, '
+                                 u'because it is used as subfilter by : %s'
+                                ) % u', '.join(parents)
+                )
 
         super(EntityFilter, self).delete(*args, **kwargs)
 

@@ -28,7 +28,9 @@ class ReportsConfig(CremeAppConfig):
     verbose_name = _(u'Reports')
     dependencies = ['creme.creme_core']
 
-#    def ready(self):
+    def ready(self):
+        from . import signals
+
     def all_apps_ready(self):
         from . import get_report_model, get_rgraph_model
 
