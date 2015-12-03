@@ -43,7 +43,7 @@ class CommercialApproach(CremeModel):
 
     #TODO: use real ForeignKey to CremeEntity ( + remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set", editable=False)
-    entity_id           = PositiveIntegerField(editable=False)
+    entity_id           = PositiveIntegerField(editable=False)  #.set_tags(viewable=False) uncomment if it becomes an auxiliary (get_related_entity())
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     class Meta:

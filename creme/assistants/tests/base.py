@@ -5,6 +5,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact as Contact
+    from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
 
     #from creme.persons.models import Contact
 except Exception as e:
@@ -28,6 +29,7 @@ class AssistantsTestCase(CremeTestCase):
         contact02 = create_contact(first_name='Ryoag', last_name='Hibiik')
 
         creator(contact01, contact02)
+        old_count = HistoryLine.objects.count()
 
         response = self.client.post(self.build_merge_url(contact01, contact02),
                                     follow=True,
@@ -52,3 +54,10 @@ class AssistantsTestCase(CremeTestCase):
             contact01 = self.refresh(contact01)
 
         assertor(contact01)
+
+        hlines = list(HistoryLine.objects.order_by('id'))
+        self.assertEqual(old_count + 1, len(hlines))  # No edition for 'entity_id'
+
+        hline = hlines[-1]
+        self.assertEqual(TYPE_DELETION, hline.type)
+        self.assertEqual(unicode(contact02), hline.entity_repr)

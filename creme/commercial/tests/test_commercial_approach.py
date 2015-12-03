@@ -16,6 +16,7 @@ try:
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (CremeEntity, Relation, CremeProperty,
             BlockPortalLocation, SettingValue)
+    from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
 
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
             REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
@@ -91,6 +92,8 @@ class CommercialApproachTestCase(CremeTestCase):
         create_commapp(title='Commapp02', creme_entity=orga02)
         self.assertEqual(2, CommercialApproach.objects.count())
 
+        old_count = HistoryLine.objects.count()
+
         response = self.client.post(self.build_merge_url(orga01, orga02),
                                     follow=True,
                                     data={'user_1':      user.id,
@@ -100,6 +103,8 @@ class CommercialApproachTestCase(CremeTestCase):
                                           'name_1':      orga01.name,
                                           'name_2':      orga02.name,
                                           'name_merged': orga01.name,
+
+                                          'subject_to_vat_merged': orga01.subject_to_vat,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -114,6 +119,13 @@ class CommercialApproachTestCase(CremeTestCase):
 
         for commapp in commapps:
             self.assertEqual(orga01, commapp.creme_entity)
+
+        hlines = list(HistoryLine.objects.order_by('id'))
+        self.assertEqual(old_count + 1, len(hlines))  # No edition for 'entity_id'
+
+        hline = hlines[-1]
+        self.assertEqual(TYPE_DELETION, hline.type)
+        self.assertEqual(unicode(orga02), hline.entity_repr)
 
     @skipIfCustomActivity
     def test_create_from_activity01(self):

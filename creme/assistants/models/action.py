@@ -39,7 +39,7 @@ class Action(CremeModel):
 
     #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="action_entity_set", editable=False)
-    entity_id           = PositiveIntegerField(editable=False)
+    entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     user                = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
