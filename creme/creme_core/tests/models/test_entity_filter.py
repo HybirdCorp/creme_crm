@@ -515,7 +515,9 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = self.refresh(efilter)
 
         with self.assertNumQueries(0):
-            efilter.entity_type
+            ct = efilter.entity_type
+
+        self.assertIsInstance(ct, ContentType)
 
     def test_filter_field_equals01(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari', Contact,
@@ -2386,6 +2388,8 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertDoesNotExist(cond2)
         self.assertEqual(set(self._get_ikari_case_sensitive()), {c.id for c in filtered})
 
+        self.assertEqual(1, len(efilter.get_conditions()))
+
     def test_invalid_datefield(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari', Contact, is_custom=True)
         cond1 = EntityFilterCondition.build_4_field(model=Contact, name='last_name',
@@ -2424,6 +2428,56 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                         values=['__currentuser__']
                                                                        )
                                    ])
+
+    def test_invalid_subfilter(self):
+        build_4_field = partial(EntityFilterCondition.build_4_field, model=Contact, operator=EntityFilterCondition.CONTAINS)
+        sub_efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact,
+                                          conditions=[build_4_field(name='last_name',  values=['Spiegel'])],
+                                         )
+
+        sub_cond = EntityFilterCondition.build_4_subfilter(sub_efilter)
+        with self.assertNumQueries(0):
+            error = sub_cond.error
+        self.assertIsNone(error)
+
+        efilter = EntityFilter.create(pk='test-filter02', name='Filter02', model=Contact,
+                                      conditions=[build_4_field(name='first_name', values=['Spi']),
+                                                  sub_cond,
+                                                 ],
+                                     )
+
+        EntityFilter.objects.filter(pk=sub_efilter.pk).delete()
+        self.assertDoesNotExist(sub_efilter)
+        efilter = self.assertStillExists(efilter)
+
+        conditions = efilter.get_conditions()
+        self.assertEqual(1, len(conditions))
+
+    def test_invalid_relations_subfilter(self):
+        loves = self._aux_test_relations()
+
+        build_4_field = partial(EntityFilterCondition.build_4_field, model=Contact, operator=EntityFilterCondition.EQUALS)
+        sub_efilter = EntityFilter.create(pk='test-filter01', name='Filter Rei', model=Contact,
+                                          conditions=[build_4_field(name='last_name', values=['Ayanami'])]
+                                         )
+
+        sub_cond = EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=sub_efilter)
+        with self.assertNumQueries(0):
+            error = sub_cond.error
+        self.assertIsNone(error)
+
+        efilter = EntityFilter.create(pk='test-filter02', name='Filter Rei lovers', model=Contact,
+                                      conditions=[build_4_field(name='first_name', values=['rei']),
+                                                  sub_cond,
+                                                 ]
+                                     )
+
+        EntityFilter.objects.filter(pk=sub_efilter.pk).delete()
+        self.assertDoesNotExist(sub_efilter)
+        efilter = self.assertStillExists(efilter)
+
+        conditions = efilter.get_conditions()
+        self.assertEqual(1, len(conditions))
 
     def test_get_for_user(self):
         user = self.user

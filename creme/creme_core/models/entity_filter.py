@@ -823,6 +823,8 @@ class EntityFilterCondition(Model):
             RANGE:           _RangeOperator(_(u"Range")),
         }
 
+    _subfilter_cache = None  # 'None' means not retrieved ; 'False' means invalid filter
+
     class Meta:
         app_label = 'creme_core'
 
@@ -975,19 +977,26 @@ class EntityFilterCondition(Model):
 
     @staticmethod
     def build_4_relation_subfilter(rtype, subfilter, has=True):
-        return EntityFilterCondition(type=EntityFilterCondition.EFC_RELATION_SUBFILTER,
+        assert isinstance(subfilter, EntityFilter)
+        cond = EntityFilterCondition(type=EntityFilterCondition.EFC_RELATION_SUBFILTER,
                                      name=rtype.id,
                                      value=EntityFilterCondition.encode_value(
                                                 {'has': bool(has), 'filter_id': subfilter.id}
                                             )
                                     )
+        cond._subfilter_cache = subfilter
+
+        return cond
 
     @staticmethod
     def build_4_subfilter(subfilter):
         assert isinstance(subfilter, EntityFilter)
-        return EntityFilterCondition(type=EntityFilterCondition.EFC_SUBFILTER,
+        cond = EntityFilterCondition(type=EntityFilterCondition.EFC_SUBFILTER,
                                      name=subfilter.id,
                                     )
+        cond._subfilter_cache = subfilter
+
+        return cond
 
     @staticmethod
     def conditions_equal(conditions1, conditions2):
@@ -1018,6 +1027,7 @@ class EntityFilterCondition(Model):
     @property
     def error(self):  # TODO: map of validators
         etype = self.type
+
         if etype == EntityFilterCondition.EFC_FIELD:
             try:
                 FieldInfo(self.filter.entity_type.model_class(), self.name)
@@ -1031,6 +1041,11 @@ class EntityFilterCondition(Model):
 
             if not is_date_field(finfo[-1]):
                 return '%s is not a date field' % self.name  # TODO: test
+        elif etype in (EntityFilterCondition.EFC_SUBFILTER,
+                       EntityFilterCondition.EFC_RELATION_SUBFILTER,
+                      ):
+            if self._get_subfilter() is False:
+                return '%s is not a valid filter ID' % self._get_subfilter_id()
 
     def _get_q_customfield(self, user):
         # NB: Sadly we retrieve the ids of the entity that match with this condition
@@ -1136,7 +1151,8 @@ class EntityFilterCondition(Model):
     #       on relations use it when there is only one condition on relations ??
     def _get_q_relation_subfilter(self, user):
         value = self.decoded_value
-        subfilter = EntityFilter.objects.get(pk=value['filter_id'])
+        # subfilter = EntityFilter.objects.get(pk=value['filter_id'])
+        subfilter = self._get_subfilter()
         filtered = subfilter.filter(subfilter.entity_type.model_class().objects.all()).values_list('id', flat=True)
 
         query = Q(pk__in=Relation.objects.filter(type=self.name, object_entity__in=filtered)
@@ -1161,12 +1177,16 @@ class EntityFilterCondition(Model):
         return query
 
     _GET_Q_FUNCS = {
-            EFC_SUBFILTER:          (lambda self, user: EntityFilter.objects.get(id=self.name).get_q(user)),
+            # EFC_SUBFILTER:          (lambda self, user: EntityFilter.objects.get(id=self.name).get_q(user)),
+            EFC_SUBFILTER:          (lambda self, user: self._get_subfilter().get_q(user)),
             EFC_FIELD:              _get_q_field,
             EFC_RELATION:           _get_q_relation,
             EFC_RELATION_SUBFILTER: _get_q_relation_subfilter,
             EFC_PROPERTY:           _get_q_property,
-            EFC_DATEFIELD:          (lambda self, user: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, now=now()))),
+            EFC_DATEFIELD:          (lambda self, user: Q(**self._load_daterange(self.decoded_value)
+                                                                .get_q_dict(field=self.name, now=now())
+                                                         )
+                                    ),
             EFC_CUSTOMFIELD:        _get_q_customfield,
             EFC_DATECUSTOMFIELD:    _get_q_datecustomfield,
         }
@@ -1181,6 +1201,22 @@ class EntityFilterCondition(Model):
             return self.name
         elif type == self.EFC_RELATION_SUBFILTER:
             return self.decoded_value['filter_id']
+
+    def _get_subfilter(self):
+        "@return An EntityFilter instance or 'False' is there is no valid sub-filter"
+        subfilter = self._subfilter_cache
+
+        if subfilter is None:
+            sf_id = self._get_subfilter_id()
+
+            if sf_id is None:
+                subfilter = False
+            else:
+                subfilter = EntityFilter.objects.filter(id=self._get_subfilter_id()).first() or False
+
+            self._subfilter_cache = subfilter
+
+        return subfilter
 
     def update(self, other_condition):
         """Fill a condition with the content a another one (in order to reuse the old instance if possible).
