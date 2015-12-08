@@ -688,6 +688,9 @@ class MultiEntityCreatorWidget(SelectorList):
         if model is None:
             delegate = Label(empty_label='Model is not set')
         else:
+            self.clear_actions() # TODO: indicate that we do not want actions in __init__
+            self.add_action('add', getattr(model, 'selection_label', _(u'Select')))
+
             delegate = EntitySelector(unicode(ContentType.objects.get_for_model(model).id),
                                       {'auto':       False,
                                        'qfilter':    self.q_filter,
@@ -697,14 +700,8 @@ class MultiEntityCreatorWidget(SelectorList):
                                      )
 
             def add_action(name, label, enabled=True, **kwargs):
-                button_list.add_action(name, label, enabled=False, **kwargs)
+                button_list.add_action(name, label, enabled=False, hidden=True, **kwargs)
                 self.add_action(name, label, enabled)
-
-            #button_list.clear_actions()
-            self.clear_actions() # TODO: indicate that we do not want actions in __init__
-
-            # TODO: use _CremeModel.selection_label instead of 'Select'
-            add_action('add', _(u'Select'))
 
             url = self.creation_url
             if url:
