@@ -37,6 +37,7 @@ creme.component.Action = creme.component.Component.sub({
             this._status = 'run';
             this._action.apply(this, Array.copy(arguments));
         } catch(e) {
+            console.error(e);
             this.fail(e);
         }
 

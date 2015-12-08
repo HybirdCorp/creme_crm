@@ -73,7 +73,6 @@ window.console = window.console || {};
                            return item + ' ';
                        }));
             }
-        })
-
+        });
     }
 })();
