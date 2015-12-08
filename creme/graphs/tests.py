@@ -161,7 +161,7 @@ class GraphsTestCase(CremeTestCase):
         url = '/graphs/graph/%s/roots/add' % graph.id
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities': '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (
+        response = self.client.post(url, data={'entities': '[{"ctype":{"id":"%s"},"entity":"%s"}, {"ctype":{"id":"%s"},"entity":"%s"}]' % (
                                                                 contact.entity_type_id, contact.pk,
                                                                 orga.entity_type_id,    orga.pk
                                                             ),
@@ -197,7 +197,7 @@ class GraphsTestCase(CremeTestCase):
         url = '/graphs/graph/%s/roots/add' % graph.id
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities': '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (
+        response = self.client.post(url, data={'entities': '[{"ctype":{"id":"%s"},"entity":"%s"}, {"ctype":{"id":"%s"},"entity":"%s"}]' % (
                                                                 contact.entity_type_id, contact.pk,
                                                                 orga.entity_type_id,    orga.pk
                                                             ),

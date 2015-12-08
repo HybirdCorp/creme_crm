@@ -232,7 +232,7 @@ class ActTestCase(CommercialBaseTestCase):
                                     data={'user':        user.id,
                                           'name':        name,
                                           'sales_phase': phase.id,
-                                          'target':      '{"ctype":"%s", "entity":"%s"}' % (
+                                          'target':      '{"ctype": {"id": "%s"}, "entity":"%s"}' % (
                                                                 target.entity_type_id,
                                                                 target.id
                                                             ),

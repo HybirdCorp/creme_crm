@@ -111,7 +111,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
                                           '1-discount': discount,
                                           '1-status':   status.id,
                                           '1-source':   source.id,
-                                          '1-target':   '{"ctype":"%s", "entity":"%s"}' % (
+                                          '1-target':   '{"ctype":{"id":"%s"}, "entity":"%s"}' % (
                                                              target.entity_type_id,
                                                              target.id,
                                                          ),

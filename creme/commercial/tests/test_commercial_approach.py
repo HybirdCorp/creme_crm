@@ -52,7 +52,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.login()
 
     def _build_entity_field(self, entity):
-        return '[{"ctype":"%s", "entity":"%s"}]' % (entity.entity_type_id, entity.id)
+        return '[{"ctype": {"id": "%s"}, "entity":"%s"}]' % (entity.entity_type_id, entity.id)
 
     def test_createview(self):
         #self.login()
