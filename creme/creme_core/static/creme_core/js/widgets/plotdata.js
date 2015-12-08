@@ -63,7 +63,7 @@ $.extend(creme.widget.PlotProcessors, {
                 try {
                     options[key] = preprocessor(data, preprocessor_options);
                 } catch(e) {
-                    //console.log(e);
+                    console.error(e);
                 }
             }
         }

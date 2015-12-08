@@ -162,6 +162,7 @@ creme.component.EventHandler = creme.component.Component.sub({
             try {
                 listener.apply(source, args);
             } catch(e) {
+                console.error(e);
             }
         });
     }

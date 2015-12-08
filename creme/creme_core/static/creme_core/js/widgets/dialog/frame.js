@@ -145,6 +145,7 @@ creme.dialog.Frame = creme.component.Component.sub({
                 this.activateContent(delegate);
             }
         } catch(e) {
+            console.error(e);
         }
 
         this._events.trigger('update', [data.content, data.type, action], this);

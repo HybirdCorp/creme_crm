@@ -133,6 +133,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
                 this._drawSVG(element, target, plot_info.data, plot_info.options, cb)
             }
         } catch(err) {
+            console.error(err);
             target.remove();
             throw err;
         }
