@@ -503,10 +503,10 @@ class PollRepliesTestCase(_PollsTestCase):
                                           'name':    name,
                                           'pform':   pform.id,
                                           'number':  3,  # Should be ignored
-                                          'persons': '[{"ctype": %s, "entity": %s},'
-                                                     ' {"ctype": %s, "entity": %s},'
-                                                     ' {"ctype": %s, "entity": %s},'
-                                                     ' {"ctype": %s, "entity": %s}]' % (
+                                          'persons': '[{"ctype": {"id": %s}, "entity": %s},'
+                                                     ' {"ctype": {"id": %s}, "entity": %s},'
+                                                     ' {"ctype": {"id": %s}, "entity": %s},'
+                                                     ' {"ctype": {"id": %s}, "entity": %s}]' % (
                                                         leina.entity_type_id,     leina.id,
                                                         claudette.entity_type_id, claudette.id,
                                                         gaimos.entity_type_id,    gaimos.id,
@@ -779,7 +779,7 @@ class PollRepliesTestCase(_PollsTestCase):
                                     data={'user':     user.id,
                                           'name':     preply.name,
                                           'campaign': camp.id,
-                                          'related_person': '{"ctype": %s, "entity": %s}' % (
+                                          'related_person': '{"ctype": {"id": %s}, "entity": %s}' % (
                                                                 leina.entity_type_id, leina.id,
                                                             )
                                          }
@@ -836,7 +836,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
         response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
-                                               'field_value':  '{"ctype": %s, "entity": %s}' % (
+                                               'field_value':  '{"ctype": {"id": %s}, "entity": %s}' % (
                                                                     leina.entity_type_id, leina.id,
                                                                 ),
                                               },

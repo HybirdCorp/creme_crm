@@ -242,7 +242,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertIn('informed_users', fields)
 
         title  = 'Meeting dojo'
-        field_format = '[{"ctype": "%s", "entity": "%s"}]'
+        field_format = '[{"ctype": {"id": "%s"}, "entity": "%s"}]'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(url, follow=True,
                                     data={'user':                user.pk,

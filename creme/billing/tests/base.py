@@ -105,7 +105,7 @@ class _BillingTestCaseMixin(object):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
     def genericfield_format_entity(self, entity):
-        return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
+        return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
     def create_invoice(self, name, source, target, currency=None, discount=Decimal(), user=None):
         user = user or self.user

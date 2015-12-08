@@ -95,7 +95,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     #def _relation_field_value(self, entity):
         #return '[{"ctype":"%s", "entity":"%s"}]' % (entity.entity_type_id, entity.id)
     def _relation_field_value(self, *entities):
-        return '[%s]' % ','.join('{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
+        return '[%s]' % ','.join('{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
                                     for entity in entities
                                 )
 

@@ -122,7 +122,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         return reverse('opportunities__create_related_opportunity', args=(entity.id,))
 
     def _genericfield_format_entity(self, entity):
-        return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
+        return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
     def _create_target_n_emitter(self, managed=True, contact=False):
         user = self.user
