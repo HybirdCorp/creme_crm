@@ -557,8 +557,8 @@ class EventsTestCase(CremeTestCase):
         ct_id = ContentType.objects.get_for_model(Contact).id
 
         response = self.assertPOST200(self._build_link_contacts_url(event), follow=True,
-                                      data={'related_contacts': '[{"rtype":"%s","ctype": {"id": "%s"},"entity":"%s"},'
-                                                                ' {"rtype":"%s","ctype": {"id": "%s"},"entity":"%s"}]' % (
+                                      data={'related_contacts': '[{"rtype":"%s","ctype": "%s","entity":"%s"},'
+                                                                ' {"rtype":"%s","ctype": "%s","entity":"%s"}]' % (
                                                                         REL_OBJ_IS_INVITED_TO, ct_id, casca.id,
                                                                         REL_OBJ_CAME_EVENT,    ct_id, casca.id,
                                                                     ),
