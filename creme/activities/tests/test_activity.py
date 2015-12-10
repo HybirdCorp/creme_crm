@@ -464,7 +464,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                 object_entity=dojo, user=user,
                                )
 
-        title  = 'My task'
+        title = 'My task'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':             user.pk,

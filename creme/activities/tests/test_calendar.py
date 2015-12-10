@@ -5,6 +5,7 @@ try:
     from functools import partial
     from json import loads as jsonloads, dumps as jsondumps
 
+    from django.core.urlresolvers import reverse
     from django.utils.encoding import force_unicode
     from django.utils.html import escape
     from django.utils.timezone import make_naive, get_current_timezone
@@ -432,12 +433,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
         act0 = create(title='Act#0', start=start, end=start)
         act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
-        act2 = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2)) #not in calendar
-        act3 = create(title='Act#3', start=start + timedelta(days=1), end=end   + timedelta(days=1), #start OK
+        act2 = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2))  # Not in calendar
+        act3 = create(title='Act#3', start=start + timedelta(days=2), end=end   + timedelta(days=1),  # Start OK
                       is_all_day=True, type_id=ACTIVITYTYPE_MEETING, 
                       sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                      )
-        act4 = create(title='Act#4', start=start - timedelta(days=1), end=start + timedelta(days=3)) #end OK
+        act4 = create(title='Act#4', start=start - timedelta(days=1), end=start + timedelta(days=3))  # End OK
         act5 = create(title='Act#5', start=start + timedelta(days=5), end=start + timedelta(days=5, hours=3),
                       is_deleted=True,
                      )
@@ -459,48 +460,47 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertEqual(4, len(data))
 
-        def formated_dt(dt):
+        def formatted_dt(dt):
             return make_naive(dt, get_current_timezone()).isoformat()
 
-        url_fmt = '/activities/activity/%s/popup'
-        self.assertEqual({'id':             act1.id,
-                          'title':          'Act#1 - Kirika',
-                          'allDay':         False,
-                          'calendar':       cal.id,
-                          'calendar_color': '#%s' % cal.color,
-                          'start':          formated_dt(act1.start),
-                          'end':            formated_dt(act1.end),
-                          'url':            url_fmt % act1.id,
-                          'editable':       True,
-                          'title':          'Act#1',
-                          'type':           _(u'Task'),
-                         },
-                         data[0]
-                        )
+        def build_popup_url(act):
+            return reverse('activities__view_activity_popup', args=(act.id,))
+
         self.assertEqual({'id':             act3.id,
-                          'title':          'Act#3 - Kirika',
+                          'title':         'Act#3',
+                          'start':          formatted_dt(act3.start),
+                          'end':            formatted_dt(act3.end),
                           'allDay':         True,
                           'calendar':       cal.id,
                           'calendar_color': '#%s' % cal.color,
-                          'start':          formated_dt(act3.start),
-                          'end':            formated_dt(act3.end),
-                          'url':            url_fmt % act3.id,
+                          'url':            build_popup_url(act3),
                           'editable':       True,
-                          'title':         'Act#3',
                           'type':          _('Meeting'),
+                         },
+                         data[0]
+                        )
+        self.assertEqual({'id':             act1.id,
+                          'title':          'Act#1',
+                          'start':          formatted_dt(act1.start),
+                          'end':            formatted_dt(act1.end),
+                          'allDay':         False,
+                          'calendar':       cal.id,
+                          'calendar_color': '#%s' % cal.color,
+                          'url':            build_popup_url(act1),
+                          'editable':       True,
+                          'type':           _(u'Task'),
                          },
                          data[1]
                         )
         self.assertEqual({'id':             act0.id,
-                          'title':          'Act#0 - Kirika',
+                          'title':          'Act#0',
+                          'start':          formatted_dt(act0.start),
+                          'end':            formatted_dt(act0.end + timedelta(seconds=1)),
                           'allDay':         False,
                           'calendar':       cal.id,
                           'calendar_color': '#%s' % cal.color,
-                          'start':          formated_dt(act0.start),
-                          'end':            formated_dt(act0.end + timedelta(seconds=1)),
-                          'url':            url_fmt % act0.id,
+                          'url':            build_popup_url(act0),
                           'editable':       True,
-                          'title':          'Act#0',
                           'type':           _(u'Task'),
                          },
                          data[2]
@@ -509,7 +509,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @skipIfCustomActivity
     def test_get_users_activities03(self):
-        "2 Users, 2 Calendars, Indisponibilities"
+        "2 Users, 2 Calendars, Unavailability"
         user = self.login()
         other_user = self.other_user
 
