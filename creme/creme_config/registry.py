@@ -27,6 +27,7 @@ from django.forms.models import modelform_factory
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.gui.block import block_registry
 from creme.creme_core.models.fields import BasicAutoField
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.imports import find_n_import
@@ -149,7 +150,8 @@ class AppConfigRegistry(object):
 
 
 class _ConfigRegistry(object):
-    def __init__(self):
+    def __init__(self, block_registry=block_registry):
+        self._block_registry = block_registry
         self._apps = _apps = {}
         self._userblocks = []
 
@@ -197,11 +199,15 @@ class _ConfigRegistry(object):
     def apps(self):
         return self._apps.itervalues()
 
-    def register_blocks(self, *blocks_to_register): #TODO: factorise with register()
+    def register_blocks(self, *blocks_to_register):  # TODO: factorise with register()
         app_registries = self._apps
 
 #        for app_name, block in blocks_to_register:
         for app_label, block in blocks_to_register:
+            assert hasattr(block, 'detailview_display'), 'block with id="%s" has no detailview_display() method' % block.id_
+            # TODO: need a method is_registered() ?
+            assert block.id_ in self._block_registry._blocks, 'block with id="%s" is not registered' % block.id_
+
             app_name = self._get_app_name(app_label)
             app_conf = app_registries.get(app_name)
 
@@ -212,11 +218,15 @@ class _ConfigRegistry(object):
             app_conf.register_block(block)
 
     def register_userblocks(self, *blocks_to_register):
+        for block in blocks_to_register:
+            assert hasattr(block, 'detailview_display'), 'block with id="%s" has no detailview_display() method' % block.id_
+            assert block.id_ in self._block_registry._blocks, 'block with id="%s" is not registered' % block.id_
+
         self._userblocks.extend(blocks_to_register)
 
-    def unregister(self, *to_unregister): #TODO: factorise with register()
+    def unregister(self, *to_unregister):  # TODO: factorise with register()
         """
-        @param to_unregister Sequence of DjangoModels)
+        @param to_unregister Sequence of DjangoModels.
         """
         app_registries = self._apps
 

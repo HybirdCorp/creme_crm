@@ -28,7 +28,7 @@ from django.shortcuts import get_object_or_404, render
 #from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import login_required#, permission_required
+from creme.creme_core.auth.decorators import login_required  # permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
@@ -55,7 +55,7 @@ def _get_appconf(user, app_name):
     return app_config
 
 def _get_modelconf(app_config, model_name):
-    #TODO: use only ct instead of model_name ???
+    # TODO: use only ct instead of model_name ???
     for modelconf in app_config.models():
         if modelconf.name_in_url == model_name:
             return modelconf
@@ -89,7 +89,7 @@ def add_model_from_widget(request, app_name, model_name):
                            {'form':  form,
                             'title': _popup_title(model_conf),
                            },
-                           is_valid=form.is_valid(), # TODO: already computed -> variable
+                           is_valid=form.is_valid(),  # TODO: already computed -> variable
                            reload=False,
                            delegate_reload=True,
                           )
@@ -102,6 +102,7 @@ def add_model_from_widget(request, app_name, model_name):
     return HttpResponse(u'<json>%s</json>' % json_dump(response),
                         content_type="text/html",
                        )
+
 
 @login_required
 def portal_model(request, app_name, model_name):
@@ -129,6 +130,7 @@ def portal_model(request, app_name, model_name):
                   }
                  )
 
+
 @login_required
 def delete_model(request, app_name, model_name):
     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
@@ -142,13 +144,14 @@ def delete_model(request, app_name, model_name):
     except ProtectedError:
         msg = _('%s can not be deleted because of its dependencies.') % instance
 
-        #TODO: factorise ??
+        # TODO: factorise ??
         if request.is_ajax():
             return HttpResponse(msg, content_type="text/javascript", status=400)
 
         raise Http404(msg)
 
     return HttpResponse()
+
 
 @login_required
 def edit_model(request, app_name, model_name, object_id):
@@ -160,6 +163,7 @@ def edit_model(request, app_name, model_name, object_id):
                                  modelconf.model_form,
                                  template='creme_core/generics/form/edit_innerpopup.html',
                                 )
+
 
 @login_required
 @POST_only
@@ -203,6 +207,7 @@ def swap_order(request, app_name, model_name, object_id, offset):
 
     return HttpResponse()
 
+
 @login_required
 def portal_app(request, app_name):
     app_config = _get_appconf(request.user, app_name)
@@ -210,8 +215,8 @@ def portal_app(request, app_name):
     return render(request, 'creme_config/generics/app_portal.html',
                   {'app_name':          app_name,
                    'app_verbose_name':  app_config.verbose_name,
-                   'app_config':        list(app_config.models()), # list-> have the length in the template
-                   'app_config_blocks': app_config.blocks(), # Get config registered blocks
+                   'app_config':        list(app_config.models()),  # list-> have the length in the template
+                   'app_config_blocks': app_config.blocks(),  # Get config registered blocks
                   }
                  )
 
