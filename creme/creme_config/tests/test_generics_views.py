@@ -7,7 +7,7 @@ try:
 #    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.gui.block import Block
+    from creme.creme_core.gui.block import SimpleBlock, _BlockRegistry
     from creme.creme_core.forms import CremeModelForm
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeCivility as Civility,
@@ -113,16 +113,19 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Position)
 
     def test_registry_register_blocks(self):
-        class TestBlock1(Block):
-            id_ = Block.generate_id('creme_config', 'test_config_registry1')
+        class TestBlock1(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_config', 'test_registry_register_blocks1')
 
-        class TestBlock2(Block):
-            id_ = Block.generate_id('creme_config', 'test_config_registry2')
+        class TestBlock2(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_config', 'test_registry_register_blocks2')
 
         block1 = TestBlock1()
         block2 = TestBlock2()
 
-        registry = _ConfigRegistry()
+        block_registry = _BlockRegistry()
+        block_registry.register(block1, block2)
+
+        registry = _ConfigRegistry(block_registry)
         registry.register_blocks(('creme_core', block1),
                                  ('documents',  block2),
                                 )
@@ -142,15 +145,19 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertNotIn(block1, blocks)
 
     def test_registry_register_userblocks(self):
-        class TestUserBlock1(Block):
-            id_ = Block.generate_id('creme_config', 'test_config_registry1')
+        class TestUserBlock1(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_config', 'test_registry_register_userblocks1')
 
-        class TestUserBlock2(Block):
-            id_ = Block.generate_id('creme_config', 'test_config_registry2')
+        class TestUserBlock2(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_config', 'test_registry_register_userblocks2')
 
         block1 = TestUserBlock1()
         block2 = TestUserBlock2()
-        registry = _ConfigRegistry()
+
+        block_registry = _BlockRegistry()
+        block_registry.register(block1, block2)
+
+        registry = _ConfigRegistry(block_registry)
 
         registry.register_userblocks(block1, block2)
         self.assertIn(block1, registry.userblocks)

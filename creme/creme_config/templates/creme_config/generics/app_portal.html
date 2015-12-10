@@ -16,25 +16,18 @@
 
 {% block before_statistics %}
     <table class="table_detail_view ui-corner-all">
-        {% comment %}<thead>
-            <tr>
-                <th colspan="1">
-                    {% blocktrans count app_config|length as app_count %}{{app_count}} Configurable type{% plural %}{{app_count}} Configurable types{% endblocktrans %}
-                </th>
-            </tr>
-        </thead>{% endcomment %}
         {% get_block_header colspan=1 %}
             <th class="label">{% get_block_title _('%s Configurable type') _('%s Configurable types') count=app_config|length %}</th>
         {% end_get_block_header %}
         <tbody class="collapsable">
             {% for model_conf in app_config %}
-                <tr>
+                <tr class="content">
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">
                         <a href="/creme_config/{{app_name}}/{{model_conf.name_in_url}}/portal/">{{model_conf.verbose_name}}</a>
                     </td>
                 </tr>
             {% empty %}
-                <tr>
+                <tr class="content empty">
                     <td class="block_line_dark">{% trans "No type requires configuration" %}</td>
                 </tr>
             {% endfor %}

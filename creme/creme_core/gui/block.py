@@ -574,7 +574,7 @@ class _BlockRegistry(object):
             if setdefault(block.id_, block) is not block:
                 raise _BlockRegistry.RegistrationError("Duplicated block's id: %s" % block.id_)
 
-    def register_4_instance(self, *block_classes): # TODO: factorise
+    def register_4_instance(self, *block_classes):  # TODO: factorise
         setdefault = self._instance_block_classes.setdefault
 
         for block_class in block_classes:
@@ -592,7 +592,7 @@ class _BlockRegistry(object):
             assert issubclass(model, CremeEntity)
             add(model)
 
-    def register_4_model(self, model, block): # TODO: had an 'overload' arg ??
+    def register_4_model(self, model, block):  # TODO: had an 'overload' arg ??
 #        ct = ContentType.objects.get_for_model(model)
 #        block.id_ = self._generate_modelblock_id(ct)
         block.id_ = self._generate_modelblock_id(model)
