@@ -61,6 +61,7 @@ def get_listview_entity_filters(context):
 
     return context
 
+
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)
 def get_listview_headerfilters(context):
     hfilter = context['header_filters'].selected
@@ -73,10 +74,11 @@ def get_listview_headerfilters(context):
 
     return context
 
-#get_listview_columns_header####################################################
+
+# get_listview_columns_header ##################################################
 
 def _build_bool_search_widget(widget_ctx, search_value):
-    #TODO : Hack or not ? / Remember selected value ?
+    # TODO : Hack or not ? / Remember selected value ?
     selected_value = search_value[0] if search_value else None
     widget_ctx['type'] = 'checkbox'
     widget_ctx['values'] = [{'value':    '1',
@@ -89,11 +91,13 @@ def _build_bool_search_widget(widget_ctx, search_value):
                             }
                            ]
 
+
 def _build_date_search_widget(widget_ctx, search_value):
-    #TODO: Needs datetime validation
+    # TODO: Needs datetime validation
     widget_ctx['type'] = 'datefield'
     if search_value:
         widget_ctx['values'] = {'start': search_value[0], 'end': search_value[-1]}
+
 
 def _build_select_search_widget(widget_ctx, search_value, choices):
     selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None #bof bof
@@ -104,7 +108,8 @@ def _build_select_search_widget(widget_ctx, search_value, choices):
                             } for key, val in choices
                            ]
 
-#TODO: add methods to EntityCells ? -> map of behaviours instead
+
+# TODO: add methods to EntityCells ? -> map of behaviours instead
 @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
 def get_listview_columns_header(context):
     header_searches = dict(context['list_view_state'].research)
@@ -128,7 +133,7 @@ def get_listview_columns_header(context):
                     if isinstance(field, EntityCTypeForeignKey):
                         choices = build_ct_choices(creme_entity_content_types())
                     elif not field.get_tag('enumerable'):
-                        #TODO: generalise the system of 'header_filter_search_field' ??
+                        # TODO: generalise the system of 'header_filter_search_field' ??
                         continue
                     else:
                         choices = []
@@ -185,7 +190,7 @@ def get_listview_columns_header(context):
 
     return context
 
-#-----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 @register.simple_tag
 def get_listview_cell(cell, entity, user):
@@ -196,9 +201,11 @@ def get_listview_cell(cell, entity, user):
 
     return u""
 
+
 @register.assignment_tag
 def ctype_is_registered_for_import(ctype):
     return import_form_registry.is_registered(ctype)
+
 
 @register.assignment_tag
 def listview_header_colspan(cells, is_readonly, is_single_select):
@@ -211,6 +218,7 @@ def listview_header_colspan(cells, is_readonly, is_single_select):
         colspan += 1
 
     return colspan
+
 
 @register.filter('listview_column_colspan')
 def get_column_colspan(cell, is_readonly):

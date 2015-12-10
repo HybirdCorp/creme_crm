@@ -36,9 +36,10 @@ else:
     class FakeFolder(CremeEntity):
         title     = models.CharField(_(u'Title'), max_length=100)
 #        description   = models.TextField(_(u'Description'), null=True, blank=True).set_tags(optional=True)
-#        parent = models.ForeignKey('self', verbose_name=_(u'Parent folder'),
-#                                   blank=True, null=True, related_name='children',
-#                                  )
+        parent    = models.ForeignKey('self', verbose_name=_(u'Parent folder'),
+                                      blank=True, null=True, related_name='children',
+                                      # on_delete=PROTECT, ??
+                                     )
         category  = models.ForeignKey(FakeFolderCategory, verbose_name=_(u'Category'),
                                       blank=True, null=True, on_delete=models.SET_NULL,
                                       #related_name='folder_category_set',

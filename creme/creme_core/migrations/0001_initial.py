@@ -622,7 +622,7 @@ class Migration(migrations.Migration):
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     #('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('category', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Category', blank=True, to='creme_core.FakeFolderCategory', null=True)), #related_name='folder_category_set'
-                    #('folder', models.ForeignKey(related_name='parent_folder_set', verbose_name='Parent folder', blank=True, to='creme_core.FakeFolder', null=True)),
+                    ('parent', models.ForeignKey(related_name='children', verbose_name='Parent folder', blank=True, to='creme_core.FakeFolder', null=True)),
                 ],
                 options={
                     'ordering': ('title',),

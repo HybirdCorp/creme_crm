@@ -68,7 +68,7 @@ class ListViewTestCase(ViewsTestCase):
 
         return idx
 
-    def _get_lv_content(self, response): #TODO: slice end too
+    def _get_lv_content(self, response):  # TODO: slice end too
         content = response.content
         start_idx = content.find('<table id="list"')
         self.assertNotEqual(-1, start_idx)
@@ -99,7 +99,7 @@ class ListViewTestCase(ViewsTestCase):
         spike = create_contact(first_name='Spike', last_name='Spiegel')
         faye  = create_contact(first_name='Faye',  last_name='Valentine')
 
-        #Relation
+        # Relation
         rtype = RelationType.create(('test-subject_piloted', 'is piloted by'),
                                     ('test-object_piloted',  'pilots'),
                                    )[0]
@@ -107,13 +107,13 @@ class ListViewTestCase(ViewsTestCase):
                                 type=rtype, object_entity=spike,
                                )
 
-        #Property
+        # Property
         create_ptype = CremePropertyType.create
         ptype1 = create_ptype(str_pk='test-prop_red',  text='is red')
         ptype2 = create_ptype(str_pk='test-prop_fast', text='is fast')
         CremeProperty.objects.create(type=ptype1, creme_entity=swordfish)
 
-        #CustomField
+        # CustomField
         cfield = CustomField.objects.create(name='size (m)',
                                             content_type=self.ctype,
                                             field_type=CustomField.INT,
@@ -122,12 +122,10 @@ class ListViewTestCase(ViewsTestCase):
         cfield.get_value_class()(custom_field=cfield, entity=bebop).set_value_n_save(cfield_value)
 
         hf = self._build_hf(EntityCellRelation(rtype=rtype),
-                            #EntityCellFunctionField(func_field=Organisation.function_fields.get('get_pretty_properties')),
                             EntityCellFunctionField.build(Organisation, 'get_pretty_properties'),
                             EntityCellCustomField(cfield),
                            )
 
-        #response = self.assertGET200(self.url)
         response = self.assertPOST200(self.url, data={'hfilter': hf.id})
 
         with self.assertNoException():
@@ -154,7 +152,7 @@ class ListViewTestCase(ViewsTestCase):
         content = self._get_lv_content(response)
         bebop_idx = self.assertFound(bebop.name, content)
         swordfish_idx = self.assertFound(swordfish.name, content)
-        self.assertGreater(swordfish_idx, bebop_idx) #order
+        self.assertGreater(swordfish_idx, bebop_idx)  # Order
 
         content = safe_unicode(content)
 
@@ -190,7 +188,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(bebop.name, content)
         self.assertNotIn(bebop.url_site, content, '"url_site" not hidden')
 
-    def test_order01(self): #TODO: test with ajax ?
+    def test_order01(self):  # TODO: test with ajax ?
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -215,7 +213,7 @@ class ListViewTestCase(ViewsTestCase):
         post(bebop, swordfish, '*') #invalid value
         post(bebop, swordfish, sort_field='unknown') #invalid value
 
-    #TODO: for now there should not be CremeEntity with 'id' as ordering
+    # TODO: for now there should not be CremeEntity with 'id' as ordering
     #def test_order02_prelude(self):
         #"Sort by ForeignKey"
         ##NB: the DatabaseError cannot be rollbacked here in the test context,
@@ -270,7 +268,7 @@ class ListViewTestCase(ViewsTestCase):
 
         url = Contact.get_lv_absolute_url()
 
-        #---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data={'hfilter': hf.id})
 
         with self.assertNoException():
@@ -278,11 +276,11 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertEqual(hf, selected_hf)
 
-        #---------------------------------------------------------------------
-        #FK on CremeEntity we just check that it does not crash
+        # ---------------------------------------------------------------------
+        # FK on CremeEntity we just check that it does not crash
         self.assertPOST200(url, data={'sort_field': 'regular_field-image'})
 
-        #---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
 
         def post(field_name, reverse, *contacts):
             response = self.assertPOST200(url,
@@ -298,18 +296,12 @@ class ListViewTestCase(ViewsTestCase):
 
             return content
 
-        #NB: it seems that NULL are not ordered in the same way on different DB engines
-        #post('civility', False, ed, spike, faye) #Beware: sorting is done by id
-        #content = post('civility', False, spike, faye) #Beware: sorting is done by id
-        content = post('regular_field-civility', False, faye, spike) # sorting is done by 'title'
+        # NB: it seems that NULL are not ordered in the same way on different DB engines
+        content = post('regular_field-civility', False, faye, spike)  # Sorting is done by 'title'
         self.assertFound(ed.last_name, content)
 
-        #post('civility', True, faye, spike, ed)
-        #post('civility', True, faye, spike)
         post('regular_field-civility', True, spike, faye)
-        #post('civility__title', False, ed, faye, spike)
         post('regular_field-civility__title', False, faye, spike)
-        #post('civility__title', True, spike, faye, ed)
         post('regular_field-civility__title', True, spike, faye)
 
 #    @skipIfNotInstalled('creme.emails')
@@ -318,7 +310,7 @@ class ListViewTestCase(ViewsTestCase):
 #        from creme.emails.models import EmailCampaign
         user = self.login()
 
-        #bug on ORM with M2M happens only if there is at least one entity
+        # Bug on ORM with M2M happens only if there is at least one entity
         EmailCampaign.objects.create(user=user, name='Camp01')
 
         fname = 'mailing_lists'
@@ -331,7 +323,7 @@ class ListViewTestCase(ViewsTestCase):
                            )
 
         url = EmailCampaign.get_lv_absolute_url()
-        #we just check that it does not crash
+        # We just check that it does not crash
         self.assertPOST200(url, data={'sort_field': 'regular_field-' + fname})
         self.assertPOST200(url, data={'sort_field': 'function_field-' + func_field_name})
 
@@ -385,9 +377,9 @@ class ListViewTestCase(ViewsTestCase):
         create_contact(first_name='Edward', last_name='Wong')
 
         url = Contact.get_lv_absolute_url()
-        # for the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
+        # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
 #        response = self.assertPOST200(url, {'hfilter': 'persons-hf_contact'})
-        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakecontact') # see fake populate
+        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakecontact')  # See fake populate
         response = self.assertPOST200(url, {'hfilter': hf.pk})
 
         #entries = Contact.objects.order_by('last_name', 'first_name')
@@ -497,7 +489,7 @@ class ListViewTestCase(ViewsTestCase):
                             )
 
 #        Address._meta.ordering = ('name',)
-        Address._meta.ordering = ('value',) #TODO: create another test model instead ??
+        Address._meta.ordering = ('value',)  # TODO: create another test model instead ??
 
         response = self.assertPOST200(url, {'hfilter': hf.id,
 #                                            'sort_field': 'regular_field-billing_address',
@@ -555,8 +547,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertListViewContentOrder(response, 'name', entries)
 
     def test_efilter01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
@@ -594,15 +585,13 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellRegularField.build(model=Organisation, name='phone'))
 
         url = self.url
-        #data = {'_search': 1}
 
         def build_data(name='', phone='', search=1):
-            return {'_search': 1,
+            return {'_search': search,
                     'regular_field-name': name,
                     'regular_field-phone': phone,
                    }
 
-        #response = self.assertPOST200(url, data=dict(data, name='Red', phone=''))
         response = self.assertPOST200(url, data=build_data('Red'))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,     content)
@@ -610,7 +599,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,      content)
         self.assertIn(dragons.name,      content)
 
-        #response = self.assertPOST200(url, data=dict(data, name='', phone='88'))
         response = self.assertPOST200(url, data=build_data('', '88'))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
@@ -618,7 +606,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,    content)
         self.assertNotIn(dragons.name, content)
 
-        #response = self.assertPOST200(url, data=dict(data, name='Red', phone='88'))
         response = self.assertPOST200(url, data=build_data('Red', '88'))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,     content)
@@ -626,7 +613,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        #response = self.assertPOST200(url, data={'_search': 0, 'name': '', 'phone': ''})
         response = self.assertPOST200(url, data=build_data(search=0))
         content = self._get_lv_content(response)
         self.assertIn(bebop.name,     content)
@@ -645,14 +631,12 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='subject_to_vat'))
         url = self.url
         data = {'hfilter': hf.id, '_search': 1}
-        #response = self.assertPOST200(url, data=dict(data, subject_to_vat='1'))
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-subject_to_vat': '1'}))
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop, orgas_set)
         self.assertIn(nerv,     orgas_set)
         self.assertIn(seele,    orgas_set)
 
-        #response = self.assertPOST200(url, data=dict(data, subject_to_vat='0'))
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-subject_to_vat': '0'}))
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,    orgas_set)
@@ -676,14 +660,12 @@ class ListViewTestCase(ViewsTestCase):
 
         url = self.url
         data = {'hfilter': hf.id, '_search': 1}
-        #response = self.assertPOST200(url, data=dict(data, sector=str(mercenary.id)))
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-sector': str(mercenary.id)}))
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,    orgas_set)
         self.assertNotIn(nerv,  orgas_set)
         self.assertNotIn(seele, orgas_set)
 
-        #response = self.assertPOST200(url, data=dict(data, sector='NULL'))
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-sector': 'NULL'}))
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop, orgas_set)
@@ -700,13 +682,9 @@ class ListViewTestCase(ViewsTestCase):
         dragons   = create_orga(name='Red Dragons')
 
         hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='creation_date'))
-
         url = self.url
-        #data = {'_search': 1}
-
         build_data = lambda cdate: {'hfilter': hf.id, '_search': 1, 'regular_field-creation_date': cdate}
 
-        #response = self.assertPOST200(url, data=dict(data, creation_date=['1-1-2075']))
         response = self.assertPOST200(url, data=build_data(['1-1-2075']))
         content = self._get_lv_content(response)
         self.assertIn(bebop.name,        content)
@@ -714,7 +692,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        #response = self.assertPOST200(url, data=dict(data, creation_date=['', '1-1-2075']))
         response = self.assertPOST200(url, data=build_data(['', '1-1-2075']))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
@@ -722,7 +699,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        #response = self.assertPOST200(url, data=dict(data, creation_date=['1-1-2074', '31-12-2074']))
         response = self.assertPOST200(url, data=build_data(['1-1-2074', '31-12-2074']))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
@@ -743,7 +719,6 @@ class ListViewTestCase(ViewsTestCase):
         def set_created(orga, dt):
             Organisation.objects.filter(pk=orga.id).update(created=dt)
 
-        #create_dt = partial(self.create_datetime, utc=True)
         create_dt = self.create_datetime
         set_created(bebop,      create_dt(year=2075, month=3, day=26))
         set_created(swordfish,  create_dt(year=2074, month=6, day=5, hour=12))
@@ -752,9 +727,8 @@ class ListViewTestCase(ViewsTestCase):
         set_created(redtail,    create_dt(year=2076, month=7, day=25))
 
         hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='created'))
-
         url = self.url
-        #data = {'_search': 1}
+
         def post(created):
             response = self.assertPOST200(url, data={'hfilter': hf.id,
                                                      '_search': 1,
@@ -763,29 +737,21 @@ class ListViewTestCase(ViewsTestCase):
                                          )
             return  self._get_lv_content(response)
 
-        #response = self.assertPOST200(url, data=dict(data, created=['1-1-2075']))
-        #content = self._get_lv_content(response)
         content = post(['1-1-2075'])
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
 
-        #response = self.assertPOST200(url, data=dict(data, created=['', '1-1-2075']))
-        #content = self._get_lv_content(response)
         content = post(['', '1-1-2075'])
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        #response = self.assertPOST200(url, data=dict(data, created=['1-1-2074', '31-12-2074']))
-        #content = self._get_lv_content(response)
         content = post(['1-1-2074', '31-12-2074'])
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        #response = self.assertPOST200(url, data=dict(data, created=['5-6-2074', '5-6-2074']))
-        #content = self._get_lv_content(response)
         content = post(['5-6-2074', '5-6-2074'])
         self.assertNotIn(bebop.name,      content)
         self.assertIn(swordfish.name,     content)
@@ -836,7 +802,7 @@ class ListViewTestCase(ViewsTestCase):
 
         url = Contact.get_lv_absolute_url()
 
-        #---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data={'hfilter': hf.id})
 
         with self.assertNoException():
@@ -844,33 +810,29 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertEqual(hf, selected_hf)
 
-        #---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         data = {'_search': 1}
-        #response = self.assertPOST200(url, data=dict(data, civility=mister.id))
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-civility': mister.id}))
         content = self._get_lv_content(response)
         self.assertIn(spike.last_name,   content)
         self.assertNotIn(faye.last_name, content)
         self.assertNotIn(ed.last_name,   content)
 
-        #---------------------------------------------------------------------
-        #response = self.assertPOST200(url, data=dict(data, civility__title='iss'))
+        # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-civility__title': 'iss'}))
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
         self.assertIn(faye.last_name,     content)
         self.assertNotIn(ed.last_name,    content)
 
-        #---------------------------------------------------------------------
-        #response = self.assertPOST200(url, data=dict(data, image__name=img_ed.name))*
+        # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-image__name': img_ed.name}))
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
         self.assertNotIn(faye.last_name,  content)
         self.assertIn(ed.last_name,       content)
 
-        #---------------------------------------------------------------------
-        #response = self.assertPOST200(url, data=dict(data, image=img_ed.name))
+        # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-image': img_ed.name}))
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
@@ -926,6 +888,44 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(doc2.title, content)
         self.assertNotIn(doc3.title, content)
         self.assertIn(doc4.title, content)
+
+    def test_search_fk03(self):
+        "Search on a subfield which is a FK on CremeEntity"
+        user = self.login()
+
+        create_folder = partial(Folder.objects.create, user=user)
+        p_folder1 = create_folder(title='Maps')
+        p_folder2 = create_folder(title='Pix')
+
+        folder1 = create_folder(title='Earth', parent=p_folder1)
+        folder2 = create_folder(title='Mars',  parent=p_folder1)
+        folder3 = create_folder(title='Ships')
+        folder4 = create_folder(title="Faye's pix", parent=p_folder2)
+
+        create_doc = partial(Document.objects.create, user=user)
+        doc1 = create_doc(title='Japan',       folder=folder1)
+        doc2 = create_doc(title='Mars city 1', folder=folder2)
+        doc3 = create_doc(title='Swordfish',   folder=folder3)
+        doc4 = create_doc(title='Money!!.jpg', folder=folder4)
+
+        build_cell = partial(EntityCellRegularField.build, model=Document)
+        hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=Document,
+                                 cells_desc=[build_cell(name='title'),
+                                             build_cell(name='folder__parent'),
+                                            ],
+                                )
+
+        response = self.assertPOST200(Document.get_lv_absolute_url(),
+                                      data={'hfilter': hf.id,
+                                            '_search': 1,
+                                            'regular_field-folder__parent': p_folder1.title,
+                                           }
+                                     )
+        content = self._get_lv_content(response)
+        self.assertIn(doc1.title, content)
+        self.assertIn(doc2.title, content)
+        self.assertNotIn(doc3.title, content)
+        self.assertNotIn(doc4.title, content)
 
 #    @skipIfNotInstalled('creme.emails')
     def test_search_m2mfields01(self):
@@ -1011,7 +1011,7 @@ class ListViewTestCase(ViewsTestCase):
                                          )
             return self._get_lv_content(response)
 
-        content = search(cat1.name[:5]) # invalid we need an ID => no filter
+        content = search(cat1.name[:5])  # invalid we need an ID => no filter
         self.assertIn(img1.name, content)
         self.assertIn(img3.name, content)
 
@@ -1091,7 +1091,6 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(EntityCellRelation(rtype=rtype))
 
         url = self.url
-        #data = {'_search': 1, 'name': '', rtype.pk: 'Spiege'}
         data = {'hfilter': hf.id, '_search': 1, 'name': '', 'relation-%s' % rtype.pk: 'Spiege'}
         response = self.assertPOST200(url, data=data)
         content = self._get_lv_content(response)
@@ -1100,8 +1099,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,    content)
         self.assertNotIn(dragons.name, content)
 
-        #response = self.assertPOST200(url, data=dict(data, name='Swo'))
-        #content = self._get_lv_content(response)
         data['regular_field-name'] = 'Swo'
         content = self._get_lv_content(self.assertPOST200(url, data=data))
         self.assertNotIn(bebop.name,   content)
@@ -1178,8 +1175,6 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(redtail,   4)
 
         hf = self._build_hf(EntityCellCustomField(cfield))
-
-        #response = self.assertPOST200(self.url, data={'_search': 1, 'name': '', cfield.pk: '4'})
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search': 1,
                                                       'regular_field-name': '',
@@ -1220,9 +1215,6 @@ class ListViewTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search': 1,
-                                                      #'name': '',
-                                                      #cfield1.pk: '4',
-                                                      #cfield2.pk: '#05',
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield1.pk: '4',
                                                       'custom_field-%s' % cfield2.pk: '#05',
@@ -1265,9 +1257,6 @@ class ListViewTestCase(ViewsTestCase):
                            )
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search': 1,
-                                                      #'name': '',
-                                                      #cfield1.pk: '4',
-                                                      #cfield2.pk: '2000',
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield1.pk: '4',
                                                       'custom_field-%s' % cfield2.pk: '2000',
@@ -1309,8 +1298,6 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(EntityCellCustomField(cfield))
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search': 1,
-                                                      #'name': '',
-                                                      #cfield.pk: type1.id,
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield.pk: type1.id,
                                                      }
@@ -1324,7 +1311,6 @@ class ListViewTestCase(ViewsTestCase):
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search': 1,
                                                       'name': '',
-                                                      #cfield.pk: 'NULL',
                                                       'custom_field-%s' % cfield.pk: 'NULL',
                                                      }
                                      )
@@ -1364,8 +1350,6 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(EntityCellCustomField(cfield))
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search': 1,
-                                                      #'name':    '',
-                                                      #cfield.pk: can_walk.id,
                                                       'regular_field-name':    '',
                                                       'custom_field-%s' % cfield.pk: can_walk.id,
                                                      }
@@ -1378,8 +1362,6 @@ class ListViewTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search': 1,
-                                                      #'name':    '',
-                                                      #cfield.pk: 'NULL',
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield.pk: 'NULL',
                                                      }
@@ -1430,9 +1412,6 @@ class ListViewTestCase(ViewsTestCase):
                            )
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search':       1,
-                                                      #'name':          '',
-                                                      #cfield_type.pk:  type1.id,
-                                                      #cfield_color.pk: color2.id,
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield_type.pk:  type1.id,
                                                       'custom_field-%s' % cfield_color.pk: color2.id,
@@ -1444,13 +1423,10 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail,      orgas_set)
         self.assertNotIn(dragons,   orgas_set)
 
-        set_cfvalue(cfield_color, dragons, color1.id) #type is NULL
+        set_cfvalue(cfield_color, dragons, color1.id)  # type is NULL
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search':       1,
-                                                      #'name':          '',
-                                                      #cfield_type.pk:  'NULL',
-                                                      #cfield_color.pk: color1.id,
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield_type.pk:  'NULL',
                                                       'custom_field-%s' % cfield_color.pk: color1.id,
@@ -1506,9 +1482,6 @@ class ListViewTestCase(ViewsTestCase):
                            )
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search':       1,
-                                                      #'name':          '',
-                                                      #cfield_cap.pk:   can_walk.id,
-                                                      #cfield_color.pk: red.id,
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield_cap.pk:   can_walk.id,
                                                       'custom_field-%s' % cfield_color.pk: red.id,
@@ -1521,9 +1494,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(valkyrie,  orgas_set)
 
         response = self.assertPOST200(self.url, data={'_search':       1,
-                                                      #'name':          '',
-                                                      #cfield_cap.pk:   can_walk.id,
-                                                      #cfield_color.pk: 'NULL',
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield_cap.pk:   can_walk.id,
                                                       'custom_field-%s' % cfield_color.pk: 'NULL',
@@ -1558,7 +1528,6 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(EntityCellCustomField(cfield))
 
         def post(dates):
-            #response = self.assertPOST200(self.url, data={'_search': 1, cfield.pk: dates})
             response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                           '_search': 1,
                                                           'custom_field-%s' % cfield.pk: dates,
@@ -1622,8 +1591,6 @@ class ListViewTestCase(ViewsTestCase):
                            )
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search': 1,
-                                                      #cfield_flight.pk: ['1-1-2074', '31-12-2074'],
-                                                      #cfield_blood.pk:  ['',         '1-1-2075'],
                                                       'custom_field-%s' % cfield_flight.pk: ['1-1-2074', '31-12-2074'],
                                                       'custom_field-%s' % cfield_blood.pk:  ['',         '1-1-2075'],
                                                      })
