@@ -45,6 +45,10 @@ class Populator(BasePopulator):
         SettingValue.create_if_needed(key=NEIGHBOURHOOD_DISTANCE, user=None, value=DEFAULT_SEPARATING_NEIGHBOURS)
 
         if not already_populated:
+            if self.verbosity:
+                self.stdout.write('\n ', ending='')
+                self.stdout.flush()
+
             GeolocationCommand().import_town_all(verbosity=self.verbosity)
 
         if not already_populated:
