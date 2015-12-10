@@ -148,7 +148,7 @@ class AbstractReport(CremeEntity):
                 ] for entity in entities[:limit_to]
                )
 
-    #TODO: transform into generator (--> StreamResponse)
+    # TODO: transform into generator (--> StreamResponse)
     def fetch_all_lines(self, limit_to=None, extra_q=None, user=None):
         from ..core.report import ExpandableLine #lazy loading
 
@@ -158,7 +158,7 @@ class AbstractReport(CremeEntity):
             lines.extend(ExpandableLine(values).get_lines())
 
             if limit_to is not None and len(lines) >= limit_to:#Bof
-                break #TODO: test
+                break  # TODO: test
 
         return lines
 
@@ -166,13 +166,13 @@ class AbstractReport(CremeEntity):
 #        return chain.from_iterable(f.get_children_fields_flat() for f in self.columns)
         return chain.from_iterable(f.get_children_fields_flat() for f in self.filtered_columns)
 
-    def _post_save_clone(self, source): #TODO: test
+    def _post_save_clone(self, source):  # TODO: test
         for graph in source.reportgraph_set.all():
             new_graph = graph.clone()
             new_graph.report = self
             new_graph.save()
 
-    #TODO: add a similar EntityCell type in creme_core (& so move this code in core)
+    # TODO: add a similar EntityCell type in creme_core (& so move this code in core)
     @staticmethod
     def get_related_fields_choices(model):
         allowed_related_fields = model.allowed_related #TODO: can we just use the regular introspection (+ field tags ?) instead

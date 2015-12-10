@@ -27,6 +27,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.views.generic import inner_popup
 
 from .. import get_report_model
@@ -47,20 +48,39 @@ def preview(request, report_id):
 
     user.has_perm_to_view_or_die(report)
 
-    filter = ReportExportPreviewFilterForm(report=report, user=user, data=request.GET)
+    filter_form = ReportExportPreviewFilterForm(report=report, user=user, data=request.GET)
     lines = []
+    empty_message = ''
 
-    if filter.is_valid():
+    if filter_form.is_valid():
         lines = report.fetch_all_lines(limit_to=_PREVIEW_LIMIT_COUNT,
-                                       extra_q=filter.get_q(),
+                                       extra_q=filter_form.get_q(),
                                        user=user,
                                       )
+
+        if not lines:
+            ct = report.ct
+
+            if not EntityCredentials.filter(user, ct.model_class().objects.exists()):
+                empty_message = _(u'You can see no «%s»') % ct
+            elif report.filter and not report.fetch_all_lines(limit_to=1, user=user):
+                empty_message = _(u'No «%(ctype)s» matches the filter «%(filter)s»') % {
+                                        'ctype':  ct,
+                                        'filter': report.filter,
+                                    }
+            else:
+                empty_message = _(u'No «%s» matches your date filter') % ct
+    else:
+        empty_message = _('Fix your date filter')
 
     return render(request, "reports/preview_report.html",
                   {'lines':    lines,
                    'object':   report,
                    'limit_to': _PREVIEW_LIMIT_COUNT,
-                   'form':     filter,
+                   'form':     filter_form,
+                   # NB: useful for colspan (remove if header is not a <thead> anymore
+                   'flat_columns': list(report.get_children_fields_flat()),
+                   'empty_message': empty_message,
                   },
                  )
 
