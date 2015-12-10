@@ -109,7 +109,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                                                                                             : div.find('.selector_list');
 
                                                                 selectors.find('.selector[data-column=' + column + '] input[type=checkbox]:checked')
-                                                                         .attr('checked', false)
+                                                                         .prop('checked', false)
                                                                          .change();
                                                             })
                                                         .attr('title', gettext("Remove the column '%s'").format(column_titles[column]))
@@ -286,7 +286,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                 var checkbox = checkboxes[i];
 
                 if (checkbox) {
-                    $(checkbox).attr('checked', true).change();
+                    $(checkbox).prop('checked', true).change();
                 }
             }
         } else {
@@ -301,12 +301,12 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         div.find('.remove_all_columns').click(function(e) {
             e.preventDefault();
             div.find('.selector input[type=checkbox]:checked')
-               .attr('checked', false)
+               .prop('checked', false)
                .change();
 
             for (var column in underlays)
                underlays[column].find('.selector input[type=checkbox]:checked')
-                                .attr('checked', false)
+                                .prop('checked', false)
                                 .change();
         });
 
