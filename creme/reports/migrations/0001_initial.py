@@ -83,6 +83,9 @@ class Migration(migrations.Migration):
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                     ('title', models.CharField(unique=True, max_length=100, verbose_name='Title')),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    ('parent', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Parent folder',
+                                                 to='reports.FakeReportsFolder', null=True,
+                                                )),
                 ],
                 options={
                     'ordering': ('title',),
@@ -103,6 +106,20 @@ class Migration(migrations.Migration):
                     'ordering': ('title',),
                     'verbose_name': 'Test (reports) Document',
                     'verbose_name_plural': 'Test (reports) Documents',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+            migrations.CreateModel(
+                name='Guild',
+                fields=[
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('members', models.ManyToManyField(to='creme_core.FakeContact', verbose_name='Members')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Book',
+                    'verbose_name_plural': 'Books',
                 },
                 bases=('creme_core.cremeentity',),
             ),

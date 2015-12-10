@@ -207,16 +207,26 @@ class ReportHand(object):
 class RHRegularField(ReportHand):
     verbose_name = _(u'Regular field')
 
-    _field_info = None # Set by __new__()
+    _field_info = None  # Set by __new__()
 
     def __new__(cls, report_field):
         try:
             field_info = FieldInfo(report_field.model, report_field.name)
         except FieldDoesNotExist:
-            raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
+            raise ReportHand.ValueError('Invalid field: "%s" (does not exist)' % report_field.name)
 
-        if len(field_info) > 1 and isinstance(field_info[1], (ForeignKey, ManyToManyField)): #TODO: test ForeignKey
-            raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
+        # if len(field_info) > 1 and isinstance(field_info[1], (ForeignKey, ManyToManyField)):
+        #      raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
+        info_length = len(field_info)
+        if info_length > 1:
+            if info_length > 2:
+                raise ReportHand.ValueError('Invalid field: "%s" (too deep)' % report_field.name)
+
+            second_part = field_info[1]
+
+            if (isinstance(second_part, (ForeignKey, ManyToManyField)) and
+               issubclass(second_part.rel.to, CremeEntity)):
+                raise ReportHand.ValueError('Invalid field: "%s" (no entity at depth=1)' % report_field.name)
 
         first_part = field_info[0]
         klass = RHForeignKey if isinstance(first_part, ForeignKey) else \
@@ -273,10 +283,17 @@ class RHForeignKey(RHRegularField):
         else:
             # Small optimization: only used by _get_value_no_subreport()
             if len(field_info) > 1:
-                attr_name = field_info[1].name
-                self._value_extractor = lambda fk_instance: getattr(fk_instance, attr_name, None)
+                # attr_name = field_info[1].name
+                # self._value_extractor = lambda fk_instance: getattr(fk_instance, attr_name, None)
+
+                self._value_extractor = field_printers_registry.build_field_printer(
+                                                        field_info[0].rel.to,
+                                                        field_info[1].name,
+                                                        output='csv',
+                                                    )
             else:
-                self._value_extractor = unicode
+                # self._value_extractor = unicode
+                self._value_extractor = lambda fk_instance, user: unicode(fk_instance)
 
         self._qs = qs
         super(RHForeignKey, self).__init__(report_field,
@@ -284,7 +301,7 @@ class RHForeignKey(RHRegularField):
                                            title=unicode(fk_field.verbose_name) if sub_report else None,
                                           )
 
-    # NB: cannot rename to _get_related_instances() because fordibben entities are filtered instead of outputting '??'
+    # NB: cannot rename to _get_related_instances() because forbidden entities are filtered instead of outputting '??'
     def _get_fk_instance(self, entity):
         try:
             entity = self._qs.get(pk=getattr(entity, self._fk_attr_name))
@@ -309,7 +326,8 @@ class RHForeignKey(RHRegularField):
             if self._linked2entity and not user.has_perm_to_view(fk_instance):
                 return settings.HIDDEN_VALUE
 
-            return self._value_extractor(fk_instance)
+            # return self._value_extractor(fk_instance)
+            return self._value_extractor(fk_instance, user)
 
     def get_linkable_ctypes(self):
         return (ContentType.objects.get_for_model(self._qs.model),) \
