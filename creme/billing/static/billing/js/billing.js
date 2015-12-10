@@ -297,7 +297,7 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
 
         discounted_value = discounted_value - (discounted_value * global_discount / 100);
 
-        var exclusive_of_tax_discounted = Math.ceil(discounted_value * 100) / 100;
+        var exclusive_of_tax_discounted = Math.round(discounted_value * 100) / 100;
         var is_discount_invalid = !creme.billing.checkDiscount(discount);
 
         discount.toggleClass('td_error', is_discount_invalid); //TODO: rename the CSS class
@@ -308,8 +308,8 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
             exclusive_of_tax.text('###');
         } else {
             // TODO: rename vars...
-            var ht_value = Math.ceil(quantity.val() * unit_price.val() * 100) / 100;
-            var ttc_value = Math.ceil((parseFloat(exclusive_of_tax_discounted) + parseFloat(exclusive_of_tax_discounted) * vat_value / 100) * 100) / 100;
+            var ht_value = Math.round(quantity.val() * unit_price.val() * 100) / 100;
+            var ttc_value = Math.round((parseFloat(exclusive_of_tax_discounted) + parseFloat(exclusive_of_tax_discounted) * vat_value / 100) * 100) / 100;
 
             exclusive_of_tax.text(ht_value.toFixed(2).replace(".", ",") + " " + currency);
             discounted.text(exclusive_of_tax_discounted.toFixed(2).replace(".", ",") + " " + currency);
