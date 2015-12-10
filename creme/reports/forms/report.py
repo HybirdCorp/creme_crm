@@ -38,9 +38,9 @@ from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWidget
 from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField
 from creme.creme_core.forms.widgets import Label
-from creme.creme_core.models import HeaderFilter, EntityFilter
+from creme.creme_core.models import CremeEntity, HeaderFilter, EntityFilter
 from creme.creme_core.registry import export_backend_registry
-from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field #get_date_fields
+from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 
 from .. import get_report_model
 from ..constants import (RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION,
@@ -60,11 +60,13 @@ class _EntityCellRelated(EntityCell):
     def __init__(self, agg_id):
         super(_EntityCellRelated, self).__init__(value=agg_id, title='Related')
 
+
 class _EntityCellAggregate(EntityCell):
     type_id = 'regular_aggregate'
 
     def __init__(self, agg_id):
         super(_EntityCellAggregate, self).__init__(value=agg_id, title='Aggregate')
+
 
 class _EntityCellCustomAggregate(EntityCell):
     type_id = 'custom_aggregate'
@@ -91,7 +93,9 @@ _CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
 
 class ReportCreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(),
-                                  help_text=_('If you select a view of list, the columns of the report will be copied from it.'),
+                                  help_text=_('If you select a view of list, '
+                                              'the columns of the report will be copied from it.'
+                                             ),
                                  )
     filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=EntityFilter.objects.none(), required=False)
 
@@ -175,8 +179,8 @@ class LinkFieldToReportForm(CremeForm):
         rfield = self.rfield
         rfield.sub_report = self.cleaned_data['report']
 
-        # we could have a race condition here (so have several Field with selected=True)
-        # but it is manage by the 'Report.columns' property
+        # We could have a race condition here (so have several Field with selected=True)
+        # but it is managed by the 'Report.columns' property
         rfield.selected = not rfield.report.fields.filter(sub_report__isnull=False).exists()
         rfield.save()
 
@@ -216,7 +220,11 @@ class ReportHandsField(EntityCellsField):
 
     def _regular_fields_enum(self, model):
         fields = super(ReportHandsField, self)._regular_fields_enum(model)
-        fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))))
+        # fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))))
+        fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))
+                                                and issubclass(field.rel.to, CremeEntity)
+                                               )
+                     )
 
         return fields
 
@@ -232,7 +240,7 @@ class ReportHandsField(EntityCellsField):
             widget = self.widget
             model = ct.model_class()
 
-            #Related ---------------------------------------------------------
+            # Related ----------------------------------------------------------
             widget.related_entities = related_choices = []
 
             for related_name, related_vname in Report.get_related_fields_choices(model):
@@ -240,7 +248,7 @@ class ReportHandsField(EntityCellsField):
                 related_choices.append((rel_id, related_vname))
                 builders[rel_id] = ReportHandsField._build_4_related
 
-            #Aggregates ------------------------------------------------------
+            # Aggregates -------------------------------------------------------
             widget.regular_aggregates = reg_agg_choices = []
             widget.custom_aggregates  = cust_agg_choices = []
             authorized_fields       = field_aggregation_registry.authorized_fields
@@ -278,7 +286,7 @@ class ReportFieldsForm(CremeForm):
         for column in entity.columns:
             # TODO: this is a hack : EntityCellWidgets only use value & type_id to check initial data
             #     it would be better to use a method column.hand.to_entity_cell()
-            if column.hand: # Check validity
+            if column.hand:  # Check validity
 #                cell = EntityCell(value=column.name)
 #                cell.type_id = _HAND_2_CELL_MAP[column.type]
                 if column.type == RFT_FIELD:
@@ -320,7 +328,7 @@ class ReportFieldsForm(CremeForm):
                           )
             rfield.sub_report, rfield.selected = sub_report_n_selected(old_rfields, rfield)
 
-            rfield.save() #TODO: only if different from the old one
+            rfield.save()  # TODO: only if different from the old one
 
         Field.objects.filter(pk__in=old_ids).delete()
 
@@ -389,8 +397,8 @@ class ReportExportPreviewFilterForm(CremeForm):
         date_field = cleaned_data['date_field']
         date_filter = cleaned_data['date_filter']
 
-        data = [('doc_type',      cleaned_data['doc_type']),
-                ('date_field',    date_field),
+        data = [('doc_type',   cleaned_data['doc_type']),
+                ('date_field', date_field),
                ]
 
         if date_filter is not None:

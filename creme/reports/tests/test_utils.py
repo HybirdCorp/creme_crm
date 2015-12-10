@@ -3,12 +3,9 @@
 try:
     from creme.creme_core.tests.base import CremeTestCase
 
-    from ..utils import *
+    from ..utils import sparsezip, expand_sparse_iterator
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-__all__ = ('SparsezipTestCase',)
 
 
 class SparsezipTestCase(CremeTestCase):
