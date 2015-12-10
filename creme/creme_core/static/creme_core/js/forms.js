@@ -467,10 +467,10 @@ creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
             var order = chosenMap[$this.attr('name')];
 
             if (order != undefined) {
-                $this.find('.oms_check').attr('checked', true);
+                $this.find('.oms_check').prop('checked', true);
                 $this.find('.oms_order').attr('value', order);
             } else {
-                $this.find('.oms_check').attr('checked', false);
+                $this.find('.oms_check').prop('checked', false);
                 $this.find('.oms_order').attr('value', '');
             }
         });
