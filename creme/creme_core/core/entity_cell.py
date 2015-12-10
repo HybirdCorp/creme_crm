@@ -183,23 +183,24 @@ class EntityCellRegularField(EntityCell):
         pattern = "%s__icontains"
 
 #        if isinstance(field, ForeignKey):
-        if isinstance(field, (ForeignKey, ManyToManyField)): # TODO: hasattr(field, 'rel') ? [wait for django1.8 field API]
+        if isinstance(field, (ForeignKey, ManyToManyField)):  # TODO: hasattr(field, 'rel') ?  django1.8 field API ?
             if len(field_info) == 1:
-                pattern = "%s"
+                pattern = "%s"  # TODO: factorise
 
-                if issubclass(field.rel.to, CremeEntity):
-                    pattern = '%s__header_filter_search_field__icontains'
+                # if issubclass(field.rel.to, CremeEntity):
+                #     pattern = '%s__header_filter_search_field__icontains'
             else:
-                field = field_info[1] #The sub-field is considered as the main field
+                field = field_info[1]  # The sub-field is considered as the main field
 
-                if isinstance(field, ForeignKey):
-                    pattern = '%s' # TODO '%s__exact' ?
+                # if isinstance(field, ForeignKey):
+                if isinstance(field, (ForeignKey, ManyToManyField)):
+                    pattern = '%s'  # TODO '%s__exact' ?
 
             if isinstance(field, ManyToManyField):
                 sortable = False
 
         if isinstance(field, (DateField, DateTimeField)):
-            pattern = "%s__range" # TODO: quick search overload this, to use gte/lte when it is needed
+            pattern = "%s__range"  # TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
             pattern = "%s__creme-boolean"
         elif isinstance(field, DatePeriodField):
@@ -208,6 +209,9 @@ class EntityCellRegularField(EntityCell):
 #        elif isinstance(field, ManyToManyField):
 #            has_a_filter = False
 #            sortable = False
+        elif isinstance(field, (ForeignKey, ManyToManyField)) and \
+             issubclass(field.rel.to, CremeEntity):
+            pattern = '%s__header_filter_search_field__icontains'
 
         super(EntityCellRegularField, self).__init__(value=name,
                                                      title=field_info.verbose_name,

@@ -46,7 +46,7 @@ def simple_value(value):
         if hasattr(value, '__iter__') and len(value) == 1:
             return value[0]
         return value
-    return '' #TODO : Verify same semantic than "null" sql
+    return ''  # TODO : Verify same semantic than "null" sql
 
 
 class ListViewState(object):
@@ -56,7 +56,7 @@ class ListViewState(object):
         self.header_filter_id = get_arg('hfilter')
         self.page = get_arg('page')
         self.rows = get_arg('rows')
-        self._search = get_arg('_search') #TODO: rename to search ?? or add property
+        self._search = get_arg('_search')  # TODO: rename to search ?? or add property
         self.sort_order = get_arg('sort_order')
         self.sort_field = get_arg('sort_field')
         self._extra_sort_field = ''
@@ -159,8 +159,8 @@ class ListViewState(object):
         don = partial(self._date_or_None, value=value)
         return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
 
-    #TODO: move some parts of code to EntityCell (more object code) ?
-    #TODO: 'filter_string' -> remove from Cell, or put all the research logic in Cells...
+    # TODO: move some parts of code to EntityCell (more object code) ?
+    # TODO: 'filter_string' -> remove from Cell, or put all the research logic in Cells...
     def get_q_with_research(self, model, cells):
         query = Q()
         rel_searches = []
@@ -168,14 +168,14 @@ class ListViewState(object):
 
         for item in self.research:
             cell_key, value = item
-            cell = find_first(cells, (lambda cell: cell.key == cell_key), None) #TODO: move in EntityCellsList ??
+            cell = find_first(cells, (lambda cell: cell.key == cell_key), None)  # TODO: move in EntityCellsList ??
 
             if cell is None:
                 continue
 
             if isinstance(cell, EntityCellRegularField):
                 field = cell.field_info[-1]
-                #TODO: Hacks for dates => refactor
+                # TODO: Hacks for dates => refactor
                 if isinstance(field, DateField):
                     condition = self._build_date_range_dict(cell.value, value)
 #                elif isinstance(field, ForeignKey) and value[0] == NULL_FK:
@@ -235,9 +235,9 @@ class ListViewState(object):
                 condition.update({'%s__custom_field' % related_name: cf})
 
                 query &= Q(**condition)
-            else: #TODO; factorise...
+            else:  # TODO; factorise...
                 for cf, pattern, value in searches:
-                    pattern = pattern.partition('__')[2] #remove 'tableprefix__'
+                    pattern = pattern.partition('__')[2]  # remove 'tableprefix__'
 
                     if field_type == CustomField.DATETIME:
                         condition = self._build_date_range_dict('value', value)
@@ -311,7 +311,7 @@ class ListViewState(object):
 
         return name, order
 
-    #TODO: factorise with :
+    # TODO: factorise with :
     #       - template_tags_creme_listview.get_listview_columns_header
     #       - EntityCell builders
     def set_sort(self, model, cells, field_name, order):
@@ -347,16 +347,16 @@ class ListViewState(object):
         return queryset.order_by(*self._ordering)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 class _ModelSmartColumnsRegistry(object):
     __slots__ = ('_cells', '_relationtype')
 
     def __init__(self):
         self._cells = []
-        self._relationtype = None #cache
+        self._relationtype = None  # Cache
 
-    #TODO: factorise with json deserialisation of EntityCells
+    # TODO: factorise with json deserialisation of EntityCells
     def _get_cells(self, model):
         cells = []
 
@@ -367,7 +367,7 @@ class _ModelSmartColumnsRegistry(object):
                 cell = EntityCellRegularField.build(model=model, name=data)
             elif cell_cls is EntityCellFunctionField:
                 cell = EntityCellFunctionField.build(model, func_field_name=data)
-            else: #EntityCellRelation
+            else:  # EntityCellRelation
                 rtype = self._get_relationtype(data)
 
                 if rtype is False:
@@ -378,7 +378,7 @@ class _ModelSmartColumnsRegistry(object):
             # Has no sense here:
             #  EntityCellActions : not configurable in HeaderFilter form
             #  EntityCellCustomField : dynamically created by user
-            #TODO: other types
+            # TODO: other types
 
             if cell is not None:
                 cells.append(cell)
@@ -388,11 +388,11 @@ class _ModelSmartColumnsRegistry(object):
     def _get_relationtype(self, rtype_id):
         rtype = self._relationtype
 
-        if rtype is None: #means: not retrieved yet
+        if rtype is None:  # Means: not retrieved yet
             try:
                 rtype = RelationType.objects.get(pk=rtype_id)
             except RelationType.DoesNotExist:
-                rtype = False #means: does not exist
+                rtype = False  # Means: does not exist
             self._relationtype = rtype
 
         return rtype
