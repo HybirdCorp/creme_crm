@@ -352,6 +352,11 @@ class _CremeTestCase(object):
 
             old_index = index
 
+    def assertQuerysetSQLEqual(self, qs1, qs2):
+        self.assertEqual(qs1.query.get_compiler('default').as_sql(),
+                         qs2.query.get_compiler('default').as_sql()
+                        )
+
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
         self.assertEqual(count,
                          Relation.objects.filter(subject_entity=subject_entity.id,

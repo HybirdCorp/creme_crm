@@ -61,13 +61,13 @@ def _activity_2_dict(activity, user):
     start = make_naive(activity.start, tz)
     end   = make_naive(activity.end, tz)
 
-    #TODO: hack to hide start time of floating time activities, only way to do that without change js calendar api
+    # TODO: hack to hide start time of floating time activities, only way to do that without change js calendar api
     is_all_day = activity.is_all_day or activity.floating_type == FLOATING_TIME
 
     if start == end and not is_all_day:
         end += timedelta(seconds=1)
 
-    return {'id' :          int(activity.pk), #TODO: int() useful ??
+    return {'id' :          int(activity.pk),  # TODO: int() useful ??
             'title':        activity.get_title_for_calendar(),
             'start':        start.isoformat(),
             'end':          end.isoformat(),
@@ -80,6 +80,7 @@ def _activity_2_dict(activity, user):
             'type':         activity.type.name,
            }
 
+
 def _get_datetime(data, key, default_func):
     timestamp = data.get(key)
     if timestamp is not None:
@@ -90,6 +91,7 @@ def _get_datetime(data, key, default_func):
 
     return default_func()
 
+
 def _get_one_activity_per_calendar(calendar_ids, activities):
     act = []
     for activity in activities:
@@ -98,9 +100,11 @@ def _get_one_activity_per_calendar(calendar_ids, activities):
             act.append(copy.copy(activity))
     return act
 
+
 def _js_timestamp_to_datetime(timestamp):
     "@raise ValueError"
-    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000)) #Js gives us miliseconds
+    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))  # Js gives us miliseconds
+
 
 def _filter_authorized_calendars(user, calendar_ids):
     return list(Calendar.objects.filter((Q(is_public=True) |
@@ -116,8 +120,8 @@ def _filter_authorized_calendars(user, calendar_ids):
 @permission_required('activities')
 def user_calendar(request):
     user = request.user
-    getlist = request.POST.getlist #TODO: POST ??
-    Calendar.get_user_default_calendar(user)#Don't really need the calendar but this create it in case of the user hasn't a calendar
+    getlist = request.POST.getlist  # TODO: POST ??
+    Calendar.get_user_default_calendar(user)  # Don't really need the calendar but this create it in case of the user hasn't a calendar
 
     selected_calendars = getlist('selected_calendars')
     if selected_calendars:
@@ -160,9 +164,10 @@ def user_calendar(request):
                    'creme_calendars_by_user': jsondumps(creme_calendars_by_user),
                    'current_calendars':       [str(id) for id in calendar_ids],
                    'creation_perm':           user.has_perm(cperm(Activity)),
-                   'floating_activities':     floating_activities, #TODO only floating activities assigned to logged user ??
+                   'floating_activities':     floating_activities,  # TODO only floating activities assigned to logged user ??
                   }
                  )
+
 
 @login_required
 @permission_required('activities')
@@ -173,7 +178,7 @@ def get_users_activities(request, calendar_ids):
 #    contacts = list(Contact.objects.exclude(is_user=None).values_list('id', flat=True)) #NB: list() to avoid inner query
     contacts = list(get_contact_model().objects.exclude(is_user=None)
                                        .values_list('id', flat=True)
-                   ) #NB: list() to avoid inner query
+                   )  # NB: list() to avoid inner query
 
     users_cal_ids = _filter_authorized_calendars(user, calendar_ids)
 
@@ -181,7 +186,7 @@ def get_users_activities(request, calendar_ids):
     start = _get_datetime(GET, 'start', (lambda: now().replace(day=1)))
     end   = _get_datetime(GET, 'end',   (lambda: get_last_day_of_a_month(start)))
 
-    #TODO: label when no calendar related to the participant of an indispo
+    # TODO: label when no calendar related to the participant of an indispo
     activities = EntityCredentials.filter(
                         user,
                         Activity.objects.filter(is_deleted=False)
@@ -200,6 +205,7 @@ def get_users_activities(request, calendar_ids):
                 for activity in _get_one_activity_per_calendar(calendar_ids, activities)
            ]
 
+
 @login_required
 @permission_required('activities')
 @jsonify
@@ -217,13 +223,13 @@ def update_activity_date(request):
     activity = Activity.objects.get(pk=act_id)
     request.user.has_perm_to_change_or_die(activity)
 
-    #This view is used when drag and dropping event comming from calendar
-    #or external events (floating events).
-    #Dropping a floating event on the calendar fixes it.
+    # This view is used when drag and dropping event comming from calendar
+    # or external events (floating events).
+    # Dropping a floating event on the calendar fixes it.
     if activity.floating_type == FLOATING:
         activity.floating_type = NARROW
 
-    #TODO: factorise (_time_from_JS() function ??)
+    # TODO: factorise (_time_from_JS() function ??)
     activity.start = _js_timestamp_to_datetime(start_timestamp)
     activity.end   = _js_timestamp_to_datetime(end_timestamp)
 
@@ -239,9 +245,10 @@ def update_activity_date(request):
                     )
 
     if collisions:
-        raise ConflictError(u', '.join(collisions)) #TODO: improve msg ??
+        raise ConflictError(u', '.join(collisions))  # TODO: improve msg ??
 
     activity.save()
+
 
 @login_required
 @permission_required('activities')
@@ -251,23 +258,25 @@ def add_user_calendar(request):
                                 submit_label=_('Save the calendar'),
                                )
 
+
 @login_required
 @permission_required('activities')
 def edit_user_calendar(request, calendar_id):
     return edit_model_with_popup(request, query_dict={'pk': calendar_id},
                                  model=Calendar, form_class=CalendarForm,
-                                 can_change=lambda calendar, user: calendar.user == user, #TODO: and superuser ??
+                                 can_change=lambda calendar, user: calendar.user == user,  # TODO: and superuser ??
                                 )
+
 
 @login_required
 @permission_required('activities')
 @jsonify
 def delete_user_calendar(request):
-    #TODO: Adding the possibility to transfert activities
+    # TODO: Adding the possibility to transfert activities
     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
     user = request.user
 
-    #TODO: factorise calendar credentials functions ?
+    # TODO: factorise calendar credentials functions ?
     if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
         raise PermissionDenied(_(u'You are not allowed to delete this calendar.'))
 
@@ -277,6 +286,7 @@ def delete_user_calendar(request):
         activity.calendars.add(default_calendar)
 
     calendar.delete()
+
 
 @login_required
 @permission_required('activities')

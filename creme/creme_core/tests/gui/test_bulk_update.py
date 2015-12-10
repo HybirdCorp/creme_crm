@@ -502,25 +502,25 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         form = BulkDefaultEditForm(civility_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
-        self.assertQuerysetEqual(Civility.objects.all(), form.fields['field_value'].queryset)
+        self.assertQuerysetSQLEqual(Civility.objects.all(), form.fields['field_value'].queryset)
 
         civility_field.limit_choices_to = {'title': _('Mister')}
 
         form = BulkDefaultEditForm(civility_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
-        self.assertQuerysetEqual(Civility.objects.filter(title=_('Mister')), form.fields['field_value'].queryset)
+        self.assertQuerysetSQLEqual(Civility.objects.filter(title=_('Mister')), form.fields['field_value'].queryset)
 
         civility_field.limit_choices_to = ~Q(**{'title': _('Mister')})
 
         form = BulkDefaultEditForm(civility_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
-        self.assertQuerysetEqual(Civility.objects.exclude(title=_('Mister')), form.fields['field_value'].queryset)
+        self.assertQuerysetSQLEqual(Civility.objects.exclude(title=_('Mister')), form.fields['field_value'].queryset)
 
         civility_field.limit_choices_to = lambda: {'title': _('Miss')}
 
         form = BulkDefaultEditForm(civility_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
-        self.assertQuerysetEqual(Civility.objects.filter(title=_('Miss')), form.fields['field_value'].queryset)
+        self.assertQuerysetSQLEqual(Civility.objects.filter(title=_('Miss')), form.fields['field_value'].queryset)
 
     def test_fk_entity_innerform(self):
         user = self.login()
@@ -548,7 +548,9 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         with self.assertRaises(ValueError) as err:
             BulkDefaultEditForm(image_field, user, [contact])
 
-        self.assertEqual(str(err.exception), 'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
+        self.assertEqual(str(err.exception),
+                         'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.'
+                        )
 
         today = datetime.today()
         image_field.limit_choices_to = lambda: {'created__lte': today}
@@ -570,25 +572,33 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         form = BulkDefaultEditForm(categories_field, user, [image])
         self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
-        self.assertQuerysetEqual(ImageCategory.objects.all(), form.fields['field_value'].queryset)
+        self.assertQuerysetSQLEqual(ImageCategory.objects.all(),
+                                    form.fields['field_value'].queryset
+                                   )
 
         categories_field.limit_choices_to = {'name': 'A'}
 
         form = BulkDefaultEditForm(categories_field, user, [image])
         self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
-        self.assertQuerysetEqual(ImageCategory.objects.filter(name='A'), form.fields['field_value'].queryset)
+        self.assertQuerysetSQLEqual(ImageCategory.objects.filter(name='A'),
+                                    form.fields['field_value'].queryset
+                                   )
 
         categories_field.limit_choices_to = ~Q(**{'name': 'A'})
 
         form = BulkDefaultEditForm(categories_field, user, [image])
         self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
-        self.assertQuerysetEqual(ImageCategory.objects.exclude(name='A'), form.fields['field_value'].queryset)
+        self.assertQuerysetSQLEqual(ImageCategory.objects.exclude(name='A'),
+                                    form.fields['field_value'].queryset
+                                   )
 
         categories_field.limit_choices_to = lambda: {'name': 'B'}
 
         form = BulkDefaultEditForm(categories_field, user, [image])
         self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
-        self.assertQuerysetEqual(ImageCategory.objects.filter(name='B'), form.fields['field_value'].queryset)
+        self.assertQuerysetSQLEqual(ImageCategory.objects.filter(name='B'),
+                                    form.fields['field_value'].queryset
+                                   )
 
     def test_manytomany_entity_innerform(self):
         user = self.login()
