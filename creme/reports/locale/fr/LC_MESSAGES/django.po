@@ -4,27 +4,26 @@
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-27 15:49+0100\n"
+"POT-Creation-Date: 2015-12-07 11:51+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 apps.py:39 models/report.py:55 templates/reports/portal.html:4
+#: apps.py:28 apps.py:43 models/report.py:55 templates/reports/portal.html:4
 msgid "Reports"
 msgstr "Rapports"
 
-#: apps.py:71
+#: apps.py:75
 msgid "Portal of reports"
 msgstr "Portail des rapports"
 
-#: apps.py:72
+#: apps.py:76
 msgid "All reports"
 msgstr "Liste des rapports"
 
@@ -36,47 +35,47 @@ msgstr "Colonnes du rapport"
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: constants.py:50 core/graph.py:312 core/graph.py:604
+#: constants.py:34 core/graph.py:312 core/graph.py:604
 msgid "By days"
 msgstr "Par jours"
 
-#: constants.py:51 core/graph.py:331 core/graph.py:618
+#: constants.py:35 core/graph.py:331 core/graph.py:618
 msgid "By months"
 msgstr "Par mois"
 
-#: constants.py:52 core/graph.py:348 core/graph.py:631
+#: constants.py:36 core/graph.py:348 core/graph.py:631
 msgid "By years"
 msgstr "Par années"
 
-#: constants.py:53 core/graph.py:388 core/graph.py:641
+#: constants.py:37 core/graph.py:388 core/graph.py:641
 msgid "By X days"
 msgstr "Par X jours"
 
-#: constants.py:54 core/graph.py:477
+#: constants.py:38 core/graph.py:477
 msgid "By values"
 msgstr "Par valeurs"
 
-#: constants.py:55 core/graph.py:496
+#: constants.py:39 core/graph.py:496
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
 
-#: constants.py:56
+#: constants.py:40
 msgid "By days (custom field)"
 msgstr "Par jours (champ personnalisé)"
 
-#: constants.py:57
+#: constants.py:41
 msgid "By months (custom field)"
 msgstr "Par mois (champ personnalisé)"
 
-#: constants.py:58
+#: constants.py:42
 msgid "By years (custom field)"
 msgstr "Par années (champ personnalisé)"
 
-#: constants.py:59
+#: constants.py:43
 msgid "By X days (custom field)"
 msgstr "Par X jours (champ personnalisé)"
 
-#: constants.py:60 core/graph.py:725
+#: constants.py:44 core/graph.py:725
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
@@ -383,19 +382,19 @@ msgstr "Ajouter un rapport"
 msgid "Report"
 msgstr "Rapport"
 
-#: models/report.py:209
+#: models/report.py:213
 msgid "Name of the column"
 msgstr "Nom de la colonne"
 
-#: models/report.py:220
+#: models/report.py:224
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
-#: models/report.py:221
+#: models/report.py:225
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
-#: populate.py:46
+#: populate.py:47
 msgid "Report view"
 msgstr "Vue de Rapport"
 
@@ -470,20 +469,28 @@ msgstr "Retour sur la fiche : '%(report)s'"
 msgid "Back"
 msgstr "Retour"
 
-#: templates/reports/preview_report.html:54
+#: templates/reports/preview_report.html:44
+#: templates/reports/preview_report.html:55
 #: templates/reports/view_report.html:7
 msgid "Preview"
 msgstr "Aperçu"
 
-#: templates/reports/preview_report.html:55
+#: templates/reports/preview_report.html:45
 #: templates/reports/view_report.html:10
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
-#: templates/reports/preview_report.html:63
+#: templates/reports/preview_report.html:57
 #, python-format
-msgid "Preview of %(limit_to)s first entities"
-msgstr "Aperçu des %(limit_to)s premières fiches"
+msgid "Preview of %(lines_count)s line"
+msgid_plural "Preview of %(lines_count)s lines"
+msgstr[0] "Aperçu de %(lines_count)s ligne"
+msgstr[1] "Aperçu des %(lines_count)s lignes"
+
+#: templates/reports/preview_report.html:59
+#, python-format
+msgid "Preview of the %(limit_to)s first lines"
+msgstr "Aperçu des %(limit_to)s premières lignes"
 
 #: templates/reports/reports_hands_widget.html:7
 msgid "Related entities"
@@ -687,31 +694,50 @@ msgstr "Ajouter un bloc d'instance pour «%s»"
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: views/export.py:85
+#: views/export.py:65
+#, python-format
+msgid "You can see no «%s»"
+msgstr "Vous ne pouvez voir aucun(e) «%s»"
+
+#: views/export.py:67
+#, python-format
+msgid "No «%(ctype)s» matches the filter «%(filter)s»"
+msgstr "Aucun(e) «%(ctype)s» ne correspond au filtre «%(filter)s»"
+
+#: views/export.py:72
+#, python-format
+msgid "No «%s» matches your date filter"
+msgstr "Aucun(e) «%s» ne correspond à votre filtre temporel"
+
+#: views/export.py:74
+msgid "Fix your date filter"
+msgstr "Corrigez votre filtre temporel"
+
+#: views/export.py:105
 #, python-format
 msgid "Export «%s»"
 msgstr "Exporter «%s»"
 
-#: views/export.py:88
+#: views/export.py:108
 msgid "Export"
 msgstr "Exporter"
 
-#: views/graph.py:50
+#: views/graph.py:47
 #, python-format
 msgid "Add a graph for «%s»"
 msgstr "Ajouter un graphique pour «%s»"
 
-#: views/graph.py:51
+#: views/graph.py:48
 msgctxt "reports-graphs"
 msgid "Save the graph"
 msgstr "Enregistrer le graphique"
 
-#: views/graph.py:58
+#: views/graph.py:54
 #, python-format
 msgid "Edit a graph for «%s»"
 msgstr "Modifier un graphique pour «%s»"
 
-#: views/graph.py:117
+#: views/graph.py:134
 msgid "Choose an abscissa field"
 msgstr "Choisir un champ d'abscisse"
 
@@ -719,26 +745,26 @@ msgstr "Choisir un champ d'abscisse"
 msgid "Number of reports"
 msgstr "Nombre de rapport(s)"
 
-#: views/report.py:47
+#: views/report.py:48
 msgid "Save the report"
 msgstr "Enregistrer le rapport"
 
-#: views/report.py:118
+#: views/report.py:143
 #, python-format
 msgid "Link of the column «%s»"
 msgstr "Liaison de la colonne «%s»"
 
-#: views/report.py:119
+#: views/report.py:144
 msgid "Link"
 msgstr "Lier"
 
-#: views/report.py:130
+#: views/report.py:156
 #, python-format
 msgid "Edit columns of «%s»"
 msgstr "Modifier les colonnes de «%s»"
 
 # Already in creme_core
-#: views/report.py:132
+#: views/report.py:158
 msgid "Save the modifications"
 msgstr ""
 

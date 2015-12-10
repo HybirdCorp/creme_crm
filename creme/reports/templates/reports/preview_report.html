@@ -29,13 +29,6 @@
                         <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans with report=object %}Back to the detailview: '{{report}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
                     {% get_export_backends as export_backends %}
-                    {% comment %}{% if export_backends|length > 2 %}{% endcomment %}
-                    {% comment %}
-                    <a class="report-dl" href="/reports/report/export/{{object.id}}/%s{{form.forge_url_data}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});">
-                        <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
-                    </a>&nbsp;
-                    {% endcomment %}
-                    {% comment %}{% endif %}{% endcomment %}
                 </span>
             </td>
         </tr>
@@ -53,38 +46,43 @@
     </div>
 
     <div class='scrollable-block-container report-preview-data'>
-        {% with object.get_children_fields_flat as flat_columns %}
+        {# {% with object.get_children_fields_flat as flat_columns %} #}
         <table class="table_detail_view ui-corner-all with-header" >
             <thead>
                 <tr>
-                    <th colspan="100">{% blocktrans %}Preview of {{limit_to}} first entities{% endblocktrans %}</th>
+                    <th colspan="{{flat_columns|length}}">
+                        {% if empty_message %}
+                            {% trans "Preview" %}
+                        {% elif lines|length < limit_to %}
+                            {% blocktrans count lines_count=lines|length %}Preview of {{lines_count}} line{% plural %}Preview of {{lines_count}} lines{% endblocktrans %}
+                        {% else %}
+                            {% blocktrans %}Preview of the {{limit_to}} first lines{% endblocktrans %}
+                        {% endif %}
+                    </th>
                 </tr>
             </thead>
             <tbody class="collapsable">
-                <tr class="header">
-                    {% comment %}
-                        {% for column in object.columns.all|order_by:"order" %}
-                            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
-                        {% endfor %}
-                    {% endcomment %}
-                    {% for column in flat_columns %}{% cycle "block_header_line_dark" "block_header_line_light" as row_color silent %}
-                        <th class="{{row_color}}">{{column}}</th>
-                    {% endfor %}
-                </tr>
-                {% for line in lines %}
-                    <tr>
-                        {% comment %}
-                            This cannot be done in any other way, cycle won't reset after exiting the first loop
-                            so an odd number of column will result in a chessboard. https://code.djangoproject.com/ticket/5908
-                        {% endcomment %}
-                        {% for val in line %}
-                            <td class="{% if forloop.counter|divisibleby:2 %}block_line_light{%else%}block_line_dark{%endif%}">{{val}}&nbsp;</td>
+                {% if not empty_message %}
+                    <tr class="header">
+                        {% for column in flat_columns %}{% cycle "block_header_line_dark" "block_header_line_light" as header_color silent %}
+                            <th class="{{header_color}}">{{column}}</th>
                         {% endfor %}
                     </tr>
-                {% endfor %}
+                    {% for line in lines %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                        <tr class="content">
+                            {% for val in line %}
+                                <td class="{{row_color}}">{{val}}&nbsp;</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="content empty">
+                        <td class="block_line_dark">{{empty_message}}</td>
+                    </tr>
+                {% endif %}
             </tbody>
         </table>
-        {% endwith %}
+        {# {% endwith %} #}
     </div>
 </div>
 {% endblock %}
