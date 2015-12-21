@@ -26,7 +26,7 @@
                                 <li>{% if sc_item.role %}{{sc_item.role}}{% elif sc_item.superuser %}<em>{% trans "Superuser" %}</em>{% else %}<em>{% trans "Default configuration" %}</em>{% endif %}:
 {% comment %}                       {{sc_item.user|default:_("Default configuration")}}:{% endcomment %}
                                     {% if sc_item.disabled %}
-                                        <em>{% trans  "Research is disabled" %}</em>
+                                        <em>{% trans  "Search is disabled" %}</em>
                                     {% elif sc_item.all_fields %}
                                         <em>{% trans  "All fields" %}</em>
                                     {% else %}

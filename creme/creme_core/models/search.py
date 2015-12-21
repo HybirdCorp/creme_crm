@@ -74,8 +74,8 @@ class SearchConfigItem(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Search')
-        verbose_name_plural = _(u'Searches')
+        # verbose_name = _(u'Search configuration')
+        # verbose_name_plural = _(u'Search configurations')
         unique_together = ('content_type', 'role', 'superuser')
 
     def __unicode__(self):

@@ -459,8 +459,8 @@ class Migration(migrations.Migration):
                 ('user', models.ForeignKey(verbose_name='Related user', to='auth.User', null=True)),
             ],
             options={
-                'verbose_name': 'Search',
-                'verbose_name_plural': 'Searches',
+                # 'verbose_name': 'Search',
+                # 'verbose_name_plural': 'Searches',
             },
             bases=(models.Model,),
         ),

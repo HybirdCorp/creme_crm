@@ -1144,14 +1144,14 @@ class ImportForm(CremeModelForm):
                         updated = True
                     except model_class.MultipleObjectsReturned:
                         append_error(line,
-                                     _('Several entities corresponding to the research have been found. '
+                                     _('Several entities corresponding to the search have been found. '
                                        'So a new entity have been created to avoid errors.'
                                       ),
                                      instance
                                     )
                     except model_class.DoesNotExist:
                         pass
-                    except Exception as e: # Should not happen
+                    except Exception as e:  # Should not happen
                         append_error(line, str(e), instance)
 
                 for fname, cleaned_value in regular_fields:

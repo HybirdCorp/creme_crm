@@ -160,7 +160,7 @@ class ListViewState(object):
         return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
 
     # TODO: move some parts of code to EntityCell (more object code) ?
-    # TODO: 'filter_string' -> remove from Cell, or put all the research logic in Cells...
+    # TODO: 'filter_string' -> remove from Cell, or put all the search logic in Cells...
     def get_q_with_research(self, model, cells):
         query = Q()
         rel_searches = []
