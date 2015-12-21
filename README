@@ -13,6 +13,7 @@ DEPENDENCIES:
         - Django-mediagenerator 1.12
         - pytz
         - python-dateutil 1.5
+        - bleach 1.4
         - Pillow 2.7
         - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
 
@@ -24,18 +25,18 @@ DEPENDENCIES:
         - creme.billing:
             - pdflatex (if you want PDF export)
 
-        -creme.graphs:
+        - creme.graphs:
             - pygraphviz (seems unavailable on windows)
-
-        - creme.activesync:
-            - restkit 4.2
-            - pycrypto 2.6
 
         - creme.crudity:
             - lcab (if you want Infopath forms exports and your server doesn't run on Windows)
 
         - creme.recurrents:
             - django-formtools 1.0
+
+        - creme.activesync:
+            - restkit 4.2
+            - pycrypto 2.6
 
 RECOMMENDATIONS:
 It's recommended to use a database engine that supports transactions.

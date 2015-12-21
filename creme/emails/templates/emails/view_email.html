@@ -44,7 +44,8 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Body" %}</th>
-            <td class="{% cycle row_color %} td_info">{{mail.get_body}}</td>
+            {# <td class="{% cycle row_color %} td_info">{{mail.get_body}}</td> #}
+            <td class="{% cycle row_color %} td_info">{{mail.rendered_body|force_escape|linebreaksbr}}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Body (HTML)" %}</th>

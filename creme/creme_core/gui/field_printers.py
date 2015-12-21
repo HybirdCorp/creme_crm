@@ -24,7 +24,7 @@ from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import linebreaks
 from django.utils.formats import date_format, number_format
-from django.utils.html import escape
+from django.utils.html import escape, urlize
 #from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext_lazy as _
@@ -216,7 +216,12 @@ def print_email_html(entity, fval, user, field):
 
 
 def print_text_html(entity, fval, user, field):
-    return linebreaks(fval) if fval else ''
+    # return linebreaks(fval) if fval else ''
+    return linebreaks(urlize(fval, autoescape=True)) if fval else ''
+
+
+def print_unsafehtml_html(entity, fval, user, field):
+    return linebreaks(fval, autoescape=True) if fval else ''
 
 
 # TODO: Do more specific fields (i.e: currency field....) ?
@@ -241,6 +246,8 @@ class _FieldPrintersRegistry(object):
 
                     (fields.DurationField,      print_duration),
                     (fields.DatePeriodField,    simple_print),  # TODO: JSONField ?
+
+                    (fields.UnsafeHTMLField,    print_unsafehtml_html),
                 ],
                 default=simple_print,
             )

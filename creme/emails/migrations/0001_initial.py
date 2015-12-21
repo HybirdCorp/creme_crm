@@ -5,6 +5,8 @@ from django.conf import settings
 from django.db import models, migrations
 import django.db.models.deletion
 
+import creme.creme_core.models.fields
+
 import creme.emails.utils
 
 
@@ -105,7 +107,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('subject', models.CharField(max_length=100, verbose_name='Subject')),
                 ('body', models.TextField(verbose_name='Body')),
-                ('body_html', models.TextField(verbose_name='Body (HTML)')),
+                # ('body_html', models.TextField(verbose_name='Body (HTML)')),
+                ('body_html', creme.creme_core.models.fields.UnsafeHTMLField(verbose_name='Body (HTML)')),
                 #('attachments', models.ManyToManyField(to='documents.Document', verbose_name='Attachments')),
                 ('attachments', models.ManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Attachments')),
                 ('signature', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Signature', blank=True, to='emails.EmailSignature', null=True)),
@@ -131,7 +134,8 @@ class Migration(migrations.Migration):
                 ('sending_date', models.DateTimeField(null=True, verbose_name='Sending date', blank=True)),
                 ('reception_date', models.DateTimeField(null=True, verbose_name='Reception date', blank=True)),
                 ('identifier', models.CharField(default=creme.emails.utils.generate_id, verbose_name='Email ID', unique=True, max_length=32, editable=False)),
-                ('body_html', models.TextField(verbose_name='Body (HTML)')),
+                # ('body_html', models.TextField(verbose_name='Body (HTML)')),
+                ('body_html', creme.creme_core.models.fields.UnsafeHTMLField(verbose_name='Body (HTML)')),
                 #('attachments', models.ManyToManyField(to='documents.Document', verbose_name='Attachments')),
                 ('attachments', models.ManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Attachments')),
                 ('signature', models.ForeignKey(verbose_name='Signature', blank=True, to='emails.EmailSignature', null=True)),

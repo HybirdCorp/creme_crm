@@ -24,6 +24,7 @@ from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, 
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
+from creme.creme_core.models.fields import UnsafeHTMLField
 
 #from creme.documents.models import Document
 
@@ -35,7 +36,8 @@ class AbstractEmailTemplate(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
     subject     = CharField(_(u'Subject'), max_length=100)
     body        = TextField(_(u"Body"))
-    body_html   = TextField(_(u"Body (HTML)"))
+    # body_html   = TextField(_(u"Body (HTML)"))
+    body_html   = UnsafeHTMLField(_(u"Body (HTML)"))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=SET_NULL)
 #    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))

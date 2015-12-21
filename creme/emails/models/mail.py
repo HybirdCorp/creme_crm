@@ -28,11 +28,10 @@ from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField,
         CharField, TextField, DateTimeField, ForeignKey, ManyToManyField)
 from django.db.transaction import atomic
 #from django.db import transaction, IntegrityError
-from django.template.defaultfilters import removetags
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models.fields import UnsafeHTMLField
 
 #from creme.documents.models import Document
 
@@ -75,6 +74,8 @@ class _Email(CremeModel):
         return MAIL_STATUS[self.status]
 
     def get_body(self):
+        warnings.warn("_Email.get_body() method is deprecated.", DeprecationWarning)
+
         return self.body
 
 
@@ -85,7 +86,8 @@ class AbstractEntityEmail(_Email, CremeEntity):
                             null=False, blank=False, editable=False,
                             default=generate_id,  # TODO: lambda for this
                            )
-    body_html   = TextField(_(u'Body (HTML)'))
+    # body_html   = TextField(_(u'Body (HTML)'))
+    body_html   = UnsafeHTMLField(_(u'Body (HTML)'))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
 #    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
@@ -175,6 +177,13 @@ class AbstractEntityEmail(_Email, CremeEntity):
         self.genid_n_save()
 
     def get_body(self):
+        warnings.warn("AbstractEntityEmail.get_body() method is deprecated.",
+                      DeprecationWarning
+                     )
+
+        from django.template.defaultfilters import removetags
+        from django.utils.safestring import mark_safe
+
         if self.body_html:
             return mark_safe(removetags(self.body_html, 'script'))
         else:
@@ -184,7 +193,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
         sender = EntityEmailSender(body=self.body,
                                    body_html=self.body_html,
                                    signature=self.signature,
-                                   attachments=self.attachments.all()
+                                   attachments=self.attachments.all(),
                                   )
 
         if sender.send(self):

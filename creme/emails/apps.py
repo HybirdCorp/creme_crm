@@ -51,9 +51,9 @@ class EmailsConfig(CremeAppConfig):
                                              )
 
     def register_blocks(self, block_registry):
-        from .blocks import blocks_list, EntityEmailBlock
+        from .blocks import blocks_list  # EntityEmailBlock
 
-        block_registry.register_4_model(self.EntityEmail, EntityEmailBlock())
+        # block_registry.register_4_model(self.EntityEmail, EntityEmailBlock())
         block_registry.register(*blocks_list)
 
     def register_bulk_update(self, bulk_update_registry):

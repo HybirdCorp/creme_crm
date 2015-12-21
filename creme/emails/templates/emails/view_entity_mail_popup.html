@@ -1,6 +1,6 @@
-{% load i18n %}
-{% load creme_core_tags creme_widgets %}
-<table class="table_detail_view ui-corner-all">
+{% load i18n creme_core_tags creme_widgets %}
+{% with block_id='emails-entity_mail-popup_up_view' %}
+<table class="table_detail_view ui-corner-all" id="{{block_id}}">
     <thead>
         <tr>
             <th colspan="2">
@@ -56,8 +56,25 @@
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='attachments' %}</td>
         </tr>
         <tr class="content">
-            <th class="th_info {% cycle header_color %}">{% trans "Email body" %}</th>
-            <td class="td_info {% cycle row_color %}"><iframe frameborder="0" src="/emails/mail/get_entity_body/{{object.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td>
+            {% comment %}
+                <th class="th_info {% cycle header_color %}">{% trans "Email body" %}</th>
+                <td class="td_info {% cycle row_color %}"><iframe frameborder="0" src="/emails/mail/get_entity_body/{{object.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td>
+            {% endcomment %}
+            {% if object.body_html %}
+                <th class="th_info {% cycle header_color %}">{% trans "Email body (HTML)" %}
+                    <div class="buttons">
+                        <a class="view" onclick="creme.emails.allowExternalImages('{{block_id}}')">
+                            {% trans "View" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+                            {% trans "View external images" %}
+                        </a>
+                    </div>
+                </th>
+                <td class="td_info {% cycle row_color %}"><iframe frameborder="0" src="/creme_core/entity/get_sanitized_html/{{object.id}}/body_html" width="100%" height="100%" style="min-height:350px"></iframe></td>
+            {% else %}
+                <th class="th_info {% cycle header_color %}">{% trans "Email body" %}</th>
+                <td class="td_info {% cycle row_color %}">{% print_field object=object field='body' %}</td>
+            {% endif %}
         </tr>
     </tbody>
 </table>
+{% endwith %}

@@ -299,10 +299,12 @@ class SendingsTestCase(_EmailsTestCase):
             mail = sending.mails_set.all()[0]
 
         self.assertEqual('Your first name is: %s !' % first_name, mail.get_body())
+        self.assertEqual('Your first name is: %s !' % first_name, mail.rendered_body)
 
-        rendered_body = '<p>Your last name is: %s !</p>' % last_name
-        self.assertEqual(rendered_body, mail.get_body_html())
-        self.assertEqual(rendered_body, self.client.get('/emails/mail/get_body/%s' % mail.id).content)
+        html = '<p>Your last name is: %s !</p>' % last_name
+        self.assertEqual(html, mail.get_body_html())
+        self.assertEqual(html, mail.rendered_body_html)
+        self.assertEqual(html, self.client.get('/emails/mail/get_body/%s' % mail.id).content)
 
         #test delete sending ---------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)

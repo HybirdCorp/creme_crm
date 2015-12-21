@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -29,6 +31,7 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import jsonify, get_from_POST_or_404
+from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic, blocks as blocks_views
 
 from creme.crudity.views.actions import fetch
@@ -40,7 +43,7 @@ from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM,
         DEFAULT_HFILTER_EMAIL)
 from ..forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
 from ..forms.template import TEMPLATES_VARS
-from ..models import LightWeightEmail # EntityEmail
+from ..models import LightWeightEmail  # EntityEmail
 
 
 EntityEmail = get_entityemail_model()
@@ -50,9 +53,17 @@ EntityEmail = get_entityemail_model()
 @permission_required('emails')
 def get_lightweight_mail_body(request, mail_id):
     """Used to show an html document in an iframe """
+    # email = get_object_or_404(LightWeightEmail, pk=mail_id)
+    # request.user.has_perm_to_view_or_die(email.sending.campaign)
+    # return HttpResponse(email.get_body_html())
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
     request.user.has_perm_to_view_or_die(email.sending.campaign)
-    return HttpResponse(email.get_body_html())
+
+    return HttpResponse(sanitize_html(email.rendered_body_html,
+                                      # TODO: ? allow_external_img=request.GET.get('external_img', False),
+                                      allow_external_img=True,
+                                     )
+                       )
 
 
 @login_required
@@ -172,6 +183,7 @@ def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
                                 )
 
 
+# TODO: use a wizard. It seems hackish to work with inner popup & django.contrib.formtools.wizard.FormWizard
 def abstract_create_from_template_n_send(request, entity_id,
                                          selection_form=TemplateSelectionForm,
                                          email_form=EntityEmailFromTemplateForm,
@@ -254,8 +266,6 @@ def create_n_send(request, entity_id):
     return abstract_create_n_send(request, entity_id)
 
 
-# TODO: use a wizard
-#      it seems hackish to work with inner popup & django.contrib.formtools.wizard.FormWizard
 @login_required
 # @permission_required(('emails', 'emails.add_entityemail'))
 @permission_required(('emails', cperm(EntityEmail)))
@@ -275,10 +285,19 @@ def resend_mails(request):  # TODO: unit test
     return {}
 
 
-@login_required
-@permission_required('emails')
-def get_entity_mail_body(request, entity_id):  # TODO: rename entity_id -> mail_id
+# @login_required
+# @permission_required('emails')
+def get_entity_mail_body(request, entity_id):
     """Used to show an html document in an iframe """
-    email = get_object_or_404(EntityEmail, pk=entity_id)
-    request.user.has_perm_to_view_or_die(email)
-    return HttpResponse(email.get_body())
+    warnings.warn("The view emails.get_entity_mail_body is deprecated ; "
+                  "use the core view get_sanitized_html instead.",
+                  DeprecationWarning
+                 )
+
+    # email = get_object_or_404(EntityEmail, pk=entity_id)
+    # request.user.has_perm_to_view_or_die(email)
+    # return HttpResponse(email.get_body())
+
+    from creme.creme_core.views.entity import get_sanitized_html_field
+
+    return get_sanitized_html_field(request, entity_id, 'body_html')

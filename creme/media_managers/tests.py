@@ -256,7 +256,7 @@ class MediaManagersTestCase(CremeTestCase):
                             ),
                          get_html_val(judo, 'image', user)
                         )
-        self.assertEqual('<p>%s</p>' % judo_face.description,
+        self.assertEqual('<p>Judo&#39;s selfie</p>',
                          get_html_val(judo, 'image__description', user)
                         )
 

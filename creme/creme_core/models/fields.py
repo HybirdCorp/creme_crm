@@ -28,6 +28,7 @@ from django.utils.timezone import now
 
 from ..utils.date_period import date_period_registry, DatePeriod
 
+
 # TODO: add a form field ?? (validation)
 # TODO: fix the max_lenght value ?,
 class PhoneField(CharField):
@@ -39,6 +40,7 @@ class PhoneField(CharField):
 #        args, kwargs = introspector(self)
 #
 #        return (field_class, args, kwargs)
+
 
 # TODO: Make a real api for this
 class DurationField(CharField):
@@ -52,7 +54,11 @@ class DurationField(CharField):
 #        return (field_class, args, kwargs)
 
 
-class DatePeriodField(TextField): #TODO: inherit from a JSONField
+class UnsafeHTMLField(TextField):
+    pass
+
+
+class DatePeriodField(TextField):  # TODO: inherit from a JSONField
 #    __metaclass__ = SubfieldBase
 
     def to_python(self, value):
@@ -112,6 +118,7 @@ class MoneyField(DecimalField):
 
 def _transfer_assignation():
     return CremeUserForeignKey._TRANSFER_TO_USER
+
 
 class CremeUserForeignKey(ForeignKey):
     _TRANSFER_TO_USER = None
@@ -201,6 +208,7 @@ class EntityCTypeForeignKey(CTypeForeignKey):
         defaults = {'form_class': EntityCTypeChoiceField}
         defaults.update(kwargs)
         return super(EntityCTypeForeignKey, self).formfield(**defaults)
+
 
 # TODO: factorise with CTypeForeignKey
 class CTypeOneToOneField(OneToOneField):
