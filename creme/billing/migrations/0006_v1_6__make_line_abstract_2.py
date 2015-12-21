@@ -34,6 +34,7 @@ def copy_old_fields(apps, schema_editor):
 
             instance.save()
 
+
 def remove_old_links(apps, schema_editor):
     # No more 'All lines' view ; so we want to avoid menu items which could cause a 404 error.
     apps.get_model('creme_core', 'PreferedMenuItem').objects \
