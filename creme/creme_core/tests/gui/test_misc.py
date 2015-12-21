@@ -150,7 +150,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(escaped_title,        get_html_val(casca, 'position__title', user))
         self.assertEqual(casca.position.title, get_csv_val(casca,  'position__title', user))
 
-        #FK: with & without customised null_label
+        # FK: with & without customised null_label
         self.assertEqual('', get_html_val(judo, 'position', user))
         self.assertEqual('', get_csv_val(judo,  'position', user))
         self.assertEqual(u'<em>%s</em>' % pgettext('persons-is_user', 'None'),
@@ -170,7 +170,7 @@ class GuiTestCase(CremeTestCase):
                         )
         self.assertEqual(unicode(casca.image), get_csv_val(casca, 'image', user))
 
-        self.assertEqual('<p>%s</p>' % casca.image.description,
+        self.assertEqual('<p>Casca&#39;s selfie</p>',
                          get_html_val(casca, 'image__description', user)
                         )
         self.assertEqual(casca.image.description,
@@ -187,7 +187,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('%s/%s' % (cat1.name, cat2.name),
                          get_csv_val(casca, 'image__categories', user)
                         )
-        #TODO: test ImageField
+        # TODO: test ImageField
 
         self.assertEqual('', get_html_val(judo, 'position__title',    user))
         self.assertEqual('', get_html_val(judo, 'image',              user))
@@ -342,7 +342,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(u'<a href="%s">%s</a>' % (judo_face.get_absolute_url(), judo_face),
                          get_html_val(judo, 'image', user)
                         )
-        self.assertEqual('<p>%s</p>' % judo_face.description,
+        self.assertEqual('<p>Judo&#39;s selfie</p>',
                          get_html_val(judo, 'image__description', user)
                         )
 

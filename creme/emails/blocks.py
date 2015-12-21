@@ -23,7 +23,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import Relation #, CremeEntity
+from creme.creme_core.models import Relation  # CremeEntity
 from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
 #from creme.creme_core.utils import jsonify
 
@@ -45,13 +45,33 @@ from .models import EmailSignature, EmailRecipient, EmailSending, LightWeightEma
 Document      = get_document_model()
 Contact       = get_contact_model()
 Organisation  = get_organisation_model()
+EmailTemplate = get_emailtemplate_model()
 EmailCampaign = get_emailcampaign_model()
 EntityEmail   = get_entityemail_model()
 MailingList   = get_mailinglist_model()
 
 
+# DEPRECATED
+# TODO: remove template file too
 class EntityEmailBlock(SimpleBlock):
     template_name = 'emails/templatetags/block_mail.html'
+
+
+class _HTMLBodyBlock(SimpleBlock):
+    verbose_name  = _(u'HTML body')
+    template_name = 'emails/templatetags/block_html_body.html'
+
+
+class EmailHTMLBodyBlock(_HTMLBodyBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'email_html_body')
+    dependencies  = (EntityEmail,)
+    target_ctypes = (EntityEmail,)
+
+
+class TemplateHTMLBodyBlock(_HTMLBodyBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'template_html_body')
+    dependencies  = (EmailTemplate,)
+    target_ctypes = (EmailTemplate,)
 
 
 class _RelatedEntitesBlock(QuerysetBlock):
@@ -161,8 +181,7 @@ class AttachmentsBlock(_RelatedEntitesBlock):
     dependencies  = (Document,)
     verbose_name  = _(u'Attachments')
     template_name = 'emails/templatetags/block_attachments.html'
-#    target_ctypes = (EmailTemplate,)
-    target_ctypes = (get_emailtemplate_model(),)
+    target_ctypes = (EmailTemplate,)
 
     def _get_queryset(self, entity): #entity=mailtemplate
         return entity.attachments.all()
@@ -329,6 +348,8 @@ class SignaturesBlock(QuerysetBlock):
                                                            ))
 
 
+email_html_body_block    = EmailHTMLBodyBlock()
+template_html_body_block = TemplateHTMLBodyBlock()
 mailing_lists_block     = MailingListsBlock()
 email_recipients_block  = EmailRecipientsBlock()
 contacts_block          = ContactsBlock()
@@ -344,6 +365,8 @@ mail_spam_sync_block    = SpamSynchronizationMailsBlock()
 signatures_block        = SignaturesBlock()
 
 blocks_list = (
+        email_html_body_block,
+        template_html_body_block,
         mailing_lists_block,
         email_recipients_block,
         contacts_block,

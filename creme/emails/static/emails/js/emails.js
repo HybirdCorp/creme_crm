@@ -41,3 +41,8 @@ creme.emails.resend = function(ids, block_url) {
                        .data({ids: ids})
                        .start();
 }
+
+creme.emails.allowExternalImages = function(block_id) {
+    var iframe = $('#' + block_id).find('iframe');
+    iframe.attr('src', iframe.attr('src') + '?external_img=on');
+}

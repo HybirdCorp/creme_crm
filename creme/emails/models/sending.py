@@ -203,17 +203,35 @@ class LightWeightEmail(_Email):
 
         try:
             return Template(sending_body).render(Context(loads(body.encode('utf-8')) if body else {}))
-        except Exception as e: # Pickle raises too much differents exceptions... Catch'em all ?
+        except Exception as e:  # Pickle raises too much different exceptions... Catch'em all ?
             logger.debug('Error in LightWeightEmail._render_body(): %s', e)
             return ""
 
     def get_body(self):
-        return self._render_body(self.sending.body)
+        warnings.warn("LightWeightEmail.get_body() method is deprecated ; use 'rendered_body' instead",
+                      DeprecationWarning
+                     )
+
+        # return self._render_body(self.sending.body)
+        return self.rendered_body
 
     def get_body_html(self):
+        warnings.warn("LightWeightEmail.get_body_html() method is deprecated ; use 'rendered_body_html' instead",
+                      DeprecationWarning
+                     )
+
+        # return self._render_body(self.sending.body_html)
+        return self.rendered_body_html
+
+    @property
+    def rendered_body(self):
+        return self._render_body(self.sending.body)
+
+    @property
+    def rendered_body_html(self):
         return self._render_body(self.sending.body_html)
 
-    def get_related_entity(self): # For generic views
+    def get_related_entity(self):  # For generic views
         return self.sending.campaign
 
     # TODO: factorise

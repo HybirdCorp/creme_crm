@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import migrations
 from django.utils.translation import activate, ugettext as _
 
-from ..  import contact_model_is_custom, organisation_model_is_custom
+from .. import contact_model_is_custom, organisation_model_is_custom
 
 
 MODELBLOCK_ID = 'modelblock'

@@ -614,7 +614,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                          [refresh(e).status for e in emails]
                         )
 
-    def _create_email(self, status):
+    def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html=''):
         user = self.user
         return EntityEmail.objects.create(user=user,
                                           sender=user.linked_contact.email,
@@ -622,7 +622,41 @@ class EntityEmailTestCase(_EmailsTestCase):
                                           subject='Under arrest',
                                           body='Freeze !',
                                           status=status,
+                                          body_html=body_html,
                                          )
+
+    def test_get_sanitized_html_field01(self):
+        "Empty body"
+        self.login()
+        email = self._create_email()
+        url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
+        self.assertGET409(url_fmt % (email.id, 'sender'))  # not an UnsafeHTMLField
+
+        response = self.assertGET200(url_fmt % (email.id, 'body_html'))
+        self.assertEqual('', response.content)
+
+    def test_get_sanitized_html_field02(self):
+        self.login()
+        email = self._create_email(body_html='<p>hi</p>'
+                                             '<img alt="Totoro" src="http://external/images/totoro.jpg" />'
+                                             '<img alt="Nekobus" src="%snekobus.jpg" />' % settings.MEDIA_URL
+                                   )
+
+        url = '/creme_core/entity/get_sanitized_html/%s/%s' % (email.id, 'body_html')
+        response = self.assertGET200(url)
+        self.assertEqual('<p>hi</p>'
+                         '<img alt="Totoro">'
+                         '<img alt="Nekobus" src="%snekobus.jpg">' % settings.MEDIA_URL,
+                         response.content
+                        )
+
+        response = self.assertGET200(url + '?external_img=on')
+        self.assertEqual('<p>hi</p>'
+                         '<img alt="Totoro" src="http://external/images/totoro.jpg">'
+                         '<img alt="Nekobus" src="%snekobus.jpg">' % settings.MEDIA_URL,
+                         response.content
+                        )
+        # TODO: improve sanitization test (other tags, css...)
 
     def test_command01(self):
         self.login()
@@ -657,4 +691,4 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertFalse(mail.outbox)
 
-    #TODO: test other views
+    # TODO: test other views

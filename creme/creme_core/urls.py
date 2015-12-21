@@ -18,6 +18,7 @@ entity_patterns = [
     url(r'^trash$',                                                        entity.trash),
     url(r'^trash/empty$',                                                  entity.empty_trash),
     url(r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)$',                      entity.get_creme_entities_repr),
+    url(r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)$', entity.get_sanitized_html_field),
     url(r'^search_n_view$',                                                entity.search_and_view),
     url(r'^get_info_fields/(?P<ct_id>\d+)/json$',                          entity.get_info_fields),
     url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)$',            entity.inner_edit_field),

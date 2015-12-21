@@ -19,9 +19,8 @@
 ################################################################################
 
 from collections import defaultdict
-import logging
-
 from json import dumps as json_dumps
+import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -39,8 +38,10 @@ from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
 from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
 from ..models import CremeEntity, EntityCredentials, FieldsConfig
+from ..models.fields import UnsafeHTMLField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from ..utils.chunktools import iter_as_slices
+from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 from ..views.decorators import POST_only
 from ..views.generic import inner_popup, list_view_popup_from_widget
@@ -68,6 +69,31 @@ def get_creme_entities_repr(request, entities_ids):
             } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
                 if entity is not None
            ]
+
+
+@login_required
+def get_sanitized_html_field(request, entity_id, field_name):
+    """Used to show an HTML document in an <iframe>."""
+    entity = get_object_or_404(CremeEntity, pk=entity_id)
+    request.user.has_perm_to_view_or_die(entity)
+
+    entity = entity.get_real_entity()
+
+    try:
+        field = entity._meta.get_field(field_name)
+    except FieldDoesNotExist:
+        raise ConflictError('This field does not exist.')
+
+    if not isinstance(field, UnsafeHTMLField):
+        raise ConflictError('This field is not an HTMLField.')
+
+    unsafe_value = getattr(entity, field_name)
+
+    return HttpResponse('' if not unsafe_value else
+                        sanitize_html(unsafe_value,
+                                      allow_external_img=request.GET.get('external_img', False),
+                                     )
+                       )
 
 
 # TODO: bake the result in HTML instead of ajax view ??

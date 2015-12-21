@@ -128,6 +128,15 @@ class EntityViewsTestCase(ViewsTestCase):
                          load_json(response.content)
                         )
 
+    def test_get_sanitized_html_field(self):
+        user = self.login()
+        entity = Organisation.objects.create(user=user, name='Nerv')
+
+        url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
+        self.assertGET409(url_fmt % (entity.id, 'unknown'))
+        self.assertGET409(url_fmt % (entity.id, 'name'))  # not an UnsafeHTMLField
+        # NB: test with valid field in 'emails' app.
+
     def test_delete_entity01(self):
         "is_deleted=False -> trash"
         user = self.login()

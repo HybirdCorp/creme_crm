@@ -41,7 +41,6 @@ from creme.creme_core.utils import create_if_needed
 
 from . import get_contact_model, get_organisation_model
 from . import blocks, buttons, constants
-#from .models import *
 from .models import Civility, Sector, Position, StaffSize, LegalForm
 
 
@@ -153,7 +152,7 @@ class Populator(BasePopulator):
                                        civility_id=mister.pk, description="Creme master",
                                       )
 
-            #TODO: add relation to admin ????
+            # TODO: add relation to admin ????
             if not Organisation.objects.exists():
                 orga = Organisation.objects.create(user=admin, name=_("ReplaceByYourSociety"))
                 CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
@@ -171,7 +170,7 @@ class Populator(BasePopulator):
             create_if_needed(Sector, {'pk': 5}, title=_(u"Restoration"))
 
 
-            #TODO: depend on the country no ??
+            # TODO: depend on the country no ??
             create_if_needed(LegalForm, {'pk': 1}, title=u"SARL")
             create_if_needed(LegalForm, {'pk': 2}, title=u"Association loi 1901")
             create_if_needed(LegalForm, {'pk': 3}, title=u"SA")
