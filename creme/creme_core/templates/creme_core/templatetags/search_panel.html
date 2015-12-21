@@ -1,16 +1,4 @@
 {% load i18n creme_core_tags %}
-{% comment %}
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('div.research_box input[name=research]').bind('keydown', function(e) {
-                if (e.keyCode == '13') {
-                    // $(this).parent().find('[type=button]').click(); //TODO: do not work (ajaxSend is strangely not called, so a CRSF problem occurs)
-                    creme.utils.handleResearch('{{target_node_id}}', $(this).parent('span').parent('.research_box'));
-                }
-             });
-    });
-</script>
-{% endcomment %}
 <div class="research_box">
     <form method="GET" action="/creme_core/search">
         <span>
@@ -23,7 +11,7 @@
                 {% endfor %}
             </select>
             <input type="text" name="research" />
-            <input type="submit" value="{% trans "Search" %}" /> {% comment %} onclick="creme.utils.handleResearch('{{target_node_id}}', $(this).parent('span').parent('.research_box'));"{% endcomment %}
+            <input type="submit" value="{% trans "Search" %}" />
         </span>
     </form>
 </div>
