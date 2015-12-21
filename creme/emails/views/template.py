@@ -38,25 +38,45 @@ from ..forms.template import EmailTemplateForm, EmailTemplateAddAttachment
 EmailTemplate = get_emailtemplate_model()
 
 
+def abstract_add_template(request, form=EmailTemplateForm,
+                          submit_label=_('Save the template'),
+                         ):
+    return add_entity(request, form,
+                      extra_template_dict={'submit_label': submit_label},
+                     )
+
+
+def abstract_edit_template(request, template_id, form=EmailTemplateForm):
+    return edit_entity(request, template_id, EmailTemplate, form)
+
+
+def abstract_view_template(request, template_id,
+                           template='emails/view_template.html',
+                          ):
+    return view_entity(request, template_id, EmailTemplate,
+                       # '/emails/template',
+                       template=template,
+                      )
+
+
 @login_required
 # @permission_required(('emails', 'emails.add_emailtemplate'))
 @permission_required(('emails', cperm(EmailTemplate)))
 def add(request):
-    return add_entity(request, EmailTemplateForm,
-                      extra_template_dict={'submit_label': _('Save the template')},
-                     )
+    return abstract_add_template(request)
+
 
 @login_required
 @permission_required('emails')
 def edit(request, template_id):
-    return edit_entity(request, template_id, EmailTemplate, EmailTemplateForm)
+    return abstract_edit_template(request, template_id)
+
 
 @login_required
 @permission_required('emails')
 def detailview(request, template_id):
-    return view_entity(request, template_id, EmailTemplate, '/emails/template',
-                       'emails/view_template.html',
-                      )
+    return abstract_view_template(request, template_id)
+
 
 @login_required
 @permission_required('emails')
@@ -74,6 +94,7 @@ def add_attachment(request, template_id):
                          entity_class=EmailTemplate,
                          submit_label=_('Save the attachments'),
                         )
+
 
 @login_required
 @permission_required('emails')
