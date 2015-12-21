@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2015  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -209,10 +209,17 @@
 
                 /***************** Row selection part *****************/
                 this.enableRowSelection = function() {
-                    self.find('.'+opts.selectable_class)
-                    //.live('click',
-                    .bind('click',
+                    self.on ('click', '.' + opts.selectable_class,
+//                    self.find('.'+opts.selectable_class).bind('click',
                         function(e) {
+                            var $target = $(e.target);
+
+                            // ignore clicks on links, they should not select the row
+                            var isClickFromLink = $target.is('a') || $target.parents('a').first().length == 1;
+                            if (isClickFromLink) {
+                                return;
+                            }
+
                             var entity_id = $(this).find(opts.id_container).val();
                             var entity_id_index = $.inArray(entity_id, selected_ids);//selected_ids.indexOf(entity_id);
 
@@ -223,20 +230,22 @@
                                         self.find('.'+opts.selected_class).removeClass(opts.selected_class);
                                     }
                                     selected_ids.push(entity_id);
-                                    $(opts.selected_rows).val(selected_ids.join(opts.entity_separator));
+                                    $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
                                 }
                                 if(!$(this).hasClass(opts.selected_class))$(this).addClass(opts.selected_class);
                                 if(!opts.o2m) {
                                     $(this).find(opts.checkbox_selector).check();
                                 }
+                                $(this).trigger('row-selection-changed', {selected: true});
                             } else {
                                 self.find(opts.all_boxes_selector).uncheck();
                                 if(entity_id_index !== -1) selected_ids.splice(entity_id_index, 1);
-                                $(opts.selected_rows).val(selected_ids.join(opts.entity_separator));
+                                $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
                                 if($(this).hasClass(opts.selected_class))$(this).removeClass(opts.selected_class);
                                 if(!opts.o2m) {
                                     $(this).find(opts.checkbox_selector).uncheck();
                                 }
+                                $(this).trigger('row-selection-changed', {selected: false});
                             }
                         }
                     );
@@ -247,7 +256,8 @@
                 //          2) force all checkboxes to be unchecked by default. Either in js here, or
                 //             possibly in HTML (maybe by using lone inputs instead of having them in a <form>)
                 this.clearRowSelection = function() {
-                    $(opts.selected_rows).val('');
+                    $(opts.selected_rows, self).val('');
+                    $(opts.selected_rows, self).trigger('row-selection-changed', {selected: false});
 
                     // upgrade to Jquery 1.9x : "checked" is a property and attr() method should not be used.
                     self.find('.' + opts.selectable_class + ' .choices input[type="checkbox"],' +
@@ -274,17 +284,19 @@
                                     if(!opts.o2m) {
                                         $(this).find(opts.checkbox_selector).check();
                                     }
+                                    $(this).trigger('row-selection-changed', {selected: true});
                                 });
-                                $(opts.selected_rows).val(selected_ids.join(opts.entity_separator));
+                                $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
                             } else {
                                 entities.each(function() {
                                     if($(this).hasClass(opts.selected_class))$(this).removeClass(opts.selected_class);
                                     if(!opts.o2m){
                                         $(this).find(opts.checkbox_selector).uncheck();
                                     }
+                                    $(this).trigger('row-selection-changed', {selected: false});
                                 });
                                 selected_ids = [];
-                                $(opts.selected_rows).val('');
+                                $(opts.selected_rows, self).val('');
                             }
                         }
                     );
@@ -304,7 +316,8 @@
                 this.disableEvents = function() {
 //                    self.find('.'+opts.selectable_class).die('click');
 //                    if(!opts.o2m) self.find(opts.all_boxes_selector).die('click');
-                    self.find('.'+opts.selectable_class).unbind('click');
+//                    self.find('.'+opts.selectable_class).unbind('click');
+                    self.off('click', '.' + opts.selectable_class);
                     if(!opts.o2m) self.find(opts.all_boxes_selector).unbind('click');
                 }
 
@@ -340,7 +353,7 @@
                 this.handleSubmit = function(form, options, target, extra_data) {
                     if (me.is_loading) {
                         return;
-                    } 
+                    }
 
                     var data = this.serializeMe();
                     if(typeof(extra_data)!="undefined") {
