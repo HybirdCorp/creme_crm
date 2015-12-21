@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
+# from future_builtins import filter
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -34,7 +34,9 @@ from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVIT
 
 from . import get_address_model, get_contact_model, get_organisation_model
 #from .models import Contact, Organisation, Address
-from .constants import *
+from .constants import (REL_SUB_MANAGES, REL_OBJ_MANAGES,
+        REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY, REL_SUB_CUSTOMER_SUPPLIER,
+        REL_SUB_PROSPECT, REL_SUB_INACTIVE)
 
 
 Address = get_address_model()

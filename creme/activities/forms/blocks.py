@@ -36,7 +36,7 @@ from creme.creme_core.models import RelationType, Relation
 from creme.persons import get_contact_model
 #from creme.persons.models import Contact
 
-from ..constants import *
+from ..constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
 from ..models import Calendar
 from ..utils import check_activity_collisions
 

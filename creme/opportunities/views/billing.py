@@ -41,8 +41,7 @@ from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 #from creme.billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
 
 from .. import get_opportunity_model
-#from ..constants import REL_SUB_CURRENT_DOC
-from ..constants import *
+from .. import constants
 #from ..models import Opportunity
 
 
@@ -68,7 +67,7 @@ def current_quote(request, opp_id, quote_id, action):
     has_perm_or_die(quote)
 
     kwargs = {'subject_entity': quote,
-              'type_id':        REL_SUB_CURRENT_DOC,
+              'type_id':        constants.REL_SUB_CURRENT_DOC,
               'object_entity':  opp,
               'user':           user,
              }
@@ -92,9 +91,9 @@ _GEN_BEHAVIOURS = {
     #           Set the Relationship 'Current doc' ?,
     #           Workflow function,
     #         )
-    Quote:      (REL_SUB_LINKED_QUOTE,      True,  transform_target_into_prospect),
-    Invoice:    (REL_SUB_LINKED_INVOICE,    False, transform_target_into_customer),
-    SalesOrder: (REL_SUB_LINKED_SALESORDER, False, None),
+    Quote:      (constants.REL_SUB_LINKED_QUOTE,      True,  transform_target_into_prospect),
+    Invoice:    (constants.REL_SUB_LINKED_INVOICE,    False, transform_target_into_customer),
+    SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
 }
 
 @login_required
@@ -131,7 +130,9 @@ def generate_new_doc(request, opp_id, ct_id):
     document.save()
 
     relations = Relation.objects.filter(subject_entity=opp.id,
-                                        type__in=[REL_OBJ_LINKED_PRODUCT, REL_OBJ_LINKED_SERVICE],
+                                        type__in=[constants.REL_OBJ_LINKED_PRODUCT,
+                                                  constants.REL_OBJ_LINKED_SERVICE,
+                                                 ],
                                        ).select_related('object_entity')
 
     # TODO: Missing test case
@@ -158,7 +159,7 @@ def generate_new_doc(request, opp_id, ct_id):
     #     relation.delete()
 
     if set_as_current:
-        create_relation(type_id=REL_SUB_CURRENT_DOC, object_entity=opp)
+        create_relation(type_id=constants.REL_SUB_CURRENT_DOC, object_entity=opp)
 
     if workflow_action:
         workflow_action(opp.emitter, opp.target, user)

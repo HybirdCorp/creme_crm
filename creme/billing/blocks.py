@@ -37,7 +37,9 @@ from creme.products import get_product_model, get_service_model
 from . import (get_credit_note_model, get_invoice_model, get_quote_model,
         get_sales_order_model, get_template_base_model,
         get_product_line_model, get_service_line_model)
-from .constants import *
+from .constants import (REL_SUB_HAS_LINE, REL_OBJ_CREDIT_NOTE_APPLIED,
+        REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED,
+        REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
 from .function_fields import get_total_pending, get_total_won_quote_last_year, get_total_won_quote_this_year
 from .models import PaymentInformation
 

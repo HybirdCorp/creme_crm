@@ -55,7 +55,7 @@ class ImageViewBlock(SimpleBlock):
     target_ctypes = (Image,)
 
 
-#TODO: transform to a paginated block with all allowed images ??
+# TODO: transform to a paginated block with all allowed images ??
 class LastImagesBlock(Block):
     id_           = Block.generate_id('media_managers', 'last_images')
     dependencies  = (Image,)
@@ -66,7 +66,7 @@ class LastImagesBlock(Block):
     def portal_display(self, context, ct_ids):
         images = EntityCredentials.filter(context['user'],
                                           Image.objects.filter(is_deleted=False).order_by('created'),
-                                         )[:5] #TODO: make '5' configurable
+                                         )[:5]  # TODO: make '5' configurable
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                                             objects_list=images,

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # from os import remove as delete_file, listdir, makedirs
-from os.path import basename, join, exists
+from os.path import basename  # join, exists
 from tempfile import NamedTemporaryFile
 from unittest import skipIf
 

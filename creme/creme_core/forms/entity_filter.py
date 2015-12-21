@@ -38,17 +38,17 @@ from django.utils.formats import date_format
 
 from ..models import (CremeEntity, EntityFilter, EntityFilterCondition,
         RelationType, CremePropertyType, CustomField, CustomFieldBoolean, FieldsConfig)
-from ..models.entity_filter import _ConditionBooleanOperator, _IsEmptyOperator
+from ..models.entity_filter import _ConditionBooleanOperator  # _IsEmptyOperator
 from ..utils.date_range import date_range_registry
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import is_date_field
 from ..utils.unicode_collation import collator
 from .base import CremeModelForm
 from .fields import JSONField
-from .widgets import (Label, DynamicInput, SelectorList, ChainedInput,
+from .widgets import (DynamicInput, SelectorList, ChainedInput,
         EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect,
         DynamicSelect, DynamicSelectMultiple, PolymorphicInput, CremeRadioSelect,
-        NullableDateRangeSelect)
+        NullableDateRangeSelect)  # Label
 
 
 TRUE = 'true'

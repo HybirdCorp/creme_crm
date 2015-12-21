@@ -30,8 +30,10 @@ from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Contact, Organisation
 
 from . import get_activity_model
-from .models import Calendar # Activity
-from .constants import *
+from .models import Calendar  # Activity
+from .constants import (REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY,
+        REL_SUB_ACTIVITY_SUBJECT, REL_OBJ_ACTIVITY_SUBJECT,
+        REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_LINKED_2_ACTIVITY)
 
 
 Contact      = get_contact_model()

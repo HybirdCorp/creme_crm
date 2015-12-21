@@ -20,12 +20,12 @@ try:
     #         get_credit_note_model, get_template_base_model,
     #         get_product_line_model, get_service_line_model)
     from ..blocks import persons_statistics_block
-    from ..constants import *
+    from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
+            REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
     from ..models import (InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
             ConfigBillingAlgo, SimpleBillingAlgo)
     from .base import (_BillingTestCase,
-            Organisation, Contact, Address,
-            Product, Service,
+            Organisation, Contact, Product, Service,
             CreditNote, Invoice, Quote, SalesOrder, TemplateBase,
             ProductLine, ServiceLine)
 except Exception as e:

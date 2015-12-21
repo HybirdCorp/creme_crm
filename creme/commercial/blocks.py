@@ -35,7 +35,8 @@ from creme.opportunities.constants import REL_SUB_TARGETS
 #from creme.opportunities.models import Opportunity
 
 from . import get_act_model, get_pattern_model, get_strategy_model
-from .models import * #TODO: from . import models
+from .models import (CommercialApproach, MarketSegment, MarketSegmentDescription,
+        CommercialAsset, MarketSegmentCharm, ActObjective, ActObjectivePatternComponent)
 from .constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 
 

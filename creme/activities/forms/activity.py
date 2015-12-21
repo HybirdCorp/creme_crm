@@ -46,7 +46,8 @@ from creme.assistants.models import Alert
 
 from .. import get_activity_model
 from ..models import ActivityType, Calendar, ActivitySubType #Activity
-from ..constants import *
+from ..constants import (ACTIVITYTYPE_INDISPO, FLOATING, NARROW, FLOATING_TIME,
+        REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..utils import check_activity_collisions
 from .activity_type import ActivityTypeField
 

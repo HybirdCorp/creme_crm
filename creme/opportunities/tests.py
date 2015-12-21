@@ -50,7 +50,7 @@ try:
 
     from . import opportunity_model_is_custom, get_opportunity_model
     from .models import SalesPhase, Origin  # Opportunity
-    from .constants import *
+    from . import constants
 
     skip_opportunity_tests = opportunity_model_is_custom()
 except Exception as e:
@@ -156,47 +156,47 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         Product = get_product_model()
         Service = get_service_model()
 
-        self.assertNotIn(REL_SUB_TARGETS, relation_types)
-        self.get_relationtype_or_fail(REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
+        self.assertNotIn(constants.REL_SUB_TARGETS, relation_types)
+        self.get_relationtype_or_fail(constants.REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
 
-        self.assertNotIn(REL_SUB_EMIT_ORGA, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
+        self.assertNotIn(constants.REL_SUB_EMIT_ORGA, relation_types)
+        self.get_relationtype_or_fail(constants.REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
 
-        self.assertIn(REL_OBJ_LINKED_PRODUCT, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_PRODUCT, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
+        self.assertIn(constants.REL_OBJ_LINKED_PRODUCT, relation_types)
+        self.assertNotIn(constants.REL_SUB_LINKED_PRODUCT, relation_types)
+        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
 
-        self.assertIn(REL_OBJ_LINKED_SERVICE, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_SERVICE, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_SERVICE, [Opportunity], [Service])
+        self.assertIn(constants.REL_OBJ_LINKED_SERVICE, relation_types)
+        self.assertNotIn(constants.REL_SUB_LINKED_SERVICE, relation_types)
+        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_SERVICE, [Opportunity], [Service])
 
-        self.assertIn(REL_OBJ_LINKED_CONTACT, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_CONTACT, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
+        self.assertIn(constants.REL_OBJ_LINKED_CONTACT, relation_types)
+        self.assertNotIn(constants.REL_SUB_LINKED_CONTACT, relation_types)
+        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
 
         if not skip_billing:
-            self.assertIn(REL_OBJ_LINKED_SALESORDER, relation_types)
-            self.assertNotIn(REL_SUB_LINKED_SALESORDER, relation_types)
-            self.get_relationtype_or_fail(REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
+            self.assertIn(constants.REL_OBJ_LINKED_SALESORDER, relation_types)
+            self.assertNotIn(constants.REL_SUB_LINKED_SALESORDER, relation_types)
+            self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
 
-            self.assertIn(REL_OBJ_LINKED_INVOICE, relation_types)
-            self.assertNotIn(REL_SUB_LINKED_INVOICE, relation_types)
-            self.get_relationtype_or_fail(REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
+            self.assertIn(constants.REL_OBJ_LINKED_INVOICE, relation_types)
+            self.assertNotIn(constants.REL_SUB_LINKED_INVOICE, relation_types)
+            self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
 
-            self.assertIn(REL_OBJ_LINKED_QUOTE, relation_types)
-            self.assertNotIn(REL_SUB_LINKED_QUOTE, relation_types)
-            self.get_relationtype_or_fail(REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
+            self.assertIn(constants.REL_OBJ_LINKED_QUOTE, relation_types)
+            self.assertNotIn(constants.REL_SUB_LINKED_QUOTE, relation_types)
+            self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
 
-            self.get_relationtype_or_fail(REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
+            self.get_relationtype_or_fail(constants.REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
 
-        self.assertIn(REL_OBJ_RESPONSIBLE, relation_types)
-        self.assertNotIn(REL_SUB_RESPONSIBLE, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
+        self.assertIn(constants.REL_OBJ_RESPONSIBLE, relation_types)
+        self.assertNotIn(constants.REL_SUB_RESPONSIBLE, relation_types)
+        self.get_relationtype_or_fail(constants.REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
 
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
 
-        self.assertEqual(1, SettingValue.objects.filter(key_id=SETTING_USE_CURRENT_QUOTE).count())
+        self.assertEqual(1, SettingValue.objects.filter(key_id=constants.SETTING_USE_CURRENT_QUOTE).count())
 
         #contribution to activities
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)
@@ -238,10 +238,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(date(2010, 10, 11), opportunity.closing_date)
         self.assertEqual(date(2010, 7,  13), opportunity.first_action_date)
 
-        self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
+        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
         self.assertEqual(target, opportunity.target)
 
-        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
+        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
         self.assertEqual(emitter, opportunity.emitter)
 
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
@@ -273,8 +273,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(date(2010, 10, 11), opportunity.closing_date)
         self.assertEqual(date(2010, 7,  13), opportunity.first_action_date)
 
-        self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
+        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
+        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
         with self.assertNumQueries(1):
@@ -387,8 +387,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
 
-        self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
+        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
+        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
         response = self.client.post(url, follow=True,
@@ -428,8 +428,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
 
-        self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
+        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
+        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
     def test_add_to_orga03(self):
@@ -472,8 +472,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
 
-        self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
+        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
+        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
         response = self.client.post(url, follow=True,
@@ -514,8 +514,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
 
-        self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
+        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
+        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
     @skipIfCustomContact
@@ -604,7 +604,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual(target, opp.target)
         self.assertStillExists(target_rel)
-        self.assertRelationCount(1, opp, REL_SUB_TARGETS, target)
+        self.assertRelationCount(1, opp, constants.REL_SUB_TARGETS, target)
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
@@ -693,11 +693,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(opportunity.sales_phase,  cloned.sales_phase)
         self.assertEqual(opportunity.closing_date, cloned.closing_date)
 
-        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
-        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, cloned)
+        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
+        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, cloned)
 
-        self.assertRelationCount(1, target, REL_OBJ_TARGETS, opportunity)
-        self.assertRelationCount(1, target, REL_OBJ_TARGETS, cloned) #<== internal
+        self.assertRelationCount(1, target, constants.REL_OBJ_TARGETS, opportunity)
+        self.assertRelationCount(1, target, constants.REL_OBJ_TARGETS, cloned) #<== internal
 
     #def _build_gendoc_url(self, opportunity, model=Quote):
     def _build_gendoc_url(self, opportunity, model=None):
@@ -729,8 +729,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote, REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote, REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertRelationCount(1, quote, constants.REL_SUB_LINKED_QUOTE,  opportunity)
+        self.assertRelationCount(1, quote, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
@@ -752,13 +752,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote2, REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote2, REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertRelationCount(1, quote2, constants.REL_SUB_LINKED_QUOTE,  opportunity)
+        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
         self.assertRelationCount(1, quote1, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote1, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote1, REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote1, REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertRelationCount(1, quote1, constants.REL_SUB_LINKED_QUOTE,  opportunity)
+        self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
@@ -780,11 +780,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         invoices2 = invoices[0]
         self.assertRelationCount(1, invoices2, REL_SUB_BILL_ISSUED,    emitter)
         self.assertRelationCount(1, invoices2, REL_SUB_BILL_RECEIVED,  target)
-        self.assertRelationCount(1, invoices2, REL_SUB_LINKED_INVOICE, opportunity)
+        self.assertRelationCount(1, invoices2, constants.REL_SUB_LINKED_INVOICE, opportunity)
 
         self.assertRelationCount(1, invoice1, REL_SUB_BILL_ISSUED,    emitter)
         self.assertRelationCount(1, invoice1, REL_SUB_BILL_RECEIVED,  target)
-        self.assertRelationCount(1, invoice1, REL_SUB_LINKED_INVOICE, opportunity)
+        self.assertRelationCount(1, invoice1, constants.REL_SUB_LINKED_INVOICE, opportunity)
 
         self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, emitter)
 
@@ -851,8 +851,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote2, REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote2, REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertRelationCount(1, quote2, constants.REL_SUB_LINKED_QUOTE,  opportunity)
+        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
         url = self._build_currentquote_url(opportunity, quote1)
         self.assertGET404(url)
@@ -860,16 +860,16 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote2, REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote2, REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertRelationCount(1, quote2, constants.REL_SUB_LINKED_QUOTE,  opportunity)
+        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
         self.assertRelationCount(1, quote1, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote1, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote1, REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote1, REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertRelationCount(1, quote1, constants.REL_SUB_LINKED_QUOTE,  opportunity)
+        self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
     def _set_quote_config(self, use_current_quote):
-        sv = SettingValue.objects.get(key_id=SETTING_USE_CURRENT_QUOTE)
+        sv = SettingValue.objects.get(key_id=constants.SETTING_USE_CURRENT_QUOTE)
         sv.value = use_current_quote
         sv.save()
 
@@ -982,7 +982,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(300, self.refresh(quote).total_no_vat)
         self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
-        Relation.objects.filter(type__in=(REL_SUB_CURRENT_DOC, REL_OBJ_CURRENT_DOC)).delete()
+        Relation.objects.filter(type__in=(constants.REL_SUB_CURRENT_DOC, constants.REL_OBJ_CURRENT_DOC)).delete()
 
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
 

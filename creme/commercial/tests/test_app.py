@@ -3,8 +3,8 @@
 try:
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons import get_contact_model
-    from creme.persons.models import Contact
+    # from creme.persons import get_contact_model
+    # from creme.persons.models import Contact
     from creme.persons.tests.base import skipIfCustomContact
 
     # from .. import get_act_model

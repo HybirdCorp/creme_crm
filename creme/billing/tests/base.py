@@ -31,7 +31,7 @@ try:
     from creme.products.models import Category, SubCategory  # Product, Service
 
     from .. import *
-    from ..constants import *
+    from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from ..models import QuoteStatus
 
     skip_cnote_tests    = credit_note_model_is_custom()

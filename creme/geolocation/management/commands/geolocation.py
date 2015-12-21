@@ -21,7 +21,6 @@
 import csv
 import logging
 import urllib2
-import sys
 
 from functools import partial
 from urlparse import urlparse

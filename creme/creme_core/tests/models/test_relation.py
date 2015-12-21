@@ -4,7 +4,7 @@ try:
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import *
+    from creme.creme_core.models import CremeEntity, RelationType, Relation
     from ..base import CremeTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
 

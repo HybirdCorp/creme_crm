@@ -5,7 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models.custom_field import *
+    from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation)

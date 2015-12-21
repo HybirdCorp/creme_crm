@@ -28,7 +28,10 @@ try:
 
     from . import event_model_is_custom, get_event_model
     from .models import EventType  # Event
-    from .constants import *
+    from .constants import (REL_SUB_IS_INVITED_TO, REL_OBJ_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION,
+            REL_SUB_REFUSED_INVITATION, REL_SUB_CAME_EVENT, REL_OBJ_CAME_EVENT, REL_SUB_NOT_CAME_EVENT,
+            REL_OBJ_NOT_CAME_EVENT, REL_SUB_GEN_BY_EVENT, INV_STATUS_NOT_INVITED, INV_STATUS_NO_ANSWER,
+            INV_STATUS_ACCEPTED, INV_STATUS_REFUSED, PRES_STATUS_DONT_KNOW, PRES_STATUS_COME, PRES_STATUS_NOT_COME)
 
     skip_event_tests = event_model_is_custom()
     Event = get_event_model()

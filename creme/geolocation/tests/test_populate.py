@@ -10,7 +10,7 @@ try:
 
     from ..models import Town, GeoAddress
     from ..management.commands.geolocation import CSVPopulator, Command as GeolocationCommand
-    from ..populate import Populator
+    # from ..populate import Populator
     from .base import GeoLocationBaseTestCase, Address, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))

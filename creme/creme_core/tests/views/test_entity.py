@@ -20,7 +20,11 @@ try:
             FakePosition as Position, FakeSector as Sector, FakeAddress as Address,
             FakeImage as Image, FakeImageCategory as MediaCategory)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import *
+    from creme.creme_core.models import (CremeEntity, RelationType, Relation,
+            CremePropertyType, CremeProperty, HistoryLine, FieldsConfig,
+            CustomField, CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean,
+            CustomFieldString, CustomFieldDateTime,
+            CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue)
     from creme.creme_core.models import history
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.blocks import trash_block
@@ -683,7 +687,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_search_and_view07(self):
         "FieldsConfig"
-        user = self.login()
+        self.login()
 
         FieldsConfig.create(Contact,
                             descriptions=[('phone',  {FieldsConfig.HIDDEN: True})],

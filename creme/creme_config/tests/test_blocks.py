@@ -18,7 +18,8 @@ try:
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
     from creme.creme_core.models import RelationType, CustomField, FieldsConfig, UserRole
-    from creme.creme_core.models.block import *
+    from creme.creme_core.models.block import (BlockDetailviewLocation, InstanceBlockConfigItem,
+            BlockPortalLocation, BlockMypageLocation, RelationBlockItem, CustomBlockConfigItem)
 
     from creme.creme_config.blocks import(BlockDetailviewLocationsBlock,
         BlockPortalLocationsBlock, BlockDefaultMypageLocationsBlock,

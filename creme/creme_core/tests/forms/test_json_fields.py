@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query import Q, QuerySet
-    from django.utils.translation import ugettext as _
+    # from django.utils.translation import ugettext as _
 
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeImage as Document)

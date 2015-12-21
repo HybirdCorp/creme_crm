@@ -37,7 +37,7 @@ from creme.crudity.blocks import CrudityQuerysetBlock
 
 from . import (get_emailcampaign_model, get_entityemail_model,
         get_emailtemplate_model, get_mailinglist_model)
-from .constants import *
+from . import constants
 #from .models import *
 from .models import EmailSignature, EmailRecipient, EmailSending, LightWeightEmail
 
@@ -208,10 +208,19 @@ class MailsHistoryBlock(QuerysetBlock):
     order_by      = '-sending_date'
     verbose_name  = _(u"Emails history")
     template_name = 'emails/templatetags/block_mails_history.html'
-    relation_type_deps = (REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO)
+    relation_type_deps = (constants.REL_OBJ_MAIL_SENDED,
+                          constants.REL_OBJ_MAIL_RECEIVED,
+                          constants.REL_OBJ_RELATED_TO,
+                         )
 
-    _RTYPE_IDS = [REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO]
-    _STATUSES = [MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING]
+    _RTYPE_IDS = [constants.REL_SUB_MAIL_SENDED,
+                  constants.REL_SUB_MAIL_RECEIVED,
+                  constants.REL_SUB_RELATED_TO,
+                 ]
+    _STATUSES = [constants.MAIL_STATUS_SYNCHRONIZED,
+                 constants.MAIL_STATUS_SYNCHRONIZED_SPAM,
+                 constants.MAIL_STATUS_SYNCHRONIZED_WAITING,
+                ]
 
     def detailview_display(self, context):
         entity = context['object']
@@ -223,7 +232,7 @@ class MailsHistoryBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            sent_status=MAIL_STATUS_SENT,
+                                                            sent_status=constants.MAIL_STATUS_SENT,
                                                             sync_statuses=self._STATUSES,
                                                             rtypes=','.join(self.relation_type_deps),
                                                             creation_perm=context['user'].has_perm_to_create(EntityEmail),
@@ -267,9 +276,12 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
 #        context['MAIL_STATUS'] = MAIL_STATUS
         context['entityemail_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
         #context['rtypes'] = ','.join([REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
-        context['rtypes'] = (REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO)
+        context['rtypes'] = (constants.REL_SUB_MAIL_SENDED,
+                             constants.REL_SUB_MAIL_RECEIVED,
+                             constants.REL_SUB_RELATED_TO,
+                            )
 
-        waiting_mails = EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING)
+        waiting_mails = EntityEmail.objects.filter(status=constants.MAIL_STATUS_SYNCHRONIZED_WAITING)
         if self.is_sandbox_by_user:
             waiting_mails = waiting_mails.filter(user=context['user'])
 
@@ -291,7 +303,7 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
 #        context['MAIL_STATUS'] = MAIL_STATUS
         context['entityemail_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
 
-        waiting_mails = EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM)
+        waiting_mails = EntityEmail.objects.filter(status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM)
         if self.is_sandbox_by_user:
             waiting_mails = waiting_mails.filter(user=context['user'])
 

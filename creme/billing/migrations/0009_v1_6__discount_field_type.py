@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from decimal import Decimal
 
-from django.db import models, migrations
+from django.db import migrations
 
 import creme.billing.models.fields
 
