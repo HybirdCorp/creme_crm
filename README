@@ -68,6 +68,13 @@ And if you are upgrading from Creme 1.5:
     > Session.objects.all().delete()
 
 
+NOTE for MySQL users:
+You should load the time zone tables. On Unix servers, it can be done with :
+    >> mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p mysql
+
+For Windows environment, see https://stackoverflow.com/questions/14454304/convert-tz-returns-null
+
+
 TROUBLESHOOTING:
 - If you got some problems with PIL, check if you are using the legacy PIL (that was in our old requirements) or
   its fork Pillow (new requirement). The best thing to do is first to uninstall PIL, and then install Pillow.

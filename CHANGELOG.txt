@@ -1,3 +1,377 @@
+== Version 1.6 ==
+
+  Users side :
+  ------------
+    # The version of Django has been upgraded to 1.8.
+        - There is now an integrated migration system, which is better than South. Only the command 'migrate' is needed & 'syncdb' is useless.
+        - The new hint system performs some useful checkings, like the apps dependencies.
+    # A new feature has been added: FieldsConfig.
+      It allows the users to hide fields everywhere in Creme (forms, blocks, listview...), directly in the "General configuration".
+    # The blocks configurations can now be set by role.
+    # Global search:
+        - The search configuration can now be specific to a role ; configuration per user has been removed.
+        - The configuration UI of search has been improved.
+    # GenericEntityField and MultipleGenericEntityField can now create entities on-the-fly.
+    # The quick search (search with listview columns headers) is now available for ManyToManyFields.
+    # The emptying of the trash works now better with trashed entities linked between them.
+      We try to delete the remaining entities (which could not be deleted because of relationships) when there are errors,
+      while the previous iteration managed to remove some entities. It will not work with cyclic references (but it is certainly very unusual).
+    # Model-fields as choices are now alphabetically ordered in forms (eg: search configuration, report-graphs forms...).
+    # Lots of labels in inner popups buttons have been improved. eg: 'Save' -> 'Save the alert'.
+    # The display of History block has been improved (FK to CremeEntity, fields with choices).
+    # DecimalFields are now displayed with a localised format.
+    # The command 'creme_uninstall' has been heavily improved (more robust, clean more models, better display...).
+    # Apps:
+        * Projects :
+            - The design of the tasks of project has been reworked.
+              The ProjectTasks are not Activities anymore ; but instead they are linked to Activities which replace the Workingperiods ;
+              the ProjectTasks still have the following fields: start, end, duration, description.
+              The Contact linked to a Resource can now be changed ; but a Resource cannot be deleted if it is related to an Activity
+              (before, the related WorkingPeriods were deleted too).
+            - A Contact can now be created directly in the Resource form.
+        * Tickets :
+            - Tickets which are open since more than 7 days are displayed in red in the listview.
+            - When a ticket is cloned, the status of the new ticket is 'Open', and its 'closing_date' is not copied.
+            - The titles are not unique anymore.
+            - Tickets have now a unique number.
+        * Documents :
+            - Two Folders can now be merged.
+            - A new block is available for the Folders: "Child folders".
+            - The Folders are now unique by ('title', 'parent_folder', 'category').
+            - The model FolderCategory has a 'is_custom' field.
+              Populated categories which are required for related documents and crudity attachments, are not custom (ie: not deletable) anymore.
+        * Persons :
+            - Contact has a new field: full_position ('Detailed position').
+            - The Contact/Organisation blocks for information & details are now built with the CustomBlock feature.
+            - The name of the billing & shipping addresses is not asked anymore. They are automatically named.
+        * Commercial :
+            - A Market Segment can now be deleted (by replacing them by another one). The related property type is also replaced.
+            - A Market Segment "All the organisations" has been added, with no related PropertyType.
+        * Billing:
+            - Invoice's total can now be negative.
+            - The blocks for entity information are now built with the CustomBlock feature.
+            - The model TemplateBase has now a 'Status' FunctionField.
+            - When a related biling document is created, the source Organisation in not chosen in a separated innerpopup window anymore.
+        * Activities :
+            - The participants can now be created directly in the forms.
+            - The max length of the field Activity.place is now 500 (it was 100).
+        * Mobile :
+            - The call minutes can be added from the call form.
+
+  Developpers side :
+  ------------------
+    You should probably read the following releases notes for Django versions:
+        https://docs.djangoproject.com/en/1.8/releases/1.5/
+        https://docs.djangoproject.com/en/1.8/releases/1.6/
+        https://docs.djangoproject.com/en/1.8/releases/1.7/
+        https://docs.djangoproject.com/en/1.8/releases/1.8/
+
+    Non breaking changes :
+    ----------------------
+        # Deprecations :
+            - From Django 1.5 :
+                - In Response* objects, using 'mimetype' keyword argument is now deprecated ; use 'content_type' instead.
+            - From Django 1.6 :
+                - transaction.commit_on_success() (use atomic() instead).
+                - commit_manually() (use atomic() instead ; set_autocommit() is an option too, but we avoid it when we can).
+                - transaction.savepoint*() (use atomic() instead).
+            - From Django 1.7 :
+                - django.contrib.contenttypes.generic (use "from django.contrib.contenttypes.fields import GenericForeignKey").
+                - request.REQUEST (use GET & POST instead).
+                - The methods south_field_triple() are now useless (the South library is not used anymore).
+                - django.utils.importlib (use the standard importlib instead).
+                - django.utils.unittest (use the standard module 'unittest').
+            - From Django 1.8 :
+                - Django 1.8 comes with a new Meta API. Several Meta methods are deprecated (get_field_by_name, get_all_field_names, get_all_related_many_to_many_objects).
+                - The function django.conf.urls.patterns() is deprecated.
+                - Views as strings in the files urls.py are deprecated ; use real function objects.
+                - The templates instances returned by the function get_template() are backend-based, and take a dictionary as context (giving a Context instance is deprecated).
+                - SubfieldBase.
+            - creme_core.autodiscover() (useless now).
+            - creme_core.utils.queries.get_first_or_None() (use the method QuerySet.first() instead).
+            - creme_core.utils.create_or_update() (use QuerySet.update_or_create() instead).
+            - creme_core.views.generic.detailview.view_real_entity() (use view_entity() instead).
+            - In creme_core.views.generic.detailview.view_entity(): the 'path' argument is deprecated.
+            - In the templatetag creme_widgets.get_add_button: the template variable 'path' is deprecated.
+            - (Multi)GenericEntityField.allowed_models property : the argument 'allowed models' should be an iterable (giving a not-iterable value is deprecated).
+            - JSONField._build_widget() (set a class attribute 'widget' in your field instead).
+            - AdaptiveWidget.
+            - In _CremeTestCase :
+                - assertFormSetError() (use assertFormsetError() instead).
+                - autodiscover() (useless now).
+                - create_image() (use creme.media_managers.tests import create_image() instead).
+            - Apps :
+                * Emails :
+                    - _Email.get_status_str() (use get_status_display() instead).
+                    - EmailSending.get_type_str() (use get_type_display() instead).
+                    - EmailSending.get_state_str() (use get_state_display() instead).
+                    - The block EntityEmailBlock and so its template 'emails/templatetags/block_mail.html'. It is now registered or used anymore.
+                    - The method _Email.get_body().
+                    - The view mail.get_entity_mail_body() (use the core view get_sanitized_html instead).
+                * Billing :
+                    - views.workflow._add_with_relations() (use workflow.generic_add_related() instead).
+                    - creme.billing.linkToDocument() (JavaScript).
+                    - Templatebase.get_generator().
+                * Creme_config :
+                    - AppConfigRegistry.get_model_conf(): 'ct_id' argument is deprecated ; use the 'model' argument instead.
+        # The entity models are now swappable (excepted media_managers.Image).
+        # It's now possible to totally disable the History in the code (ie: no new HistoryLine is created).
+        # You can now clearly forbid a CremeEntity model to be cloned, with the new static method get_clone_absolute_url().
+        # The view decorator creme_core.auth.decorators.permission_required() can take a list of permissions.
+        # A new method CremeEntity.get_html_attrs() has been added : you can customise the display of lines in listview.
+        # The support of custom labels for default dialog buttons has been added.
+        # A file "project_settings.py" has been added ; it should contain the setting shared by all your team (eg: INSTALLED_APPS).
+          The settings has been improved in order to add other JS/CSS bundles ; see CREME_OPT_MEDIA_BUNDLES.
+        # Several blocks templatetags can now take an URL (in order to give them reversed URLs) :
+            - get_line_adder
+            - get_line_linker
+            - get_line_viewer
+            - get_line_deletor
+            - get_line_unlinker
+        # 2 signals have been added ; they provide a way to customize the uninstallation.
+        # Test models (ie: models which only exist when tests are runned) are used when it is possible (creme_core, reports).
+        # Apps :
+            * Creme_config :
+                - Models can now be unregistered from the registry.
+
+    Breaking changes :
+    ------------------
+        # Changes caused by Django 1.5 :
+            - Accessing reverse one-to-one relations fetched via select_related() now raises DoesNotExist instead of returning None.
+            - In URLField, the argument 'verify_exists' has been deleted.
+            - The commands should use self.stdout.write() & self.stderr.write() instead of 'print'.
+            - django.utils.simplejson has been replaced by 'json'.
+            - The methods Paginator.next_page_number() & Paginator.previous_page_number() raise InvalidPage exception, instead of returning '0'.
+              So the footer of the listview (template) has been fixed.
+            - The function django.utils.timezone.localtime() crashes if its arg is None.
+            - The django validation message "Enter a valid e-mail address." has changed (now it's "Enter a valid email address.") ; some unit tests could fail.
+            - _CremeTestCase.assertXMLEqual() has been renamed assertXMLEqualv2() to avoid the shadowing of the Django's method.
+        # Changes caused by Django 1.6 :
+            - The forms' Meta should have a 'fields' attribute (or an 'exclude' one).
+            - The session is now serialized as JSON, so stored objects must be serializable.
+            - The test runner & the test files layout have changed.
+              Eg: the old command "python manage test persons" has become "python manage test creme.persons.tests".
+                - The python files 'foo.py' must be renamed 'test_foo.py'.
+                - CSVImportBaseTestCaseMixin has moved to 'creme.creme_core.tests.views.base'.
+                - The command 'test_creme' has been removed ('test creme' is OK).
+            - BooleanField default is now 'None' (so 'False' should be set explicitly).
+            - The entry Field.default_error_messages['invalid'] has been removed.
+            - The CONTENT_TYPE key in test response is not available anymore (-> QUERY_STRING can be used instead with different value).
+            - XViewMiddleware has been removed from settings.py.
+            - There was a low level change in the SQLite backend + date format of dates as group key.
+            - The error messages should use mapping keys instead of positional formatting. Some django error messages has changed, so some tests could fail.
+        #  Changes caused by Django 1.7 :
+            - With the new AppConfig system, the files "creme_core_register.py" are not loaded anymore
+                at startup & should not be used anymore; use CremeAppConfig instead.
+            - Some imports have to be done lazily in order to avoid AppRegistryNotReady exceptions at startup.
+            - The loading of models has changed, and errors caused by loop imports could happen.
+            - django.forms.util has been renamed django.forms.utils.
+            - The new migrations system caused many changes :
+                - The model auth.User is not used anymore ; Creme has its own CremeUser model
+                  Use the function get_user_model() or settings.AUTH_USER_MODEL to get it.
+                - The old South migrations do not work anymore ; generate new migration files with the new command 'makemigrations'.
+                  BEWARE : if you use ForeignKeys/ManyToManyFields/... to the old 'User' model, you'll have to rework the generated migrations (see vanilla apps)
+                - You have to add a deconstruct() method to your custom model fields.
+            - Do not use settings.INSTALLED_APPS in your code ; use django.apps.apps instead.
+                Do not use settings.INSTALLED_CREME_APPS ; use django.apps.apps or creme_registry instead.
+            - The commands which inherit AppCommand should implements handle_app_config() instead of handle_app().
+            - The middleware configuration has been improved :
+                - django.contrib.auth.middleware.SessionAuthenticationMiddleware has been added.
+                - django.middleware.clickjacking.XFrameOptionsMiddleware has been added.
+                - The order is the same than in the Django 1.7 settings template.
+        #  Changes caused by Django 1.8 :
+            - The method QuerySet.select_related() now validates that the given fields actually exist.
+              Previously, non-existent fields were silently ignored. Now, an error is raised.
+            - The result of the method Meta.get_all_related_objects() has changed ; it's deprecated too.
+            - ContentType.name is not a real field anymore ; you cannot perform query on it.
+            - The module django.contrib.formtools has been removed ; it's a third party app now.
+            - The module django.core.context_processors has moved to 'django.template.context_processors'.
+            - Some private classes move from django.template to django.template.base, like VariableNode.
+            - The method URLField.to_python() no longer adds a trailing slash to pathless URLs (it made some unit tests fail in 'vcfs').
+            - The super methods setUpClass()/tearDownClass)()  must be called in test cases.
+            - The instances of RequestContext are not filled by the context processors when they are built anymore, but only before the template rendering.
+              So you'll probably need the new creme.creme_core.views.blocks.build_context() function for your own block reloading views.
+            - The length of EmailFields is now 254 by default. CremeUser/Contact/Organisation have been migrated.
+            - The commands should now use the method add_arguments(), based on 'argparse' (not 'optparse' anymore).
+            - Some changes in the session implementation can make some low level tests fail.
+            - Some changes in the DB management in unit tests can make some tests fail.
+            - The settings for the templates configuration have changed.
+              The setting TEMPLATES replace the settings TEMPLATE_* (eg: TEMPLATE_LOADERS...) which are now deprecated.
+        # Upgrade of several Javascript libraries :
+            - "Jquery" (1.11.2).
+                - For 'checked' property use the prop() method instead of attr() (see jquery doc).
+                - Tip: add the plugin jquery-migrate (1.2.1) whichs prevents compatibilities issues with previous jquery releases
+                       and show deprecation warnings (see https://github.com/jquery/jquery-migrate/blob/master/warnings.md).
+            - "Jquery-ui" (1.11.4).
+            - "Form" (3.51) (the changes written for 2.94 have been ported too).
+            - "Chosen" (0.9.15) (the changes written for 0.9.8 have been ported too).
+            - "Fullcalendar" (1.6.7).
+            - "Qunit" (1.18).
+        # The CremeEntity sub-classes should now have a method get_create_absolute_url() (excepted auxiliary ones).
+        # The module 'creme_core.utils.contribute_to_model' has been removed (use model swapping instead).
+        # In creme_core.utils.meta :
+            - The function get_related_field() has been removed (its behaviour was very different with the underlying Django fields changes).
+            - The function get_model_field_info() has been removed (it was deprecated).
+            - The function get_verbose_field_name() has been removed (it was deprecated).
+        # The template "creme_core/generics/blockform/add_popup.html" has been removed.
+        # The tag 'enumerable' tag is now True by default in ManyToManyFields.
+        # The constructor BasePopulator.init() takes 2 additional arguments ('stdout' & 'style').
+        # The 'extra_q' argument of generic.listview.list_view_content (and so list_view() & list_view_popup_from_widget() which use it)
+          can not contains a sub-queryset condition anymore (you'll get SerializationError) ; convert them into list.
+        # GenericEntityField & MultipleGenericEntityField need the "user" attribute (for creation permissions).
+        # In (Multi)CreatorEntityField, the hack which consisted to write "myfield.create_action_url = myfield.create_action_url" in order
+          to activate the creation button on fields with q_filter does not work anymore. Use "myfield.force_creation = True" instead.
+        # About RelationEntityField.allowed_rtypes (ie the setter & the constructor's attribute) : if an object evaluated to False was passed,
+          all RelationTypes were allowed. This behaviour has been removed ; use RelationType.objects.all() instead.
+        # In FilteredEntityTypeField, 'None' is not a valid parameter anymore for the constructor (but the default behavior did not change).
+        # The widget Label displays its 'empty_label' if its value is evaluated to False (before: only if it was 'None').
+        # When a Q() is used as 'limit_choices_to' attribute of a RelatedField in a CremeEntity, hide the field or set a custom form for inner-edition
+          or it will cause a ValueError exception. The other cases are handled.
+        # SearchConfigItem :
+            - create_if_needed(): the argument 'user' has been replaced by the argument 'role'.
+            - get_4_model() has been removed (it was deprecated).
+        # The following JavaScript functions have been removed (they were deprecated).
+            - creme.utils.bindShowHideTbody().
+            - creme.utils.handleResearch().
+            - creme.lv_widget.handleSelection().
+            - creme.lv_widget.delete_a_value().
+        # The view "/creme_core/enumerable/<content_type>/json" now returns a list of dicts instead of a list of tuples.
+        # The middleware LogImportedModulesMiddleware has been removed.
+        # Apps :
+            * Billing :
+                - The classes Base (parent of Invoice, Quote...) and Line (parent of ProductLine & ServiceLine) are now abstract classes.
+                - The listview for Lines ('/billing/lines') has been removed.
+                - The related names for FK in Base ('*_address', 'currency', 'additional_info', 'payment_terms', 'payment_info') have been removed.
+                - The block ReceivedBillingDocumentBlock has been removed (replaced by ReceivedQuotesBlock/ReceivedSalesOrdersBlock/ReceivedCreditNotesBlock).
+                - The field Line.type has been removed and also the related stuffes :
+                    - The method Line.get_verbose_type().
+                    - The constants PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE & LINE_TYPES.
+                    - The FunctionField '_LineTypeField'.
+                - The views invoice.add_from_detailview() & invoice.add_with_relations() have been removed & replaced by invoice.add_related().
+                - The view quote.add_with_relations() has been removed & replaced by quote.add_related().
+                - The view sales_order.add_with_relations() has been removed & replaced by sales_order.add_related().
+                - The method Base.get_lines() cannot be called with Line parameter anymore (use ProductLine or ServiceLine).
+            * Projects :
+                - The model ProjectTask does not inherit from Activity anymore (it inherits CremeEntity directly).
+                  The fields 'title', 'start', 'end' & 'duration' have been copied from the Activity part.
+                - The block TaskWorkingPeriodsBlock has been replaced by TaskActivitiesBlock.
+                  The template file 'block_working_periods.html' has been renamed to 'block_activities.html'.
+                - The model WorkingPeriod, the form WorkingPeriodForm & the views form views/workingperiod.py have been removed.
+                  The method ProjectTask.get_working_periods() has been removed too ; use the property 'related_activities' instead.
+                - In the Resource model:
+                    - The field 'hourly_cost' is not nullable anymore, with 0 as default.
+                    - The fields 'task' & 'linked_contact' are not editable anymore.
+                - About ProjectTask views :
+                    - The detailview()'s argument 'object_id' has been renamed to 'task_id'.
+                    - The function delete() has been removed (the generic view is used).
+            * Persons:
+                - The ContactForm block ID 'coordinates' became 'details'.
+                - The method Contact.get_user_contact_or_mock() has ben removed (it was deprecated).
+                - In the view contact.add_with_relation(), the argument 'predicate_id' has been renamed 'rtype_id'.
+                - Address._INFO_FIELD_NAMES has been removed.
+                - The following 'persons' blocks are deprecated: ContactBlock, ContactCoordinatesBlock, OrganisationBlock, OrgaCoordinatesBlock.
+                  They are no more used or registered.
+                - The field 'name' is excluded in BillingAddressForm/ShippingAddressForm.
+                - The related names for billing & shipping addresses have been removed ('billing_address_orga_set', ...).
+                - The view contact.add_with_relation() has been renamed to add_related_contact().
+                - _PersonCSVImportForm._save_address() & _PersonMergeForm._save_address() take an additional argument 'name'.
+            * Creme_config :
+                - In forms.field.CreatorModelChoiceField: the methods _build_create_action_url() & _build_widget() have been removed.
+                  The property 'create_action_url' now returns the real used URL (ie: even it has not been set manually); the empty value is now '' (not <None> anymore).
+            * Documents :
+                - Folders are not unique by 'title' anymore ; the constraint is now: unique_together = ('title', 'parent_folder', 'category').
+            * Geolocation :
+                - The IDs of the blocks have been fixed.
+            * Emails :
+                - The view mail.get_lightweight_mail_body() returns now sanitized HTML.
+            * Mobile:
+                - The widget forms.EmailInput has been removed.
+            * Activesync :
+                - In the command 'activesync_options', the '-v' option is now like the other command ones :
+                  it's an integer, & the long name is now '--verbosity'.
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+        # Caused by Django 1.6 :
+            - Last viewed items are now stored as a list of dicts.
+            - The method Block.__get_context() has been removed.
+            - The method _BlockContext.update() does not take 'modified' argument anymore.
+            - The _BlockContext child classes should implement the method as_dict().
+        # Caused by Django 1.7 :
+            - BasePopulator.dependencies now remains like ['creme_core', 'persons'] (there were dynamically transformed to ['creme.creme_core', 'creme.persons'])
+            - The keys of _BlockRegistry._object_blocks are classes, not ContentType IDs anymore ;
+              the method _generate_modelblock_id() takes now a class.
+        # Lots of form fields have been reworked in order to be more Django compliant (principally the fields inheriting JSONField).
+            - The method BatchActionsField._create_widget() has been removed.
+            - The attribute BatchActionsWidget.fields is now a classical iterable of tuples (ie not a dict-like anymore).
+            - The following (Multi)CreatorEntityField methods have been removed: _create_widget, get_ctype, _update_actions, _clear_actions, _add_action, _add_create_action.
+            - The attribute MultiCreatorEntityField._widget_item removed.
+            - The method FilteredEntityTypeField._create_widget() has been removed.
+            - The methods RelationEntityField._create_widget() & MultiRelationEntityField._create_widget() have been removed.
+            - The methods GenericEntityField._create_widget() & MultiGenericEntityField._create_widget() have been removed.
+            - The method GenericEntityField._get_ctypes_options() has no 'ctypes' argument anymore.
+            - There was many changes in EntityFilter form fields & widgets.
+            - The method RelationExtractorField._create_widget() has been removed.
+        # History:
+            - HistoryLine.verbose_modifications property has been removed (replaced by get_verbose_modifications()).
+            - _HistoryLineType.verbose_modifications() & _HistoryLineType._verbose_modifications_4_fields() take an additional 'user' argument.
+        # forms.entity_filter.{RegularFieldsConditionsField|DateFieldsConditionsField}._build_related_fields(): there is an additional argument 'fconfigs'.
+        # Now "/creme_core/entity/delete/multi" returns a list of errors (rendered in popup) instead of a simple string.
+        # The template parameter 'hide_submit' has been removed and a 'is_inner_popup' (more useful) is added.
+        # The forms & views which create/edit the detailviews blocks configuration have changed a lot.
+        # core.search.Searcher.search() can now return 'None' (it means that all fields are hidden).
+        # DateRangeWidget's choices are now empty by default (they are set by DateRangeField).
+        # The function creme_core.views.generic.listview.list_view_content() does not set the key 'list_view_template' in the context anymore.
+        # Templatetag creme_core.templatetags.creme_blocks.LineCreatorNode/LineSuppressorNode: the 'url' argument (a string) has been replaced by 'url_var' (a evaluable node).
+        # Apps :
+            * Persons:
+                - persons.forms.merge.get_merge_form_builder() takes now a 'model' argument.
+                - persons.forms.lv_import.get_csv_form_builder() takes now a 'model' argument.
+                - persons.forms.base._BasePersonForm._init_address_fields takes now a 'fconfig' argument.
+                - persons.forms.{merge|lv_import}._FIELD_NAMES & persons.blocks._ADDRESS_FIELD_NAMES have been removed.
+            * Activities :
+                - The view activity.add_fixedtype has been removed.
+                - The method ActivityTypeField._create_widget() has been removed.
+                - The JS function calendar.fullCalendar() takes one additional argument.
+                - The JS function calendar.positionNavigationWidget() has been removed. The header positionning is now done in CSS.
+            * Billing :
+                - The JavaScript function creme.billing.generateInvoiceNumber() takes now an URL (not an ID anymore).
+                - The block billing.blocks.BillingBlock is deprecated ; it is no more used or registered.
+                - The view credit_note.add_related_credit_note() has been renamed link_to_credit_notes().
+                - The JavaScript function creme.billing.multi_save_lines() has been renamed to multiSaveLines().
+            * Creme_config :
+                - _ConfigRegistry.get_app() :
+                     - The argument's name is now "app_label".
+                     - It raises a creme.creme_core.registry.NotRegistered exception instead of KeyError with unknown apps.
+            * Vcfs:
+                - VcfGenerator._INFO_FIELD_NAMES has been removed.
+                - VcfGenerator.address_equality() is not a static method anymore.
+                - VcfGenerator.generate_address() is not a static method anymore.
+                - VcfGenerator.generate_name() has been removed.
+                - There are a lot of changes in VcfImportForm.
+            * Products :
+                - In CategoryField, the following methods have been removed: _get_categories_options, _get_categories_objects, _create_widget.
+            * Reports:
+                - The JavaScript function creme.reports.openGraphEdition() takes an additional argument (URL).
+            * Tickets :
+                - AbstractTicket has been renamed TicketMixin (& there's a new AbstractTicket class).
+            * Commercial :
+                - The form strategy._AuxForm has no attribute '_strategy' anymore.
+            * Documents :
+                - _DocumentsTestCase._create_doc() returns the created Document (& not the response anymore).
+            * Media_managers :
+                -  The template 'media_managers/view_image_popup.html' has been removed ; it was not used anymore.
+            * Emails :
+                - The method _SynchronizationMailsBlock.detailview_ajax()' has been removed.
+            * Polls :
+                - The method PollFormLineConditionsField._create_widget() has been removed.
+            * Activesync:
+                - The function activesync.etutils.get_ns() has been removed (seems useless).
+            * CTI :
+                - The JS function creme.cti.phoneCall() takes one additional argument.
+
+
 == Version 1.5 ==
 
   Users side :
