@@ -103,7 +103,7 @@ creme_core_patterns = [
     url(r'^list_view/batch_process/(?P<ct_id>\d+)$',                          batch_process.batch_process), #TODO: change url (remove 'list_view'...)??
     url(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)$', batch_process.get_ops),
 
-    # Research
+    # Search
     url(r'^search$',                                                       search.search),
     url(r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)$', search.reload_block),
 

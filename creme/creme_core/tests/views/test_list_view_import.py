@@ -919,7 +919,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         error = iter(errors).next()
         self.assertEqual([last_name, first_name], error.line)
-        self.assertEqual(_('Several entities corresponding to the research have been found. '
+        self.assertEqual(_('Several entities corresponding to the search have been found. '
                            'So a new entity have been created to avoid errors.'
                           ),
                          unicode(error.message)

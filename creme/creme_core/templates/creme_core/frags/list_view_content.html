@@ -60,7 +60,7 @@
                 {% endif %}
                 <button class="listview-header-button clear-search" value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>&nbsp;
                 <button class="listview-header-button-with-icon do-search" value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);">
-                    {% trans "Research" as label %}
+                    {% trans "Search" as label %}
                     <div>
                         <img border="0" src="{% creme_media_url 'images/search_22.png' %}" alt="{{label}}" title="{{label}}"/>
                         <span>{{label}}</span>
@@ -131,7 +131,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="{{colspan}}">{% trans "No entity exists / match your search" %}</td>
+                <td colspan="{{colspan}}">{% trans "No entity exists / matches your search" %}</td>
             </tr>
         {% endfor %}
     </tbody>

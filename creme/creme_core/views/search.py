@@ -143,6 +143,7 @@ def search(request):
 
     return render(request, 'creme_core/search_results.html', t_ctx)
 
+
 @login_required
 @jsonify
 def reload_block(request, block_id, research):

@@ -4,12 +4,11 @@
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-14 10:36+0200\n"
+"POT-Creation-Date: 2015-12-15 11:33+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -70,84 +69,86 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: blocks.py:121
+#: blocks.py:124
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: blocks.py:135
+#: blocks.py:138
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: blocks.py:152
+#: blocks.py:155
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: blocks.py:169
+#: blocks.py:172
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: blocks.py:214
+#: blocks.py:218
 msgid "General configuration of custom fields"
 msgstr "Configuration générale des champs personnalisés"
 
-#: blocks.py:230
+#: blocks.py:234
 msgid "Custom fields configuration"
 msgstr "Configuration des champs personnalisés"
 
-#: blocks.py:249
+#: blocks.py:269
 msgid "Users configuration"
 msgstr "Configuration des utilisateurs"
 
-#: blocks.py:332 blocks.py:544 forms/blocks.py:200 forms/search.py:60
+#: blocks.py:361 blocks.py:578 forms/blocks.py:201 forms/search.py:77
 #: forms/user.py:68 forms/user.py:116
 #: templates/creme_config/templatetags/block_searchconfig.html:26
 #: templates/creme_config/templatetags/block_users.html:2
 msgid "Superuser"
 msgstr "Super-utilisateur"
 
-#: forms/blocks.py:103
+#: forms/blocks.py:104
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/blocks.py:104
+#: forms/blocks.py:105
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/blocks.py:105
+#: forms/blocks.py:106
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/blocks.py:106
+#: forms/blocks.py:107
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/blocks.py:109
+#: forms/blocks.py:110
 #, python-format
 msgid "The following block should be displayed only once: «%(block)s»"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
 
-#: forms/blocks.py:110
+#: forms/blocks.py:111
 msgid "Your configuration is empty !"
 msgstr "Votre configuration est vide !"
 
-#: forms/blocks.py:126
+#: forms/blocks.py:127
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: forms/blocks.py:179 forms/search.py:37 forms/user.py:51 forms/user.py:100
+#: forms/blocks.py:180 forms/search.py:52 forms/user.py:51 forms/user.py:100
 #: templates/creme_config/templatetags/block_users.html:18
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/blocks.py:186 templates/creme_config/blocks_portal.html:7
+#: forms/blocks.py:187 templates/creme_config/blocks_portal.html:7
 #: templates/creme_config/button_menu_portal.html:7
 #: templates/creme_config/custom_fields/portal.html:7
 #: templates/creme_config/custom_fields/view.html:7
 #: templates/creme_config/fields_config_portal.html:7
-#: templates/creme_config/generics/app_portal.html:7
+#: templates/creme_config/generics/app_portal.html:5
+#: templates/creme_config/generics/app_portal.html:9
 #: templates/creme_config/generics/model_portal.html:5
+#: templates/creme_config/generics/model_portal.html:9
 #: templates/creme_config/history_portal.html:7
-#: templates/creme_config/portal.html:4
+#: templates/creme_config/portal.html:3 templates/creme_config/portal.html:4
 #: templates/creme_config/property_type_portal.html:7
 #: templates/creme_config/relation_type_portal.html:7
 #: templates/creme_config/search_portal.html:6
@@ -159,36 +160,36 @@ msgstr "Rôle"
 msgid "Configuration"
 msgstr "Configuration"
 
-#: forms/blocks.py:239
+#: forms/blocks.py:240
 msgid "Related application"
 msgstr "Application associée"
 
-#: forms/blocks.py:260
+#: forms/blocks.py:261
 msgid "Blocks to display on the portal"
 msgstr "Blocs à afficher sur le portail"
 
-#: forms/blocks.py:276
+#: forms/blocks.py:277
 msgid "Blocks to display on the \"My Page\" of the users"
 msgstr "Blocs à afficher sur le \"Ma page\" des utilisateurs"
 
-#: forms/blocks.py:320
+#: forms/blocks.py:321
 msgid "Customised resource"
 msgstr "Ressource personnalisée"
 
-#: forms/blocks.py:348
+#: forms/blocks.py:349
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/blocks.py:355
+#: forms/blocks.py:356
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/blocks.py:397 forms/button_menu.py:39 forms/custom_fields.py:75
+#: forms/blocks.py:398 forms/button_menu.py:39 forms/custom_fields.py:75
 #: forms/fields_config.py:38 forms/fields_config.py:58
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/blocks.py:418
+#: forms/blocks.py:429
 msgid "Lines"
 msgstr "Lignes"
 
@@ -282,14 +283,6 @@ msgstr "Nouveaux choix de la liste"
 #: forms/custom_fields.py:121
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
-
-#: forms/fields.py:93 forms/fields.py:94
-msgid "Add"
-msgstr "Ajouter"
-
-#: forms/fields.py:94
-msgid "Can't add"
-msgstr "Création interdite"
 
 #: forms/fields_config.py:39
 msgid ""
@@ -392,7 +385,7 @@ msgid ""
 "exists."
 msgstr "Un type de relation semi-fixé avec ce type et cet objet existe déjà."
 
-#: forms/search.py:79
+#: forms/search.py:34
 msgid "Concerned fields"
 msgstr "Champs concernés"
 
@@ -533,9 +526,17 @@ msgstr ""
 msgid "Choose your theme"
 msgstr "Choisissez votre thème"
 
-#: forms/user_settings.py:65
+#: forms/user_settings.py:61
 msgid "Choose your time zone"
 msgstr "Choisissez votre fuseau horaire"
+
+#: forms/widgets.py:44 forms/widgets.py:45
+msgid "Add"
+msgstr "Ajouter"
+
+#: forms/widgets.py:45
+msgid "Can't add"
+msgstr "Création interdite"
 
 #: templates/creme_config/blocks_portal.html:7
 msgid "Blocks"
@@ -558,27 +559,26 @@ msgstr "Ressource"
 msgid "Configuration of fields"
 msgstr "Configuration des champs"
 
-#: templates/creme_config/generics/app_portal.html:7
+#: templates/creme_config/generics/app_portal.html:9
 #: templates/creme_config/templatetags/block_blockportallocations.html:16
 msgid "Application"
 msgstr "Application"
 
-#: templates/creme_config/generics/app_portal.html:26
+#: templates/creme_config/generics/app_portal.html:20
 #, python-format
 msgid "%s Configurable type"
 msgstr "%s Type configurable"
 
-#: templates/creme_config/generics/app_portal.html:26
+#: templates/creme_config/generics/app_portal.html:20
 #, python-format
 msgid "%s Configurable types"
 msgstr "%s Types configurables"
 
-#: templates/creme_config/generics/app_portal.html:37
+#: templates/creme_config/generics/app_portal.html:31
 msgid "No type requires configuration"
 msgstr "Aucun type ne nécessite de configuration"
 
-#: templates/creme_config/generics/model_portal.html:7
-#: templates/creme_config/generics/model_portal.html:13
+#: templates/creme_config/generics/model_portal.html:11
 #, python-format
 msgid "Type : %(model_name)s"
 msgstr "Type : %(model_name)s"
@@ -659,7 +659,7 @@ msgid "Edit blocks configuration"
 msgstr "Modifier la configuration de blocs"
 
 #: templates/creme_config/templatetags/block_blockdefmypagelocations.html:17
-#: templates/creme_config/templatetags/block_custom_fields.html:17
+#: templates/creme_config/templatetags/block_custom_fields.html:16
 #: templates/creme_config/templatetags/block_customblocksconfig.html:17
 #: templates/creme_config/templatetags/block_teams.html:17
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:19
@@ -670,7 +670,7 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_blockdefmypagelocations.html:18
 #: templates/creme_config/templatetags/block_blockportallocations.html:18
 #: templates/creme_config/templatetags/block_button_menu.html:21
-#: templates/creme_config/templatetags/block_custom_fields.html:20
+#: templates/creme_config/templatetags/block_custom_fields.html:19
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:19
 #: templates/creme_config/templatetags/block_historyconfig.html:18
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:15
@@ -708,7 +708,7 @@ msgstr "%s Types de ressource configurés"
 
 #: templates/creme_config/templatetags/block_blocklocations.html:11
 #: templates/creme_config/templatetags/block_button_menu.html:18
-#: templates/creme_config/templatetags/block_custom_fields.html:18
+#: templates/creme_config/templatetags/block_custom_fields.html:17
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:17
 #: templates/creme_config/templatetags/block_customblocksconfig.html:18
 #: templates/creme_config/templatetags/block_fields_configs.html:16
@@ -767,13 +767,13 @@ msgid "%s Configured portals"
 msgstr "%s Portails configurés"
 
 #: templates/creme_config/templatetags/block_blockportallocations.html:12
-#: views/blocks.py:57
+#: views/blocks.py:69
 msgid "New blocks configuration"
 msgstr "Nouvelle configuration de blocs"
 
 #: templates/creme_config/templatetags/block_blockportallocations.html:17
 #: templates/creme_config/templatetags/block_button_menu.html:20
-#: templates/creme_config/templatetags/block_custom_fields.html:19
+#: templates/creme_config/templatetags/block_custom_fields.html:18
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:26
 #: templates/creme_config/templatetags/block_models.html:54
 #: templates/creme_config/templatetags/block_property_types.html:25
@@ -799,21 +799,21 @@ msgstr "Boutons"
 msgid "No button"
 msgstr "Pas de bouton"
 
-#: templates/creme_config/templatetags/block_custom_fields.html:6
+#: templates/creme_config/templatetags/block_custom_fields.html:5
 #, python-format
 msgid "%s Custom field"
 msgstr "%s Champ personnalisé"
 
-#: templates/creme_config/templatetags/block_custom_fields.html:6
+#: templates/creme_config/templatetags/block_custom_fields.html:5
 #, python-format
 msgid "%s Custom fields"
 msgstr "%s Champs personnalisés"
 
-#: templates/creme_config/templatetags/block_custom_fields.html:12
+#: templates/creme_config/templatetags/block_custom_fields.html:11
 msgid "New custom field"
 msgstr "Nouveau champ personnalisé"
 
-#: templates/creme_config/templatetags/block_custom_fields.html:32
+#: templates/creme_config/templatetags/block_custom_fields.html:36
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:36
 msgid "No type of entity has custom field for the moment"
 msgstr "Aucun type de fiche n'a de champ personnalisé pour le moment"
@@ -838,7 +838,7 @@ msgid "%s Custom blocks"
 msgstr "%s Blocs personnalisés"
 
 #: templates/creme_config/templatetags/block_customblocksconfig.html:12
-#: views/blocks.py:73
+#: views/blocks.py:85
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -864,7 +864,7 @@ msgstr "Aucun bloc personnalisé pour le moment"
 msgid "New fields configuration"
 msgstr "Nouvelle configuration de champs"
 
-#: templates/creme_config/templatetags/block_fields_configs.html:32
+#: templates/creme_config/templatetags/block_fields_configs.html:39
 msgid "No fields configuration for the moment"
 msgstr "Aucune configuration de champs pour le moment"
 
@@ -1040,7 +1040,7 @@ msgid "%s Types of relation block created"
 msgstr "%s Types de bloc de relation créés"
 
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:12
-#: views/blocks.py:65
+#: views/blocks.py:77
 msgid "New type of block"
 msgstr "Nouveau type de bloc"
 
@@ -1079,7 +1079,7 @@ msgid "New search configuration for «%s»"
 msgstr "Nouvelle configuration de recherche pout «%s»"
 
 #: templates/creme_config/templatetags/block_searchconfig.html:30
-msgid "Research is disabled"
+msgid "Search is disabled"
 msgstr "Recherche désactivée"
 
 #: templates/creme_config/templatetags/block_searchconfig.html:32
@@ -1298,79 +1298,79 @@ msgstr "Voir vos réglages"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
-#: views/blocks.py:48
+#: views/blocks.py:60
 #, python-format
 msgid "New block configuration for «%s»"
 msgstr "Nouvelle configuration de bloc pout «%s»"
 
-#: views/blocks.py:49 views/blocks.py:58 views/blocks.py:127
+#: views/blocks.py:61 views/blocks.py:70 views/blocks.py:139
 #: views/button_menu.py:39 views/custom_fields.py:41 views/fields_config.py:42
 #: views/search.py:41
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
-#: views/blocks.py:66 views/blocks.py:74
+#: views/blocks.py:78 views/blocks.py:86
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: views/blocks.py:106
+#: views/blocks.py:118
 #, python-format
 msgid "Edit configuration of super-users for «%s»"
 msgstr "Modifier la configuration des super-utilisateurs pour «%s»"
 
-#: views/blocks.py:108
+#: views/blocks.py:120
 #, python-format
 msgid "Edit configuration of «%(role)s» for «%(type)s»"
 msgstr "Modifier la configuration de «%(role)s» pour «%(type)s»"
 
-#: views/blocks.py:113
+#: views/blocks.py:125
 #, python-format
 msgid "Edit default configuration for «%s»"
 msgstr "Modifier la configuration par défaut pour «%s»"
 
-#: views/blocks.py:119 views/button_menu.py:66
+#: views/blocks.py:131 views/button_menu.py:66
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
-#: views/blocks.py:135
+#: views/blocks.py:147
 msgid "Edit default portal configuration"
 msgstr "Modifier la configuration de portail par défaut"
 
-#: views/blocks.py:137
+#: views/blocks.py:149
 msgid "Edit home configuration"
 msgstr "Modifier la configuration de l'accueil"
 
-#: views/blocks.py:144
+#: views/blocks.py:156
 #, python-format
 msgid "Edit portal configuration for «%s»"
 msgstr "Modifier la configuration de portail pour «%s»"
 
 # Already in creme_core
-#: views/blocks.py:163 views/blocks.py:183 views/blocks.py:232
+#: views/blocks.py:175 views/blocks.py:195 views/blocks.py:244
 #: views/button_menu.py:72 views/creme_property_type.py:61
 #: views/prefered_menu.py:61 views/relation_type.py:73
 msgid "Save the modifications"
 msgstr ""
 
-#: views/blocks.py:193
+#: views/blocks.py:205
 msgid "Edit default \"My page\""
 msgstr "Modifier le \"Ma page\" par défaut"
 
-#: views/blocks.py:198
+#: views/blocks.py:210
 msgid "Edit \"My page\""
 msgstr "Modifier \"Ma page\""
 
-#: views/blocks.py:206
+#: views/blocks.py:218
 #, python-format
 msgid "New customised types for «%s»"
 msgstr "Nouveaux types personnalisés pour «%s»"
 
-#: views/blocks.py:231
+#: views/blocks.py:243
 #, python-format
 msgid "Edit «%s» configuration"
 msgstr "Modifier la configuration de «%s»"
 
-#: views/blocks.py:260
+#: views/blocks.py:272
 #, python-format
 msgid "Edit the block «%s»"
 msgstr "Modifier le bloc «%s»"
@@ -1403,7 +1403,7 @@ msgstr "Enregistrer le champ personnalisé"
 msgid "New value: %s"
 msgstr "Nouvelle valeur : %s"
 
-#: views/generics_views.py:143
+#: views/generics_views.py:145
 #, python-format
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut pas être effacé à cause de ses dépendances."
