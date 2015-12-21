@@ -16,8 +16,11 @@ try:
             FakeSector as Sector, FakeLegalForm as LegalForm,
             FakeInvoice as Invoice, FakeInvoiceLine as InvoiceLine)
     from creme.creme_core.models import (CremeProperty, CremePropertyType,
-            Relation, RelationType)
-    from creme.creme_core.models.history import *
+            Relation, RelationType, HistoryLine, HistoryConfigItem)
+    from creme.creme_core.models.history import (TYPE_CREATION, TYPE_EDITION, TYPE_DELETION,
+            TYPE_AUX_CREATION, TYPE_AUX_EDITION, TYPE_AUX_DELETION,
+            TYPE_RELATED, TYPE_PROP_ADD, TYPE_PROP_DEL,
+            TYPE_RELATION, TYPE_SYM_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL)
 
 #    from creme.persons.models import Contact, Organisation, Sector, LegalForm
 
@@ -664,7 +667,7 @@ about this fantastic animation studio."""
                                    )
         self.assertNoFormError(response)
 
-        address = self.get_object_or_fail(Address, entity=nerv, city=city)
+        self.get_object_or_fail(Address, entity=nerv, city=city)
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))

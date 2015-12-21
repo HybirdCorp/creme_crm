@@ -21,7 +21,8 @@ try:
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..constants import *
+    from ..constants import (REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
+            REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED, REL_SUB_HAS_LINE, AMOUNT_PK, PERCENT_PK)
     from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
     from .base import (_BillingTestCase, _BillingTestCaseMixin, skipIfCustomInvoice,
             skipIfCustomProductLine, skipIfCustomServiceLine,

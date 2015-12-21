@@ -47,7 +47,7 @@ try:
     from .. import (report_model_is_custom, rgraph_model_is_custom,
             get_report_model, get_rgraph_model)
     from ..constants import RFT_FIELD # RFT_AGG_FIELD RFT_RELATION
-    from ..models import Field, Report
+    from ..models import Field # Report
 
     skip_report_tests = report_model_is_custom()
     skip_rgraph_tests = rgraph_model_is_custom()

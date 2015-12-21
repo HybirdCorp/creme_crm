@@ -37,7 +37,7 @@ from creme.opportunities.forms.opportunity import OpportunityCreateForm
 
 from .. import get_event_model
 #from ..models import Event
-from ..constants import *
+from .. import constants
 
 
 class EventForm(CremeEntityForm):
@@ -50,11 +50,11 @@ class EventForm(CremeEntityForm):
 
 
 _SYMMETRICS = {
-        REL_OBJ_CAME_EVENT:     REL_OBJ_NOT_CAME_EVENT,
-        REL_OBJ_NOT_CAME_EVENT: REL_OBJ_CAME_EVENT,
+        constants.REL_OBJ_CAME_EVENT:     constants.REL_OBJ_NOT_CAME_EVENT,
+        constants.REL_OBJ_NOT_CAME_EVENT: constants.REL_OBJ_CAME_EVENT,
     }
 
-_TYPES = [REL_OBJ_IS_INVITED_TO, REL_OBJ_CAME_EVENT, REL_OBJ_NOT_CAME_EVENT]
+_TYPES = [constants.REL_OBJ_IS_INVITED_TO, constants.REL_OBJ_CAME_EVENT, constants.REL_OBJ_NOT_CAME_EVENT]
 
 
 class AddContactsToEventForm(CremeForm):
@@ -113,7 +113,7 @@ class AddContactsToEventForm(CremeForm):
             relationtype_id = relationtype.id
             contact_relations = relations_map.get(contact.id, ())
 
-            if relationtype_id != REL_OBJ_IS_INVITED_TO:  # => REL_OBJ_CAME_EVENT or REL_OBJ_NOT_CAME_EVENT
+            if relationtype_id != constants.REL_OBJ_IS_INVITED_TO:  # => REL_OBJ_CAME_EVENT or REL_OBJ_NOT_CAME_EVENT
                 symmetric = _SYMMETRICS[relationtype_id]
                 rel2del = find_first(contact_relations, lambda relation: relation.type_id == symmetric, None)
 
@@ -156,7 +156,7 @@ class RelatedOpportunityCreateForm(OpportunityCreateForm):
         opp = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)
 
         Relation.objects.create(user=self.user, subject_entity=opp,
-                                type_id=REL_SUB_GEN_BY_EVENT, object_entity=self.event,
+                                type_id=constants.REL_SUB_GEN_BY_EVENT, object_entity=self.event,
                                )
 
         return opp

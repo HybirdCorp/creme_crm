@@ -17,7 +17,7 @@ try:
 
     from creme.activities import get_activity_model
     from creme.activities.models import Calendar, ActivityType, ActivitySubType  # Activity
-    from creme.activities.constants import *
+    from creme.activities import constants as a_constants
     from creme.activities.tests.base import skipIfCustomActivity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -96,7 +96,7 @@ class CTITestCase(CremeTestCase):
     def test_add_phonecall01(self):
         user = self.login()
 
-        atype = self.get_object_or_fail(ActivityType, pk=ACTIVITYTYPE_PHONECALL)
+        atype = self.get_object_or_fail(ActivityType, pk=a_constants.ACTIVITYTYPE_PHONECALL)
         self.assertTrue(ActivitySubType.objects.filter(type=atype).exists())
         self.assertFalse(Activity.objects.filter(type=atype).exists())
 
@@ -110,13 +110,13 @@ class CTITestCase(CremeTestCase):
         self.assertEqual(user, pcall.user)
         self.assertIn(unicode(contact), pcall.title)
         self.assertTrue(pcall.description)
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
-        self.assertEqual(STATUS_IN_PROGRESS, pcall.status.id)
+        self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
+        self.assertEqual(a_constants.STATUS_IN_PROGRESS, pcall.status.id)
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
-        self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, pcall)
-        self.assertRelationCount(1, contact,      REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertRelationCount(1, contact,      a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
 
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
@@ -127,7 +127,7 @@ class CTITestCase(CremeTestCase):
         self.login()
 
         self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': '1024'})
-        self.assertFalse(Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL).exists())
+        self.assertFalse(Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL).exists())
 
     @skipIfCustomOrganisation
     def test_add_phonecall03(self):
@@ -137,12 +137,12 @@ class CTITestCase(CremeTestCase):
         orga = Organisation.objects.create(user=user, name='Gunsmith Cats')
         self.assertPOST200(self.ADD_PCALL_URL, data={'entity_id': orga.id})
 
-        pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
+        pcalls = Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
         self.assertEqual(1, len(pcalls))
 
         pcall = pcalls[0]
-        self.assertRelationCount(0, orga, REL_SUB_PART_2_ACTIVITY,   pcall)
-        self.assertRelationCount(1, orga, REL_SUB_LINKED_2_ACTIVITY, pcall)
+        self.assertRelationCount(0, orga, a_constants.REL_SUB_PART_2_ACTIVITY,   pcall)
+        self.assertRelationCount(1, orga, a_constants.REL_SUB_LINKED_2_ACTIVITY, pcall)
 
     @skipIfCustomContact
     def test_respond_to_a_call01(self):
@@ -181,7 +181,7 @@ class CTITestCase(CremeTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_respond_to_a_call04(self):
-        """FieldsConfig"""
+        """FieldsConfig: all fields are hidden"""
         self.login()
 
         fc_create= FieldsConfig.create
@@ -198,17 +198,17 @@ class CTITestCase(CremeTestCase):
 
     @skipIfCustomContact
     def test_respond_to_a_call05(self):
-        """All fields are hidden"""
+        """FieldsConfig: some fields are hidden"""
         user = self.login()
 
         FieldsConfig.create(Contact,
                             descriptions=[('phone', {FieldsConfig.HIDDEN: True})]
                            )
 
-        phone='558899'
-        Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
+        phone = '558899'
+        Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
-
+        self.assertFalse(response.context['callers'])
 
     @skipIfCustomContact
     def test_create_contact(self):
@@ -265,20 +265,20 @@ class CTITestCase(CremeTestCase):
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
         self.assertPOST(302, self._buid_add_pcall_url(contact))
 
-        pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
+        pcalls = Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
         self.assertEqual(1, len(pcalls))
 
         pcall = pcalls[0]
         self.assertEqual(user, pcall.user)
         self.assertIn(unicode(contact), pcall.title)
         self.assertTrue(pcall.description)
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
-        self.assertEqual(STATUS_IN_PROGRESS,                 pcall.status.id)
+        self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
+        self.assertEqual(a_constants.STATUS_IN_PROGRESS,                 pcall.status.id)
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
-        self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, pcall)
-        self.assertRelationCount(1, contact,      REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertRelationCount(1, contact,      a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
 
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
@@ -293,7 +293,7 @@ class CTITestCase(CremeTestCase):
         self.assertEqual(1, len(activities))
 
         phone_call = activities[0]
-        self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, phone_call)
+        self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
 
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
@@ -307,8 +307,8 @@ class CTITestCase(CremeTestCase):
         self.assertEqual(1, Activity.objects.count())
 
         phone_call = Activity.objects.all()[0]
-        self.assertRelationCount(1, self.contact,            REL_SUB_PART_2_ACTIVITY, phone_call)
-        self.assertRelationCount(1, self.contact_other_user, REL_SUB_PART_2_ACTIVITY, phone_call)
+        self.assertRelationCount(1, self.contact,            a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
+        self.assertRelationCount(1, self.contact_other_user, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
 
         get_cal = Calendar.get_user_default_calendar
         filter_calendars = phone_call.calendars.filter

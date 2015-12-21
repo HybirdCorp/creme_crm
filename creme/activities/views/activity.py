@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.gui.last_viewed import LastViewedItem
+# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_from_GET_or_404, jsonify
 from creme.creme_core.views.generic import list_view, inner_popup, edit_entity, view_entity  # view_real_entity

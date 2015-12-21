@@ -22,7 +22,8 @@ try:
     from .base import (skipIfCustomOrganisation, skipIfCustomContact,
             Contact, Organisation, Address)
     # from ..models import *
-    from ..constants import *
+    from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT,
+            REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES,REL_SUB_INACTIVE)
     from ..blocks import NeglectedOrganisationsBlock, address_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))

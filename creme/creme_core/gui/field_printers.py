@@ -40,6 +40,7 @@ from ..utils.meta import FieldInfo #get_model_field_info
 MAX_HEIGHT = 200
 MAX_WIDTH = 200
 
+
 def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
     if hasattr(image, 'height'):
         h = image.height
@@ -65,11 +66,14 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
 
     return "height=%s width=%s" % (h, w)
 
-def simple_print(entity, fval, user, field): #TODO: rename simple_print_html
+
+def simple_print(entity, fval, user, field):  # TODO: rename simple_print_html
     return unicode(escape(fval)) if fval is not None else "" #TODO: remove 'unicode()'
+
 
 def simple_print_csv(entity, fval, user, field):
     return unicode(fval) if fval is not None else ""
+
 
 def print_image(entity, fval, user, field): #TODO: rename print_image_html
     return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
@@ -77,36 +81,44 @@ def print_image(entity, fval, user, field): #TODO: rename print_image_html
                 'size': image_size(fval),
             }
 
+
 def print_integer(entity, fval, user, field):
     if field.choices: #TODO: manage 'choices' for other types...
         fval = getattr(entity, 'get_%s_display' % field.name)()
 
     return fval if fval is not None else ''
 
+
 def print_decimal(entity, fval, user, field):
     # TODO remove 'use_l10n' when settings.USE_L10N == True
     return number_format(fval, use_l10n=True) if fval is not None else ''
 
-def print_boolean(entity, fval, user, field): #TODO: rename print_boolean_html
+
+def print_boolean(entity, fval, user, field):  # TODO: rename print_boolean_html
     return bool_as_html(fval)
+
 
 def print_boolean_csv(entity, fval, user, field):
     return _('Yes') if fval else _('No')
 
-def print_urlfield(entity, fval, user, field): #TODO: rename print_url_html
+
+def print_urlfield(entity, fval, user, field):  # TODO: rename print_url_html
     if not fval:
         return ""
 
     esc_fval = escape(fval)
     return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
 
+
 def print_datetime(entity, fval, user, field):
     return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
+
 
 def print_date(entity, fval, user, field):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
-def print_foreignkey(entity, fval, user, field): #TODO: rename print_foreignkey_html
+
+def print_foreignkey(entity, fval, user, field):  # TODO: rename print_foreignkey_html
     # TODO: temporary hack before print_field refactor in order to give extra parameters for custom display.
     from creme.media_managers.models.image import Image
 
@@ -128,6 +140,7 @@ def print_foreignkey(entity, fval, user, field): #TODO: rename print_foreignkey_
 
     return escape(unicode(fval))
 
+
 def print_foreignkey_csv(entity, fval, user, field):
     if isinstance(fval, CremeEntity):
         # TODO: change allowed unicode ??
@@ -135,7 +148,8 @@ def print_foreignkey_csv(entity, fval, user, field):
 
     return unicode(fval) if fval else u''
 
-def print_many2many(entity, fval, user, field): #TODO: rename print_many2many_html
+
+def print_many2many(entity, fval, user, field):  # TODO: rename print_many2many_html
     output = []
 
     # TODO: temporary hack before print_field refactor in order to give extra parameters for custom display.
@@ -165,6 +179,7 @@ def print_many2many(entity, fval, user, field): #TODO: rename print_many2many_ht
 
     return ''.join(output)
 
+
 def print_many2many_csv(entity, fval, user, field):
     if issubclass(fval.model, CremeEntity):
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
@@ -174,6 +189,7 @@ def print_many2many_csv(entity, fval, user, field):
                         )
 
     return u'/'.join(unicode(a) for a in fval.all())
+
 
 def print_duration(entity, fval, user, field):
     try:
@@ -194,8 +210,10 @@ def print_duration(entity, fval, user, field):
         'second_label': ungettext('second', 'seconds', s)
     }
 
+
 def print_email_html(entity, fval, user, field):
     return '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else ''
+
 
 def print_text_html(entity, fval, user, field):
     return linebreaks(fval) if fval else ''
@@ -222,7 +240,7 @@ class _FieldPrintersRegistry(object):
                     (models.OneToOneField,      print_foreignkey),
 
                     (fields.DurationField,      print_duration),
-                    (fields.DatePeriodField,    simple_print), #TODO: JSONField ?
+                    (fields.DatePeriodField,    simple_print),  # TODO: JSONField ?
                 ],
                 default=simple_print,
             )
@@ -274,7 +292,7 @@ class _FieldPrintersRegistry(object):
                 default=css_default_header,
             )
 
-    def register(self, field, printer): #TODO: html & csv
+    def register(self, field, printer):  # TODO: html & csv
         """Register a field printer.
         @param field A class inheriting django.models.Field.
         @param printer A callable object. See simple_print(), print_urlfield for arguments/return.

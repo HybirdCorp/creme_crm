@@ -15,12 +15,10 @@ try:
     # from creme.documents.models import Document
     from creme.documents.tests.base import skipIfCustomDocument
 
-    from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.models import Civility  # Contact Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity, Contact, Organisation, Activity
-    from .. import get_activity_model
     from ..forms.lv_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
             MultiColumnsParticipantsExtractor, SplittedColumnParticipantsExtractor,
             SubjectsExtractor)

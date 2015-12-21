@@ -29,7 +29,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import CremeEntity, SettingValue #Relation
 
 from .. import get_activity_model
-from ..constants import *
+from ..constants import (NARROW, CREATION_LABELS, SETTING_AUTO_ORGA_SUBJECTS, DISPLAY_REVIEW_ACTIVITIES_BLOCKS,
+        REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
 from .calendar import Calendar
 from .other_models import ActivityType, ActivitySubType, Status
 

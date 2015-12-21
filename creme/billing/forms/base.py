@@ -34,7 +34,7 @@ from creme.persons import get_contact_model, get_organisation_model, get_address
 #from creme.persons.models import Organisation, Address, Contact
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from ..models import Line
+# from ..models import Line
 
 
 logger = logging.getLogger(__name__)

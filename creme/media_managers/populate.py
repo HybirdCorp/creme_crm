@@ -33,7 +33,7 @@ from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from .models import MediaCategory, Image
-from .blocks import *
+from .blocks import image_view_block, last_images_block
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = MediaCategory.objects.filter(pk=1).exists()
 
-        #TODO: created by 'products' & 'persons' app ?? (pk_string)
+        # TODO: created by 'products' & 'persons' app ?? (pk_string)
         create_if_needed(MediaCategory, {'pk': 1}, name=_(u"Product image"),      is_custom=False)
         create_if_needed(MediaCategory, {'pk': 2}, name=_(u"Organisation logo"),  is_custom=False)
         create_if_needed(MediaCategory, {'pk': 3}, name=_(u"Contact photograph"), is_custom=False)

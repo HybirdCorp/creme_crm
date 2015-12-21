@@ -14,7 +14,8 @@ try:
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation, Organisation, Address, Contact)
     from ..models import StaffSize, Sector, LegalForm
-    from ..constants import *
+    from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_OBJ_CUSTOMER_SUPPLIER,
+            REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

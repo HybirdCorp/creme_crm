@@ -20,7 +20,8 @@ try:
     from creme.products.models import Product, Service # Category, SubCategory
     from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-    from ..constants import *
+    from ..constants import (REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM,
+            DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
     # from ..models import *
     from .base import (_BillingTestCase, skipIfCustomInvoice,
             skipIfCustomProductLine, skipIfCustomServiceLine,

@@ -38,7 +38,7 @@ from creme.persons import get_contact_model
 from creme.opportunities import get_opportunity_model
 
 from .. import get_event_model
-from ..constants import *
+from .. import constants
 from ..forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
 from ..models import EventType #Event
 
@@ -91,23 +91,23 @@ def detailview(request, event_id):
 @login_required
 @permission_required('events')
 def listview(request):
-    return list_view(request, Event, hf_pk=DEFAULT_HFILTER_EVENT,
+    return list_view(request, Event, hf_pk=constants.DEFAULT_HFILTER_EVENT,
                      # extra_dict={'add_url': '/events/event/add'},
                      # extra_dict={'add_url': reverse('events__create_event')},
                     )
 
 
 INV_STATUS_MAP = {
-        INV_STATUS_NOT_INVITED: _('Not invited'),
-        INV_STATUS_NO_ANSWER:   _('Did not answer'),
-        INV_STATUS_ACCEPTED:    _('Accepted the invitation'),
-        INV_STATUS_REFUSED:     _('Refused the invitation'),
+        constants.INV_STATUS_NOT_INVITED: _('Not invited'),
+        constants.INV_STATUS_NO_ANSWER:   _('Did not answer'),
+        constants.INV_STATUS_ACCEPTED:    _('Accepted the invitation'),
+        constants.INV_STATUS_REFUSED:     _('Refused the invitation'),
     }
 
 PRES_STATUS_MAP = {
-        PRES_STATUS_DONT_KNOW: _('N/A'),
-        PRES_STATUS_COME:      _('Come'),
-        PRES_STATUS_NOT_COME:  _('Not come'),
+        constants.PRES_STATUS_DONT_KNOW: _('N/A'),
+        constants.PRES_STATUS_COME:      _('Come'),
+        constants.PRES_STATUS_NOT_COME:  _('Not come'),
     }
 
 
@@ -133,11 +133,11 @@ def build_get_actions(event, entity):
 
 
 class ListViewPostProcessor(object):
-    _RTYPE_IDS = (REL_SUB_IS_INVITED_TO,
-                  REL_SUB_ACCEPTED_INVITATION,
-                  REL_SUB_REFUSED_INVITATION,
-                  REL_SUB_CAME_EVENT,
-                  REL_SUB_NOT_CAME_EVENT,
+    _RTYPE_IDS = (constants.REL_SUB_IS_INVITED_TO,
+                  constants.REL_SUB_ACCEPTED_INVITATION,
+                  constants.REL_SUB_REFUSED_INVITATION,
+                  constants.REL_SUB_CAME_EVENT,
+                  constants.REL_SUB_NOT_CAME_EVENT,
                  )
 
     def __init__(self, event):
@@ -167,14 +167,14 @@ class ListViewPostProcessor(object):
         event = self.event
         user = self.user
 
-        if not has_relation(entity, REL_SUB_IS_INVITED_TO):
-            current_status = INV_STATUS_NOT_INVITED
-        elif has_relation(entity, REL_SUB_ACCEPTED_INVITATION):
-            current_status = INV_STATUS_ACCEPTED
-        elif has_relation(entity, REL_SUB_REFUSED_INVITATION):
-            current_status = INV_STATUS_REFUSED
+        if not has_relation(entity, constants.REL_SUB_IS_INVITED_TO):
+            current_status = constants.INV_STATUS_NOT_INVITED
+        elif has_relation(entity, constants.REL_SUB_ACCEPTED_INVITATION):
+            current_status = constants.INV_STATUS_ACCEPTED
+        elif has_relation(entity, constants.REL_SUB_REFUSED_INVITATION):
+            current_status = constants.INV_STATUS_REFUSED
         else:
-            current_status = INV_STATUS_NO_ANSWER
+            current_status = constants.INV_STATUS_NO_ANSWER
 
         has_perm = user.has_perm_to_link
         select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % (
@@ -198,12 +198,12 @@ class ListViewPostProcessor(object):
         event = self.event
         user = self.user
 
-        if has_relation(entity, REL_SUB_CAME_EVENT):
-            current_status = PRES_STATUS_COME
-        elif has_relation(entity, REL_SUB_NOT_CAME_EVENT):
-            current_status = PRES_STATUS_NOT_COME
+        if has_relation(entity, constants.REL_SUB_CAME_EVENT):
+            current_status = constants.PRES_STATUS_COME
+        elif has_relation(entity, constants.REL_SUB_NOT_CAME_EVENT):
+            current_status = constants.PRES_STATUS_NOT_COME
         else:
-            current_status = PRES_STATUS_DONT_KNOW
+            current_status = constants.PRES_STATUS_DONT_KNOW
 
         has_perm = user.has_perm_to_link
         select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % (
@@ -223,11 +223,11 @@ class ListViewPostProcessor(object):
         return u''.join(select)
 
 
-_FILTER_RELATIONTYPES = (REL_SUB_IS_INVITED_TO,
-                         REL_SUB_ACCEPTED_INVITATION,
-                         REL_SUB_REFUSED_INVITATION,
-                         REL_SUB_CAME_EVENT,
-                         REL_SUB_NOT_CAME_EVENT,
+_FILTER_RELATIONTYPES = (constants.REL_SUB_IS_INVITED_TO,
+                         constants.REL_SUB_ACCEPTED_INVITATION,
+                         constants.REL_SUB_REFUSED_INVITATION,
+                         constants.REL_SUB_CAME_EVENT,
+                         constants.REL_SUB_NOT_CAME_EVENT,
                         )
 
 

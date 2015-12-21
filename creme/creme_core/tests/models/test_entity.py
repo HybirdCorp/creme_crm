@@ -16,7 +16,10 @@ try:
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeCivility as Civility,
             FakeImage as Image, FakeImageCategory as MediaCategory, FakeFileComponent)
-    from creme.creme_core.models import *
+    from creme.creme_core.models import (CremeEntity, CremePropertyType, CremeProperty,
+            RelationType, Relation, Language, CustomField, CustomFieldEnumValue,
+            CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean, CustomFieldString,
+            CustomFieldDateTime, CustomFieldEnum, CustomFieldMultiEnum)
     from creme.creme_core.core.function_field import (FunctionField,
             FunctionFieldResult, FunctionFieldResultsList)
     from creme.creme_core.core.field_tags import InvalidFieldTag

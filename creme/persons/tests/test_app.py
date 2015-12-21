@@ -8,7 +8,7 @@ try:
 
     # from .. import get_contact_model, get_organisation_model
     #from ..models import Contact, Organisation
-    from ..constants import *
+    from .. import constants
     from .base import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -27,22 +27,22 @@ class PersonsAppTestCase(CremeTestCase):
         # Contact = get_contact_model()
         # Organisation = get_organisation_model()
 
-        self.get_relationtype_or_fail(REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
-        self.get_relationtype_or_fail(REL_SUB_CUSTOMER_SUPPLIER, [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(REL_SUB_MANAGES,           [Contact],               [Organisation])
-        self.get_relationtype_or_fail(REL_SUB_PROSPECT,          [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(REL_SUB_SUSPECT,           [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(REL_SUB_PARTNER,           [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(REL_SUB_INACTIVE,          [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(REL_SUB_SUBSIDIARY,        [Organisation],          [Organisation])
-        self.get_relationtype_or_fail(REL_SUB_COMPETITOR,        [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_CUSTOMER_SUPPLIER, [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_MANAGES,           [Contact],               [Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_PROSPECT,          [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_SUSPECT,           [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_PARTNER,           [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_INACTIVE,          [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_SUBSIDIARY,        [Organisation],          [Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_COMPETITOR,        [Contact, Organisation], [Contact, Organisation])
 
         get_ct = ContentType.objects.get_for_model
         hf_filter = HeaderFilter.objects.filter
         self.assertTrue(hf_filter(entity_type=get_ct(Contact)).exists())
         self.assertTrue(hf_filter(entity_type=get_ct(Organisation)).exists())
 
-        efilter = self.get_object_or_fail(EntityFilter, pk=FILTER_MANAGED_ORGA)
+        efilter = self.get_object_or_fail(EntityFilter, pk=constants.FILTER_MANAGED_ORGA)
         self.assertFalse(efilter.is_custom)
         self.assertEqual(Organisation, efilter.entity_type.model_class())
         self.assertEqual([EntityFilterCondition.EFC_PROPERTY], [c.type for c in efilter.conditions.all()])

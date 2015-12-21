@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import copy
+    # import copy
     from functools import partial
 
     from creme.creme_core.tests.forms.base import FieldTestCase

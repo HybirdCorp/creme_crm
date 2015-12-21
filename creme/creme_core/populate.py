@@ -25,10 +25,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
+from . import constants
 from .blocks import properties_block, relations_block, customfields_block, history_block
-from .constants import *
 from .management.commands.creme_populate import BasePopulator
-from .models import *
+from .models import (RelationType, CremePropertyType, SettingValue, Currency, Language, Vat,
+        BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, ButtonMenuItem)
 from .setting_keys import block_opening_key, block_showempty_key, currency_symbol_key
 from .utils import create_if_needed
 
@@ -37,15 +38,11 @@ from .utils import create_if_needed
 
 class Populator(BasePopulator):
     def populate(self):
-        already_populated = CremePropertyType.objects.filter(pk=PROP_IS_MANAGED_BY_CREME).exists()
+        already_populated = CremePropertyType.objects.filter(pk=constants.PROP_IS_MANAGED_BY_CREME).exists()
 
-
-        CremePropertyType.create(PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
-
-
-        RelationType.create((REL_SUB_HAS, _(u'owns')),
-                            (REL_OBJ_HAS, _(u'belongs to')))
-
+        CremePropertyType.create(constants.PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
+        RelationType.create((constants.REL_SUB_HAS, _(u'owns')),
+                            (constants.REL_OBJ_HAS, _(u'belongs to')))
 
         User = get_user_model()
 
@@ -76,22 +73,17 @@ class Populator(BasePopulator):
                 root.is_staff = False
                 root.save()
 
-
         SettingValue.create_if_needed(key=block_opening_key,   user=None, value=True)
         SettingValue.create_if_needed(key=block_showempty_key, user=None, value=True)
         SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
 
-
-        create_if_needed(Currency, {'pk': DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
-
+        create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
 
         if not already_populated:
             create_if_needed(Currency, {'pk': 2}, name=_(u'United States dollar'), local_symbol=_(u'$'), international_symbol=_(u'USD'))
 
-
             create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
             create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
-
 
             #BlockPortalLocation.create_empty_config() #default portal
             #BlockPortalLocation.create_empty_config('creme_core') #home
@@ -107,20 +99,15 @@ class Populator(BasePopulator):
             BlockMypageLocation.create(block_id=history_block.id_, order=8)
             BlockMypageLocation.create(block_id=history_block.id_, order=8, user=root)
 
-
             if not ButtonMenuItem.objects.filter(content_type=None).exists():
                 ButtonMenuItem.objects.create(pk='creme_core-void', content_type=None, button_id='', order=1)
 
-
-            #existing_vats = frozenset(Vat.objects.values_list('value', flat=True))
-            #if not existing_vats:
             values = {Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60', '20.0', '21.20']}
-            values.add(DEFAULT_VAT)
+            values.add(constants.DEFAULT_VAT)
 
-            #create_vat = Vat.objects.create
             create_vat = Vat.objects.get_or_create
             for value in values:
-                create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
+                create_vat(value=value, is_default=(value == constants.DEFAULT_VAT), is_custom=False)
 
         if settings.TESTS_ON:
             from .tests import fake_populate

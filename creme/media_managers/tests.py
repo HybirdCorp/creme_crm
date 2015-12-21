@@ -17,7 +17,7 @@ try:
     from creme.persons import get_contact_model
     # from creme.persons.models import Contact
 
-    from .models import *
+    from .models import Image, MediaCategory
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -259,6 +259,9 @@ class MediaManagersTestCase(CremeTestCase):
         self.assertEqual('<p>%s</p>' % judo_face.description,
                          get_html_val(judo, 'image__description', user)
                         )
+
+        self.assertEqual(settings.HIDDEN_VALUE, get_html_val(casca, 'image', user))
+        self.assertEqual(settings.HIDDEN_VALUE, get_html_val(casca, 'image__description', user))
 
 
 class ImageQuickFormTestCase(CremeTestCase):
