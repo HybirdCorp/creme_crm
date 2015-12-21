@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-01-2015 pour la version 1.5 de Creme
+:Version: 15-12-2015 pour la version 1.6 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -29,8 +29,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : http://docs.djangoproject.com/en/1.4/.
-Dans un premier temps, avoir lu le `didacticiel <http://docs.djangoproject.com/en/1.4/intro/tutorial01/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/1.8/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/1.8/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour
@@ -73,7 +73,8 @@ Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
    utiliser le système de cache des templates quand vous développez, afin de ne
    pas avoir à relancer le serveur à chaque modification de template : ::
 
-    TEMPLATE_LOADERS = (
+    from .settings import TEMPLATES
+    TEMPLATES[0]['OPTIONS']['loaders'] = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
     )
@@ -133,8 +134,6 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
         name     = CharField(_(u'Name'), max_length=100)
         birthday = DateField(_(u'Birthday'))
 
-        creation_label = _('Add a beaver')
-
         class Meta:
             app_label = "beavers"
             verbose_name = _(u'Beaver')
@@ -143,16 +142,6 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
 
         def __unicode__(self):
             return self.name
-
-        def get_absolute_url(self):
-            return "/beavers/beaver/%s" % self.id
-
-        def get_edit_absolute_url(self):
-            return "/beavers/beaver/edit/%s" % self.id
-
-        @staticmethod
-        def get_lv_absolute_url():
-            return "/beavers/beavers"
 
 
 Nous venons de créer notre première classe de modèle, ``Beaver``. Ce modèle correspondra
@@ -164,13 +153,8 @@ dans une vue en liste, ainsi que beaucoup d'autres services.
 
 En plus des champs contenus en base (fields), nous déclarons :
 
-- la classe ``Meta`` qui permet d'indiquer notamment l'app à laquelle appartient notre modèle.
-- la méhode ``__unicode__`` qui permet d'afficher de manière agréable les objets ``Beavers``.
-- 3 méthodes renvoyant des URL, ``get_absolute_url()`` pour l'url de la vue détaillée,
-  ``get_edit_absolute_url()``, pour la vue d'édition, et enfin ``get_lv_absolute_url()``
-  pour la vue en liste.
-- le champ ``creation_label`` qui permet de nommer correctement les éléments d'interface
-  (bouton, menu etc…) qui permettent de créer un castor, plutôt qu'un simple "New".
+- La classe ``Meta`` qui permet d'indiquer notamment l'app à laquelle appartient notre modèle.
+- La méhode ``__unicode__`` qui permet d'afficher de manière agréable les objets ``Beavers``.
 
 
 Là encore, pour que le répertoire ``models/`` soit un module, nous devons y mettre
@@ -192,12 +176,11 @@ sera notamment relié à sa table dans le SGDB.
 Installer notre module
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Si ce n'est pas déjà fait, créez dans le répertoire ``creme/`` un fichier nommé
-``local_settings.py``. Éditez le maintenant en copiant depuis le fichier de
+Éditez le fichier ``creme/project_settings.py``  en y copiant depuis le fichier de
 configuration générale ``creme/settings.py`` le tuple INSTALLED_CREME_APPS. ::
 
     INSTALLED_CREME_APPS = (
-        #CREME CORE APPS
+        # CREME CORE APPS
         'creme.creme_core',
         'creme.creme_config',
         'creme.media_managers',
@@ -206,7 +189,7 @@ configuration générale ``creme/settings.py`` le tuple INSTALLED_CREME_APPS. ::
         'creme.activities',
         'creme.persons',
 
-        #CREME OPTIONNAL APPS (can be safely commented)
+        # CREME OPTIONNAL APPS (can be safely commented)
         'creme.graphs',
         'creme.reports',
         'creme.products',
@@ -222,83 +205,103 @@ configuration générale ``creme/settings.py`` le tuple INSTALLED_CREME_APPS. ::
         'creme.activesync',
         'creme.vcfs',
 
-        'creme.beavers', # <-- NEW
+        'creme.beavers',  # <-- NEW
     )
 
 Notez que par rapport à la configuration de base, nous avons ajouté à la fin du
 tuple notre app.
 
-Toujours depuis le répertoire ``creme/``, lancez la commande suivante : ::
+**Remarque** : nous utilisons ``creme/project_settings.py`` plutôt que
+``creme/local_settings.py`` dans la mesure où la liste des apps installées dans
+le projet devrait sûrement être partagée avec les différents membres de l'équipe
+(développeurs, administrateurs).
 
-    > python manage.py syncdb
-    Creating table beavers_beaver
-    No fixtures found.
 
-Comme vous pouvez le voir, un table "beavers_beaver" a bien été créée. Si vous
+Créer la table dans la base de données
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Toujours depuis le répertoire ``creme/``, lancez les commandes suivantes : ::
+
+    > python manage.py makemigrations beavers
+
+Cela devrait créer un répertoire ``creme/beavers/migrations/`` avec dedans un
+fichier ``__init__.py`` et un fichier ``0001_initial.py``. Ce dernier donne
+à Django la description de la table qui va contenir nos castors : ::
+
+    > python manage.py migrate beavers
+    Operations to perform:
+        Apply all migrations: beavers
+    Running migrations:
+        Rendering model states... DONE
+        Applying beavers.0001_initial... OK
+
+Comme vous pouvez le voir, une table "beavers_beaver" a bien été créée. Si vous
 l'examinez (avec PHPMyAdmin par exemple), vous verrez qu'elle possède bien une
 colonne nommée "name", de type VARCHAR(100), et une colonne "birthday" de type DATE.
 
 
-Faire apparaître notre module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Déclarer notre app
+~~~~~~~~~~~~~~~~~~
 
-Il va bien falloir remplir cette base de données avec des castors. Pourtant si nous
-lançons Creme avec le serveur de développement de Django, et que nous y connectons
-avec notre navigateur Web (à l'adresse définie par SITE_DOMAIN dans la configuration),
-que se passe-t-il ? ::
-
-    > python manage.py runserver
-
-
-Après s'être connecté dans Creme (en tant que super utilisateur, pour éviter
-d'avoir à configurer les droits), aucune trace de notre nouvelle app. Mais pas
-d'inquiétude, nous allons y remédier. Tout d'abord, créons un nouveau fichier
-``beavers/creme_core_register.py`` qui contient : ::
+Tout d'abord, créons un nouveau fichier ``beavers/apps.py`` qui contient : ::
 
     # -*- coding: utf-8 -*-
 
     from django.utils.translation import ugettext_lazy as _
 
-    from creme.creme_core.registry import creme_registry
-    from creme.creme_core.gui.menu import creme_menu
+    from creme.creme_core.apps import CremeAppConfig
 
-    from creme.beavers.models import Beaver
 
-    creme_registry.register_entity_models(Beaver)
-    creme_registry.register_app('beavers', _(u'Beavers management'), '/beavers')
+    class BeaversConfig(CremeAppConfig):
+        name = 'creme.beavers'
+        verbose_name = _(u'Beavers management')
+        dependencies = ['creme.creme_core']
 
-    reg_item = creme_menu.register_app('beavers', '/beavers/').register_item
-    reg_item('/beavers/beavers',    _(u'All beavers'),     'beavers')
-    reg_item('/beavers/beaver/add', Beaver.creation_label, 'beavers.add_beaver')
+        def register_creme_app(self, creme_registry):
+            creme_registry.register_app('beavers', _(u'Beavers management'), '/beavers')
+
+        def register_entity_models(self, creme_registry):
+            from .models import Beaver
+
+            creme_registry.register_entity_models(Beaver)
+
 
 Explications :
 
 - Le singleton ``creme_registry`` permet d'enregistrer les modèles dérivants de
-  ``CremeEntity`` (méthode ``register_entity_models()``) et que l'on veut disposer
-  sur eux des services tels que la recherche globale, la configuration des boutons
-  et des blocs par exemple. C'est le cas la plupart du temps où l'on dérive de
-  ``CremeEntity``.
-- On enregistre ensuite notre app (méthode ``register_app()``). Il faut en effet
-  avoir enregistré notre app auprès de Creme avant de pouvoir insérer l'entrée
-  de notre app dans le menu principal (``creme_menu.register_app``).
-- Dans les 2 dernières lignes du fichiers nous créons 2 entrées dans le menu de
-  notre app : l'une pour afficher la liste des castors, l'autre pour créer un
-  nouveau castor. Notez que l'url de la vue en liste est la même que celle
-  renvoyée par la méthode ``get_lv_absolute_url()`` vue précédemment.
+  ``CremeEntity`` (appel à ``creme_registry.register_entity_models()``) et que
+  l'on veut disposer sur eux des services tels que la recherche globale, la
+  configuration des boutons et des blocs par exemple. C'est le cas la plupart du
+  temps où l'on dérive de ``CremeEntity``.
+- On enregistre ensuite notre app (appel à ``creme_registry.register_app()``). Il
+  faut en effet avoir enregistré notre app auprès de Creme avant de pouvoir insérer
+  l'entrée de notre app dans le menu principal (voir en dessous) par exemple.
 
-Si nous relançons le serveur, et rechargeons notre page dans le navigateur, nous
-voyons bien une nouvelle entrée dans le menu rétractable à gauche, portant le
-label "Beavers management". Et si on entre dans le menu, il contient bien les 2
-liens attendus (liste et création). Cependant si vous cliquez sur ces derniers,
-vous obtenez une erreur 404 (mais plus pour longtemps).
+
+Nous venons de définir la configuration de notre app pour Django ; mais afin qu'il
+vienne chercher notre classe, il reste un petite chose à faire. Éditez le fichier
+``beavers/__init__.py`` pour y mettre la ligne suivante : ::
+
+    default_app_config = 'creme.beavers.apps.BeaversConfig'
+
+
+Si nous lançons Creme avec le serveur de développement de Django, et que nous y
+connectons avec notre navigateur Web (à l'adresse définie par SITE_DOMAIN dans
+la configuration), que se passe-t-il ? ::
+
+    > python manage.py runserver
+
+
+Il n'y a aucune trace de notre nouvelle app. Mais pas d'inquiétude, nous allons
+y remédier.
+
 
 
 Notre première vue : la vue de liste
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Nous allons à présent créer la vue permettant d'afficher la liste des castors,
-auquelle on accède par l'url: '/beavers/beavers', que l'on a utilisé dans
-``creme_core_register.py``.
+à laquelle on accède par l'URL: '/beavers/beavers'.
 
 Premièrement, jetons un coup d'œil au fichier ``creme/urls.py`` ; on y trouve
 la configuration des chemins de base pour chaque app. Nous remarquons ici que
@@ -308,20 +311,26 @@ Créons donc ce fichiers ``urls.py`` contenu dans ``beaver/`` : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.conf.urls import patterns
+    from django.conf.urls import url
 
+    from .views import beaver
 
-    urlpatterns = patterns('creme.beavers.views',
-        (r'^beavers$',    'beaver.listview'),
-        (r'^beaver/add$', 'beaver.add'),
-    )
+    urlpatterns = [
+        url(r'^beavers$', beaver.listview, name='beavers__list_beavers'),
+    ]
+
+Notez le dernier paramètre de ``url()``, qui permet de nommer notre URL. La
+conventions Creme est de la forme 'mon_app' + '__list_' + 'mes_modeles' pour la
+vue en liste.
 
 Si nous essayons à nouveau d'accéder dans notre navigateur à la liste des
-castors, nous provoquons une erreur 500 : c'est logique puisque nous déclarons
-dans notre ``beavers/urls.py`` avoir un fichier de vue "beaver" contenant une
-fonction ``listview``, ce qui n'est pas (encore) le cas. Remédions y ; ajoutons
-d'abord un nouveau répertoire nommé ``views/`` dans ``beavers/``, ainsi que le
-``__init__.py`` habituel: ::
+castors (ou n'importe quelle autre en fait), en la tapant à la main dans la
+barre d'adresse, nous provoquons une erreur 500 : c'est logique puisque nous
+déclarons dans notre ``beavers/urls.py`` avoir un fichier de vue "beaver"
+contenant une fonction ``listview``, ce qui n'est pas (encore) le cas.
+
+Remédions y ; ajoutons d'abord un nouveau répertoire nommé
+``views/`` dans ``beavers/``, ainsi que le ``__init__.py`` habituel : ::
 
     > mkdir views
     > cd views
@@ -344,8 +353,30 @@ Dans ``views/``, nous créons alors le fichier ``beaver.py`` : ::
         return generic.list_view(request, Beaver)
 
 
+Rajoutons enfin la méthode ``get_lv_absolute_url()`` dans notre modèle. Cette
+méthode permettra par exemple de revenir sur la liste des castors lorsqu'on
+supprimera une fiche castor : ::
+
+    # -*- coding: utf-8 -*-
+
+    [...]
+
+    from django.core.urlresolvers import reverse
+
+
+    class Beaver(CremeEntity):
+        [...]
+
+        @staticmethod
+        def get_lv_absolute_url():
+            return reverse('beavers__list_beavers')
+
+
+**Note** : la méthode ``reverse()``, qui permet de retrouver une URL par le nom
+donné à la fonction ``url()`` utilisée dans notre ``urls.py``.
+
 Et là nous obtenons enfin un résultat intéressant lorsque nous nous rendons sur
-l'url de liste : on nous demande de créer une vue pour cette liste. Ceci fait,
+l'URL de liste : on nous demande de créer une vue pour cette liste. Ceci fait,
 on arrive bien sur une liste des castors... vide. Forcément, aucun castor n'a
 encore été créé.
 
@@ -353,15 +384,12 @@ encore été créé.
 La vue de création
 ~~~~~~~~~~~~~~~~~~
 
-Intéressons nous à notre url '/beavers/beaver/add', que nous avons utilisée dans
-``beavers/urls.py`` ainsi que dans ``beavers/creme_core_register.py``. Nous avons
-en effet dans notre menu de gauche une entrée 'Add a beaver' qui donne toujours
-une erreur 404.
 Créez un répertoire ``beavers/forms``, avec le coutumier ``__init__.py`` : ::
 
     > mkdir forms
     > cd forms
     > touch __init__.py
+
 
 Dans ``forms/``, nous créons alors le fichier ``beaver.py`` : ::
 
@@ -383,9 +411,12 @@ Dans ``forms/``, nous créons alors le fichier ``beaver.py`` : ::
 
 Il s'agit assez simplement d'un formulaire lié à notre modèle ; la seule subtilité
 est l'utilisation du champ ``CremeDateField`` afin de disposer d'un 'widget' pour
-remplir la date en cliquant.
+remplir la date en cliquant sur un mini-calendrier.
+
 Puis nous modifions ``views/beaver.py``, en ajoutant ceci à la fin (vous pouvez
-ramener le ``import`` au début, avec les autres directives ``import`` bien sûr) : ::
+ramener les ``import`` au début, avec les autres directives ``import`` bien sûr) : ::
+
+    from django.utils.translation import ugettext_lazy as _
 
     from ..forms.beaver import BeaverForm
 
@@ -393,14 +424,44 @@ ramener le ``import`` au début, avec les autres directives ``import`` bien sûr
     @permission_required('beavers')
     @permission_required('beavers.add_beaver')
     def add(request):
-        return generic.add_entity(request, BeaverForm)
+        return generic.add_entity(request, BeaverForm,
+                                  extra_template_dict={'submit_label': _('Save the beaver')},
+                                 )
 
 
-Quand nous cliquons sur notre entrée 'Add a beaver', nous obtenons bien le formulaire
-attendu. Mais quand nous validons notre formulaire correctement rempli, nous générons
-une erreur 404 à nouveau. Pas de panique : la vue ``add_entity`` a juste demandé à
-afficher la vue de détail de notre castor. Celui-ci a bien été créé, mais sa vue
-détaillée n'existe pas encore.
+Rajoutons l'entrée qui référence ``beaver.add`` dans ``beavers/urls.py`` : ::
+
+    urlpatterns = [
+        url(r'^beavers$',    beaver.listview, name='beavers__list_beavers'),
+        url(r'^beaver/add$', beaver.add,      name='beavers__create_beaver'),
+    ]
+
+
+Il reste à mettre une méthode ``get_create_absolute_url()`` dans notre modèle,
+ainsi que le champ ``creation_label`` qui permet de nommer correctement les
+éléments d'interface (bouton, menu etc…) qui permettent de créer un castor : ::
+
+    # -*- coding: utf-8 -*-
+
+
+    class Beaver(CremeEntity):
+        [...]
+
+        creation_label = _('Add a beaver')
+
+        [...]
+
+        @staticmethod
+        def get_create_absolute_url():
+            return reverse('beavers__create_beaver')
+
+
+Si nous rechargeons la vue des castors, un bouton 'Add a beaver' est apparu.
+Quand nous cliquons dessus, nous obtenons bien le formulaire attendu. Mais quand
+nous validons notre formulaire correctement rempli, nous générons une erreur 404
+à nouveau. Pas de panique : la vue ``add_entity`` a juste demandé à
+afficher la vue détaillée de notre castor. Celui-ci a bien été créé, mais cette
+vue n'existe pas encore.
 
 
 La vue détaillée
@@ -411,41 +472,71 @@ Ajoutons cette fonction de vue (dans ``views/beaver.py`` donc, si vous suivez) :
     @login_required
     @permission_required('beavers')
     def detailview(request, beaver_id):
-        return generic.view_entity(request, beaver_id, Beaver, '/beavers/beaver')
+        return generic.view_entity(request, beaver_id, Beaver)
 
 
-Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette url : ::
+Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 
-    urlpatterns = patterns('creme.beavers.views',
-        (r'^beavers$',                   'beaver.listview'),
-        (r'^beaver/add$',                'beaver.add'),
-        (r'^beaver/(?P<beaver_id>\d+)$', 'beaver.detailview'), # < -- NEW
-    )
+    urlpatterns = [
+        url(r'^beavers$',                   beaver.listview,   name='beavers__list_beavers'),
+        url(r'^beaver/add$',                beaver.add,        name='beavers__create_beaver'),
+        url(r'^beaver/(?P<beaver_id>\d+)$', beaver.detailview, name='beavers__view_beaver'),  # < -- NEW
+    ]
+
+En rafraîchissant notre page dans le navigateur, nous obtenons bien la vue
+détaillée espérée.
+
+Pour que les prochaines création de castor n'aboutisse pas sur une erreur 404,
+nous créons la méthode ``get_absolute_url()`` : ::
+
+    # -*- coding: utf-8 -*-
+
+    [...]
 
 
-En rafraîchissant notre page dans le navigateur, nous obtenons bien la vue détaillée
-espérée. Il nous manque encore une vue de base : la vue d'édition.
+    class Beaver(CremeEntity):
+        [...]
+
+        def get_absolute_url(self):
+            return reverse('beavers__view_beaver', args=(self.id,))
 
 
 La vue d'édition
 ~~~~~~~~~~~~~~~~
 
-Si nous cliquons sur le bouton d'édition (le gros stylo dans la vue détaillée),
-nous avons encore une erreur 404. Ajoutons cette vue dans ``views/beaver.py`` : ::
+Contrairement aux autres types de fiche, nos castors ne peuvent pas être modifiés
+globalement (avec le gros stylo dans les vues détaillées)
+
+Ajoutons cette vue dans ``views/beaver.py`` : ::
 
     @login_required
     @permission_required('beavers')
     def edit(request, beaver_id):
         return generic.edit_entity(request, beaver_id, Beaver, BeaverForm)
 
-et rajoutons l'url associée : ::
 
-    urlpatterns = patterns('creme.beavers.views',
-        (r'^beavers$',                        'beaver.listview'),
-        (r'^beaver/add$',                     'beaver.add'),
-        (r'^beaver/edit/(?P<beaver_id>\d+)$', 'beaver.edit'),  # < -- NEW
-        (r'^beaver/(?P<beaver_id>\d+)$',      'beaver.detailview'),
-    )
+Rajoutons l'URL associée : ::
+
+    urlpatterns = [
+        url(r'^beavers$',                        beaver.listview,   name='beavers__list_beavers'),
+        url(r'^beaver/add$',                     beaver.add,        name='beavers__create_beaver'),
+        url(r'^beaver/edit/(?P<beaver_id>\d+)$', beaver.edit,       name='beavers__edit_beaver'),  # < -- NEW
+        url(r'^beaver/(?P<beaver_id>\d+)$',      beaver.detailview, name='beavers__view_beaver'),
+    ]
+
+
+Ainsi que la méthode ``get_edit_absolute_url`` : ::
+
+    # -*- coding: utf-8 -*-
+
+    [...]
+
+
+    class Beaver(CremeEntity):
+        [...]
+
+        def get_edit_absolute_url(self):
+            return reverse('beavers__edit_beaver', args=(self.id,))
 
 
 La vue de portail
@@ -479,27 +570,18 @@ statistiques. Ajouter le fichier ``views/portal.py`` suivant : ::
 
 Il faut mettre à jour le fichier ``beavers/urls.py`` : ::
 
-    [...]
+    # -*- coding: utf-8 -*-
 
-    urlpatterns = patterns('creme.beavers.views',
-        (r'^$', 'portal.portal'), # <- NEW
+    from django.conf.urls import url
 
-        (r'^beavers$',                        'beaver.listview'),
-        (r'^beaver/add$',                     'beaver.add'),
-        (r'^beaver/edit/(?P<beaver_id>\d+)$', 'beaver.edit'),
-        (r'^beaver/(?P<beaver_id>\d+)$',      'beaver.detailview'),
-    )
+    from .views import beaver, portal  # <- UPDATE
 
-Rien dans l'interface ne permet d'accéder au portail pour le moment. Nous mettons
-donc une entrée supplémentaire dans le menu de gauche en éditant
-``creme_core_register.py`` : ::
 
-    [...]
+    urlpatterns = [
+        url(r'^$', portal.portal),  # <- NEW
 
-    reg_item = creme_menu.register_app('beavers', '/beavers/').register_item
-    reg_item('/beavers/',           _(u'Portal'),          'beavers') # <- NEW
-    reg_item('/beavers/beavers',    _(u'All beavers'),     'beavers')
-    reg_item('/beavers/beaver/add', Beaver.creation_label, 'beavers.add_beaver')
+        [...]
+    ]
 
 
 Si vous tentez d'accéder au portail, vous déclenchez une erreur. En effet, il
@@ -507,7 +589,7 @@ reste encore un tout petit peu de travail pour qu'il fonctionne. Toute à l'heur
 dans ``views/portal.py``, dans la fonction ``app_portal()`` nous avons fait
 référence à un fichier 'template' qui n'existe pas : ``beavers/portal.html``.
 Remédions y ; tout d'abord créez un répertoire ``templates`` dans ``beavers/``, et
-qui contiendra lui même un répertoire ``beavers`` (attention il faut suivre) : ::
+qui contiendra lui-même un répertoire ``beavers`` (attention il faut suivre) : ::
 
     > mkdir templates
     > cd templates
@@ -519,12 +601,42 @@ Ne reste plus qu'à créer le fameux fichier ``beavers/templates/beavers/portal.
     {% extends "creme_core/generics/portal.html" %}
     {% load i18n %}
     {% block title %}{% trans "Beaver portal" %}{% endblock %}
-    {% block list_url %}/beavers/beavers{% endblock %}
+    {% block list_url %}{% url 'beavers__list_beavers' %}{% endblock %}
     {% block list_msg %}{% trans "List of beavers" %}{% endblock %}
 
 Vous remarquerez qu'il ne sert qu'à surcharger des blocs du portail génériques ;
 d'autres blocs sont surchargeables, par exemple celui pour rajouter une icône
 à votre portail.
+
+
+Faire apparaître les entrées dans le menu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dans notre fichier ``apps.py``, nous ajoutons la méthode ``BeaversConfig.register_menu()``
+et nous créons 3 entrées dans le menu de notre app : une pour afficher le portail,
+une pour la liste des castors, et une pour créer un nouveau castor : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_menu(self, creme_menu):
+            from django.core.urlresolvers import reverse_lazy
+
+            reg_item = creme_menu.register_app('beavers', '/beavers/').register_item
+            reg_item('/beavers/', _(u'Portal'), 'beavers')
+            reg_item(reverse_lazy('beavers__list_beavers'),  _(u'All beavers'),     'beavers')
+            reg_item(reverse_lazy('beavers__create_beaver'), Beaver.creation_label, 'beavers.add_beaver')
+
+
+**Note** : nous utilisons ``reverse_lazy()`` et pas ``reverse()`` afin de
+prévenir des problèmes de chargement trop précoce.
+
+Si nous relançons le serveur, et rechargeons notre page dans le navigateur, nous
+voyons bien une nouvelle entrée dans le menu rétractable à gauche, portant le
+label "Beavers management". Et si on entre dans le menu, il contient bien les 3
+liens attendus.
 
 
 Initialisation du module
@@ -535,7 +647,20 @@ que ce soit pour leur bon fonctionnement ou pour rendre l'utilisation de ce modu
 plus agréable. Par exemple, quand nous avons voulu aller sur notre liste de castor
 la première fois, nous avons du créer une vue (i.e. : les colonnes à afficher dans
 la liste). Nous allons écrire du code qui sera exécuté au déploiement, et créera
-la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
+la vue de liste.
+
+Créez le fichier ``beavers/constants.py``, qui contiendra comme son nom l'indique
+des constantes : ::
+
+    # -*- coding: utf-8 -*-
+
+    # NB: ceci sera l'identifiant de notre vue de liste par défaut. Pour éviter
+    #     les collisions entres apps, la convention est de construire une valeur
+    #     de la forme 'mon_app' + 'hf_' + 'mon_model'.
+    DEFAULT_HFILTER_BEAVER = 'beavers-hf_beaver'
+
+
+Puis créons un fichier : ``beavers/populate.py``. ::
 
     # -*- coding: utf-8 -*-
 
@@ -544,8 +669,8 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.management.commands.creme_populate import BasePopulator
     from creme.creme_core.models import HeaderFilter, SearchConfigItem
-    from creme.creme_core.utils import create_or_update as create
 
+    from .constants implémentation DEFAULT_HFILTER_BEAVER
     from .models import Beaver
 
 
@@ -553,7 +678,7 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
         dependencies = ['creme_core']
 
         def populate(self):
-            HeaderFilter.create(pk='beavers-hf_beaver', name=_(u'Beaver view'), model=Beaver,
+            HeaderFilter.create(pk=DEFAULT_HFILTER_CONTACT, name=_(u'Beaver view'), model=Beaver,
                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                             (EntityCellRegularField, {'name': 'birthday'}),
                                            ],
@@ -576,7 +701,26 @@ Le code est exécuté par la commande ``creme_populate``. La commande permet de 
 
     > python manage.py creme_populate beavers
 
+
 En réaffichant votre liste de castors, la deuxième vue est bien là.
+
+
+**Allons plus loin**: améliorons maintenant notre liste de castors afin de nous
+assurer que lorsqu'un utilisateur se connecte avec une session neuve, la vue par
+défaut est utilisée (sinon c'est la première par ordre alphabétique): ::
+
+    [...]
+    from ..constants import DEFAULT_HFILTER_BEAVER  # <- NEW
+
+    [...]
+
+    @login_required
+    @permission_required('beavers')
+    def listview(request):
+        return generic.list_view(request, Beaver,
+                                 hf_pk=DEFAULT_HFILTER_BEAVER,  # <- NEW
+                                )
+
 
 
 Localisation (l10n)
@@ -591,7 +735,7 @@ Dans ``beavers/``, créez un répertoire ``locale``, puis lancez la commande qui
 construit le fichier de traduction (en français ici) : ::
 
     > mkdir locale
-    > django-admin.py makemessages -l fr -e html
+    > django-admin.py makemessages -l fr
     processing language fr
 
 
@@ -599,7 +743,7 @@ Un fichier est alors créé par la dernière commande (ainsi que les répertoire
 nécessaires) : ``locale/fr/LC_MESSAGES/django.po``
 
 Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
-évidement différentes) : ::
+évidemment différentes) : ::
 
     # SOME DESCRIPTIVE TITLE.
     # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -611,7 +755,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2015-01-29 13:29+0100\n"
+    "POT-Creation-Date: 2015-12-08 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -620,15 +764,15 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     "Content-Transfer-Encoding: 8bit\n"
     "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-    #: creme_core_register.py:11
+    #: apps.py:12
     msgid "Beavers management"
     msgstr ""
 
-    #: creme_core_register.py:14
+    #: apps.py:23
     msgid "All beavers"
     msgstr ""
 
-    #: creme_core_register.py:15
+    #: apps.py:24
     msgid "Add a beaver"
     msgstr ""
 
@@ -659,12 +803,11 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     # This file is distributed under the same license as the PACKAGE package.
     # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
     #
-    #, fuzzy
     msgid ""
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2015-01-29 13:29+0100\n"
+    "POT-Creation-Date: 2015-10-22 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -673,15 +816,15 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     "Content-Transfer-Encoding: 8bit\n"
     "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-    #: creme_core_register.py:11
+    #: apps.py:12
     msgid "Beavers management"
     msgstr "Gestion des castors"
 
-    #: creme_core_register.py:14
+    #: apps.py:23
     msgid "All beavers"
     msgstr "Lister les castors"
 
-    #: creme_core_register.py:15
+    #: apps.py:24
     msgid "Add a beaver"
     msgstr "Ajouter un castor"
 
@@ -714,7 +857,7 @@ suivante : ::
 
 Le fichier ``beavers/locale/fr/LC_MESSAGES/django.mo`` est bien généré. Si vous
 relancez le serveur Web, les différents labels apparaissent en français, pour peu
-que votre navigateur soit configuré pour, et que que le middleware
+que votre navigateur soit configuré pour, et que que le *middleware*
 'django.middleware.locale.LocaleMiddleware' soit bien dans votre ``settings.py``
 (ce qui est le cas par défaut).
 
@@ -730,11 +873,7 @@ Admettons que nous voulions donner un état de santé pour chacun de nos castors
 cela pourrait par exemple être utilisé dans la vue en liste pour n'afficher que
 les castors malades, et appeler un vétérinaire en conséquence.
 
-
-Tout d'abord **supprimez tous les castors** que vous avez crées, depuis la vue
-en liste et sa suppression multiple par exemple (nous pourrions essayer de migrer
-la base de données, mais cela sortirais du champ de ce chapitre en tout cas).
-Ensuite créez un fichier ``models/status.py`` : ::
+Créez un fichier ``models/status.py`` : ::
 
     # -*- coding: utf-8 -*-
 
@@ -746,7 +885,7 @@ Ensuite créez un fichier ``models/status.py`` : ::
 
     class Status(CremeModel):
         name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
-        is_custom = BooleanField(default=True)
+        is_custom = BooleanField(default=True).set_tags(viewable=False)
 
         def __unicode__(self):
             return self.name
@@ -760,62 +899,140 @@ Ensuite créez un fichier ``models/status.py`` : ::
 
 **Notes** : l'attribut ``is_custom`` ; il sera utilisé par le module *creme_config*
 comme nous allons le voir plus tard. Il est important qu'il se nomme ainsi, et
-qu'il soit de type ``BooleanField``. Donner un ordre par défaut (attribut ``ordering``
-de la classe ``Meta``) agréable pour l'utilisateur est important, puisque c'est cet
-ordre qui sera utilisé par exemple dans les formulaires (à moins que vous n'en
-précisiez un autre explicitement, évidement).
+qu'il soit de type ``BooleanField``. Notez l'utilisation de ``set_tags()`` qui permet
+de cacher ce champ à l'utilisateur (nous reviendrons plus tard sur les tags).
+Donner un ordre par défaut (attribut ``ordering`` de la classe ``Meta``) agréable
+pour l'utilisateur est important, puisque c'est cet ordre qui sera utilisé par
+exemple dans les formulaires (à moins que vous n'en précisiez un autre
+explicitement, évidemment).
 
 
 Modifiez *models/__init__.py* : ::
 
     # -*- coding: utf-8 -*-
 
-    from status import Status # <-- NEW
+    from status import Status  # <-- NEW
     from beaver import Beaver
+
+
+Nous allons générer une première migration qui généré la table correspondante : ::
+
+    > python manage.py makemigrations beavers
+
+Un fichier nommé ``0002_status.py`` est alors créé.
+
+Dans la mesure où nous avons l'intention d'ajouter une *ForeignKey* non nullable
+dans notre classe ``Beaver`` (cela rend l'exercice plus intéressant), nous
+allons maintenant créér une migration de données (par opposition à migration de
+schéma) qui rajoute en base une instance de ``Status`` qui servira de valeur par
+défaut pour les instances de castor existantes. Ça sera tout à fait le genre
+de chose qui vous arriveront en pratique : une version en production qu'il faut
+faire évoluer sans casser les données existantes.
+
+Générer donc cette migration (notez le paramètre ``empty``) : ::
+
+    > python manage.py makemigrations beavers --empty
+
+Un fichier noméé en fonction de la date du jour vient d'être créé. Une fois
+celui-ci rénommé en ``0003_populate_default_status.py``, ouvrez le.
+Il devrait ressembler à ça: ::
+
+    # -*- coding: utf-8 -*-
+    from __future__ import unicode_literals
+
+    from django.db import migrations, models
+
+
+    class Migration(migrations.Migration):
+
+        dependencies = [
+            ('beavers', '0002_status'),
+        ]
+
+        operations = [
+        ]
+
+
+Éditez le pour obtenir : ::
+
+    # -*- coding: utf-8 -*-
+    from __future__ import unicode_literals
+
+    from django.db import migrations, models
+
+
+    def populate_status(apps, schema_editor):
+        apps.get_model('beavers', 'Status').objects.create(id=1, name=u'Healthy', is_custom=False)
+
+
+    class Migration(migrations.Migration):
+        dependencies = [
+            ('beavers', '0002_status'),
+        ]
+
+        operations = [
+            migrations.RunPython(populate_status),
+        ]
 
 
 Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
 
-    from django.db.models import CharField, DateField, ForeignKey # <- NEW
+    from django.core.urlresolvers import reverse
+    from django.db.models import CharField, DateField, ForeignKey  # <- NEW
     from django.utils.translation import ugettext_lazy as _
 
     from creme.creme_core.models import CremeEntity
 
-    from status import Status # <- NEW
+    from status import Status  # <- NEW
 
 
     class Beaver(CremeEntity):
         name     = CharField(_(u'Name'), max_length=100)
         birthday = DateField(_(u'Birthday'))
-        status   = ForeignKey(Status, verbose_name=_(u'Status')) # <- NEW
+        status   = ForeignKey(Status, verbose_name=_(u'Status'))  # <- NEW
 
         [....]
 
 
-Supprimez la table *beavers_beaver*, puis lancez la commande *syncdb* comme
-précédemment : ::
+Il faut maintenant générer la migration correspondante (pas de ``empty``
+puisque c'est une migration de schéma) : ::
 
-    > python manage syncdb
-    Creating table beavers_status
-    Creating table beavers_beaver
-    Installing index for beavers.Beaver model
-    No fixtures found.
+    > python manage.py makemigrations beavers
+    You are trying to add a non-nullable field 'status' to beaver without a default; we can't do that (the database needs something to populate existing rows).
+    Please select a fix:
+    1) Provide a one-off default now (will be set on all existing rows)
+    2) Quit, and let me add a default in models.py
+    Select an option:
 
-En relançant le serveur, pus en voulant ajouter un castor, on a une mauvaise
-surprise : le statut est nécessaire, mais aucun n'existe ; de plus pas moyen de
-créer de statut.
+Nous avions anticipé cette question, et pouvons donc choisir l'option 1, puis
+donner la valeur par défaut "1" (puisque c'est l'ID du ``Status`` créé dans la
+migration précédente).
+
+On peut maintenant exécuter nos migrations : ::
+
+    > python manage.py migrate
+
+En relançant le serveur, lorsqu'on ajoute un castor, on a bien un nouveau champ
+dans le formulaire. En revanche un seul choix de ``Status`` est disponible, ce
+qui est peu utile.
+
 Nous allons tout d'abord enrichir notre ``populate.py`` en créant au déploiement
-des statuts. Les utilisateurs auront donc dès le départ des statuts utilisables.
-Créez le fichier ``beavers/constants.py``, qui contiendra comme son nom l'indique
-des constantes : ::
+des statuts. Les utilisateurs auront donc dès le départ plusieurs statuts
+utilisables. Dans le fichier ``beavers/constants.py``, on rajoute des
+constantes : ::
 
     # -*- coding: utf-8 -*-
+
+    [...]
 
     STATUS_HEALTHY = 1
     STATUS_SICK = 2
 
 
 Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
+
+    [...]
+    from creme.creme_core.utils import create_or_update as create
 
     [...]
     from .constants import STATUS_HEALTHY, STATUS_SICK
@@ -831,7 +1048,7 @@ Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
 
 En mettant l'attribut ``is_custom`` à ``False``, on rend ces 2 ``Status`` non
 supprimables. Les constantes créées juste avant sont les PK des 2 objets ``Status``
-que l'ont créé ; on pourra ainsi y accéder facilement plus tard. Relancez la
+que l'ont créés ; on pourra ainsi y accéder facilement plus tard. Relancez la
 commande pour 'peupler' : ::
 
     > python manage.py creme_populate beavers
@@ -858,9 +1075,9 @@ est bien apparue : elle nous permet bien de créer des nouveaux ``Status``.
 créer/modifier les statuts en 3ème paramètre du tuple, soit (Model, Nom, Formulaire),
 si celui qui est généré automatiquement ne vous convient pas. Ça pourrait être le
 cas s'il y a une contrainte métier à respecter, mais qui n'est pas exprimable via
-les contraintes habituelles des modèles, comme ``nullable``.
+les contraintes habituelles des modèles (comme ``nullable``).
 
-**Allons un peu loin** : si vous pouvez que les **utilisateurs puissent choisir l'ordre**
+**Allons un peu loin** : si vous voulez que les **utilisateurs puissent choisir l'ordre**
 des statuts (dans les formulaire, dans la recherche rapide des vue de liste etc…),
 vous devez rajouter un champ ``order`` comme ceci : ::
 
@@ -870,13 +1087,13 @@ vous devez rajouter un champ ``order`` comme ceci : ::
     from django.utils.translation import ugettext_lazy as _
 
     from creme.creme_core.models import CremeModel
-    from creme.creme_core.models.fields import BasicAutoField # <- NEW
+    from creme.creme_core.models.fields import BasicAutoField  # <- NEW
 
 
     class Status(CremeModel):
         name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
-        is_custom = BooleanField(default=True)
-        order     = BasicAutoField(_(u"Order")) # <- NEW
+        is_custom = BooleanField(default=True).set_tags(viewable=False)
+        order     = BasicAutoField(_(u"Order"))  # <- NEW
 
         def __unicode__(self):
             return self.name
@@ -891,64 +1108,6 @@ vous devez rajouter un champ ``order`` comme ceci : ::
 Notez qu'un ``BasicAutoField`` est par défaut non éditable et non visible, et
 qu'il gère l'auto-incrémentation tout seul, donc normalement vous n'aurez pas à
 vous occuper de lui.
-
-
-Utilisation de South (migrations)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-South est l'app de référence dans le mode Django quand il s'agit de faire de
-gérer les migrations de Base de Données. En effet, avec les versions successives
-de code, on est souvent amené à créer de nouvelles tables (pour les nouveaux
-modèles), à supprimer des tables, ajouter/supprimer/renommer des champs…
-
-South permet de créer les scripts de migrations de manière automatique la plupart
-du temps, ainsi que d'exécuter ces mêmes scripts. La documentation officielle se
-trouve `ici <http://south.readthedocs.org/en/latest/>`_.
-
-En admettant que ``south`` soit bien activée dans vos INSTALLED_APPS, vous devriez
-avant de mettre votre module *beavers* en production créer son script de migration
-initiale : ::
-
-    > python manage.py schemamigration beavers --initial
-
-Un fichier ``beavers/migrations/0001_initial.py`` est alors créé.
-
-**Attention** : dans les faits vous devriez en fait avoir l'erreur suivante : ::
-
-    [...]
-    ValueError: South does not support on_delete with SET(function) as values.
-
-La solution consiste à commenter temporairement (le temps de générer la migration)
-la ligne suivante du fichier ``creme_core/models/fields.py`` (à la ligne 70
-actuellement) : ::
-
-    kwargs['on_delete'] = SET(_transfer_assignation)#[...]
-
-
-**Explication** : Django gère les suppressions des objets référencés par ForeignKey
-suivant 4 méthodes : CASCADE, PROTECT, SET_NULL et SET. Les 3 premières sont
-triviales à comprendre, la dernière prend une fonction qui permet de coder le
-comportement à utiliser lors de la suppression. Malheureusement South ne gère
-pas ce dernier cas, et refuse de générer les migrations quand on s'en sert. Or
-South n'évolue plus en ce moment, car son auteur est en train de l"intégrer
-directement dans Django, et va devenir à terme la façon standard de gérer les
-tables (la commande ``syncdb`` va plus ou moins disparaître).
-À terme le problème de SET devrait disparaître (ainsi que des tas de bugs de South
-venant de sa non intégration), mais pour le moment on n'a pas le choix que de
-contourner les problèmes. D'où le hack qui consiste à commenter la ligne susnommée,
-qui fait que South voit cette FK comme étant en mode CASCADE, la valeur par défaut.
-
-
-Le script de migration est joué lorsque la commande ``migrate`` est lancée, au
-déploiement de votre instance de Creme.
-
-Lorsque vous ferez évoluer votre app *beavers*, vous devrez potentiellement
-utiliser les commandes ``schemamigration`` et ``datamigration`` pour générer de
-nouveaux scripts de migrations.
-
-Facilitez vous la vie en désactivant ``south`` pendant la phase de développement,
-mais ne cédez pas à la tentation de vous en passer totalement, vous le regretteriez
-à moyen terme.
 
 
 Utilisation des blocs
@@ -993,9 +1152,9 @@ une convention) : ::
         def ok_4_display(self, entity):
             return (entity.status_id == STATUS_SICK)
 
-        #def render(self, context):
-            #context['variable_name'] = 'VALUE'
-            #return super(CreateTicketButton, self).render(context)
+        # def render(self, context):
+            # context['variable_name'] = 'VALUE'
+            # return super(CreateTicketButton, self).render(context)
 
 
     create_ticket_button = CreateTicketButton()
@@ -1034,18 +1193,23 @@ Maintenant au tour du fichier template associé, ``beavers/templates/beavers/tem
 La variable ``has_perm`` est renseignée grâce à l'attribut ``permission`` de
 notre bouton ; nous en faisons usage pour n'afficher qu'un bouton inactif si
 l'utilisateur n'a pas les droits suffisants. Notez que la balise ``<a>`` fait
-référence à une url à laquelle nous n'avons pas (encore) associé de vue.
+référence à une URL à laquelle nous n'avons pas (encore) associé de vue.
 
 
 Il faut enregistrer notre bouton avec les autres boutons de Creme, afin que
-*creme_config* puisse proposer notre bouton. Pour ça, nous rajoutons à la fin
-de ``beavers/creme_core_register.py`` : ::
+*creme_config* puisse proposer notre bouton. Pour ça, nous rajoutons dans
+``beavers/apps.py`` la méthode ``register_buttons()`` : ::
 
-    from creme.creme_core.gui.button_menu import button_registry
+    [...]
 
-    from .buttons import create_ticket_button
+    class BeaversConfig(CremeAppConfig):
+        [...]
 
-    button_registry.register(create_ticket_button)
+        def register_buttons(self, button_registry):  # <- NEW
+            from .buttons import create_ticket_button
+
+            button_registry.register(create_ticket_button)
+
 
 Si nous allons dans le menu 'Configuration générale', puis 'Gestion du menu bouton',
 et que nous éditons la configuration d'un type autre que Castor, notre bouton
@@ -1060,7 +1224,11 @@ Dans ``beavers/urls.py`` : ::
 
     [...]
 
-    (r'^ticket/add/(?P<beaver_id>\d+)$',  'ticket.add'),
+    from .views import beaver, portal, ticket  # <- UPDATE
+
+    [...]
+
+        url(r'^ticket/add/(?P<beaver_id>\d+)$',  ticket.add),
 
     [...]
 
@@ -1068,9 +1236,9 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
 
     # -*- coding: utf-8 -*-
 
+    from django.contrib.auth.decorators import login_required, permission_required
     from django.shortcuts import get_object_or_404
     from django.utils.translation import ugettext as _
-    from django.contrib.auth.decorators import login_required, permission_required
 
     from creme.creme_core.views.generic import add_entity
 
@@ -1093,6 +1261,7 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
 
 Maintenant notre vue nous affiche bien un formulaire pré-rempli en partie.
 
+
 Utilisation de la création rapide
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1105,14 +1274,18 @@ aussi utilisés dans certains *widgets* de sélection de fiche, qui permettent d
 créer des fiches à la volée.
 
 Si vous souhaitez ajouter la possibilité de création rapide à vos castors, c'est
-très simple. Dans votre ``creme_core_register.py``, ajoutez ces quelques lignes : ::
+très simple. Dans votre ``apps.py``, ajoutez la méthode ``register_quickforms()``
+telle que : ::
 
-    from creme.creme_core.gui import quickforms_registry # A fusionner avec les autres imports depuis creme.creme_core.gui...
+    [...]
 
-    from .forms.beaver import BeaverForm
+    class BeaversConfig(CremeAppConfig):
+        [...]
 
+        def register_quickforms(self, quickforms_registry):  # <- NEW
+            from .forms.beaver import BeaverForm
 
-    quickforms_registry.register(Beaver, BeaverForm)
+            quickforms_registry.register(Beaver, BeaverForm)
 
 
 Ici nous utilisons le formulaire classique des castors, et non une version
@@ -1125,7 +1298,7 @@ simplifiée, car :
 **Attention** : n'enregistrez que des classes dérivant de ``CremeEntity``. Si
 vous enregistrez d'autres types de classes, les droits de création ne seront
 accordés qu'aux super-utilisateurs (car leurs tests de droit sont évités), en
-clair les utilisateurs lambda ne verrons pas la classe dans la liste des créations
+clair les utilisateurs lambda ne verront pas la classe dans la liste des créations
 rapides possibles. C'est à la fois un choix d'interface et une limitation de
 l'implémentation, cela pourrait donc changer à l'avenir, mais en l'état il en
 est ainsi.
@@ -1134,7 +1307,60 @@ est ainsi.
 Champs fonctions
 ~~~~~~~~~~~~~~~~
 
-[TODO]
+Ce sont des champs qui n'existent pas en base de données, et qui permettent
+d'effectuer des calculs ou des requêtes afin de présenter des l'information
+utile aux utilisateurs. Ils sont être disponibles dans les vues en listes et
+les blocs personnalisés. ::
+
+    [...]
+    from datetime import date
+
+    from creme.creme_core.core.function_field import FunctionField
+
+
+    class _BeaverAgeField(FunctionField):
+        name         = "get_age"
+        verbose_name = _(u'Age')
+
+
+    class Beaver(CremeEntity):
+        [...]
+
+        function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
+
+        [...]
+
+        def get_age(self):
+            birthday = self.birthday
+
+            if not birthday:
+                return 'N/A
+
+            return '%s year(s)' % (date.today().year - birthday.year)
+
+
+**Notes** Dans le cas le plus simple, le *name* du FunctionField, qui lui sert
+d'identifiant (quand on enregistre une vue de liste par exemple) est aussi le
+nom d'une méthode de votre entité. Vous pouvez aussi définir le code de votre
+champ fonction dans ce dernier (c'est pratique pour en rajouter dans une entité
+d'une app dont vous ne voulez pas toucher le code) : ::
+
+    from creme.creme_core.core.function_field import FunctionField,  FunctionFieldResult
+
+    class _BeaverAgeField(FunctionField):
+        name         = "compute_age"
+        verbose_name = _(u'Age')
+
+        def __call__(self, entity):
+            birthday = entity.birthday
+
+            if not birthday:
+                age = 'N/A
+            else:
+                age = '%s year(s)' % (date.today().year - birthday.year)
+
+            return FunctionFieldResult(age)
+
 
 Hooking des formulaires
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -1152,28 +1378,93 @@ le suggère, ces fonctions (*callbacks*) sont respectivement appelées après le
 appels à __init__(), clean() et save(). Ces callbacks doivent avoir un et un
 seul paramètre, l'instance du formulaire.
 
-Le plus simple est de *hooker* les formulaires voulus depuis le ``creme_config_register.py``
-d'une de vos apps personnelles (comme *beavers*).
- 
-[TODO: à compléter]
+Le plus simple est de *hooker* les formulaires voulus depuis le ``apps.py``,
+d'une de vos apps personnelles (comme *beavers*), dans la méthode
+``all_apps_ready()``. Ici un exemple qui rajoute un champ dans le formulaire des
+Contacts (notez qu'il faudrait aussi *hooker* la méthode ``save()`` pour
+utiliser ce champ ; cet exercice est laissé au lecteur) : ::
+
+    # -*- coding: utf-8 -*-
+
+    [...]
+
+
+    class BeaversConfig(CremeAppConfig):
+        name = 'creme.beavers'
+        verbose_name = _(u'Beavers management')
+        dependencies = ['creme.creme_core']
+
+        def all_apps_ready(self):
+            super(BeaversConfig, self).all_apps_ready()
+
+            from django.forms.fields import BooleanField
+
+            # NB: on fait les import des autres apps ici pour éviter les
+            #     problème d'ordre de chargement.
+            from creme.persons.forms.contact import ContactForm
+
+            def add_my_field(form):
+                form.fields['loves_beavers'] = BooleanField(required=False, label=_(u"Loves beavers?"))
+
+            ContactForm.add_post_init_callback(add_my_field)
+
+        def register_creme_app(self, creme_registry):
+            [...]
+
+
+**Note technique** : ``all_apps_ready()`` est un ajout de Creme à Django qui ne
+définit que la méthode ``ready()``. Si vous avez besoin de faire des imports
+qui directement ou indirectement provoque l'import de code présent dans d'autres
+apps, alors utilisez plutôt ``all_apps_ready()`` ; sinon préférez ``ready()``
+qui est plus classique.
+
+**Note technique** : en raison du moment où les *callbacks* sont appelées, il
+est tout à fait possible, selon le formulaire qui vous préoccupe, que vous ne
+puissiez pas faire ce que vous voulez (par exemple avoir accès à un champ créé
+après l'appel à la *callbacks*. Cela reste donc un moyen simple mais limité ;
+pour des changements plus ambitieux vous devrez vous rabattre sur des méthodes
+plus avancées:
+
+ - Utiliser le *monkey patching* sur le formulaire concerné ; attention cette
+   méthode est plutôt brutale et doit être utiliser avec prudence (voire évitée).
+ - Définir votre propre modèle personnalisé (Contact dans notre exemple), ce qui
+   oblige à définir les vues de base sur celui-ci. On peut alors aisément
+   définir notre propre vue et utiliser notre propre formulaire, quitte à ce
+   qu'il dérive du formulaire qu'ont veut améliorer. C'est plus propre mais
+   nécessite plus de travail. Nous verrons cela plus loin dans le chapitre
+   `Modification d'un modèle existant`_
 
 
 Surcharge des templates
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Une des manières les plus simple de modifier une app existante pour l'adapter à
+Une des manières les plus simples de modifier une app existante pour l'adapter à
 ses propres besoin consiste à surcharger tout ou partie de ses templates.
 
 Pour cela, Creme s'appuie sur le système de chargement des templates de Django.
-Si vous regardez votre fichier ``settings.py``, vous pouvez y trouver la variable
-suivante : ::
+Si vous regardez votre fichier ``settings.py``, vous pouvez y trouver la
+variable suivante : ::
 
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader', (
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader',
-        )),
-    )
+    TEMPLATES = [
+        {
+            ...
+
+            'OPTIONS': {
+
+                ...
+
+                'loaders': [
+                    ('django.template.loaders.cached.Loader', ( #Don't use cached loader when developping (in your local_settings.py)
+                        'django.template.loaders.filesystem.Loader',
+                        'django.template.loaders.app_directories.Loader',
+                    )),
+                ],
+
+                ...
+            },
+        },
+    ]
+
 
 L'ordre des *loaders* est important ; cet ordre va faire que les templates présent
 dans le répertoire ``creme/templates/`` seront chargés en priorité par rapport
@@ -1206,6 +1497,241 @@ vu auparavant. En se plaçant dans le répertoire ``locale_overload/`` : ::
     > django-admin.py compilemessages
 
 
+Plus loin avec les modèles: les Tags
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creme permet de *tagger* les champs de modèles afin de leur rajouter de la
+sémantique, et d'affiner le comportement de certains services. Pour le moment
+en tout cas, il n'est pas possible de créer ses propres *tags*.
+
+Exemple d'utilisation (avec 2 tags configurés en même temps) : ::
+
+    [...]
+
+    class Beaver(CremeEntity):
+        [..]
+        internal_data = CharField('Data', max_length=100).set_tags(viewable=False, clonable=False)
+
+
+Listes des *tags* et leur utilité:
+
+ - ``viewable``: les champs d'informations classiques (``IntegerField``,
+   ``TextField``, …) sont visible par l'utilsateur. Or, parfois on souhaite
+   stocker des informations internes que l'utilisateurs ne devraient pas voir.
+   Il suffit de mettre ce *tag* à ``False``, et il sera caché dans toute
+   l'application.
+ - ``clonable``: en mettant ce *tag* à ``False``, la valeur du champ n'est pas
+   copiée lorsque l'entité est clonée.
+ - ``optional``: en mettant ce *tag* à ``True``, le champ peut être caché par
+   l'utilisation dans la "Configuration des champs" de la "Configuration générale".
+   Le champs est alors enlevé des formulaires ; il est donc évident que le champ
+   doit supporter de ne pas être rempli par les formulaires sans provoquer
+   d'erreur ; par exemple en étant ``nullable`` ou avoir une valeur pour ``default``.
+ - ``enumerable``: lorsqu'une ``ForeignKey`` a ce *tag* positionné à ``False``
+   (la valeur par défaut étant ``True``), Creme considère que cette FK peut
+   prendre une infinité de valeurs, et ces valeurs ne devraient donc jamais
+   être présentées en tant que choix, dans les filtres notamment.
+
+
+Modification champ à champ
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tous les champs déclarés comme ``editable=True`` dans vos modèles d'entités
+(c'est le cas par défaut) peuvent être modifié dans les vues détaillés desdits
+modèles dans les blocs d'informations (ainsi que dans les vues en liste).
+Un champ non éditable ne pourra pas être modifié de cette manière.
+
+Parfois, vous voulez que des champs soient présents dans le formulaire de
+création de la fiche, mais vous les excluez du formulaire d'édition (attribut
+``exclude`` de la classe ``Meta`` dudit formulaire). De la même manière, vous
+voudrez que ces champs ne puissent pas être modifiés non plus dans la vue
+détaillée : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_bulk_update(self, bulk_update_registry):
+            bulk_update_registry.register(Beaver,
+                                          exclude=['my_field1','my_field2'],
+                                         )
+
+Vous pouvez aussi vouloir personnaliser le formulaire d'édition pour un champ
+en particulier, parce qu'il est associé à des règles métiers par exemple : ::
+
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_bulk_update(self, bulk_update_registry):
+            from .forms.my_field import MyBulkEditForm
+
+            bulk_update_registry.register(Beaver,
+                                          innerforms={'my_field3': MyBulkEditForm},
+                                         )
+
+
+Les formulaires donnés en paramètre doivent hériter de
+``creme.creme_core.forms.bulk.BulkForm`` (``BulkDefaultEditForm`` est souvent
+un bon choix comme classe mère).
+
+
+Clonage de fiche
+~~~~~~~~~~~~~~~~
+
+De base, les entités peuvent être clonées. Si vous souhaitez qu'un modèle ne
+puisse pas l'être, définissez lui la méthode suivante : ::
+
+    class Beaver(CremeEntity):
+        [..]
+
+        @staticmethod
+        def get_clone_absolute_url():
+            return ''
+
+
+Si vous souhaitez gérer finement ce qui se passe lors d'un clonage, en plus du
+*tag* ``clonable`` vu précédemment, vous pouvez surcharger les méthodes
+suivantes :
+
+ - ``_pre_save_clone(self, source)`` (à préferer)
+ - ``_post_save_clone(self, source)`` (à préferer)
+ - ``_post_clone(self, source)`` (à préferer)
+ - ``_clone_m2m(self, source)``
+ - ``_clone_object(self)``
+ - ``_copy_properties(self, source)``
+ - ``_copy_relations(self, source, allowed_internal=())``
+ - ``clone(self)``
+
+
+Import de fichiers CSV
+~~~~~~~~~~~~~~~~~~~~~~
+
+Si vous souhaitez que votre modèle d'entité puisse être importé via des fichiers
+CSV/XLS, vous devez rajouter dans votre ``apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_mass_import(self, import_form_registry):
+            import_form_registry.register(Beaver)
+
+
+De cette manière, le formulaire d'import sera généré automatiquement. Dans le
+cas où vous voudriez personnaliser ce formulaire, regardez le code des apps
+``persons``, ``activities`` ou ``opportunities`` (cela sort du cadre de
+ce tutoriel).
+
+
+Fusion de 2 fiches
+~~~~~~~~~~~~~~~~~~
+
+Si vous voulez rendre un type d'entité fusionnable, regardez comment les apps
+``persons`` ou ``document`` s'y prennent, dans la méthode
+``register_merge_forms()`` de votre ``apps.py`` (cela sort du cadre de
+ce tutoriel).
+
+**Notes** : si vous avez créé un modèle relié un type d'entité fusionnable, vous
+pouvez gérer plus finement ce qui ce passe lors d'une fusion grâce aux signaux
+``creme.creme_core.signals.pre_merge_related`` et
+``creme.creme_core.signals.pre_replace_related``. Et si votre modèle est relié
+par un OneToOneField, vous **devez** gérer la fusion, car Creme ne peut
+évidemment pas gérer le cas où chacune des entités est relié (il faut donc au
+moins supprimer une des instances reliées, en récupérant ou non des informations
+au passage etc…).
+
+
+Valeurs de réglages
+~~~~~~~~~~~~~~~~~~~
+
+Le modèle ``SettingValue`` permet de proposer aux utilisateurs de donner des
+valeurs typées de configuration à Creme, afin que ce dernier puisse adopter
+des comportements différents selon les envies des utilisateurs.
+
+Dans votre fichier ``contants.py`` définissez l'identifiant de la clé de
+configuration : ::
+
+    BEAVER_KEY_ID = 'beavers-my_key'
+
+
+Dans un fichier ``setting_keys.py`` à la racine de votre app mettez : ::
+
+    # -*- coding: utf-8 -*-
+
+    from django.utils.translation import ugettext_lazy as _
+
+    from creme.creme_core.core.setting_key import SettingKey
+
+    from .constants import BEAVER_KEY_ID
+
+
+    beaver_key = SettingKey(id=BEAVER_KEY_ID,
+                            description=_('*Set a description here*'),
+                            app_label='beavers',
+                            type=SettingKey.BOOL,
+                           )
+
+Ici on a créé une valeur de type booléen. Les types actuellement disponibles
+étant :
+
+ - STRING
+ - INT
+ - BOOL
+ - HOUR
+ - EMAIL
+
+
+Dans votre fichier ``populate.py``, nous allons créé l'instance de
+``SettingValue`` associée, en lui donnant donc sa valeur par défaut : ::
+
+    [...]
+
+    from creme.creme_core.models import SettingValue
+
+    from .setting_keys import beaver_key
+
+
+    class Populator(BasePopulator):
+        [...]
+
+        def populate(self):
+            [...]
+
+            SettingValue.create_if_needed(key=beaver_key, user=None, value=True)
+
+
+Il faut maintenant exposer la clé à Creme. Dans votre ``apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_setting_key(self, setting_key_registry):
+            from .setting_keys import beaver_key
+
+            setting_key_registry.register(beaver_key)
+
+
+La valeur peut alors être configurée par les utilisateurs dans le portal de
+configuration de l'app.
+
+Et pour utiliser la valeur dans votre code : ::
+
+    from creme.creme_core.models import SettingValue
+
+    from creme.beavers.constants import BEAVER_KEY_ID
+
+
+    if SettingValue.objects.get(key_id=BEAVER_KEY_ID).value:
+        [...]
+
+
 Modification d'un modèle existant
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1218,66 +1744,252 @@ depuis l'interface, dans la configuration générale. Le problème est qu'il n'e
 pas (encore) possible d'ajouter des règles métier à ces champs, comme calculer
 leur valeur automatiquement par exemple.
 
-En dernier recours, vous pouvez alors utiliser la fonction ``contribute_to_model()``
-qui permet d'ajouter et supprimer des champs à un modèle. Pour cela il suffit de
-créer un modèle abstrait, et ses champs seront ajoutés à la classe que l'on veut
-modifier ; on peut aussi passer la liste des champs que l'on veut supprimer.
-Par exemple dans votre module *models* : ::
+Vous pouvez aussi créer un modèle dans votre app, et qui a un lien vers le
+modèle existant (*ForeignKey*, *ManyToManyField*, *OneToOneField*). C'est
+comme ça que procède par exemple l'app ``geolocation`` pour enrichir les adresses
+de l'app ``persons`` avec des informations de localisation géographique. Il
+faudra sûrement utiliser en plus d'autres techniques afin d'obtenir le résultat
+escompté :
 
-    from django.db.models import Model, CharField
+ - Utilisation de signaux django (``pre_save``, ``post_save`` …).
+ - `Hooking des formulaires`_ (vu précédemment)
+
+
+Dans le cas où vous souhaitez cacher des champs, rappelez vous que bon nombre de
+champs sont marqués comme optionnel, et peuvent être cachés en allant dans la
+configuration générale ("Configuration des champs").
+
+En dernier recours, si vous souhaitez vraiment pouvoir modifiez un modèle
+existant, il reste la possibilité de le *swapper*. Il faut cependant que le
+modèle soit *swappable* ; c'est le cas de toutes les classes dérivant de
+``CremeEntity`` ( ``Contact``, ``Organisation``, ``Activity`` …) ainsi que
+``Address``.
+
+Dans un premier temps, considérons que vous voulez effectuez ce *swapping* en
+début de projet ; c'est-à-dire que vous n'avez pas une base de données en
+production utilisant le modèle de base que vous voulez modifier. En gros, vous
+êtres en début de développement et savez déjà que vous voulez modifiez ce modèle.
+
+Nous allons prendre comme exemple que vous voulez *swapper* ``tickets.Ticket``.
+
+Tout d'abord vous devez créez une app dont le rôle sera d'étendre ``tickets`` et
+que nous appellerons ``my_tickets``. Vous devrez donc faire ce que nous avons
+fait pour l'app ``Beavers`` : créez un répertoire ``creme/my_tickets/``, contenant
+des fichiers ``__init__.py``, ``apps.py``, ``models.py``, ``urls.py`` …
+Votre app devra également être ajoutée dans les INSTALLED_CREME_APPS ; pour faire
+les choses correctement, elle devra être avant ``tickets``.
+
+Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
+
+    # -*- coding: utf-8 -*-
+
     from django.utils.translation import ugettext_lazy as _
 
-    from creme.creme_core.utils.contribute_to_model import contribute_to_model
-
-    from creme.persons.models import Contact
+    from creme.creme_core.apps import CremeAppConfig
 
 
-    class _ContributingContact(Model):
-        nickname = CharField(_(u'Nickname'), max_length=75, null=True, blank=True)
+    class MyTicketsConfig(CremeAppConfig):
+        name = 'creme.my_tickets'
+        verbose_name = _(u'Tickets')
+        dependencies = ['creme.tickets']
 
-        class Meta:
-            abstract = True
-
-
-    contribute_to_model(_ContributingContact, Contact,
-                        fields_2_delete=('url_site', 'sector')
-                       )
-
-Ce code va ajouter un champ *nickname* et enlever 2 champs à ``Contact``. Il vous
-faut ensuite générer la migration South ; dans notre exemple nous avons modifié
-``Contact``, donc la migration concerne l'app *persons* (et non pas la vôtre).
-
-**Problèmes connus** de ``contribute_to_model()`` :
-
- - Les champs ManyToManyField ne sont pas pris en compte.
- - Si la fonction marche bien sur les classes terminales, elle est difficilement
-   compatible avec les classes mères (en tant que cible à modifier) à cause de
-   l'implémentation actuelle. Quand une classe mère est utilisée pour un modèle,
-   Django copie les champs dans la classe fille. Par conséquent, si
-   ``contribute_to_model()`` est appelée alors que la dérivation a déjà été faite,
-   les nouveaux champs ne sont pas accessible dans la classe fille comme on le
-   souhaiterait. Conclusion : vous pouvez vous en servir pour modifier ``Contact``
-   ou ``Organisation`` sans problème, en revanche évitez de modifier ``CremeEntity``
-   de cette manière.
+        def register_creme_app(self, creme_registry):
+            creme_registry.register_app('my_tickets',
+                                        _(u'Tickets'),
+                                        extended_app='tickets',  # <= ICI !!
+                                       )
 
 
-Import de fichiers CSV
-~~~~~~~~~~~~~~~~~~~~~~
+Dans le ``models.py``, il faut déclarer un modèle qui va se substituer à ``Ticket``.
+Le plus facile étant de dériver de ``AbstractTicket`` (sachant que toutes les
+entités utilisent un schéma similaire) : ::
 
-[TODO]
+    # -*- coding: utf-8 -*-
+
+    from django.db.models import DecimalField
+    from django.utils.translation import ugettext_lazy as _
+
+    from creme.creme_core.models import CremeModel
+
+    from creme.tickets.models import AbstractTicket
 
 
-Fusion de 2 fiches
-~~~~~~~~~~~~~~~~~~
+    class MyTicket(AbstractTicket):
+        estimated_cost = DecimalField(_(u'Estimated cost (€)'),
+                                      blank=True, null=True,
+                                      max_digits=10, decimal_places=2,
+                                     )  # <= CHAMP SUPPLÉMENTAIRE
 
-[TODO]
+        class Meta(AbstractTicket.Meta):
+            app_label = 'my_tickets'
+
+
+Dans ``settings.py``, il vous faut repérez une variable de la forme
+``<APP>_<MODEL>_MODEL`` ; dans notre cas il s'agit de : ::
+
+    TICKETS_TICKET_MODEL = 'tickets.Ticket'
+
+Nous allons surcharger cette variable dans notre ``project_settings.py`` de la
+manière suivante : ::
+
+    TICKETS_TICKET_MODEL = 'my_tickets.MyTicket'
+
+Cela indique la classe à utiliser concrètement à la place de ``Ticket``.
+
+Vous pouvez à présent générer le répertoire de migrations comme nous l'avons
+déjà vu.
+
+Si on jette un œil au fichier ``tickets/urls.py``, on voit qu'un certain nombre
+d'URLs ne sont définies que lorsque le modèle n'est pas personnalisé : ::
+
+    [...]
+
+    if not ticket_model_is_custom():
+        from .views import ticket
+
+        urlpatterns += [
+            url(r'^tickets$',                        ticket.listview,   name='tickets__list_tickets'),
+            url(r'^ticket/add$',                     ticket.add,        name='tickets__create_ticket'),
+            url(r'^ticket/edit/(?P<ticket_id>\d+)$', ticket.edit,       name='tickets__edit_ticket'),
+            url(r'^ticket/(?P<ticket_id>\d+)$',      ticket.detailview, name='tickets__view_ticket'),
+        ]
+
+    [...]
+
+Ces vues ne peuvent évidemment pas respecter vos règles métier ; par exemple la
+vue de création peut planter si vous avez ajouté dans ``MyTicket`` un champ à
+la fois obligatoire et non éditable. dans la mesure où vous avez choisi de
+définir votre modèle personnalisé, il faut fournir nos propres URLs qui sont
+sûres de fonctionner
+
+Dans notre cas, les vues de base devraient tout à fait suffire (les formulaires
+seront assez intelligents pour utiliser votre nouveau champ), et donc nous
+pouvons définir ``my_tickets/urls.py`` tel que : ::
+
+    # -*- coding: utf-8 -*-
+
+    from django.conf.urls import url
+
+    from creme.tickets.views import ticket
+
+
+    urlpatterns += [
+        url(r'^my_tickets$',                        ticket.listview,   name='tickets__list_tickets'),
+        url(r'^my_ticket/add$',                     ticket.add,        name='tickets__create_ticket'),
+        url(r'^my_ticket/edit/(?P<ticket_id>\d+)$', ticket.edit,       name='tickets__edit_ticket'),
+        url(r'^my_ticket/(?P<ticket_id>\d+)$',      ticket.detailview, name='tickets__view_ticket'),
+    ]
+
+**Note** : l'important est de définir des URLs avec le même *name* (utilisé par
+``reverse()``), ainsi que les mêmes arguments ("ticket_id" ici).
+
+Dans des cas plus complexes, vous voudrez sûrement utiliser vos propres formulaire
+ou template. Il en vous reste plus qu'à définir vos propres vues quand c'est
+nécessaire. Gardez à l'esprit qu'il vaut mieux copier/coller le moins de chose
+possible ; les apps de base fournissent des vues abstraites qui vous permettront
+en général de passer les arguments qui vous arrangent. Par exemple, si vous
+voulez définir la vue de création de ``MyTicket`` avec votre propre formulaire
+(dont l'écriture n'est pas traité ici, vous savez déjà le faire), vous pourriez
+écrire quelque chose comme ça : ::
+
+    # -*- coding: utf-8 -*-
+
+    from creme.creme_core.auth.decorators import login_required, permission_required
+
+    from creme.tickets.views.ticket import abstract_add_ticket
+
+    from creme.my_tickets.forms import MyTicketForm  # <= à écrire aussi !
+
+
+    @login_required
+    @permission_required(('my_tickets', 'my_tickets.add_myticket'))
+    def add(request):
+        return abstract_add_ticket(request, form=MyTicketForm)
+
+
+**Un peu plus loin** : vous avez peut-être remarqué que dans ``settings.py`` se
+trouvaient aussi aussi des variable de la forme ``<APP>_<MODEL>_FORCE_NOT_CUSTOM``
+(par exemple ``TICKETS_TICKET_FORCE_NOT_CUSTOM``). Comme nous l'avons dit, il est
+préférable de procéder au *swapping* avant la création de la base de données. Or
+vous pourriez pressentir qu'à l'avenir un modèle doivent être *swappé*, mais vous
+n'en êtes pas encore certain. Et même en le *swappant* par précaution, vous n'avez
+pas forcément le temps de définir ses vues. C'est là qu'interviennent ces variables
+``*_FORCE_NOT_CUSTOM`` ; elles servent justement à *swapper* des modèles en avance,
+tout en forçant Creme à considérer que ces modèles ne sont pas personnalisés ;
+ainsi les vues 'normales' (et les tests unitaires aussi) seront utilisées malgré
+tout. Cependant, il faut faire attention à réellement utiliser des modèles qui
+soient identiques à leur modèle de base, en se contentant par exemple de juste
+dériver des modèles abstraits correspondants. Dans le cas contraire, les vues
+de base n'ont aucune garantie de fonctionner correctement. Utilisez donc ces
+variables avec précaution.
+
+**Comment swapper un modèle à posteriori ?** Si vous êtes dans un des 2 cas
+suivants :
+
+- Vous avez une installation de Creme 1.5 dans laquelle vous modifiez un modèle
+  de base grâce à la fonction ``contribute_to_model()``, et vous voulez passer
+  sur Creme 1.6 (dans laquelle ``contribute_to_model()`` n'existe plus).
+- Vous avez une installation de Creme 1.6 en production, et vous vous apercevez
+  que pour faire ce que vous voulez, vous devez *swapper* un modèle (et donc
+  c'est la version non *swappée* qui est utilisée dans votre code/base actuellement).
+
+Attention ! Vous devriez évidemment tester les étapes suivantes sur un duplicat
+de votre base de données de production, et toujours avoir une sauvegarde de votre
+base de production avant d'appliquer les modifications dessus (c'est valable de
+manière générale, mais 'est d'autant plus vrai que les manipulations suivantes
+sont assez sensibles).
+
+
+#. Vous devez écrire (dans votre propre app évidemment), un modèle *swappant*,
+   qui **doit correspondre exactement** au modèle tel qu'il est actuellement en
+   base ; c'est-à-dire :
+
+   - si vous avez un code 1.6, c'est simple, il suffit que votre modèle se
+     content de dériver du modèle abstrait correspondant (ex: ``AbstractTicket``)
+     **sans ajouter** de nouveaux champs (pour le moment bien sûr).
+   - si vous étiez un utilisateur de ``contribute_to_model()`` uniquement pour
+     ajouter de nouveaux champs, alors dérivez de la classe abstraite, et
+     ajoutez lesdits champs dans votre propre modèle.
+   - si enleviez des champs grâce à ``contribute_to_model()``, alors le plus
+     simple est de recopier le modèle abstrait, puis de commenter les champs
+     enlevés ; vous devez aussi rajouter les champs que vous aviez ajoutés avec
+     ``contribute_to_model()`` comme dans le cas précédent.
+
+#. Modifier le *setting* ``<APP>_<MODEL>_MODEL`` pour pointer vers votre modèle
+   comme vu précédemment.
+
+#. Attention, c'est l'étape la plus subtile : renommez la table correspondant au
+   modèle de base (dans PHPMyAdmin ou pdAdmin par exemple), en lui donnant le
+   nom que donnerait Django à la table de votre modèle. Comprenez par là qu'il
+   est important de suivre la convention Django. Dans l'exemple des tickets
+   traité au dessus, ça voudrait dire renommer la table "tickets_ticket" en
+   "my_tickets_myticket". Normalement, les SGBDR récents s'en sortent bien, et
+   les contraintes associées (donc notamment les *ForeignKeys* vers cette table)
+   sont correctement modifiées. Mais certaines vieilles version de MySQL ne font
+   pas ce travail correctement, d'où l'importance de tester avec un environnement
+   identique à votre environnement de production.
+
+#. Modifiez, dans la table "django_content_type" la ligne correspondant au modèle ;
+   par exemple la ligne app_label="tickets"/model="ticket" doit maintenant
+   contenir app_label="my_tickets" et model="myticket".
+
+#. Générez la migration de votre nouveau modèle. Cependant, comme la table existe
+   déjà en base il faut *faker* cette migration : ::
+
+        > python manage.py migrate my_tickets --fake-initial
+
+#. Comme nous l'avons vu, il faut gérer les vues de notre nouveau modèle.
+
+
+À ce moment, votre installation devrait être fonctionnelle ; si vous étiez parti
+d'une installation 1.6, il vous reste encore à ajouter les nouveaux champs.
 
 
 Liste des différents services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Vous pouvez personnaliser l'affichage des champs des modèles (vue détaillée,
-  vue en liste) gràce à ``creme_core.gui.field_printers.field_printers_registry``.
+  vue en liste) grâce à ``creme_core.gui.field_printers.field_printers_registry``.
 - Vous pouvez enregistrer des algorithmes de rappel par e-mail via
   ``creme_core.core.reminder.reminder_registry``.
 - Vous pouvez enregistrer de nouvelles périodicité dans
@@ -1295,8 +2007,9 @@ Liste des différents services
 Tests unitaires et développement piloté par les tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Creme utilise autant que possible le `Développement Piloté par les Tests <http://fr.wikipedia.org/wiki/Test_Driven_Development>`_.
-Ainsi les tests des fonctionnalités sont écrits en même temps que les
+Creme utilise autant que possible le
+`Développement Piloté par les Tests <http://fr.wikipedia.org/wiki/Test_Driven_Development>`_
+(TDD). Ainsi les tests des fonctionnalités sont écrits en même temps que les
 fonctionnalités elles-mêmes. En fournissant en permanence un filet de sécurité
 aux développeurs, le code peut constamment être amélioré sans régression, ou du
 moins en les limitant considérablement.
@@ -1326,43 +2039,41 @@ Créez un fichier ``beavers/tests.py`` : ::
             CremeTestCase.setUpClass()
             cls.populate('creme_core', 'beavers')
 
-    def test_createview(self):
-        user = self.login()
+        def test_createview(self):
+            user = self.login()
 
-        self.assertEqual(0, Beaver.objects.count())
-        url = '/beavers/beaver/add'
-        self.assertGET200(url)
+            self.assertEqual(0, Beaver.objects.count())
+            url = '/beavers/beaver/add'
+            self.assertGET200(url)
 
-        name   = 'Hector'
-        status = Status.objects.all()[0]
-        response = self.client.post(url, follow=True,
-                                    data={'user':     user.pk,
-                                          'name':     name,
-                                          'birthday': '2008-6-7',
-                                          'status':   status.id,
-                                         }
-                                   )
-        self.assertNoFormError(response)
+            name   = 'Hector'
+            status = Status.objects.all()[0]
+            response = self.client.post(url, follow=True,
+                                        data={'user':     user.pk,
+                                              'name':     name,
+                                              'birthday': '2015-12-3',
+                                              'status':   status.id,
+                                             }
+                                       )
+            self.assertNoFormError(response)
 
-        beavers = Beaver.objects.all()
-        self.assertEqual(1, len(beavers))
+            beavers = Beaver.objects.all()
+            self.assertEqual(1, len(beavers))
 
-        beaver = beavers[0]
-        self.assertEqual(name,   beaver.name)
-        self.assertEqual(status, beaver.status)
-        self.assertEqual(datetime.date(year=2008, month=6, day=7),
-                         beaver.birthday
-                        )
+            beaver = beavers[0]
+            self.assertEqual(name,   beaver.name)
+            self.assertEqual(status, beaver.status)
+            self.assertEqual(datetime.date(year=2015, month=12, day=3),
+                             beaver.birthday
+                            )
 
-
-[TODO: tester ce code]
 
 Remarques:
  - Les imports initiaux sont mis dans un bloc try/except, car si une erreur se
    produit au moment de l'importation des modules, l'exception est capturée
    silencieusement par l'infrastructure de test, et vos tests ne seront pas
    exécutés (tout se passera comme s'il y avait 0 test).
- - La méthode setUpClass est appelée une seule fois, avant que les tests soient
+ - La méthode ``setUpClass()`` est appelée une seule fois, avant que les tests soient
    exécutés. Y lancer les commandes *populate* utiles permet d'être bien plus
    rapide que si on les lance dans la méthode ``setUp()``, exécutée avant
    chaque test de la classe.
@@ -1370,4 +2081,54 @@ Remarques:
 Vous pouvez alors lancer vos tests : ::
 
     > python manage.py test beavers
-   
+
+**Astuce** : travaillez avec SQLite lorsque vous écrivez le nouveau code.
+Vous pouvez même, lorsque vous êtes dans une passe de TDD (c'est-à-dire que
+vous ne cherchez pas à voir le résultat dans votre navigateur) vous passer de
+l'écriture des migrations à chaque changement dans un modèle, avec les lignes
+suivantes dans votre ``local_settings.py`` : ::
+
+    import sys
+
+    # ATTENTION ! Ne fonctionne qu'avec SQLite
+    if 'test' in sys.argv:
+        MIGRATION_MODULES = {
+            'auth':           'auth.migrations_not_used_in_tests',
+            'creme_core':     'creme_core.migrations_not_used_in_tests',
+            'creme_config':   'creme_config.migrations_not_used_in_tests',
+            'media_managers': 'media_managers.migrations_not_used_in_tests',
+            'documents':      'documents.migrations_not_used_in_tests',
+            'assistants':     'assistants.migrations_not_used_in_tests',
+            'activities':     'activities.migrations_not_used_in_tests',
+            'persons':        'persons.migrations_not_used_in_tests',
+            'graphs':         'graphs.migrations_not_used_in_tests',
+            'reports':        'reports.migrations_not_used_in_tests',
+            'products':       'products.migrations_not_used_in_tests',
+            'recurrents':     'recurrents.migrations_not_used_in_tests',
+            'billing':        'billing.migrations_not_used_in_tests',
+            'opportunities':  'opportunities.migrations_not_used_in_tests',
+            'commercial':     'commercial.migrations_not_used_in_tests',
+            'events':         'events.migrations_not_used_in_tests',
+            'crudity':        'crudity.migrations_not_used_in_tests',
+            'emails':         'emails.migrations_not_used_in_tests',
+            'sms':            'sms.migrations_not_used_in_tests',
+            'projects':       'projects.migrations_not_used_in_tests',
+            'tickets':        'tickets.migrations_not_used_in_tests',
+            'cti':            'cti.migrations_not_used_in_tests',
+            'activesync':     'activesync.migrations_not_used_in_tests',
+            'vcfs':           'vcfs.migrations_not_used_in_tests',
+            'polls':          'polls.migrations_not_used_in_tests',
+            'mobile':         'mobile.migrations_not_used_in_tests',
+            'geolocation':    'geolocation.migrations_not_used_in_tests',
+
+            'beavers':        'beavers.migrations_not_used_in_tests',
+        }
+
+Une fois votre code satisfaisant, prenez le temps de lancer les tests avec MySQL
+et/ou PostgreSQL ; il vous faut pour ça commenter les lignes données au dessus
+et avoir écrit les migrations.
+
+**Astuce** : si vous êtes amené à lancer plusieurs fois les tests avec MySQL/PostgreSQL
+pour corriger un test réfractaire par exemple, utilisez l'option ``--keepdb`` de
+la commande ``test`` afin de grandement réduire le temps que prend la commande
+(il ne faut en revanche pas modifier les modèles entre 2 exécutions des tests).
