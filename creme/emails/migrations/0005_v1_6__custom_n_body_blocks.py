@@ -5,8 +5,6 @@ from django.conf import settings
 from django.db import migrations
 from django.utils.translation import activate, ugettext as _
 
-from .. import entityemail_model_is_custom, emailtemplate_model_is_custom
-
 
 MODELBLOCK_ID = 'modelblock'
 LEFT = 2
@@ -21,14 +19,13 @@ def convert_old_block_config(apps, schema_editor):
 
     activate(settings.LANGUAGE_CODE)
 
-    get_ct = get_model('contenttypes', 'ContentType').objects.get
+    ContentType = get_model('contenttypes', 'ContentType')
 
-    def get_emails_ct(model_name, custom_func):
-        if not custom_func():
-            return get_ct(app_label='emails', model=model_name)
+    def get_emails_ct(model_name):
+        return ContentType.objects.filter(app_label='emails', model=model_name).first()
 
-    email_ctype    = get_emails_ct('entityemail',   entityemail_model_is_custom)
-    template_ctype = get_emails_ct('emailtemplate', emailtemplate_model_is_custom)
+    email_ctype    = get_emails_ct('entityemail')
+    template_ctype = get_emails_ct('emailtemplate')
 
     create_cbci = get_model('creme_core', 'CustomBlockConfigItem').objects.create
     create_bdl = BlockDetailviewLocation.objects.create
