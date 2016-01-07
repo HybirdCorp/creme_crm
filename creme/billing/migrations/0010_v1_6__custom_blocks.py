@@ -5,10 +5,6 @@ from django.conf import settings
 from django.db import migrations
 from django.utils.translation import activate, ugettext as _, pgettext
 
-from .. import (invoice_model_is_custom, credit_note_model_is_custom,
-        quote_model_is_custom, sales_order_model_is_custom,
-        template_base_model_is_custom)
-
 
 MODELBLOCK_ID = 'modelblock'
 
@@ -22,17 +18,16 @@ def convert_old_blocks(apps, schema_editor):
 
     activate(settings.LANGUAGE_CODE)
 
-    get_ct = get_model('contenttypes', 'ContentType').objects.get
+    ContentType = get_model('contenttypes', 'ContentType')
 
-    def get_billing_ct(model_name, custom_func):
-        if not custom_func():
-            return get_ct(app_label='billing', model=model_name)
+    def get_billing_ct(model_name):
+        return ContentType.objects.filter(app_label='billing', model=model_name).first()
 
-    invoice_ctype      = get_billing_ct('invoice',      invoice_model_is_custom)
-    creditnote_ctype   = get_billing_ct('creditnote',   credit_note_model_is_custom)
-    quote_ctype        = get_billing_ct('quote',        quote_model_is_custom)
-    salesorder_ctype   = get_billing_ct('salesorder',   sales_order_model_is_custom)
-    templatebase_ctype = get_billing_ct('templatebase', template_base_model_is_custom)
+    invoice_ctype      = get_billing_ct('invoice')
+    creditnote_ctype   = get_billing_ct('creditnote')
+    quote_ctype        = get_billing_ct('quote')
+    salesorder_ctype   = get_billing_ct('salesorder')
+    templatebase_ctype = get_billing_ct('templatebase')
 
     create_cbci = get_model('creme_core', 'CustomBlockConfigItem').objects.create
 
