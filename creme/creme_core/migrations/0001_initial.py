@@ -473,6 +473,7 @@ class Migration(migrations.Migration):
                 ('relation_type', models.ForeignKey(to='creme_core.RelationType')),
             ],
             options={
+                'ordering': ('predicate',),
                 'verbose_name': 'Semi-fixed type of relationship',
                 'verbose_name_plural': 'Semi-fixed types of relationship',
             },
