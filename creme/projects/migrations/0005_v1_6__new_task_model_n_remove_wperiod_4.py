@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import migrations, connection
 
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
-from .. import task_model_is_custom
-
 
 def delete_old_task_activities(apps, schema_editor):
-    if task_model_is_custom():
+    if settings.PROJECTS_TASK_MODEL != 'projects.ProjectTask':
         print 'Error in projects/migrations/0005_v1_6__new_task_model_n_remove_wperiod_4.py delete_old_task_activities():' \
                 ' cannot use ProjectTask because the model is custom. You should fix it with your custom model.'
         return
