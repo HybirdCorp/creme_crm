@@ -86,7 +86,6 @@
                 me.entity_separator   = opts.entity_separator;
                 me.serializer         = opts.serializer;*/
 
-
                 /***************** Getters & Setters *****************/
                 this.getSelectedEntities = function() {
                     return $(opts.selected_rows, self).val();
@@ -185,8 +184,7 @@
                              event.stopPropagation();
                              me.getKdSubmit()(event, this, {'_search': 1});
                          })
-                        .datepicker({dateFormat: "yy-mm-dd",
-                                     showOn:     "both",
+                        .datepicker({showOn:     "both",
                                      buttonImage: creme_media_url('images/icon_calendar.gif'),
                                      buttonImageOnly: true});
                 }
