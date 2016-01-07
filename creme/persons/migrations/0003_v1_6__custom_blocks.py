@@ -5,9 +5,6 @@ from django.conf import settings
 from django.db import migrations
 from django.utils.translation import activate, ugettext as _
 
-from .. import contact_model_is_custom, organisation_model_is_custom
-
-
 MODELBLOCK_ID = 'modelblock'
 
 
@@ -20,14 +17,13 @@ def convert_old_blocks(apps, schema_editor):
 
     activate(settings.LANGUAGE_CODE)
 
-    get_ct = get_model('contenttypes', 'ContentType').objects.get
+    ContentType = get_model('contenttypes', 'ContentType')
 
-    def get_persons_ct(model_name, custom_func):
-        if not custom_func():
-            return get_ct(app_label='persons', model=model_name)
+    def get_persons_ct(model_name):
+        return ContentType.objects.filter(app_label='persons', model=model_name).first()
 
-    contact_ctype = get_persons_ct('contact',      contact_model_is_custom)
-    orga_ctype    = get_persons_ct('organisation', organisation_model_is_custom)
+    contact_ctype = get_persons_ct('contact')
+    orga_ctype    = get_persons_ct('organisation')
 
     create_cbci = get_model('creme_core', 'CustomBlockConfigItem').objects.create
 
