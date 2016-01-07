@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import migrations
-
-from creme.billing import product_line_model_is_custom, service_line_model_is_custom
 
 
 def copy_old_fields(apps, schema_editor):
@@ -20,8 +19,14 @@ def copy_old_fields(apps, schema_editor):
             'vat_value',
         )
 
-    for model_name, custom_func in [('ProductLine', product_line_model_is_custom),
-                                    ('ServiceLine', service_line_model_is_custom),
+    def product_line_model_can_migrate():
+        return settings.BILLING_PRODUCT_LINE_MODEL != 'billing.ProductLine'
+
+    def service_line_model_can_migrate():
+        return settings.BILLING_SERVICE_LINE_MODEL != 'billing.ServiceLine'
+
+    for model_name, custom_func in [('ProductLine', product_line_model_can_migrate),
+                                    ('ServiceLine', service_line_model_can_migrate),
                                    ]:
         if custom_func():
             continue

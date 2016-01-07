@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import migrations
 #from django.db.models import F
-
-from creme.billing import (credit_note_model_is_custom, invoice_model_is_custom,
-    quote_model_is_custom, sales_order_model_is_custom, template_base_model_is_custom)
 
 
 def copy_old_fields(apps, schema_editor):
@@ -27,11 +25,26 @@ def copy_old_fields(apps, schema_editor):
             'payment_info_id',
         )
 
-    for model_name, custom_func in [('Invoice',      invoice_model_is_custom),
-                                    ('Quote',        quote_model_is_custom),
-                                    ('SalesOrder',   sales_order_model_is_custom),
-                                    ('CreditNote',   credit_note_model_is_custom),
-                                    ('TemplateBase', template_base_model_is_custom),
+    def credit_note_model_can_migrate():
+        return settings.BILLING_CREDIT_NOTE_MODEL != 'billing.CreditNote'
+
+    def invoice_model_can_migrate():
+        return settings.BILLING_INVOICE_MODEL != 'billing.Invoice'
+
+    def quote_model_can_migrate():
+        return settings.BILLING_QUOTE_MODEL != 'billing.Quote'
+
+    def sales_order_model_can_migrate():
+        return settings.BILLING_SALES_ORDER_MODEL != 'billing.SalesOrder'
+
+    def template_base_model_can_migrate():
+        return settings.BILLING_TEMPLATE_BASE_MODEL != 'billing.TemplateBase'
+
+    for model_name, custom_func in [('Invoice',      invoice_model_can_migrate),
+                                    ('Quote',        quote_model_can_migrate),
+                                    ('SalesOrder',   sales_order_model_can_migrate),
+                                    ('CreditNote',   credit_note_model_can_migrate),
+                                    ('TemplateBase', template_base_model_can_migrate),
                                    ]:
         if custom_func():
             continue
