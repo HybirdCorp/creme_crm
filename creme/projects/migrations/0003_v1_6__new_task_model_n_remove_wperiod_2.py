@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import migrations
 
-from creme.activities import activity_model_is_custom
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
-
-from .. import task_model_is_custom
 
 
 REL_SUB_LINKED_2_PTASK = 'projects-subject_linked_2_projecttask'
@@ -14,6 +12,10 @@ REL_OBJ_LINKED_2_PTASK = 'projects-object_linked_2_projecttask'
 
 REL_SUB_PART_AS_RESOURCE = 'projects-subject_part_as_resource'
 REL_OBJ_PART_AS_RESOURCE = 'projects-object_part_as_resource'
+
+
+_CUSTOM_ACTIVITY = (settings.ACTIVITIES_ACTIVITY_MODEL != 'activities.Activity')
+_CUSTOM_TASK = (settings.PROJECTS_TASK_MODEL != 'projects.ProjectTask')
 
 
 def _create_rtype(RelationType, subject_desc, object_desc):
@@ -30,12 +32,13 @@ def _create_rtype(RelationType, subject_desc, object_desc):
     sub_relation_type.symmetric_type = obj_relation_type
     obj_relation_type.symmetric_type = sub_relation_type
 
-    #NB: we ignore ContentType constraint : they will be set by populate script
+    # NB: we ignore ContentType constraint : they will be set by populate script
 
     sub_relation_type.save()
     obj_relation_type.save()
 
     return sub_relation_type
+
 
 def copy_old_fields(apps, schema_editor):
     field_names = (
@@ -47,7 +50,7 @@ def copy_old_fields(apps, schema_editor):
             'description',
         )
 
-    if task_model_is_custom():
+    if _CUSTOM_TASK:
         print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py copy_old_fields():' \
               ' cannot use ProjectTask because the model is custom. You should fix it with your custom model.'
         return
@@ -57,7 +60,7 @@ def copy_old_fields(apps, schema_editor):
     if not tasks:
         return
 
-    if activity_model_is_custom():
+    if _CUSTOM_ACTIVITY:
         print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py copy_old_fields():' \
              ' cannot copy Activities fields because the model is custom. You should fix it with your custom model.'
 
@@ -70,6 +73,7 @@ def copy_old_fields(apps, schema_editor):
 
         instance.save()
 
+
 def create_activities(apps, schema_editor):
     get_model = apps.get_model
     WorkingPeriod = get_model('projects', 'WorkingPeriod')
@@ -77,12 +81,12 @@ def create_activities(apps, schema_editor):
     if not WorkingPeriod.objects.exists():
         return
 
-    if activity_model_is_custom():
+    if _CUSTOM_ACTIVITY:
         print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py create_activities():' \
               ' cannot create Activities because the model is custom. You should fix it with your custom model.'
         return
 
-    if task_model_is_custom():
+    if _CUSTOM_TASK:
         print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py create_activities():' \
               ' cannot use ProjectTask because the model is custom. You should fix it with your custom model.'
         return
@@ -96,7 +100,7 @@ def create_activities(apps, schema_editor):
 
     rtype_part = RelationType.objects.get(pk=REL_SUB_PART_2_ACTIVITY)
 
-    #NB: predicate are not translared => fixed by populate script
+    # NB: predicate are not translated => fixed by populate script
     rtype_link2ptask = _create_rtype(RelationType,
                                      (REL_SUB_LINKED_2_PTASK, u'is related to the task of project'),
                                      (REL_OBJ_LINKED_2_PTASK, u'includes the activity'),
@@ -147,7 +151,7 @@ def create_activities(apps, schema_editor):
                                        duration=wperiod.duration,
                                        type=task_activity.type,
                                        sub_type=task_activity.sub_type,
-                                       #busy= TODO ??
+                                       # busy= TODO ??
                                       )
             contact = wperiod.resource.linked_contact
 
