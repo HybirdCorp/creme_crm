@@ -292,6 +292,7 @@ class SemiFixedRelationType(CremeModel):
         unique_together = ('relation_type', 'object_entity')
         verbose_name = _(u'Semi-fixed type of relationship')
         verbose_name_plural = _(u'Semi-fixed types of relationship')
+        ordering = ('predicate',)
 
     def __unicode__(self):
         return self.predicate

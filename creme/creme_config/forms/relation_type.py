@@ -20,14 +20,14 @@
 
 from functools import partial
 
-from django.forms import CharField, ModelMultipleChoiceField, BooleanField
 from django.core.exceptions import ValidationError
+from django.forms import CharField, ModelMultipleChoiceField, BooleanField
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremePropertyType, RelationType, SemiFixedRelationType
 from creme.creme_core.forms import (CremeForm, CremeModelForm,
         FieldBlockManager, RelationEntityField, MultiEntityCTypeChoiceField)
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.models import CremePropertyType, RelationType, SemiFixedRelationType
 
 
 _CTypesField = partial(MultiEntityCTypeChoiceField, required=False,
@@ -45,7 +45,7 @@ class RelationTypeCreateForm(CremeForm):
     subject_ctypes     = _CTypesField()
     subject_properties = _PropertyTypesField()
 
-    #TODO: language....
+    # TODO: language....
     subject_predicate  = CharField(label=_(u'Subject => object'))
     subject_is_copiable= BooleanField(label=_(u"Direct relationship is copiable"), initial=True, required=False,
                                       help_text=_(u'Are the relationships with this type copied when the subject entity is cloned?')
@@ -121,7 +121,7 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
         if not self._errors:
             rtype, entity = cdata['semi_relation']
 
-            #TODO: unique_together in model
+            # TODO: unique_together in model
             if SemiFixedRelationType.objects.filter(relation_type=rtype, object_entity=entity).exists():
                 raise ValidationError(_(u"A semi-fixed type of relationship with "
                                         u"this type and this object already exists."
