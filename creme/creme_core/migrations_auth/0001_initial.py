@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.core import validators
 from django.db import models, migrations
 from django.utils import timezone
@@ -54,18 +55,26 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=timezone.now, verbose_name='date joined')),
 
-                # These 2 lines have been commented during the 1.6 dev cycle
-                # (because they made migrations test case fail -- with PostGre -- & were useless for us)
-                # but all should be alright now.
                 # ('groups', models.ManyToManyField(to='auth.Group', verbose_name='groups', blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of his/her group.', related_name='user_set', related_query_name='user')),
-                ('groups', models.ManyToManyField(related_query_name='user', related_name='user_set', to='auth.Group', blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', verbose_name='groups')),
-                ('user_permissions', models.ManyToManyField(to='auth.Permission', verbose_name='user permissions', blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user')),
 
                 # role    = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True, on_delete=PROTECT)
                 ('role_id', models.PositiveIntegerField(verbose_name='Role', null=True)), #NB: not a ForeignKey in order to avoid cycling import (an so create another migration files to add this field)
                 # is_team = BooleanField(verbose_name=_(u'Is a team ?'), default=False)
                 ('is_team', models.BooleanField(default=False, verbose_name='Is a team ?')),
-            ],
+            ] + ([] if settings.TESTS_ON and settings.DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql_psycopg2'
+                 else [  # These 2 lines cause problems in transaction tests with PostGre
+                       ('groups', models.ManyToManyField(related_query_name='user', related_name='user_set', to='auth.Group', blank=True,
+                                                         help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+                                                         verbose_name='groups',
+                                                        ),
+                       ),
+                       ('user_permissions', models.ManyToManyField(to='auth.Permission', verbose_name='user permissions', blank=True,
+                                                                   help_text='Specific permissions for this user.', related_name='user_set',
+                                                                   related_query_name='user',
+                                                                  )
+                       ),
+                      ]
+                 ),
             options={
                 #'swappable': 'AUTH_USER_MODEL', #NB: we need the auth.user table to migrate old installations
                 'verbose_name': 'user',
