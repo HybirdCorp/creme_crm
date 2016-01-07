@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import migrations
-
-from .. import ticket_model_is_custom
 
 
 def populate_numbers(apps, schema_editor):
-    if ticket_model_is_custom():
+    if settings.TICKETS_TICKET_MODEL != 'tickets.Ticket':
         return
 
     # NB: we create, then delete, TicketNumbers in order to keep the sequence
