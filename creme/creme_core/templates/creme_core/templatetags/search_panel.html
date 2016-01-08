@@ -1,8 +1,8 @@
 {% load i18n creme_core_tags %}
 <div class="research_box">
     <form method="GET" action="/creme_core/search">
-        <span>
-            {% trans "Search" as img_title %}<img border="0" title="{{img_title}}" alt="{{img_title}}" src="{% creme_media_url 'images/search_22.png' %}" align="top">
+        <span>{% trans "Search" context "creme_core-verb" as label %}
+            <img border="0" title="{{label}}" alt="{{label}}" src="{% creme_media_url 'images/search_22.png' %}" align="top">
             <select name="ct_id">
                 <option value="">{% trans "All" %}</option>
                 <option disabled>------</option>
@@ -11,7 +11,7 @@
                 {% endfor %}
             </select>
             <input type="text" name="research" />
-            <input type="submit" value="{% trans "Search" %}" />
+            <input type="submit" value="{{label}}" />
         </span>
     </form>
 </div>

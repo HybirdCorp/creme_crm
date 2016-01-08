@@ -1,15 +1,14 @@
 # FR LOCALISATION OF 'MOBILE' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-18 10:05+0100\n"
+"POT-Creation-Date: 2016-01-08 18:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:10 creme_core_register.py:11 templates/mobile/add_contact.html:71
+#: apps.py:28 apps.py:33 templates/mobile/add_contact.html:77
 msgid "Mobile"
 msgstr "Mobile"
 
@@ -25,12 +24,12 @@ msgstr "Mobile"
 msgid "Favorite Contacts & Organisations (for mobile)"
 msgstr "Contacts & Sociétés favoris (pour mobile)"
 
-#: forms.py:59
+#: forms.py:63
 msgctxt "mobile-contact"
 msgid "Is favorite"
 msgstr "Est favori"
 
-#: forms.py:99
+#: forms.py:103
 msgctxt "mobile-orga"
 msgid "Is favorite"
 msgstr "Est favorite"
@@ -121,29 +120,29 @@ msgstr "Le nom doit être rempli."
 msgid "First name"
 msgstr ""
 
-#: templates/mobile/add_contact.html:66 templates/mobile/add_orga.html:55
+#: templates/mobile/add_contact.html:70 templates/mobile/add_orga.html:57
 msgid "Phone"
 msgstr "Téléphone"
 
-#: templates/mobile/add_contact.html:77
+#: templates/mobile/add_contact.html:84
 msgid "Email address"
 msgstr "Adresse e-mail"
 
 # Already in persons
-#: templates/mobile/add_contact.html:85
+#: templates/mobile/add_contact.html:94
 msgid "Organisation"
 msgstr ""
 
-#: templates/mobile/add_contact.html:95
+#: templates/mobile/add_contact.html:104
 msgid "Add this contact to the favorites"
 msgstr "Ajouter ce contact aux favoris"
 
-#: templates/mobile/add_contact.html:99
+#: templates/mobile/add_contact.html:108
 msgid "Add the contact"
 msgstr "Ajouter le contact"
 
 # Already in creme_core
-#: templates/mobile/add_contact.html:100 templates/mobile/add_orga.html:69
+#: templates/mobile/add_contact.html:109 templates/mobile/add_orga.html:73
 msgid "Cancel"
 msgstr ""
 
@@ -156,11 +155,11 @@ msgstr ""
 msgid "The name must be filled."
 msgstr "Le nom doit être rempli."
 
-#: templates/mobile/add_orga.html:64
+#: templates/mobile/add_orga.html:68
 msgid "Add this organisation to the favorites"
 msgstr "Ajouter cette société aux favoris"
 
-#: templates/mobile/add_orga.html:68
+#: templates/mobile/add_orga.html:72
 msgid "Add the organisation"
 msgstr "Ajouter la société"
 
@@ -217,39 +216,39 @@ msgstr "Commencer l'activité"
 msgid "Stop this activity"
 msgstr "Terminer l'activité"
 
-#: templates/mobile/frags/contact_card.html:8
-#: templates/mobile/frags/contact_card.html:92
+#: templates/mobile/frags/contact_card.html:9
+#: templates/mobile/frags/contact_card.html:94
 msgid "contact"
 msgstr "contact"
 
-#: templates/mobile/frags/contact_card.html:18
-#: templates/mobile/frags/contact_card.html:64
-#: templates/mobile/frags/orga_card.html:16
+#: templates/mobile/frags/contact_card.html:19
+#: templates/mobile/frags/contact_card.html:66
+#: templates/mobile/frags/orga_card.html:17
 msgid "phone"
 msgstr "tél."
 
-#: templates/mobile/frags/contact_card.html:24
+#: templates/mobile/frags/contact_card.html:25
 msgid "mobile"
 msgstr "mobile"
 
-#: templates/mobile/frags/contact_card.html:34
+#: templates/mobile/frags/contact_card.html:35
 msgid "email"
 msgstr "email"
 
-#: templates/mobile/frags/contact_card.html:40
-#: templates/mobile/frags/contact_card.html:70
-#: templates/mobile/frags/orga_card.html:25
+#: templates/mobile/frags/contact_card.html:41
+#: templates/mobile/frags/contact_card.html:72
+#: templates/mobile/frags/orga_card.html:26
 msgid "address"
 msgstr "adresse"
 
-#: templates/mobile/frags/contact_card.html:48
+#: templates/mobile/frags/contact_card.html:49
 msgid "position"
 msgstr "fonction"
 
-#: templates/mobile/frags/contact_card.html:59
-#: templates/mobile/frags/contact_card.html:79
-#: templates/mobile/frags/orga_card.html:6
-#: templates/mobile/frags/orga_card.html:37
+#: templates/mobile/frags/contact_card.html:61
+#: templates/mobile/frags/contact_card.html:81
+#: templates/mobile/frags/orga_card.html:7
+#: templates/mobile/frags/orga_card.html:38
 msgid "organisation"
 msgstr "société"
 
@@ -336,6 +335,7 @@ msgid "Log in"
 msgstr ""
 
 #: templates/mobile/search.html:10
+msgctxt "creme_core-noun"
 msgid "Search"
 msgstr "Recherche"
 
@@ -481,42 +481,42 @@ msgid "Do not save"
 msgstr "Ne pas sauvegarder"
 
 # Already in creme_core
-#: views.py:81
+#: views.py:86
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
 # Already in creme_core
-#: views.py:84
+#: views.py:89
 msgid "The page you have requested is unfoundable."
 msgstr ""
 
 # Already in creme_core
-#: views.py:87
+#: views.py:92
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 
-#: views.py:241
+#: views.py:265
 msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
-#: views.py:467
+#: views.py:499
 msgid "You cannot create a call to youself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
-#: views.py:518 views.py:552
+#: views.py:559 views.py:596
 #, python-format
 msgid "%(status)s call to %(person)s from Creme Mobile"
 msgstr "Appel %(status)s vers %(person)s depuis Creme Mobile"
 
-#: views.py:519
+#: views.py:560
 msgid "Successful"
 msgstr "réussi"
 
-#: views.py:553
+#: views.py:597
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:604
+#: views.py:654
 #, python-format
 msgid "Call to %s from Creme Mobile"
 msgstr "Appel vers %s depuis Creme Mobile"

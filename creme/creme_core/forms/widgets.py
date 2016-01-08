@@ -33,7 +33,7 @@ from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _, pgettext_lazy
+from django.utils.translation import ugettext as _, pgettext_lazy, pgettext
 
 from ..utils.date_range import date_range_registry
 from ..utils.media import creme_media_themed_url as media_url
@@ -997,7 +997,7 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
         filter = checkall = ''
 
         if filtertype:
-            filtername = _('Filter') if filtertype == 'filter' else _('Search')
+            filtername = _('Filter') if filtertype == 'filter' else pgettext('creme_core-noun', 'Search')
             filter = '<input type="search" class="checklist-filter" placeholder="%s">' % filtername.upper()
 
         if has_checkall:

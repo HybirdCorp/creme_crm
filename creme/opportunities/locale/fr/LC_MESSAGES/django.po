@@ -1,14 +1,13 @@
 # FR LOCALISATION OF 'OPPORTUNITIES' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-23 16:43+0200\n"
+"POT-Creation-Date: 2016-01-08 14:40+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -70,7 +69,7 @@ msgstr "Factures liées à l'opportunité"
 
 #: buttons.py:29
 msgid "Add a linked opportunity"
-msgstr "Ajouter une opportunité reliée"
+msgstr "Ajouter une opportunité liée"
 
 #: forms/lv_import.py:37
 #: templates/opportunities/templatetags/block_target.html:5

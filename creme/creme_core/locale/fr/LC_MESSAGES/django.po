@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-15 11:31+0100\n"
+"POT-Creation-Date: 2016-01-08 18:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -95,7 +95,7 @@ msgstr "Champs personnalisés"
 msgid "History"
 msgstr "Historique"
 
-#: blocks.py:187 templates/creme_core/base.html:253
+#: blocks.py:187 templates/creme_core/base.html:258
 #: templates/creme_core/trash.html:5 templates/creme_core/trash.html.py:12
 msgid "Trash"
 msgstr "Corbeille"
@@ -220,7 +220,7 @@ msgstr "Filtre"
 #: templates/creme_core/templatetags/listview_columns_header.html:13
 #: templates/creme_core/templatetags/listview_columns_header.html:20
 #: templates/creme_core/templatetags/listview_entityfilters.html:8
-#: templates/creme_core/templatetags/search_panel.html:19
+#: templates/creme_core/templatetags/search_panel.html:7
 #: views/entity_filter.py:144 views/entity_filter.py:158
 msgid "All"
 msgstr "Tout"
@@ -883,12 +883,10 @@ msgstr "Aucun choix disponible."
 msgid "More"
 msgstr "Plus"
 
-#: forms/widgets.py:1000 templates/creme_core/frags/list_view_content.html:64
-#: templates/creme_core/search_results.html:18
-#: templates/creme_core/templatetags/search_panel.html:17
-#: templates/creme_core/templatetags/search_panel.html:26
+#: forms/widgets.py:1000 templates/creme_core/search_results.html:18
+msgctxt "creme_core-noun"
 msgid "Search"
-msgstr "Rechercher"
+msgstr "Recherche"
 
 #: forms/widgets.py:1005
 msgid "Check all"
@@ -924,29 +922,29 @@ msgstr "Bloc de relation: %s"
 msgid "Unknow type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
-#: gui/field_printers.py:94 models/custom_field.py:272
+#: gui/field_printers.py:102 models/custom_field.py:272
 #: templatetags/creme_listview.py:85 utils/__init__.py:276
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:94 models/custom_field.py:272
+#: gui/field_printers.py:102 models/custom_field.py:272
 #: templatetags/creme_listview.py:89 utils/__init__.py:279
 msgid "No"
 msgstr "Non"
 
-#: gui/field_printers.py:190
+#: gui/field_printers.py:206
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "heure"
 msgstr[1] "heures"
 
-#: gui/field_printers.py:192
+#: gui/field_printers.py:208
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "minute"
 msgstr[1] "minutes"
 
-#: gui/field_printers.py:194
+#: gui/field_printers.py:210
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "seconde"
@@ -1106,7 +1104,7 @@ msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer : %s"
 
-#: models/auth.py:584 views/entity.py:432
+#: models/auth.py:584 views/entity.py:458
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
@@ -1258,7 +1256,7 @@ msgstr "Liste de choix multiples"
 msgid "Add an entity"
 msgstr "Ajouter une fiche"
 
-#: models/entity.py:112 views/entity.py:67
+#: models/entity.py:112 views/entity.py:68
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
@@ -1303,7 +1301,7 @@ msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:162 models/entity_filter.py:192
 #: models/header_filter.py:113 models/header_filter.py:141
-#: views/batch_process.py:37 views/batch_process.py:83 views/entity.py:142
+#: views/batch_process.py:37 views/batch_process.py:83 views/entity.py:168
 #: views/entity_filter.py:55 views/entity_filter.py:156
 #: views/generic/listview.py:245 views/header_filter.py:46
 #: views/header_filter.py:128
@@ -1734,43 +1732,43 @@ msgstr "Par défaut ?"
 msgid "managed by Creme"
 msgstr "est géré par Creme"
 
-#: populate.py:46
+#: populate.py:44
 msgid "owns"
 msgstr "possède"
 
-#: populate.py:47
+#: populate.py:45
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:85
+#: populate.py:80
 msgid "Euro"
 msgstr "Euro"
 
-#: populate.py:85
+#: populate.py:80
 msgid "€"
 msgstr "€"
 
-#: populate.py:85
+#: populate.py:80
 msgid "EUR"
 msgstr "EUR"
 
-#: populate.py:89
+#: populate.py:83
 msgid "United States dollar"
 msgstr "Dollar américain"
 
-#: populate.py:89
+#: populate.py:83
 msgid "$"
 msgstr "$"
 
-#: populate.py:89
+#: populate.py:83
 msgid "USD"
 msgstr "USD"
 
-#: populate.py:92
+#: populate.py:85
 msgid "French"
 msgstr "Français"
 
-#: populate.py:93
+#: populate.py:86
 msgid "English"
 msgstr "Anglais"
 
@@ -1790,30 +1788,30 @@ msgstr ""
 "Afficher la devise avec son symbole locale (ex: €) ? Sinon le symbole "
 "internationale sera utilisé (ex: EUR)."
 
-#: templates/creme_core/base.html:78
-msgid "Menu"
-msgstr "Menu"
-
-#: templates/creme_core/base.html:79
-msgid "Back to Top"
-msgstr "Revenir au début"
-
-#: templates/creme_core/base.html:246
+#: templates/creme_core/base.html:251
 #, python-format
 msgid "Welcome, <strong>%(user)s</strong> (Time zone: %(TIME_ZONE)s)"
 msgstr "Bienvenue, <strong>%(user)s</strong> (Fuseau horaire : %(TIME_ZONE)s)"
 
-#: templates/creme_core/base.html:248
+#: templates/creme_core/base.html:253
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:251
+#: templates/creme_core/base.html:256
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/creme_core/base.html:304
+#: templates/creme_core/base.html:309
 msgid "About Hybird"
 msgstr "À propos d'Hybird"
+
+#: templates/creme_core/base.html:314
+msgid "Menu"
+msgstr "Menu"
+
+#: templates/creme_core/base.html:315
+msgid "Back to Top"
+msgstr "Revenir au début"
 
 #: templates/creme_core/batch_process.html:4
 #: templates/creme_core/frags/list_view_content.html:59
@@ -1990,6 +1988,12 @@ msgstr "Importer"
 msgid "Clean the search"
 msgstr "Effacer la recherche"
 
+#: templates/creme_core/frags/list_view_content.html:64
+#: templates/creme_core/templatetags/search_panel.html:4
+msgctxt "creme_core-verb"
+msgid "Search"
+msgstr "Rechercher"
+
 #: templates/creme_core/frags/list_view_content.html:98
 #, python-format
 msgid "Sort by %(col_title)s"
@@ -2079,7 +2083,7 @@ msgstr "Modifier «%(object)s»"
 msgid "Save the modifications"
 msgstr "Enregistrer les modifications"
 
-#: templates/creme_core/generics/blockform/edit.html:16 views/entity.py:206
+#: templates/creme_core/generics/blockform/edit.html:16 views/entity.py:232
 #: views/generic/edit.py:126
 #, python-format
 msgid "Edit «%s»"
@@ -2192,7 +2196,7 @@ msgstr "Fiche concernée"
 msgid "No error when importing."
 msgstr "Aucune erreur lors de l'import."
 
-#: templates/creme_core/merge.html:4 views/entity.py:335
+#: templates/creme_core/merge.html:4 views/entity.py:361
 msgid "Merge"
 msgstr "Fusionner"
 
@@ -2430,7 +2434,7 @@ msgid "Multiple relationship adding"
 msgstr "Ajout de relation multiple"
 
 #: templates/creme_core/templatetags/listview_columns_header.html:64
-#: views/entity.py:237 views/entity.py:247
+#: views/entity.py:263 views/entity.py:273
 msgid "Multiple update"
 msgstr "Modification multiple"
 
@@ -2465,11 +2469,6 @@ msgstr "Modifier la vue personnalisée"
 #: templates/creme_core/templatetags/listview_headerfilters.html:25
 msgid "Delete custom view"
 msgstr "Supprimer vue personnalisée"
-
-#: templates/creme_core/templatetags/newtreecreme_menu.html:2
-#: templates/creme_core/templatetags/treecreme_menu.html:3
-msgid "Open"
-msgstr "Ouvrir"
 
 #: templates/creme_core/templatetags/prefered_menu.html:3
 msgid "Prefered menu:"
@@ -2795,46 +2794,46 @@ msgstr "Enregistrer le type de propriété"
 msgid "%(count)s %(model)s"
 msgstr "%(count)s %(model)s"
 
-#: views/entity.py:94
+#: views/entity.py:120
 #, python-format
 msgid "%s [CREATION]"
 msgstr "%s [CRÉATION]"
 
-#: views/entity.py:110
+#: views/entity.py:136
 #, fuzzy
 #| msgid "This model does not use the generic deletion view."
 msgid "This model does not use the generic clone view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:164
+#: views/entity.py:190
 #, fuzzy
 #| msgid "This field is required."
 msgid "This field is hidden."
 msgstr "Ce champ est obligatoire."
 
-#: views/entity.py:174
+#: views/entity.py:200
 msgid "No entity corresponding to your search was found."
 msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
-#: views/entity.py:189
+#: views/entity.py:215
 msgid "You are not allowed to edit this entity"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
 
-#: views/entity.py:202 views/entity.py:243
+#: views/entity.py:228 views/entity.py:269
 #, python-format
 msgid "The field \"%s\" doesn't exist or cannot be edited"
 msgstr "Le champ \"%s\" n'existe pas ou ne peut être modifié."
 
-#: views/entity.py:222
+#: views/entity.py:248
 msgid "You are not allowed to edit these entities"
 msgstr "Vous n'êtes pas autorisé à modifier ces fiches"
 
-#: views/entity.py:324
+#: views/entity.py:350
 #, python-format
 msgid "Merge <%(entity1)s> with <%(entity2)s>"
 msgstr "Fusionner <%(entity1)s> avec <%(entity2)s>"
 
-#: views/entity.py:328
+#: views/entity.py:354
 msgid ""
 "You are going to merge two entities into a new one.\n"
 "Choose which information you want the old entities give to the new entity.\n"
@@ -2848,51 +2847,51 @@ msgstr ""
 "des vieilles fiches seront automatiquement disponibles dans la nouvelle "
 "fiche fusionnée."
 
-#: views/entity.py:374 views/entity.py:460 views/entity_filter.py:120
+#: views/entity.py:400 views/entity.py:486 views/entity_filter.py:120
 #, python-format
 msgid "\"%s\" can not be deleted because of its dependencies."
 msgstr "\"%s\" ne peut être supprimé à cause de ses dépendances."
 
-#: views/entity.py:379 views/entity.py:467
+#: views/entity.py:405 views/entity.py:493
 #, python-format
 msgid "\"%(entity)s\" deletion caused an unexpected error [%(error)s]."
 msgstr ""
 "La suppression de \"%(entity)s\" a provoqué une erreur inattendue "
 "[%(error)s]."
 
-#: views/entity.py:393 views/entity.py:504 views/relation.py:275
+#: views/entity.py:419 views/entity.py:530 views/relation.py:275
 #: views/relation.py:395
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/entity.py:396
+#: views/entity.py:422
 msgid "The following entities cannot be deleted"
 msgstr "Les entités suivantes ne peuvent être effacées"
 
-#: views/entity.py:409
+#: views/entity.py:435
 msgid "This model does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:425
+#: views/entity.py:451
 #, python-format
 msgid "%s does not use the generic deletion view."
 msgstr "%s n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:435 views/entity.py:442
+#: views/entity.py:461 views/entity.py:468
 #, python-format
 msgid "%s : <b>Permission denied</b>"
 msgstr "%s : <b>Permission refusée</b>"
 
-#: views/entity.py:454
+#: views/entity.py:480
 #, python-format
 msgid "\"%s\" can not be deleted."
 msgstr "\"%s\" ne peut être supprimé."
 
-#: views/entity.py:483
+#: views/entity.py:509
 msgid "No selected entities"
 msgstr "Aucune fiche séléctionnée"
 
-#: views/entity.py:493 views/relation.py:364
+#: views/entity.py:519 views/relation.py:364
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s fiche(s) n'existe(nt) pas ou plus"
@@ -3009,6 +3008,9 @@ msgstr "Recherche vide…"
 #, python-format
 msgid "Please enter at least %s characters"
 msgstr "Veuillez entrer au moins %s caractères"
+
+#~ msgid "Open"
+#~ msgstr "Ouvrir"
 
 #~ msgid "Searches"
 #~ msgstr "Recherches"
