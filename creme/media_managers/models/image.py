@@ -117,7 +117,7 @@ class Image(CremeEntity):
         return (self.image.file, mimetypes.guess_type(self.image.path)[0])
 
     def get_encoded(self, encoding="base64"):
-        encoded = u""
+        encoded = u""  # TODO: StringIO ?
         encoder = self.encodings.get(encoding, "base64")
         for ch in self.image.file.chunks():
             encoded += encoder(ch)
