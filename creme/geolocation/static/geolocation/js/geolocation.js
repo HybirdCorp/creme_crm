@@ -50,7 +50,7 @@ creme.geolocation.ready = function(callback) {
             var script = document.createElement('script');
 
             script.type = 'text/javascript';
-            script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&language=fr&callback=initialize';
+            script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&language=%s&callback=initialize'.format(LANGUAGE_CODE || 'en');
 
             document.body.appendChild(script);
         }
