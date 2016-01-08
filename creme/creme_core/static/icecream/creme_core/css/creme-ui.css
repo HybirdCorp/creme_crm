@@ -682,9 +682,30 @@ span.ui-creme-datepicker-trigger {
     border-color: #ccc;
 }
 
-.fg-menu-container > img.pinmenu {
+.pinmenu {
     height: 26px;
+    width: 26px;
     margin-left: 5px;
+    display: block;
+    text-decoration: none;
+    border: 0;
+    background-image: url("icecream/images/pin.png");
+    background-size: contain;
+}
+
+.pinmenu:hover {
+    cursor: pointer;
+}
+
+.pinmenu.expanded {
+    height: 26px;
+    width: 26px;
+    display: block;
+    margin-left: 5px;
+    text-decoration: none;
+    border: 0;
+    background-image: url("icecream/images/unpin.png");
+    background-size: contain;
 }
 
 .fg-menu-breadcrumb {

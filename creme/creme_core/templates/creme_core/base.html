@@ -21,6 +21,7 @@
     <style type="text/css">
         .fg-menu-container { z-index: 100; }
     </style>
+    {% comment %} COMMENT on 27-01-2014
     <script type='text/javascript'>
         $(document).ready(function() {
            var document_width_onload  = $(document).width();
@@ -127,8 +128,10 @@
             });
       });
     </script>
+    {% endcomment %}
     {% block extrahead %}{% endblock %}
-    <script type='text/javascript'>{% comment %}TODO: move in js file{% endcomment %}
+    {% comment %} COMMENT on 27-01-2014
+    <script type='text/javascript'>
       $(document).ready(function() {
         $("#menu_collapse").css('height', $(document).height());
         $("#menu_expanded").css('height', $(document).height());
@@ -203,6 +206,7 @@
         }
       };
       </script>
+      {% endcomment %}
 </head>
 <body {% block bodyclass %}{% endblock %}>
     {% block side_menu %}
@@ -299,6 +303,11 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function(){
+            creme.menu.sideMenu({
+                title: '{% trans "Menu" %}',
+                back: '{% trans "Back to Top" %}'
+            });
+
             creme.blocks.bindEvents();
         });
     </script>
