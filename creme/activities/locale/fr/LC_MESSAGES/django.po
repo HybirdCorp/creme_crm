@@ -4,12 +4,11 @@
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-17 22:01+0200\n"
+"POT-Creation-Date: 2016-01-08 14:51+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -466,7 +465,7 @@ msgstr "Calendriers"
 
 #: models/activity.py:64
 msgid "All day?"
-msgstr "Jour entier ?"
+msgstr "Toute la journée ?"
 
 #: models/activity.py:65
 msgid "Busy?"
@@ -986,9 +985,6 @@ msgstr "Nombre de tâches"
 
 #~ msgid "Error, please reload the page."
 #~ msgstr "Erreur, veuillez recharger la page."
-
-#~ msgid "All day"
-#~ msgstr "Jour entier"
 
 #~ msgid "Today"
 #~ msgstr "Aujourd'hui"

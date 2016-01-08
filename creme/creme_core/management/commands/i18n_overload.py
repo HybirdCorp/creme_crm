@@ -31,10 +31,10 @@ from django.conf import settings
 from django.utils.encoding import smart_unicode
 
 
-APP_NAME = 'locale_overload' #TODO: can configure it with command options ??
+APP_NAME = 'locale_overload'  # TODO: can configure it with command options ??
 
 
-#TODO: factorise with i18n_doublons ?
+# TODO: factorise with i18n_doublons ?
 class Command(BaseCommand):
     help = 'Find some terms in .po files of your project and create/update a ' \
            'translation file with the messages containing one of these terms.\n' \
@@ -134,7 +134,7 @@ class Command(BaseCommand):
 
                             existing_entry = catalog_entries.get(msgid)
 
-                            #TODO: manage context (key=msgid + context ?)
+                            # TODO: manage context (key=msgid + context ?)
                             if existing_entry is not None:
                                 if existing_entry.obsolete: #entry has not been updated yet
                                     existing_entry.obsolete = False
@@ -143,7 +143,7 @@ class Command(BaseCommand):
                                     existing_entry.occurrences += entry.occurrences
                             else:
                                 for term in terms:
-                                    if term in msgid: #TODO: what about case sensitivity ?
+                                    if term in msgid:  # TODO: what about case sensitivity ?
                                         entry.flags.append('fuzzy')
                                         catalog.append(entry)
                                         catalog_entries[entry.msgid] = entry
