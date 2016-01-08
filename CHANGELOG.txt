@@ -130,9 +130,13 @@
             - get_line_unlinker
         # 2 signals have been added ; they provide a way to customize the uninstallation.
         # Test models (ie: models which only exist when tests are runned) are used when it is possible (creme_core, reports).
+        # Several ForeignKey fields are now OneToOneFields (RelationBlockItem.relation_type, HistoryConfigItem.relation_type) ;
+          a new model field has been added: CTypeOneToOneField.
         # Apps :
             * Creme_config :
                 - Models can now be unregistered from the registry.
+            * Activesync :
+                - CremeClient.user is now a OneToOneField.
 
     Breaking changes :
     ------------------

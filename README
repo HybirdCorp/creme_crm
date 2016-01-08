@@ -6,7 +6,13 @@ the JQuery javascript library (http://jquery.com/).
 You can find more information on Creme on its official web site: http://cremecrm.com/
 
 
+RECOMMENDATIONS:
+It's recommended to use a database engine which supports transactions.
+You probably should use 'virtualenv'.
+
+
 DEPENDENCIES:
+(exact versions are indicated in the file 'creme/requirements.txt')
     - Core
         - Python 2.7
         - Django 1.8 (>= 1.8.5)
@@ -38,8 +44,13 @@ DEPENDENCIES:
             - restkit 4.2
             - pycrypto 2.6
 
-RECOMMENDATIONS:
-It's recommended to use a database engine that supports transactions.
+Installation with 'pip':
+    - If you use MySQL, you can use the file 'creme/requirements.txt' to install all the libraries
+      needed by a classical installation with the command:
+        >> pip install -r creme/requirements.txt
+    - If you want a customised installation, you'll have to install the package yourself,
+      depending on which apps or SQL server you want. For PostGreSQL, install the package 'psycopg2':
+        >> pip install psycopg2
 
 
 INSTALL:
@@ -48,7 +59,7 @@ You have to know how to install a Django application.
 Upgrade notice : if you already have a Creme installation, upgrade the version one by one
 (eg: do not try to upgrade from 1.1 to 1.3, upgrade to 1.2 and then 1.3).
 
-See the creme/settings.py and set your parameters (or put them in a new file called creme/local_settings.py instead).
+See the creme/settings.py and set your parameters (or put them in a new file called 'creme/local_settings.py' instead).
 When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
 run the following commands in the root directory:
 
