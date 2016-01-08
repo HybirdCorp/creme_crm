@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,8 @@ def check_secret_key(**kwargs):
     if settings.SECRET_KEY == '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6(':
         errors.append(Error("You did not generate a secret key.",
                             hint='Change the SECRET_KEY setting in your'
-                                 ' local_settings.py/project_settings.py',
+                                 ' local_settings.py/project_settings.py\n'
+                                 'Use the result of the command "python manage.py build_secret_key".',
                             obj='creme.creme_core',
                             id='creme.E002',
                            )
