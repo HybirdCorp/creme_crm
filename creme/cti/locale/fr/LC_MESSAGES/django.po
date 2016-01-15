@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CTI' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the PACKAGE package.
 #
 # > django-admin.py makemessages -l fr
@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme CTI 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-16 18:20+0100\n"
+"POT-Creation-Date: 2016-01-13 16:46+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -75,7 +75,7 @@ msgstr "Appel à %s"
 
 #: views.py:82
 msgid "Phone call successfully created."
-msgstr "Appel téléphonique créé avec succés."
+msgstr "Appel téléphonique créé avec succès."
 
 #: views.py:107
 #, python-format

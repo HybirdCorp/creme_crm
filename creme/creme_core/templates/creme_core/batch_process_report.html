@@ -18,7 +18,7 @@
         {% with form.entity_type|get_meta_value:'verbose_name' as verbose_name %}
             {% blocktrans count form.read_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been read.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been read.{% endblocktrans %}
         {% endwith %}
-        <br/>{% blocktrans count form.modified_objects_count as counter %}{{counter}} entity has been sucessfully modified.{% plural %}{{counter}} entities have been sucessfully modified.{% endblocktrans %}
+        <br/>{% blocktrans count form.modified_objects_count as counter %}{{counter}} entity has been successfully modified.{% plural %}{{counter}} entities have been successfully modified.{% endblocktrans %}
     </p>
 
     {% with form.process_errors as errors %}

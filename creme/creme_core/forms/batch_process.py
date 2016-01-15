@@ -124,7 +124,7 @@ class BatchActionsField(JSONField):
                 if field.editable and isinstance(field, managed_fields):
                     fname = field.name
 
-                    # Not a specific form (ie: specific busness logic) TODO: test
+                    # Not a specific form (ie: specific business logic) TODO: test
                     if updatable(field_name=fname) and get_form(fname) is None:
                         fields.append((field.name, field))
 

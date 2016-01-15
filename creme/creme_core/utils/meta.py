@@ -28,10 +28,10 @@ from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist, Dat
 from .unicode_collation import collator
 
 
-#TODO; used only in activesync
-#TODO: manage better M2M values
+# TODO; used only in activesync
+# TODO: manage better M2M values
 def get_instance_field_info(obj, field_name):
-    """ For a field_name 'att1__att2__att3', it searchs and returns the tuple
+    """ For a field_name 'att1__att2__att3', it searches and returns the tuple
     (class of obj.att1.att2.get_field('att3'), obj.att1.att2.att3)
     @return : (field_class, field_value)
     """
@@ -39,7 +39,7 @@ def get_instance_field_info(obj, field_name):
 
     try:
         for subfield_name in subfield_names[:-1]:
-            obj = getattr(obj, subfield_name) #can be None if a M2M has no related value
+            obj = getattr(obj, subfield_name)  # Can be None if a M2M has no related value
 
         subfield_name = subfield_names[-1]
         field_class = obj._meta.get_field(subfield_name).__class__

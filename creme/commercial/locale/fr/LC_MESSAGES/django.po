@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'COMMERCIAL' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-15 11:34+0100\n"
+"POT-Creation-Date: 2016-01-13 16:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -90,7 +90,7 @@ msgstr "Opportunités reliées à une Action Commerciale"
 
 #: blocks.py:328
 msgid "Components of an Objective Pattern"
-msgstr "Compsants d'un Modèle d'Objectif"
+msgstr "Composants d'un Modèle d'Objectif"
 
 #: buttons.py:33
 msgid "Completes a goal (Commercial action)"
