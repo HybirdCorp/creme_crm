@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,21 +25,23 @@ from django.utils.timezone import now
 
 LOCK_NAME = "generate_recurrent_documents"
 
-#NB: python manage.py recurrents_gendocs
+# NB: python manage.py recurrents_gendocs
+
 
 class Command(BaseCommand):
     help = "Generate all recurrent documents that have to be."
 
     def handle(self, *args, **options):
         from creme.creme_core.models.lock import Mutex, MutexLockedException
-        from creme.recurrents.models import RecurrentGenerator
+        # from creme.recurrents.models import RecurrentGenerator
+        from creme.recurrents import get_rgenerator_model
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
         except MutexLockedException:
             self.stderr.write('A process is already running')
         else:
-            for generator in RecurrentGenerator.objects.filter(is_working=True):
+            for generator in get_rgenerator_model().objects.filter(is_working=True):
                 last = generator.last_generation
                 next_generation = generator.first_generation if last is None else \
                                   last + generator.periodicity.as_timedelta()
