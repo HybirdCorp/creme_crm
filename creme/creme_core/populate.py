@@ -68,7 +68,6 @@ class Populator(BasePopulator):
                                  )
         else:
             # TODO: useless with django 1.8 ??
-            # User created by 'syncdb' is a staff user, which is annoying when there is only one user (he cannot own any entity)
             if root.is_staff and User.objects.count() == 1:
                 root.is_staff = False
                 root.save()
