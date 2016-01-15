@@ -1032,9 +1032,6 @@ constantes : ::
 Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
 
     [...]
-    from creme.creme_core.utils import create_or_update as create
-
-    [...]
     from .constants import STATUS_HEALTHY, STATUS_SICK
     from .models import Beaver, Status
 
@@ -1042,14 +1039,23 @@ Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
     def populate(self):
         [...]
 
-        create(Status, STATUS_HEALTHY, name=_(u'Healthy'), is_custom=False)
-        create(Status, STATUS_SICK,    name=_(u'Sick'),    is_custom=False)
+		already_populated = Status.objects.exists()
+
+		if not already_populated:
+	        Status.objects.create(id=STATUS_HEALTHY, name=_(u'Healthy'), is_custom=False)
+    	    Status.objects.create(id=STATUS_SICK,    name=_(u'Sick'),    is_custom=False)
 
 
 En mettant l'attribut ``is_custom`` à ``False``, on rend ces 2 ``Status`` non
 supprimables. Les constantes créées juste avant sont les PK des 2 objets ``Status``
-que l'ont créés ; on pourra ainsi y accéder facilement plus tard. Relancez la
-commande pour 'peupler' : ::
+que l'ont créés ; on pourra ainsi y accéder facilement plus tard.
+
+Avec la variable ``already_populated``, on s'assure que les statuts sont créés
+au premier lancement, mais que si les utilisateurs modifient le nom des statuts
+dans l'interface de configuration, leurs modifications ne seront pas écrasées
+lors d'une mise à jour (et donc d'un lancement de la commande ``creme_populate``).
+
+Relancez la commande pour 'peupler' : ::
 
     > python manage.py creme_populate beavers
 
