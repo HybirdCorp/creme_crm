@@ -58,7 +58,7 @@ creme.widget.ResetActionButton = creme.widget.ActionButton.sub({
     _run: function(options)
     {
         var options = creme.widget.parseopt(this._button, {value: ''});
-        this._updateDelegate({value:options.value}, 'success');
+        this.done({value:options.value}, 'success');
     }
 });
 
@@ -103,7 +103,6 @@ creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
         var action = new creme.dialog.FormDialogAction();
 
         action.onDone(function(event, data) {
-                          self._updateDelegate(data);
                           self.done(data);
                       })
               .onCancel(function(event) {
