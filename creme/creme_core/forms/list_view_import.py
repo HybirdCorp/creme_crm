@@ -1205,7 +1205,7 @@ class ImportForm4CremeEntity(ImportForm):
                                                queryset=CremePropertyType.objects.none(),
                                                widget=UnorderedMultipleChoiceWidget)
     fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'), required=False, autocomplete=True)
-    dyn_relations   = RelationExtractorField(label=_(u'Relationships from CSV'), required=False)
+    dyn_relations   = RelationExtractorField(label=_(u'Relationships from the file'), required=False)
 
     blocks = FieldBlockManager(
         ('general',    _(u'General'),                  ('step', 'document', 'has_header', 'user', 'key_fields')),

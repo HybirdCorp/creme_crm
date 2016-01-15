@@ -16,8 +16,8 @@
 
     <p>
         {% with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name %}
-            {% blocktrans count form.imported_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully imported.{% endblocktrans %}<br>
-            {% blocktrans count form.updated_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully updated.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully updated.{% endblocktrans %}
+            {% blocktrans count form.imported_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been successfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been successfully imported.{% endblocktrans %}<br>
+            {% blocktrans count form.updated_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been successfully updated.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been successfully updated.{% endblocktrans %}
         {% endwith %}
         <br/>{% blocktrans count form.lines_count as counter %}({{counter}} line in the file.){% plural %}({{counter}} lines in the file.){% endblocktrans %}
     </p>

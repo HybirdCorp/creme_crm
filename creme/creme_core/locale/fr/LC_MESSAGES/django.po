@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 18:38+0100\n"
+"POT-Creation-Date: 2016-01-13 16:37+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -739,8 +739,8 @@ msgid "Fixed relationships"
 msgstr "Relations fixes"
 
 #: forms/list_view_import.py:1208
-msgid "Relationships from CSV"
-msgstr "Relations depuis le CSV"
+msgid "Relationships from the file"
+msgstr "Relations depuis le fichier"
 
 #: forms/list_view_import.py:1211
 msgid "General"
@@ -1832,10 +1832,10 @@ msgstr[1] "%(counter)s fiches de type \"%(verbose_name)s\" ont été lues."
 
 #: templates/creme_core/batch_process_report.html:21
 #, python-format
-msgid "%(counter)s entity has been sucessfully modified."
-msgid_plural "%(counter)s entities have been sucessfully modified."
-msgstr[0] "%(counter)s fiche a été modifiée avec succés."
-msgstr[1] "%(counter)s fiches ont été modifiées avec succés."
+msgid "%(counter)s entity has been successfully modified."
+msgid_plural "%(counter)s entities have been successfully modified."
+msgstr[0] "%(counter)s fiche a été modifiée avec succès."
+msgstr[1] "%(counter)s fiches ont été modifiées avec succès."
 
 #: templates/creme_core/batch_process_report.html:29
 #: templates/creme_core/frags/bulk_process_report.html:18
@@ -2143,30 +2143,30 @@ msgstr "Import : bilan"
 #: templates/creme_core/importing_report.html:19
 #, python-format
 msgid ""
-"%(counter)s entity with type \"%(verbose_name)s\" has been sucessfully "
+"%(counter)s entity with type \"%(verbose_name)s\" has been successfully "
 "imported."
 msgid_plural ""
-"%(counter)s entities with type \"%(verbose_name)s\" have been sucessfully "
+"%(counter)s entities with type \"%(verbose_name)s\" have been successfully "
 "imported."
 msgstr[0] ""
-"%(counter)s fiche de type \"%(verbose_name)s\" a été importée avec succés."
+"%(counter)s fiche de type \"%(verbose_name)s\" a été importée avec succès."
 msgstr[1] ""
 "%(counter)s fiches de type \"%(verbose_name)s\" ont été importées avec "
-"succés."
+"succès."
 
 #: templates/creme_core/importing_report.html:20
 #, python-format
 msgid ""
-"%(counter)s entity with type \"%(verbose_name)s\" has been sucessfully "
+"%(counter)s entity with type \"%(verbose_name)s\" has been successfully "
 "updated."
 msgid_plural ""
-"%(counter)s entities with type \"%(verbose_name)s\" have been sucessfully "
+"%(counter)s entities with type \"%(verbose_name)s\" have been successfully "
 "updated."
 msgstr[0] ""
-"%(counter)s fiche de type \"%(verbose_name)s\" a été modifiée avec succés."
+"%(counter)s fiche de type \"%(verbose_name)s\" a été modifiée avec succès."
 msgstr[1] ""
 "%(counter)s fiches de type \"%(verbose_name)s\" ont été modifiées avec "
-"succés."
+"succès."
 
 #: templates/creme_core/importing_report.html:22
 #, python-format
@@ -2800,16 +2800,12 @@ msgid "%s [CREATION]"
 msgstr "%s [CRÉATION]"
 
 #: views/entity.py:136
-#, fuzzy
-#| msgid "This model does not use the generic deletion view."
 msgid "This model does not use the generic clone view."
-msgstr "Ce modèle n'utilise pas la vue de suppression générique."
+msgstr "Ce modèle n'utilise pas la vue de clonage générique."
 
 #: views/entity.py:190
-#, fuzzy
-#| msgid "This field is required."
 msgid "This field is hidden."
-msgstr "Ce champ est obligatoire."
+msgstr "Ce champ est caché."
 
 #: views/entity.py:200
 msgid "No entity corresponding to your search was found."
@@ -2905,7 +2901,7 @@ msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
 
 #: views/entity_filter.py:127
-msgid "Filter sucessfully deleted"
+msgid "Filter successfully deleted"
 msgstr "Filtre supprimé avec succès"
 
 #: views/enumerable.py:73
@@ -2947,7 +2943,7 @@ msgid "Save the modified view"
 msgstr "Enregistrer la vue modifiée"
 
 #: views/header_filter.py:110
-msgid "View sucessfully deleted"
+msgid "View successfully deleted"
 msgstr "Vue supprimée avec succès"
 
 #: views/list_view_import.py:37
