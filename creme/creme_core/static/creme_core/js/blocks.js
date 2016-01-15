@@ -223,6 +223,7 @@ creme.blocks.initialize = function(block) {
 
     creme.blocks.initEmptyFields(block);
     creme.widget.ready(block);
+    block.trigger('block-ready', [block]);
 };
 
 creme.blocks.bindEvents = function(root) {

@@ -407,15 +407,35 @@ creme.utils.innerPopupNReload = function(url, reload_url) {
 //}
 
 creme.utils.decorateSearchResult = function(research) {
+    var research = research.toLowerCase();
+
+    var mark = function(results) {
+        // highlight the word that we are searching
+        results.addClass('marked');
+
+        var _wrap = function() {
+            var result = $(this);
+
+            if (result.prop('tagName')) {
+                result.contents().each(_wrap);
+            } else {
+                if (result.text().toLowerCase().indexOf(research) >= 0) {
+                    result.wrap($('<mark/>'));
+                }
+            }
+        }
+
+        results.contents().each(_wrap);
+    };
+
     $('.search_results').each(function() {
         var root = $(this);
 
-        // highlight the word that we are searching
-        research = research.toLowerCase();
-        root.find('.search_result')
-            .contents()
-            .filter(function() { return $(this).text().toLowerCase().indexOf(research) >= 0; })
-            .wrap($('<mark/>'));
+        mark(root.find('.search_result'));
+
+        root.on('block-ready', function(e, block) {
+            mark(block.find('.search_result:not(.marked)'));
+        });
 
         // we update the title ; this is done on client side because pagination is done in the template rendering
         // and we want to avoid making the count() queries twice.
@@ -423,6 +443,7 @@ creme.utils.decorateSearchResult = function(research) {
         root.find('[search-count]').each(function() {
             total += parseInt(this.getAttribute('search-count'));
         });
+
         root.find('#search_results_title')
             .text(ngettext('Search results: %d entity', 'Search results: %d entities', total).format(total));
     });
