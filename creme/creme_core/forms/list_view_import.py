@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,8 @@ from creme.creme_core.models import (CremePropertyType, CremeProperty,
 from creme.creme_core.registry import import_backend_registry
 from creme.creme_core.utils.collections import LimitedList
 
-from creme.documents.models import Document
+# from creme.documents.models import Document
+from creme.documents import get_document_model
 
 from ..utils.meta import ModelFieldEnumerator
 from .base import CremeForm, CremeModelForm, FieldBlockManager
@@ -58,6 +59,7 @@ from .validators import validate_linkable_entities
 
 
 logger = logging.getLogger(__name__)
+Document = get_document_model()
 
 
 class UploadForm(CremeForm):
@@ -313,7 +315,7 @@ class ExtractorField(Field):
         widget.default_value_widget = modelform_field.widget
 
     @property
-    def user(self, user):
+    def user(self):
         return self._user
 
     @user.setter
