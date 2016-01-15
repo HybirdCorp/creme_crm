@@ -193,7 +193,7 @@ class EntityEmailTestCase(_EmailsTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_createview03(self):
-        "Invalid email adress"
+        "Invalid email address"
         user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -335,7 +335,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     @skipIfCustomContact
     def test_createview08(self):
-        "'FieldsConfig: Contact.email is hidden"
+        "FieldsConfig: Contact.email is hidden"
         user = self.login()
         FieldsConfig.create(Contact,
                             descriptions=[('email', {FieldsConfig.HIDDEN: True})],
@@ -369,7 +369,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     @skipIfCustomOrganisation
     def test_createview09(self):
-        "'FieldsConfig: Organisation.email is hidden"
+        "FieldsConfig: Organisation.email is hidden"
         user = self.login()
         FieldsConfig.create(Organisation,
                             descriptions=[('email', {FieldsConfig.HIDDEN: True})],
@@ -404,7 +404,7 @@ class EntityEmailTestCase(_EmailsTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_createview_empty_email(self):
-        "Empty email adress"
+        "Empty email address"
         user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)

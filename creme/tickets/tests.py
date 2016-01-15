@@ -588,7 +588,7 @@ class TicketTemplateTestCase(CremeTestCase):
 
         return TicketTemplate.objects.create(user=self.user,
                                              title=title,
-                                             description='description',
+                                             description=description,
                                              status=status,
                                              priority=Priority.objects.all()[0],
                                              criticity=Criticity.objects.all()[0],

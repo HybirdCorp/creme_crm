@@ -717,10 +717,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertFormError(response, 'form', 'capital', _('Enter a whole number.'))
 
     def test_import_error03(self):
-        "Required field witout column or default value"
+        "Required field without column or default value"
         self.login()
 
-        lines = [('Capital',), ('1000',)] #No 'Name'
+        lines = [('Capital',), ('1000',)]  # No 'Name'
 
         doc = self._build_csv_doc(lines, separator=';')
         url = self._build_import_url(Organisation)

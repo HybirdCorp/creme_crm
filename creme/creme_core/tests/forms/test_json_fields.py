@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query import Q, QuerySet
-    # from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _
 
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeImage as Document)
@@ -342,8 +342,8 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiGenericEntityField(models=[Organisation, Contact, Document])
         self.assertEqual('[' + ', '.join((self.build_field_entry_data(12, 1),
                                           self.build_field_entry_data(14, 5))) + ']',
-                         field.from_python([{'ctype': {'id': 12, 'create': self.QUICKFORM_URL % 12, 'create_label': 'Ajouter'}, 'entity': 1},
-                                            {'ctype': {'id': 14, 'create': self.QUICKFORM_URL % 14, 'create_label': 'Ajouter'}, 'entity': 5},
+                         field.from_python([{'ctype': {'id': 12, 'create': self.QUICKFORM_URL % 12, 'create_label': _('Add')}, 'entity': 1},
+                                            {'ctype': {'id': 14, 'create': self.QUICKFORM_URL % 14, 'create_label': _('Add')}, 'entity': 5},
                                            ]
                                           )
                         )

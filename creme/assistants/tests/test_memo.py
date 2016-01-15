@@ -12,9 +12,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('MemoTestCase',)
-
-
 class MemoTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
         return '/assistants/memo/add/%s/' % entity.id

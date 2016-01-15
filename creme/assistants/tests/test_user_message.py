@@ -25,9 +25,8 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('UserMessageTestCase',)
+User = get_user_model() # TODO: self.User
 
-User = get_user_model() #TODO: self.User
 
 class UserMessageTestCase(AssistantsTestCase):
     DEL_PRIORITY_URL = '/creme_config/assistants/message_priority/delete'

@@ -935,7 +935,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_edit_resource01(self):
-        "Related contact partipates to activities"
+        "Related contact participates to activities"
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -992,7 +992,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_edit_resource02(self):
-        "Related contact partipates to activities: old resource continues to participate"
+        "Related contact participates to activities: old resource continues to participate"
         user = self.login()
 
         project = self.create_project('Eva02')[0]
