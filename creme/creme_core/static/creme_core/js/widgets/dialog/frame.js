@@ -78,8 +78,6 @@ creme.dialog.Frame = creme.component.Component.sub({
 
     _cleanResponse: function(response, statusText, dataType)
     {
-        var json = this._json;
-
         if (Object.isType(response, 'string')) {
             return this._cleanJSONResponse(response) || {content: response, type: 'text/html'};
         } else if (Object.isType(response, 'object')) {
@@ -232,7 +230,7 @@ creme.dialog.Frame = creme.component.Component.sub({
                              function(response, statusText, dataType) {
                                  var cleaned = self._cleanResponse(response, statusText, dataType);
 
-                                 self.fill(cleaned.content, 'submit');
+                                 self.fill(cleaned, 'submit');
                                  events.trigger('submit-done', [cleaned.content, statusText, cleaned.type], this);
                                  creme.object.invoke(listeners.done, 'done', cleaned.content, statusText, cleaned.type);
                              },
