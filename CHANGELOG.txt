@@ -73,7 +73,7 @@
                 - In Response* objects, using 'mimetype' keyword argument is now deprecated ; use 'content_type' instead.
             - From Django 1.6 :
                 - transaction.commit_on_success() (use atomic() instead).
-                - commit_manually() (use atomic() instead ; set_autocommit() is an option too, but we avoid it when we can).
+                - transaction.commit_manually() (use atomic() instead ; set_autocommit() is an option too, but we avoid it when we can).
                 - transaction.savepoint*() (use atomic() instead).
             - From Django 1.7 :
                 - django.contrib.contenttypes.generic (use "from django.contrib.contenttypes.fields import GenericForeignKey").
@@ -106,7 +106,8 @@
                     - EmailSending.get_type_str() (use get_type_display() instead).
                     - EmailSending.get_state_str() (use get_state_display() instead).
                     - The block EntityEmailBlock and so its template 'emails/templatetags/block_mail.html'. It is now registered or used anymore.
-                    - The method _Email.get_body().
+                    - The methods _Email.get_body(), AbstractEntityEmail.get_body() & LightWeightEmail.get_body().
+					- LightWeightEmail.get_body_html().
                     - The view mail.get_entity_mail_body() (use the core view get_sanitized_html instead).
                 * Billing :
                     - views.workflow._add_with_relations() (use workflow.generic_add_related() instead).
@@ -164,7 +165,7 @@
             - XViewMiddleware has been removed from settings.py.
             - There was a low level change in the SQLite backend + date format of dates as group key.
             - The error messages should use mapping keys instead of positional formatting. Some django error messages has changed, so some tests could fail.
-        #  Changes caused by Django 1.7 :
+        # Changes caused by Django 1.7 :
             - With the new AppConfig system, the files "creme_core_register.py" are not loaded anymore
                 at startup & should not be used anymore; use CremeAppConfig instead.
             - Some imports have to be done lazily in order to avoid AppRegistryNotReady exceptions at startup.
@@ -183,7 +184,7 @@
                 - django.contrib.auth.middleware.SessionAuthenticationMiddleware has been added.
                 - django.middleware.clickjacking.XFrameOptionsMiddleware has been added.
                 - The order is the same than in the Django 1.7 settings template.
-        #  Changes caused by Django 1.8 :
+        # Changes caused by Django 1.8 :
             - The method QuerySet.select_related() now validates that the given fields actually exist.
               Previously, non-existent fields were silently ignored. Now, an error is raised.
             - The result of the method Meta.get_all_related_objects() has changed ; it's deprecated too.
