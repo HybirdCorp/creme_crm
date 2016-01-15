@@ -174,7 +174,7 @@ class BatchActionsField(JSONField):
                 action = BatchAction(model, clean_fieldname(entry, used_fields),
                                      *clean_operator_n_value(entry)
                                     )
-            except BatchAction.InvalidOperator as e:
+            except BatchAction.InvalidOperator:
                 raise ValidationError(self.error_messages['invalidoperator'],
                                       code='invalidoperator',
                                      )
