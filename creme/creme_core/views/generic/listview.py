@@ -62,14 +62,17 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
         queryset = entity_filter.filter(queryset)
 
     if extra_q:
-        queryset = queryset.filter(extra_q)
+        try:
+            queryset = queryset.filter(extra_q)
+        except Exception:
+            logger.exception('Error when build the search queryset. Invalid q_filter.')
 
     list_view_state.extra_q = extra_q
     # TODO: method in ListViewState that returns the improved queryset
     try:
         queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.cells))
     except Exception:
-        logger.exception('Error when build the search queryset')
+        logger.exception('Error when build the search queryset.')
 
     queryset = EntityCredentials.filter(request.user, queryset).distinct()
     queryset = list_view_state.sort_query(queryset)
