@@ -336,7 +336,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_model_error(self):
         self.login()
 
-        description = 'Genshiken meber'
+        description = 'Genshiken member'
 
         efilter = EntityFilter.create('test-filter01', 'Belongs to Genshiken',
                                       Contact, is_custom=True,

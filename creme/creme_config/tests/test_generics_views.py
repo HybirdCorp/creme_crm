@@ -404,21 +404,21 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(4, self.refresh(sector4).order)
 
     def test_incr_order03(self):
-        "Errrors"
+        "Errors"
         create_sector = Sector.objects.create
         sector1 = create_sector(title='Music', order=1)
         sector2 = create_sector(title='Movie',   order=2)
 
         url = self.DOWN_URL
         self.assertPOST404(url % sector2.id)
-        self.assertPOST404(url % (sector2.id + sector1.id)) #odd pk
+        self.assertPOST404(url % (sector2.id + sector1.id))  # Odd pk
 
     def test_decr_order01(self):
         create_sector = Sector.objects.create
         sector1 = create_sector(title='Music', order=1)
-        sector2 = create_sector(title='Movie',   order=2)
-        sector3 = create_sector(title='Book',         order=3)
-        sector4 = create_sector(title='Web',        order=4)
+        sector2 = create_sector(title='Movie', order=2)
+        sector3 = create_sector(title='Book',  order=3)
+        sector4 = create_sector(title='Web',   order=4)
 
         self.assertPOST200(self.UP_URL % sector3.id)
 
