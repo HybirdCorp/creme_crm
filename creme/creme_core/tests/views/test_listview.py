@@ -573,6 +573,76 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,  content)
         self.assertIn(dragons.name,  content)
 
+    def test_qfilter_GET(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"}'})
+
+        content = self._get_lv_content(response)
+        self.assertIn(bebop.name, content)
+        self.assertNotIn(redtail.name,  content)
+        self.assertNotIn(dragons.name,  content)
+
+    def test_qfilter_POST(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        response = self.assertPOST200(self.url, data={'q_filter': '{"name":"Bebop"}'})
+
+        content = self._get_lv_content(response)
+        self.assertIn(bebop.name, content)
+        self.assertNotIn(redtail.name,  content)
+        self.assertNotIn(dragons.name,  content)
+
+    def test_qfilter_invalid_json(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        # invalid json : ignore filter 
+        response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"'})
+
+        content = self._get_lv_content(response)
+        self.assertIn(bebop.name, content)
+        self.assertIn(redtail.name,  content)
+        self.assertIn(dragons.name,  content)
+
+    def test_qfilter_invalid_Q(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        # invalid field : ignore filter 
+        response = self.assertGET200(self.url, data={'q_filter': '{"unknown_model_field":"Bebop"}'})
+
+        content = self._get_lv_content(response)
+        self.assertIn(bebop.name, content)
+        self.assertIn(redtail.name,  content)
+        self.assertIn(dragons.name,  content)
+
     def test_search_regularfields01(self):
         user = self.login()
 
