@@ -171,7 +171,7 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
     submit_options = $.extend({}, submit_options, options, true);
 
     if ($('input[name="csrfmiddlewaretoken"]', form).length === 0) {
-        submit_options.headers = $.extend(options.headers || {}, {'X-CSRFToken': this.csrfHeaders()});
+        submit_options.headers = $.extend(options.headers || {}, {'X-CSRFToken': creme.ajax.cookieCSRF()});
     }
 
     $(form).ajaxSubmit(submit_options);
@@ -203,7 +203,7 @@ creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options)
     }, options);
 
     if (Object.isEmpty(csrf) === false) {
-        ajax_options.headers = $.extend(options.headers || {}, {'X-CSRFToken': creme.ajax.cookieCSRF()});
+        ajax_options.headers = $.extend(options.headers || {}, {'X-CSRFToken': csrf});
     }
 
     $.ajax(ajax_options);
