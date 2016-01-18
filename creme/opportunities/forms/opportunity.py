@@ -26,9 +26,7 @@ from creme.creme_core.forms.validators import validate_linkable_entity
 from creme.creme_core.signals import form_post_save
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Organisation, Contact
 
-#from ..models import Opportunity
 from .. import get_opportunity_model
 
 
@@ -51,7 +49,7 @@ class OpportunityEditForm(CremeEntityForm):
     def __init__(self, *args, **kwargs):
         super(OpportunityEditForm, self).__init__(*args, **kwargs)
 
-        if self.instance.pk: #edition
+        if self.instance.pk:  # Edition
             self.fields['target'].initial = self.instance.target
 
     def clean_target(self):

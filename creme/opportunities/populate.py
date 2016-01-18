@@ -32,15 +32,13 @@ from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValu
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from creme.products import get_product_model, get_service_model
-#from creme.products.models import Product, Service
 
 from . import get_opportunity_model
 from . import blocks, constants
 from .buttons import linked_opportunity_button
-from .models import SalesPhase, Origin #, Opportunity
+from .models import SalesPhase, Origin
 from .setting_keys import quote_key
 
 
@@ -90,7 +88,6 @@ class Populator(BasePopulator):
             logger.info('Billing app is installed => we create relationships between Opportunities & billing models')
 
             from creme.billing import get_invoice_model, get_quote_model, get_sales_order_model
-#            from creme.billing.models import SalesOrder, Invoice, Quote
 
             Invoice    = get_invoice_model()
             Quote      = get_quote_model()
@@ -263,8 +260,6 @@ class Populator(BasePopulator):
         from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_RANGE
         from creme.reports.models import Report, Field, ReportGraph
 
-        ##admin = User.objects.get(pk=1)
-        #admin = get_user_model().objects.filter(is_superuser=True).order_by('id')[0]
         admin = get_user_model().objects.get_admin()
 
         # Create the report ----------------------------------------------------

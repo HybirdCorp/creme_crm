@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
@@ -31,7 +30,7 @@ from creme.creme_core.views.generic import (add_entity, add_model_with_popup,
 from .. import get_opportunity_model
 from ..constants import DEFAULT_HFILTER_OPPORTUNITY
 from ..forms.opportunity import OpportunityCreateForm, OpportunityEditForm
-from ..models import SalesPhase #Opportunity
+from ..models import SalesPhase
 
 
 Opportunity = get_opportunity_model()
@@ -85,20 +84,16 @@ def abstract_edit_opportunity(request, opp_id, form=OpportunityEditForm):
 def abstract_view_opportunity(request, opp_id,
                               template='opportunities/view_opportunity.html',
                              ):
-    return view_entity(request, opp_id, model=Opportunity, template=template,
-                       # path='/opportunities/opportunity',
-                      )
+    return view_entity(request, opp_id, model=Opportunity, template=template)
 
 
 @login_required
-# @permission_required(('opportunities', 'opportunities.add_opportunity'))
 @permission_required(('opportunities', cperm(Opportunity)))
 def add(request):
     return abstract_add_opportunity(request)
 
 
 @login_required
-# @permission_required(('opportunities', 'opportunities.add_opportunity'))
 @permission_required(('opportunities', cperm(Opportunity)))
 def add_to(request, ce_id, inner_popup=False):
     return abstract_add_related_opportunity(request, entity_id=ce_id,
@@ -121,6 +116,4 @@ def detailview(request, opp_id):
 @login_required
 @permission_required('opportunities')
 def listview(request):
-    return list_view(request, Opportunity, hf_pk=DEFAULT_HFILTER_OPPORTUNITY,
-                     # extra_dict={'add_url': reverse('opportunities__create_opportunity')},
-                    )
+    return list_view(request, Opportunity, hf_pk=DEFAULT_HFILTER_OPPORTUNITY)

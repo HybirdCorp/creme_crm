@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@ from functools import partial
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
-#from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation, Vat
@@ -33,16 +32,13 @@ from creme.creme_core.views.decorators import POST_only
 from creme.persons.workflow import transform_target_into_customer, transform_target_into_prospect
 
 from creme.products import get_product_model
-#from creme.products.models import Product
 
 from creme.billing import (get_invoice_model, get_quote_model, get_sales_order_model,
         get_product_line_model, get_service_line_model)
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-#from creme.billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
 
 from .. import get_opportunity_model
 from .. import constants
-#from ..models import Opportunity
 
 
 Invoice     = get_invoice_model()
@@ -50,6 +46,7 @@ Quote       = get_quote_model()
 SalesOrder  = get_sales_order_model()
 ProductLine = get_product_line_model()
 ServiceLine = get_service_line_model()
+Opportunity = get_opportunity_model()
 
 
 @login_required
@@ -57,10 +54,10 @@ ServiceLine = get_service_line_model()
 @POST_only
 def current_quote(request, opp_id, quote_id, action):
     user = request.user
-    has_perm_or_die = user.has_perm_to_link_or_die if action == 'set_current' else user.has_perm_to_unlink_or_die
+    has_perm_or_die = user.has_perm_to_link_or_die if action == 'set_current' else \
+                      user.has_perm_to_unlink_or_die
 
-#    opp = get_object_or_404(Opportunity, pk=opp_id)
-    opp = get_object_or_404(get_opportunity_model(), pk=opp_id)
+    opp = get_object_or_404(Opportunity, pk=opp_id)
     has_perm_or_die(opp)
 
     quote = get_object_or_404(Quote, pk=quote_id)
@@ -96,6 +93,7 @@ _GEN_BEHAVIOURS = {
     SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
 }
 
+
 @login_required
 @permission_required('opportunities')
 @POST_only
@@ -112,8 +110,7 @@ def generate_new_doc(request, opp_id, ct_id):
     user.has_perm_to_create_or_die(klass)
     user.has_perm_to_link_or_die(klass, owner=user)  # TODO: check in template too (must upgrade 'has_perm' to use owner!=None)
 
-#    opp = get_object_or_404(Opportunity, id=opp_id)
-    opp = get_object_or_404(get_opportunity_model(), pk=opp_id)
+    opp = get_object_or_404(Opportunity, id=opp_id)
     user.has_perm_to_link_or_die(opp)
 
     document = klass.objects.create(user=user, issuing_date=now(),
@@ -125,7 +122,7 @@ def generate_new_doc(request, opp_id, ct_id):
     create_relation(type_id=REL_SUB_BILL_RECEIVED, object_entity=opp.target)
     create_relation(type_id=rtype_id,              object_entity=opp)
 
-    document.generate_number() #Need the relation with emitter orga
+    document.generate_number()  # Need the relationship with emitter organisation
     document.name = u'%s(%s)' % (document.number, opp.name)
     document.save()
 

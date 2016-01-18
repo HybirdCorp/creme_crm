@@ -37,16 +37,14 @@ from creme.creme_core.models import (CremeEntity, CremeModel, Relation,
 from creme.creme_core.models.fields import BasicAutoField
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 from creme.persons.workflow import transform_target_into_prospect
 
 from creme.products import get_product_model, get_service_model
-#from creme.products.models import Product, Service
 
 from .. import constants
 
 
-#logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class _TurnoverField(FunctionField):
@@ -65,7 +63,6 @@ class _TurnoverField(FunctionField):
 
 class SalesPhase(CremeModel):
     name  = CharField(_(u"Name"), max_length=100, blank=False, null=False)
-    #order = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False)
     order = BasicAutoField(_('Order')) #.set_tags(viewable=False)
     won   = BooleanField(pgettext_lazy('opportunities-sales_phase', u"Won"), default=False)
 
@@ -92,7 +89,6 @@ class Origin(CremeModel):
         ordering = ('name',)
 
 
-#class Opportunity(CremeEntity):
 class AbstractOpportunity(CremeEntity):
     name                  = CharField(_(u"Name of the opportunity"), max_length=100)
     reference             = CharField(_(u"Reference"), max_length=100,
@@ -152,8 +148,6 @@ class AbstractOpportunity(CremeEntity):
                 raise ValidationError(ugettext('Target is required.'))
 
     def _pre_delete(self):
-        #for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS, REL_OBJ_EMIT_ORGA],
-                                                #subject_entity=self):
         for relation in self.relations.filter(type__in=(constants.REL_SUB_TARGETS, constants.REL_OBJ_EMIT_ORGA)):
             relation._delete_without_transaction()
 
@@ -167,7 +161,6 @@ class AbstractOpportunity(CremeEntity):
         super(AbstractOpportunity, self).clean()
 
     def get_absolute_url(self):
-#        return "/opportunities/opportunity/%s" % self.id
         return reverse('opportunities__view_opportunity', args=(self.id,))
 
     @staticmethod
@@ -175,12 +168,10 @@ class AbstractOpportunity(CremeEntity):
         return reverse('opportunities__create_opportunity')
 
     def get_edit_absolute_url(self):
-#        return "/opportunities/opportunity/edit/%s" % self.id
         return reverse('opportunities__edit_opportunity', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/opportunities/opportunities"
         return reverse('opportunities__list_opportunities')
 
     def __get_fieldsconfig(self):
@@ -218,43 +209,48 @@ class AbstractOpportunity(CremeEntity):
 
     # TODO: test
     def get_products(self):
-#        return Product.objects.filter(is_deleted=False,
-        return get_product_model().objects.filter(is_deleted=False,
-                                      relations__object_entity=self.id,
-                                      relations__type=constants.REL_SUB_LINKED_PRODUCT,
-                                     )
+        return get_product_model()\
+                    .objects\
+                    .filter(is_deleted=False,
+                            relations__object_entity=self.id,
+                            relations__type=constants.REL_SUB_LINKED_PRODUCT,
+                           )
 
     # TODO: test
     def get_services(self):
-#        return Service.objects.filter(is_deleted=False,
-        return get_service_model().objects.filter(is_deleted=False,
-                                      relations__object_entity=self.id,
-                                      relations__type=constants.REL_SUB_LINKED_SERVICE,
-                                     )
+        return get_service_model()\
+                    .objects\
+                    .filter(is_deleted=False,
+                            relations__object_entity=self.id,
+                            relations__type=constants.REL_SUB_LINKED_SERVICE,
+                           )
 
     # TODO: test
     def get_contacts(self):
-#        return Contact.objects.filter(is_deleted=False,
-        return get_contact_model().objects.filter(is_deleted=False,
-                                      relations__object_entity=self.id,
-                                      relations__type=constants.REL_SUB_LINKED_CONTACT,
-                                     )
+        return get_contact_model()\
+                    .objects\
+                    .filter(is_deleted=False,
+                            relations__object_entity=self.id,
+                            relations__type=constants.REL_SUB_LINKED_CONTACT,
+                           )
 
     # TODO: test
     def get_responsibles(self):
-#        return Contact.objects.filter(is_deleted=False,
-        return get_contact_model().objects.filter(is_deleted=False,
-                                      relations__object_entity=self.id,
-                                      relations__type=constants.REL_SUB_RESPONSIBLE,
-                                     )
+        return get_contact_model()\
+                    .objects\
+                    .filter(is_deleted=False,
+                            relations__object_entity=self.id,
+                            relations__type=constants.REL_SUB_RESPONSIBLE,
+                           )
 
     @property
     def emitter(self):
         if not self._opp_emitter:
-#            self._opp_emitter = Organisation.objects.get(relations__type=REL_SUB_EMIT_ORGA,
-            self._opp_emitter = get_organisation_model().objects.get(relations__type=constants.REL_SUB_EMIT_ORGA,
-                                                         relations__object_entity=self.id,
-                                                        )
+            self._opp_emitter = get_organisation_model()\
+                                    .objects\
+                                    .get(relations__type=constants.REL_SUB_EMIT_ORGA,
+                                         relations__object_entity=self.id,
+                                        )
 
         return self._opp_emitter
 
@@ -285,10 +281,9 @@ class AbstractOpportunity(CremeEntity):
         create_relation = partial(Relation.objects.create, object_entity=self, user=self.user)
         target = self._opp_target
 
-        if not self.pk: #creation
+        if not self.pk:  # Creation
             self._clean_emitter_n_target()
 
-#            super(Opportunity, self).save(*args, **kwargs)
             super(AbstractOpportunity, self).save(*args, **kwargs)
 
             create_relation(subject_entity=self._opp_emitter, type_id=constants.REL_SUB_EMIT_ORGA)
@@ -296,7 +291,6 @@ class AbstractOpportunity(CremeEntity):
 
             transform_target_into_prospect(self._opp_emitter, target, self.user)
         else:
-#            super(Opportunity, self).save(*args, **kwargs)
             super(AbstractOpportunity, self).save(*args, **kwargs)
 
             old_relation = self._opp_target_rel

@@ -25,7 +25,6 @@ from creme.creme_core.views.generic import app_portal
 from creme.creme_config.utils import generate_portal_url
 
 from .. import get_opportunity_model
-#from creme.opportunities.models.opportunity import Opportunity
 
 
 def portal(request):

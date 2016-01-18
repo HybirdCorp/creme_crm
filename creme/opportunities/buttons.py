@@ -31,14 +31,11 @@ Opportunity = get_opportunity_model()
 
 class LinkedOpportunityButton(Button):
     id_           = Button.generate_id('opportunities', 'linked_opportunity')
-#    verbose_name  = _(u'Add an opportunity linked to an organisation')
     verbose_name  = _(u'Add a linked opportunity')
     template_name = 'opportunities/templatetags/button_linked_opp.html'
     permission    = cperm(Opportunity)
 
     def get_ctypes(self):
-#        from creme.persons.models import Organisation, Contact
-#        return (Organisation, Contact)
         from creme.persons import get_contact_model, get_organisation_model
         return (get_organisation_model(), get_contact_model())
 
