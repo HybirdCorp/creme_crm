@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -30,7 +29,6 @@ from .. import get_service_model
 from ..constants import DEFAULT_HFILTER_SERVICE
 from ..forms.base import AddImagesForm
 from ..forms.service import ServiceCreateForm, ServiceEditForm
-#from ..models import Service
 
 
 Service = get_service_model()
@@ -51,13 +49,10 @@ def abstract_edit_service(request, service_id, form=ServiceEditForm):
 def abstract_view_service(request, service_id,
                           template='products/view_service.html',
                          ):
-    return view_entity(request, service_id, Service, template=template,
-                       # path='/products/service',
-                      )
+    return view_entity(request, service_id, Service, template=template)
 
 
 @login_required
-# @permission_required(('products', 'products.add_service'))
 @permission_required(('products', cperm(Service)))
 def add(request):
     return abstract_add_service(request)
@@ -78,10 +73,7 @@ def detailview(request, service_id):
 @login_required
 @permission_required('products')
 def listview(request):
-    return list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE,
-                     # extra_dict={'add_url': '/products/service/add'},
-                     # extra_dict={'add_url': reverse('products__create_service')},
-                    )
+    return list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE)
 
 
 @login_required

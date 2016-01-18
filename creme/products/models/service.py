@@ -30,9 +30,9 @@ from creme.media_managers.models import Image
 from .other_models import Category, SubCategory
 
 
-#TODO: use an abstract base class for Service and Products ??
+# TODO: use an abstract base class for Service and Products ??
 
-#class Service(CremeEntity):
+
 class AbstractService(CremeEntity):
     name              = CharField(_(u'Name'), max_length=100)
     description       = CharField(_(u'Description'), max_length=200)
@@ -49,7 +49,7 @@ class AbstractService(CremeEntity):
     web_site          = CharField(_(u'Web Site'), max_length=100,
                                   blank=True, null=True,
                                  ).set_tags(optional=True)
-    images            = ManyToManyField(Image, blank=True, # null=True,
+    images            = ManyToManyField(Image, blank=True,
                                         verbose_name=_(u'Images'),
                                         related_name='ServiceImages_set',
                                        )
@@ -67,7 +67,6 @@ class AbstractService(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return "/products/service/%s" % self.id
         return reverse('products__view_service', args=(self.id,))
 
     @staticmethod
@@ -75,12 +74,10 @@ class AbstractService(CremeEntity):
         return reverse('products__create_service')
 
     def get_edit_absolute_url(self):
-#        return "/products/service/edit/%s" % self.id
         return reverse('products__edit_service', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/products/services"
         return reverse('products__list_services')
 
 

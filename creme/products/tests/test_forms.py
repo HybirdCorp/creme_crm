@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    # import copy
     from functools import partial
 
     from creme.creme_core.tests.forms.base import FieldTestCase
@@ -47,38 +46,7 @@ class CategoryFieldTestCase(FieldTestCase):
 
         field = CategoryField(categories=[cat1.id, cat2.id])
 
-#        self.assertEqual(2, len(field.categories))
-#
-#        cats = field._get_categories_objects()
-#        self.assertEqual(cat1, cats[0])
-#        self.assertEqual(cat2, cats[1])
         self.assertEqual([cat1, cat2], list(field.categories))
-
-#    def test_default_ctypes(self):
-#        self.populate('creme_core', 'products')
-#
-#        cat_qs = Category.objects.all()
-#        cats = CategoryField()._get_categories_objects()
-#        self.assertEqual(len(cat_qs), len(cats))
-#        self.assertEqual(set(cat_qs), set(cats))
-
-#    def test_deepcopy(self):
-#        "Widget categories must be refreshed when field is copied."
-#        field = CategoryField()
-#
-#        # New category create after the instanciation of the initial field
-#        cat = Category.objects.create(name='Xtra cat', description='...')
-#        SubCategory.objects.create(name='Xtra subcat', description='...', category=cat)
-#
-#        inputs = copy.deepcopy(field).widget.inputs
-#        self.assertEqual(2, len(inputs))
-#
-#        cat_input = inputs[0]
-#        self.assertIsInstance(cat_input, tuple)
-#        self.assertEqual(2, len(cat_input))
-#        self.assertEqual('category', cat_input[0])
-#
-#        self.assertEqual([(cat.id, cat.name)], list(cat_input[1].choices))
 
     def test_format_object(self):
         cat1 = Category.objects.create(name='cat1', description='description')
@@ -133,7 +101,7 @@ class CategoryFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(CategoryField, 'required', clean, '{"category":"12"}')
 
     def test_clean_unallowed_category(self):
-        "Data injection : unallowed category"
+        "Data injection : forbidden category"
         cat1 = Category.objects.create(name='cat1', description='description')
 
         cat2 = Category.objects.create(name='cat2', description='description')
@@ -151,7 +119,7 @@ class CategoryFieldTestCase(FieldTestCase):
         cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
 
         clean = CategoryField(categories=[cat1.id, 0]).clean
-        # same error has unallowed, cause unknown category cannot be in list
+        # Same error than 'forbidden', cause unknown category cannot be in list
         self.assertFieldValidationError(CategoryField, 'categorynotallowed', clean,
                                         self.format_str % (0, cat11.id)
                                        )

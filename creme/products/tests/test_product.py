@@ -12,13 +12,12 @@ try:
     from creme.creme_core.models import SetCredentials
     from creme.creme_core.tests.fake_models import FakeContact
 
-#    from creme.persons.models import Contact
 
     from creme.media_managers.tests import create_image
 
     from .base import _ProductsTestCase, skipIfCustomProduct
     from .. import get_product_model
-    from ..models import Category, SubCategory  # Product
+    from ..models import Category, SubCategory
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -56,11 +55,10 @@ class ProductTestCase(_ProductsTestCase):
 
     @skipIfCustomProduct
     def test_createview01(self):
-        self.login()
+        user = self.login()
 
         self.assertEqual(0, Product.objects.count())
 
-#        url = '/products/product/add'
         url = reverse('products__create_product')
         self.assertGET200(url)
 
@@ -71,7 +69,7 @@ class ProductTestCase(_ProductsTestCase):
         description = 'A fake god'
         unit_price = '1.23'
         response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.pk,
+                                    data={'user':         user.pk,
                                           'name':         name,
                                           'code':         code,
                                           'description':  description,
@@ -115,14 +113,11 @@ class ProductTestCase(_ProductsTestCase):
                                       value=EntityCredentials.VIEW   |
                                             EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE |
-                                            #EntityCredentials.LINK   |
+                                            # EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-#        img_1 = self.create_image(ident=1, user=user)
-#        img_2 = self.create_image(ident=2, user=user)
-#        img_3 = self.create_image(ident=3, user=self.other_user)
         img_1 = create_image(ident=1, user=user)
         img_2 = create_image(ident=2, user=user)
         img_3 = create_image(ident=3, user=self.other_user)
@@ -134,7 +129,6 @@ class ProductTestCase(_ProductsTestCase):
         sub_cat = SubCategory.objects.all()[0]
 
         def post(*images):
-#            return self.client.post('/products/product/add', follow=True,
             return self.client.post(reverse('products__create_product'), follow=True,
                                     data={'user':         user.pk,
                                           'name':         name,
@@ -211,7 +205,6 @@ class ProductTestCase(_ProductsTestCase):
                     create_prod(name='Eva01', code=43),
                    ]
 
-#        response = self.assertGET200('/products/products')
         response = self.assertGET200(Product.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -393,7 +386,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(sub_cat.category, product2.category)
 
     def test_add_images(self):
-        #TODO: factorise
+        # TODO: factorise
         user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
                           creatable_models=[Product],
                          )
@@ -410,15 +403,11 @@ class ProductTestCase(_ProductsTestCase):
                                       value=EntityCredentials.VIEW   |
                                             EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE |
-                                            #EntityCredentials.LINK   |
+                                            # EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-#        img_1 = self.create_image(ident=1, user=user)
-#        img_2 = self.create_image(ident=2, user=user)
-#        img_3 = self.create_image(ident=3, user=user)
-#        img_4 = self.create_image(ident=4, user=self.other_user)
         img_1 = create_image(ident=1, user=user)
         img_2 = create_image(ident=2, user=user)
         img_3 = create_image(ident=3, user=user)
@@ -452,8 +441,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertNoFormError(response)
         self.assertEqual({img_1, img_2, img_3}, set(product.images.all()))
 
-        #------------
-#        img_5 = self.create_image(ident=5, user=user)
+        # ------------
         img_5 = create_image(ident=5, user=user)
         response = post(img_1, img_5)
         self.assertEqual(200, response.status_code)
@@ -462,8 +450,6 @@ class ProductTestCase(_ProductsTestCase):
     def test_remove_image(self):
         user = self.login()
 
-#        img_1 = self.create_image(ident=1, user=user)
-#        img_2 = self.create_image(ident=2, user=user)
         img_1 = create_image(ident=1, user=user)
         img_2 = create_image(ident=2, user=user)
 
@@ -483,6 +469,5 @@ class ProductTestCase(_ProductsTestCase):
         self.assertPOST200(url, data=data, follow=True)
         self.assertEqual([img_2], list(product.images.all()))
 
-#        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Aynami')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
         self.assertPOST404('/products/images/remove/%s' % rei.id, data={'id': img_2.id})

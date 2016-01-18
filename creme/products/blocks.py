@@ -22,25 +22,26 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block
 
-#from .models import Product, Service
 from . import get_product_model, get_service_model
+
+
+Product = get_product_model()
+Service = get_service_model()
 
 
 class ImagesBlock(Block):
     id_           = Block.generate_id('products', 'images')
-    #dependencies  = (Image,) ??
+    # dependencies  = (Image,) ??
     verbose_name  = _(u'Images of product/service')
     template_name = 'products/block_images.html'
-#    target_ctypes = (Product, Service)
-    target_ctypes = (get_product_model(), get_service_model())
+    target_ctypes = (Product, Service)
 
     def detailview_display(self, context):
         entity = context['object']
         return self._render(self.get_block_template_context(
                                 context,
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-#                                object_type=entity.__class__.__name__.lower(), #'product' or 'service', used by URL
-                                object_type='product' if isinstance(entity, get_product_model()) else 'service',
+                                object_type='product' if isinstance(entity, Product) else 'service',
                                )
                            )
 

@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -34,7 +33,7 @@ from .. import get_product_model, get_service_model
 from ..constants import DEFAULT_HFILTER_PRODUCT
 from ..forms.base import AddImagesForm
 from ..forms.product import ProductCreateForm, ProductEditForm
-from ..models import Category, SubCategory # Product, Service
+from ..models import Category, SubCategory
 
 
 Product = get_product_model()
@@ -56,13 +55,10 @@ def abstract_edit_product(request, product_id, form=ProductEditForm):
 def abstract_view_product(request, product_id,
                           template='products/view_product.html',
                          ):
-    return view_entity(request, product_id, Product, template=template,
-                       # path='/products/product',
-                      )
+    return view_entity(request, product_id, Product, template=template)
 
 
 @login_required
-# @permission_required(('products', 'products.add_product'))
 @permission_required(('products', cperm(Product)))
 def add(request):
     return abstract_add_product(request)
@@ -83,10 +79,7 @@ def detailview(request, product_id):
 @login_required
 @permission_required('products')
 def listview(request):
-    return list_view(request, Product, hf_pk=DEFAULT_HFILTER_PRODUCT,
-                     # extra_dict={'add_url': '/products/product/add'}
-                     # extra_dict={'add_url': reverse('products__create_product')},
-                    )
+    return list_view(request, Product, hf_pk=DEFAULT_HFILTER_PRODUCT)
 
 
 @jsonify

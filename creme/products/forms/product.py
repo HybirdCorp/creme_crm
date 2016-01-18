@@ -22,12 +22,12 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.bulk import BulkForm
 
-#from ..models import Product
 from .. import get_product_model
 from .fields import CategoryField
 from .base import _BaseCreateForm, _BaseEditForm
 
 Product = get_product_model()
+
 
 class ProductCreateForm(_BaseCreateForm):
     class Meta(_BaseCreateForm.Meta):

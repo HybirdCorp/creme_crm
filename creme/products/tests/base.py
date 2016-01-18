@@ -19,6 +19,7 @@ except Exception as e:
 def skipIfCustomProduct(test_func):
     return skipIf(skip_product_tests, 'Custom Product model in use')(test_func)
 
+
 def skipIfCustomService(test_func):
     return skipIf(skip_service_tests, 'Custom Service model in use')(test_func)
 
@@ -27,7 +28,6 @@ class _ProductsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        #cls.populate('creme_core', 'creme_config', 'products')
         cls.populate('products')
 
     def _cat_field(self, category, sub_category):

@@ -14,7 +14,7 @@ try:
 
     from .base import _ProductsTestCase, skipIfCustomService
     from .. import get_service_model
-    from ..models import Category, SubCategory  # Service
+    from ..models import Category, SubCategory
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -28,7 +28,6 @@ class ServiceTestCase(_ProductsTestCase):
         self.login()
         self.assertEqual(0, Service.objects.count())
 
-#        url = '/products/service/add'
         url = reverse('products__create_service')
         self.assertGET200(url)
 
@@ -36,7 +35,6 @@ class ServiceTestCase(_ProductsTestCase):
         description = 'Your Eva is washed by pretty girls'
         reference = '42'
         cat = Category.objects.all()[0]
-        #sub_cat = SubCategory.objects.all()[0]
         sub_cat = SubCategory.objects.filter(category=cat)[0]
         unit = 'A wash'
         unit_price = '1.23'

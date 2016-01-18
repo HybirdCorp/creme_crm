@@ -24,14 +24,12 @@ from creme.creme_core.views.generic import app_portal
 
 from creme.creme_config.utils import generate_portal_url
 
-#from ..models import Product, Service
 from .. import get_product_model, get_service_model
 
 
 def portal(request):
     Product = get_product_model()
     Service = get_service_model()
-
     stats = ((_('Number of products'), Product.objects.count()),
              (_('Number of services'), Service.objects.count()),
             )

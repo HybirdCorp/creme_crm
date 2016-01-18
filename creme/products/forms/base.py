@@ -33,7 +33,7 @@ class _BaseForm(CremeEntityForm):
     sub_category = CategoryField(label=_(u'Sub-category'))
 
     class Meta(CremeEntityForm.Meta):
-        #model = OVERLOAD ME
+        # model = OVERLOAD ME
         exclude = CremeEntityForm.Meta.exclude + ('category', 'sub_category')
 
     def save(self, *args, **kwargs):
@@ -55,7 +55,7 @@ class _BaseCreateForm(_BaseForm):
 
 class _BaseEditForm(_BaseForm):
     class Meta(_BaseForm.Meta):
-        #model = OVERLOAD ME
+        # model = OVERLOAD ME
         exclude = _BaseForm.Meta.exclude + ('images',)
 
     def __init__(self, *args, **kwargs):
@@ -71,11 +71,7 @@ class AddImagesForm(CremeForm):
         self.entity = entity
         self.fields['images'].q_filter = {'~id__in': list(entity.images.values_list('id', flat=True))}
 
-#        # hack : The 'q_filter' disable creation when 'creation_action_url' is empty because default creation views
-#        # cannot return filtered instances.
-#        # So this weird line forces a value in 'creation_action_url' in order re-enable creation button.
-#        self.fields['images'].create_action_url = self.fields['images'].create_action_url
-        self.fields['images'].force_creation = True # TODO: in constructor
+        self.fields['images'].force_creation = True  # TODO: in constructor
 
     def clean_images(self):
         return validate_linkable_entities(self.cleaned_data['images'], self.user)
