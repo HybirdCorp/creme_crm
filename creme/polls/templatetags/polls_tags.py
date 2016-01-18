@@ -28,9 +28,11 @@ from django.utils.translation import ugettext as _
 
 register = Library()
 
+
 @register.simple_tag
 def print_line_condition(nodes, condition):
-    lines_map = getattr(nodes, 'tags_lines_map', None) #cache to avoid additionnal queries (caused by 'condition.source').
+    # Cache to avoid additional queries (caused by 'condition.source').
+    lines_map = getattr(nodes, 'tags_lines_map', None)
 
     if lines_map is None:
         nodes.tags_lines_map = lines_map = {node.id: node for node in nodes if not node.is_section}
@@ -38,9 +40,9 @@ def print_line_condition(nodes, condition):
     source = lines_map[condition.source_id]
     answer = source.poll_line_type.decode_condition(condition.raw_answer)
 
-    if isinstance(answer, list): #TODO: move logic to core.py ???:
+    if isinstance(answer, list):  # TODO: move logic to core.py ???:
         msg_fmt = _(u'The answer to the question #%(number)s contains «%(answer)s».')
-        answer = u' / '.join(answer) #TODO: stringify sub elements ?
+        answer = u' / '.join(answer)  # TODO: stringify sub elements ?
     else:
         msg_fmt = _(u'The answer to the question #%(number)s is «%(answer)s».')
 
@@ -48,13 +50,16 @@ def print_line_condition(nodes, condition):
                       'answer': answer,
                      }
 
+
 @register.simple_tag
 def print_node_number(style, node):
     return style.number(node)
 
+
 @register.simple_tag
 def print_node_css(style, node):
     return style.css(node)
+
 
 @register.inclusion_tag('polls/templatetags/stats_pollreply_chart.html', takes_context=True)
 def print_node_chart(context, node, diameter=100):
@@ -63,7 +68,6 @@ def print_node_chart(context, node, diameter=100):
     max_legend_length = 0
     count = 0
 
-    #if node.answer_stats:
     for answer, stat, percent in node.answer_stats:
         label = escape(unicode(answer))
         fmt = u'%3d %% - %s' if percent.is_integer() else u'%3.2f %% - %s'
@@ -73,14 +77,6 @@ def print_node_chart(context, node, diameter=100):
 
         data.append((label, stat))
         legends.append(legend)
-    #else: #todo: should be useless --> remove
-        #label = _('No available answer')
-        #legend = u'100 %% - %s' % label
-        #max_legend_length = len(legend)
-        #count = 1
-
-        #data = [[label, 1]]
-        #legends = [legend]
 
     context.update({
                 'chart_data':     mark_safe(json_dump([data])),

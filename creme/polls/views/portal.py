@@ -25,7 +25,6 @@ from creme.creme_core.views.generic import app_portal
 from creme.creme_config.utils import generate_portal_url
 
 from .. import get_pollform_model, get_pollreply_model
-#from ..models import PollForm, PollReply
 
 
 def portal(request):

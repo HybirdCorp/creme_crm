@@ -19,12 +19,10 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-# from django.core.urlresolvers import reverse
 from django.db.models import ProtectedError
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.translation import ugettext as _
-#from django.utils.encoding import smart_unicode
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -37,7 +35,7 @@ from ..constants import DEFAULT_HFILTER_PFORM
 from ..forms.poll_form import (PollFormForm, PollFormLineCreateForm, PollFormLineEditForm,
         PollFormSectionCreateForm, PollFormSectionEditForm,
         PollFormLineConditionsForm)
-from ..models import PollFormSection, PollFormLine #PollForm
+from ..models import PollFormSection, PollFormLine
 from ..utils import StatsTree, NodeStyle  # TODO: templatetag instead ?
 
 
@@ -59,13 +57,10 @@ def abstract_edit_pollform(request, pform_id, form=PollFormForm):
 def abstract_view_pollform(request, pform_id,
                            template='polls/view_pollform.html',
                           ):
-    return view_entity(request, pform_id, PollForm, template=template,
-                       # path='/polls/poll_form',
-                      )
+    return view_entity(request, pform_id, PollForm, template=template)
 
 
 @login_required
-# @permission_required(('polls', 'polls.add_pollform'))
 @permission_required(('polls', cperm(PollForm)))
 def add(request):
     return abstract_add_pollform(request)
@@ -86,10 +81,7 @@ def detailview(request, pform_id):
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM,
-                     # extra_dict={'add_url': '/polls/poll_form/add'},
-                     # extra_dict={'add_url': reverse('polls__create_form')},
-                    )
+    return list_view(request, PollForm, hf_pk=DEFAULT_HFILTER_PFORM)
 
 
 @login_required

@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -28,7 +27,6 @@ from creme.creme_core.views.generic import view_entity, add_entity, edit_entity,
 from .. import get_pollcampaign_model
 from ..constants import DEFAULT_HFILTER_PCAMPAIGN
 from ..forms.campaign import PollCampaignForm
-#from ..models import PollCampaign
 
 
 PollCampaign = get_pollcampaign_model()
@@ -49,13 +47,10 @@ def abstract_edit_pcampaign(request, campaign_id, form=PollCampaignForm):
 def abstract_view_pcampaign(request, campaign_id,
                             template='polls/view_campaign.html',
                            ):
-    return view_entity(request, campaign_id, PollCampaign, template=template,
-                       # path='/polls/campaign',
-                      )
+    return view_entity(request, campaign_id, PollCampaign, template=template)
 
 
 @login_required
-# @permission_required(('polls', 'polls.add_pollcampaign'))
 @permission_required(('polls', cperm(PollCampaign)))
 def add(request):
     return abstract_add_pcampaign(request)
@@ -76,7 +71,4 @@ def detailview(request, campaign_id):
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollCampaign, hf_pk=DEFAULT_HFILTER_PCAMPAIGN,
-                     # extra_dict={'add_url': '/polls/campaign/add'},
-                     # extra_dict={'add_url': reverse('polls__create_campaign')},
-                    )
+    return list_view(request, PollCampaign, hf_pk=DEFAULT_HFILTER_PCAMPAIGN)

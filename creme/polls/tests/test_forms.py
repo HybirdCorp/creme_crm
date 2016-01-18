@@ -8,12 +8,9 @@ try:
     from .base import skipIfCustomPollForm, PollForm
     from ..core import PollLineType
     from ..forms.fields import PollFormLineConditionsField
-    from ..models import PollFormLine, PollFormLineCondition # PollForm
+    from ..models import PollFormLine, PollFormLineCondition
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-# __all__ = ('PollFormLineConditionsFieldTestCase',)
 
 
 class PollFormLineConditionsFieldTestCase(FieldTestCase):

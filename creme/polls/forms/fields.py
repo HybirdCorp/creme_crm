@@ -67,11 +67,7 @@ class PollFormLineConditionsField(JSONField):
                 source for source in sources
                         if source.poll_line_type.get_choices()
             ]
-#        self._build_widget()
         self.widget.sources = [(src.id, src.question) for src in valid_sources]
-
-#    def _create_widget(self):
-#        return PollFormLineConditionsWidget(self._sources)
 
     def _value_to_jsonifiable(self, value):
         return [{'source': condition.source_id, 'choice': condition.raw_answer}

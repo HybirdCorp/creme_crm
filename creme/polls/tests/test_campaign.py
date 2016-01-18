@@ -14,12 +14,8 @@ try:
             skipIfCustomPollForm, skipIfCustomPollReply,
             PollCampaign, PollForm, PollReply)
     from ..blocks import pcampaign_replies_block
-    # from ..models import PollCampaign, PollForm, PollReply
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-# __all__ = ('PollCampaignsTestCase', )
 
 
 @skipIfCustomPollCampaign
@@ -42,7 +38,6 @@ class PollCampaignsTestCase(_PollsTestCase):
         user = self.user
         self.assertFalse(PollCampaign.objects.all())
 
-#        url = '/polls/campaign/add'
         url = reverse('polls__create_campaign')
         self.assertGET200(url)
 
@@ -150,7 +145,6 @@ class PollCampaignsTestCase(_PollsTestCase):
         "Create several replies linked to a given campaign"
         pform, camp = self._create_pform_n_campaign()
 
-#        url = '/polls/poll_reply/add_from_campaign/%s' % camp.id
         url = reverse('polls__create_reply_from_campaign', args=(camp.id,))
         self.assertGET200(url)
 

@@ -22,17 +22,15 @@ from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.widgets import CalendarWidget
 
 from .. import get_pollcampaign_model
-#from ..models import PollCampaign
 
 
 class PollCampaignForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-#        model = PollCampaign
         model = get_pollcampaign_model()
 
     def __init__(self, *args, **kwargs):
         super(PollCampaignForm, self).__init__(*args, **kwargs)
         fields = self.fields
-        #TODO: remove when CalendarWidget is always associated to DateField
+        # TODO: remove when CalendarWidget is always associated to DateField
         fields['start'].widget = CalendarWidget()
         fields['due_date'].widget = CalendarWidget()

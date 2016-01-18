@@ -28,7 +28,6 @@ from creme.creme_core.models import CremeEntity
 from creme.commercial.models import MarketSegment
 
 
-#class PollCampaign(CremeEntity):
 class AbstractPollCampaign(CremeEntity):
     name           = CharField(_(u'Name'), max_length=100)
     goal           = TextField(_(u'Goal of the campaign'), blank=True, null=True)
@@ -52,7 +51,6 @@ class AbstractPollCampaign(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return '/polls/campaign/%s' % self.id
         return reverse('polls__view_campaign', args=(self.id,))
 
     @staticmethod
@@ -60,12 +58,10 @@ class AbstractPollCampaign(CremeEntity):
         return reverse('polls__create_campaign')
 
     def get_edit_absolute_url(self):
-#        return '/polls/campaign/edit/%s' % self.id
         return reverse('polls__edit_campaign', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return '/polls/campaigns' 
         return reverse('polls__list_campaigns')
 
 

@@ -31,14 +31,13 @@ from creme.creme_core.utils import find_first, update_model_instance
 
 from .. import get_pollform_model
 from ..core import PollLineType
-from ..models import PollFormSection, PollFormLine, PollFormLineCondition #PollForm
+from ..models import PollFormSection, PollFormLine, PollFormLineCondition
 from ..utils import SectionTree
 from .fields import PollFormLineConditionsField
 
 
 class PollFormForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-#        model = PollForm
         model = get_pollform_model()
 
 
@@ -60,8 +59,8 @@ class PollFormSectionCreateForm(PollFormSectionEditForm):
         parent = self.initial.get('parent')
         instance.parent = parent
 
-        # order management -----------------------------------------------------
-        next_sections = [] #the section after the one we create : their order have to be incremented
+        # Order management -----------------------------------------------------
+        next_sections = []  # The section after the one we create : their order have to be incremented
         parent_id = parent.id if parent else None
 
         for section in PollFormSection.objects.order_by('-order'):
@@ -104,15 +103,17 @@ class PollFormLineCreateForm(_PollFormLineForm):
                                help_text=_(u'For integer type only.')
                               )
     choices     = CharField(widget=Textarea(), label=_(u'Available choices'), required=False,
-                            help_text=_(u'Give the possible choices (one per line) if you choose the type "Choice list".')
+                            help_text=_(u'Give the possible choices (one per line) '
+                                        u'if you choose the type "Choice list".'
+                                       )
                            )
 
     def __init__(self, *args, **kwargs):
         super(PollFormLineCreateForm, self).__init__(*args, **kwargs)
         self.section = section = self.initial.get('section')
-        self.section_lines = section_lines = [] #lines which are in the section where we create our line
-        self.next_lines = next_lines = [] #the lines after the one we create (but not in the same section): their order have to be incremented
-        self.empty_section_order = 1 #order of the last line before our section (used if our section is empty)
+        self.section_lines = section_lines = []  # Lines which are in the section where we create our line
+        self.next_lines = next_lines = []  # The lines after the one we create (but not in the same section): their order have to be incremented
+        self.empty_section_order = 1  # Order of the last line before our section (used if our section is empty)
 
         nodes = list(SectionTree(self.pform))
         section_id = section.id if section else None
@@ -167,7 +168,7 @@ class PollFormLineCreateForm(_PollFormLineForm):
                                                                                        start=1
                                                                                       )
                                                                             ),
-                                                               ) #can raise Validation errors
+                                                               )  # Can raise Validation errors
 
         return cleaned_data
 
@@ -213,7 +214,7 @@ class PollFormLineEditForm(_PollFormLineForm):
 
     def __init__(self, *args, **kwargs):
         super(PollFormLineEditForm, self).__init__(*args, **kwargs)
-        if self.instance.disabled:  #TODO: improve the generic view edit_related_to_entity instead....
+        if self.instance.disabled:  # TODO: improve the generic view edit_related_to_entity instead....
             from django.http import Http404
             raise Http404('You can not edit a disabled line.')
 
@@ -246,7 +247,7 @@ class PollFormLineEditForm(_PollFormLineForm):
                 if not choice:
                     raise ValidationError(self.error_messages['empty_choices'],
                                           code='empty_choices',
-                                         ) #TODO: move this validation to the field ??
+                                         )  # TODO: move this validation to the field ??
 
                 choices_2_keep.append((existing_choice[0], choice))
 
@@ -276,11 +277,11 @@ class PollFormLineEditForm(_PollFormLineForm):
         self.type_args = None
 
         if not self._errors and self.initial_choices:
-            choices_2_del = list(self.instance.poll_line_type.get_deleted_choices()) #TODO cache poll_line_type (in line ?)
+            choices_2_del = list(self.instance.poll_line_type.get_deleted_choices())  # TODO cache poll_line_type (in line ?)
             choices_2_del.extend(self.choices_2_del)
 
             choices_2_keep = self.choices_2_keep
-            choices_2_keep.extend(enumerate(filter(None, #TODO: factorise ---> in a new field 'MultipleCharField'
+            choices_2_keep.extend(enumerate(filter(None,  # TODO: factorise ---> in a new field 'MultipleCharField'
                                             (choice.strip() for choice in cleaned_data.get('new_choices', '').split('\n'))
                                            ),
                                      start=len(choices_2_keep) + len(choices_2_del) + 1,
@@ -290,7 +291,7 @@ class PollFormLineEditForm(_PollFormLineForm):
             self.type_args = PollLineType.build_serialized_args(ptype=self.instance.type,
                                                                 choices=choices_2_keep,
                                                                 del_choices=choices_2_del,
-                                                               ) #can raise Validation errors
+                                                               )  # Can raise Validation errors
 
         return cleaned_data
 
@@ -314,8 +315,7 @@ class PollFormLineConditionsForm(CremeForm):
         self.old_conditions = conditions = line.get_conditions()
 
         fields = self.fields
-        #fields['use_or'].initial = int(line.conds_use_or)
-        fields['use_or'].initial = int(bool(line.conds_use_or)) #TODO: remove 'bool' if no more nullable
+        fields['use_or'].initial = int(bool(line.conds_use_or))  # TODO: remove 'bool' if no more nullable
 
         conditions_f = fields['conditions']
         conditions_f.sources = entity.lines.filter(order__lt=line.order)
@@ -329,9 +329,9 @@ class PollFormLineConditionsForm(CremeForm):
 
         conds2del = []
 
-        #TODO: select for update ??
+        # TODO: select for update ??
         for old_condition, condition in map(None, self.old_conditions, cdata['conditions']):
-            if not condition: #less new conditions that old conditions => delete conditions in excess
+            if not condition:  # Less new conditions that old conditions => delete conditions in excess
                 conds2del.append(old_condition.id)
             elif not old_condition:
                 condition.line = line

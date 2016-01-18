@@ -24,33 +24,30 @@ from itertools import count
 from creme.creme_core.utils import int_2_roman
 
 from . import get_pollform_model, get_pollreply_model
-#from .core import PollLineType
-from .models import PollFormSection, PollFormLine, PollReplySection, PollReplyLine #PollForm PollReply
+from .models import PollFormSection, PollFormLine, PollReplySection, PollReplyLine
 
 
-#TODO move to core.section_tree.py ??
+# TODO move to core.section_tree.py ??
 
 _CLASS_MAPPING = {
-#        PollForm:  ('pform',  PollFormSection, PollFormLine),
-#        PollReply: ('preply', PollReplySection, PollReplyLine),
         get_pollform_model():  ('pform',  PollFormSection, PollFormLine),
         get_pollreply_model(): ('preply', PollReplySection, PollReplyLine),
     }
 
 
-class NodeStyle(object): #TODO: configurable style stored in DB
+class NodeStyle(object):  # TODO: configurable style stored in DB
     ELEMENTS = {
             'COLOR': {
-                    'LINE':      '', #use normal block line color
+                    'LINE':      '',  # Use normal block line color
                     'SECTION_0': 'BDD8E4',
                     'SECTION_1': 'D8E5EB',
-                    'SECTION':   'D8E5EB', # default
+                    'SECTION':   'D8E5EB',  # Default
                 },
             'NUMBER': {
                     'LINE':      str,
                     'SECTION_0': int_2_roman,
                     'SECTION_1': str,
-                    'SECTION':   str, # default
+                    'SECTION':   str,  # Default
                 },
         }
 
@@ -81,7 +78,7 @@ class SectionTree(object):
         kwargs = {attr_name: pobj.id}
 
         sections_map = defaultdict(list)
-        #for section in pform.sections.all(): #TODO: sadly this cause an extra query to get the related CremeEntity...
+        # for section in pform.sections.all(): #TODO: sadly this cause an extra query to get the related CremeEntity...
         for section in section_model.objects.filter(**kwargs):
             section.is_section = True
             section.deep = 0
@@ -90,7 +87,7 @@ class SectionTree(object):
 
         lines_map = defaultdict(list)
         gen_number = count(1).next
-        #for line in pform.lines.all(): #TODO: idem
+        # for line in pform.lines.all(): #TODO: idem
         for line in line_model.objects.filter(**kwargs):
             line.is_section = False
             line.deep = 0
@@ -188,7 +185,6 @@ class StatsTree(SectionTree):
             replies_map[rline.pform_line_id].append(rline)
 
         for fline in flines:
-            #stats = defaultdict(int)
             stats = Counter()
             total = 0
 
@@ -200,6 +196,5 @@ class StatsTree(SectionTree):
                     stats[label] += count
 
             fline.answer_stats = [(label, count, round(float(count * 100) / float(total), 2))
-                                    #for label, count in stats.items()
                                     for label, count in stats.iteritems()
                                  ] if total > 0 else []

@@ -20,7 +20,6 @@
 
 import logging
 
-# from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
@@ -34,17 +33,16 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
 from creme.creme_core.utils.media import creme_media_themed_url as media_url
 from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
-    inner_popup, view_entity, list_view, add_to_entity) #add_entity
+    inner_popup, view_entity, list_view, add_to_entity)
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from .. import get_pollform_model, get_pollreply_model, get_pollcampaign_model
 from ..constants import DEFAULT_HFILTER_PREPLY
 from ..core import MultiEnumPollLineType
 from ..forms.poll_reply import (PollRepliesCreateForm, PollReplyEditForm,
         PollReplyFillForm, PersonAddRepliesForm)
-from ..models import PollReplyLine # PollCampaign PollForm, PollReply
+from ..models import PollReplyLine
 from ..utils import ReplySectionTree, NodeStyle
 
 
@@ -57,8 +55,6 @@ def abstract_add_pollreply(request, form=PollRepliesCreateForm,
                            template='creme_core/generics/blockform/add.html',
                            submit_label=_('Save the replies'),
                           ):
-    #return add_entity(request, PollRepliesCreateForm)
-
     if request.method == 'POST':
         POST = request.POST
         reply_form = form(user=request.user, data=POST)
@@ -88,7 +84,6 @@ def abstract_add_preply_from_campaign(request, campaign_id,
                                       title=_(u'New replies for «%s»'),
                                       submit_label=_('Save the replies'),
                                      ):
-    # campaign = get_object_or_404(PollCampaign, pk=campaign_id)
     campaign = get_object_or_404(get_pollcampaign_model(), pk=campaign_id)
     user = request.user
 
@@ -107,7 +102,6 @@ def abstract_add_preply_from_pform(request, pform_id, form=PollRepliesCreateForm
                                    title=_(u'New replies for «%s»'),
                                    submit_label=_('Save the replies'),
                                   ):
-#    pform = get_object_or_404(PollForm, pk=pform_id)
     pform = get_object_or_404(get_pollform_model(), pk=pform_id)
     user = request.user
 
@@ -134,7 +128,6 @@ def abstract_add_preply_from_person(request, person_id,
 
     person = person.get_real_entity()
 
-#    if not isinstance(person, (Contact, Organisation)):
     if not isinstance(person, (get_contact_model(), get_organisation_model())):
         raise Http404('You can only create from Contacts & Organisations')
 
@@ -152,35 +145,29 @@ def abstract_edit_pollreply(request, preply_id, form=PollReplyEditForm):
 def abstract_view_pollreply(request, preply_id,
                             template='polls/view_pollreply.html',
                            ):
-    return view_entity(request, preply_id, PollReply, template=template,
-                       # path='/polls/poll_reply',
-                      )
+    return view_entity(request, preply_id, PollReply, template=template)
 
 
 # TODO: change url (reply->replies or add_several ??)
 @login_required
-# @permission_required(('polls', 'polls.add_pollreply'))
 @permission_required(('polls', _CREATION_PERM))
 def add(request):
     return abstract_add_pollreply(request)
 
 
 @login_required
-# @permission_required(('polls', 'polls.add_pollreply'))
 @permission_required(('polls', _CREATION_PERM))
 def add_from_pform(request, pform_id):
     return abstract_add_preply_from_pform(request, pform_id)
 
 
 @login_required
-# @permission_required(('polls', 'polls.add_pollreply'))
 @permission_required(('polls', _CREATION_PERM))
 def add_from_campaign(request, campaign_id):
     return abstract_add_preply_from_campaign(request, campaign_id)
 
 
 @login_required
-# @permission_required(('polls', 'polls.add_pollreply'))
 @permission_required(('polls', _CREATION_PERM))
 def add_from_person(request, person_id):
     return abstract_add_preply_from_person(request, person_id)
@@ -201,10 +188,7 @@ def detailview(request, preply_id):
 @login_required
 @permission_required('polls')
 def listview(request):
-    return list_view(request, PollReply, hf_pk=DEFAULT_HFILTER_PREPLY,
-                     # extra_dict={'add_url': '/polls/poll_reply/add'},
-                     # extra_dict={'add_url': reverse('polls__create_reply')},
-                    )
+    return list_view(request, PollReply, hf_pk=DEFAULT_HFILTER_PREPLY)
 
 
 @login_required
@@ -421,7 +405,7 @@ def edit_line(request, preply_id, line_id):
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  edit_form,
                         'title': ugettext(u'Answer edition'),
-                        #TODO: help_text (cleared answers + conditions etc...) ??
+                        # TODO: help_text (cleared answers + conditions etc...) ??
                         'submit_label': _('Save the modification'),
                        },
                        is_valid=edit_form.is_valid(),

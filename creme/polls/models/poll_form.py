@@ -34,7 +34,6 @@ from .base import _PollLine
 from .poll_type import PollType
 
 
-#class PollForm(CremeEntity):
 class AbstractPollForm(CremeEntity):
     name = CharField(_(u'Name'), max_length=220)
     type = ForeignKey(PollType, verbose_name=_(u'Type'), null=True, blank=True, on_delete=SET_NULL)
@@ -52,7 +51,6 @@ class AbstractPollForm(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return '/polls/poll_form/%s' % self.id
         return reverse('polls__view_form', args=(self.id,))
 
     @staticmethod
@@ -60,12 +58,10 @@ class AbstractPollForm(CremeEntity):
         return reverse('polls__create_form')
 
     def get_edit_absolute_url(self):
-#        return '/polls/poll_form/edit/%s' % self.id
         return reverse('polls__edit_form', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return '/polls/poll_forms'
         return reverse('polls__list_forms')
 
     def _post_clone(self, source):
@@ -83,7 +79,8 @@ class AbstractPollForm(CremeEntity):
             from .poll_reply import PollReplySection
             create_section = partial(PollReplySection.objects.create, preply=instance)
 
-        matches = {}  # id = ID of PollFormSection instance ; value = corresponding PollReplySection or PollFormSection instance
+        matches = {}  # id = ID of PollFormSection instance ;
+                      # value = corresponding PollReplySection or PollFormSection instance
         fsections = list(self.sections.all())
         parents = [None]  # set ??
 
@@ -108,14 +105,11 @@ class AbstractPollForm(CremeEntity):
     def duplicate_tree(self, instance, pform_lines):
         from .poll_reply import PollReplyLineCondition, PollReplyLine
 
-#        instance_classname = instance.__class__.__name__
 
-#        if instance_classname == "PollForm":
         if isinstance(instance, get_pollform_model()):
             create_line = partial(PollFormLine.objects.create, pform=instance)
             create_cond = PollFormLineCondition.objects.create
             reply_tree = False
-#        elif instance_classname == "PollReply":
         elif isinstance(instance, get_pollreply_model()):
             create_line = partial(PollReplyLine.objects.create, preply=instance)
             create_cond = PollReplyLineCondition.objects.create
@@ -123,10 +117,9 @@ class AbstractPollForm(CremeEntity):
 
         section_matches = self._build_section_matches(instance)
 
-        line_matches = {} #PollFormLine.id -> PollReplyLined
+        line_matches = {}  # PollFormLine.id -> PollReplyLined
 
         for i, line in enumerate(pform_lines, start=1):
-#            extra_args = {'pform_line': line} if instance_classname == "PollReply" else {}
             extra_args = {'pform_line': line} if reply_tree else {}
             line_matches[line.id] = create_line(section=section_matches.get(line.section_id),
                                                 order=i,
@@ -152,9 +145,8 @@ class PollForm(AbstractPollForm):
 
 
 class PollFormSection(CremeModel):
-#    pform  = ForeignKey(PollForm, editable=False, related_name='sections')
     pform  = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='sections')
-    parent = ForeignKey('self', editable=False, null=True) #, related_name='children'
+    parent = ForeignKey('self', editable=False, null=True)  # related_name='children'
     order  = PositiveIntegerField(editable=False, default=1)
     name   = CharField(_(u'Name'), max_length=250)
     body   = TextField(_(u'Section body'), null=True, blank=True)
@@ -170,7 +162,10 @@ class PollFormSection(CremeModel):
 
     def __repr__(self):
         from django.utils.encoding import smart_str
-        return smart_str(u'PollFormSection(id=%s, name=%s, parent=%s)' % (self.id, self.name, self.parent_id))
+        return smart_str(u'PollFormSection(id=%s, name=%s, parent=%s)' % (
+                                self.id, self.name, self.parent_id,
+                            )
+                        )
 
     def delete(self):
         from ..utils import SectionTree
@@ -187,20 +182,23 @@ class PollFormSection(CremeModel):
     def get_edit_absolute_url(self):
         return '/polls/pform_section/%s/edit' % self.id
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.pform
 
 
 class PollFormLine(CremeModel, _PollLine):
-#    pform        = ForeignKey(PollForm, editable=False, related_name='lines')
     pform        = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='lines')
     section      = ForeignKey(PollFormSection, editable=False, null=True) #, related_name='lines'
     order        = PositiveIntegerField(editable=False, default=1)
     disabled     = BooleanField(default=False, editable=False)
-    type         = PositiveSmallIntegerField(_(u'Type')) #see PollLineType ['choices' is not set here, in order to allow the contribution by other apps]
-    type_args    = TextField(editable=False, null=True) #TODO: use a JSONField ?
-    #conds_show   = BooleanField(_(u'The conditions are showing the question (or they are hiding) ?'), editable=False) TODO PollReplyLine too
-    conds_use_or = NullBooleanField(_(u'Use OR or AND between conditions'), editable=False) #null=True -> no conditions (NB: can we use it to avoid queries ?)
+
+    # See PollLineType ['choices' is not set here, in order to allow the contribution by other apps]
+    type         = PositiveSmallIntegerField(_(u'Type'))
+    type_args    = TextField(editable=False, null=True)  # TODO: use a JSONField ?
+
+    # null=True -> no conditions (NB: can we use it to avoid queries ?)
+    conds_use_or = NullBooleanField(_(u'Use OR or AND between conditions'), editable=False)
+
     question     = TextField(_(u'Question'))
 
     class Meta:
@@ -220,12 +218,16 @@ class PollFormLine(CremeModel, _PollLine):
         return self.question
 
     @classmethod
-    def _get_condition_class(cls): #See _PollLine
+    def _get_condition_class(cls):  # See _PollLine
         return PollFormLineCondition
 
     def delete(self):
         if not self.disabled and PollFormLineCondition.objects.filter(source=self).exists():
-            raise ProtectedError(ugettext('There is at least one other question which depends on this question.'), [self])
+            raise ProtectedError(ugettext('There is at least one other '
+                                          'question which depends on this question.'
+                                        ),
+                                 [self]
+                                )
 
         super(PollFormLine, self).delete()
 
@@ -234,7 +236,11 @@ class PollFormLine(CremeModel, _PollLine):
             raise ProtectedError(ugettext('This question is already disabled.'), [self])
 
         if PollFormLineCondition.objects.filter(source=self).exists():
-            raise ProtectedError(ugettext('There is at least one other question which depends on this question.'), [self])
+            raise ProtectedError(ugettext('There is at least one other question '
+                                          'which depends on this question.'
+                                         ),
+                                [self]
+                               )
 
         self.disabled = True
         self.conditions.all().delete()
@@ -243,42 +249,42 @@ class PollFormLine(CremeModel, _PollLine):
     def get_edit_absolute_url(self):
         return '/polls/pform_line/%s/edit' % self.id
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.pform
 
     @property
-    def verbose_conds_use_or(self): #TODO: templatetag instead ?
+    def verbose_conds_use_or(self):  # TODO: templatetag instead ?
         return ugettext('OR') if self.conds_use_or else ugettext('AND')
 
 
 class PollFormLineCondition(CremeModel):
     # copied fom EntityFilterCondition
     EQUALS          =  1
-    #IEQUALS         =  2
-    #EQUALS_NOT      =  3
-    #IEQUALS_NOT     =  4
-    #CONTAINS        =  5
-    #ICONTAINS       =  6
-    #CONTAINS_NOT    =  7
-    #ICONTAINS_NOT   =  8
-    #GT              =  9
-    #GTE             = 10
-    #LT              = 11
-    #LTE             = 12
-    #STARTSWITH      = 13
-    #ISTARTSWITH     = 14
-    #STARTSWITH_NOT  = 15
-    #ISTARTSWITH_NOT = 16
-    #ENDSWITH        = 17
-    #IENDSWITH       = 18
-    #ENDSWITH_NOT    = 19
-    #IENDSWITH_NOT   = 20
-    #ISEMPTY         = 21
-    #RANGE           = 22
+    # IEQUALS         =  2
+    # EQUALS_NOT      =  3
+    # IEQUALS_NOT     =  4
+    # CONTAINS        =  5
+    # ICONTAINS       =  6
+    # CONTAINS_NOT    =  7
+    # ICONTAINS_NOT   =  8
+    # GT              =  9
+    # GTE             = 10
+    # LT              = 11
+    # LTE             = 12
+    # STARTSWITH      = 13
+    # ISTARTSWITH     = 14
+    # STARTSWITH_NOT  = 15
+    # ISTARTSWITH_NOT = 16
+    # ENDSWITH        = 17
+    # IENDSWITH       = 18
+    # ENDSWITH_NOT    = 19
+    # IENDSWITH_NOT   = 20
+    # ISEMPTY         = 21
+    # RANGE           = 22
 
     line       = ForeignKey(PollFormLine, editable=False, related_name='conditions')
     source     = ForeignKey(PollFormLine)
-    operator   = PositiveSmallIntegerField() #see EQUALS etc...
+    operator   = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
 
     class Meta:
@@ -289,14 +295,7 @@ class PollFormLineCondition(CremeModel):
                         self.source_id, self.raw_answer
                     )
 
-    #def __unicode__(self):
-        #source = self.source
-        #return ugettext('The answer to the question #%(number)s is %(answer)s.') % {
-                            #'number': source.order,
-                            #'answer': source.poll_line_type.decode_answer(self.raw_answer),
-                        #}
-
-    #TODO: factorise with EntityFilterCondition.condition
+    # TODO: factorise with EntityFilterCondition.condition
     def update(self, other_condition):
         """Fill a condition with the content a another one (in order to reuse the old instance if possible).
         @return True if there is at least one change, else False.

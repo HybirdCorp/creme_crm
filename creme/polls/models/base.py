@@ -20,12 +20,10 @@
 
 from collections import defaultdict
 
-#from ..core import PollLineType
-
 
 class _PollLine(object):
-    type      = None #OVERLOAD ME (INT: See PollLineType)
-    type_args = None #OVERLOAD ME (JSON string: See PollLineType)
+    type      = None  # OVERLOAD ME (INT: See PollLineType)
+    type_args = None  # OVERLOAD ME (JSON string: See PollLineType)
 
     _conditions_cache     = None
     _rev_conditions_cache = None
@@ -49,7 +47,7 @@ class _PollLine(object):
 
     @property
     def poll_line_type(self):
-        from ..core import PollLineType # imort here to avoid AppRegistryNotReady
+        from ..core import PollLineType  # import here to avoid AppRegistryNotReady
 
         line_type = self._line_type_cache
 
