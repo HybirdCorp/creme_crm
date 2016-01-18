@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
@@ -31,7 +30,7 @@ from creme.creme_core.views.generic import view_entity, add_entity, list_view, e
 from .. import get_project_model
 from ..constants import DEFAULT_HFILTER_PROJECT
 from ..forms.project import ProjectCreateForm, ProjectEditForm
-from ..models import ProjectStatus # Project
+from ..models import ProjectStatus
 
 
 Project = get_project_model()
@@ -53,13 +52,10 @@ def abstract_edit_project(request, project_id, form=ProjectEditForm):
 def abstract_view_project(request, project_id,
                           template='projects/view_project.html',
                          ):
-    return view_entity(request, project_id, Project, template=template,
-                       # path='/projects/project',
-                      )
+    return view_entity(request, project_id, Project, template=template)
 
 
 @login_required
-# @permission_required(('projects', 'projects.add_project'))
 @permission_required(('projects', cperm(Project)))
 def add(request):
     return abstract_add_project(request)
@@ -74,10 +70,7 @@ def edit(request, project_id):
 @login_required
 @permission_required('projects')
 def listview(request):
-    return list_view(request, Project, hf_pk=DEFAULT_HFILTER_PROJECT,
-                     # extra_dict={'add_url': '/projects/project/add'},
-                     # extra_dict={'add_url': reverse('projects__create_project')},
-                    )
+    return list_view(request, Project, hf_pk=DEFAULT_HFILTER_PROJECT)
 
 
 @login_required

@@ -30,7 +30,7 @@ from creme.creme_core.utils import get_from_POST_or_404
 from ..constants import REL_SUB_PART_AS_RESOURCE
 from ..forms.resource import ResourceCreateForm, ResourceEditForm
 from ..models import Resource
-from .utils import _add_generic, _edit_generic #TODO: these generic views are only here => 'inline' them
+from .utils import _add_generic, _edit_generic  # TODO: these generic views are only here => 'inline' them
 
 
 @login_required

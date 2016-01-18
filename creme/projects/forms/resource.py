@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@ from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
@@ -97,7 +96,7 @@ class ResourceEditForm(ResourceCreateForm):
 
             for r in Relation.objects.filter(subject_entity=old_contact, type__in=atypes,
                                              object_entity__in=[a.id for a in task_activities],
-                                            ): # NB: no delete() on queryset in order to send signals
+                                            ):  # NB: no delete() on queryset in order to send signals
                 r.delete()
 
             for activity in task_activities:

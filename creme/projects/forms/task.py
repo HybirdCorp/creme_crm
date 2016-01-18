@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,29 +20,24 @@
 
 from functools import partial
 
-#from django.contrib.auth import get_user_model
-from django.forms import DateTimeField, BooleanField, ValidationError # ModelMultipleChoiceField
+from django.forms import DateTimeField, BooleanField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm, CremeEntityForm
 from creme.creme_core.forms.fields import CreatorEntityField, MultiCreatorEntityField
-#from creme.creme_core.forms.validators import validate_linkable_entities
-from creme.creme_core.forms.widgets import DateTimeWidget # UnorderedMultipleChoiceWidget
+from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import ellipsis_multi
 
-#from creme.persons import get_contact_model
-##from creme.persons.models import Contact
-
-from creme.activities.constants import REL_SUB_PART_2_ACTIVITY # REL_OBJ_PART_2_ACTIVITY
+from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 from creme.activities.forms.activity_type import ActivityTypeField
 from creme.activities.models import Activity, Calendar
 from creme.activities.utils import check_activity_collisions
 
 from .. import get_task_model
 from ..constants import REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
-from ..models import Resource #ProjectTask
+from ..models import Resource
 
 
 ProjectTask = get_task_model()
@@ -64,75 +59,29 @@ def _link_contact_n_activity(contact, activity, user):
 class _TaskForm(CremeEntityForm):
     start = DateTimeField(label=_(u'Start'), widget=DateTimeWidget(), required=True)
     end   = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required=True)
-#    type_selector = ActivityTypeField(label=_(u"Task's nomenclature"))
 
     class Meta(CremeEntityForm.Meta):
         model = ProjectTask
-#        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'minutes', 'status', 'type', 'sub_type')
 
     def __init__(self, *args, **kwargs):
         super(_TaskForm, self).__init__(*args, **kwargs)
-#        self.participants = []
 
         self.fields['duration'].required = True
 
-#    def clean(self, *args, **kwargs):
-#        cleaned_data = self.cleaned_data
-#
-#        if not self._errors:
-#            collisions = check_activity_collisions(cleaned_data['start'], cleaned_data['end'],
-#                                                   self.participants, busy=cleaned_data['busy'],
-#                                                   exclude_activity_id=self.instance.pk,
-#                                                  )
-#            if collisions:
-#                raise ValidationError(collisions)
-#
-#        return cleaned_data
-#
-#    def save(self, *args, **kwargs):
-#        instance = self.instance
-#        instance.type, instance.sub_type = self.cleaned_data['type_selector']
-#
-#        return super(_TaskForm, self).save(*args, **kwargs)
-
 
 class TaskEditForm(_TaskForm):
-    pass #TODO: replace _TaskForm with TaskEditForm
-#    def __init__(self, *args, **kwargs):
-#        super(TaskEditForm, self).__init__(*args, **kwargs)
-#
-#        instance = self.instance
-#        self.fields['type_selector'].initial = (instance.type_id, instance.sub_type_id)
-#        self.participants = instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY)
+    pass  # TODO: replace _TaskForm with TaskEditForm
 
 
 class TaskCreateForm(_TaskForm):
     parent_tasks = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
-#    participating_users = ModelMultipleChoiceField(label=_(u'Participating users'),
-#                                                   queryset=get_user_model().objects.filter(is_staff=False),
-#                                                   required=False,
-#                                                   widget=UnorderedMultipleChoiceWidget,
-#                                                  )
 
     def __init__(self, entity, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
         self._project = entity
 
         fields = self.fields
-#        fields['participating_users'].widget.attrs = {'reduced': 'true'}
         fields['parent_tasks'].q_filter = {'project': entity.id}
-
-#    def clean_participating_users(self):
-#        users = self.cleaned_data['participating_users']
-#        self.participants.extend(
-#                validate_linkable_entities(
-##                        Contact.objects.filter(is_user__in=users), self.user
-#                        get_contact_model().objects.filter(is_user__in=users),
-#                        self.user,
-#                    )
-#            )
-#
-#        return users
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -142,15 +91,6 @@ class TaskCreateForm(_TaskForm):
         instance.order   = project.attribute_order_task()
 
         super(TaskCreateForm, self).save(*args, **kwargs)
-
-#        create_rel = partial(Relation.objects.create, type_id=REL_SUB_PART_2_ACTIVITY,
-#                             object_entity=instance, user=instance.user,
-#                            )
-#        add_calendar = instance.calendars.add
-#
-#        for part_user in self.participants:
-#            create_rel(subject_entity=part_user)
-#            add_calendar(Calendar.get_user_default_calendar(part_user.is_user))
 
         return instance
 
@@ -178,7 +118,7 @@ class TaskAddParentForm(CremeForm):
 
 class RelatedActivityEditForm(CremeEntityForm):
     resource      = CreatorEntityField(label=_(u'Allocated resource'), model=Resource)
-    start         = DateTimeField(label=_(u'Start'), widget=DateTimeWidget()) #TODO: required = False ??
+    start         = DateTimeField(label=_(u'Start'), widget=DateTimeWidget())  # TODO: required = False ??
     end           = DateTimeField(label=_(u'End'), widget=DateTimeWidget())
     type_selector = ActivityTypeField(label=_(u'Type'))
 
@@ -197,7 +137,7 @@ class RelatedActivityEditForm(CremeEntityForm):
         instance = self.instance
         pk = instance.pk
 
-        if pk: #edition
+        if pk:  # Edition
             fields['keep_participating'] = \
                 BooleanField(label=_('If the contact changes, the old one '
                                      'keeps participating to the activities.'
@@ -249,7 +189,7 @@ class RelatedActivityEditForm(CremeEntityForm):
         participant = cdata['resource'].linked_contact
         old_participant = self.old_participant
 
-        if old_participant != participant: # creation mode OR edition mode with resource change
+        if old_participant != participant:  # Creation mode OR edition mode with resource change
             if old_participant:
                 self.old_relation.delete()
 

@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^$', portal.portal),
 
     # TODO: Define what user could do or not if projet is 'close'
-    #       (with the use of the buttom that sets an effective end date)
+    #       (with the use of the button that sets an effective end date)
     # TODO: change url ?? project/close/(?P<project_id>\d+)
     url(r'^project/(?P<project_id>\d+)/close$',  project.close),
 
@@ -24,10 +24,7 @@ urlpatterns = [
     url(r'^resource/edit/(?P<resource_id>\d+)$', resource.edit),
     url(r'^resource/delete$',                    resource.delete),
 
-    # Task: Working periods block
-#    (r'^task/(?P<task_id>\d+)/period/add$', 'workingperiod.add'),
-#    (r'^period/edit/(?P<period_id>\d+)$',   'workingperiod.edit'),
-#    (r'^period/delete$',                    'workingperiod.delete'),
+    # Task: related activities block
     url(r'^activity/delete$', task.delete_activity),
 ]
 
@@ -48,9 +45,7 @@ if not project_model_is_custom():
 if not task_model_is_custom():
     urlpatterns += [
         url(r'^project/(?P<project_id>\d+)/task/add', task.add,         name='projects__create_task'),
-#        (r'^task/delete$',                         'delete'),
-#        (r'^task/(?P<object_id>\d+)$',             'detailview'),
         url(r'^task/edit/(?P<task_id>\d+)$',          task.edit,        name='projects__edit_task'),
-        url(r'^task/edit/(?P<task_id>\d+)/popup$',    task.edit_popup,  name='projects__edit_task_popup'),#TODO: Merge with edit ?
+        url(r'^task/edit/(?P<task_id>\d+)/popup$',    task.edit_popup,  name='projects__edit_task_popup'),  # TODO: Merge with edit ?
         url(r'^task/(?P<task_id>\d+)$',               task.detailview,  name='projects__view_task'  ),
     ]

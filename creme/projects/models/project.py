@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,6 @@ from creme.creme_core.models import CremeEntity
 from .projectstatus import ProjectStatus
 
 
-#class Project(CremeEntity):
 class AbstractProject(CremeEntity):
     name                = CharField(_(u'Name of the project'), max_length=100)
     description         = TextField(_(u'Description'), blank=True, null=True)\
@@ -45,7 +44,6 @@ class AbstractProject(CremeEntity):
 
     tasks_list          = None
 
-#    allowed_related = CremeEntity.allowed_related | {'projecttask'}
     allowed_related = CremeEntity.allowed_related | {'tasks_set'}
     creation_label = _('Add a project')
 
@@ -60,7 +58,6 @@ class AbstractProject(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return "/projects/project/%s" % self.id
         return reverse('projects__view_project', args=(self.id,))
 
     @staticmethod
@@ -68,12 +65,10 @@ class AbstractProject(CremeEntity):
         return reverse('projects__create_project')
 
     def get_edit_absolute_url(self):
-#        return "/projects/project/edit/%s" % self.id
         return reverse('projects__edit_project', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/projects/projects"
         return reverse('projects__list_projects')
 
     ##### ------------------ #####
@@ -81,22 +76,20 @@ class AbstractProject(CremeEntity):
     ##### ------------------ #####
 
     def clean(self):
-#        super(Project, self).clean()
         super(AbstractProject, self).clean()
 
-        #TODO: refactor if start/end can not be null
+        # TODO: refactor if start/end can not be null
         if self.start_date and self.end_date and self.start_date >= self.end_date:
             raise ValidationError(ugettext(u'Start (%(start)s) must be before end (%(end)s).') % {
                                    'start': date_format(localtime(self.start_date), 'DATE_FORMAT'),
                                    'end':   date_format(localtime(self.end_date),   'DATE_FORMAT'),
                                   }
-                                 ) # TODO: code & params ??
+                                 )  # TODO: code & params ??
 
     def delete(self):
         for task in self.get_tasks():
             task.delete()
 
-#        super(Project, self).delete()
         super(AbstractProject, self).delete()
 
     def get_tasks(self):
@@ -111,10 +104,10 @@ class AbstractProject(CremeEntity):
     def get_project_cost(self):
         return sum(task.get_task_cost() for task in self.get_tasks())
 
-    def get_expected_duration(self): #TODO: not used ??
+    def get_expected_duration(self):  # TODO: not used ??
         return sum(task.safe_duration for task in self.get_tasks())
 
-    def get_effective_duration(self): #TODO: not used ??
+    def get_effective_duration(self):  # TODO: not used ??
         return sum(task.get_effective_duration() for task in self.get_tasks())
 
     def get_delay(self):

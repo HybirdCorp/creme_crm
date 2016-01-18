@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,6 @@ from django.shortcuts import get_object_or_404
 from creme.creme_core.views.generic import inner_popup
 
 from .. import get_task_model
-#from ..models import ProjectTask
 
 
 def error_popup(request, message):
@@ -35,11 +34,10 @@ def error_popup(request, message):
                        is_valid=False,
                       )
 
-#TODO: these generic views are only once => remove them..
+# TODO: these generic views are only once => remove them..
 
-#TODO: improve add_to_entity (see:"if not task.is_alive() etc...") ???
+# TODO: improve add_to_entity (see:"if not task.is_alive() etc...") ???
 def _add_generic(request, form, task_id, title):
-#    task = get_object_or_404(ProjectTask, pk=task_id)
     task = get_object_or_404(get_task_model(), pk=task_id)
     user = request.user
 
@@ -71,14 +69,13 @@ def _add_generic(request, form, task_id, title):
                        delegate_reload=True,
                       )
 
-#TODO: remove and use generic.edit_related_to_entity() ??
+# TODO: remove and use generic.edit_related_to_entity() ??
 def _edit_generic(request, form, obj_id, model, title):
     obj  = get_object_or_404(model, pk=obj_id)
     task = obj.task
     user = request.user
 
     user.has_perm_to_change_or_die(task)
-    #user.has_perm_to_change_or_die(task.project)
 
     if request.method == 'POST':
         form_obj = form(task, user=user, data=request.POST, instance=obj)
@@ -90,7 +87,7 @@ def _edit_generic(request, form, obj_id, model, title):
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':   form_obj,
-                        'object': task, #TODO: useful ???
+                        'object': task,  # TODO: useful ???
                         'title':  title,
                         'submit_label': _('Save the modifications'),
                        },

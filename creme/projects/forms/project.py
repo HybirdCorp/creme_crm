@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,25 +30,21 @@ from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from .. import get_project_model
 from ..constants import REL_OBJ_PROJECT_MANAGER
-#from ..models import Project
 
 
 class ProjectEditForm(CremeEntityForm):
-    start_date         = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget()) #TODO: not required in the model !
+    start_date         = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget())  # TODO: not required in the model !
     end_date           = DateTimeField(label=_(u'End date'), required=True, widget=DateTimeWidget())
     effective_end_date = DateTimeField(widget=HiddenInput(), required=False)
 
     class Meta(CremeEntityForm.Meta):
-#        model = Project
         model = get_project_model()
 
 
 class ProjectCreateForm(ProjectEditForm):
-#    responsibles = MultiCreatorEntityField(label=_(u'Project leaders'), required=True, model=Contact)
     responsibles = MultiCreatorEntityField(label=_(u'Project leaders'), model=get_contact_model())
 
     def clean_responsibles(self):
