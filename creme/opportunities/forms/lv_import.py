@@ -25,7 +25,6 @@ from creme.creme_core.forms.list_view_import import (ImportForm4CremeEntity,
         EntityExtractorField)
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Organisation, Contact
 
 Organisation = get_organisation_model()
 Contact = get_contact_model()
@@ -43,12 +42,12 @@ def get_csv_form_builder(header_dict, choices):
         def _pre_instance_save(self, instance, line):
             cdata = self.cleaned_data
 
-            if not instance.pk: #creation
+            if not instance.pk:  # Creation
                 instance.emitter = cdata['emitter']
 
             target, err_msg = cdata['target'].extract_value(line, self.user)
             instance.target = target
-            self.append_error(line, err_msg, instance) #error is really appended if 'err_msg' is not empty
+            self.append_error(line, err_msg, instance)  # Error is really appended if 'err_msg' is not empty
 
 
     return OpportunityCSVImportForm

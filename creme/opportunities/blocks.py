@@ -26,16 +26,11 @@ from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock
 from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from creme.products import get_product_model, get_service_model
-#from creme.products.models import Product, Service
-
-#from creme.billing.blocks import TotalBlock, TargetBlock
 
 from . import get_opportunity_model
 from . import constants
-#from .models import Opportunity
 
 
 Opportunity = get_opportunity_model()
@@ -53,16 +48,16 @@ class OpportunityBlock(SimpleBlock):
 
 
 class _LinkedStuffBlock(QuerysetBlock):
-    #id_           = SET ME
+    # id_           = SET ME
     dependencies  = (Relation,)
-    #relation_type_deps = SET ME
-    #verbose_name  = SET ME
-    #template_name = SET ME
+    # relation_type_deps = SET ME
+    # verbose_name  = SET ME
+    # template_name = SET ME
     target_ctypes = (Opportunity,)
 
-    _ct = _get_ct(Contact) #overload if needed
+    _ct = _get_ct(Contact)  # Overload if needed
 
-    def _get_queryset(self, entity): #overload
+    def _get_queryset(self, entity):  # Overload
         pass
 
     def detailview_display(self, context):
@@ -126,7 +121,6 @@ class ResponsiblesBlock(_LinkedStuffBlock):
         return entity.get_responsibles().select_related('civility')
 
 
-#class TargettingOpportunitiesBlock(_LinkedStuffBlock):
 class TargettingOpportunitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
     dependencies  = (Relation, Opportunity)
@@ -137,11 +131,6 @@ class TargettingOpportunitiesBlock(QuerysetBlock):
 
     _ct = _get_ct(Opportunity)
 
-#    def _get_queryset(self, entity):
-#        #todo: filter deleted ??
-#        return Opportunity.objects.filter(relations__object_entity=entity.id,
-#                                          relations__type=REL_SUB_TARGETS,
-#                                         )
     def detailview_display(self, context):
         entity = context['object']
         is_hidden = context['fields_configs'].get_4_model(Opportunity).is_fieldname_hidden
@@ -201,7 +190,6 @@ blocks_list = (
 
 if apps.is_installed('creme.billing'):
     from creme.billing import get_invoice_model, get_quote_model, get_sales_order_model
-#    from creme.billing.models import Quote, Invoice, SalesOrder
 
     Invoice    = get_invoice_model()
     Quote      = get_quote_model()
@@ -217,7 +205,6 @@ if apps.is_installed('creme.billing'):
         _ct = _get_ct(Quote)
 
         def _get_queryset(self, entity):
-            #return entity.get_quotes()
             # TODO: test
             # TODO: filter deleted ?? what about current quote behaviour ??
             return Quote.objects.filter(relations__object_entity=entity.id,
@@ -235,7 +222,6 @@ if apps.is_installed('creme.billing'):
         _ct = _get_ct(SalesOrder)
 
         def _get_queryset(self, entity):
-            #return entity.get_salesorder()
             # TODO: test
             return SalesOrder.objects.filter(is_deleted=False,
                                              relations__object_entity=entity.id,
@@ -253,8 +239,7 @@ if apps.is_installed('creme.billing'):
         _ct = _get_ct(Invoice)
 
         def _get_queryset(self, entity):
-            #return entity.get_invoices()
-            #TODO: test
+            # TODO: test
             return Invoice.objects.filter(is_deleted=False,
                                           relations__object_entity=entity.id,
                                           relations__type=constants.REL_SUB_LINKED_INVOICE,
