@@ -41,7 +41,6 @@ from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from .. import get_activity_model
 from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
@@ -71,7 +70,6 @@ def _activity_2_dict(activity, user):
             'title':        activity.get_title_for_calendar(),
             'start':        start.isoformat(),
             'end':          end.isoformat(),
-#            'url':          "/activities/activity/%s/popup" % activity.pk,
             'url':          reverse('activities__view_activity_popup', args=(activity.pk,)),
             'calendar_color': "#%s" % (activity.calendar.get_color or DEFAULT_CALENDAR_COLOR),
             'allDay' :      is_all_day,
@@ -103,7 +101,7 @@ def _get_one_activity_per_calendar(calendar_ids, activities):
 
 def _js_timestamp_to_datetime(timestamp):
     "@raise ValueError"
-    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))  # Js gives us miliseconds
+    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))  # JS gives us milliseconds
 
 
 def _filter_authorized_calendars(user, calendar_ids):
@@ -121,7 +119,9 @@ def _filter_authorized_calendars(user, calendar_ids):
 def user_calendar(request):
     user = request.user
     getlist = request.POST.getlist  # TODO: POST ??
-    Calendar.get_user_default_calendar(user)  # Don't really need the calendar but this create it in case of the user hasn't a calendar
+
+    # We don't really need the default calendar but this line creates one when the user has no calendar.
+    Calendar.get_user_default_calendar(user)
 
     selected_calendars = getlist('selected_calendars')
     if selected_calendars:
@@ -146,10 +146,9 @@ def user_calendar(request):
 
     floating_activities = Activity.objects.filter(floating_type=FLOATING,
                                                   relations__type=REL_OBJ_PART_2_ACTIVITY,
-                                                  #relations__object_entity=Contact.get_user_contact_or_mock(user).id,
                                                   relations__object_entity=user.linked_contact.id,
                                                   is_deleted=False,
-                                                  )
+                                                 )
 
     for activity in floating_activities:
         activity.calendar = activity.calendars.get(user=user)
@@ -164,7 +163,8 @@ def user_calendar(request):
                    'creme_calendars_by_user': jsondumps(creme_calendars_by_user),
                    'current_calendars':       [str(id) for id in calendar_ids],
                    'creation_perm':           user.has_perm(cperm(Activity)),
-                   'floating_activities':     floating_activities,  # TODO only floating activities assigned to logged user ??
+                   # TODO only floating activities assigned to logged user ??
+                   'floating_activities':     floating_activities,
                   }
                  )
 
@@ -175,11 +175,9 @@ def user_calendar(request):
 def get_users_activities(request, calendar_ids):
     user = request.user
     calendar_ids = calendar_ids.split(',')
-#    contacts = list(Contact.objects.exclude(is_user=None).values_list('id', flat=True)) #NB: list() to avoid inner query
     contacts = list(get_contact_model().objects.exclude(is_user=None)
                                        .values_list('id', flat=True)
                    )  # NB: list() to avoid inner query
-
     users_cal_ids = _filter_authorized_calendars(user, calendar_ids)
 
     GET = request.GET
@@ -280,7 +278,7 @@ def delete_user_calendar(request):
     if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
         raise PermissionDenied(_(u'You are not allowed to delete this calendar.'))
 
-    # Attach all existing activities to default calendar
+    # Attach all existing activities to the default calendar
     default_calendar = Calendar.get_user_default_calendar(user)
     for activity in calendar.activity_set.all():
         activity.calendars.add(default_calendar)
@@ -294,6 +292,6 @@ def link_user_calendar(request, activity_id):
     return edit_model_with_popup(request, query_dict={'pk': activity_id},
                                  model=Activity, form_class=ActivityCalendarLinkerForm,
                                  title_format=_(u"Change calendar of «%s»"),
-                                 #can_change=lambda activity, user: user.has_perm_to_link(activity),
+                                 # can_change=lambda activity, user: user.has_perm_to_link(activity),
                                  can_change=lambda activity, user: True,
                                 )
