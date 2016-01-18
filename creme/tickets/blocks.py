@@ -20,5 +20,6 @@
 
 from creme.creme_core.gui.block import SimpleBlock
 
+
 class TicketBlock(SimpleBlock):
     template_name = 'tickets/templatetags/block_ticket.html'

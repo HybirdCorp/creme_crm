@@ -25,7 +25,6 @@ from creme.creme_core.views.generic import app_portal
 from creme.creme_config.utils import generate_portal_url
 
 from .. import get_ticket_model
-#from ..models import Ticket
 from ..models.status import OPEN_PK, CLOSED_PK
 
 

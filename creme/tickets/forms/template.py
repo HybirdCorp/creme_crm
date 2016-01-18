@@ -21,15 +21,13 @@
 from creme.creme_core.forms import CremeEntityForm
 
 from .. import get_tickettemplate_model
-#from ..models import TicketTemplate
 
 
 class TicketTemplateForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-#        model = TicketTemplate
         model = get_tickettemplate_model()
 
 
 class TicketTemplateRecurrentsForm(TicketTemplateForm):
-    def __init__(self, ct, *args, **kwargs): #'ct' arg => see RecurrentGeneratorWizard
+    def __init__(self, ct, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
         super(TicketTemplateForm, self).__init__(*args, **kwargs)

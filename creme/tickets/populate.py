@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import (properties_block, relations_block,
@@ -33,7 +32,6 @@ from creme.creme_core.models import (RelationType, HeaderFilter,
 from creme.creme_core.utils import create_if_needed
 
 from . import get_ticket_model, get_tickettemplate_model
-#from .models import *
 from .constants import (REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET,
     DEFAULT_HFILTER_TICKET, DEFAULT_HFILTER_TTEMPLATE)
 from .models import Status, Priority, Criticity
@@ -129,7 +127,6 @@ class Populator(BasePopulator):
 
             if apps.is_installed('creme.persons'):
                 try:
-                    #from creme.persons.models import Contact, Organisation
                     from creme.persons import get_contact_model, get_organisation_model
                 except ImportError as e:
                     logger.info(str(e))
@@ -137,8 +134,6 @@ class Populator(BasePopulator):
                     from creme.tickets.buttons import linked_2_ticket_button
 
                     create_bmi = ButtonMenuItem.create_if_needed
-#                    create_bmi(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
-#                    create_bmi(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
                     create_bmi(pk='tickets-linked_contact_button', model=get_contact_model(),      button=linked_2_ticket_button, order=50)
                     create_bmi(pk='tickets-linked_orga_button',    model=get_organisation_model(), button=linked_2_ticket_button, order=50)
 

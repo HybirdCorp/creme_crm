@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from random import randint
 from datetime import timedelta
 
 from django.conf import settings
@@ -28,19 +27,16 @@ from django.db.models import (Model, PositiveIntegerField, CharField, TextField,
 from django.db.transaction import atomic
 from django.utils.formats import date_format
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _ #, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
-#from creme.creme_core.utils import truncate_str
 
 from .criticity import Criticity
 from .priority import Priority
 from .status import Status, OPEN_PK, CLOSED_PK
 
-
-#MAXINT = 100000
 
 class _ResolvingDurationField(FunctionField):
     name         = "get_resolving_duration"
@@ -60,7 +56,6 @@ class TicketNumber(Model):
         return 'TicketNumber(id=%s)' % self.id
 
 
-#class AbstractTicket(CremeEntity):
 class TicketMixin(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100, blank=True, null=False)
     description  = TextField(_(u'Description'))
@@ -76,15 +71,7 @@ class TicketMixin(CremeEntity):
     def __unicode__(self):
         return self.title
 
-#    def _pre_save_clone(self, source):
-#        max_length = self._meta.get_field('title').max_length
-#        self.title = truncate_str(source.title, max_length, suffix=' (%s %08x)' % (ugettext(u"Copy"), randint(0, MAXINT)))
-#
-#        while self._default_manager.filter(title=self.title).exists():
-#            self._pre_save_clone(source)
 
-
-#class Ticket(AbstractTicket):
 class AbstractTicket(TicketMixin):
     number       = PositiveIntegerField(_(u'Number'), unique=True, editable=False)\
                                        .set_tags(clonable=False)
@@ -103,7 +90,6 @@ class AbstractTicket(TicketMixin):
         ordering = ('title',)
 
     def __init__(self, *args, **kwargs):
-#        super(Ticket, self).__init__(*args, **kwargs)
         super(AbstractTicket, self).__init__(*args, **kwargs)
         self.old_status_id = self.status_id
 
@@ -111,7 +97,6 @@ class AbstractTicket(TicketMixin):
         return u'#%s - %s' % (self.number, self.title)
 
     def get_absolute_url(self):
-#        return "/tickets/ticket/%s" % self.id
         return reverse('tickets__view_ticket', args=(self.id,))
 
     @staticmethod
@@ -119,12 +104,10 @@ class AbstractTicket(TicketMixin):
         return reverse('tickets__create_ticket')
 
     def get_edit_absolute_url(self):
-#        return "/tickets/ticket/edit/%s" % self.id
         return reverse('tickets__edit_ticket', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/tickets/tickets"
         return reverse('tickets__list_tickets')
 
     def get_html_attrs(self, context):
@@ -144,18 +127,12 @@ class AbstractTicket(TicketMixin):
 
         return ''
 
-#    def _pre_save_clone(self, source):
-##        super(Ticket, self)._pre_save_clone(source)
-#        super(AbstractTicket, self)._pre_save_clone(source)
-#        if self.status_id == CLOSED_PK:
-#            self.closing_date = self.created = self.modified = now()
-
     @atomic
     def save(self, *args, **kwargs):
         if self.pk:
             if (self.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
                 self.closing_date = now()
-        else: # Creation
+        else:  # Creation
             self.status_id = self.status_id or OPEN_PK
 
             # Number management
@@ -163,7 +140,6 @@ class AbstractTicket(TicketMixin):
             self.number = number_id
             TicketNumber.objects.filter(id__lt=number_id).delete()
 
-#        super(Ticket, self).save(*args, **kwargs)
         super(AbstractTicket, self).save(*args, **kwargs)
 
 
@@ -172,7 +148,6 @@ class Ticket(AbstractTicket):
         swappable = 'TICKETS_TICKET_MODEL'
 
 
-#class TicketTemplate(AbstractTicket):
 class AbstractTicketTemplate(TicketMixin):
     """Used by 'recurrents' app if it is installed"""
     creation_label = _('Add a ticket template')
@@ -185,7 +160,6 @@ class AbstractTicketTemplate(TicketMixin):
         ordering = ('title',)
 
     def get_absolute_url(self):
-#        return "/tickets/template/%s" % self.id
         return reverse('tickets__view_template', args=(self.id,))
 
     @staticmethod
@@ -193,7 +167,6 @@ class AbstractTicketTemplate(TicketMixin):
         return ''
 
     def get_edit_absolute_url(self):
-#        return "/tickets/template/edit/%s" % self.id
         return reverse('tickets__edit_template', args=(self.id,))
 
     def get_delete_absolute_url(self):
@@ -203,45 +176,27 @@ class AbstractTicketTemplate(TicketMixin):
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/tickets/templates"
         return reverse('tickets__list_templates')
 
     def create_entity(self):
         """This method is used by the generation job of the 'recurrents' app"""
         from .. import get_ticket_model
 
-        ## Beware: the 'title' column must be unique TODO: remove this comment
         now_value = now()
-        title = u'%s %s' % (self.title, date_format(now_value.date(), 'DATE_FORMAT')) #TODO: use localtime() ?
 
-        Ticket = get_ticket_model()
-        ticket = Ticket(user=self.user,
-                        title=title,
-                        description=self.description,
-                        status_id=self.status_id,
-                        priority_id=self.priority_id,
-                        criticity_id=self.criticity_id,
-                        solution=self.solution,
-                        closing_date=(now_value if self.status_id == CLOSED_PK else None),
-                       )
-
-#        min_index = Ticket.objects.filter(title__startswith=title).count() + 1
-#        last_exception = None
-#
-#        for i in xrange(min_index, min_index + 10): #10 trials should be enough for 99,9999% of cases :)
-#            ticket.title = u'%s #%s' % (title, i)
-#
-#            try:
-#                ticket.save()
-#            except Exception as e:
-#                last_exception = e
-#            else:
-#                break
-#        else:
-#            raise last_exception
-        ticket.save() # TODO: Ticket.objects.create
-
-        return ticket
+        return get_ticket_model().objects\
+                                 .create(user=self.user,
+                                         title=u'%s %s' % (
+                                                    self.title,
+                                                    date_format(now_value.date(), 'DATE_FORMAT'),
+                                                ),  # TODO: use localtime() ?
+                                         description=self.description,
+                                         status_id=self.status_id,
+                                         priority_id=self.priority_id,
+                                         criticity_id=self.criticity_id,
+                                         solution=self.solution,
+                                         closing_date=(now_value if self.status_id == CLOSED_PK else None),
+                                        )
 
 
 class TicketTemplate(AbstractTicketTemplate):

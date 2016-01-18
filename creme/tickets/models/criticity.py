@@ -28,7 +28,7 @@ from creme.creme_core.models.fields import BasicAutoField
 class Criticity(CremeModel):
     """Criticity of a ticket: critical, not important etc..."""
     name  = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
-    order = BasicAutoField(_('Order')) #used by creme_config
+    order = BasicAutoField(_('Order'))  # Used by creme_config
 
     def __unicode__(self):
         return self.name

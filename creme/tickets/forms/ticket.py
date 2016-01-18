@@ -21,12 +21,10 @@
 from creme.creme_core.forms import CremeEntityForm
 
 from .. import get_ticket_model
-#from ..models import Ticket
 
 
 class TicketEditForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-#        model = Ticket
         model = get_ticket_model()
 
 

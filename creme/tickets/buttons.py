@@ -24,7 +24,6 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.gui.button_menu import Button
 
 from . import get_ticket_model
-#from .models import Ticket
 from .constants import REL_SUB_LINKED_2_TICKET
 
 
@@ -34,7 +33,6 @@ class Linked2TicketButton(Button):
     template_name = 'tickets/templatetags/button_linked.html'
     permission    = 'tickets'
 
-#    _ct = ContentType.objects.get_for_model(Ticket)
     _ct = ContentType.objects.get_for_model(get_ticket_model())
 
     def render(self, context):
