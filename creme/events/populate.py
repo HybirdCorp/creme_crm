@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import (properties_block, relations_block,
@@ -33,15 +32,12 @@ from creme.creme_core.models import (SearchConfigItem, RelationType, HeaderFilte
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from creme.opportunities import get_opportunity_model
-#from creme.opportunities.models import Opportunity
 
 from . import get_event_model
 from . import constants
 from .blocks import resuts_block
-#from .models import EventType, Event
 from .models import EventType
 
 

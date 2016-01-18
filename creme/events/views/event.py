@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,14 +33,13 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from creme.opportunities import get_opportunity_model
 
 from .. import get_event_model
 from .. import constants
 from ..forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
-from ..models import EventType #Event
+from ..models import EventType
 
 
 Contact = get_contact_model()
@@ -64,13 +63,10 @@ def abstract_edit_event(request, event_id, form=EventForm):
 def abstract_view_event(request, event_id,
                         template='events/view_event.html',
                        ):
-    return view_entity(request, event_id, Event, template=template,
-                       # path='/events/event',
-                      )
+    return view_entity(request, event_id, Event, template=template)
 
 
 @login_required
-# @permission_required(('events', 'events.add_event'))
 @permission_required(('events', cperm(Event)))
 def add(request):
     return abstract_add_event(request)
@@ -91,10 +87,7 @@ def detailview(request, event_id):
 @login_required
 @permission_required('events')
 def listview(request):
-    return list_view(request, Event, hf_pk=constants.DEFAULT_HFILTER_EVENT,
-                     # extra_dict={'add_url': '/events/event/add'},
-                     # extra_dict={'add_url': reverse('events__create_event')},
-                    )
+    return list_view(request, Event, hf_pk=constants.DEFAULT_HFILTER_EVENT)
 
 
 INV_STATUS_MAP = {
@@ -118,7 +111,6 @@ def build_get_actions(event, entity):
                                         user.has_perm_to_view(entity),
                                         icon="images/view_16.png",
                                        ),
-                # 'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
                 'others':  [EntityAction(reverse('events__create_related_opportunity',
                                                  args=(event.id, entity.id),
                                                 ),
@@ -149,7 +141,8 @@ class ListViewPostProcessor(object):
         cells = context['header_filters'].selected.cells
         rtypes = RelationType.objects.filter(pk__in=self._RTYPE_IDS)
 
-        # NB: add relations items to use the pre-cache system of HeaderFilter (TODO: problem: retrieve other related events too)
+        # NB: add relations items to use the pre-cache system of HeaderFilter
+        #     (TODO: problem: retrieve other related events too)
         cells.extend(EntityCellRelation(rtype=rtype, is_hidden=True) for rtype in rtypes)
 
         cells.append(EntityCellVolatile(value='invitation_management', title=_(u'Invitation'), render_func=self.invitation_render))
@@ -231,7 +224,6 @@ _FILTER_RELATIONTYPES = (constants.REL_SUB_IS_INVITED_TO,
                         )
 
 
-# TODO: remove the file 'events/list_events.html'
 @login_required
 @permission_required('events')
 #@permission_required('persons') ????
@@ -240,7 +232,6 @@ def list_contacts(request, event_id):
     request.user.has_perm_to_view_or_die(event)
 
     return list_view(request, Contact,
-                     #template='events/list_events.html',
                      extra_dict={'list_title': _(u'List of contacts related to «%s»') % event,
                                  'add_url':    '/events/event/%s/link_contacts' % event_id,
                                 },
@@ -318,7 +309,6 @@ def abstract_add_related_opportunity(request, event_id, contact_id,
                      )
 
 @login_required
-# @permission_required(('events', 'opportunities', 'opportunities.add_opportunity'))
 @permission_required(('events', 'opportunities', cperm(Opportunity)))
 def add_opportunity(request, event_id, contact_id):
     return abstract_add_related_opportunity(request, event_id, contact_id)

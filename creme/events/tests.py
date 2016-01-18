@@ -20,10 +20,9 @@ try:
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
-    # from creme.persons.models import Contact, Organisation
 
     from creme.opportunities import get_opportunity_model
-    from creme.opportunities.models import SalesPhase  # Opportunity
+    from creme.opportunities.models import SalesPhase
     from creme.opportunities.tests import skipIfCustomOpportunity
 
     from . import event_model_is_custom, get_event_model
@@ -52,7 +51,6 @@ def skipIfCustomEvent(test_func):
 
 @skipIfCustomEvent
 class EventsTestCase(CremeTestCase):
-#    ADD_URL = '/events/event/add'
     format_str    = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
     format_str_5x = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
                     ' {"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
@@ -71,7 +69,6 @@ class EventsTestCase(CremeTestCase):
         return '/events/event/%s/link_contacts' % event.id
 
     def _build_related_opp_url(self, event, contact):
-#        return '/events/event/%s/add_opportunity_with/%s' % (event.id, contact.id)
         return reverse('events__create_related_opportunity', args=(event.id, contact.id))
 
     def test_populate(self):
@@ -122,7 +119,6 @@ class EventsTestCase(CremeTestCase):
         etype = EventType.objects.all()[0]
         event = self._create_event(name, etype)
 
-#        url = '/events/event/edit/%s' % event.id
         url = event.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -147,7 +143,6 @@ class EventsTestCase(CremeTestCase):
         event1 = self._create_event('Eclipse', etype)
         event2 = self._create_event('Show', etype)
 
-#        response = self.assertGET200('/events/events')
         response = self.assertGET200(Event.get_lv_absolute_url())
 
         with self.assertNoException():

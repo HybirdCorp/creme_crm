@@ -45,7 +45,6 @@ class EventType(CremeModel):
         return self.name
 
 
-#class Event(CremeEntity):
 class AbstractEvent(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
     type        = ForeignKey(EventType, verbose_name=_(u'Type'), on_delete=PROTECT)
@@ -82,7 +81,6 @@ class AbstractEvent(CremeEntity):
             relation._delete_without_transaction()
 
     def get_absolute_url(self):
-#        return "/events/event/%s" % self.id
         return reverse('events__view_event', args=(self.id,))
 
     @staticmethod
@@ -90,12 +88,10 @@ class AbstractEvent(CremeEntity):
         return reverse('events__create_event')
 
     def get_edit_absolute_url(self):
-#        return "/events/event/edit/%s" % self.id
         return reverse('events__edit_event', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/events/events"
         return reverse('events__list_events')
 
     def get_stats(self):
@@ -144,7 +140,7 @@ class AbstractEvent(CremeEntity):
         elif status == PRES_STATUS_COME:
             relations.filter(subject_entity=contact.id, type=REL_SUB_NOT_CAME_EVENT, object_entity=self.id).delete()
             relations.create(subject_entity=contact, type_id=REL_SUB_CAME_EVENT, object_entity=self, user=user)
-        else: #PRES_STATUS_DONT_KNOW
+        else:  # PRES_STATUS_DONT_KNOW
             relations.filter(subject_entity=contact.id, type__in=(REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT), object_entity=self.id) \
                      .delete()
 

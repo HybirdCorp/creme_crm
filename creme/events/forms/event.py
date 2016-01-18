@@ -31,12 +31,10 @@ from creme.creme_core.utils import find_first
 
 from creme.persons import get_organisation_model
 from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
-#from creme.persons.models import Organisation
 
 from creme.opportunities.forms.opportunity import OpportunityCreateForm
 
 from .. import get_event_model
-#from ..models import Event
 from .. import constants
 
 
@@ -45,7 +43,6 @@ class EventForm(CremeEntityForm):
     end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)  # TODO: start_date > end_date ?
 
     class Meta(CremeEntityForm.Meta):
-#        model = Event
         model = get_event_model()
 
 
@@ -137,9 +134,9 @@ class RelatedOpportunityCreateForm(OpportunityCreateForm):
         self.event = event = initial['event']
         contact = initial['contact']
 
-#        qs = Organisation.objects.filter(relations__type__in=[REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES],
         qs = get_organisation_model().objects.filter(relations__type__in=[REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES],
-                                         relations__object_entity=contact.id)
+                                                     relations__object_entity=contact.id,
+                                                    )
 
         description_f = fields.get('description')
         if description_f:

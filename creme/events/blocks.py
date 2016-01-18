@@ -22,16 +22,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import SimpleBlock
 
-#from .models import Event
 from . import get_event_model
 
 
 class ResutsBlock(SimpleBlock):
     id_           = SimpleBlock.generate_id('events', 'results')
-    #dependencies  = (Relation,) ??
+    # dependencies  = (Relation,) ??
     verbose_name  = _(u'Results of an event')
     template_name = 'events/block_results.html'
-#    target_ctypes = (Event,)
     target_ctypes = (get_event_model(),)
 
 
