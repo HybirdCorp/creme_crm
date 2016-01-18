@@ -13,14 +13,12 @@ try:
     from .base import _PollsTestCase, skipIfCustomPollForm, PollForm
     from ..core import PollLineType
     from ..blocks import pform_lines_block, preplies_block
-    from ..models import PollType, PollFormSection, PollFormLine, PollFormLineCondition  # PollForm
+    from ..models import PollType, PollFormSection, PollFormLine, PollFormLineCondition
     from ..templatetags.polls_tags import print_node_number, print_node_css, print_line_condition
     from ..utils import SectionTree, NodeStyle
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
-
-# __all__ = ('PollFormsTestCase', )
 
 get_ct = ContentType.objects.get_for_model
 DELETE_RELATED_URL = '/creme_core/entity/delete_related/%s'
@@ -43,9 +41,6 @@ class PollFormsTestCase(_PollsTestCase):
 
     def _build_choices_url(self, line):
         return '/polls/pform_line/%s/choices' % line.id
-
-    #def _build_editline_url(self, line):
-        #return '/polls/pform_line/%s/edit' % line.id
 
     def _build_deleteline_url(self):
         return DELETE_RELATED_URL % get_ct(PollFormLine).id
@@ -121,7 +116,6 @@ class PollFormsTestCase(_PollsTestCase):
         user = self.user
         self.assertFalse(PollForm.objects.all())
 
-#        url = '/polls/poll_form/add'
         url = reverse('polls__create_form')
         self.assertGET200(url)
 
@@ -144,7 +138,6 @@ class PollFormsTestCase(_PollsTestCase):
         name = 'form#1'
         pform = PollForm.objects.create(user=user, name=name)
 
-#        url = '/polls/poll_form/edit/%s' % pform.id
         url = pform.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -168,7 +161,6 @@ class PollFormsTestCase(_PollsTestCase):
         pform1 = create_pform(name='Form#1')
         pform2 = create_pform(name='Form#2')
 
-#        response = self.assertGET200('/polls/poll_forms')
         response = self.assertGET200(PollForm.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -211,7 +203,7 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertFalse(PollFormLine.objects.filter(id__in=[line1.id, line2.id, line3.id]))
         self.assertFalse(PollFormLineCondition.objects.filter(id__in=[cond1.id, cond2.id]))
 
-    def test_add_section01(self): #TODO: unicity of name ???
+    def test_add_section01(self):  # TODO: uniqueness of name ???
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         url = '/polls/poll_form/%s/add/section' % pform.id
@@ -271,7 +263,6 @@ class PollFormsTestCase(_PollsTestCase):
         name = 'introduction'
         section = PollFormSection.objects.create(pform=pform, name=name, order=1)
 
-        #url = '/polls/pform_section/%s/edit' % section.id
         url = section.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -299,7 +290,7 @@ class PollFormsTestCase(_PollsTestCase):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Introduction', order=1)
         line = self._get_formline_creator(pform)('What is the matter ?',
-                                                 section=section #<=======
+                                                 section=section,  # <=======
                                                 )
 
         self.assertEqual([True], [node.has_line for node in SectionTree(pform) if node.is_section])
@@ -308,8 +299,8 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertStillExists(line)
         self.assertStillExists(section)
 
-        #TODO: when 404 rendering is improved
-        #self.assertIn(_('There is at least one question in this section.'), response.content)
+        # TODO: when 404 rendering is improved
+        # self.assertIn(_('There is at least one question in this section.'), response.content)
 
     def test_delete_section03(self):
         "Empty sub sections are deleted"
@@ -334,7 +325,7 @@ class PollFormsTestCase(_PollsTestCase):
         sub_section2 = create_section(name='Chapter I.2', order=3, parent=section)
 
         line = self._get_formline_creator(pform)('What is the matter ?',
-                                                 section=sub_section1 #<=======
+                                                 section=sub_section1,  # <=======
                                                 )
 
         self.assertEqual([True, True, False],
@@ -780,7 +771,7 @@ class PollFormsTestCase(_PollsTestCase):
         response = self.client.post(self._build_addline2section_url(section1),
                                     data={'question': question,
                                           'type':     PollLineType.INT,
-                                          'index':    2, #at the end
+                                          'index':    2,  # At the end
                                          }
                                    )
         self.assertNoFormError(response)
@@ -793,7 +784,7 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertEqual(1, self.refresh(line1).order)
         self.assertEqual(2, self.refresh(line2).order)
         self.assertEqual(3, self.refresh(line3).order)
-        self.assertEqual(5, self.refresh(line4).order) # <===== not 4
+        self.assertEqual(5, self.refresh(line4).order)  # <===== not 4
         self.assertEqual(6, self.refresh(line5).order)
         self.assertEqual(7, self.refresh(line6).order)
 
@@ -889,24 +880,24 @@ class PollFormsTestCase(_PollsTestCase):
         question += ' ?'
         qtype2 = PollLineType.INT
         response = self.client.post(url, data={'question': question,
-                                               'type':     qtype2, #should not be used
-                                               'order':    3, #should not be used
+                                               'type':     qtype2,  # Should not be used
+                                               'order':    3,  # Should not be used
                                               }
                                    )
         self.assertNoFormError(response)
 
         line = self.refresh(line)
         self.assertEqual(question, line.question)
-        self.assertEqual(1,        line.order) #not changed !!
-        self.assertEqual(qtype1,   line.type)  #not changed !!
+        self.assertEqual(1,        line.order)  # Not changed !!
+        self.assertEqual(qtype1,   line.type)  # Not changed !!
 
-    def test_edit_line02(self): #disabled line --> error
+    def test_edit_line02(self):
+        "Disabled line --> error"
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         line = PollFormLine.objects.create(pform=pform, question='How are you ?', order=1,
                                            type=PollLineType.STRING, disabled=True,
                                           )
 
-        #url = self._build_editline_url(line)
         url = line.get_edit_absolute_url()
         self.assertGET404(url)
         self.assertPOST404(url, data={'question': line.question})
@@ -916,7 +907,6 @@ class PollFormsTestCase(_PollsTestCase):
         line = PollFormLine.objects.create(pform=PollForm.objects.create(user=self.user, name='Form#1'),
                                            question='Are you ready ?', order=1, type=PollLineType.BOOL,
                                           )
-        #response = self.assertGET200(self._build_editline_url(line))
         response = self.assertGET200(line.get_edit_absolute_url())
 
         with self.assertNoException():
@@ -928,7 +918,6 @@ class PollFormsTestCase(_PollsTestCase):
     def test_edit_line_choices01(self):
         "ENUM"
         line = self._create_enum_line([[1, 'White'], [2, 'black']])
-        #url = self._build_editline_url(line)
         url = line.get_edit_absolute_url()
         response = self.assertGET200(url)
 
@@ -943,10 +932,10 @@ class PollFormsTestCase(_PollsTestCase):
                                                'new_choices': '\r\n'.join(['Green', 'Purple']),
 
                                                'old_choices_check_0': 'on',
-                                               'old_choices_value_0': 'White', #not changed
+                                               'old_choices_value_0': 'White',  # Not changed
 
                                                'old_choices_check_1': 'on',
-                                               'old_choices_value_1': 'Black ', #s/b/B + ' '
+                                               'old_choices_value_1': 'Black ',  # s/b/B + ' '
                                               }
                                    )
         self.assertNoFormError(response)
@@ -957,18 +946,17 @@ class PollFormsTestCase(_PollsTestCase):
     def test_edit_line_choices02(self):
         "Delete some choices"
         line = self._create_enum_line([[1, 'White'], [2, 'Black'], [3, 'Red']])
-        #response = self.client.post(self._build_editline_url(line),
         response = self.client.post(line.get_edit_absolute_url(),
                                     data={'question':    line.question,
                                           'new_choices': 'Cyan',
 
-                                          #'old_choices_check_0': '', #deleted
+                                          # 'old_choices_check_0': '', #deleted
                                           'old_choices_value_0': 'White',
 
                                           'old_choices_check_1': 'on', 
                                           'old_choices_value_1': 'Yellow', #changed
 
-                                          #'old_choices_check_2': '', #deleted too
+                                          # 'old_choices_check_2': '', #deleted too
                                           'old_choices_value_2': 'Red',
                                          }
                                    )
@@ -992,16 +980,15 @@ class PollFormsTestCase(_PollsTestCase):
         line = self._create_enum_line([[2, 'Black'], [3, 'Red']],
                                       del_choices=[[1, 'White'], [4, 'Blue']]
                                      )
-        #response = self.client.post(self._build_editline_url(line),
         response = self.client.post(line.get_edit_absolute_url(),
                                     data={'question':    line.question,
                                           'new_choices': 'Magenta',
 
                                           'old_choices_check_0': 'on',
-                                          'old_choices_value_0': 'Black', #unchanged
+                                          'old_choices_value_0': 'Black',  # unchanged
 
-                                          #'old_choices_check_1': '',
-                                          'old_choices_value_1': 'Red', #deleted
+                                          # 'old_choices_check_1': '',
+                                          'old_choices_value_1': 'Red',  # deleted
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1014,7 +1001,6 @@ class PollFormsTestCase(_PollsTestCase):
     def test_edit_line_choices04(self):
         "Assert choices are not empty"
         line = self._create_enum_line([[1, 'White'], [2, 'Black'], [3, 'Red']])
-        #response = self.assertPOST200(self._build_editline_url(line),
         response = self.assertPOST200(line.get_edit_absolute_url(),
                                       data={'question': line.question,
 
@@ -1022,18 +1008,18 @@ class PollFormsTestCase(_PollsTestCase):
                                             'old_choices_value_0': 'White',
 
                                             'old_choices_check_1': 'on',
-                                            'old_choices_value_1': ' ', #empty  (afer stripping) !!
+                                            'old_choices_value_1': ' ',  # Empty  (after stripping) !!
                                            }
                                      )
         self.assertFormError(response, 'form', 'old_choices',
                              _('Choices can not be empty.')
                             )
 
-    def test_edit_line_choices05(self): #MULTI_ENUM
+    def test_edit_line_choices05(self):
+        "MULTI_ENUM"
         line = self._create_enum_line([[1, 'White'], [2, 'black']],
                                       qtype=PollLineType.MULTI_ENUM
                                      )
-        #response = self.assertGET200(self._build_editline_url(line))
         response = self.assertGET200(line.get_edit_absolute_url())
 
         with self.assertNoException():
@@ -1048,7 +1034,6 @@ class PollFormsTestCase(_PollsTestCase):
         line = self._create_enum_line([[1, 'White'], [2, 'black']],
                                       qtype=PollLineType.ENUM_OR_STRING
                                      )
-        #response = self.assertGET200(self._build_editline_url(line))
         response = self.assertGET200(line.get_edit_absolute_url())
 
         with self.assertNoException():
@@ -1088,11 +1073,10 @@ class PollFormsTestCase(_PollsTestCase):
         "Delete some choices (NOT used in conditions)"
         line1, line2, line3 = self._create_3_lines_4_conditions()
 
-        PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1', #we use choice 'A little bit' for condition
+        PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1',  # We use choice 'A little bit' for condition
                                              operator=PollFormLineCondition.EQUALS,
                                             )
 
-        #response = self.client.post(self._build_editline_url(line1),
         response = self.client.post(line1.get_edit_absolute_url(),
                                     data={'question':    line1.question,
                                           'new_choices': 'Passionately',
@@ -1100,7 +1084,7 @@ class PollFormsTestCase(_PollsTestCase):
                                           'old_choices_check_0': 'on',
                                           'old_choices_value_0': 'A little bit',
 
-                                          #'old_choices_check_1': '', #we delete 'A lot'
+                                          # 'old_choices_check_1': '', #we delete 'A lot'
                                           'old_choices_value_1': 'A lot',
                                          }
                                    )
@@ -1121,16 +1105,15 @@ class PollFormsTestCase(_PollsTestCase):
         "Delete some choices (NOT used in conditions)"
         line1, line2, line3 = self._create_3_lines_4_conditions()
 
-        PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1', #we use choice 'A little bit' for condition
+        PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1',  # We use choice 'A little bit' for condition
                                              operator=PollFormLineCondition.EQUALS,
                                             )
 
-        #response = self.assertPOST200(self._build_editline_url(line1), #todo: factorise ?
-        response = self.assertPOST200(line1.get_edit_absolute_url(), #TODO: factorise ?
+        response = self.assertPOST200(line1.get_edit_absolute_url(),  # TODO: factorise ?
                                       data={'question':    line1.question,
                                             'new_choices': 'Passionately',
 
-                                           #'old_choices_check_0': '', #we delete 'A little bit'
+                                            # 'old_choices_check_0': '', #we delete 'A little bit'
                                             'old_choices_value_0': 'A little bit',
 
                                             'old_choices_check_1': 'on', 
@@ -1138,9 +1121,10 @@ class PollFormsTestCase(_PollsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'old_choices',
-                             _('You can not delete the choice "%(choice)s" because it is used in a condition by the question "%(question)s".') % {
-                                    'choice':   'A little bit',
-                                    'question': line3.question,
+                             _('You can not delete the choice "%(choice)s" because it '
+                               'is used in a condition by the question "%(question)s".'
+                              ) % {'choice':   'A little bit',
+                                   'question': line3.question,
                                }
                             )
 
@@ -1158,7 +1142,7 @@ class PollFormsTestCase(_PollsTestCase):
     def test_section_tree01(self):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
-        with self.assertNumQueries(2): #1 for sections, 1 for lines
+        with self.assertNumQueries(2):  # 1 for sections, 1 for lines
             stree = SectionTree(pform)
 
         with self.assertNumQueries(0):
@@ -1181,7 +1165,7 @@ class PollFormsTestCase(_PollsTestCase):
         line11_1 = create_line('Do you like swallows ?', section=section11)
         line11_2 = create_line('Do you eat swallows ?',  section=section11)
 
-        with self.assertNumQueries(2): #1 for sections, 1 for lines
+        with self.assertNumQueries(2):  # 1 for sections, 1 for lines
             stree = SectionTree(pform)
 
         with self.assertNumQueries(0):
@@ -1195,7 +1179,7 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertEqual([0, 0, 0, 1, 1, 2, 2, 0], [node.deep for node in nodes])
         self.assertEqual([1, None, 1, 2, 1, 3, 4, 2], [node.number for node in nodes])
 
-        #templatetag
+        # Templatetag
         style = NodeStyle()
         self.assertEqual(['1', 'None', 'I', '2', '1', '3', '4', 'II'],
                          [print_node_number(style, node) for node in nodes]
@@ -1215,10 +1199,10 @@ class PollFormsTestCase(_PollsTestCase):
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.STRING)
         line0    = create_line(question='What is the difference between a swallow ?', order=1)
         line1_1  = create_line(question='What type of swallow ?', section=section1,   order=2)
-        line11_2 = create_line(question='Do you eat swallows ?',  section=section11,  order=4) #<= order inverted
+        line11_2 = create_line(question='Do you eat swallows ?',  section=section11,  order=4)  # <= order inverted
         line11_1 = create_line(question='Do you like swallows ?', section=section11,  order=3)
 
-        with self.assertNumQueries(2): #1 for sections, 1 for lines
+        with self.assertNumQueries(2):  # 1 for sections, 1 for lines
             stree = SectionTree(pform)
 
         with self.assertNumQueries(0):
@@ -1232,7 +1216,7 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertEqual([0, 0, 1, 1, 2, 2, 0], [node.deep for node in nodes])
 
     def test_section_tree04(self):
-        "Section tree: Manage disabled lines"
+        "Section tree: manage disabled lines"
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -1272,7 +1256,7 @@ class PollFormsTestCase(_PollsTestCase):
         url = self._build_editlineconditions_url(line2)
         self.assertGET200(url)
 
-        #ttype = 1  #TODO: 'display if' 'display except if'
+        # ttype = 1  #TODO: 'display if' 'display except if'
         response = self.client.post(url, data={#'type':      ttype,  #TODO
                                                'use_or':     1,
                                                'conditions': self._CONDSFIELD_STR % {
@@ -1285,7 +1269,7 @@ class PollFormsTestCase(_PollsTestCase):
 
         line2 = self.refresh(line2)
         self.assertIs(line2.conds_use_or, True)
-        #self.assertEqual(ttype, line2.conds_type) #TODO
+        # self.assertEqual(ttype, line2.conds_type) #TODO
 
         conditions = line2.conditions.all()
         self.assertEqual(1, len(conditions))
@@ -1408,7 +1392,7 @@ class PollFormsTestCase(_PollsTestCase):
         "'Other' choice"
         self._aux_add_line_conditions_enumorchoice(0, dump_json([0]))
 
-    #TODO: def test_add_line_conditionsXX(self): other types of question ?
+    # TODO: def test_add_line_conditionsXX(self): other types of question ?
 
     def test_add_line_conditions_error01(self):
         "The source can not be after the destination"
@@ -1511,7 +1495,7 @@ class PollFormsTestCase(_PollsTestCase):
                               )
         self.assertFalse(line3.conditions.all())
 
-    #TODO: remove conditions --> update conds_use_or ?? (or remove 'None' feature)
+    # TODO: remove conditions --> update conds_use_or ?? (or remove 'None' feature)
 
     def test_disable_line01(self):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
@@ -1541,7 +1525,6 @@ class PollFormsTestCase(_PollsTestCase):
 
     def test_disable_line03(self):
         "Disabled line has a line that depends on it"
-        #pform = PollForm.objects.create(user=self.user, name='Form#1')
         line2, line3 = self._create_3_lines_4_conditions()[1:]
         cond = PollFormLineCondition.objects.create(line=line3, source=line2, raw_answer='1',
                                                     operator=PollFormLineCondition.EQUALS
@@ -1551,8 +1534,8 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertFalse(self.assertStillExists(line2).disabled)
         self.assertStillExists(cond)
 
-        #TODO: when 404 rendering is improved
-        #self.assertIn(_('There is at least one other question which depends on this question.'), response.content)
+        # TODO: when 404 rendering is improved
+        # self.assertIn(_('There is at least one other question which depends on this question.'), response.content)
 
     def test_disable_line04(self):
         "Already disabled"
@@ -1599,7 +1582,7 @@ class PollFormsTestCase(_PollsTestCase):
                                            order=1, question='How old is this swallow ?'
                                           )
 
-        self.assertGET404(self._build_deleteline_url()) #only POST
+        self.assertGET404(self._build_deleteline_url())  # Only POST
         self.assertRedirects(self._delete_line(line), pform.get_absolute_url())
         self.assertDoesNotExist(line)
 
@@ -1628,16 +1611,16 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertStillExists(line2)
         self.assertStillExists(cond)
 
-        #TODO: when 404 rendering is improved
-        #self.assertIn(_('There is at least one other question which depends on this question.'), response.content)
+        # TODO: when 404 rendering is improved
+        # self.assertIn(_('There is at least one other question which depends on this question.'), response.content)
 
-    #def test_delete_line04(self): #TODO ??
-        #pform = PollForm.objects.create(user=self.user, name='Form#1')
-        #line = PollFormLine.objects.create(pform=pform, type=PollLineType.INT,
-                                           #order=1, question='How old is this swallow ?',
-                                           #deleted=True
-                                          #)
-        #self.assertEqual(404, self._delete_line(line).status_code)
+    # def test_delete_line04(self): #TODO ??
+    #     pform = PollForm.objects.create(user=self.user, name='Form#1')
+    #     line = PollFormLine.objects.create(pform=pform, type=PollLineType.INT,
+    #                                        order=1, question='How old is this swallow ?',
+    #                                        deleted=True
+    #                                       )
+    #     self.assertEqual(404, self._delete_line(line).status_code)
 
     def test_delete_line_ajax01(self):
         "Deleted line depends on other lines"
@@ -1719,18 +1702,18 @@ class PollFormsTestCase(_PollsTestCase):
                                           )
         self.assertGET404(self._build_choices_url(line))
 
-    #TODO: use Nullable feature to avoid query
+    # TODO: use Nullable feature to avoid query
     def test_condition_getters01(self):
         line = PollFormLine.objects.create(pform=PollForm.objects.create(user=self.user, name='Form#1'),
                                            question='Do you love swallows ?',
                                            order=1, type=PollLineType.INT,
                                           )
 
-        with self.assertNumQueries(1): #TODO 0
+        with self.assertNumQueries(1):  # TODO: 0
             conditions = line.get_conditions()
         self.assertEqual([], conditions)
 
-        with self.assertNumQueries(1): #TODO 0
+        with self.assertNumQueries(1):  #TODO: 0
             conditions = line.get_reversed_conditions()
         self.assertEqual([], conditions)
 
@@ -1747,9 +1730,9 @@ class PollFormsTestCase(_PollsTestCase):
         cond2 = create_cond(line=line3, source=line2, raw_answer='2')
         cond3 = create_cond(line=line4, source=line1, raw_answer='2')
 
-        #TODO
-        #line3.use_or = True; line3.save()
-        #line4.use_or = True; line3.save()
+        # TODO
+        # line3.use_or = True; line3.save()
+        # line4.use_or = True; line3.save()
 
         with self.assertNumQueries(1): #TODO 0
             conditions = line1.get_conditions()
@@ -1785,9 +1768,9 @@ class PollFormsTestCase(_PollsTestCase):
         cond2 = create_cond(line=line3, source=line2, raw_answer='2')
         cond3 = create_cond(line=line4, source=line1, raw_answer='2')
 
-        #TODO
-        #line3.use_or = True; line3.save()
-        #line4.use_or = True; line3.save()
+        # TODO
+        # line3.use_or = True; line3.save()
+        # line4.use_or = True; line3.save()
 
         with self.assertNumQueries(1):
             PollFormLine.populate_conditions([line1, line2, line3, line4])
@@ -1913,7 +1896,7 @@ class PollFormsTestCase(_PollsTestCase):
         create_line = self._get_formline_creator(pform)
         create_line('How do you like swallows ?', qtype=PollLineType.ENUM,
                     choices=[[1, 'A little bit'], [2, 'A lot']],
-                    disabled=True, #<=======
+                    disabled=True,  # <=======
                    )
         create_line('How do you like parrots ?', qtype=PollLineType.ENUM_OR_STRING,
                     choices=[[1, 'A little bit'], [2, 'A lot']],

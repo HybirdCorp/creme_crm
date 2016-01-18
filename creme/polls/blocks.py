@@ -24,11 +24,8 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from . import get_pollform_model, get_pollreply_model, get_pollcampaign_model
-#from .models import (PollCampaign, PollForm, PollFormLine, PollReply,
-                     #PollReplyLine, PollFormSection)
 from .models import PollFormLine, PollReplyLine, PollFormSection
 from .utils import SectionTree, ReplySectionTree, NodeStyle
 
@@ -91,7 +88,8 @@ class PollReplyLinesBlock(Block):
 
 class PollRepliesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('polls', 'poll_replies')
-    dependencies  = (PollReply, PollFormLine) #PollFormLine : the 'New' button appears only if there is at least one line.
+    dependencies  = (PollReply, PollFormLine)  # PollFormLine : the 'New' button appears only
+                                               #  if there is at least one line.
     verbose_name  = _(u'Form replies')
     template_name = 'polls/templatetags/block_preplies.html'
     target_ctypes = (PollForm,)
@@ -104,7 +102,8 @@ class PollRepliesBlock(QuerysetBlock):
                         PollReply.objects.filter(pform=pform),
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
                         ct_reply=_CT_REPLY,
-                        propose_creation=pform.lines.exists(), #TODO: reuse nodes (PollFormLinesBlock) to avoid a query
+                        # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
+                        propose_creation=pform.lines.exists(),
                        )
                     )
 
@@ -141,7 +140,7 @@ class PersonPollRepliesBlock(_RelatedRepliesBlock):
 
 class PollCampaignRepliesBlock(_RelatedRepliesBlock):
     id_           = _RelatedRepliesBlock.generate_id('polls', 'pcampaign_replies')
-    dependencies  = _RelatedRepliesBlock.dependencies + (PollCampaign,) #PollCampaign: expected_count can be edited
+    dependencies  = _RelatedRepliesBlock.dependencies + (PollCampaign,)  # PollCampaign: expected_count can be edited
     template_name = 'polls/templatetags/block_campaign_preplies.html'
     target_ctypes = (PollCampaign,)
 

@@ -28,13 +28,11 @@ try:
     from ..core import PollLineType
     from ..models import (PollType,
             PollFormSection,  PollFormLine,  PollFormLineCondition,
-            PollReplySection, PollReplyLine, PollReplyLineCondition) # PollCampaign PollForm PollReply
+            PollReplySection, PollReplyLine, PollReplyLineCondition)
     from ..utils import SectionTree, StatsTree
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
-
-# __all__ = ('PollRepliesTestCase', )
 Contact = get_contact_model()
 Organisation = get_organisation_model()
 Activity = get_activity_model()
@@ -64,7 +62,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertEqual(line1.poll_line_type.__class__, line2.poll_line_type.__class__)
 
         self.assertEqual(line1.conds_use_or, line2.conds_use_or)
-        #Beware: source are not compared (would need a pk translation)
+        # Beware: source are not compared (would need a pk translation)
         self.assertEqual(list(line1.conditions.values('operator', 'raw_answer')),
                          list(line2.conditions.values('operator', 'raw_answer'))
                         )
@@ -73,7 +71,6 @@ class PollRepliesTestCase(_PollsTestCase):
         return '/polls/poll_reply/link_to_person/%s' % entity.id
 
     def _build_preply_from_person_url(self, person):
-#        return '/polls/poll_reply/add_from_person/%s' % person.id
         return reverse('polls__create_reply_from_person', args=(person.id,))
 
     def _build_reply_with_bool_line(self):
@@ -191,7 +188,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         PollFormLineCondition.objects.create(line=self.fline2, source=fline1,
                                              raw_answer=dump_json([raw_cond]),
-                                             operator=PollFormLineCondition.EQUALS
+                                             operator=PollFormLineCondition.EQUALS,
                                             )
 
         self.preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -210,7 +207,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         PollFormLineCondition.objects.create(line=self.fline2, source=fline1,
                                              raw_answer=dump_json([1]),
-                                             operator=PollFormLineCondition.EQUALS
+                                             operator=PollFormLineCondition.EQUALS,
                                             )
 
         self.preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -233,13 +230,12 @@ class PollRepliesTestCase(_PollsTestCase):
         return PollReply.objects.create(user=user, pform=pform, name='Reply#1', type=ptype)
 
     def _build_preply_from_pform_url(self, pform):
-#        return '/polls/poll_reply/add_from_pform/%s' % pform.id
         return reverse('polls__create_reply_from_pform', args=(pform.id,))
 
     def _build_preply_from_pform(self, pform, name='Reply#1'):
         self.assertNoFormError(self.client.post(self._build_preply_from_pform_url(pform),
-                                                data={'user':  self.user.id,
-                                                      'name':  name,
+                                                data={'user': self.user.id,
+                                                      'name': name,
                                                      }
                                                )
                               )
@@ -621,7 +617,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
     def _aux_test_link_to(self, person):
         user = self.user
-        pform  = PollForm.objects.create(user=user, name='Form#1')
+        pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_preply = partial(PollReply.objects.create, user=user, pform=pform)
         preply1 = create_preply(name='Reply#1')
@@ -852,7 +848,6 @@ class PollRepliesTestCase(_PollsTestCase):
         preply1 = create_reply(name='Reply#1')
         preply2 = create_reply(name='Reply#2')
 
-#        response = self.assertGET200('/polls/poll_replies')
         response = self.assertGET200(PollReply.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -890,7 +885,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
 
-        with self.assertNumQueries(2): #1 for sections, 1 for lines
+        with self.assertNumQueries(2):  # 1 for sections, 1 for lines
             stree = SectionTree(preply)
 
         with self.assertNumQueries(0):
@@ -916,7 +911,7 @@ class PollRepliesTestCase(_PollsTestCase):
     def test_fillview_string01(self):
         "Fill one STRING question"
         self.login()
-        pform  = PollForm.objects.create(user=self.user, name='Form#1')
+        pform = PollForm.objects.create(user=self.user, name='Form#1')
         fline = self._get_formline_creator(pform)('What is the difference between a swallow ?')
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -1010,7 +1005,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.login()
         preply, rline = self._build_reply_with_bool_line()
         self.assertFormError(self.client.post(self._build_fill_url(preply), follow=True),
-                             'form', 'answer', [_(u'The answer is required.')]
+                             'form', 'answer', _(u'The answer is required.')
                             )
 
     def test_fillview_date01(self):
@@ -1212,7 +1207,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertRedirects(response, preply.get_absolute_url())
         self.assertTrue(self.refresh(preply).is_complete)
 
-        self.assertGET404(self._build_fill_url(preply)) #all questions are answered
+        self.assertGET404(self._build_fill_url(preply))  # All questions are answered
 
     def test_fillview_wizard02(self):
         "Wizard: no line (SHOULD NOT HAPPEN....)"
@@ -1493,7 +1488,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertIsNone(self.refresh(self.rline2).raw_answer)
 
     def test_edit_answer07(self):
-        "Edit answer: chain of conditions dependancies"
+        "Edit answer: chain of conditions dependencies"
         self.login()
         pform  = PollForm.objects.create(user=self.user, name='Form#1')
 
@@ -1637,8 +1632,8 @@ class PollRepliesTestCase(_PollsTestCase):
 
     def test_edit_initialised_date_answer(self):
         "One DATE answer already answered"
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        user = self.login()
+        pform = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)('When is your birthday ?',
                                                   qtype=PollLineType.DATE,
                                                  )
@@ -1659,8 +1654,8 @@ class PollRepliesTestCase(_PollsTestCase):
 
     def test_edit_answer_n_fill(self):
         "Does fill view manage answers already filled"
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        user = self.login()
+        pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.BOOL)
         flines = [create_line(order=i, question=question)
@@ -1773,7 +1768,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         preply1 = self._build_preply_from_pform(pform, 'Reply#1')
         preply2 = self._build_preply_from_pform(pform, 'Reply#2')
-        preply3 = self._build_preply_from_pform(pform, 'Reply#3')  # No answser --> no stats
+        preply3 = self._build_preply_from_pform(pform, 'Reply#3')  # No answer --> no stats
         preply4 = self._build_preply_from_pform(pform, 'Reply#4')
 
         answer_1_1 = u'They are cool'

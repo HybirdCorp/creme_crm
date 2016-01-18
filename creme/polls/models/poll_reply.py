@@ -27,24 +27,20 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from creme.creme_core.models import CremeModel, CremeEntity
 
 from .base import _PollLine
-#from .campaign import PollCampaign
 from .poll_type import PollType
-from .poll_form import PollFormLine # PollForm
+from .poll_form import PollFormLine
 
 
-#class PollReply(CremeEntity):
 class AbstractPollReply(CremeEntity):
     name        = CharField(_(u'Name'), max_length=250)
-#    pform       = ForeignKey(PollForm, verbose_name=_(u'Related form'),
     pform       = ForeignKey(settings.POLLS_FORM_MODEL, verbose_name=_(u'Related form'),
                              editable=False, on_delete=PROTECT,
                             )
-#    campaign    = ForeignKey(PollCampaign, verbose_name=pgettext_lazy('polls', u'Related campaign'),
     campaign    = ForeignKey(settings.POLLS_CAMPAIGN_MODEL, verbose_name=pgettext_lazy('polls', u'Related campaign'),
-                             on_delete=PROTECT, null=True, blank=True, #editable=False,
+                             on_delete=PROTECT, null=True, blank=True,  # editable=False,
                             )
     person      = ForeignKey(CremeEntity, verbose_name=_(u'Person who filled'),
-                             on_delete=PROTECT, #editable=False,
+                             on_delete=PROTECT,  # editable=False,
                              null=True, blank=True, related_name='+',
                             )
     type        = ForeignKey(PollType, verbose_name=_(u'Type'),
@@ -53,7 +49,7 @@ class AbstractPollReply(CremeEntity):
                             )
     is_complete = BooleanField(_(u'Is complete'), default=False, editable=False)
 
-    #creation_label = _('Add a reply')
+    # creation_label = _('Add a reply')
     creation_label = _(u'Add replies')
 
     class Meta:
@@ -67,7 +63,6 @@ class AbstractPollReply(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return "/polls/poll_reply/%s" % self.id
         return reverse('polls__view_reply', args=(self.id,))
 
     @staticmethod
@@ -75,12 +70,10 @@ class AbstractPollReply(CremeEntity):
         return reverse('polls__create_reply')
 
     def get_edit_absolute_url(self):
-#        return "/polls/poll_reply/edit/%s" % self.id
         return reverse('polls__edit_reply', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/polls/poll_replies"
         return reverse('polls__list_replies')
 
 
@@ -89,11 +82,10 @@ class PollReply(AbstractPollReply):
         swappable = 'POLLS_REPLY_MODEL'
 
 
-#TODO: factorise (abstract class) ?
+# TODO: factorise (abstract class) ?
 class PollReplySection(CremeModel):
-#    preply = ForeignKey(PollReply, editable=False, related_name='sections')
     preply = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='sections')
-    parent = ForeignKey('self', editable=False, null=True) #, related_name='children'
+    parent = ForeignKey('self', editable=False, null=True)  # related_name='children'
     order  = PositiveIntegerField(editable=False, default=1)
     name   = CharField(_(u'Name'), max_length=250)
     body   = TextField(_(u'Section body'), null=True, blank=True)
@@ -109,17 +101,21 @@ class PollReplySection(CremeModel):
 
 
 class PollReplyLine(CremeModel, _PollLine):
-#    preply       = ForeignKey(PollReply, editable=False, related_name='lines')
     preply       = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='lines')
-    section      = ForeignKey(PollReplySection, editable=False, null=True) #, related_name='lines'
-    pform_line   = ForeignKey(PollFormLine, editable=False) #, related_name='lines'
+    section      = ForeignKey(PollReplySection, editable=False, null=True)  # related_name='lines'
+    pform_line   = ForeignKey(PollFormLine, editable=False)  # related_name='lines'
     order        = PositiveIntegerField(editable=False, default=1)
     type         = PositiveSmallIntegerField(editable=False)
     type_args    = TextField(editable=False, null=True)
-    applicable   = BooleanField(_(u'Applicable'), default=True, editable=False) #null=True -> no conditions (NB: can we use it to avoid queries ?)
-    conds_use_or = NullBooleanField(_(u'Use OR or AND between conditions'), editable=False) #null=True -> no conditions (NB: can we use it to avoid queries ?)
+
+    # null=True -> no conditions (NB: can we use it to avoid queries ?)
+    applicable   = BooleanField(_(u'Applicable'), default=True, editable=False)
+
+    # null=True -> no conditions (NB: can we use it to avoid queries ?)
+    conds_use_or = NullBooleanField(_(u'Use OR or AND between conditions'), editable=False)
+
     question     = TextField(_(u'Question'))
-    raw_answer   = TextField(_(u'Answer'), null=True) #NULL == not answered  [tip: use the property 'answer']
+    raw_answer   = TextField(_(u'Answer'), null=True)  # NULL == not answered  [tip: use the property 'answer']
 
     class Meta:
         app_label = 'polls'
@@ -132,7 +128,7 @@ class PollReplyLine(CremeModel, _PollLine):
                         ))
 
     @classmethod
-    def _get_condition_class(cls): #See _PollLine
+    def _get_condition_class(cls):  # See _PollLine
         return PollReplyLineCondition
 
     @property
@@ -169,11 +165,11 @@ class PollReplyLine(CremeModel, _PollLine):
 class PollReplyLineCondition(CremeModel):
     line       = ForeignKey(PollReplyLine, editable=False, related_name='conditions')
     source     = ForeignKey(PollReplyLine)
-    operator   = PositiveSmallIntegerField() #see EQUALS etc...
+    operator   = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
 
     class Meta:
         app_label = 'polls'
 
-    def is_met(self, source): #we give the source to simplify the deletion of useless queries
+    def is_met(self, source):  # We give the source to simplify the deletion of useless queries
         return source.poll_line_type.is_condition_met(source.raw_answer, self.raw_answer)

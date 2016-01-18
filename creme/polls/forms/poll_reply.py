@@ -36,7 +36,6 @@ from creme.creme_core.forms.widgets import Label
 from creme.persons import get_contact_model, get_organisation_model
 
 from .. import get_pollcampaign_model, get_pollform_model, get_pollreply_model
-#from ..models import PollForm, PollReply, PollCampaign
 
 
 Contact      = get_contact_model()
@@ -60,7 +59,6 @@ class PollRepliesCreateForm(CremeForm):
                                                      '(and "Number of replies" will be ignored)'
                                                    )
                                       )
-#    pform    = CreatorEntityField(label=_(u'Related form'), model=PollForm)
     pform    = CreatorEntityField(label=_(u'Related form'), model=get_pollform_model())
 
     def __init__(self, *args, **kwargs):
@@ -115,7 +113,7 @@ class PollRepliesCreateForm(CremeForm):
         self.pform = pform
         self.pform_lines = lines
 
-    def create_preply(self, index, person, total_number): #Easy to hook it in another app -> do not save
+    def create_preply(self, index, person, total_number):  # Easy to hook it in another app -> do not save
         cleaned_data = self.cleaned_data
         name = cleaned_data['name']
 
@@ -172,8 +170,8 @@ class PollReplyEditForm(CremeEntityForm):
 
 
 class PersonAddRepliesForm(CremeForm):
-#    replies = MultiCreatorEntityField(label=_(u'Replies'), model=PollReply) #TODO: qfilter to exclude linked replies ??
-    replies = MultiCreatorEntityField(label=_(u'Replies'), model=get_pollreply_model()) #TODO: qfilter to exclude linked replies ??
+    # TODO: qfilter to exclude linked replies ??
+    replies = MultiCreatorEntityField(label=_(u'Replies'), model=get_pollreply_model())
 
     def __init__(self, entity, *args, **kwargs):
         super(PersonAddRepliesForm, self).__init__(*args, **kwargs)
@@ -205,7 +203,7 @@ class PollReplyFillForm(CremeForm):
         question = fields['question']
 
         if number:
-            #TODO: use NodeStyle ??
+            # TODO: use NodeStyle ??
             question.initial = u'%s - %s' % (number, line_node.question)
             fields['not_applicable']= BooleanField(label=ugettext(u'Not applicable'),
                                                    required=False,

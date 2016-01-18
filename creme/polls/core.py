@@ -25,7 +25,6 @@ from json import loads as jsonloads, dumps as jsondumps
 from django.core.exceptions import ValidationError
 from django.forms.fields import Field, IntegerField, CharField, TypedChoiceField, MultipleChoiceField
 from django.forms.widgets import RadioSelect, Textarea
-#from django.utils.datastructures import SortedDict as OrderedDict
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms.fields import CremeDateField, ChoiceOrCharField
@@ -38,17 +37,16 @@ class PollLineType(object):
     editable     = True
 
     INT            = 1
-    #DECIMAL        = 2
+    # DECIMAL        = 2
     BOOL           = 3
-    ##NULLABLE_BOOL  = 4 #USELESS NOW #TODO; delete
     STRING         = 10
     TEXT           = 11
     DATE           = 20
-    #TIME           = 21
-    #DATE_TIME      = 22
-    #YEAR           = 23
-    #MONTH          = 24
-    #DAY            = 25
+    # TIME           = 21
+    # DATE_TIME      = 22
+    # YEAR           = 23
+    # MONTH          = 24
+    # DAY            = 25
     HOUR           = 26
     ENUM           = 100
     MULTI_ENUM     = 101
@@ -76,7 +74,6 @@ class PollLineType(object):
 
     @staticmethod
     def choices():
-        #return [(i, pltype.verbose_name) for i, pltype in POLL_LINE_TYPES.items()]
         return [(i, pltype.verbose_name) for i, pltype in POLL_LINE_TYPES.iteritems()]
 
     def _cleaned_args(self):
@@ -150,10 +147,10 @@ class IntPollLineType(PollLineType):
         super(IntPollLineType, self).__init__(**kwargs)
         args = self._args
 
-        def extract(arg): #TODO: move to creme_core.utils ??
+        def extract(arg):  # TODO: move to creme_core.utils ??
             bound = kwargs.get(arg)
             if bound is not None:
-                args[arg] = bound  #TODO validate that it is an int ? (done in the form for now)
+                args[arg] = bound  # TODO validate that it is an int ? (done in the form for now)
 
             return bound
 
@@ -284,7 +281,7 @@ class EnumPollLineType(PollLineType):
                 return v
 
     def _cleaned_args(self):
-        return {'choices': self._args['choices']} #del_choices are not copied
+        return {'choices': self._args['choices']}  # del_choices are not copied
 
     @property
     def description(self):
@@ -305,9 +302,9 @@ class EnumPollLineType(PollLineType):
                                )
 
     def get_choices(self):
-        return self._args['choices'] #TODO: copy ??
+        return self._args['choices']  # TODO: copy ??
 
-    def get_deleted_choices(self): #TODO: in base interface ???
+    def get_deleted_choices(self):  # TODO: in base interface ???
         return self._args.get('del_choices') or ()
 
     def get_editable_choices(self):
@@ -335,7 +332,7 @@ class MultiEnumPollLineType(EnumPollLineType):
         return [int(i) for i in answer]
 
     def encode_condition(self, cond_answer):
-        #TODO: cond_answer as list of choice (later with better operators)
+        # TODO: cond_answer as list of choice (later with better operators)
         return jsondumps([cond_answer])
 
     def _formfield(self, initial):
@@ -364,15 +361,15 @@ class EnumOrStringPollLineType(EnumPollLineType):
         index = answer[0]
         return answer if not index else [index]
 
-    def decode_condition(self, raw_cond_answer): #TODO; factorise better like decode_answer() ??
-        choice = jsonloads(raw_cond_answer)[0] #[TODO: if len(cond_answer) > 1]
+    def decode_condition(self, raw_cond_answer):  # TODO; factorise better like decode_answer() ??
+        choice = jsonloads(raw_cond_answer)[0]  # [TODO: if len(cond_answer) > 1]
 
         return super(EnumOrStringPollLineType, self)._cast_answer_4_decoding(choice) if choice else \
                ugettext('Other')
 
     def encode_condition(self, cond_answer):
-        #NB: we use a (json) list, in order to encode complexier conditions later,
-        #    eg: [0, 'My user string']
+        # NB: we use a (json) list, in order to encode complexier conditions later,
+        #     eg: [0, 'My user string']
         return jsondumps([cond_answer])
 
     def _formfield(self, initial):

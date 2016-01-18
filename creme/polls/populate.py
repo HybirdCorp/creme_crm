@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
@@ -31,11 +30,10 @@ from creme.creme_core.models import HeaderFilter, BlockDetailviewLocation, Searc
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from . import get_pollform_model, get_pollreply_model, get_pollcampaign_model
 from . import blocks, constants
-from .models import PollType  # PollForm, PollReply, PollCampaign
+from .models import PollType
 
 logger = logging.getLogger(__name__)
 
@@ -79,13 +77,13 @@ class Populator(BasePopulator):
         create_searchconf(PollCampaign, ['name'])
 
 
-        if not PollType.objects.exists():  # NB: no straightforward way to test that this populate script has not been already runned
+        if not PollType.objects.exists():  # NB: no straightforward way to test that this populate script has not been already run
             create_if_needed(PollType, {'pk': 1}, name=_(u'Survey'))
             create_if_needed(PollType, {'pk': 2}, name=_(u'Monitoring'))
             create_if_needed(PollType, {'pk': 3}, name=_(u'Assessment'))
 
 
-        if not BlockDetailviewLocation.config_exists(PollForm): # NB: no straightforward way to test that this populate script has not been already runned
+        if not BlockDetailviewLocation.config_exists(PollForm): # NB: no straightforward way to test that this populate script has not been already run
             TOP   = BlockDetailviewLocation.TOP
             LEFT  = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT

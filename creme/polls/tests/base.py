@@ -50,8 +50,6 @@ class AutoIncr:
 
 
 class _PollsTestCase(CremeTestCase):
-#    ADD_REPLY_URL = '/polls/poll_reply/add'
-
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
