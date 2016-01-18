@@ -212,7 +212,7 @@ def listview(request):
 def link_to_person(request, person_id):
     return add_to_entity(request, person_id, PersonAddRepliesForm,
                          ugettext(u'Existing replies for «%s»'), link_perm=True,
-                         submit_label=(u'Link to the replies'),
+                         submit_label=_(u'Link to the replies'),
                         )
 
 
