@@ -55,7 +55,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
     def setUpClass(cls):
         cls.populate('creme_core', 'activities', 'persons')
         _ActivitiesTestCase.setUpClass()
-        #CSVImportBaseTestCaseMixin.setUpClass()
+        # CSVImportBaseTestCaseMixin.setUpClass()
 
     def test_import01(self):
         self.login()
@@ -65,11 +65,11 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
 
         title1 = 'Task#1'; start1 = '';                 end1 = ''
         title2 = 'Task#2'; start2 = '2014-05-28 15:00'; end2 = '2014-05-28 17:00'
-        title3 = 'Task#3'; start3 = '2014-05-28 19:00'; end3 = '2014-05-28 18:00' # start > end !!
-        title4 = 'Task#4'; start4 = '2014-05-29 12:00'; end4 = '' # no end
-        title5 = 'Task#5'; start5 = '2014-05-30';       end5 = '' # FLOATING_TIME
-        title6 = 'Task#6'; start6 = '2014-06-01';       end6 = '2014-06-01' # FLOATING_TIME too
-        title7 = 'Task#7'; start7 = '2014-06-02';       end7 = '2014-06-02 18:00' #not FLOATING_TIME
+        title3 = 'Task#3'; start3 = '2014-05-28 19:00'; end3 = '2014-05-28 18:00'  # Start > end !!
+        title4 = 'Task#4'; start4 = '2014-05-29 12:00'; end4 = ''  # No end
+        title5 = 'Task#5'; start5 = '2014-05-30';       end5 = ''  # FLOATING_TIME
+        title6 = 'Task#6'; start6 = '2014-06-01';       end6 = '2014-06-01'  # FLOATING_TIME too
+        title7 = 'Task#7'; start7 = '2014-06-02';       end7 = '2014-06-02 18:00'  # Not FLOATING_TIME
         lines = [(title1, start1, end1), (title2, start2, end2), (title3, start3, end3),
                  (title4, start4, end4), (title5, start5, end5), (title6, start6, end6),
                  (title7, start7, end7),
@@ -90,7 +90,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                               end_colselect=3,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
-                                              #should not be used
+                                              # Should not be used
                                               busy_colselect=0,
                                               busy_defval=True, 
                                              )
@@ -200,8 +200,8 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         title4 = 'Meeting#4'
         lines = [(title1, participant1.first_name, participant1.last_name, subject.name),
                  (title2, '',                      participant2.last_name, ''),
-                 (title3, '',                      unfoundable,            ''), #unfoundable Contact -> error
-                 (title4, user_contact.first_name, user_contact.last_name, ''), #no doublon
+                 (title3, '',                      unfoundable,            ''),  # Unfoundable Contact -> error
+                 (title4, user_contact.first_name, user_contact.last_name, ''),  # No duplicate
                 ]
 
         Calendar.get_user_default_calendar(user)
@@ -220,14 +220,14 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                     my_participation=True,
                     participating_users=other_user.pk,
 
-                    participants_mode=1, #search with 1 or 2 columns
+                    participants_mode=1,  # Search with 1 or 2 columns
                     participants_first_name_colselect=2,
                     participants_last_name_colselect=3,
 
                     subjects_colselect=4,
                    )
 
-        #Validation errors ----------
+        # Validation errors ----------
         response = self.client.post(self._build_import_url(Activity), data=data)
         self.assertFormError(response, 'form', 'my_calendar',
                              _(u'If you participate, you have to choose one of your calendars.')
@@ -235,12 +235,12 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
 
         response = self.client.post(self._build_import_url(Activity),
                                     data=dict(data,
-                                              participants_first_name_colselect=100, #invalid choice
+                                              participants_first_name_colselect=100,  # Invalid choice
                                              )
                                    )
         self.assertFormError(response, 'form', 'participants', 'Invalid index')
 
-        #---------
+        # ---------
         response = self.client.post(self._build_import_url(Activity),
                                     data=dict(data, my_calendar=my_calendar.pk)
                                    )
@@ -264,13 +264,13 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
 
         self.assertRelationCount(1, act1, REL_OBJ_ACTIVITY_SUBJECT, subject)
 
-        #---------
+        # ---------
         act2 = self.get_object_or_fail(Activity, title=title2)
         self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, user_contact)
         self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, other_contact)
         self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, participant2)
 
-        #---------
+        # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
         self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists()) #not created
 
@@ -285,7 +285,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                          error.message
                         )
 
-        #---------
+        # ---------
         act4 = self.get_object_or_fail(Activity, title=title4)
         self.assertRelationCount(1, act4, REL_OBJ_PART_2_ACTIVITY, user_contact) #not 2
 
@@ -302,7 +302,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         participant1 = create_contact(first_name='Tatsumi', last_name='Oga')
         participant2 = create_contact(first_name='Aoi',     last_name='Kunieda')
         participant3 = create_contact(first_name='Kaiser',
-                                      last_name='de Emperana Beelzebub', #spaces in last name
+                                      last_name='de Emperana Beelzebub',  # Spaces in last name
                                      )
 
         unfoundable  = 'Behemoth'
@@ -322,7 +322,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                      other_contact.first_name,
                                     )
                  ),
-                 (title3, ' %s %s ' % (participant2.last_name, participant2.first_name)), #trailing spaces
+                 (title3, ' %s %s ' % (participant2.last_name, participant2.first_name)),  # Trailing spaces
                  (title4, '%s %s/%s %s/%s/' % (unfoundable,            unfoundable,
                                                   participant2.last_name, participant2.first_name,
                                                   unfoundable2,
@@ -343,20 +343,20 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                                                                       ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                                                      ),
 
-                                              participants_mode='2', #search with pattern
+                                              participants_mode='2',  # Search with pattern
                                               participants_separator='/',
-                                              participants_pattern=4, #'$last_name $first_name'
+                                              participants_pattern=4,  # '$last_name $first_name'
                                               participants_colselect=2,
                                              )
                                    )
         self.assertNoFormError(response)
 
-        #---------
+        # ---------
         act1 = self.get_object_or_fail(Activity, title=title1)
         self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1)
         self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant2)
 
-        #---------
+        # ---------
         act2 = self.get_object_or_fail(Activity, title=title2)
         self.assertRelationCount(0, act2, REL_OBJ_PART_2_ACTIVITY, participant1)
 
@@ -365,12 +365,12 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                          list(act2.calendars.all())
                         )
 
-        #---------
+        # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
         self.assertRelationCount(0, act3, REL_OBJ_PART_2_ACTIVITY, participant1)
         self.assertRelationCount(1, act3, REL_OBJ_PART_2_ACTIVITY, participant2)
 
-        #---------
+        # ---------
         act4 = self.get_object_or_fail(Activity, title=title4)
         self.assertRelationCount(0, act4, REL_OBJ_PART_2_ACTIVITY, participant1)
         self.assertRelationCount(1, act4, REL_OBJ_PART_2_ACTIVITY, participant2)
@@ -394,7 +394,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertEqual(act4, error.instance)
         self.assertEqual(err_fmt % unfoundable2, error.message)
 
-        #---------
+        # ---------
         act5 = self.get_object_or_fail(Activity, title=title5)
         self.assertRelationCount(1, act5, REL_OBJ_PART_2_ACTIVITY, participant3)
         self.assertRelationCount(1, act5, REL_OBJ_PART_2_ACTIVITY, participant2)
@@ -409,7 +409,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         aoi = Contact.objects.create(user=user, first_name='Aoi', last_name='Kunieda', civility=miss)
 
         title1 = 'Meeting#1'
-        lines = [(title1, ' %s %s %s ' % (aoi.civility, aoi.first_name, aoi.last_name))] #+trailng spaces
+        lines = [(title1, ' %s %s %s ' % (aoi.civility, aoi.first_name, aoi.last_name))]  # +trailing spaces
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Activity)
@@ -420,16 +420,16 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                                             ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                            ),
 
-                    participants_mode=2, #search with pattern
+                    participants_mode=2,  # Search with pattern
                     participants_separator='/',
-                    participants_pattern=1, #$civility $first_name $last_name
+                    participants_pattern=1,  # $civility $first_name $last_name
                     participants_colselect=2,
                    )
 
-        response = self.client.post(url, data=dict(data, participants_pattern=5)) #invalid pattern
+        response = self.client.post(url, data=dict(data, participants_pattern=5))  # Invalid pattern
         self.assertFormError(response, 'form', 'participants', 'Invalid pattern')
 
-        #----------
+        # ----------
         response = self.client.post(url, data=data)
         self.assertNoFormError(response)
 
@@ -439,22 +439,22 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
     @skipIfCustomOrganisation
     def test_import05(self):
         "Dynamic participants with search on first_name/last_name + creation"
-        self.login()
+        user = self.login()
 
         title = 'Task#1'
         first_name = 'Aoi'
         last_name = 'Kunieda'
 
-        orga = Organisation.objects.create(user=self.user, name=last_name) #should not be used as subject
+        orga = Organisation.objects.create(user=self.user, name=last_name)  # Should not be used as subject
 
         doc = self._build_csv_doc([(title, first_name, last_name)])
         response = self.client.post(self._build_import_url(Activity),
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
-                                              user=self.user.id,
+                                              user=user.id,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
-                                              participants_mode=1, #search with 1 or 2 columns
+                                              participants_mode=1,  # Search with 1 or 2 columns
                                               participants_first_name_colselect=2,
                                               participants_last_name_colselect=3,
                                               participants_create=True,
@@ -495,9 +495,9 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                               user=user.id,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
-                                              participants_mode=2, #search with pattern
+                                              participants_mode=2,  # Search with pattern
                                               participants_separator='#',
-                                              participants_pattern=3, #'$first_name $last_name'
+                                              participants_pattern=3,  # '$first_name $last_name'
                                               participants_colselect=2,
                                               participants_create=True,
                                              )
@@ -518,7 +518,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
     def test_import07(self):
         "Search on first_name/last_name + not creation credentials"
         self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'), 
-                   creatable_models=[Activity, Document], #not Contact
+                   creatable_models=[Activity, Document],  # Not Contact
                   )
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -535,10 +535,10 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                               user=self.user.id,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
-                                              participants_mode=1, #search with 1 or 2 columns
+                                              participants_mode=1,  # Search with 1 or 2 columns
                                               participants_first_name_colselect=2,
                                               participants_last_name_colselect=3,
-                                              participants_create=True, #not used
+                                              participants_create=True,  # Not used
                                              )
                                    )
         self.assertNoFormError(response)
@@ -591,8 +591,8 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         clan2 = create_orga(name='Clan')
 
         doc = self._build_csv_doc([(title1, unicode(aoi)),
-                                   (title2, (u' %s '  % aoi).upper()),
-                                   (title3, u' %s '  % name),
+                                   (title2, (u' %s ' % aoi).upper()),
+                                   (title3, u' %s ' % name),
                                    (title4, clan1.name),
                                    (title5, furyo1.last_name),
                                    (title6, u'%s/%s' % (aoi, clan1.name)),
@@ -697,7 +697,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
     def test_import_subjects03(self):
         "Subject: creation credentials."
         self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'), 
-                   creatable_models=[Activity, Document], #not Organisation
+                   creatable_models=[Activity, Document],  # Not Organisation
                   )
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -714,7 +714,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
                                               subjects_colselect=2,
-                                              subjects_create=True, #should not be used
+                                              subjects_create=True,  # Should not be used
                                              )
                                    )
         self.assertNoFormError(response)
@@ -800,7 +800,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                                                                       ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                                                      ),
 
-                                              participants_mode=1, #search with 1 or 2 columns
+                                              participants_mode=1,  # Search with 1 or 2 columns
                                               participants_first_name_colselect=2,
                                               participants_last_name_colselect=3,
 
@@ -813,16 +813,14 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
 
         act1 = self.refresh(act1)
         self.assertEqual(place, act1.place)
-        #self.assertEqual(ACTIVITYTYPE_MEETING, act1.type_id)
-        #self.assertEqual(ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
 
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1) #<- not 2
+        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1)  # <- not 2
         self.assertRelationCount(0, act1, REL_OBJ_PART_2_ACTIVITY, participant2)
         self.assertRelationCount(1, act1, REL_OBJ_ACTIVITY_SUBJECT, subject)
 
         act2 = self.refresh(act2)
         self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, participant2)
-        self.assertRelationCount(1, act2, REL_OBJ_ACTIVITY_SUBJECT, subject) #<- not 2
+        self.assertRelationCount(1, act2, REL_OBJ_ACTIVITY_SUBJECT, subject)  # <- not 2
 
     def test_pattern1(self):
         "Pattern #1: 'Civility FirstName LastName'"
@@ -884,7 +882,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.login()
         user = self.user
 
-        #-----
+        # -----
         ext = MultiColumnsParticipantsExtractor(1, 2)
 
         first_name = 'Aoi'
@@ -906,7 +904,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertEqual([aoi], list(contacts))
         self.assertFalse(err_msg)
 
-        #-----
+        # -----
         ext = MultiColumnsParticipantsExtractor(0, 1)
         contacts, err_msg = ext.extract_value([last_name], user)
         self.assertEqual([aoi], list(contacts))
@@ -1030,7 +1028,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         contacts, err_msg = ext.extract_value(['Aoi Kunieda#Tatsumi Oga#'], user)
         self.assertEqual({aoi, oga}, set(contacts))
 
-        #-------
+        # -------
         searched = 'Kunieda'
         ittosai = create_contact(first_name=u'Ittôsai')
         contacts, err_msg = ext.extract_value([searched], user)
@@ -1089,7 +1087,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         ittosai = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertIsNone(ittosai.civility)
 
-        #Civility retrieved by title
+        # Civility retrieved by title
         mister = self.get_object_or_fail(Civility, pk=3)
         first_name = 'Tatsumi'
         last_name = 'Oga'
@@ -1098,31 +1096,30 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         oga = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(mister, oga.civility)
 
-        #Civility is not used to search
+        # Civility is not used to search
         contacts, err_msg = ext.extract_value(['Sensei %s %s' % (first_name, last_name)], user)
         self.assertEqual([oga], contacts)
         self.assertEqual(mister, self.refresh(oga).civility)
 
-        #Civility retrieved by short name
+        # Civility retrieved by short name
         first_name = 'Takayuki'
         last_name = 'Furuichi'
-        contacts, err_msg = ext.extract_value(['%s %s %s' % (mister.shortcut, first_name, last_name)], user)
+        ext.extract_value(['%s %s %s' % (mister.shortcut, first_name, last_name)], user)
         furuichi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(mister, furuichi.civility)
 
     @skipIfCustomContact
     def test_subjects_extractor01(self):
         "Link credentials."
-        self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
-                   creatable_models=[Activity, Document],
-                  )
+        user = self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
+                          creatable_models=[Activity, Document],
+                         )
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.LINK,
                   set_type=SetCredentials.ESET_OWN,
                  )
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
-        user = self.user
         ext = SubjectsExtractor(1, '/')
         last_name = 'Kunieda'
 
@@ -1152,8 +1149,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
     @skipIfCustomContact
     def test_subjects_extractor02(self):
         "Limit"
-        self.login()
-        user = self.user
+        user = self.login()
         ext = SubjectsExtractor(1, '#')
 
         last_name = 'Kunieda'
@@ -1186,8 +1182,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         rtype = self.get_object_or_fail(RelationType, pk=REL_OBJ_ACTIVITY_SUBJECT)
         self.assertIn(Ticket, (ct.model_class() for ct in rtype.object_ctypes.all()))
 
-        self.login()
-        user = self.user
+        user = self.login()
         last_name = 'Kunieda'
         ticket = Ticket.objects.create(user=user, title="%s's ticket" % last_name,
                                        priority=Priority.objects.all()[0],

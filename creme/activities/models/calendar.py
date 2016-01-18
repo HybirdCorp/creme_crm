@@ -30,7 +30,7 @@ from ..constants import COLOR_POOL, DEFAULT_CALENDAR_COLOR
 class Calendar(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
     is_default  = BooleanField(_(u'Is default?'), default=False)
-    is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
+    is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
     user        = CremeUserForeignKey(verbose_name=_(u'Calendar owner'))
     color       = CharField(_(u'Color'), max_length=100, blank=True, null=True)
@@ -95,7 +95,7 @@ class Calendar(CremeModel):
             defaults = [c for c in calendars if c.is_default]
 
             if not defaults:
-                #TODO: only update 'is_default' field (django 1.5)
+                # TODO: only update 'is_default' field (django 1.5)
                 cal = calendars[0]
                 cal.is_default = True
                 cal._enable_default_checking = False

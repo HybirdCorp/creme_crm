@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import timedelta
+# from datetime import timedelta
 
 from django.db.models.query_utils import Q
 from django.utils.timezone import localtime
