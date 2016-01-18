@@ -33,10 +33,8 @@ from creme.creme_core.models import (RelationType, SearchConfigItem,
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from creme.activities import get_activity_model
-#from creme.activities.models import Activity
 
 from . import get_project_model, get_task_model
 from . import blocks, constants
@@ -131,7 +129,6 @@ class Populator(BasePopulator):
             create_bdl(block_id=history_block.id_,              order=20,  zone=RIGHT, model=Project)
 
             create_bdl(block_id=blocks.task_resources_block.id_,  order=2,   zone=TOP,   model=ProjectTask)
-#            create_bdl(block_id=task_workingperiods_block.id_, order=4,   zone=TOP,   model=ProjectTask)
             create_bdl(block_id=blocks.task_activities_block.id_, order=4,   zone=TOP,   model=ProjectTask)
             BlockDetailviewLocation.create_4_model_block(order=5,            zone=LEFT,  model=ProjectTask)
             create_bdl(block_id=blocks.task_extra_info.id_,       order=30,  zone=LEFT,  model=ProjectTask)

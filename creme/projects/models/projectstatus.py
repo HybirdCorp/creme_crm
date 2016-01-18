@@ -29,7 +29,7 @@ class ProjectStatus(CremeModel):
     name        = CharField(_("Name"), max_length=100)
     color_code  = CharField(_("Color"), max_length=100, blank=True, null=True)
     description = TextField(_("Description"))
-    order       = BasicAutoField(_('Order')) #used by creme_config
+    order       = BasicAutoField(_('Order'))  # Used by creme_config
 
     def __unicode__(self):
         return self.name

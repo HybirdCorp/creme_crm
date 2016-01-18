@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,45 +27,21 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
 
-#from creme.activities.models import Activity
-#from creme.activities.constants import NARROW
-
 from ..constants import COMPLETED_PK, CANCELED_PK, REL_OBJ_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
 from .project import Project
 from .taskstatus import TaskStatus
 
 
-#class ProjectTask(Activity):
-#    project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
-#    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False) #TODO: null = False ?
-#    parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False,
-#                                   related_name='children_set', editable=False,
-#                                  )
-##    duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False) #already have activity duration in Activity
-#    tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
-#
-#    class Meta:
-#        app_label = 'projects'
-#        verbose_name = _(u'Task of project')
-#        verbose_name_plural = _(u'Tasks of project')
-#        ordering = Activity._meta.ordering #NB: sadly it seems that inheriting from Activity.Meta does not work.
-#
-#    def __init__ (self, *args , **kwargs):
-#        super(ProjectTask, self).__init__(*args, **kwargs)
-#        self.floating_type = NARROW
-
-#class ProjectTask(CremeEntity):
 class AbstractProjectTask(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100)
     project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
-    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False) #TODO: null = False ?
+    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False)  # TODO: null = False ?
     parent_tasks = ManyToManyField('self', symmetrical=False,
-#                                   blank=True, null=True,
-                                   related_name='children_set', editable=False, #TODO; rename children ?
+                                   related_name='children_set', editable=False,  # TODO: rename children ?
                                   )
     start        = DateTimeField(_(u'Start'), blank=True, null=True)
     end          = DateTimeField(_(u'End'), blank=True, null=True)
-    duration     = PositiveIntegerField(_(u'Duration (in hours)'), blank=True, null=True) #TODO: null=False (required in form) (idem with start/end)
+    duration     = PositiveIntegerField(_(u'Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
     description  = TextField(_(u'Description'), blank=True, null=True)
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
 
@@ -78,14 +54,12 @@ class AbstractProjectTask(CremeEntity):
 
     effective_duration = None
     resources          = None
-#    working_periods    = None
     parents            = None
 
     def __unicode__(self):
         return self.title
 
     def get_absolute_url(self):
-#        return "/projects/task/%s" % self.id
         return reverse('projects__view_task', args=(self.id,))
 
     @staticmethod
@@ -93,7 +67,6 @@ class AbstractProjectTask(CremeEntity):
         return ''
 
     def get_edit_absolute_url(self):
-#        return "/projects/task/edit/%s" % self.id
         return reverse('projects__edit_task', args=(self.id,))
 
     def get_related_entity(self):
@@ -106,11 +79,6 @@ class AbstractProjectTask(CremeEntity):
         for relation in self.relations.filter(type=REL_OBJ_LINKED_2_PTASK):
             relation._delete_without_transaction()
 
-#    def delete(self):
-#        for resource in self.get_resources():
-#            resource.delete()
-#        super(ProjectTask, self).delete()
-
     @property
     def safe_duration(self):
         return self.duration or 0
@@ -121,12 +89,12 @@ class AbstractProjectTask(CremeEntity):
         return self.parents
 
     def get_subtasks(self): #TODO: store result in a cache ?
-        """Return all the subtasks in a list.
-        Subtasks include the task itself, all its children, the children of its children etc...
+        """Return all the sub-tasks in a list.
+        Sub-tasks include the task itself, all its children, the children of its children etc...
         """
         subtasks = level_tasks = [self]
 
-        #TODO: use prefetch_related() ??
+        # TODO: use prefetch_related() ??
         while level_tasks:
             level_tasks = list(chain.from_iterable(task.children_set.all() for task in level_tasks))
             subtasks.extend(level_tasks)
@@ -135,14 +103,9 @@ class AbstractProjectTask(CremeEntity):
 
     def get_resources(self):
         if self.resources is None:
-#            self.resources = self.resources_set.all()
             self.resources = self.resources_set.select_related('linked_contact')
         return self.resources
 
-#    def get_working_periods(self):
-#        if self.working_periods is None:
-#            self.working_periods = self.tasks_set.all()
-#        return self.working_periods
     @property
     def related_activities(self):
         activities = [r.object_entity.get_real_entity()
@@ -164,16 +127,12 @@ class AbstractProjectTask(CremeEntity):
         return activities
 
     def get_task_cost(self):
-#        return sum(period.duration * (period.resource.hourly_cost or 0)
-#                        for period in self.get_working_periods()
-#                  )
         return sum((activity.duration or 0) * activity.projects_resource.hourly_cost
                         for activity in self.related_activities
                   )
 
     def get_effective_duration(self, format='h'):
         if self.effective_duration is None:
-#            self.effective_duration = sum(period.duration for period in self.get_working_periods())
             self.effective_duration = sum(activity.duration or 0 for activity in self.related_activities)
 
         if format == '%':
@@ -189,18 +148,12 @@ class AbstractProjectTask(CremeEntity):
     def is_alive(self):
         return self.tstatus_id not in (COMPLETED_PK, CANCELED_PK)
 
-    def _clone_m2m(self, source):#Handled manually in clone_scope
+    def _clone_m2m(self, source):  # Handled manually in clone_scope
         pass
-
-#    def _pre_save_clone(self, source):#Busy hasn't the same semantic here
-#        pass
 
     def _post_save_clone(self, source):
         for resource in source.get_resources():
             resource.clone_for_task(self)
-
-#        for working_period in source.get_working_periods():
-#            working_period.clone(self)
 
     @staticmethod
     def clone_scope(tasks, project):
@@ -216,7 +169,7 @@ class AbstractProjectTask(CremeEntity):
             new_task = task.clone()
             new_task.project = project
             new_task.save()
-            #new_task = task.clone(project) TODO
+            # new_task = task.clone(project) TODO
 
             context[task.id] = {'new_pk':     new_task.id, 
                                 'o_children': project_task_filter(parent_tasks=task.id)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,15 +21,14 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.models import Relation #CremeEntity
+from creme.creme_core.models import Relation
 from creme.creme_core.gui.block import SimpleBlock, PaginatedBlock, QuerysetBlock
 
 from creme.activities import get_activity_model
-#from creme.activities.models import Activity
 
 from . import get_project_model, get_task_model
 from .constants import REL_OBJ_LINKED_2_PTASK
-from .models import Resource #, WorkingPeriod, Project, ProjectTask
+from .models import Resource
 
 
 Activity = get_activity_model()
@@ -48,7 +47,6 @@ class ProjectExtraInfo(SimpleBlock):
 
 class TaskExtraInfo(SimpleBlock):
     id_           = SimpleBlock.generate_id('projects', 'task_extra_info')
-#    dependencies  = (WorkingPeriod,)
     dependencies  = (Activity,)
     verbose_name  = _(u'Extra project task information')
     template_name = 'projects/templatetags/block_task_extra_info.html'
@@ -93,7 +91,6 @@ class ProjectTasksBlock(QuerysetBlock):
 
 class TaskResourcesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'resources')
-#    dependencies  = (Resource, WorkingPeriod) #NB: deleting a Resource -> delete all related WorkingPeriods
     dependencies  = (Resource,)
     verbose_name  = _(u'Resources assigned to a task')
     template_name = 'projects/templatetags/block_resources.html'
@@ -109,12 +106,7 @@ class TaskResourcesBlock(QuerysetBlock):
                            ))
 
 
-#class TaskWorkingPeriodsBlock(QuerysetBlock):
 class TaskActivitiesBlock(PaginatedBlock):
-#    id_           = QuerysetBlock.generate_id('projects', 'working_periods')
-#    dependencies  = (WorkingPeriod,)
-#    verbose_name  = _(u'Working periods for this task')
-#    template_name = 'projects/templatetags/block_working_periods.html'
     id_           = QuerysetBlock.generate_id('projects', 'task_activities')
     dependencies  = (Activity, Resource, Relation)
     relation_type_deps = (REL_OBJ_LINKED_2_PTASK, )
@@ -126,26 +118,23 @@ class TaskActivitiesBlock(PaginatedBlock):
         task = context['object']
         return self._render(self.get_block_template_context(
                                 context,
-#                                task.get_working_periods(),
                                 task.related_activities,
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
                            ))
 
 
-project_extra_info        = ProjectExtraInfo()
-task_extra_info           = TaskExtraInfo()
-project_tasks_block       = ProjectTasksBlock()
-task_resources_block      = TaskResourcesBlock()
-#task_workingperiods_block = TaskWorkingPeriodsBlock()
-task_activities_block     = TaskActivitiesBlock()
-parent_tasks_block        = ParentTasksBlock()
+project_extra_info      = ProjectExtraInfo()
+task_extra_info         = TaskExtraInfo()
+project_tasks_block     = ProjectTasksBlock()
+task_resources_block    = TaskResourcesBlock()
+task_activities_block   = TaskActivitiesBlock()
+parent_tasks_block      = ParentTasksBlock()
 
 block_list = (
         project_extra_info,
         task_extra_info,
         project_tasks_block,
         task_resources_block,
-#        task_workingperiods_block,
         task_activities_block,
         parent_tasks_block,
     )
