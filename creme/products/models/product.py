@@ -19,20 +19,17 @@
 ################################################################################
 
 from django.core.urlresolvers import reverse
-from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, ManyToManyField, PROTECT
+from django.db.models import (CharField, IntegerField, DecimalField, ForeignKey,
+        ManyToManyField, PROTECT)
 from django.utils.translation import ugettext_lazy as _
-#from django.utils.html import escape
-#from django.utils.safestring import mark_safe
 
 from creme.creme_core.models import CremeEntity
-#from creme.creme_core.gui.field_printers import print_many2many
 
 from creme.media_managers.models import Image
 
 from .other_models import Category, SubCategory
 
 
-#class Product(CremeEntity):
 class AbstractProduct(CremeEntity):
     name              = CharField(_(u'Name'), max_length=100)
     code              = IntegerField(_(u'Code'), default=0)
@@ -53,7 +50,7 @@ class AbstractProduct(CremeEntity):
     sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
                                    on_delete=PROTECT,
                                   )
-    images            = ManyToManyField(Image, blank=True, # null=True,
+    images            = ManyToManyField(Image, blank=True,
                                         verbose_name=_(u'Images'),
                                         related_name='ProductImages_set',
                                        )
@@ -71,7 +68,6 @@ class AbstractProduct(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return "/products/product/%s" % self.id
         return reverse('products__view_product', args=(self.id,))
 
     @staticmethod
@@ -79,25 +75,11 @@ class AbstractProduct(CremeEntity):
         return reverse('products__create_product')
 
     def get_edit_absolute_url(self):
-#        return "/products/product/edit/%s" % self.id
         return reverse('products__edit_product', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/products/products"
         return reverse('products__list_products')
-
-# Hum the images list could be annoying if huge (it is used in selection widget;
-# eg: Relationships creation) ; so we disable the summary.
-# TODO: brainstorm about the several kinds of summaries we need.
-#    def get_entity_summary(self, user):
-#        if not user.has_perm_to_view(self):
-#            return self.allowed_unicode(user)
-#
-#        summary = "%s<br />" % escape(self.name)
-#        summary += print_many2many(self, self.images, user, None) #todo: use a carroussel ?
-#
-#        return mark_safe(summary)
 
 
 class Product(AbstractProduct):

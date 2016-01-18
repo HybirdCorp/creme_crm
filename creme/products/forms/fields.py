@@ -47,7 +47,7 @@ class CategorySelector(ChainedInput):
 
 
 class CategoryField(JSONField):
-    widget = CategorySelector # need 'categories' "attribute"
+    widget = CategorySelector  # need 'categories' "attribute"
     default_error_messages = {
         'doesnotexist':          _(u"This category doesn't exist."),
         'categorynotallowed':    _(u"This category causes constraint error."),
@@ -55,26 +55,19 @@ class CategoryField(JSONField):
     }
     value_type = dict
 
-#    def __init__(self, categories=None, *args, **kwargs):
     def __init__(self, categories=Category.objects.all(), *args, **kwargs):
         super(CategoryField, self).__init__(*args, **kwargs)
         self.categories = categories
 
     def __deepcopy__(self, memo):
         result = super(CategoryField, self).__deepcopy__(memo)
-#        result._build_widget() #refresh the list of categories
 
         # Need to force a new ChoiceModelIterator to be created.
         result.categories = result.categories
 
         return result
 
-#    def _create_widget(self):
-#        return CategorySelector(self._get_categories_options(self._get_categories_objects()),
-#                                attrs={'reset': False, 'direction': ChainedInput.VERTICAL},
-#                               )
-
-    def widget_attrs(self, widget): # See Field.widget_attrs()
+    def widget_attrs(self, widget):  # See Field.widget_attrs()
         return {'reset': False, 'direction': ChainedInput.VERTICAL}
 
     def _clean_subcategory(self, category_pk, subcategory_pk):
@@ -93,14 +86,7 @@ class CategoryField(JSONField):
         return subcategory
 
     def _clean_category(self, category_pk):
-        # check category in allowed ones
-#        for category in self._get_categories_objects():
-#            if category.pk == category_pk:
-#                return category
-#
-#        raise ValidationError(self.error_messages['categorynotallowed'],
-#                              code='categorynotallowed',
-#                             )
+        # Check category in allowed ones
         try:
             category = self._categories.get(id=category_pk)
         except Category.DoesNotExist:
@@ -110,22 +96,12 @@ class CategoryField(JSONField):
 
         return category
 
-#    def _get_categories_options(self, categories):
-#        return ((category.pk, unicode(category)) for category in categories)
-#
-#    def _get_categories_objects(self):
-#        ids = self._categories
-#        return Category.objects.filter(id__in=ids) if ids else Category.objects.all()
-
     @property
     def categories(self):
         return self._categories
 
     @categories.setter
     def categories(self, categories):
-#        self._categories = categories or []
-#        self._build_widget()
-
         if not isinstance(categories, QuerySet):
             categories = Category.objects.filter(id__in=list(categories))
 

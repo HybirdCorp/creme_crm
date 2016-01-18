@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
@@ -32,7 +31,6 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from . import get_product_model, get_service_model
 from .blocks import images_block
 from .constants import DEFAULT_HFILTER_PRODUCT, DEFAULT_HFILTER_SERVICE
-#from .models import Product, Service, Category, SubCategory
 from .models import Category, SubCategory
 
 
@@ -73,7 +71,7 @@ class Populator(BasePopulator):
         create_searchconf(Service, ['name', 'description', 'category__name', 'sub_category__name'])
 
 
-        if not Category.objects.exists(): # NB: no straightforward way to test that this populate script has not been already runned
+        if not Category.objects.exists():  # NB: no straightforward way to test that this populate script has not been already run
             create_cat = Category.objects.create
             create_subcat = SubCategory.objects.create
 
@@ -120,7 +118,7 @@ class Populator(BasePopulator):
             create_subcat(name=_(u"Baybies"), category=clothes)
 
 
-        if not BlockDetailviewLocation.config_exists(Product): # NB: no straightforward way to test that this populate script has not been already runned
+        if not BlockDetailviewLocation.config_exists(Product):  # NB: no straightforward way to test that this populate script has not been already run
             create_bdl = BlockDetailviewLocation.create
 
             for model in (Product, Service):
