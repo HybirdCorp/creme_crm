@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import timedelta #datetime
+    from datetime import timedelta, date
     from functools import partial
     from json import loads as jsonloads, dumps as jsondumps
 
@@ -16,8 +16,9 @@ try:
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity
     from .. import get_activity_model
-    from ..models import Calendar  # Activity
+    from ..models import Calendar
     from ..constants import *
+    from ..utils import get_last_day_of_a_month
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -59,7 +60,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         with self.assertNumQueries(3):
             def_cal = Calendar.get_user_default_calendar(user)
 
-        #self.assertEqual(_(u"Default %(user)s's calendar") % {'user': user},
         self.assertEqual(_(u"%s's calendar") % user,
                          def_cal.name,
                         )
@@ -79,13 +79,13 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(cal1, def_cal)
 
     def test_user_default_calendar03(self):
-        "Several default exist"
+        "There are several default calendars"
         user = self.login()
         cal1 = Calendar.objects.create(is_default=True, user=user, name='Cal#1')
         cal2 = Calendar.objects.create(user=user, name='Cal#2')
         Calendar.objects.filter(id=cal2.id).update(is_default=True)
 
-        #be sure that we well managed the automatic save() behaviour
+        # Be sure that we well managed the automatic save() behaviour
         self.assertEqual(2, Calendar.objects.filter(is_default=True, user=user).count())
 
         self.assertEqual(cal1, Calendar.get_user_default_calendar(user))
@@ -165,7 +165,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal3 = create_cal(user=other_user, name='Cal #3', is_public=False)
 
         create_act = partial(Activity.objects.create, user=user,
-                             type_id=ACTIVITYTYPE_TASK, floating_type=FLOATING
+                             type_id=ACTIVITYTYPE_TASK, floating_type=FLOATING,
                             )
         act1 = create_act(title='Act#1')
         act2 = create_act(title='Act#2', type_id=ACTIVITYTYPE_MEETING,
@@ -475,7 +475,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'calendar_color': '#%s' % cal.color,
                           'url':            build_popup_url(act3),
                           'editable':       True,
-                          'type':          _('Meeting'),
+                          'type':           _('Meeting'),
                          },
                          data[0]
                         )
@@ -536,7 +536,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create_ind = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
         act6 = create_ind(title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6))
-        act7 = create_ind(title='Ind#2', start=start + timedelta(days=7), end=start + timedelta(days=8)) #not linked
+        act7 = create_ind(title='Ind#2', start=start + timedelta(days=7), end=start + timedelta(days=8))  # Not linked
         act8 = create_ind(title='Ind#3', start=start + timedelta(days=9), end=start + timedelta(days=10))
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
@@ -756,3 +756,32 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(self.refresh(cal12).is_default)
         self.assertFalse(self.refresh(cal21).is_default)
         self.assertFalse(self.refresh(cal22).is_default)
+
+    def test_get_last_day_of_a_month(self):
+        self.assertEqual(date(year=2016, month=1, day=31),
+                         get_last_day_of_a_month(date(year=2016, month=1, day=1))
+                        )
+        self.assertEqual(date(year=2016, month=1, day=31),
+                         get_last_day_of_a_month(date(year=2016, month=1, day=18))
+                        )
+
+        # Other 31 days
+        self.assertEqual(date(year=2016, month=3, day=31),
+                         get_last_day_of_a_month(date(year=2016, month=3, day=17))
+                        )
+
+        # 30 days
+        self.assertEqual(date(year=2016, month=4, day=30),
+                         get_last_day_of_a_month(date(year=2016, month=4, day=17))
+                        )
+        self.assertEqual(date(year=2016, month=4, day=30),
+                         get_last_day_of_a_month(date(year=2016, month=4, day=30))
+                        )
+
+        # February
+        self.assertEqual(date(year=2016, month=2, day=29),
+                         get_last_day_of_a_month(date(year=2016, month=2, day=17))
+                        )
+        self.assertEqual(date(year=2015, month=2, day=28),
+                         get_last_day_of_a_month(date(year=2015, month=2, day=17))
+                        )
