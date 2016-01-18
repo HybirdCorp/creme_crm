@@ -86,7 +86,7 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
 
     blocks = FieldBlockManager(
         ('general',     _(u'Products choice'), ['items']),
-        ('additionnal', _(u'Optional global informations applied to your selected products'), ['quantity', 'vat', 'discount_value'])
+        ('additionnal', _(u'Optional global information applied to your selected products'), ['quantity', 'vat', 'discount_value'])
     )
 
     def _get_line_class(self):
@@ -98,7 +98,7 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 
     blocks = FieldBlockManager(
         ('general',     _(u'Services choice'), ['items']),
-        ('additionnal', _(u'Optional global informations applied to your selected services'), ['quantity', 'vat', 'discount_value'])
+        ('additionnal', _(u'Optional global information applied to your selected services'), ['quantity', 'vat', 'discount_value'])
     )
 
     def _get_line_class(self):
