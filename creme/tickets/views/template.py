@@ -24,7 +24,6 @@ from creme.creme_core.views.generic import edit_entity, view_entity, list_view
 from .. import get_tickettemplate_model
 from ..constants import DEFAULT_HFILTER_TTEMPLATE
 from ..forms.template import TicketTemplateForm
-#from ..models import TicketTemplate
 
 
 TicketTemplate = get_tickettemplate_model()
@@ -37,9 +36,7 @@ def abstract_edit_ticket_template(request, template_id, form=TicketTemplateForm)
 def abstract_view_ticket_template(request, template_id,
                                   template='tickets/view_template.html',
                                  ):
-    return view_entity(request, template_id, TicketTemplate, template=template,
-                       # '/tickets/template',
-                      )
+    return view_entity(request, template_id, TicketTemplate, template=template)
 
 
 @login_required

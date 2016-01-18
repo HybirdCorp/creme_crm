@@ -38,11 +38,12 @@ BASE_STATUS = ((OPEN_PK,        pgettext_lazy('tickets-status', u'Open')),
                (WONTFIX_PK,     _("Won't fix")),
               )
 
+
 class Status(CremeModel):
     "Status of a ticket: open, closed, invalid..."
     name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
     is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
-    order     = BasicAutoField(_('Order')) #used by creme_config
+    order     = BasicAutoField(_('Order'))  # Used by creme_config
 
     def __unicode__(self):
         return self.name
