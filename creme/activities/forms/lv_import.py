@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,20 +27,19 @@ import logging
 from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
 from django.forms import Field, BooleanField, ModelChoiceField, ModelMultipleChoiceField
-#from django.forms.utils import flatatt
-from django.forms.utils import ValidationError #ErrorList
+from django.forms.utils import ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, ExtractorWidget #Extractor
+from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, ExtractorWidget
 from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
 
 from creme.persons import get_contact_model, get_organisation_model
-from creme.persons.models import Civility #Contact, Organisation, 
+from creme.persons.models import Civility
 
 from ..constants import (ACTIVITYTYPE_INDISPO, NARROW, FLOATING, FLOATING_TIME,
         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT)
@@ -55,7 +54,7 @@ Organisation = get_organisation_model()
 MODE_MULTICOLUMNS   = 1
 MODE_SPLITTEDCOLUMN = 2
 
-# Maximum of CremeEntities that can be retrieved in _one_  search for Participants/Subjects
+# Maximum of CremeEntities that can be retrieved in _one_ search for Participants/Subjects
 # (more means that there is a big problem with the file, & no CremeEntity is created)
 MAX_RELATIONSHIPS = 5
 
@@ -86,7 +85,7 @@ class RelatedExtractor(object):
         if first_name:
             query_dict['first_name__iexact'] = first_name
 
-        #TODO: filter with link credentials too (because here we limit _before_ filtering unlinkable...)
+        # TODO: filter with link credentials too (because here we limit _before_ filtering unlinkable...)
         contacts = EntityCredentials.filter(user,
                                             Contact.objects.filter(**query_dict),
                                            )[:MAX_RELATIONSHIPS + 1]
@@ -137,9 +136,10 @@ def _contact_pattern(verbose_name):
 
     return _aux
 
-#NB: 'C' means Civility
-#    'F' means First name
-#    'L' means Last name
+
+# NB: 'C' means Civility
+#     'F' means First name
+#     'L' means Last name
 @_contact_pattern(ugettext_lazy('Civility FirstName LastName'))
 def _pattern_CFL(contact_as_str):
     names     = contact_as_str.split(None, 2)
@@ -153,6 +153,7 @@ def _pattern_CFL(contact_as_str):
         civ = first_name = None
 
     return civ, first_name, last_name
+
 
 @_contact_pattern(ugettext_lazy('Civility LastName FirstName'))
 def _pattern_CLF(contact_as_str):
@@ -174,6 +175,7 @@ def _pattern_CLF(contact_as_str):
 
     return civ, first_name, last_name
 
+
 @_contact_pattern(ugettext_lazy('FirstName LastName'))
 def _pattern_FL(contact_as_str):
     names      = contact_as_str.split(None, 1)
@@ -181,6 +183,7 @@ def _pattern_FL(contact_as_str):
     first_name = names[0] if len(names) > 1 else None
 
     return None, first_name, last_name
+
 
 @_contact_pattern(ugettext_lazy('LastName FirstName'))
 def _pattern_LF(contact_as_str):
@@ -210,7 +213,7 @@ class MultiColumnsParticipantsExtractor(RelatedExtractor):
         last_name = line[self._last_name_index]
         first_name_index = self._first_name_index
 
-        if first_name_index is not None: #None -> not in csv
+        if first_name_index is not None:  # None -> not in CSV
             first_name = line[first_name_index]
 
         return self._search_n_create_contacts(user, None, first_name, last_name)
@@ -243,7 +246,7 @@ class ParticipantsExtractorWidget(ExtractorWidget):
     def render(self, name, value, attrs=None, choices=()):
         get = (value or {}).get
 
-        #TODO: factorise
+        # TODO: factorise
         firstname_id = '%s_first_name_colselect' % name
         lastname_id = '%s_last_name_colselect' % name
         colselect_id = '%s_colselect' % name
@@ -365,7 +368,7 @@ class ParticipantsExtractorField(Field):
 
         return index
 
-    def _clean_mode(self, value): #TODO: factorise
+    def _clean_mode(self, value):  # TODO: factorise
         try:
             mode = int(value['mode'])
         except TypeError:
@@ -377,7 +380,7 @@ class ParticipantsExtractorField(Field):
         if self.required:
             raise ValidationError(self.error_messages['required'])
 
-        return RelatedExtractor() #Empty extractor
+        return RelatedExtractor()  # Empty extractor
 
     def clean(self, value):
         mode = self._clean_mode(value)
@@ -398,7 +401,7 @@ class ParticipantsExtractorField(Field):
         elif mode == MODE_SPLITTEDCOLUMN:
             index = clean_index('column_index')
 
-            if not index: #TODO test
+            if not index:  # TODO test
                 return self._manage_empty()
 
             pattern_func = _PATTERNS.get(value['pattern_id'])
@@ -434,14 +437,14 @@ class SubjectsExtractor(RelatedExtractor):
             if not search:
                 continue
 
-            #TODO: it seems this line does not work ; but it would be cool to make less queries...
+            # TODO: it seems this line does not work ; but it would be cool to make less queries...
             #... EntityCredentials.filter(user, CremeEntity.objects.filter(header_filter_search_field__icontains=search))
 
             has_perm = user.has_perm_to_link
             unlinkable_found = False
 
             for model in self._models:
-                #TODO: filter with link credentials too (because here we limit _before_ filtering unlinkable...)
+                # TODO: filter with link credentials too (because here we limit _before_ filtering unlinkable...)
                 instances = EntityCredentials.filter(user,
                                                      model.objects.filter(header_filter_search_field__icontains=search),
                                                     )[:MAX_RELATIONSHIPS + 1]
@@ -485,7 +488,7 @@ class SubjectsExtractorWidget(ExtractorWidget):
     def render(self, name, value, attrs=None, choices=()):
         get = (value or {}).get
 
-        #TODO: help_text that indicates what CTypes are used ?
+        # TODO: help_text that indicates what CTypes are used ?
         return mark_safe(
 """%(colselect)s
 <label for="%(separator_id)s">
@@ -537,7 +540,7 @@ class SubjectsExtractorField(Field):
         self._user = user
         self.widget.propose_creation = self._can_create = user.has_perm_to_create(Organisation) 
 
-    #TODO: factorise (in ExtractorField) (need _allowed_indexes)
+    # TODO: factorise (in ExtractorField) (need _allowed_indexes)
     def _clean_index(self, value, key):
         try:
             index = int(value[key])
@@ -556,7 +559,7 @@ class SubjectsExtractorField(Field):
             if self.required:
                 raise ValidationError(self.error_messages['required'])
 
-            return RelatedExtractor() #Empty extractor
+            return RelatedExtractor()  # Empty extractor
 
         return SubjectsExtractor(index, value['separator'],
                                  value['create'] and self._can_create
@@ -611,17 +614,7 @@ def get_csv_form_builder(header_dict, choices):
             self.user_participants = []
 
         def clean_my_participation(self):
-            my_participation = self.cleaned_data.get('my_participation', False)
-
-            #if my_participation:
-                #user = self.user
-
-                #try:
-                    #Contact.objects.get(is_user=user)
-                #except Contact.DoesNotExist:
-                    #logger.warn('No Contact linked to this user: %s', user)
-
-            return my_participation
+            return  self.cleaned_data.get('my_participation', False)
 
         def clean_participating_users(self):
             users = self.cleaned_data['participating_users']
@@ -635,7 +628,6 @@ def get_csv_form_builder(header_dict, choices):
 
             if not self._errors:
                 if cdata['my_participation'] and not cdata.get('my_calendar'):
-                    #self.errors['my_calendar'] = ErrorList([_(u'If you participate, you have to choose one of your calendars.')])
                     self.add_error('my_calendar', ugettext_lazy(u'If you participate, you have to choose one of your calendars.'))
 
             return cdata
@@ -665,9 +657,8 @@ def get_csv_form_builder(header_dict, choices):
             user = instance.user
             participant_ids = set()
 
-            #if cdata['key_fields']: # update mode
             if updated:
-                #TODO: improve get_participant_relations() (not retrieve real entities)
+                # TODO: improve get_participant_relations() (not retrieve real entities)
                 participant_ids.update(Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY,
                                                                object_entity=instance.id,
                                                               )
@@ -680,24 +671,36 @@ def get_csv_form_builder(header_dict, choices):
             else:
                 create_sub_rel = partial(Relation.objects.create, object_entity=instance,
                                          type_id=REL_SUB_ACTIVITY_SUBJECT, user=user,
-                                        ) 
+                                        )
 
             def add_participant(participant):
-                if not participant.id in participant_ids:
+                if participant.id not in participant_ids:
                     Relation.objects.create(subject_entity=participant,
                                             type_id=REL_SUB_PART_2_ACTIVITY,
                                             object_entity=instance, user=user,
                                            )
                     participant_ids.add(participant.id)
 
+            # We could create a cache in self (or even put a cache-per-request in Calendar.get_user_default_calendar()
+            # but the import can take a long time, & the default Calendar could change => TODO: use a time based cache ?
+            default_calendars_cache = {}
+
+            def add_to_default_calendar(part_user):
+                calendar = default_calendars_cache.get(part_user.id)
+
+                if calendar is None:
+                    default_calendars_cache[part_user.id] = calendar = \
+                        Calendar.get_user_default_calendar(part_user)
+
+                instance.calendars.add(calendar)
+
             if cdata['my_participation']:
-                #add_participant(Contact.objects.get(is_user=instance.user))
                 add_participant(user.linked_contact)
                 instance.calendars.add(cdata['my_calendar'])
 
             for participant in self.user_participants:
                 add_participant(participant)
-                instance.calendars.add(Calendar.get_user_default_calendar(participant.is_user)) #TODO: Calendar cache ?
+                add_to_default_calendar(participant.is_user)
 
             dyn_participants, err_messages = cdata['participants'].extract_value(line, self.user)
 
@@ -707,8 +710,9 @@ def get_csv_form_builder(header_dict, choices):
             for participant in dyn_participants:
                 add_participant(participant)
 
-                if participant.is_user:
-                    instance.calendars.add(Calendar.get_user_default_calendar(participant.is_user))
+                part_user = participant.is_user
+                if part_user is not None:
+                    instance.calendars.add(Calendar.get_user_default_calendar(part_user))
 
             subjects, err_messages = cdata['subjects'].extract_value(line, self.user)
 
