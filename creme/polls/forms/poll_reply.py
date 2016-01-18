@@ -33,12 +33,14 @@ from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.validators import validate_editable_entities, validate_linkable_entity
 from creme.creme_core.forms.widgets import Label
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
 
 from .. import get_pollcampaign_model, get_pollform_model, get_pollreply_model
 #from ..models import PollForm, PollReply, PollCampaign
 
 
+Contact      = get_contact_model()
+Organisation = get_organisation_model()
 PollCampaign = get_pollcampaign_model()
 PollReply    = get_pollreply_model()
 
