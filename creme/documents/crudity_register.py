@@ -19,13 +19,11 @@
 ################################################################################
 
 from . import get_document_model
-#from creme.documents.models.document import Document
 
 from creme.crudity.backends.models import CrudityBackend
 
 
 class DocumentBackend(CrudityBackend):
-#    model = Document
     model = get_document_model()
 
 

@@ -26,7 +26,7 @@ from creme.creme_core.models import CremeModel
 
 class FolderCategory(CremeModel):
     name      = CharField(_(u'Category name'), max_length=100, unique=True)
-    is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+    is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
         return self.name

@@ -26,7 +26,6 @@ from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.fields import CreatorEntityField
 
 from .. import get_folder_model
-#from ..models import Folder
 
 
 Folder = get_folder_model()
@@ -60,19 +59,6 @@ class FolderForm(_FolderForm):
         if pk:
             # TODO: remove direct children too ??
             self.fields['parent_folder'].q_filter = {'~id__in': [pk]}
-
-#    def clean_category(self):
-#        cleaned_data = self.cleaned_data
-#        #parent_folder_data = cleaned_data['parent_folder']
-#        parent_folder_data = cleaned_data.get('parent_folder')
-#        category_data      = cleaned_data['category']
-#
-#        if parent_folder_data is not None and parent_folder_data.category != category_data:
-#            raise ValidationError(ugettext(u"Folder's category must be the same than its parent's one: %s") %
-#                                    parent_folder_data.category
-#                                 )
-#
-#        return category_data
 
     def clean_parent_folder(self):
         parent_folder = self.cleaned_data['parent_folder']
@@ -132,9 +118,10 @@ def get_merge_form_builder():
     from creme.creme_core.forms.merge import MergeEntitiesBaseForm
 
     class FolderMergeForm(MergeEntitiesBaseForm):
-        # TODO: uncomment & remove the code in init which eclude the field ? (MergeEntitiesBaseForm has to be a ModelForm...)
-        #class Meta(MergeEntitiesBaseForm.Meta):
-            #exclude = ('parent_folder',)
+        # TODO: uncomment & remove the code in init which eclude the field ?
+        #      (MergeEntitiesBaseForm has to be a ModelForm...)
+        # class Meta(MergeEntitiesBaseForm.Meta):
+        #     exclude = ('parent_folder',)
 
         def __init__(self, entity1, entity2, *args, **kwargs):
             if entity2.already_in_children(entity1.id):

@@ -27,7 +27,6 @@ from creme.creme_core.views.quick_forms import json_quickform_response
 
 from .. import get_document_model
 from ..forms.quick import CSVDocumentWidgetQuickForm
-#from ..models import Document
 
 
 Document = get_document_model()

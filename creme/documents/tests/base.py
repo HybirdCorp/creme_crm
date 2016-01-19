@@ -1,26 +1,21 @@
 # -*- coding: utf-8 -*-
 
-# from os import remove as delete_file, listdir, makedirs
-from os.path import basename  # join, exists
+from os.path import basename
 from tempfile import NamedTemporaryFile
 from unittest import skipIf
 
-# from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from creme.creme_core.tests.base import CremeTestCase
 
-# from ..models import Folder, Document
-
 try:
-    from .. import (document_model_is_custom, folder_model_is_custom,
-            get_document_model, get_folder_model)
+    from creme import documents
 
-    skip_document_tests = document_model_is_custom()
-    skip_folder_tests   = folder_model_is_custom()
+    skip_document_tests = documents.document_model_is_custom()
+    skip_folder_tests   = documents.folder_model_is_custom()
 
-    Document = get_document_model()
-    Folder = get_folder_model()
+    Document = documents.get_document_model()
+    Folder = documents.get_folder_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -36,31 +31,13 @@ def skipIfCustomFolder(test_func):
 
 
 class _DocumentsTestCase(CremeTestCase):
-    clean_files_in_teardown = True # see CremeTestCase
-    #ADD_DOC_URL = '/documents/document/add'
+    clean_files_in_teardown = True  # see CremeTestCase
 
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'documents')
-
-#        cls.dir_path = dir_path = join(settings.MEDIA_ROOT, 'upload', 'documents')
-#
-#        if exists(dir_path):
-#            cls.existing_files = set(listdir(dir_path))
-#        else:
-#            makedirs(dir_path, 0755)
-#            cls.existing_files = set()
-
         cls.ADD_DOC_URL = reverse('documents__create_document')
-
-#    def tearDown(self):
-#        dir_path = self.dir_path
-#        existing_files = self.existing_files
-#
-#        for filename in listdir(dir_path):
-#            if filename not in existing_files:
-#                delete_file(join(dir_path, filename))
 
     def _build_filedata(self, content_str, suffix='.txt'):
         tmpfile = NamedTemporaryFile(suffix=suffix, delete=False)
@@ -89,5 +66,4 @@ class _DocumentsTestCase(CremeTestCase):
         response = self.client.post(self.ADD_DOC_URL, follow=True, data=data)
         self.assertNoFormError(response)
 
-#        return response
         return self.get_object_or_fail(Document, title=title)

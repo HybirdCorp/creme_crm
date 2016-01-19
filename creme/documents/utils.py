@@ -21,24 +21,9 @@
 from django.utils.translation import ugettext as _
 
 from . import get_folder_model
-#from .models import Folder
 
 
 def get_csv_folder_or_create(user):
-#    title = _(u'CSV Documents')
-#
-#    #todo: get_or_create + defaults
-#    try:
-#        folder = Folder.objects.get(title=title)
-#    except Folder.DoesNotExist:
-#        folder = Folder.objects.create(title=title,
-#                                       description=_(u'Folder containing all the CSV documents used when importing data'),
-#                                       parent_folder=None,
-#                                       category=None,
-#                                       user=user,
-#                                      )
-#
-#    return folder
     return get_folder_model().objects.get_or_create(
                 title=_(u'CSV Documents'),
                 defaults={'description':   _(u'Folder containing all the CSV documents used when importing data'),

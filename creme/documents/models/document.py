@@ -26,15 +26,12 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import CremeEntity, Relation
 
 from ..constants import REL_SUB_RELATED_2_DOC
-#from .folder import Folder
 
 
-#class Document(CremeEntity):
 class AbstractDocument(CremeEntity):
     title       = CharField(_(u'Title'), max_length=100)
     description = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-#    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), on_delete=PROTECT)
     folder      = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
                              verbose_name=_(u'Folder'), on_delete=PROTECT,
                             )
@@ -52,7 +49,6 @@ class AbstractDocument(CremeEntity):
         return u'%s - %s' % (self.folder, self.title)
 
     def get_absolute_url(self):
-#        return "/documents/document/%s" % self.id
         return reverse('documents__view_document', args=(self.id,))
 
     @staticmethod
@@ -60,12 +56,10 @@ class AbstractDocument(CremeEntity):
         return reverse('documents__create_document')
 
     def get_edit_absolute_url(self):
-#        return "/documents/document/edit/%s" % self.id
         return reverse('documents__edit_document', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/documents/documents"
         return reverse('documents__list_documents')
 
     @staticmethod

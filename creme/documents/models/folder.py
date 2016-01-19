@@ -19,7 +19,6 @@
 ################################################################################
 
 from random import randint
-#import re
 
 from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, SET_NULL
@@ -34,15 +33,14 @@ from .other_models import FolderCategory
 
 MAXINT = 100000
 
-#class Folder(CremeEntity):
+
 class AbstractFolder(CremeEntity):
     """Folder: contains Documents"""
-#    title         = CharField(_(u'Title'), max_length=100, unique=True)
     title         = CharField(_(u'Title'), max_length=100)
     description   = TextField(_(u'Description'), null=True, blank=True).set_tags(optional=True)
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
                                blank=True, null=True,
-                               related_name='parent_folder_set', #TODO: rename 'children'
+                               related_name='parent_folder_set',  # TODO: rename 'children'
                               )
     category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'),
                                blank=True, null=True, on_delete=SET_NULL,
@@ -64,7 +62,6 @@ class AbstractFolder(CremeEntity):
         return self.title
 
     def get_absolute_url(self):
-#        return "/documents/folder/%s" % self.id
         return reverse('documents__view_folder', args=(self.id,))
 
     @staticmethod
@@ -72,12 +69,10 @@ class AbstractFolder(CremeEntity):
         return reverse('documents__create_folder')
 
     def get_edit_absolute_url(self):
-#        return "/documents/folder/edit/%s" % self.id
         return reverse('documents__edit_folder', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/documents/folders"
         return reverse('documents__list_folders')
 
     def _pre_save_clone(self, source):
@@ -93,7 +88,6 @@ class AbstractFolder(CremeEntity):
             self._pre_save_clone(source)
 
     def get_actions(self, user):
-#        actions = super(Folder, self).get_actions(user)
         actions = super(AbstractFolder, self).get_actions(user)
 
         actions['others'].append(EntityAction('%s?parent_id=%s' % (self.get_lv_absolute_url(), self.id),
@@ -101,11 +95,11 @@ class AbstractFolder(CremeEntity):
                                               user.has_perm_to_view(self),
                                               icon="images/view_16.png",
                                              ),
-                                )#TODO: Ajaxify this
+                                )  # TODO: Ajaxify this
         return actions
 
     def already_in_children(self, other_folder_id):
-        #children = self.children.all() TODO
+        # children = self.children.all() TODO
         children = self.parent_folder_set.all()
 
         for child in children:

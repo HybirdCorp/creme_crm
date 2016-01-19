@@ -13,25 +13,19 @@ try:
     from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
 
-    #from creme.persons.models import Organisation
-
     from .base import (_DocumentsTestCase, skipIfCustomDocument,
             skipIfCustomFolder, Folder, Document)
-    from ..models import FolderCategory  # Folder Document
+    from ..models import FolderCategory
     from ..constants import REL_SUB_RELATED_2_DOC
     from ..utils import get_csv_folder_or_create
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-#__all__ = ('DocumentTestCase', 'DocumentQuickFormTestCase', 'CSVDocumentQuickWidgetTestCase')
-
-
 @skipIfCustomDocument
 @skipIfCustomFolder
 class DocumentTestCase(_DocumentsTestCase):
     def _buid_addrelated_url(self, entity):
-#        return '/documents/document/add_related/%s' % entity.id
         return reverse('documents__create_related_document', args=(entity.id,))
 
     def test_populate(self):
@@ -66,7 +60,6 @@ class DocumentTestCase(_DocumentsTestCase):
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
         file_obj, file_name = self._build_filedata(content, suffix='.%s' % ext)
         folder   = Folder.objects.all()[0]
-#        response = self._create_doc(title, file_obj, folder, description)
         response = self.client.post(self.ADD_DOC_URL, follow=True,
                                     data={'user':     self.user.pk,
                                           'title':    title,
@@ -85,7 +78,6 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(description, doc.description)
         self.assertEqual(folder,      doc.folder)
 
-#        self.assertRedirects(response, '/documents/document/%s' % doc.id)
         self.assertRedirects(response, doc.get_absolute_url())
 
         filedata = doc.filedata
@@ -93,7 +85,7 @@ class DocumentTestCase(_DocumentsTestCase):
         filedata.open()
         self.assertEqual([content], filedata.readlines())
 
-        #Download
+        # Download
         response = self.assertGET200('/download_file/%s' % doc.filedata)
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
@@ -101,7 +93,7 @@ class DocumentTestCase(_DocumentsTestCase):
                         )
 
     def test_createview02(self):
-        "Unallowed extension"
+        "Forbidden extension"
         self.login()
 
         ext = 'php'
@@ -109,14 +101,12 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'My doc'
         file_obj, file_name = self._build_filedata('Content', suffix='.%s' % ext)
-#        self._create_doc(title, file_obj)
-#        doc = self.get_object_or_fail(Document, title=title)
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
-        #Download
+        # Download
         response = self.assertGET200('/download_file/%s' % doc.filedata)
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
@@ -132,14 +122,12 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'My doc'
         file_obj, file_name = self._build_filedata('Content', suffix='.old.%s' % ext)
-#        self._create_doc(title, file_obj)
-#        doc = self.get_object_or_fail(Document, title=title)
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
-        #Download
+        # Download
         response = self.assertGET200('/download_file/%s' % doc.filedata)
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
@@ -152,14 +140,12 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'My doc'
         file_obj, file_name = self._build_filedata('Content', suffix='')
-#        self._create_doc(title, file_obj)
-#        doc = self.get_object_or_fail(Document, title=title)
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
-        #Download
+        # Download
         response = self.assertGET200('/download_file/%s' % doc.filedata)
         self.assertEqual('txt', response['Content-Type']) # 'text/plain' ??
         self.assertEqual('attachment; filename=%s.txt' % file_name,
@@ -176,17 +162,14 @@ class DocumentTestCase(_DocumentsTestCase):
         title       = 'Test doc'
         description = 'Test description'
         content     = 'Yes I am the content (DocumentTestCase.test_editview)'
-#        self._create_doc(title, self._build_filedata(content)[0], description=description)
-#        doc = self.get_object_or_fail(Document, title=title)
         doc = self._create_doc(title, self._build_filedata(content)[0], description=description)
 
-#        url = '/documents/document/edit/%s' % doc.id
         url = doc.get_edit_absolute_url()
         self.assertGET200(url)
 
         title       = title.upper()
         description = description.upper()
-        content     = content.upper()
+        # content     = content.upper() TODO: use ?
         folder      = Folder.objects.create(title=u'Test folder', parent_folder=None,
                                             category=FolderCategory.objects.all()[0],
                                             user=user,
@@ -253,7 +236,6 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_add_related_document02(self):
         "Creation credentials"
-#        self.login(is_superuser=False, allowed_apps=['documents', 'persons'])
         self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'])
 
         entity = CremeEntity.objects.create(user=self.user)
@@ -261,7 +243,6 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_add_related_document03(self):
         "Link credentials"
-#        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
         user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
                           creatable_models=[Document]
                          )
@@ -270,7 +251,7 @@ class DocumentTestCase(_DocumentsTestCase):
                             set_type=SetCredentials.ESET_OWN,
                            )
         create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK, #not EntityCredentials.LINK
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not EntityCredentials.LINK
                  )
 
         orga = Organisation.objects.create(user=user, name='NERV')
@@ -302,7 +283,6 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_add_related_document04(self):
         "View credentials"
-#        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
         user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
                           creatable_models=[Document],
                          )
@@ -311,11 +291,10 @@ class DocumentTestCase(_DocumentsTestCase):
                                       value=EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE |
                                             EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK, #not EntityCredentials.VIEW
+                                            EntityCredentials.UNLINK,  # Not EntityCredentials.VIEW
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        #entity = CremeEntity.objects.create(user=self.other_user)
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(user.has_perm_to_link(orga))
         self.assertFalse(user.has_perm_to_view(orga))
@@ -362,20 +341,20 @@ class DocumentTestCase(_DocumentsTestCase):
 
         creme_folder = self.get_object_or_fail(Folder, title='Creme')
 
-        #NB : collision with folders created by the view
+        # NB : collision with folders created by the view
         create_folder = partial(Folder.objects.create, user=user)
         my_ct_folder = create_folder(title=unicode(entity.entity_type))
         my_entity_folder = create_folder(title=u'%s_%s' % (entity.id, entity))
 
         title = 'Related doc'
         response = self.client.post(self._buid_addrelated_url(entity), follow=True,
-                                    data={'user':           user.pk,
-                                            'title':        title,
-                                            'description':  'Test description',
-                                            'filedata':     self._build_filedata('Yes I am the content '
-                                                                                 '(DocumentTestCase.test_add_related_document06)'
-                                                                                )[0],
-                                            }
+                                    data={'user':         user.pk,
+                                          'title':        title,
+                                          'description':  'Test description',
+                                          'filedata':     self._build_filedata('Yes I am the content '
+                                                                               '(DocumentTestCase.test_add_related_document06)'
+                                                                              )[0],
+                                         }
                                 )
         self.assertNoFormError(response)
 
@@ -383,7 +362,6 @@ class DocumentTestCase(_DocumentsTestCase):
 
         entity_folder = doc.folder
         self.assertEqual(my_entity_folder.title, entity_folder.title)
-#        self.assertEqual(my_entity_folder, entity_folder)
         self.assertNotEqual(my_entity_folder, entity_folder)
 
         ct_folder = entity_folder.parent_folder
@@ -396,18 +374,10 @@ class DocumentTestCase(_DocumentsTestCase):
     def test_listview(self):
         self.login()
 
-#        def create_doc(title):
-#            self._create_doc(title, description='Test description',
-#                             file_obj=self._build_filedata('%s : Content (DocumentTestCase.test_listview)' % title)[0],
-#                            )
-#
-#            return self.get_object_or_fail(Document, title=title)
         create_doc = self._create_doc
-
         doc1 = create_doc('Test doc #1')
         doc2 = create_doc('Test doc #2')
 
-#        response = self.assertGET200('/documents/documents')
         response = self.assertGET200(Document.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -429,14 +399,14 @@ class DocumentTestCase(_DocumentsTestCase):
         folder = self.get_object_or_fail(Folder, pk=folder.pk)
         self.assertIsNone(folder.category)
 
-    #TODO (block not yet injected in all apps)
-    #def test_orga_block(self):
-        #self.login()
-        #orga = Organisation.objects.create(user=self.user, name='NERV')
-        #response = self.assertGET200(orga.get_absolute_url())
-        #self.assertTemplateUsed(response, 'documents/templatetags/block_linked_docs.html')
+    # TODO: (block not yet injected in all apps)
+    # def test_orga_block(self):
+    #     self.login()
+    #     orga = Organisation.objects.create(user=self.user, name='NERV')
+    #     response = self.assertGET200(orga.get_absolute_url())
+    #     self.assertTemplateUsed(response, 'documents/templatetags/block_linked_docs.html')
 
-    #TODO complete
+    # TODO: complete
 
 
 @skipIfCustomDocument
@@ -495,7 +465,6 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
 
-#        url = '/documents/quickforms/from_widget/document/csv/add/%d' % 1
         url = reverse('documents__create_document_from_widget', args=(1,))
         self.assertGET200(url)
 

@@ -23,11 +23,10 @@ from json import dumps as json_dump
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import Relation #CremeEntity
+from creme.creme_core.models import Relation
 from creme.creme_core.gui.block import QuerysetBlock
 
 from . import get_document_model, get_folder_model
-#from .models import Folder, Document
 from .constants import REL_SUB_RELATED_2_DOC
 
 
@@ -49,7 +48,7 @@ class FolderDocsBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(
                         context,
                         Document.objects.filter(**q_dict),
-                        #Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
+                        # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder_id),
                         ct_id=_CT_DOC.id,
                         q_filter=json_dump(q_dict),

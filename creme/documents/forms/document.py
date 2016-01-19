@@ -32,7 +32,7 @@ from creme.creme_core.utils import ellipsis
 
 from .. import get_folder_model, get_document_model
 from ..constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
-from ..models import FolderCategory # Folder, Document
+from ..models import FolderCategory
 
 
 logger = logging.getLogger(__name__)
@@ -40,19 +40,23 @@ Folder   = get_folder_model()
 Document = get_document_model()
 
 # TODO: uncomment when form field for Folder is naturally CreatorEntityField
-#class DocumentCreateForm(CremeEntityForm):
+# class DocumentCreateForm(CremeEntityForm):
 #    class Meta(CremeEntityForm.Meta):
 #        model = Document
 #
 #    def clean_filedata(self):
 #        return str(handle_uploaded_file(self.cleaned_data['filedata'], path=['upload', 'documents']))
 
+
 class _DocumentBaseForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Document
 
     def clean_filedata(self):
-        return str(handle_uploaded_file(self.cleaned_data['filedata'], path=['upload', 'documents']))
+        return str(handle_uploaded_file(self.cleaned_data['filedata'],
+                                        path=['upload', 'documents'],
+                                       )
+                  )
 
 
 class DocumentCreateForm(_DocumentBaseForm):
@@ -70,7 +74,7 @@ class DocumentEditForm(CremeEntityForm):
 _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
 # TODO: see above
-#class RelatedDocumentCreateForm(DocumentCreateForm):
+# class RelatedDocumentCreateForm(DocumentCreateForm):
 #    class Meta(DocumentCreateForm.Meta):
 #        exclude = DocumentCreateForm.Meta.exclude + ('folder', )
 class RelatedDocumentCreateForm(_DocumentBaseForm):
@@ -89,9 +93,9 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         user   = self.cleaned_data['user']
         entity_folder = None
 
-        #TODO: reduce code depth
+        # TODO: reduce code depth
         try:
-            creme_folder = Folder.objects.get(title='Creme') #Unique title (created in populate.py)
+            creme_folder = Folder.objects.get(title='Creme')  # Unique title (created in populate.py)
             category = FolderCategory.objects.get(pk=DOCUMENTS_FROM_ENTITIES)
             get_folder = Folder.objects.get_or_create
             model_folder = get_folder(title=unicode(entity.entity_type),
@@ -101,17 +105,14 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
                                      ) [0]
             entity_folder = get_folder(title=ellipsis(u'%s_%s' % (entity.id, unicode(entity)),
                                                       _TITLE_MAX_LEN,
-                                                     ), #beurkkk
+                                                     ),  # meh
                                        parent_folder=model_folder,
                                        category=category,
-                                       defaults={'user':          user,
-#                                                 'parent_folder': model_folder,
-#                                                 'category':      category,
-                                                },
+                                       defaults={'user': user},
                                       ) [0]
         except (Folder.DoesNotExist, FolderCategory.DoesNotExist) as e:
             logger.debug("Populate.py had not been run ?! : %s", e)
-            #TODO: continue !?
+            # TODO: continue !?
 
         self.instance.folder = entity_folder
         super(RelatedDocumentCreateForm, self).save()

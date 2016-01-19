@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
@@ -31,7 +30,6 @@ from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity
 from .. import get_folder_model, get_document_model
 from ..constants import DEFAULT_HFILTER_DOCUMENT
 from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, DocumentEditForm
-#from ..models import Document, Folder
 
 
 Document = get_document_model()
@@ -40,7 +38,6 @@ Document = get_document_model()
 def abstract_add_document(request, form=DocumentCreateForm,
                           submit_label=_('Save the document'),
                          ):
-#    folder = Folder.objects.first()
     folder = get_folder_model().objects.first()
 
     return add_entity(request, form,
@@ -75,20 +72,16 @@ def abstract_edit_document(request, document_id, form=DocumentEditForm):
 def abstract_view_document(request, object_id,
                            template='documents/view_document.html',
                           ):
-    return view_entity(request, object_id, Document, template=template,
-                       # path='/documents/document',
-                      )
+    return view_entity(request, object_id, Document, template=template)
 
 
 @login_required
-# @permission_required(('documents', 'documents.add_document'))
 @permission_required(('documents', cperm(Document)))
 def add(request):
     return abstract_add_document(request)
 
 
 @login_required
-# @permission_required(('documents', 'documents.add_document'))
 @permission_required(('documents', cperm(Document)))
 def add_related(request, entity_id):
     return abstract_add_related_document(request, entity_id)
@@ -109,7 +102,4 @@ def detailview(request, object_id):
 @login_required
 @permission_required('documents')
 def listview(request):
-    return list_view(request, Document, hf_pk=DEFAULT_HFILTER_DOCUMENT,
-                     # extra_dict={'add_url': '/documents/document/add'}
-                     # extra_dict={'add_url': reverse('documents__create_document')}
-                    )
+    return list_view(request, Document, hf_pk=DEFAULT_HFILTER_DOCUMENT)

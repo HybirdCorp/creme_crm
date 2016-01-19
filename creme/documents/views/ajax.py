@@ -25,17 +25,12 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import EntityCredentials
 
 from .. import get_document_model, get_folder_model
-#from ..models import Folder, Document
 
 
 @login_required
 @permission_required('documents')
 def get_child_folders(request):
-    """
-        @Permissions : Filter can Read folder
-    """
     if request.POST.has_key('id'):
-#        folders = Folder.objects.filter(parent_folder=request.POST['id']).order_by('-title')
         folders = get_folder_model().objects.filter(parent_folder=request.POST['id']) \
                                             .order_by('-title')
         folders = EntityCredentials.filter(request.user, folders)
@@ -45,14 +40,11 @@ def get_child_folders(request):
 
     return HttpResponse(data, content_type="text/javascript")
 
+
 @login_required
 @permission_required('documents')
 def get_child_documents(request):
-    """
-        @Permissions : Filter can Read documents
-    """
     if request.POST.has_key('id'):
-#        documents = Document.objects.filter(folder=request.POST['id'])
         documents = get_document_model().objects.filter(folder=request.POST['id'])
         documents = EntityCredentials.filter(request.user, documents)
         data = serialize('json', documents, fields=('title', 'description', 'folder', 'filedata'))
