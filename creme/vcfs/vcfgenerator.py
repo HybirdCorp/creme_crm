@@ -21,7 +21,6 @@
 from creme.creme_core.models import FieldsConfig
 
 from creme.persons import get_address_model
-#from creme.persons.models import Address
 
 from .vcf_lib import vCard
 from .vcf_lib.vcard import Address as VcfAddress, Name as VcfName
@@ -48,28 +47,19 @@ class VcfGenerator(object):
         self.url        = get_field_value('url_site')
 
         # TODO: manage several employers
-        #employer = contact.get_employers()[:1]
-        #self.employer = employer[0] if employer else None
         self.employer = contact.get_employers().first()
 
         self._address_field_names = set(Address.info_field_names())
         self.addresses = Address.objects.filter(object_id=contact.id).order_by('id')
 
-#    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
-
-#    @staticmethod
-#    def address_equality(address1, address2):  # todo : overload __eq__() in Address?
     def address_equality(self, address1, address2):  # TODO : overload __eq__() in Address?
         if address1 is not None and address2 is not None:
             return all(getattr(address1, fname) == getattr(address2, fname)
-#                        for fname in VcfGenerator._INFO_FIELD_NAMES
                         for fname in self._address_field_names
                       )
 
         return False
 
-#    @staticmethod
-#    def generate_address(address):
     def generate_address(self, address):
         fnames = self._address_field_names
         get_field_value = (lambda fname: '' if fname not in fnames else
@@ -83,10 +73,6 @@ class VcfGenerator(object):
                           box=get_field_value('po_box'),
                          )
 
-#    @staticmethod
-#    def generate_name(last, first, civility=''):
-#        return VcfName(last, first, '', civility, '')
-
     def serialize(self):
         vc = vCard()
 
@@ -94,9 +80,6 @@ class VcfGenerator(object):
         first_name = self.first_name
 
         vc.add('n')
-#        vc.n.value = VcfGenerator.generate_name(last_name, first_name, self.civility.title) \
-#                     if self.civility else \
-#                     VcfGenerator.generate_name(last_name, first_name)
         civility = self.civility
         vc.n.value = VcfName(family=last_name, given=first_name,
                              prefix=civility.title if civility else '',
@@ -105,7 +88,6 @@ class VcfGenerator(object):
         vc.add('fn')
         vc.fn.value = first_name + ' ' + last_name
 
-#        addr_equal = VcfGenerator.address_equality
         addr_equal = self.address_equality
         addresses = []
         addresses.extend(addr

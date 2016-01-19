@@ -23,7 +23,6 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.gui.button_menu import Button
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 
 class GenerateVcfButton(Button):
@@ -32,7 +31,6 @@ class GenerateVcfButton(Button):
     template_name = 'vcfs/templatetags/button_generate_vcf.html'
 
     def get_ctypes(self):
-        #return (Contact,)
         return (get_contact_model(),)
 
 

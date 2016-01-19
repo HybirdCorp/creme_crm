@@ -16,7 +16,6 @@ try:
     from creme.media_managers.models import Image
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
-    # from creme.persons.models import Contact, Organisation, Address
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation)
@@ -35,8 +34,6 @@ Organisation = get_organisation_model()
 
 
 class VcfImportTestCase(CremeTestCase):
-#    IMPORT_URL = '/vcfs/vcf'
-
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
@@ -158,8 +155,6 @@ END:VCARD""" % {'last_name':  last_name,
 
         self.assertEqual(last_name,  n_value.family)
         self.assertEqual(last_name, fields['last_name'].initial)
-
-        # print '=====>', vobj, vobj.bday, type(vobj.bday)
 
         tel = vobj.contents['tel']
         self.assertEqual(phone, tel[0].value)
@@ -302,7 +297,7 @@ end:vcard""" % {'box':     box,
             fields = response.context['form'].fields
 
         vobj = read_vcf(content)
-        #self.assertEqual('<VERSION{}2.1>', str(vobj.version))
+        # self.assertEqual('<VERSION{}2.1>', str(vobj.version))
 
         help_prefix = _(u'Read in VCF File without type : ')
         adr_value = vobj.adr.value
@@ -362,17 +357,12 @@ END:VCARD""" % {'first_name': first_name,
                 'last_name':  last_name,
                 'long_name':  first_name + last_name + ' (& Fumika)',
                }
-        #response =
         self._post_step0(content)
 
-        #with self.assertNoException():
-            #fields = response.context['form'].fields
-
         vobj = read_vcf(content)
-
         version = vobj.version
         self.assertIsInstance(version, ContentLine)
-        #self.assertEqual('<VERSION{}3.0>', str(version))
+        # self.assertEqual('<VERSION{}3.0>', str(version))
 
         n_value = vobj.n.value
         self.assertEqual(first_name, n_value.given)
@@ -1041,7 +1031,6 @@ END:VCARD""" % name
         self.assertEqual(orga.name,                  org)
         self.assertEqual(orga.phone,                 vobj.tel.value)
         self.assertEqual(orga.email,                 vobj.email.value)
-#        self.assertEqual(orga.url_site,              'http://www.work.com/')
         self.assertEqual(orga.url_site,              'http://www.work.com')
         self.assertEqual(billing_address.name,       org)
         self.assertEqual(billing_address.address,    ' '.join([adr.box, adr.street]))
@@ -1180,9 +1169,7 @@ PHOTO:""" \
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
 
-        # url_site='http://www.url.com/' and not url_site=url_site because URLField add 'http://' and '/'
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name,
-#                                url_site='http://www.url.com/',
                                 url_site='http://www.url.com',
                                )
 
@@ -1294,7 +1281,6 @@ PHOTO;TYPE=JPEG:""" \
         path = 'file:///' + os_path.normpath(path_base)
 
         contact_count = Contact.objects.count()
-        #image_count   = Image.objects.count()
         self.assertEqual(0, Image.objects.count())
 
         content  = """BEGIN:VCARD
@@ -1312,7 +1298,6 @@ END:VCARD""" % path
                         )
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        #self.assertEqual(image_count + 1,   Image.objects.count())
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
