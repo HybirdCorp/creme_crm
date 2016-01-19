@@ -27,32 +27,25 @@ from creme.creme_core.forms import (CremeForm, CremeModelForm, CremeEntityForm,
 from creme.creme_core.models import CremePropertyType
 
 from creme.persons import get_organisation_model
-#from creme.persons.models import Organisation
 
 from .. import get_strategy_model
 from ..models import (MarketSegment, MarketSegmentDescription,
-        CommercialAsset, MarketSegmentCharm) # Strategy
+        CommercialAsset, MarketSegmentCharm)
 
 
 class StrategyForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-#        model = Strategy
         model = get_strategy_model()
 
 
 class _AuxForm(CremeModelForm):
     class Meta:
-        #exclude = ('strategy',)
         exclude = ()
 
     def __init__(self, entity, *args, **kwargs):
         super(_AuxForm, self).__init__(*args, **kwargs)
-#        self._strategy = entity
         self.instance.strategy = entity
 
-#    def save(self, *args, **kwargs):
-#        self.instance.strategy = self._strategy
-#        return super(_AuxForm, self).save(*args, **kwargs)
 
 
 class SegmentLinkForm(_AuxForm):
@@ -158,7 +151,6 @@ class SegmentCreateForm(_SegmentForm):
 
 
 class AddOrganisationForm(CremeForm):
-#    organisations = MultiCreatorEntityField(label=_(u"Organisations"), model=Organisation)
     organisations = MultiCreatorEntityField(label=_(u"Organisations"), model=get_organisation_model())
 
     def __init__(self, entity, *args, **kwargs):

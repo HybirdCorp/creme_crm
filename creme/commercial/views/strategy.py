@@ -18,10 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
-#from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -31,14 +29,13 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.blocks import build_context
 
 from creme.persons import get_organisation_model
-#from creme.persons.models import Organisation
 
 from .. import get_strategy_model
 from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 from ..forms import strategy as forms
 from ..models import (MarketSegmentDescription, CommercialAsset, CommercialAssetScore,
-        MarketSegmentCharm, MarketSegmentCharmScore) #Strategy
+        MarketSegmentCharm, MarketSegmentCharmScore)
 
 
 Strategy = get_strategy_model()
@@ -65,7 +62,6 @@ def abstract_view_strategy(request, strategy_id,
 
 
 @login_required
-# @permission_required(('commercial', 'commercial.add_strategy'))
 @permission_required(('commercial', cperm(Strategy)))
 def add(request):
     return abstract_add_strategy(request)
@@ -86,10 +82,7 @@ def detailview(request, strategy_id):
 @login_required
 @permission_required('commercial')
 def listview(request):
-    return generic.list_view(request, Strategy, hf_pk=DEFAULT_HFILTER_STRATEGY,
-                             # extra_dict={'add_url': '/commercial/strategy/add'}
-                             # extra_dict={'add_url': reverse('commercial__create_strategy')}
-                            )
+    return generic.list_view(request, Strategy, hf_pk=DEFAULT_HFILTER_STRATEGY)
 
 
 @login_required
@@ -131,6 +124,7 @@ def add_charm(request, strategy_id):
                                  submit_label=_('Save the segment charm'),
                                 )
 
+
 @login_required
 @permission_required('commercial')
 def add_evalorga(request, strategy_id):
@@ -155,6 +149,7 @@ def edit_asset(request, asset_id):
     return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
                                           forms.AssetForm, ugettext(u"Asset for «%s»")
                                          )
+
 
 @login_required
 @permission_required('commercial')
@@ -186,7 +181,6 @@ def _get_strategy_n_orga(request, strategy_id, orga_id):
     has_perm = request.user.has_perm_to_view_or_die
     has_perm(strategy)
 
-#    orga = get_object_or_404(Organisation, pk=orga_id)
     orga = get_object_or_404(get_organisation_model(), pk=orga_id)
     has_perm(orga)
 
@@ -266,10 +260,6 @@ def set_segment_category(request, strategy_id):
 @jsonify
 def _reload_matrix(request, strategy_id, orga_id, block):
     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
-
-#    context = RequestContext(request)
-#    context['orga']     = orga
-#    context['strategy'] = strategy
     context = build_context(request, orga=orga, strategy=strategy)
 
     return [(block.id_, block.detailview_display(context))]

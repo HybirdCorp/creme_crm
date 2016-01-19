@@ -28,8 +28,6 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel
 
-#from creme.persons.models import Organisation
-
 from .market_segment import MarketSegment
 
 
@@ -47,13 +45,10 @@ _CATEGORY_MAP = {
     }
 
 
-#class Strategy(CremeEntity):
 class AbstractStrategy(CremeEntity):
     name            = CharField(_(u"Name"), max_length=100)
-#    evaluated_orgas = ManyToManyField(Organisation, null=True, editable=False)
     evaluated_orgas = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL,
                                       verbose_name=_(u'Evaluated organisation(s)'),
-#                                      null=True,
                                       editable=False,
                                      )
 
@@ -67,7 +62,6 @@ class AbstractStrategy(CremeEntity):
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-#        super(Strategy, self).__init__(*args, **kwargs)
         super(AbstractStrategy, self).__init__(*args, **kwargs)
         self._clear_caches()
 
@@ -94,11 +88,9 @@ class AbstractStrategy(CremeEntity):
         self.assets.all().delete()
         self.charms.all().delete()
 
-#        super(Strategy, self).delete()
         super(AbstractStrategy, self).delete()
 
     def get_absolute_url(self):
-#        return "/commercial/strategy/%s" % self.id
         return reverse('commercial__view_strategy', args=(self.id,))
 
     @staticmethod
@@ -106,12 +98,10 @@ class AbstractStrategy(CremeEntity):
         return reverse('commercial__create_strategy')
 
     def get_edit_absolute_url(self):
-#        return "/commercial/strategy/edit/%s" % self.id
         return reverse('commercial__edit_strategy', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/commercial/strategies"
         return reverse('commercial__list_strategies')
 
     def _get_assets_scores_objects(self, orga):
@@ -121,7 +111,7 @@ class AbstractStrategy(CremeEntity):
             assets = self.get_assets_list()
             segment_info = self.get_segment_descriptions_list()
 
-            #build a 'matrix' with default score(=1) everywhere
+            # Build a 'matrix' with default score(=1) everywhere
             scores = {segment_desc.id: {asset.id: CommercialAssetScore(score=1, organisation=orga,
                                                                        asset=asset,
                                                                        segment_desc=segment_desc,
@@ -131,15 +121,18 @@ class AbstractStrategy(CremeEntity):
                         for segment_desc in segment_info
                      }
 
-            #set the right scores in the matrix
-            for score in CommercialAssetScore.objects.filter(organisation=orga, asset__in=assets, segment_desc__in=segment_info):
+            # Set the right scores in the matrix
+            for score in CommercialAssetScore.objects.filter(organisation=orga,
+                                                             asset__in=assets,
+                                                             segment_desc__in=segment_info,
+                                                            ):
                 scores[score.segment_desc_id][score.asset_id] = score
 
             self._assets_scores_map[orga.id] = scores
 
         return scores
 
-    #TODO: factorise with _get_assets_scores_objects() ???
+    # TODO: factorise with _get_assets_scores_objects() ???
     def _get_charms_scores_objects(self, orga):
         scores = self._charms_scores_map.get(orga.id)
 
@@ -147,7 +140,7 @@ class AbstractStrategy(CremeEntity):
             charms = self.get_charms_list()
             segment_info = self.get_segment_descriptions_list()
 
-            #build a 'matrix' with default score(=1) everywhere
+            # Build a 'matrix' with default score(=1) everywhere
             scores = {segment_desc.id: {charm.id: MarketSegmentCharmScore(score=1, organisation=orga,
                                                                           charm=charm, 
                                                                           segment_desc=segment_desc,
@@ -158,7 +151,10 @@ class AbstractStrategy(CremeEntity):
                      }
 
             #set the right scores in the matrix
-            for score in MarketSegmentCharmScore.objects.filter(organisation=orga, charm__in=charms, segment_desc__in=segment_info):
+            for score in MarketSegmentCharmScore.objects.filter(organisation=orga,
+                                                                charm__in=charms,
+                                                                segment_desc__in=segment_info,
+                                                               ):
                 scores[score.segment_desc_id][score.charm_id] = score
 
             self._charms_scores_map[orga.id] = scores
@@ -242,8 +238,11 @@ class AbstractStrategy(CremeEntity):
                 asset_threshold = (max(assets_totals) + min(assets_totals)) / 2.0
                 charm_threshold = (max(charms_totals) + min(charms_totals)) / 2.0
 
-                stored_categories = dict(MarketSegmentCategory.objects.filter(segment_desc__in=segment_info, organisation=orga)
-                                                                      .values_list('segment_desc_id', 'category')
+                stored_categories = dict(MarketSegmentCategory.objects
+                                                              .filter(segment_desc__in=segment_info,
+                                                                      organisation=orga,
+                                                                     )
+                                                              .values_list('segment_desc_id', 'category')
                                         )
 
                 def _get_category(segment, asset_score, charm_score):
@@ -278,7 +277,7 @@ class AbstractStrategy(CremeEntity):
         if not 1 <= score <= 4:
             raise ValueError('Problem with "score" arg: not 1 <= %s <= 4' % score)
 
-        orga = self.evaluated_orgas.get(pk=orga_id) #raise exception if invalid orga
+        orga = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid orga
 
         score_object = get_object(orga, model_id, segment_desc_id)
 
@@ -296,16 +295,12 @@ class AbstractStrategy(CremeEntity):
         if not 1 <= category <= 4:
             raise ValueError('Problem with "category" arg: not 1 <= %s <= 4' % category)
 
-        orga    = self.evaluated_orgas.get(pk=orga_id) #raise exception if invalid orga
-        seg_desc = self.segment_info.get(pk=segment_desc_id)  #raise exception if invalid segment
+        orga    = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid orga
+        seg_desc = self.segment_info.get(pk=segment_desc_id)  # Raise exception if invalid segment
 
-        #cats_objs = MarketSegmentCategory.objects.filter(segment_desc=seg_desc, organisation=orga)[:1]
         cat_obj = MarketSegmentCategory.objects.filter(segment_desc=seg_desc, organisation=orga).first()
 
-        #if cats_objs:
         if cat_obj:
-            #cat_obj = cats_objs[0]
-
             if cat_obj.category == category:
                 return
 
@@ -316,7 +311,7 @@ class AbstractStrategy(CremeEntity):
                                                  organisation=orga, category=category,
                                                 )
 
-        self._segments_categories.pop(orga.id, None) #clean cache
+        self._segments_categories.pop(orga.id, None)  # Clean cache
 
 
 class Strategy(AbstractStrategy):
@@ -325,9 +320,8 @@ class Strategy(AbstractStrategy):
 
 
 class MarketSegmentDescription(CremeModel):
-#    strategy  = ForeignKey(Strategy, related_name='segment_info', editable=False)
     strategy  = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='segment_info', editable=False)
-    segment   = ForeignKey(MarketSegment) #TODO: on_delete=PROTECT
+    segment   = ForeignKey(MarketSegment)  # TODO: on_delete=PROTECT
     product   = TextField(_(u'Product'), blank=True, null=True)
     place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True, null=True)
     price     = TextField(_(u'Price'), blank=True, null=True)
@@ -339,8 +333,10 @@ class MarketSegmentDescription(CremeModel):
         verbose_name_plural = _(u'Market segment descriptions')
 
     def __repr__(self):
-        return u'MarketSegmentDescription(strategy_id=%s, segment_id=%s, product=%s, place=%s, price=%s, promotion=%s)' % (
-                self.strategy_id, self.segment_id, self.product, self.place, self.price, self.promotion
+        return u'MarketSegmentDescription(strategy_id=%s, segment_id=%s, ' \
+               u'product=%s, place=%s, price=%s, promotion=%s)' % (
+                self.strategy_id, self.segment_id, self.product,
+                self.place, self.price, self.promotion,
             )
 
     def __unicode__(self):
@@ -355,15 +351,14 @@ class MarketSegmentDescription(CremeModel):
 
         super(MarketSegmentDescription, self).delete()
 
-        self.strategy._clear_caches() #NB: not really useful...
+        self.strategy._clear_caches()  # NB: not really useful...
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.strategy
 
 
 class CommercialAsset(CremeModel):
     name     = CharField(_(u"Name"), max_length=100)
-#    strategy = ForeignKey(Strategy, related_name='assets', editable=False)
     strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets', editable=False)
 
     class Meta:
@@ -377,7 +372,7 @@ class CommercialAsset(CremeModel):
     def get_edit_absolute_url(self):
         return '/commercial/asset/edit/%s/' % self.id
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.strategy
 
 
@@ -385,20 +380,18 @@ class CommercialAssetScore(CremeModel):
     score        = PositiveSmallIntegerField()
     segment_desc = ForeignKey(MarketSegmentDescription)
     asset        = ForeignKey(CommercialAsset)
-#    organisation = ForeignKey(Organisation)
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
         app_label = "commercial"
 
-    def __unicode__(self): #debugging
+    def __unicode__(self):  # Debugging
         return u'<AssetScore: orga=%s score=%s segment=%s asset=%s>' % (
                     self.organisation, self.score, self.segment, self.asset)
 
 
 class MarketSegmentCharm(CremeModel):
     name     = CharField(_(u"Name"), max_length=100)
-#    strategy = ForeignKey(Strategy, related_name='charms', editable=False)
     strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms', editable=False)
 
     class Meta:
@@ -412,7 +405,7 @@ class MarketSegmentCharm(CremeModel):
     def get_edit_absolute_url(self):
         return '/commercial/charm/edit/%s/' % self.id
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.strategy
 
 
@@ -420,13 +413,12 @@ class MarketSegmentCharmScore(CremeModel):
     score        = PositiveSmallIntegerField()
     segment_desc = ForeignKey(MarketSegmentDescription)
     charm        = ForeignKey(MarketSegmentCharm)
-#    organisation = ForeignKey(Organisation)
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
         app_label = "commercial"
 
-    def __unicode__(self): #debugging
+    def __unicode__(self):  # Debugging
         return u'<CharmScore: orga=%s score=%s segment=%s charm=%s>' % (
                     self.organisation, self.score, self.segment, self.charm)
 
@@ -435,12 +427,11 @@ class MarketSegmentCategory(CremeModel):
     category     = PositiveSmallIntegerField()
     strategy     = ForeignKey(Strategy)
     segment_desc = ForeignKey(MarketSegmentDescription)
-#    organisation = ForeignKey(Organisation)
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
         app_label = "commercial"
 
-    def __unicode__(self): #debugging
+    def __unicode__(self):  # Debugging
         return u'<MarketSegmentCategory: orga=%s cat=%s segment=%s>' % (
                     self.organisation, self.category, self.segment)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date #datetime
+    from datetime import date
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
@@ -12,7 +12,6 @@ try:
     from creme.creme_core.models import (RelationType, Relation, CremeProperty,
             EntityFilter, EntityFilterCondition)
 
-    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.opportunities.models import SalesPhase  # Opportunity
@@ -33,8 +32,6 @@ except Exception as e:
 
 @skipIfCustomAct
 class ActTestCase(CommercialBaseTestCase):
-#    ADD_URL = '/commercial/act/add'
-
     @classmethod
     def setUpClass(cls):
         CommercialBaseTestCase.setUpClass()
@@ -195,7 +192,6 @@ class ActTestCase(CommercialBaseTestCase):
                             )
         acts = [create_act(name='NAME_%s' % i) for i in xrange(1, 3)]
 
-#        response = self.assertGET200('/commercial/acts')
         response = self.assertGET200(Act.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -207,7 +203,6 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_detailview(self):
         act = self.create_act()
-#        self.assertGET200('/commercial/act/%s' % act.id)
         self.assertGET200(act.get_absolute_url())
 
     @skipIfCustomOrganisation
@@ -215,7 +210,6 @@ class ActTestCase(CommercialBaseTestCase):
     def test_create_linked_opportunity(self):
         act = self.create_act()
 
-#        url = '/commercial/act/%s/add/opportunity' % act.id
         url = reverse('commercial__create_opportunity', args=(act.id,))
         self.assertGET200(url)
 
@@ -280,7 +274,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         objective.counter = counter_goal
         objective.save()
-        objective = self.refresh(objective) #refresh cache
+        objective = self.refresh(objective)  # Refresh cache
         self.assertEqual(counter_goal, objective.get_count())
         self.assertTrue(objective.reached)
 
@@ -311,21 +305,23 @@ class ActTestCase(CommercialBaseTestCase):
         "Count with EntityFilter"
         act = self.create_act()
         ct = ContentType.objects.get_for_model(Organisation)
-        pub_efilter  = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
-        priv_efilter = EntityFilter.create('test-filter_priv01', 'Acme', Organisation,
-                                           is_custom=True, is_private=True, user=self.other_user,
-                                          )
 
-        name  = 'Objective#3'
+        create_efilter = EntityFilter.create
+        pub_efilter  = create_efilter('test-filter01', 'Acme', Organisation, is_custom=True)
+        priv_efilter = create_efilter('test-filter_priv01', 'Acme', Organisation,
+                                      is_custom=True, is_private=True, user=self.other_user,
+                                     )
+
+        name = 'Objective#3'
         counter_goal = 2
 
         def post(efilter):
             return self.client.post(self._build_addobjective_url(act),
-                                        data={'name':            name,
-                                              'entity_counting': self._build_ctypefilter_field(ct, efilter),
-                                              'counter_goal':    counter_goal,
-                                             }
-                                    )
+                                    data={'name':            name,
+                                          'entity_counting': self._build_ctypefilter_field(ct, efilter),
+                                          'counter_goal':    counter_goal,
+                                         }
+                                   )
 
         response = post(priv_efilter)
         self.assertEqual(200, response.status_code)
@@ -347,7 +343,7 @@ class ActTestCase(CommercialBaseTestCase):
         "No component"
         act = self.create_act(expected_sales=21000)
         pattern = ActObjectivePattern.objects.create(user=self.user, name='Mr Pattern',
-                                                     average_sales=5000, #NB: 21000 / 5000 => Ratio = 5
+                                                     average_sales=5000,  # NB: 21000 / 5000 => Ratio = 5
                                                      segment=act.segment,
                                                     )
 
@@ -364,7 +360,7 @@ class ActTestCase(CommercialBaseTestCase):
         "With components"
         act = self.create_act(expected_sales=20000)
         pattern = ActObjectivePattern.objects.create(user=self.user, name='Mr Pattern',
-                                                     average_sales=5000, #NB: 20000 / 5000 => Ratio = 4
+                                                     average_sales=5000,  # NB: 20000 / 5000 => Ratio = 4
                                                      segment=act.segment,
                                                     )
 
@@ -418,11 +414,11 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertIsNone(objective02.filter_id)
         self.assertIsNone(objective11.filter_id)
 
-        self.assertEqual(4,   objective00.counter_goal) #ratio = 4
-        self.assertEqual(20,  objective01.counter_goal) # 20% -> 4  * 5
-        self.assertEqual(8,   objective02.counter_goal) # 50% -> 4  * 2
-        self.assertEqual(61,  objective11.counter_goal) # 33% -> 20 * 3,3
-        self.assertEqual(200, objective12.counter_goal) # 10% -> 20 * 10
+        self.assertEqual(4,   objective00.counter_goal)  # ratio = 4
+        self.assertEqual(20,  objective01.counter_goal)  # 20% -> 4  * 5
+        self.assertEqual(8,   objective02.counter_goal)  # 50% -> 4  * 2
+        self.assertEqual(61,  objective11.counter_goal)  # 33% -> 20 * 3,3
+        self.assertEqual(200, objective12.counter_goal)  # 10% -> 20 * 10
 
     def test_edit_objective01(self):
         act = self.create_act()
@@ -466,8 +462,10 @@ class ActTestCase(CommercialBaseTestCase):
         counter_goal = 4
         response = self.client.post(objective.get_edit_absolute_url(),
                                     data={'name':            name,
-                                          #should not be used
-                                          'entity_counting': self._build_ctypefilter_field(pub_efilter.entity_type, pub_efilter),
+                                          # Should not be used
+                                          'entity_counting': self._build_ctypefilter_field(pub_efilter.entity_type,
+                                                                                           pub_efilter,
+                                                                                          ),
                                           'counter_goal':    counter_goal,
                                          }
                                    )
@@ -476,7 +474,7 @@ class ActTestCase(CommercialBaseTestCase):
         objective = self.refresh(objective)
         self.assertEqual(name,         objective.name)
         self.assertEqual(counter_goal, objective.counter_goal)
-        self.assertEqual(priv_efilter, objective.filter) #<===
+        self.assertEqual(priv_efilter, objective.filter)  # <===
 
     def test_delete_objective(self):
         act = self.create_act()
@@ -513,7 +511,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertPOST409(self._build_incr_url(objective), data={'diff': 1})
 
     def test_objective_create_entity01(self):
-        "Alrigth (No filter, quick form exists, credentials are OK)"
+        "Alright (No filter, quick form exists, credentials are OK)"
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
                                                 ctype=ContentType.objects.get_for_model(Organisation),
@@ -534,7 +532,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertRelationCount(1, nerv, REL_SUB_COMPLETE_GOAL, act)
 
     def test_objective_create_entity02(self):
-        "Not a 'relationships counter objective"
+        "Not a relationships counter objective"
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         self.assertGET409(self._build_create_related_entity_url(objective))
@@ -583,19 +581,19 @@ class ActTestCase(CommercialBaseTestCase):
         create_orga    = partial(Organisation.objects.create, user=user)
 
         completes_goal(subject_entity=create_orga(name='Ferraille corp'))
-        objective = self.refresh(objective) #refresh cache
+        objective = self.refresh(objective)  # Refresh cache
         self.assertEqual(1, objective.get_count())
         self.assertFalse(objective.reached)
 
         orga02 = create_orga(name='World company')
         completes_goal(subject_entity=orga02)
-        objective = self.refresh(objective) #refresh cache
+        objective = self.refresh(objective)  # Refresh cache
         self.assertEqual(2, objective.get_count())
         self.assertTrue(objective.reached)
 
         contact = Contact.objects.create(user=user, first_name='Monsieur', last_name='Ferraille')
         completes_goal(subject_entity=contact)
-        objective = self.refresh(objective) #refresh cache
+        objective = self.refresh(objective)  # Refresh cache
         self.assertEqual(2, objective.get_count())
         self.assertTrue(objective.reached)
 
@@ -701,7 +699,7 @@ class ActTestCase(CommercialBaseTestCase):
         opp01 = create_opp(name='OPP01', closing_date=date.today(), estimated_sales=2000)
         create_rel(subject_entity=opp01)
 
-        act = self.refresh(act) #refresh cache
+        act = self.refresh(act)  # Refresh cache
         self.assertEqual([opp01], list(act.get_related_opportunities()))
         self.assertEqual(0,       act.get_made_sales())
 
@@ -754,8 +752,6 @@ class ActTestCase(CommercialBaseTestCase):
 
         create_dt = self.create_datetime
         meeting = Activity.objects.create(user=user, title='Meeting #01', type_id=ACTIVITYTYPE_MEETING,
-                                          #start=datetime(year=2011, month=5, day=20, hour=14, minute=0),
-                                          #end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
                                           start=create_dt(year=2011, month=5, day=20, hour=14, minute=0),
                                           end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
                                          )

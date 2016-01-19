@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import (relations_block, properties_block,
@@ -33,7 +32,6 @@ from creme.creme_core.models import (RelationType, CremePropertyType, SettingVal
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from . import get_act_model, get_pattern_model, get_strategy_model
 from . import blocks, buttons, constants, setting_keys

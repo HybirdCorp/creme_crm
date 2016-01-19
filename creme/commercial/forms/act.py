@@ -28,7 +28,7 @@ from creme.creme_core.forms.fields import CremeDateTimeField, FilteredEntityType
 from creme.creme_core.forms.widgets import Label
 
 from .. import get_act_model, get_pattern_model
-from ..models import ActObjective, ActObjectivePatternComponent # Act, ActObjectivePattern
+from ..models import ActObjective, ActObjectivePatternComponent
 
 
 ActObjectivePattern = get_pattern_model()
@@ -39,18 +39,16 @@ class ActForm(CremeEntityForm):
     due_date = CremeDateTimeField(label=_(u"Due date"))
 
     class Meta(CremeEntityForm.Meta):
-#        model = Act
         model = get_act_model()
 
 
 class ObjectiveForm(CremeModelForm):
     entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
                                               empty_label=_(u'Do not count entity'),
-                                             ) # TODO: help text ???
+                                             )  # TODO: help text ???
 
     class Meta:
         model = ActObjective
-        #fields = ('name', 'counter_goal')
         fields = '__all__'
         help_texts = {
             'counter_goal': _(u'Integer value the counter has to reach'),
@@ -61,7 +59,7 @@ class ObjectiveForm(CremeModelForm):
         self.act = entity
 
         instance = self.instance
-        if instance.pk: # Edition
+        if instance.pk:  # Edition
             fields = self.fields
             efilter = instance.filter
 
@@ -77,7 +75,6 @@ class ObjectiveForm(CremeModelForm):
     def save(self, *args, **kwargs):
         instance = self.instance
         instance.act = self.act
-        #instance.ctype, instance.filter = self.cleaned_data['entity_counting']
 
         ct_n_filter = self.cleaned_data.get('entity_counting')
         if ct_n_filter:
@@ -124,7 +121,7 @@ class ObjectivePatternForm(CremeEntityForm):
 class _PatternComponentForm(CremeModelForm):
     entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
                                               empty_label=_(u'Do not count entity'),
-                                             ) #TODO: help text ???
+                                             )  # TODO: help text ???
     success_rate    = IntegerField(label=_(u'Success rate'), min_value=1, max_value=100,
                                    help_text=_(u'Percentage of success')
                                   )
@@ -178,6 +175,6 @@ class PatternParentComponentForm(_PatternComponentForm):
         super(PatternParentComponentForm, self).save(*args, **kwargs)
 
         child.parent = instance
-        child.save() #TODO: use *args/**kwargs ('using' arg)???
+        child.save()  # TODO: use *args/**kwargs ('using' arg)???
 
         return instance

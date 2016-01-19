@@ -29,7 +29,6 @@ from creme.creme_core.signals import pre_merge_related
 
 from creme.activities import get_activity_model
 from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT
-#from creme.activities.models import Activity
 
 from creme.opportunities import get_opportunity_model
 
@@ -38,7 +37,7 @@ from .constants import REL_SUB_COMPLETE_GOAL
 from .models import CommercialApproach
 
 
-#Catching the save of the relation between an activity and an opportunity as a subject
+# Catching the save of the relation between an activity and an opportunity as a subject
 @receiver(post_save, sender=Relation)
 def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
     if instance.type_id == REL_OBJ_ACTIVITY_SUBJECT:
@@ -60,9 +59,11 @@ def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
             for relation in relations:
                 create_relation(object_entity=relation.object_entity)
 
+
 @receiver(pre_delete, sender=CremeEntity)
 def dispose_comapps(sender, instance, **kwargs):
     CommercialApproach.objects.filter(entity_id=instance.id).delete()
+
 
 @receiver(pre_merge_related)
 def handle_merge(sender, other_entity, **kwargs):
@@ -70,10 +71,10 @@ def handle_merge(sender, other_entity, **kwargs):
         commapp.creme_entity = sender
         commapp.save()
 
-#@receiver(post_save, sender=Activity)
+
 @receiver(post_save, sender=get_activity_model())
 def sync_with_activity(sender, instance, created, **kwargs):
-    #TODO: optimise (only if title has changed - factorise with HistoryLine ??)
+    # TODO: optimise (only if title has changed - factorise with HistoryLine ??)
     if not created:
         CommercialApproach.objects.filter(related_activity=instance).update(title=instance.title)
 

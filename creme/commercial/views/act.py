@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -34,12 +33,11 @@ from creme.creme_core.views import generic
 
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.forms.opportunity import OpportunityCreateForm
-# from creme.opportunities.models import Opportunity
 
 from .. import get_act_model, get_pattern_model
 from ..constants import REL_SUB_COMPLETE_GOAL, DEFAULT_HFILTER_ACT, DEFAULT_HFILTER_PATTERN
 from ..forms import act as forms
-from ..models import ActType, ActObjective, MarketSegment, ActObjectivePatternComponent # Act ActObjectivePattern
+from ..models import ActType, ActObjective, MarketSegment, ActObjectivePatternComponent
 
 
 Opportunity = get_opportunity_model()
@@ -77,16 +75,13 @@ def abstract_edit_objective_pattern(request, objpattern_id, form=forms.Objective
 def abstract_view_act(request, act_id,
                       template='creme_core/generics/view_entity.html',
                      ):
-    return generic.view_entity(request, act_id, Act, template=template,
-                               # path='/commercial/act',
-                              )
+    return generic.view_entity(request, act_id, Act, template=template)
 
 
 def abstract_view_objective_pattern(request, objpattern_id,
                                     template='commercial/view_pattern.html',
                                    ):
     return generic.view_entity(request, objpattern_id, ActObjectivePattern,
-                               # path='/commercial/objective_pattern',
                                template=template,
                               )
 
@@ -129,14 +124,12 @@ def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
 
 
 @login_required
-# @permission_required(('commercial', 'commercial.add_act'))
 @permission_required(('commercial', cperm(Act)))
 def add(request):
     return abstract_add_act(request)
 
 
 @login_required
-# @permission_required(('commercial', 'commercial.add_actobjectivepattern'))
 @permission_required(('commercial', cperm(ActObjectivePattern)))
 def add_objective_pattern(request):
     return abstract_add_objective_pattern(request)
@@ -169,23 +162,16 @@ def objective_pattern_detailview(request, objpattern_id):
 @login_required
 @permission_required('commercial')
 def listview(request):
-    return generic.list_view(request, Act, hf_pk=DEFAULT_HFILTER_ACT,
-                             # extra_dict={'add_url': '/commercial/act/add'}
-                             # extra_dict={'add_url': reverse('commercial__create_act')}
-                            )
+    return generic.list_view(request, Act, hf_pk=DEFAULT_HFILTER_ACT)
 
 
 @login_required
 @permission_required('commercial')
 def listview_objective_pattern(request):
-    return generic.list_view(request, ActObjectivePattern, hf_pk=DEFAULT_HFILTER_PATTERN,
-                             # extra_dict={'add_url': '/commercial/objective_pattern/add'},
-                             # extra_dict={'add_url': reverse('commercial__create_pattern')},
-                            )
+    return generic.list_view(request, ActObjectivePattern, hf_pk=DEFAULT_HFILTER_PATTERN)
 
 
 @login_required
-# @permission_required(('opportunities', 'opportunities.add_opportunity'))
 @permission_required(('opportunities', cperm(Opportunity)))
 def add_opportunity(request, act_id):
     return abstract_add_opportunity(request, act_id)
@@ -323,7 +309,7 @@ def create_objective_entity(request, objective_id):
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':  form,
                         'title': model.creation_label,
-                        #'submit_label': model.save_label, TODO ?
+                        # 'submit_label': model.save_label, TODO ?
                        },
                        is_valid=form.is_valid(),
                        reload=False,

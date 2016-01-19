@@ -24,7 +24,6 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.gui.button_menu import Button
 
 from . import get_act_model
-#from .models import Act
 from .constants import REL_SUB_COMPLETE_GOAL
 
 
@@ -34,7 +33,6 @@ class CompleteGoalButton(Button):
     template_name = 'commercial/templatetags/button_complete_goal.html'
     permission    = 'commercial'
 
-#    _ct = ContentType.objects.get_for_model(Act)
     _ct = ContentType.objects.get_for_model(get_act_model())
 
     def render(self, context):

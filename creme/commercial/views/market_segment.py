@@ -50,10 +50,12 @@ def edit(request, segment_id):
                                  MarketSegmentForm,
                                 )
 
+
 @login_required
 @permission_required('commercial')
 def listview(request):
     return render(request, 'commercial/list_segments.html')
+
 
 @login_required
 @permission_required('commercial')

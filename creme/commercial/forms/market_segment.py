@@ -59,7 +59,6 @@ class MarketSegmentForm(CremeModelForm):
                                   code='duplicated_name',
                                  )
 
-
         if ptypes.exists():
             raise ValidationError(self.error_messages['duplicated_property'],
                                   params={'name': ptype_text},
@@ -74,10 +73,10 @@ class MarketSegmentForm(CremeModelForm):
         instance = self.instance
 
         # TODO: move to MarketSegment.save() ?
-        if instance.pk: # Edition
+        if instance.pk:  # Edition
             ptype = instance.property_type
 
-            if ptype: # NB: there is _one_ segment with no related PropertyType
+            if ptype:  # NB: there is _one_ segment with no related PropertyType
                 ptype.text = self.ptype_text
                 ptype.save()
         else:
