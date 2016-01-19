@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
@@ -30,9 +29,8 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 
 from . import get_report_model
-from .constants import DEFAULT_HFILTER_REPORT
 from .blocks import report_fields_block, report_graphs_block
-#from .models import Report
+from .constants import DEFAULT_HFILTER_REPORT
 
 
 logger = logging.getLogger(__name__)
@@ -51,10 +49,10 @@ class Populator(BasePopulator):
                            )
 
 
-        SearchConfigItem.create_if_needed(Report, ['name']) # 'ct__name'
+        SearchConfigItem.create_if_needed(Report, ['name'])
 
 
-        if not BlockDetailviewLocation.config_exists(Report): # NB: no straightforward way to test that this populate script has not been already runned
+        if not BlockDetailviewLocation.config_exists(Report):  # NB: no straightforward way to test that this populate script has not been already runn
             create_bdl = BlockDetailviewLocation.create
             BlockDetailviewLocation.create_4_model_block(order=5,   zone=BlockDetailviewLocation.LEFT,  model=Report)
             create_bdl(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Report)

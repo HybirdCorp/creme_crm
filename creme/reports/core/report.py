@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import CremeEntity, RelationType, CustomField
-from creme.creme_core.utils.meta import FieldInfo # get_related_field
+from creme.creme_core.utils.meta import FieldInfo
 
 from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
         RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
@@ -89,7 +89,7 @@ class ReportHand(object):
                                   ) for entity in entities
                          )
 
-    #TODO: scope ??
+    # TODO: scope ??
     def _get_related_instances(self, entity, user):
         raise NotImplementedError
 
@@ -116,7 +116,7 @@ class ReportHand(object):
         else:
             get_value = self._get_value_single
 
-        self._get_value = get_value #cache
+        self._get_value = get_value  # Cache
 
         return get_value(entity, user, scope)
 
@@ -127,7 +127,7 @@ class ReportHand(object):
         related_entities = self._get_filtered_related_entities(entity, user)
         gen_values = self._handle_report_values
 
-        #"(None,)" : even if sub-scope if empty, with must generate empty columns for this line
+        # "(None,)" : even if sub-scope if empty, with must generate empty columns for this line
         return [gen_values(e, user, related_entities) for e in related_entities or (None,)]
 
     def _get_value_flattened_subreport(self, entity, user, scope):
@@ -177,12 +177,12 @@ class ReportHand(object):
         """Extract the value from entity for a Report cell.
         @param entity CremeEntity instance.
         @param user User instance ; used to compute credentials.
-        @param scope QuerySet where 'entity' it comming from ; used by aggregates.
+        @param scope QuerySet where 'entity' it coming from ; used by aggregates.
         """
         value = None
 
-        if entity is None: #eg: a FK column was NULL, or the instance did not pass a filter
-            if self._report_field.selected: #selected=True => self._report_field.sub_report is not None
+        if entity is None:  # eg: a FK column was NULL, or the instance did not pass a filter
+            if self._report_field.selected:  # selected=True => self._report_field.sub_report is not None
                 value = [self._handle_report_values(None, user, scope)]
         else:
             value = self._get_value(entity, user, scope)
@@ -198,9 +198,9 @@ class ReportHand(object):
     def title(self):
         return self._title
 
-    #def to_entity_cell(self):
-        #"@return An equivalent EntityCell"
-        #return None #todo: avoid None
+    # def to_entity_cell(self):
+    #     "@return An equivalent EntityCell"
+    #     return None #todo: avoid None
 
 
 @REPORT_HANDS_MAP(RFT_FIELD)
@@ -283,16 +283,12 @@ class RHForeignKey(RHRegularField):
         else:
             # Small optimization: only used by _get_value_no_subreport()
             if len(field_info) > 1:
-                # attr_name = field_info[1].name
-                # self._value_extractor = lambda fk_instance: getattr(fk_instance, attr_name, None)
-
                 self._value_extractor = field_printers_registry.build_field_printer(
                                                         field_info[0].rel.to,
                                                         field_info[1].name,
                                                         output='csv',
                                                     )
             else:
-                # self._value_extractor = unicode
                 self._value_extractor = lambda fk_instance, user: unicode(fk_instance)
 
         self._qs = qs
@@ -326,7 +322,6 @@ class RHForeignKey(RHRegularField):
             if self._linked2entity and not user.has_perm_to_view(fk_instance):
                 return settings.HIDDEN_VALUE
 
-            # return self._value_extractor(fk_instance)
             return self._value_extractor(fk_instance, user)
 
     def get_linkable_ctypes(self):
@@ -341,12 +336,6 @@ class RHForeignKey(RHRegularField):
 class RHManyToManyField(RHRegularField):
     def __init__(self, report_field):
         super(RHManyToManyField, self).__init__(report_field, support_subreport=True)
-#        self._m2m_attr_name, sep, attr_name = report_field.name.partition('__')
-
-#        self._related_model_value_extractor = \
-#            (lambda instance: getattr(instance, attr_name, None) or u'') if attr_name else \
-#            unicode
-
         field_info = self._field_info
 
         if len(field_info) > 1:
@@ -358,11 +347,9 @@ class RHManyToManyField(RHRegularField):
             self._related_model_value_extractor = unicode
 
     def _get_related_instances(self, entity, user):
-#        return getattr(entity, self._m2m_attr_name).all()
         return getattr(entity, self._field_info[0].name).all()
 
     def get_linkable_ctypes(self):
-#        m2m_model = self._report_field.model._meta.get_field(self._m2m_attr_name).rel.to
         m2m_model = self._field_info[0].rel.to
 
         return (ContentType.objects.get_for_model(m2m_model),) \
@@ -411,8 +398,8 @@ class RHRelation(ReportHand):
                                                   relations__object_entity=entity.id,
                                                  )
 
-    # TODO: add a feature in base class to retrieved efficently real entities ??
-    # TODO: extract algorithm that retrieve efficently real entity from CremeEntity.get_related_entities()
+    # TODO: add a feature in base class to retrieved efficiently real entities ??
+    # TODO: extract algorithm that retrieve efficiently real entity from CremeEntity.get_related_entities()
     def _get_value_no_subreport(self, entity, user, scope):
         has_perm = user.has_perm_to_view
         return u', '.join(unicode(e)
@@ -519,7 +506,6 @@ class RHRelated(ReportHand):
     verbose_name = _(u'Related field')
 
     def __init__(self, report_field):
-#        related_field = get_related_field(report_field.model, report_field.name)
         related_field = self._get_related_field(report_field.model, report_field.name)
 
         if not related_field:
@@ -529,7 +515,6 @@ class RHRelated(ReportHand):
         self._attr_name = related_field.get_accessor_name()
 
         super(RHRelated, self).__init__(report_field,
-#                                        title=unicode(related_field.model._meta.verbose_name),
                                         title=unicode(related_field.related_model._meta.verbose_name),
                                         support_subreport=True,
                                        )
@@ -543,7 +528,6 @@ class RHRelated(ReportHand):
         return getattr(entity, self._attr_name).filter(is_deleted=False)
 
     def get_linkable_ctypes(self):
-#        return (ContentType.objects.get_for_model(self._related_field.model),)
         return (ContentType.objects.get_for_model(self._related_field.related_model),)
 
 

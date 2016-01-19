@@ -28,7 +28,6 @@ from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 
 from .. import get_rgraph_model
-#from ..models import ReportGraph
 
 
 InstanceBlockConfigItemError = get_rgraph_model().InstanceBlockConfigItemError

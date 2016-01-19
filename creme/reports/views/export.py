@@ -32,13 +32,13 @@ from creme.creme_core.views.generic import inner_popup
 
 from .. import get_report_model
 from ..forms.report import ReportExportPreviewFilterForm, ReportExportFilterForm
-#from ..models import Report
 
 
 logger = logging.getLogger(__name__)
 Report = get_report_model()
 
 _PREVIEW_LIMIT_COUNT = 25
+
 
 @login_required
 @permission_required('reports')
@@ -78,7 +78,7 @@ def preview(request, report_id):
                    'object':   report,
                    'limit_to': _PREVIEW_LIMIT_COUNT,
                    'form':     filter_form,
-                   # NB: useful for colspan (remove if header is not a <thead> anymore
+                   # NB: useful for "colspan" (remove if header is not a <thead> anymore
                    'flat_columns': list(report.get_children_fields_flat()),
                    'empty_message': empty_message,
                   },
