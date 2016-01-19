@@ -24,7 +24,6 @@ from creme.creme_core.views.generic import app_portal
 
 from creme.creme_config.utils import generate_portal_url
 
-#from ..models import Folder, Document
 from .. import get_document_model, get_folder_model
 
 

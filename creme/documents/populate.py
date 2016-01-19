@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
@@ -36,7 +35,6 @@ from creme.creme_core.utils import create_if_needed
 
 from . import get_document_model, get_folder_model, folder_model_is_custom
 from . import constants
-#from .models import Document, FolderCategory, Folder
 from .blocks import folder_docs_block, child_folders_block
 from .models import FolderCategory
 

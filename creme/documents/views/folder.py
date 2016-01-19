@@ -20,7 +20,6 @@
 
 import logging
 
-# from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -33,7 +32,6 @@ from creme.creme_core.views.generic.listview import list_view
 from .. import get_folder_model
 from ..constants import DEFAULT_HFILTER_FOLDER
 from ..forms.folder import FolderForm, ChildFolderForm
-#from ..models import Folder
 
 
 logger = logging.getLogger(__name__)
@@ -71,14 +69,10 @@ def abstract_edit_folder(request, folder_id, form=FolderForm):
 def abstract_view_folder(request, folder_id,
                          template='documents/view_folder.html',
                         ):
-    return view_entity(request, folder_id, Folder, template=template,
-                       # path='/documents/folder',
-                      )
+    return view_entity(request, folder_id, Folder, template=template)
 
 
 def abstract_list_folders(request, **extra_kwargs):
-#    REQUEST_get = request.REQUEST.get
-#    parent_id   = REQUEST_get('parent_id')
     parent_id   = request.POST.get('parent_id') or request.GET.get('parent_id')
     extra_q     = Q(parent_folder__isnull=True)
     previous_id = None
@@ -106,9 +100,7 @@ def abstract_list_folders(request, **extra_kwargs):
     return list_view(request, Folder,
                      hf_pk=DEFAULT_HFILTER_FOLDER,
                      extra_q=extra_q,
-#                     extra_dict={'add_url': '/documents/folder/add',
-                     extra_dict={#'add_url': reverse('documents__create_folder'),
-                                 'parent_id': parent_id or "",
+                     extra_dict={'parent_id': parent_id or '',
                                  'extra_bt_templates': ('documents/frags/previous.html', ),
                                  'previous_id': previous_id,
                                 },
@@ -116,15 +108,14 @@ def abstract_list_folders(request, **extra_kwargs):
                      **extra_kwargs
                     )
 
+
 @login_required
-# @permission_required(('documents', 'documents.add_folder'))
 @permission_required(('documents', cperm(Folder)))
 def add(request):
     return abstract_add_folder(request)
 
 
 @login_required
-# @permission_required(('documents', 'documents.add_folder'))
 @permission_required(('documents', cperm(Folder)))
 def add_child(request, folder_id):
     return abstract_add_child_folder(request, folder_id)

@@ -5,26 +5,18 @@ try:
 
     from django.conf import settings
     from django.core.urlresolvers import reverse
-    #from django.test.utils import override_settings
     from django.utils.encoding import smart_str, smart_unicode
     from django.utils.translation import ugettext as _
 
     from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder, Folder
-    from creme.documents.models import FolderCategory  # Folder Document
-#    from creme.documents.blocks import folder_docs_block
+    from creme.documents.models import FolderCategory
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-#__all__ = ('FolderTestCase',)
 
 
 @skipIfCustomDocument
 @skipIfCustomFolder
 class FolderTestCase(_DocumentsTestCase):
-#    ADD_URL  = '/documents/folder/add'
-#    LIST_URL = '/documents/folders'
-
     @classmethod
     def setUpClass(cls):
         _DocumentsTestCase.setUpClass()
@@ -45,7 +37,6 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertFalse(Folder.objects.filter(title=title).exists())
 
         description = 'Test description'
-        #category = FolderCategory.objects.all()[0]
         response = self.client.post(url, follow=True,
                                     data={'user':        self.user.pk,
                                           'title':       title,
@@ -74,30 +65,20 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertFalse(Folder.objects.filter(title=title).exists())
 
         description = 'Test description'
-        data = {'user':          user.pk,
-                'title':         title,
-                'description':   description,
-                'parent_folder': parent.id,
-               }
-
-#        bad_cat = FolderCategory.objects.exclude(id=category.id)[0]
-#        response = self.assertPOST200(url, follow=True,
-#                                      data=dict(data, category=bad_cat.id),
-#                                     )
-#        self.assertFormError(response, 'form', 'category',
-#                             _(u"Folder's category must be the same than its parent's one: %s") %
-#                                    category
-#                            )
-
-#        response = self.client.post(url, follow=True, data=dict(data, category=category.id))
         other_cat = FolderCategory.objects.exclude(id=category.id)[0]
-        response = self.client.post(url, follow=True, data=dict(data, category=other_cat.id))
+        response = self.client.post(url, follow=True,
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'description':   description,
+                                          'parent_folder': parent.id,
+                                          'category':      other_cat.id
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         folder = self.get_object_or_fail(Folder, title=title)
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
-#        self.assertEqual(category,    folder.category)
         self.assertEqual(other_cat,   folder.category)
 
     def test_createview03(self):
@@ -139,7 +120,7 @@ class FolderTestCase(_DocumentsTestCase):
                                     data={'user':          user.pk,
                                           'title':         title,
                                           'description':   description,
-                                          'parent_folder': unused.id, # should not be used
+                                          'parent_folder': unused.id,  # Should not be used
                                          }
                                    )
         self.assertNoFormError(response)
@@ -272,13 +253,13 @@ class FolderTestCase(_DocumentsTestCase):
 
         url = self.build_inneredit_url(folder1, 'parent_folder')
         response = self.assertPOST200(url, data={'field_value': folder3.id})
-        self.assertFormError(response, 'form', None, #'field_value',
+        self.assertFormError(response, 'form', None,
                              _(u'This folder is one of the child folders of «%(folder)s»') % {
                                     'folder': folder1,
                                   }
                             )
 
-        #-----
+        # -----
         response = self.client.post(url, data={'field_value': folder1.pk})
         self.assertNoFormError(response)
         self.assertIsNone(self.refresh(folder1).parent_folder)
@@ -379,7 +360,7 @@ class FolderTestCase(_DocumentsTestCase):
                          sub_title
                         )
 
-        #------
+        # ------
         response = self.assertGET200(self.LIST_URL, data={'parent_id': 'invalid'})
 
         with self.assertNoException():
@@ -414,14 +395,7 @@ class FolderTestCase(_DocumentsTestCase):
         folder = Folder.objects.create(user=self.user, title='ToBeDel', description="remove me")
 
         title = 'Boring title'
-#        self._create_doc(title, folder=folder, description='Boring description too',
-#                         file_obj=self._build_filedata('Content (FolderTestCase.test_deleteview02)')[0],
-#                        )
-#        doc = self.get_object_or_fail(Document, title=title)
-        doc = self._create_doc(title, folder=folder,
-                               #description='Boring description too',
-                               #file_obj=self._build_filedata('Content (FolderTestCase.test_deleteview02)')[0],
-                              )
+        doc = self._create_doc(title, folder=folder)
         self.assertEqual(folder, doc.folder)
 
         folder.trash()
@@ -429,7 +403,6 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertPOST403('/creme_core/entity/delete/%s' % folder.pk)
         self.assertStillExists(folder)
 
-    #@override_settings(BLOCK_SIZE=max(4, settings.BLOCK_SIZE))
     def test_block(self):
         "Block which display contained docs"
         from creme.documents.blocks import folder_docs_block
@@ -442,23 +415,13 @@ class FolderTestCase(_DocumentsTestCase):
                                        category=FolderCategory.objects.all()[0]
                                       )
 
-#        def create_doc(title, folder=None):
-#            self._create_doc(title, folder=folder, description='Test description',
-#                             file_obj=self._build_filedata('%s : Content' % title)[0],
-#                            )
-#
-#            return self.get_object_or_fail(Document, title=title)
         create_doc = self._create_doc
-
         doc1 = create_doc('Test doc #1', folder=folder)
         doc2 = create_doc('Test doc #2', folder=folder)
         doc3 = create_doc('Test doc #3')
         doc4 = create_doc('Test doc #4', folder=folder)
 
         doc4.trash()
-
-        #if settings.BLOCK_SIZE < 4:
-            #settings.BLOCK_SIZE = 4
 
         content = self.assertGET200(folder.get_absolute_url()).content
         block_start_index = content.find(smart_str('id="%s"' % folder_docs_block.id_))
@@ -474,7 +437,7 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertIn(doc1.title, block_str)
         self.assertIn(doc2.title, block_str)
         self.assertNotIn(doc3.title, block_str)
-        #self.assertNotIn(doc4.title, block_str) TODO (see blocks.py)
+        # self.assertNotIn(doc4.title, block_str) TODO (see blocks.py)
 
     def test_merge01(self):
         user = self.user
@@ -514,7 +477,7 @@ class FolderTestCase(_DocumentsTestCase):
                                           'description_2':      folder2.description,
                                           'description_merged': folder2.description,
 
-                                          # should be ignored
+                                          # Should be ignored
                                           'parent_folder_1':      '',
                                           'parent_folder_2':      '',
                                           'parent_folder_merged': folder3.id,
@@ -552,6 +515,6 @@ class FolderTestCase(_DocumentsTestCase):
         # -------------
         form = self.assertGET200(build_url(folder3, folder1)).context['form']
 
-        # swapped
+        # Swapped
         self.assertEqual(folder1, getattr(form, 'entity1', None))
         self.assertEqual(folder3, getattr(form, 'entity2', None))
