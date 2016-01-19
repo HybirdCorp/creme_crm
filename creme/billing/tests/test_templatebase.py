@@ -8,11 +8,10 @@ try:
 
     from creme.creme_core.models import Relation
 
-    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..models import (InvoiceStatus, QuoteStatus, SalesOrderStatus,
-            AdditionalInformation, PaymentTerms)  # TemplateBase Invoice Quote SalesOrder
+            AdditionalInformation, PaymentTerms)
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import (_BillingTestCase, skipIfCustomTemplateBase,
             skipIfCustomInvoice, skipIfCustomQuote, skipIfCustomSalesOrder,
@@ -193,4 +192,4 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         self.assertEqual(1, order.status.id)
 
-    #TODO: test form
+    # TODO: test form

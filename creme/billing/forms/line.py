@@ -36,7 +36,6 @@ from creme.products.forms.fields import CategoryField
 from .. import get_service_line_model, get_product_line_model
 from ..constants import (REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY,
         DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
-#from ..models import ProductLine, ServiceLine #Line
 
 
 ProductLine = get_product_line_model()
@@ -62,7 +61,7 @@ class _LineMultipleAddForm(CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super(_LineMultipleAddForm, self).__init__(*args, **kwargs)
         self.billing_document = entity
-        self.fields['vat'].initial = Vat.get_default_vat() #not in field declaration because default value can change
+        self.fields['vat'].initial = Vat.get_default_vat()  # Not in field declaration because default value can change
 
     def clean_items(self):
         return validate_linkable_entities(self.cleaned_data['items'], self.user)

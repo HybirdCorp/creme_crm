@@ -22,7 +22,7 @@ from decimal import Decimal, InvalidOperation
 import logging
 
 from django.utils.formats import number_format
-from django.utils.translation import ugettext as _ # pgettext
+from django.utils.translation import ugettext as _  # pgettext
 
 from .constants import ROUND_POLICY
 
@@ -36,6 +36,7 @@ def round_to_2(decimal_instance):
     except InvalidOperation as e:
         logger.debug("round_to_2: InvalidOperation : %s", e)
         return Decimal()
+
 
 def print_discount(entity, fval, user, field):
     # TODO: print 'None' only on detail views => we need this info in printers

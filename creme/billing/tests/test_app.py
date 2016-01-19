@@ -10,15 +10,8 @@ try:
     from creme.creme_core.models import (RelationType, CremeProperty, Vat,
             SettingValue, BlockDetailviewLocation)
 
-    # from creme.persons import get_contact_model, get_organisation_model
-    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    # from creme.products import get_product_model, get_service_model
-
-    # from .. import (get_invoice_model, get_quote_model, get_sales_order_model,
-    #         get_credit_note_model, get_template_base_model,
-    #         get_product_line_model, get_service_line_model)
     from ..blocks import persons_statistics_block
     from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
             REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
@@ -34,23 +27,10 @@ except Exception as e:
 
 class AppTestCase(_BillingTestCase, CremeTestCase):
     def test_populate(self):
-        # Organisation = get_organisation_model()
-        # Contact = get_contact_model()
-        # Product = get_product_model()
-        # Service = get_service_model()
-
-        # Invoice    = get_invoice_model()
-        # Quote      = get_quote_model()
-        # SalesOrder = get_sales_order_model()
-
-#        billing_classes = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-#        lines_clases = [ProductLine, ServiceLine] #Line
         billing_classes = [Invoice, Quote, SalesOrder,
-                           # get_credit_note_model(), get_template_base_model(),
                            CreditNote, TemplateBase,
                           ]
-        # lines_clases = [get_product_line_model(), get_service_line_model()] #Line
-        lines_clases = [ProductLine, ServiceLine] # Line
+        lines_clases = [ProductLine, ServiceLine]
 
         self.get_relationtype_or_fail(REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
         self.get_relationtype_or_fail(REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
@@ -61,8 +41,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
         self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
 
-        #self.assertEqual(5, Vat.objects.count()) #in creme_core populate...
-        self.assertTrue(Vat.objects.exists()) #in creme_core populate...
+        self.assertTrue(Vat.objects.exists())  # In creme_core populate...
 
         # Contribution to activities
         from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
@@ -81,11 +60,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
     @skipIfCustomOrganisation
     def test_algoconfig(self):
         user = self.login()
-
-        # Invoice    = get_invoice_model()
-        # Quote      = get_quote_model()
-        # SalesOrder = get_sales_order_model()
-
         orga = Organisation.objects.create(user=user, name='NERV')
 
         self.assertFalse(ConfigBillingAlgo.objects.filter(organisation=orga))

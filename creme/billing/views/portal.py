@@ -25,7 +25,6 @@ from creme.creme_core.views.generic import app_portal
 from creme.creme_config.utils import generate_portal_url
 
 from .. import get_invoice_model, get_quote_model, get_sales_order_model
-#from creme.billing.models import Base, Invoice, Quote, SalesOrder
 
 
 def portal(request):
@@ -36,7 +35,6 @@ def portal(request):
     Quote      = get_quote_model()
     SalesOrder = get_sales_order_model()
     stats = (
-#                (_('Total number of documents'), Base.objects.count()),
                 (_('Number of invoices'),        Invoice.objects.count()),
                 (_('Number of quotes'),          Quote.objects.count()),
                 (_('Number of salesorders'),     SalesOrder.objects.count()),

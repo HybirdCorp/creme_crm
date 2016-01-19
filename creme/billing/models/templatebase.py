@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import timedelta #date
+from datetime import timedelta
 import logging
 import warnings
 
@@ -45,25 +45,22 @@ class _VerboseStatusField(FunctionField):
 #    def populate_entities(cls, entities):
 
 
-#class TemplateBase(Base):
 class AbstractTemplateBase(Base):
     ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
     status_id = PositiveIntegerField(editable=False).set_tags(viewable=False) #TODO: avoid deletion of status
 
     function_fields = Base.function_fields.new(_VerboseStatusField())
-    creation_label = pgettext_lazy('billing', u'Add a template') #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
+    #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
+    creation_label = pgettext_lazy('billing', u'Add a template')
 
     _verbose_status_cache = None
 
-#    class Meta:
     class Meta(Base.Meta):
-#        app_label = 'billing'
         abstract = True
         verbose_name = pgettext_lazy('billing', u'Template')
         verbose_name_plural = pgettext_lazy('billing', u'Templates')
 
     def get_absolute_url(self):
-#        return "/billing/template/%s" % self.id
         return reverse('billing__view_template', args=(self.id,))
 
     @staticmethod
@@ -71,7 +68,6 @@ class AbstractTemplateBase(Base):
         return ''
 
     def get_edit_absolute_url(self):
-#        return "/billing/template/edit/%s" % self.id
         return reverse('billing__edit_template', args=(self.id,))
 
     def get_delete_absolute_url(self):
@@ -81,7 +77,6 @@ class AbstractTemplateBase(Base):
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/billing/templates"
         return reverse('billing__list_templates')
 
     def get_generator(self):
@@ -125,7 +120,7 @@ class AbstractTemplateBase(Base):
         # Common rules for the recurrent generation of a "base" object for billing app.
         # See base's child for specific rules
         instance.generate_number()
-        instance.expiration_date = instance.issuing_date + timedelta(days=30) #TODO: user configurable rules ???
+        instance.expiration_date = instance.issuing_date + timedelta(days=30)  # TODO: user configurable rules ???
 
         instance.additional_info = self.additional_info
         instance.payment_terms   = self.payment_terms
@@ -140,7 +135,6 @@ class AbstractTemplateBase(Base):
         # Specific generation rules
         self.status_id = 1
         self.ct = new_ct
-#        return super(TemplateBase, self).build(template)
         return super(AbstractTemplateBase, self).build(template)
 
 

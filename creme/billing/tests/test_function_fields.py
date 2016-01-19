@@ -13,8 +13,6 @@ try:
     from creme.creme_core.core.function_field import FunctionField
     from creme.creme_core.models import CremeProperty, FieldsConfig
 
-    # from creme.persons import get_contact_model
-    # from creme.persons.models import Organisation #, Contact
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..function_fields import (get_total_pending,
@@ -30,7 +28,7 @@ except Exception as e:
 @skipIfCustomOrganisation
 class FunctionFieldTestCase(_BillingTestCase):
     def setUp(self):
-        #_BillingTestCase.setUp(self)
+        # _BillingTestCase.setUp(self)
         self.login()
         self.won_status = QuoteStatus.objects.create(name='won_status', won=True)
         self.pending_payment_status = InvoiceStatus.objects.create(name='pending_payment',
@@ -108,7 +106,7 @@ class FunctionFieldTestCase(_BillingTestCase):
                             descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
                            )
 
-        quote.acceptation_date = self.today_date #- year
+        quote.acceptation_date = self.today_date
         self._set_manages_by_creme(source)
 
         with self.assertNumQueries(1):
@@ -186,7 +184,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         with self.assertNoException():
             off_mngr = Organisation.function_fields
             cff_mngr = Contact.function_fields
-#             cff_mngr = get_contact_model().function_fields
 
         for funf in chain(off_mngr, cff_mngr):
             self.assertIsInstance(funf, FunctionField)

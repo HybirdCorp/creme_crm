@@ -18,42 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from decimal import Decimal
 from functools import partial
 import logging
 
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, DecimalField, BooleanField, TextField,
         PositiveIntegerField, ForeignKey, PROTECT) #IntegerField
-#from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
-#from creme.creme_core.core.function_field import FunctionField
 
 from ..constants import (REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK,
-        DISCOUNT_UNIT, DEFAULT_DECIMAL, DEFAULT_QUANTITY) # LINE_TYPES
+        DISCOUNT_UNIT, DEFAULT_DECIMAL, DEFAULT_QUANTITY)
 from ..utils import round_to_2
 
 
 logger = logging.getLogger(__name__)
 
 
-#class _LineTypeField(FunctionField):
-#    name         = "get_verbose_type"
-#    verbose_name = _(u'Line type')
-#    has_filter   = True
-#    choices      = LINE_TYPES.items()
-#
-#    @classmethod
-#    def filter_in_result(cls, search_string):
-#        return Q(type=search_string)
+# TODO: use a smart workflow engine to update the BillingModel only once when several lines are edited
+#       for the moment when have to re-save the model manually.
 
-
-#TODO: use a smart workflow engine to update the BillingModel only once when several lines are edited
-#      for the moment when have to re-save the model manually.
-
-#class Line(CremeEntity):
 class Line(CremeEntity):
     on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=True, null=True)
     comment         = TextField(_('Comment'), blank=True, null=True)
@@ -61,18 +46,14 @@ class Line(CremeEntity):
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     unit            = CharField(_(u'Unit'), max_length=100, blank=True, null=True)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
-    #TODO: remove total_discount & add a choice to discount_unit (see EditForm)
-    #TODO: null=False ???
+    # TODO: remove total_discount & add a choice to discount_unit (see EditForm)
+    # TODO: null=False ???
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, editable=False,
                                            choices=DISCOUNT_UNIT.items(), default=PERCENT_PK,
                                           )
     total_discount  = BooleanField(_('Total discount ?'), editable=False, default=False)
-    vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT) #TODO null=False
-#    type            = IntegerField(_(u'Type'), blank=False, null=False,
-#                                   choices=LINE_TYPES.items(), editable=False,
-#                                  ).set_tags(viewable=False)
+    vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT)  # TODO null=False
 
-#    function_fields = CremeEntity.function_fields.new(_LineTypeField())
     creation_label = _('Add a line')
 
     _related_document = False
@@ -86,7 +67,9 @@ class Line(CremeEntity):
         ordering = ('created',)
 
     def _pre_delete(self):
-        for relation in Relation.objects.filter(type__in=[REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM], subject_entity=self.id):
+        for relation in Relation.objects.filter(type__in=[REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM],
+                                                subject_entity=self.id,
+                                               ):
             relation._delete_without_transaction()
 
     def _pre_save_clone(self, source):
@@ -101,7 +84,7 @@ class Line(CremeEntity):
                                               ),
                                       code='invalid_percentage',
                                      )
-        elif self.total_discount: # Global discount
+        elif self.total_discount:  # Global discount
             if self.discount > self.unit_price * self.quantity:
                 raise ValidationError(ugettext(u"Your overall discount is superior than"
                                                u" the total line (unit price * quantity)"
@@ -129,10 +112,9 @@ class Line(CremeEntity):
         super(Line, self).clean()
 
     def clone(self, new_related_document=None):
-        #BEWARE: CremeProperty and Relation are not cloned (except our 2 internal relations)
+        # BEWARE: CremeProperty and Relation are not cloned (except our 2 internal relations)
         self._new_related_document = new_related_document or self.related_document
 
-        #return self._clone_object() #NB: it does not copy our 2 internal relations
         return super(Line, self).clone()
 
     def get_absolute_url(self):
@@ -155,11 +137,7 @@ class Line(CremeEntity):
         unit_price_line         = self.unit_price
 
         if self.discount_unit == PERCENT_PK and discount_line:
-            #if global_discount_line:
-                #product_qt_up = self.quantity * unit_price_line
-                #total_after_first_discount = product_qt_up - (product_qt_up * discount_line / 100)
-            #else:
-                total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * discount_line / 100 ))
+            total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * discount_line / 100 ))
         elif global_discount_line:
             total_after_first_discount = self.quantity * unit_price_line - discount_line
         else:
@@ -171,7 +149,7 @@ class Line(CremeEntity):
 
         return round_to_2(total_exclusive_of_tax)
 
-    def get_related_entity(self): #for generic views & delete
+    def get_related_entity(self):  # For generic views & delete
         return self.related_document
 
     @property
@@ -199,7 +177,9 @@ class Line(CremeEntity):
     def related_item(self):
         if not self._related_item and not self.on_the_fly_item:
             try:
-                self._related_item = self.relations.get(type=REL_SUB_LINE_RELATED_ITEM, subject_entity=self.id).object_entity.get_real_entity()
+                self._related_item = self.relations.get(type=REL_SUB_LINE_RELATED_ITEM,
+                                                        subject_entity=self.id,
+                                                       ).object_entity.get_real_entity()
             except Relation.DoesNotExist:
                 logger.warn('Line.related_item(): relation does not exist !!')
 
@@ -210,15 +190,8 @@ class Line(CremeEntity):
         assert self.pk is None, 'Line.related_item(setter): line is already saved (can not change any more).'
         self._related_item = entity
 
-#    @staticmethod
-#    def get_lv_absolute_url():
-#        return '/billing/lines'
-
-#    def get_verbose_type(self):
-#        return LINE_TYPES.get(self.type, "")
-
     def save(self, *args, **kwargs):
-        if not self.pk: #creation
+        if not self.pk:  # Creation
             assert self._related_document, 'Line.related_document is required'
             assert bool(self._related_item) ^ bool(self.on_the_fly_item), 'Line.related_item or Line.on_the_fly_item is required'
 
@@ -234,5 +207,5 @@ class Line(CremeEntity):
         else:
             super(Line, self).save(*args, **kwargs)
 
-        #TODO: problem, if several lines are added/edited at once, lots of useless queries (workflow engine ??)
-        self.related_document.save() #update totals
+        # TODO: problem, if several lines are added/edited at once, lots of useless queries (workflow engine ??)
+        self.related_document.save()  # Update totals

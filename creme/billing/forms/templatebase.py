@@ -18,13 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ChoiceField # IntegerField
+from django.forms import ChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext
-#from django.contrib.contenttypes.models import ContentType
-#from django.forms.widgets import HiddenInput
 
 from .. import get_template_base_model
-#from ..models import TemplateBase
 from .base import BaseEditForm, copy_or_create_address, first_managed_orga_id
 
 
@@ -32,7 +29,6 @@ class _TemplateBaseForm(BaseEditForm):
     status = ChoiceField(label=_(u'Status'), choices=())
 
     class Meta:
-#        model = TemplateBase
         model = get_template_base_model()
         exclude = BaseEditForm.Meta.exclude + ('ct', 'status_id')
 
@@ -63,20 +59,11 @@ class TemplateBaseEditForm(_TemplateBaseForm):
 
 
 class TemplateBaseCreateForm(_TemplateBaseForm):
-    #ct = IntegerField(widget=HiddenInput())
-
-    #def __init__(self, *args, **kwargs):
-    def __init__(self, ct, *args, **kwargs): #'ct' arg => see RecurrentGeneratorWizard
+    def __init__(self, ct, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
         super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)
-        #self._build_status_field(ContentType.objects.get_for_id(kwargs['initial']['ct']))
         self._build_status_field(ct)
         self.instance.ct = ct
         self.fields['source'].initial = first_managed_orga_id()
-
-    #def save(self):
-        #self.instance.ct = ContentType.objects.get_for_id(self.cleaned_data['ct'])
-
-        #return super(TemplateBaseCreateForm, self).save()
 
     def save(self, *args, **kwargs):
         instance = super(TemplateBaseCreateForm, self).save(*args, **kwargs)

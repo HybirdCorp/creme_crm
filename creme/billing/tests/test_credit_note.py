@@ -9,10 +9,9 @@ try:
 
     from creme.creme_core.models import Relation, Currency, FieldsConfig
 
-    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import CreditNoteStatus  # CreditNote, ProductLine
+    from ..models import CreditNoteStatus
     from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
     from .base import (_BillingTestCase, skipIfCustomCreditNote,
             skipIfCustomProductLine, skipIfCustomInvoice,
@@ -31,17 +30,12 @@ class CreditNoteTestCase(_BillingTestCase):
         return reverse('billing__edit_cnote_comment', args=(credit_note.id,))
 
     def _build_deleterelated_url(self, credit_note, invoice):
-#        return '/billing/credit_note/delete_related/%(credit_note)d/from/%(invoice)d/' % {
-#                    'credit_note': credit_note.id,
-#                    'invoice': invoice.id,
-#                }
         return reverse('billing__delete_related_cnote', args=(credit_note.id, invoice.id))
 
     def create_credit_note(self, name, source, target, currency=None, discount=Decimal(), user=None, status=None):
         user = user or self.user
         status = status or CreditNoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
-#        response = self.client.post('/billing/credit_note/add', follow=True,
         response = self.client.post(reverse('billing__create_cnote'), follow=True,
                                     data={'user':            user.pk,
                                           'name':            name,
@@ -81,7 +75,6 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_createview01(self):
         "Credit note total < billing document total where the credit note is applied"
-#        self.assertGET200('/billing/credit_note/add')
         self.assertGET200(reverse('billing__create_cnote'))
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
@@ -94,8 +87,10 @@ class CreditNoteTestCase(_BillingTestCase):
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("299"))
 
-        # TODO the credit note must be valid : Status OK (not out of date or consumed), Target = Billing document's target and currency = billing document's currency
-        # Theses rules must be applied with q filter on list view before selection
+        # TODO: the credit note must be valid : Status OK (not out of date or consumed),
+        #                                       Target = Billing document's target
+        #                                       currency = billing document's currency
+        # These rules must be applied with q filter on list view before selection
         Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
                                 type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
                                )
@@ -137,7 +132,6 @@ class CreditNoteTestCase(_BillingTestCase):
 
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("-100"))
-
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("1"))
@@ -215,7 +209,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view(self):
-        "attach credit note to existing invoice"
+        "Attach credit note to existing invoice"
         user = self.user
         create_line = partial(ProductLine.objects.create, user=user)
 
@@ -224,7 +218,6 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
-#        url = '/billing/credit_note/add_related_to/%d/' % invoice.id
         url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         self.assertGET200(url)
 
@@ -241,19 +234,17 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 250)
 
-        # check invoice view (bug in block_credit_note.html)
-#        self.assertGET200('/billing/invoice/%d' % invoice.id)
+        # Check invoice view (bug in block_credit_note.html)
         self.assertGET200(invoice.get_absolute_url())
 
     def test_addrelated_view_no_invoice(self):
-        "cannot attach credit note to invalid invoice"
-#        self.assertGET404('/billing/credit_note/add_related_to/%d/' % 12445)
+        "Cannot attach credit note to invalid invoice"
         self.assertGET404(reverse('billing__link_to_cnotes', args=(12445,)))
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view_not_same_currency(self):
-        "cannot attach credit note in US Dollar to invoice in Euro"
+        "Cannot attach credit note in US Dollar to invoice in Euro"
         user = self.user
         create_line = partial(ProductLine.objects.create, user=user)
         us_dollar = Currency.objects.all()[1]
@@ -263,7 +254,6 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
-#        url = '/billing/credit_note/add_related_to/%d/' % invoice.id
         url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         self.assertGET200(url)
 
@@ -280,8 +270,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
 
-        # check invoice view (bug in block_credit_note.html)
-#        self.assertGET200('/billing/invoice/%d' % invoice.id)
+        # Check invoice view (bug in block_credit_note.html)
         self.assertGET200(invoice.get_absolute_url())
 
     @skipIfCustomInvoice
@@ -297,12 +286,13 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
-#        url = '/billing/credit_note/add_related_to/%d/' % invoice.id
         url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         self.assertGET200(url)
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target, currency=us_dollar)
+        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source,
+                                              target=invoice_target, currency=us_dollar,
+                                             )
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
         Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
@@ -318,14 +308,13 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 250)
 
-        # check invoice view (bug in block_credit_note.html)
-#        self.assertGET200('/billing/invoice/%d' % invoice.id)
+        # Check invoice view (bug in block_credit_note.html)
         self.assertGET200(invoice.get_absolute_url())
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view_already_not_same_target(self):
-        "cannot attach credit note in US Dollar to invoice in Euro"
+        "Cannot attach credit note in US Dollar to invoice in Euro"
         user = self.user
         create_line = partial(ProductLine.objects.create, user=user)
 
@@ -333,7 +322,6 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
-#        url = '/billing/credit_note/add_related_to/%d/' % invoice.id
         url = reverse('billing__link_to_cnotes', args=(invoice.id,))
         self.assertGET200(url)
 
@@ -453,4 +441,4 @@ class CreditNoteTestCase(_BillingTestCase):
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         self.assertGET409(self._build_editcomment_url(credit_note))
 
-    #TODO: complete (other views)
+    # TODO: complete (other views)

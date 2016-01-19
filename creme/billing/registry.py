@@ -23,7 +23,6 @@ from imp import find_module
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +42,7 @@ class AlgoRegistry(object):
 
         for name, algo in to_register:
             if algos.has_key(name):
-                logger.warning("Duplicate algo's id or algo registered twice : %s", name) #exception instead ???
+                logger.warning("Duplicate algo's id or algo registered twice : %s", name)  # exception instead ???
 
             algos[name] = algo
 
@@ -63,17 +62,8 @@ class AlgoRegistry(object):
 
 algo_registry = AlgoRegistry()
 
-#TODO: use creme_core.utils.import find_n_import
+# TODO: use creme_core.utils.import find_n_import
 logger.debug('Billing: algos registering')
-#for app in settings.INSTALLED_APPS:
-#    try:
-#        find_module("billing_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-#    except ImportError, e:
-#        # there is no app creme_config.py, skip it
-#        continue
-#
-#    algos_import = __import__("%s.billing_register" % app , globals(), locals(), ['to_register'], -1)
-#    algo_registry.register(*algos_import.to_register)
 for app_config in apps.get_app_configs():
     app_name = app_config.name
 
@@ -89,7 +79,7 @@ for app_config in apps.get_app_configs():
 
 class RelationTypeConverterRegistry(object):
     """ This registry is used when converting a billing document into another billing document.
-    The relationtypes which contenttypes doesn't match after the conversion also have to be
+    The RelationTypes which ContentType doesn't match after the conversion also have to be
     converted into a compatible one.
     """
     def __init__(self):

@@ -10,10 +10,9 @@ try:
     from creme.creme_core.models import Currency
 
     from creme.persons.constants import REL_SUB_PROSPECT
-    # from creme.persons.models import Organisation, Address
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..models import QuoteStatus  # Quote, ServiceLine
+    from ..models import QuoteStatus
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomServiceLine,
            Organisation, Address, Quote, ServiceLine)
@@ -25,11 +24,10 @@ except Exception as e:
 @skipIfCustomQuote
 class QuoteTestCase(_BillingTestCase):
     def setUp(self):
-        #_BillingTestCase.setUp(self)
+        # _BillingTestCase.setUp(self)
         self.login()
 
     def test_createview01(self):
-#        self.assertGET200('/billing/quote/add')
         self.assertGET200(reverse('billing__create_quote'))
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
@@ -45,7 +43,6 @@ class QuoteTestCase(_BillingTestCase):
 
     def test_create_related(self):
         source, target = self.create_orgas()
-#        url = '/billing/quote/add/%s/source/%s' % (target.id, source.id)
         url = reverse('billing__create_related_quote', args=(target.id,))
         response = self.assertGET200(url)
 
@@ -53,7 +50,6 @@ class QuoteTestCase(_BillingTestCase):
             form = response.context['form']
 
         self.assertEqual({'status': 1,
-                          #'source': str(source.id),
                           'target': target,
                          },
                          form.initial
@@ -89,12 +85,13 @@ class QuoteTestCase(_BillingTestCase):
         name = 'my quote'
         quote, source, target = self.create_quote_n_orgas(name)
 
-#        url = '/billing/quote/edit/%s' % quote.id
         url = quote.get_edit_absolute_url()
         self.assertGET200(url)
 
         name     = name.title()
-        currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$', international_symbol=u'MUSD', is_custom=True)
+        currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$',
+                                           international_symbol=u'MUSD', is_custom=True,
+                                          )
         status   = QuoteStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
                                     data={'user':            self.user.pk,
@@ -123,7 +120,6 @@ class QuoteTestCase(_BillingTestCase):
         quote1 = self.create_quote_n_orgas('Quote1')[0]
         quote2 = self.create_quote_n_orgas('Quote2')[0]
 
-#        response = self.assertGET200('/billing/quotes')
         response = self.assertGET200(Quote.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -162,10 +158,10 @@ class QuoteTestCase(_BillingTestCase):
                                   )
         target.save()
 
-        #status = QuoteStatus.objects.filter(is_default=False)[0] TODO
+        # status = QuoteStatus.objects.filter(is_default=False)[0] TODO
 
         quote = self.create_quote('Quote001', source, target,
-                                  #status=status,
+                                  # status=status,
                                  )
         quote.acceptation_date = date.today()
         quote.save()
@@ -178,17 +174,17 @@ class QuoteTestCase(_BillingTestCase):
         quote = self.refresh(quote)
 
         self.assertIsNone(cloned.acceptation_date)
-        #self.assertTrue(cloned.status..is_default) TODO
+        # self.assertTrue(cloned.status.is_default) TODO
 
-        self.assertNotEqual(quote, cloned)#Not the same pk
+        self.assertNotEqual(quote, cloned)  # Not the same pk
         self.assertEqual(source, cloned.get_source().get_real_entity())
         self.assertEqual(target, cloned.get_target().get_real_entity())
 
-        #Lines are cloned
+        # Lines are cloned
         self.assertEqual(1, len(cloned.service_lines))
         self.assertNotEqual([sl], list(cloned.service_lines))
 
-        #Addresses are cloned
+        # Addresses are cloned
         billing_address = cloned.billing_address
         self.assertIsInstance(billing_address, Address)
         self.assertEqual(cloned,      billing_address.owner)

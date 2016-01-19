@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _ # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -28,8 +27,7 @@ from creme.creme_core.views.generic import add_entity, edit_entity, list_view, v
 from .. import get_quote_model, get_invoice_model, get_sales_order_model
 from ..constants import DEFAULT_HFILTER_QUOTE
 from ..forms.quote import QuoteCreateForm, QuoteEditForm
-#from ..models import Quote
-from ..views.workflow import generic_add_related #_add_with_relations
+from ..views.workflow import generic_add_related
 
 
 Quote = get_quote_model()
@@ -67,7 +65,6 @@ def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
     isnt_staff = not user.is_staff
 
     return view_entity(request, quote_id, Quote,
-                       # '/billing/quote',
                        template=template,
                        extra_template_dict={
                             'can_download':       True,
@@ -78,18 +75,11 @@ def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
 
 
 @login_required
-# @permission_required(('billing', 'billing.add_quote'))
 @permission_required(('billing', cperm(Quote)))
 def add(request):
     return abstract_add_quote(request)
 
 
-#@login_required
-#@permission_required(('billing', 'billing.add_quote'))
-#def add_with_relations(request, target_id, source_id):
-#    return _add_with_relations(request, target_id, source_id, QuoteCreateForm,
-#                               ugettext(u"Add a quote for <%s>"), status_id=1,
-#                              )
 @login_required
 @permission_required(('billing', cperm(Quote)))
 def add_related(request, target_id):
@@ -111,6 +101,4 @@ def detailview(request, quote_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, Quote, hf_pk=DEFAULT_HFILTER_QUOTE,
-                     # extra_dict={'add_url': reverse('billing__create_quote')}
-                    )
+    return list_view(request, Quote, hf_pk=DEFAULT_HFILTER_QUOTE)

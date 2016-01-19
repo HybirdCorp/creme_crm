@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from datetime import date
 import logging
 
 from django.apps import apps
@@ -36,22 +35,18 @@ from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Organisation, Contact
 
 from creme.products import get_product_model, get_service_model
-#from creme.products.models import Product, Service
 
 from . import (get_credit_note_model, get_invoice_model, get_quote_model,
         get_sales_order_model, get_template_base_model,
         get_product_line_model, get_service_line_model)
 from . import blocks, buttons, constants, setting_keys
-#from .models import *
 from .models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
         SettlementTerms, AdditionalInformation, PaymentTerms)
 
 
 logger = logging.getLogger(__name__)
-
 
 CreditNote   = get_credit_note_model()
 Invoice      = get_invoice_model()
@@ -75,7 +70,7 @@ class Populator(BasePopulator):
         Service = get_service_model()
 
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-        line_entities = [ProductLine, ServiceLine] # Line
+        line_entities = [ProductLine, ServiceLine]
         RelationType.create((constants.REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
                             (constants.REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]),
                             is_internal=True
@@ -109,8 +104,8 @@ class Populator(BasePopulator):
 
 
         create_if_needed(PaymentTerms, {'pk': 1}, name=_('Deposit'),
-                            description=_(ur'20% deposit will be required'),
-                            is_custom=False,
+                         description=_(ur'20% deposit will be required'),
+                         is_custom=False,
                         )
 
 
@@ -212,35 +207,30 @@ class Populator(BasePopulator):
         create_hf(constants.DEFAULT_HFILTER_TEMPLATE, _(u'Template view'),    TemplateBase, status=False)
 
 
-#        def create_hf_lines(hf_pk, name, model, include_type=True):
         def create_hf_lines(hf_pk, name, model):
-            cells_desc = [EntityCellRegularField.build(model=model, name='on_the_fly_item'),
-                          EntityCellRegularField.build(model=model, name='quantity'),
-                          EntityCellRegularField.build(model=model, name='unit_price'),
-                          #EntityCellRegularField.build(model=model, name='is_paid'),
-                         ]
+            build_cell = EntityCellRegularField.build
+            HeaderFilter.create(pk=hf_pk, name=name, model=model,
+                                cells_desc=[build_cell(model=model, name='on_the_fly_item'),
+                                            build_cell(model=model, name='quantity'),
+                                            build_cell(model=model, name='unit_price'),
+                                           ]
+                               )
 
-#            if include_type:
-#                cells_desc.append(EntityCellFunctionField.build(model, 'get_verbose_type'))
-
-            HeaderFilter.create(pk=hf_pk, name=name, model=model, cells_desc=cells_desc)
-
-#        create_hf_lines('billing-hg_lines',         _(u"Lines view"),         Line)
-        create_hf_lines('billing-hg_product_lines', _(u"Product lines view"), ProductLine) #include_type=False
-        create_hf_lines('billing-hg_service_lines', _(u"Service lines view"), ServiceLine) #include_type=False
+        create_hf_lines('billing-hg_product_lines', _(u"Product lines view"), ProductLine)
+        create_hf_lines('billing-hg_service_lines', _(u"Service lines view"), ServiceLine)
 
 
         for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create_if_needed(model, ['name', 'number', 'status__name'])
 
-        for model in (ProductLine, ServiceLine): #Line
+        for model in (ProductLine, ServiceLine):
             SearchConfigItem.create_if_needed(model, [], disabled=True)
 
         SettingValue.create_if_needed(key=setting_keys.payment_info_key, user=None, value=True)
 
 
         if not already_populated:
-            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', "Pending"),  order=2) # Default status
+            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', "Pending"),  order=2)  # Default status
             create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', "Accepted"), order=3, won=True)
             create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', "Rejected"), order=4)
             create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', "Created"),  order=1)
@@ -324,7 +314,7 @@ class Populator(BasePopulator):
                                              [EntityCellFunctionField.build(TemplateBase, 'get_verbose_status')],
                                       )
 
-            models_4_blocks = [(Invoice,      cbci_invoice, True), # Boolean -> insert CreditNote block
+            models_4_blocks = [(Invoice,      cbci_invoice, True),  # Boolean -> insert CreditNote block
                                (CreditNote,   cbci_c_note,  False),
                                (Quote,        cbci_quote,   True),
                                (SalesOrder,   cbci_s_order, True),
@@ -342,7 +332,6 @@ class Populator(BasePopulator):
                 if has_credit_notes:
                     create_bdl(block_id=blocks.credit_note_block.id_, order=30,  zone=TOP,   model=model)
 
-#                BlockDetailviewLocation.create_4_model_block(order=5, zone=LEFT, model=model)
                 create_bdl(block_id=cbci.generate_id(),               order=5,   zone=LEFT,  model=model)
                 create_bdl(block_id=customfields_block.id_,           order=40,  zone=LEFT,  model=model)
                 create_bdl(block_id=blocks.billing_payment_block.id_, order=60,  zone=LEFT,  model=model)
@@ -368,7 +357,6 @@ class Populator(BasePopulator):
 
             create_bdl(block_id=blocks.payment_information_block.id_, order=300, zone=LEFT,  model=Organisation)
             create_bdl(block_id=blocks.received_invoices_block.id_,   order=14,  zone=RIGHT, model=Organisation)
-#            create_bdl(block_id=blocks.received_billing_document_block.id_, order=18,  zone=RIGHT, model=Organisation)
             create_bdl(block_id=blocks.received_quotes_block.id_,     order=18,  zone=RIGHT, model=Organisation)
 
 
@@ -389,7 +377,6 @@ class Populator(BasePopulator):
         from creme.reports.models import Report, Field, ReportGraph
 
 
-#        admin = get_user_model().objects.get(pk=1)
         admin = get_user_model().objects.get_admin()
 
         def create_report_columns(report):

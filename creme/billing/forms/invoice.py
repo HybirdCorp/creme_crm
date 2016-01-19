@@ -20,7 +20,6 @@
 
 from creme.persons.workflow import transform_target_into_customer
 
-#from ..models import Invoice
 from .. import get_invoice_model
 from .base import BaseCreateForm, BaseEditForm
 

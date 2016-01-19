@@ -25,14 +25,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.gui.block import Block, SimpleBlock, QuerysetBlock
-from creme.creme_core.models import SettingValue, Relation #CremeEntity
+from creme.creme_core.models import SettingValue, Relation
 
 from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.blocks import AddressBlock
-#from creme.persons.models import Contact, Organisation
 
 from creme.products import get_product_model, get_service_model
-#from creme.products.models import Product, Service
 
 from . import (get_credit_note_model, get_invoice_model, get_quote_model,
         get_sales_order_model, get_template_base_model,
@@ -78,7 +76,6 @@ class _LineBlock(SimpleBlock):
     relation_type_deps  = (REL_SUB_HAS_LINE, )
     target_ctypes       = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     line_model          = "OVERLOAD_ME"
-#    line_type           = "OVERLOAD_ME"
     related_item_ct     = "OVERLOAD_ME"
     related_item_label  = "OVERLOAD_ME"
 
@@ -118,28 +115,24 @@ class _LineBlock(SimpleBlock):
 
 
 class ProductLinesBlock(_LineBlock):
-    id_                 = SimpleBlock.generate_id('billing', 'product_lines')
-    verbose_name        = _(u'Product lines')
-    template_name       = 'billing/templatetags/block_product_line.html'
-    line_model          = ProductLine
-#    line_type           = PRODUCT_LINE_TYPE
-#    related_item_ct     = ContentType.objects.get_for_model(Product)
-    related_item_ct     = ContentType.objects.get_for_model(get_product_model())
-    related_item_label  = _(u'Product')
+    id_                = SimpleBlock.generate_id('billing', 'product_lines')
+    verbose_name       = _(u'Product lines')
+    template_name      = 'billing/templatetags/block_product_line.html'
+    line_model         = ProductLine
+    related_item_ct    = ContentType.objects.get_for_model(get_product_model())
+    related_item_label = _(u'Product')
 
     def _get_document_lines(self, document):
         return document.product_lines
 
 
 class ServiceLinesBlock(_LineBlock):
-    id_                 = SimpleBlock.generate_id('billing', 'service_lines')
-    verbose_name        = _(u'Service lines')
-    template_name       = 'billing/templatetags/block_service_line.html'
-    line_model          = ServiceLine
-#    line_type           = SERVICE_LINE_TYPE
-#    related_item_ct     = ContentType.objects.get_for_model(Service)
-    related_item_ct     = ContentType.objects.get_for_model(get_service_model())
-    related_item_label  = _(u'Service')
+    id_                = SimpleBlock.generate_id('billing', 'service_lines')
+    verbose_name       = _(u'Service lines')
+    template_name      = 'billing/templatetags/block_service_line.html'
+    line_model         = ServiceLine
+    related_item_ct    = ContentType.objects.get_for_model(get_service_model())
+    related_item_label = _(u'Service')
 
     def _get_document_lines(self, document):
         return document.service_lines
@@ -221,36 +214,7 @@ class ReceivedInvoicesBlock(QuerysetBlock):
                 ))
 
 
-#class ReceivedBillingDocumentBlock(QuerysetBlock):
-#    id_           = QuerysetBlock.generate_id('billing', 'received_billing_document')
-#    dependencies  = (Relation, CreditNote, Quote, SalesOrder)
-#    relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
-#    verbose_name  = _(u"Received billing documents")
-#    template_name = 'billing/templatetags/block_received_billing_document.html'
-#    target_ctypes = (Contact, Organisation)
-#    order_by      = '-expiration_date'
-#
-#    def detailview_display(self, context):
-#        person_id = context['object'].id
-#        get_ct = ContentType.objects.get_for_model
-#        btc = self.get_block_template_context(
-#                    context,
-#                    Base.objects.filter(relations__object_entity=person_id,
-#                                        relations__type=REL_SUB_BILL_RECEIVED,
-#                                       )
-#                                .exclude(entity_type__in=[get_ct(TemplateBase),
-#                                                          get_ct(Invoice),
-#                                                         ]
-#                                        ),
-#                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
-#                )
-#
-#        CremeEntity.populate_real_entities(btc['page'].object_list)
-#
-#        return self._render(btc)
 class _ReceivedBillingDocumentsBlock(QuerysetBlock):
-    #id_           = QuerysetBlock.generate_id('billing', 'received_billing_document')
-    #dependencies  = (Relation, ...)
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received billing documents")
     template_name = 'billing/templatetags/block_received_billing_document.html'
@@ -258,9 +222,9 @@ class _ReceivedBillingDocumentsBlock(QuerysetBlock):
     order_by      = '-expiration_date'
 
     _billing_model = None #OVERLOAD ME
-    _title         = _('%s Received billing document') #OVERLOAD ME
-    _title_plural  = _('%s Received billing documents') #OVERLOAD ME
-    _empty_msg     = _('No received billing document for the moment') #OVERLOAD ME
+    _title         = _('%s Received billing document')  # OVERLOAD ME
+    _title_plural  = _('%s Received billing documents')  # OVERLOAD ME
+    _empty_msg     = _('No received billing document for the moment')  # OVERLOAD ME
 
     def detailview_display(self, context):
         person_id = context['object'].id
@@ -281,9 +245,9 @@ class _ReceivedBillingDocumentsBlock(QuerysetBlock):
 
 
 class ReceivedQuotesBlock(_ReceivedBillingDocumentsBlock):
-    id_           = QuerysetBlock.generate_id('billing', 'received_quotes')
-    dependencies  = (Relation, Quote)
-    verbose_name  = _(u"Received quotes")
+    id_          = QuerysetBlock.generate_id('billing', 'received_quotes')
+    dependencies = (Relation, Quote)
+    verbose_name = _(u"Received quotes")
 
     _billing_model = Quote
     _title         = _('%s Received quote')
@@ -292,9 +256,9 @@ class ReceivedQuotesBlock(_ReceivedBillingDocumentsBlock):
 
 
 class ReceivedSalesOrdersBlock(_ReceivedBillingDocumentsBlock):
-    id_           = QuerysetBlock.generate_id('billing', 'received_sales_orders')
-    dependencies  = (Relation, SalesOrder)
-    verbose_name  = _(u"Received sales orders")
+    id_          = QuerysetBlock.generate_id('billing', 'received_sales_orders')
+    dependencies = (Relation, SalesOrder)
+    verbose_name = _(u"Received sales orders")
 
     _billing_model = SalesOrder
     _title         = _('%s Received sales order')
@@ -303,9 +267,9 @@ class ReceivedSalesOrdersBlock(_ReceivedBillingDocumentsBlock):
 
 
 class ReceivedCreditNotesBlock(_ReceivedBillingDocumentsBlock):
-    id_           = QuerysetBlock.generate_id('billing', 'received_credit_notes')
-    dependencies  = (Relation, CreditNote)
-    verbose_name  = _(u"Received credit notes")
+    id_          = QuerysetBlock.generate_id('billing', 'received_credit_notes')
+    dependencies = (Relation, CreditNote)
+    verbose_name = _(u"Received credit notes")
 
     _billing_model = CreditNote
     _title         = _('%s Received credit note')
@@ -329,7 +293,7 @@ class PaymentInformationBlock(QuerysetBlock):
                and not organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME).exists():
                 has_to_be_displayed = False
         except SettingValue.DoesNotExist:
-            #Populate error ?
+            # Populate error ?
             pass
 
         if not has_to_be_displayed:
@@ -387,27 +351,26 @@ class PersonsStatisticsBlock(Block):
 
     def detailview_display(self, context):
         person = context['object']
-        return self._render(self.get_block_template_context(context,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
-                                                            total_pending=get_total_pending(person),
-                                                            total_won_quote_last_year=get_total_won_quote_last_year(person),
-                                                            total_won_quote_this_year=get_total_won_quote_this_year(person),
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+                                context,
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                total_pending=get_total_pending(person),
+                                total_won_quote_last_year=get_total_won_quote_last_year(person),
+                                total_won_quote_this_year=get_total_won_quote_this_year(person),
+                           ))
 
 
-product_lines_block             = ProductLinesBlock()
-service_lines_block             = ServiceLinesBlock()
-credit_note_block               = CreditNoteBlock()
-total_block                     = TotalBlock()
-target_block                    = TargetBlock()
-received_invoices_block         = ReceivedInvoicesBlock()
-payment_information_block       = PaymentInformationBlock()
-billing_payment_block           = BillingPaymentInformationBlock()
-#received_billing_document_block = ReceivedBillingDocumentBlock()
-received_quotes_block           = ReceivedQuotesBlock()
-billing_address_block           = BillingAddressBlock()
-persons_statistics_block        = PersonsStatisticsBlock()
+product_lines_block       = ProductLinesBlock()
+service_lines_block       = ServiceLinesBlock()
+credit_note_block         = CreditNoteBlock()
+total_block               = TotalBlock()
+target_block              = TargetBlock()
+received_invoices_block   = ReceivedInvoicesBlock()
+payment_information_block = PaymentInformationBlock()
+billing_payment_block     = BillingPaymentInformationBlock()
+received_quotes_block     = ReceivedQuotesBlock()
+billing_address_block     = BillingAddressBlock()
+persons_statistics_block  = PersonsStatisticsBlock()
 
 block_list = (
         product_lines_block,
@@ -418,7 +381,6 @@ block_list = (
         received_invoices_block,
         payment_information_block,
         billing_payment_block,
-#        received_billing_document_block,
         received_quotes_block,
         ReceivedSalesOrdersBlock(),
         ReceivedCreditNotesBlock(),

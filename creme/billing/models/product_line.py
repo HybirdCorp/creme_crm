@@ -21,21 +21,13 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-#from ..constants import PRODUCT_LINE_TYPE
 from .line import Line
 
 
-#class ProductLine(Line):
 class AbstractProductLine(Line):
     creation_label = _('Add a product line')
 
-#    def __init__(self, *args, **kwargs):
-#        super(ProductLine, self).__init__(*args, **kwargs)
-#        self.type = PRODUCT_LINE_TYPE
-
-#    class Meta:
     class Meta(Line.Meta):
-#        app_label = 'billing'
         abstract = True
         verbose_name = _(u'Product line')
         verbose_name_plural = _(u'Product lines')
@@ -48,7 +40,6 @@ class AbstractProductLine(Line):
 
     @staticmethod
     def get_lv_absolute_url():
-#        return '/billing/product_lines'
         return reverse('billing__list_product_lines')
 
 

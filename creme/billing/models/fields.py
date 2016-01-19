@@ -20,7 +20,8 @@
 
 from django.db.models import DecimalField
 
-# NB: useful to have a specific printer + a specifi form field
+
+# NB: useful to have a specific printer + a specific form field
 class BillingDiscountField(DecimalField):
     def formfield(self, **kwargs):
         from ..forms.fields import BillingDiscountField as FormBillingDiscountField

@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _ #ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -28,8 +27,7 @@ from creme.creme_core.views.generic import add_entity, edit_entity, list_view, v
 from .. import get_sales_order_model, get_invoice_model
 from ..constants import DEFAULT_HFILTER_ORDER
 from ..forms.sales_order import SalesOrderCreateForm, SalesOrderEditForm
-#from ..models import SalesOrder
-from ..views.workflow import generic_add_related #_add_with_relations
+from ..views.workflow import generic_add_related
 
 
 SalesOrder = get_sales_order_model()
@@ -64,7 +62,6 @@ def abstract_view_salesorder(request, order_id, template='billing/view_sales_ord
     user = request.user
 
     return view_entity(request, order_id, SalesOrder,
-                       # '/billing/sales_order',
                        template=template,
                        extra_template_dict={
                             'can_download':       True,
@@ -74,18 +71,11 @@ def abstract_view_salesorder(request, order_id, template='billing/view_sales_ord
 
 
 @login_required
-# @permission_required(('billing', 'billing.add_salesorder'))
 @permission_required(('billing', cperm(SalesOrder)))
 def add(request):
     return abstract_add_salesorder(request)
 
 
-#@login_required
-#@permission_required(('billing', 'billing.add_salesorder'))
-#def add_with_relations(request, target_id, source_id):
-#    return _add_with_relations(request, target_id, source_id, SalesOrderCreateForm,
-#                               ugettext(u"Add a sales order for <%s>"), status_id=1,
-#                              )
 @login_required
 @permission_required(('billing', cperm(SalesOrder)))
 def add_related(request, target_id):
@@ -107,6 +97,4 @@ def detailview(request, order_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, SalesOrder, hf_pk=DEFAULT_HFILTER_ORDER,
-                     # extra_dict={'add_url': reverse('billing__create_order')}
-                    )
+    return list_view(request, SalesOrder, hf_pk=DEFAULT_HFILTER_ORDER)
