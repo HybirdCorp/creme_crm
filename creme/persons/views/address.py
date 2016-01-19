@@ -25,7 +25,6 @@ from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from .. import get_address_model
 from ..forms.address import AddressForm, BillingAddressForm, ShippingAddressForm
-#from ..models import Address
 
 
 Address = get_address_model()
@@ -79,5 +78,4 @@ def add_shipping(request, entity_id):
 @login_required
 @permission_required('persons')
 def edit(request, address_id):
-#    return edit_related_to_entity(request, address_id, Address, AddressForm,
     return abstract_edit_address(request, address_id)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@
 
 from creme.creme_core.models import Relation
 
-from .constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+# from .constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+from . import constants
 
 
 def transform_target_into_prospect(source, target, user):
@@ -28,13 +29,17 @@ def transform_target_into_prospect(source, target, user):
     Be careful target is subject of REL_SUB_PROSPECT relation and source is
     object of relation.
     """
-    # TODO: get_or_create
-    if not Relation.objects.filter(subject_entity=target, type=REL_SUB_PROSPECT, object_entity=source).exists():
-        Relation.objects.create(subject_entity=target,
-                                type_id=REL_SUB_PROSPECT,
-                                object_entity=source,
-                                user=user
-                               )
+    # if not Relation.objects.filter(subject_entity=target, type=REL_SUB_PROSPECT, object_entity=source).exists():
+    #     Relation.objects.create(subject_entity=target,
+    #                             type_id=REL_SUB_PROSPECT,
+    #                             object_entity=source,
+    #                             user=user
+    #                            )
+    Relation.objects.get_or_create(subject_entity=target,
+                                   type_id=constants.REL_SUB_PROSPECT,
+                                   object_entity=source,
+                                   defaults={'user': user},
+                                  )
 
 
 def transform_target_into_customer(source, target, user):
@@ -42,9 +47,14 @@ def transform_target_into_customer(source, target, user):
     Be careful target is subject of REL_SUB_CUSTOMER_SUPPLIER relation and
     source is object of relation.
     """
-    if not Relation.objects.filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).exists():
-        Relation.objects.create(subject_entity=target,
-                                type_id=REL_SUB_CUSTOMER_SUPPLIER,
-                                object_entity=source,
-                                user=user
-                               )
+    # if not Relation.objects.filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).exists():
+    #     Relation.objects.create(subject_entity=target,
+    #                             type_id=REL_SUB_CUSTOMER_SUPPLIER,
+    #                             object_entity=source,
+    #                             user=user
+    #                            )
+    Relation.objects.get_or_create(subject_entity=target,
+                                   type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
+                                   object_entity=source,
+                                   defaults={'user': user},
+                                  )

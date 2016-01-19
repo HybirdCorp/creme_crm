@@ -21,15 +21,11 @@ try:
 
     from .base import (skipIfCustomOrganisation, skipIfCustomContact,
             Contact, Organisation, Address)
-    # from ..models import *
     from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT,
             REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES,REL_SUB_INACTIVE)
     from ..blocks import NeglectedOrganisationsBlock, address_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-# __all__ = ('BlocksTestCase',)
 
 
 def find_node_by_attr(node, tag, name, value):
@@ -72,7 +68,6 @@ class BlocksTestCase(CremeTestCase):
         return neglected_orgas_block._get_neglected(now())
 
     def test_neglected_block01(self):
-        #neglected_orgas_block = NeglectedOrganisationsBlock()
         NeglectedOrganisationsBlock()
 
         orgas = Organisation.objects.all()
@@ -105,14 +100,13 @@ class BlocksTestCase(CremeTestCase):
     def test_neglected_block02(self):
         user = self.user
         mng_orga = Organisation.objects.all()[0]
-        #user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
         user_contact = user.linked_contact
 
         customer01 = self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
-        tomorrow = now() + timedelta(days=1) #so in the future
+        tomorrow = now() + timedelta(days=1)  # So in the future
         meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
                                            title='meet01', start=tomorrow,
                                            end=tomorrow + timedelta(hours=2),
@@ -131,13 +125,12 @@ class BlocksTestCase(CremeTestCase):
         "Past activity => orga is still neglected"
         user = self.user
         mng_orga = Organisation.objects.all()[0]
-        #user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
         user_contact = user.linked_contact
 
         self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
 
-        yesterday = now() - timedelta(days=1) #so in the past
+        yesterday = now() - timedelta(days=1)  # So in the past
         meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
                                            title='meet01', start=yesterday,
                                            end=yesterday + timedelta(hours=2),
@@ -146,7 +139,7 @@ class BlocksTestCase(CremeTestCase):
         create_rel = partial(Relation.objects.create, user=user, object_entity=meeting)
         create_rel(subject_entity=customer02,   type_id=REL_SUB_ACTIVITY_SUBJECT)
         create_rel(subject_entity=user_contact, type_id=REL_SUB_PART_2_ACTIVITY)
-        self.assertEqual(2, len(self._get_neglected_orgas())) #and not 1
+        self.assertEqual(2, len(self._get_neglected_orgas()))  # And not 1
 
     @skipIfCustomContact
     @skipIfCustomActivity
@@ -154,12 +147,11 @@ class BlocksTestCase(CremeTestCase):
         "A people linked to customer is linked to a future activity"
         user = self.user
         mng_orga = Organisation.objects.all()[0]
-        #user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
         user_contact = user.linked_contact
 
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
-        tomorrow = now() + timedelta(days=1) #so in the future
+        tomorrow = now() + timedelta(days=1)  # So in the future
         meeting = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
                                           title='meet01', start=tomorrow,
                                           end=tomorrow + timedelta(hours=2),
@@ -190,12 +182,11 @@ class BlocksTestCase(CremeTestCase):
         mng_orga = Organisation.objects.all()[0]
 
         create_contact = partial(Contact.objects.create, user=user)
-        #user_contact = create_contact(is_user=user, first_name='Naruto', last_name='Uzumaki')
         user_contact = user.linked_contact
 
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
-        tomorrow = now() + timedelta(days=1) #so in the future
+        tomorrow = now() + timedelta(days=1)  # So in the future
         create_activity = partial(Activity.objects.create, user=user, start=tomorrow)
         meeting   = create_activity(title='meet01', type_id=ACTIVITYTYPE_MEETING,
                                     end=tomorrow + timedelta(hours=2)
@@ -229,7 +220,7 @@ class BlocksTestCase(CremeTestCase):
         customer   = self._build_customer_orga(mng_orga, 'Suna')
         competitor = Organisation.objects.create(user=user, name='Akatsuki')
 
-        tomorrow = now() + timedelta(days=1) #so in the future
+        tomorrow = now() + timedelta(days=1)  # So in the future
         meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING, 
                                            title='meet01', start=tomorrow,
                                            end=tomorrow + timedelta(hours=2),
@@ -264,7 +255,6 @@ class BlocksTestCase(CremeTestCase):
     def _get_address_block_content(self, entity, no_titles=False):
         response = self.assertGET200(entity.get_absolute_url())
         content = response.content
-        #content = content.decode(response._charset)
 
         try:
             html = parse_html(content)

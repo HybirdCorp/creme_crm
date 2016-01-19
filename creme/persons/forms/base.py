@@ -69,10 +69,9 @@ class _BasePersonForm(CremeEntityForm):
         instance = self.instance
         address_form = AddressForm(entity=instance, user=self.user, prefix=addr_fieldname,
                                    instance=getattr(instance, addr_fieldname),
-                                  ) #TODO factorise ??
+                                  )  # TODO factorise ??
         initial = {}
 
-#        for name, field in address_form.base_fields.iteritems():
         for name, field in address_form.fields.iteritems():
             final_name = address_form.add_prefix(name)
             fields[final_name]  = field
@@ -91,7 +90,7 @@ class _BasePersonForm(CremeEntityForm):
         if addr_form.is_valid():
             if address is not None:
                 addr_form.save()
-            elif addr_form.instance: # Do not save empty address
+            elif addr_form.instance:  # Do not save empty address
                 addr_form.instance.name = unicode(verbose_name)
                 setattr(instance, addr_fieldname, addr_form.save())
                 save_instance = True
@@ -106,6 +105,6 @@ class _BasePersonForm(CremeEntityForm):
         change4shipping = self._save_address(_SHIPPING_ADDRESS_FIELD, _('Shipping address'))
 
         if change4billing or change4shipping:
-            instance.save() # Saved twice because of bidirectionnal pk
+            instance.save()  # Saved twice because of bidirectional pk
 
         return instance

@@ -22,13 +22,11 @@ from django.db.models import Count
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.views.generic import app_portal
-#from creme.creme_core.models import Relation
 
 from creme.creme_config.utils import generate_portal_url
 
 from .. import get_contact_model, get_organisation_model
-from ..constants import REL_OBJ_CUSTOMER_SUPPLIER #REL_SUB_CUSTOMER_OF
-#from ..models import Contact, Organisation
+from ..constants import REL_OBJ_CUSTOMER_SUPPLIER
 
 
 def portal(request):
@@ -37,12 +35,6 @@ def portal(request):
     stats = [(_('Number of contacts'),      Contact.objects.count()),
              (_("Number of organisations"), Organisation.objects.count()),
             ]
-
-    #relations_qs = Relation.objects.filter(type__id=REL_SUB_CUSTOMER_OF, is_deleted=False)
-    #for managed_orga in Organisation.get_all_managed_by_creme():
-        ##TODO: le calcul est-il juste ?? (genre si un contact client fait parti d'une organisation cliente --> cumule ou pas ??)
-        #customers_count = relations_qs.filter(object_entity=managed_orga).count()
-        #stats.append((_(u'Number of customers of %s') % managed_orga, customers_count))
 
     customers_stats = Organisation.get_all_managed_by_creme() \
                                   .filter(relations__type=REL_OBJ_CUSTOMER_SUPPLIER) \

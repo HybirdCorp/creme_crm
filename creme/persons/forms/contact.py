@@ -30,7 +30,6 @@ from creme.creme_core.models import RelationType, Relation
 
 from creme.media_managers.models import Image
 
-#from ..models import Organisation, Contact
 from .. import get_contact_model, get_organisation_model
 from .base import _BasePersonForm
 
@@ -40,7 +39,7 @@ Organisation = get_organisation_model()
 
 
 class ContactForm(_BasePersonForm):
-    birthday = CremeDateTimeField(label=_('Birthday'), required=False) # TODO: hook django to use our widget directly...
+    birthday = CremeDateTimeField(label=_('Birthday'), required=False)  # TODO: hook django to use our widget directly.
     image    = CreatorEntityField(label=_('Image'), required=False, model=Image)
 
     blocks = _BasePersonForm.blocks.new(
@@ -79,12 +78,12 @@ class RelatedContactForm(ContactForm):
         if self.relation_type:
             relation_field = CharField(label=ugettext(u'Relation type'),
                                        widget=TextInput(attrs={'readonly': 'readonly'}),
-                                       initial=self.relation_type, #TODO: required=False ??
+                                       initial=self.relation_type,  # TODO: required=False ??
                                       )
         else:
             get_ct = ContentType.objects.get_for_model
             relation_field = ModelChoiceField(label=ugettext(u"Status in the organisation"),
-                                              #TODO: factorise (see User form hooking)
+                                              # TODO: factorise (see User form hooking)
                                               queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
                                                                                    object_ctypes=get_ct(Organisation),
                                                                                    is_internal=False,
@@ -96,8 +95,8 @@ class RelatedContactForm(ContactForm):
     def clean_user(self):
         return validate_linkable_model(Contact, self.user, owner=self.cleaned_data['user'])
 
-    def save(self):
-        instance = super(RelatedContactForm, self).save()
+    def save(self, *args, **kwargs):
+        instance = super(RelatedContactForm, self).save(*args, **kwargs)
 
         if self.linked_orga:
             Relation.objects.create(subject_entity=instance,

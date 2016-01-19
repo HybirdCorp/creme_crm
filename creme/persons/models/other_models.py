@@ -83,7 +83,7 @@ class LegalForm(CremeModel):
 
 class StaffSize(CremeModel):
     size  = CharField(_(u'Size'), max_length=100)
-    order = BasicAutoField(_('Order')) #used by creme_config
+    order = BasicAutoField(_('Order'))  # Used by creme_config
 
     def __unicode__(self):
         return self.size

@@ -30,14 +30,13 @@ from creme.creme_core.models import Relation
 
 from .. import get_contact_model, get_organisation_model
 from ..constants import REL_SUB_EMPLOYED_BY
-#from ..models import Contact, Organisation
 
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()
 
 
-class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore custom fields
+class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ignore custom fields
     organisation = CharField(label=_(u"Organisation"), required=False,
                              help_text=_(u'If no organisation is found, a new one will be created.'),
                             )
@@ -89,7 +88,7 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
                     orga = None
                 else:
                     has_perm = self.user.has_perm_to_link
-                    #NB: remember that deleted Organisations are not linkable
+                    # NB: remember that deleted Organisations are not linkable
                     linkable_orgas = [o for o in orgas if has_perm(o)]
 
                     if not linkable_orgas:
@@ -124,8 +123,8 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
     def _get_organisations(self, orga_name):
         return EntityCredentials.filter(self.user, Organisation.objects.filter(name=orga_name))
 
-    def save(self):
-        contact = super(ContactQuickForm, self).save()
+    def save(self, *args, **kwargs):
+        contact = super(ContactQuickForm, self).save(*args, **kwargs)
 
         if self.has_perm_to_link:
             orga_name = self.cleaned_data['organisation']
@@ -134,7 +133,7 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
                 orga = self.retrieved_orga
 
                 if orga is None:
-                    #NB: we retry to get, because in an Formset, another Form can create the orga in its save()
+                    # NB: we retry to get, because in an Formset, another Form can create the orga in its save()
                     orga = self._get_organisations(orga_name) \
                                .get_or_create(name=orga_name,
                                               defaults={'user': contact.user},

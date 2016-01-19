@@ -24,7 +24,6 @@ if not contact_model_is_custom():
         url(r'^contact/add$',                                                     contact.add,                 name='persons__create_contact'),
         # TODO: change to 'add_related/'
         url(r'^contact/add_with_relation/(?P<orga_id>\d+)$',                      contact.add_related_contact, name='persons__create_related_contact'),
-        #url(r'^contact/add_with_relation/(?P<orga_id>\d+)/(?P<predicate_id>[\w-]+)$', 'add_with_relation', name='persons__create_related_contact'),
         url(r'^contact/add_with_relation/(?P<orga_id>\d+)/(?P<rtype_id>[\w-]+)$', contact.add_related_contact, name='persons__create_related_contact'),
         url(r'^contact/edit/(?P<contact_id>\d+)$',                                contact.edit,                name='persons__edit_contact'),
         url(r'^contact/(?P<contact_id>\d+)$',                                     contact.detailview,          name='persons__view_contact'),

@@ -32,7 +32,7 @@ class PersonWithAddressesMixin(Model):
                                   verbose_name=_(u'Billing address'),
                                   null=True, on_delete=SET_NULL,
                                   editable=False, related_name='+',
-                                 ).set_tags(enumerable=False, optional=True) # NB: "clonable=False" is useless
+                                 ).set_tags(enumerable=False, optional=True)  # NB: "clonable=False" is useless
     shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
                                   verbose_name=_(u'Shipping address'),
                                   null=True, on_delete=SET_NULL,
@@ -41,7 +41,6 @@ class PersonWithAddressesMixin(Model):
 
     class Meta:
         abstract = True
-#        app_label = 'persons'
 
     def _aux_post_save_clone(self, source):
         save = False

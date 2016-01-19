@@ -18,20 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from . import get_contact_model, get_organisation_model
-#from .models import Contact, Organisation
+from creme import persons
 
 from creme.crudity.backends.models import CrudityBackend
 
 
 class ContactBackend(CrudityBackend):
-#    model = Contact
-    model = get_contact_model()
+    model = persons.get_contact_model()
 
 
 class OrganisationBackend(CrudityBackend):
-#    model = Organisation
-    model = get_organisation_model()
+    model = persons.get_organisation_model()
 
 
 backends = [ContactBackend, OrganisationBackend]

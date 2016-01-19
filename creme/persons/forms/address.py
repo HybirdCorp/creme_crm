@@ -25,12 +25,10 @@ from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model
-#from ..models import Address
 
 
 class AddressForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
-#        model = Address
         model = get_address_model()
 
     def __init__(self, entity, *args, **kwargs):
@@ -67,7 +65,7 @@ class _FieldAddressForm(UnnamedAddressForm):
         super(_FieldAddressForm, self).save(*args, **kwargs)
 
         setattr(entity, self.field_name, address)
-        entity.save() #TODO: with django 1.5: save only one field
+        entity.save()  # TODO: with django 1.5: save only one field
 
         return address
 

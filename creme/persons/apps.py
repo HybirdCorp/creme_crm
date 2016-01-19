@@ -80,8 +80,6 @@ class PersonsConfig(CremeAppConfig):
         from .forms.lv_import import get_csv_form_builder
 
         reg_form = import_form_registry.register
-        #reg_form(self.Contact,      get_csv_form_builder)
-        #reg_form(self.Organisation, get_csv_form_builder)
         Contact = self.Contact
         Organisation = self.Organisation
         reg_form(Contact,      partial(get_csv_form_builder, model=Contact))
@@ -106,8 +104,6 @@ class PersonsConfig(CremeAppConfig):
         from .forms.merge import get_merge_form_builder
 
         reg_merge_form = merge_form_registry.register
-        #reg_merge_form(self.Contact,      get_merge_form_builder)
-        #reg_merge_form(self.Organisation, get_merge_form_builder)
         Contact = self.Contact
         Organisation = self.Organisation
         reg_merge_form(Contact,      partial(get_merge_form_builder, model=Contact))

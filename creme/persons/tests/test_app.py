@@ -6,8 +6,6 @@ try:
     from creme.creme_core.models import HeaderFilter, EntityFilter, EntityFilterCondition
     from creme.creme_core.tests.base import CremeTestCase
 
-    # from .. import get_contact_model, get_organisation_model
-    #from ..models import Contact, Organisation
     from .. import constants
     from .base import Contact, Organisation
 except Exception as e:
@@ -24,9 +22,6 @@ class PersonsAppTestCase(CremeTestCase):
         cls.populate('persons')
 
     def test_populate(self):
-        # Contact = get_contact_model()
-        # Organisation = get_organisation_model()
-
         self.get_relationtype_or_fail(constants.REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
         self.get_relationtype_or_fail(constants.REL_SUB_CUSTOMER_SUPPLIER, [Contact, Organisation], [Contact, Organisation])
         self.get_relationtype_or_fail(constants.REL_SUB_MANAGES,           [Contact],               [Organisation])
