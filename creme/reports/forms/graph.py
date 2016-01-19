@@ -38,7 +38,6 @@ from .. import get_rgraph_model
 from ..constants import (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
         RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 from ..core.graph import RGRAPH_HANDS_MAP
-#from ..models.graph import ReportGraph
 from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
 
@@ -57,10 +56,10 @@ class ReportGraphForm(CremeEntityForm):
     chart             = ChoiceField(label=_(u'Chart type'), choices=report_chart_registry.choices())
     abscissa_field    = ChoiceField(label=_(u'Field'), choices=(),
                                     widget=DependentSelect(target_id='id_abscissa_group_by'),
-                                   ) # TODO: DependentSelect is kept until *Selector widgets accept optgroup
+                                   )  # TODO: DependentSelect is kept until *Selector widgets accept optgroup
     abscissa_group_by = AjaxChoiceField(label=_(u'Grouping'), choices=(),
                                         widget=AbscissaGroupBySelect(attrs={'id': 'id_abscissa_group_by'}),
-                                       ) # TODO: coerce to int
+                                       )  # TODO: coerce to int
     aggregate         = ChoiceField(label=_(u'Aggregate'), required=False,
                                    choices=[(agg.name, agg.title)
                                                 for agg in field_aggregation_registry.itervalues()
@@ -78,7 +77,6 @@ class ReportGraphForm(CremeEntityForm):
             )
 
     class Meta(CremeEntityForm.Meta):
-#        model = ReportGraph
         model = get_rgraph_model()
 
     def __init__(self, entity, *args, **kwargs):
@@ -128,11 +126,12 @@ class ReportGraphForm(CremeEntityForm):
             }
 
         if cfields:
-            abscissa_choices.append((_('Custom fields'), [(cf.id, cf.name) for cf in cfields.itervalues()])) #TODO: sort ?
+            # TODO: sort ?
+            abscissa_choices.append((_('Custom fields'), [(cf.id, cf.name) for cf in cfields.itervalues()]))
 
         # TODO: we could build the complete map fields/allowed_types, instead of doing AJAX queries...
         abscissa_field_f.choices = abscissa_choices
-        abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id #Bof
+        abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id  # Meh
 
         # Ordinate -------------------------------------------------------------
         def agg_field_excluder(field, deep):
@@ -200,14 +199,14 @@ class ReportGraphForm(CremeEntityForm):
             widget.source_val = instance.abscissa
             widget.target_val = instance.type
 
-        #TODO: remove this sh*t when is_count is a real widget well initialized (disabling set by JS)
+        # TODO: remove this sh*t when is_count is a real widget well initialized (disabling set by JS)
         if is_count_f.initial or instance.is_count or data.get('is_count'):
             disabled_attrs = {'disabled': True}
             aggregate_field_f.widget.attrs = disabled_attrs
             fields['aggregate'].widget.attrs = disabled_attrs
 
     def _filter_abcissa_field(self, field, depth):
-        if isinstance(field, DateField): #TODO: meta.is_date_field ?
+        if isinstance(field, DateField):  # TODO: meta.is_date_field ?
             return True
 
         if isinstance(field, ForeignKey):
@@ -244,22 +243,12 @@ class ReportGraphForm(CremeEntityForm):
         try:
             field = model._meta.get_field(name)
         except FieldDoesNotExist:
-#            self.errors[formfield_name] = ErrorList([u'If you choose to group "%s" you have to choose a field.' %
-#                                                           self.verbose_graph_type
-#                                                    ]
-#                                                   )
             self.add_error(formfield_name,
                            u'If you choose to group "%s" you have to choose a field.' %
                                 self.verbose_graph_type
                           )
         else:
             if not isinstance(field, field_types):
-#                self.errors[formfield_name] = ErrorList([u'"%s" groups are only compatible with {%s}' % (
-#                                                                self.verbose_graph_type,
-#                                                                ', '.join(ftype.__name__ for ftype in field_types)
-#                                                            )
-#                                                        ]
-#                                                       )
                 self.add_error(formfield_name,
                                u'"%s" groups are only compatible with {%s}' % (
                                     self.verbose_graph_type,
@@ -271,22 +260,15 @@ class ReportGraphForm(CremeEntityForm):
 
     def _clean_customfield(self, name, cfield_types, formfield_name='abscissa_field'):
         if not name or not name.isdigit():
-#            self.errors[formfield_name] = ErrorList([u'Unknown or invalid custom field.'])
             self.add_error(formfield_name, u'Unknown or invalid custom field.')
         else:
             cfield = self.abs_cfields[int(name)]
 
             if cfield.field_type not in cfield_types:
-#                self.errors[formfield_name] = ErrorList([u'"%s" groups are only compatible with {%s}' % (
-#                                                                self.verbose_graph_type,
-#                                                                ', '.join(map(str, cfield_types)), #TODO: verbose type
-#                                                            )
-#                                                        ]
-#                                                       )
                 self.add_error(formfield_name,
                                u'"%s" groups are only compatible with {%s}' % (
                                     self.verbose_graph_type,
-                                    ', '.join(map(str, cfield_types)), #TODO: verbose type
+                                    ', '.join(map(str, cfield_types)),  # TODO: verbose type
                                 )
                               )
             else:
@@ -307,7 +289,6 @@ class ReportGraphForm(CremeEntityForm):
             self._clean_customfield(abscissa_name, cfield_types=(CustomField.ENUM,))
         elif abscissa_group_by == RGT_RELATION:
             if abscissa_name not in self.rtypes:
-                #self.errors['abscissa_field'] = ErrorList([u'Unknown relationship type.'])
                 self.add_error('abscissa_field', u'Unknown relationship type.')
         elif abscissa_group_by in (RGT_DAY, RGT_MONTH, RGT_YEAR):
             self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
@@ -315,15 +296,13 @@ class ReportGraphForm(CremeEntityForm):
             self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
 
             if not cleaned_data.get('days'):
-                #self.errors['days'] = ErrorList([ugettext(u"You have to specify a day range if you use 'by X days'")])
                 self.add_error('days', _(u"You have to specify a day range if you use 'by X days'"))
         elif abscissa_group_by in (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR):
             self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
         elif abscissa_group_by == RGT_CUSTOM_RANGE:
             self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
 
-            if not cleaned_data.get('days'): #TODO: factorise
-                #self.errors['days'] = ErrorList([ugettext(u"You have to specify a day range if you use 'by X days'")])
+            if not cleaned_data.get('days'):  # TODO: factorise
                 self.add_error('days', _(u"You have to specify a day range if you use 'by X days'"))
         else:
             raise ValidationError('Unknown graph type')
@@ -333,7 +312,6 @@ class ReportGraphForm(CremeEntityForm):
 
         if get_data('aggregate_field'):
             if not field_aggregation_registry.get(get_data('aggregate')):
-                #self.errors['aggregate'] = ErrorList([ugettext(u'This field is required if you choose a field to aggregate.')])
                 self.add_error('aggregate', _(u'This field is required if you choose a field to aggregate.'))
         elif not get_data('is_count'):
             raise ValidationError(ugettext(u"If you don't choose an ordinate field (or none available) "

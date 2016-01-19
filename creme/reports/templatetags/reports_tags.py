@@ -28,8 +28,8 @@ register = Library()
 def report_chart_json(context, rgraph, chart, is_small=False):
     return loader.render_to_string(chart.template,
                                    {'rgraph': rgraph, 'chart': chart, 'is_small': is_small},
-#                                   context_instance=None,
                                   )
+
 
 @register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
 def report_chart_selector(context, rgraph):

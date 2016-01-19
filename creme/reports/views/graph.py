@@ -35,7 +35,6 @@ from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_
         RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK)
 from ..core.graph import RGRAPH_HANDS_MAP
 from ..forms.graph import ReportGraphForm
-#from ..models import ReportGraph
 from ..report_chart_registry import report_chart_registry
 
 
@@ -58,7 +57,6 @@ def abstract_edit_rgraph(request, graph_id, form=ReportGraphForm,
 
 def abstract_view_rgraph(request, graph_id, template='reports/view_graph.html'):
     return view_entity(request, graph_id, ReportGraph,
-                       # path='/reports/report',
                        template=template,
                        extra_template_dict={'report_charts': report_chart_registry},
                       )
@@ -124,7 +122,7 @@ def _get_available_report_graph_types(ct, name):
 
 # TODO: can be factorised with ReportGraphForm (use ReportGraphHand)
 @jsonify
-#@permission_required('reports') ??
+# @permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
     ct = get_ct_or_404(ct_id)
     abscissa_field = get_from_POST_or_404(request.POST, 'record_id')  # TODO: POST ??!
@@ -147,7 +145,7 @@ def _check_order(order):
 
 
 @jsonify
-#@permission_required('reports') ??
+# @permission_required('reports') ??
 def fetch_graph(request, graph_id, order):
     _check_order(order)
 
@@ -157,7 +155,7 @@ def fetch_graph(request, graph_id, order):
 
 
 @jsonify
-#@permission_required('reports') ??
+# @permission_required('reports') ??
 def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order):
     _check_order(order)
 

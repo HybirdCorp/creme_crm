@@ -23,7 +23,6 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.views.generic import app_portal
 
 from .. import get_report_model
-#from ..models import Report
 
 
 def portal(request):

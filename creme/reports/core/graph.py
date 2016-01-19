@@ -42,6 +42,7 @@ def _physical_field_name(table_name, field_name):
     quote_name = connection.ops.quote_name
     return '%s.%s' % (quote_name(table_name), quote_name(field_name))
 
+
 def _db_grouping_format():
     vendor = connection.vendor
     if vendor == 'sqlite': return "cast((julianday(%s) - julianday(%s)) / %s as int)"
@@ -49,7 +50,7 @@ def _db_grouping_format():
     if vendor == 'postgresql': return "((%s::date - %s::date) / %s)"
 
 
-#TODO: move to creme_core ?
+# TODO: move to creme_core ?
 class ListViewURLBuilder(object):
     def __init__(self, model, filter=None):
         self._fmt = model.get_lv_absolute_url() + '?q_filter=%s'
@@ -104,15 +105,15 @@ class ReportGraphYCalculator(object):
         else:
             ordinate = graph.ordinate
             ordinate_col, sep, aggregation_name = ordinate.rpartition('__')
-            aggregation = field_aggregation_registry.get(aggregation_name) #TODO: manage invalid aggregation ??
+            aggregation = field_aggregation_registry.get(aggregation_name)  # TODO: manage invalid aggregation ??
 
-            if ordinate_col.isdigit(): # CustomField
+            if ordinate_col.isdigit():  # CustomField
                 try:
                     calculator = RGYCCustomField(CustomField.objects.get(pk=ordinate_col), aggregation)
                 except CustomField.DoesNotExist:
                     calculator = ReportGraphYCalculator()
                     calculator.error = _('the custom field does not exist any more.')
-            else: # Regular Field
+            else:  # Regular Field
                 try:
                     field = graph.model._meta.get_field(ordinate_col)
                 except FieldDoesNotExist:
@@ -178,7 +179,7 @@ class RGYCCustomField(RGYCAggregation):
 class ReportGraphHand(object):
     "Class that computes abscissa & ordinate values of a ReportGraph"
     verbose_name = 'OVERLOADME'
-    hand_id = None # Set by ReportGraphHandRegistry decorator
+    hand_id = None  # Set by ReportGraphHandRegistry decorator
 
     def __init__(self, graph):
         self._graph = graph
@@ -228,16 +229,17 @@ class ReportGraphHand(object):
         if isinstance(y_value_func, RGYCAggregation):
             y_value_aggregator = y_value_func._aggregate_value
         else:
-            # TMP: meh, we could model count as an aggregation (caveat: count is technically *not* aggregating a field here, whereas our aggregation operators do)
-            y_value_aggregator = Count('pk') # is there a way to count(*) ?
+            # TMP: meh, we could model count as an aggregation
+            #     (caveat: count is technically *not* aggregating a field here, whereas our aggregation operators do)
+            y_value_aggregator = Count('pk')  # Is there a way to count(*) ?
 
         aggregates = entities.extra({'key': key}) \
                              .values('key').order_by('key' if order == 'ASC' else '-key') \
                              .annotate(value=y_value_aggregator) \
                              .values_list('key', 'value')
 
-        #print 'query:', aggregates.query, '\n'
-        #print 'results:', aggregates
+        # print 'query:', aggregates.query, '\n'
+        # print 'results:', aggregates
 
         return aggregates
 
@@ -295,7 +297,7 @@ class _RGHRegularField(ReportGraphHand):
             # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
             # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
             if connection.vendor == 'sqlite' and isinstance(key, basestring):
-                #date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
+                # date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
                 date = datetime.strptime(key, '%Y-%m-%d')  # NB: it seems the string format has changed in django1.6
 
             qdict = qdict_builder(date)
@@ -355,7 +357,8 @@ class RGHYear(_RGHRegularField):
                                       date_format="%Y", order=order,
                                      )
 
-#TODO: move to creme_core ??
+
+# TODO: move to creme_core ??
 class DateInterval(object):
     def __init__(self, begin, end, before=None, after=None):
         self.begin = begin
@@ -393,7 +396,9 @@ class RGHRange(_RGHRegularField):
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
         if vendor not in ('sqlite', 'mysql', 'postgresql'):
-            logger.warn('Report graph data optimizations not available with DB vendor "%s", reverting to slower fallback method.', vendor)
+            logger.warn('Report graph data optimizations not available with DB vendor "%s",'
+                        ' reverting to slower fallback method.', vendor
+                       )
             self._fetch_method = self._fetch_fallback
 
     def _fetch(self, entities, order):
@@ -420,8 +425,8 @@ class RGHRange(_RGHRegularField):
 
             field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
 
-            # the aggregate keys are computed by grouping the difference, in days, between the date and the pivot, into buckets of X days
-            # and the pivot key is the first value in the ordered set of data
+            # The aggregate keys are computed by grouping the difference, in days, between the date and the pivot,
+            #  into buckets of X days & the pivot key is the first value in the ordered set of data.
             x_value_format = _db_grouping_format()
             x_value_key = x_value_format % (field_name, min_date.strftime("'%Y-%m-%d'"), days) \
                           if order == 'ASC' else \
@@ -430,9 +435,9 @@ class RGHRange(_RGHRegularField):
             intervals = DateInterval.generate(days - 1, min_date, max_date, order)
             aggregates = self._aggregate_dates_by_key(entities, abscissa, x_value_key, 'ASC')
 
-            # fill missing aggregate values and zip them with the date intervals
+            # Fill missing aggregate values and zip them with the date intervals
             for interval, value in sparsezip(intervals, aggregates, 0):
-                range_label = '%s-%s' % (interval.begin.strftime("%d/%m/%Y"), #TODO: use format from settings ??
+                range_label = '%s-%s' % (interval.begin.strftime("%d/%m/%Y"), # TODO: use format from settings ??
                                          interval.end.strftime("%d/%m/%Y"))
                 url = build_url({query_cmd: [interval.before.strftime("%Y-%m-%d"),
                                              interval.after.strftime("%Y-%m-%d")]})
@@ -440,7 +445,9 @@ class RGHRange(_RGHRegularField):
                 yield range_label, [value, url]
 
     def _fetch_fallback(self, entities, order):
-        "Aggregate values with 'manual group by' by iterating over group values and executing an aggregate query per group"
+        """Aggregate values with 'manual group by' by iterating over group
+        values and executing an aggregate query per group.
+        """
         graph = self._graph
         abscissa = graph.abscissa
 
@@ -459,7 +466,7 @@ class RGHRange(_RGHRegularField):
                 after  = interval.after
                 sub_entities = entities_filter(**{query_cmd: (before, after)})
 
-                yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"), #TODO: use format from settings ??
+                yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"),  # TODO: use format from settings ??
                                   interval.end.strftime("%d/%m/%Y"),
                                  ),
                        [y_value_func(sub_entities),
@@ -507,9 +514,10 @@ class RGHRelation(ReportGraphHand):
         self._rtype = rtype
 
     def _fetch(self, entities, order):
-        #TODO: Optimize ! (populate real entities)
-        #TODO: sort alpbabetically (with header_filter_search_field ? Queryset is not paginated so we can sort the "list") ?
-        #TODO: make listview url for this case
+        # TODO: Optimize ! (populate real entities)
+        # TODO: sort alpbabetically (with header_filter_search_field ?
+        #       Queryset is not paginated so we can sort the "list") ?
+        # TODO: make listview url for this case
         build_url = self._listview_url_builder()
         relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.report.ct)
         rel_filter = relations.filter
@@ -563,8 +571,10 @@ class _RGHCustomField(ReportGraphHand):
 #
 #            yield date.strftime(date_format), [y_value_func(entities_filter(**qdict)), build_url(qdict)]
 
-    # TODO: This is almost identical to _RGHRegularField._get_dates_values (differences here - 1: there is no need to exclude null values
-    # 2: the entities have an additional filter, 3: the qdicts have an additional value) and could be factored together
+    # TODO: This is almost identical to _RGHRegularField._get_dates_values
+    #       (differences here - 1: there is no need to exclude null values
+    #       2: the entities have an additional filter,
+    #       3: the qdicts have an additional value) and could be factored together
     def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
         """
         @param kind 'day', 'month' or 'year'
@@ -585,7 +595,7 @@ class _RGHCustomField(ReportGraphHand):
             # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
             # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
             if connection.vendor == 'sqlite' and isinstance(key, basestring):
-                #date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
+                # date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
                 date = datetime.strptime(key, '%Y-%m-%d')
 
             qdict = qdict_builder(date)
@@ -646,7 +656,9 @@ class RGHCustomRange(_RGHCustomField):
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
         if vendor not in ('sqlite', 'mysql', 'postgresql'):
-            logger.warn('Report graph data optimizations not available with DB vendor "%s", reverting to slower fallback method.', vendor)
+            logger.warn('Report graph data optimizations not available with DB vendor "%s",'
+                        ' reverting to slower fallback method.', vendor
+                       )
             self._fetch_method = self._fetch_fallback
 
     def _fetch(self, entities, order):
@@ -677,7 +689,7 @@ class RGHCustomRange(_RGHCustomField):
             aggregates = self._aggregate_by_key(entities, x_value_key, 'ASC')
 
             for interval, value in sparsezip(intervals, aggregates, 0):
-                range_label = '%s-%s' % (interval.begin.strftime("%d/%m/%Y"), #TODO: use format from settings ??
+                range_label = '%s-%s' % (interval.begin.strftime("%d/%m/%Y"),  # TODO: use format from settings ??
                                          interval.end.strftime("%d/%m/%Y"))
                 value_range = [interval.before.strftime("%Y-%m-%d"), interval.after.strftime("%Y-%m-%d")]
                 url = build_url({'customfielddatetime__custom_field': cfield.id,
@@ -706,7 +718,7 @@ class RGHCustomRange(_RGHCustomField):
                                                customfielddatetime__value__range=(before, after),
                                               )
 
-                yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"), #TODO: use format from settings ??
+                yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"),  # TODO: use format from settings ??
                                   interval.end.strftime("%d/%m/%Y"),
                                  ),
                        [y_value_func(sub_entities),

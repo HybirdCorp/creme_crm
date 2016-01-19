@@ -48,13 +48,13 @@ if settings.TESTS_ON:
     from .tests import fake_views
 
     urlpatterns += [
-        #(r'^tests/folders$',                        'folder_listview'),
-        #(r'^tests/folder/add$',                     'folder_add'),
-        #(r'^tests/folder/edit/(?P<folder_id>\d+)$', 'folder_edit'),
-        url(r'^tests/folder/(?P<folder_id>\d+)$',      fake_views.folder_detailview),
+        # (r'^tests/folders$',                        'folder_listview'),
+        # (r'^tests/folder/add$',                     'folder_add'),
+        # (r'^tests/folder/edit/(?P<folder_id>\d+)$', 'folder_edit'),
+        url(r'^tests/folder/(?P<folder_id>\d+)$', fake_views.folder_detailview),
 
-        url(r'^tests/documents$',                              fake_views.document_listview),
-        #(r'^tests/document/add$',                          'document_add'),
-        #(r'^tests/document/edit/(?P<document_id>\d+)$',	'document_edit'),
-        #(r'^tests/document/(?P<object_id>\d+)$',           'document_detailview'),
+        url(r'^tests/documents$', fake_views.document_listview),
+        # (r'^tests/document/add$',                       'document_add'),
+        # (r'^tests/document/edit/(?P<document_id>\d+)$', 'document_edit'),
+        # (r'^tests/document/(?P<object_id>\d+)$',        'document_detailview'),
     ]

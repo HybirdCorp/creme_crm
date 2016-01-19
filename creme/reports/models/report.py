@@ -37,7 +37,6 @@ from creme.creme_core.models.fields import EntityCTypeForeignKey
 logger = logging.getLogger(__name__)
 
 
-#class Report(CremeEntity):
 class AbstractReport(CremeEntity):
     name   = CharField(_(u'Name of the report'), max_length=100)
     ct     = EntityCTypeForeignKey(verbose_name=_(u'Entity type'))
@@ -59,7 +58,6 @@ class AbstractReport(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return "/reports/report/%s" % self.id
         return reverse('reports__view_report', args=(self.id,))
 
     @staticmethod
@@ -67,12 +65,10 @@ class AbstractReport(CremeEntity):
         return reverse('reports__create_report')
 
     def get_edit_absolute_url(self):
-#        return "/reports/report/edit/%s" % self.id
         return reverse('reports__edit_report', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        #return "/reports/reports"
         return reverse('reports__list_reports')
 
     def _build_columns(self, allow_selected):
@@ -83,9 +79,7 @@ class AbstractReport(CremeEntity):
         selected_found = False
 
         for rfield in self.fields.all():
-            #rfield.report = self #pre-cache # NB: not useful with django1.5+
-
-            if rfield.hand: #field is valid
+            if rfield.hand:  # Field is valid
                 if rfield.selected:
                     if selected_found:
                         logger.warn('Several expanded sub-reports -> we fix it')
@@ -118,11 +112,9 @@ class AbstractReport(CremeEntity):
         return [column for column in self.columns if not column.hand.hidden]
 
     def get_ascendants_reports(self):
-#        asc_reports = list(Report.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
-        #asc_reports = list(AbstractReport.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
         asc_reports = list(self.__class__.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
                                                                      .values_list('report', flat=True)
-                                                )
+                                                        )
                           )
 
         for report in asc_reports:
@@ -140,7 +132,6 @@ class AbstractReport(CremeEntity):
         if extra_q is not None:
             entities = entities.filter(extra_q)
 
-#        fields = self.columns
         fields = self.filtered_columns
 
         return ([field.get_value(entity, scope=entities, user=user)
@@ -150,20 +141,19 @@ class AbstractReport(CremeEntity):
 
     # TODO: transform into generator (--> StreamResponse)
     def fetch_all_lines(self, limit_to=None, extra_q=None, user=None):
-        from ..core.report import ExpandableLine #lazy loading
+        from ..core.report import ExpandableLine  # Lazy loading
 
         lines = []
 
         for values in self._fetch(limit_to=limit_to, extra_q=extra_q, user=user):
             lines.extend(ExpandableLine(values).get_lines())
 
-            if limit_to is not None and len(lines) >= limit_to:#Bof
+            if limit_to is not None and len(lines) >= limit_to:  # Meh
                 break  # TODO: test
 
         return lines
 
     def get_children_fields_flat(self):
-#        return chain.from_iterable(f.get_children_fields_flat() for f in self.columns)
         return chain.from_iterable(f.get_children_fields_flat() for f in self.filtered_columns)
 
     def _post_save_clone(self, source):  # TODO: test
@@ -175,16 +165,8 @@ class AbstractReport(CremeEntity):
     # TODO: add a similar EntityCell type in creme_core (& so move this code in core)
     @staticmethod
     def get_related_fields_choices(model):
-        allowed_related_fields = model.allowed_related #TODO: can we just use the regular introspection (+ field tags ?) instead
-#        meta = model._meta
-#        related_fields = chain(meta.get_all_related_objects(),
-#                               meta.get_all_related_many_to_many_objects()
-#                              )
-#
-#        return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))
-#                    for related_field in related_fields
-#                        if related_field.var_name in allowed_related_fields
-#               ]
+        # TODO: can we just use the regular introspection (+ field tags ?) instead
+        allowed_related_fields = model.allowed_related
 
         # TODO: factorise (creme_core.utils.meta ?)
         # NB: https://docs.djangoproject.com/en/1.8/ref/models/meta/#migrating-from-the-old-api
@@ -208,13 +190,11 @@ class Report(AbstractReport):
 
 
 class Field(CremeModel):
-#    report     = ForeignKey(Report, related_name='fields').set_tags(viewable=False)
     report     = ForeignKey(settings.REPORTS_REPORT_MODEL, related_name='fields').set_tags(viewable=False)
     name       = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
     order      = PositiveIntegerField().set_tags(viewable=False)
-    type       = PositiveSmallIntegerField().set_tags(viewable=False) #==> see RFT_* in constants #Add in choices ?
-    selected   = BooleanField(default=False).set_tags(viewable=False) #use this field to expand
-#    sub_report = ForeignKey(Report, blank=True, null=True).set_tags(viewable=False) #Sub report
+    type       = PositiveSmallIntegerField().set_tags(viewable=False)  # ==> see RFT_* in constants #Add in choices ?
+    selected   = BooleanField(default=False).set_tags(viewable=False)  # Use this field to expand
     sub_report = ForeignKey(settings.REPORTS_REPORT_MODEL, blank=True, null=True).set_tags(viewable=False)
 
     _hand = None
@@ -228,10 +208,10 @@ class Field(CremeModel):
     def __unicode__(self):
         return self.title
 
-    #def __repr__(self):
-        #return '<Field id=%s name=%s title=%s order=%s type=%s selected=%s report_id=%s>' % (
-                    #self.id, self.name, self.title, self.order, self.type, self.selected, self.report_id,
-                #)
+    # def __repr__(self):
+    #     return '<Field id=%s name=%s title=%s order=%s type=%s selected=%s report_id=%s>' % (
+    #                 self.id, self.name, self.title, self.order, self.type, self.selected, self.report_id,
+    #             )
 
     def _build_children(self, allow_selected):
         """Force the tree to be built, and fix the 'selected' attributes.
@@ -247,7 +227,7 @@ class Field(CremeModel):
 
     @property
     def hand(self):
-        from ..core.report import REPORT_HANDS_MAP, ReportHand #lazy loading
+        from ..core.report import REPORT_HANDS_MAP, ReportHand  # Lazy loading
 
         hand = self._hand
 

@@ -27,8 +27,10 @@ from .constants import DATETIME_FILTER_FORMAT
 def encode_datetime(date):
     return date.strftime(DATETIME_FILTER_FORMAT) if date else None
 
+
 def decode_datetime(date_str):
     return datetime.strptime(date_str, DATETIME_FILTER_FORMAT) if date_str else None
+
 
 def expand_sparse_iterator(sparse_iterator, default_value):
     """
@@ -46,6 +48,7 @@ def expand_sparse_iterator(sparse_iterator, default_value):
             yield default_value
         yield next_value
         current_index = next_index
+
 
 # TODO: this could be interesting in creme_core.utils
 def sparsezip(full_collection, sparse_collection, default_value):

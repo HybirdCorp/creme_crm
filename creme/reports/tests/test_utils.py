@@ -51,14 +51,14 @@ class SparsezipTestCase(CremeTestCase):
         self.assertSparsezipsTo(keys, values, [('A', 100), ('B', 200), ('C', 300)])
 
     def test_sparsezip_expands_sparse_collection(self):
-        # more keys -> the missing 'values' have to be filled using expand_sparse_iterator
+        # More keys -> the missing 'values' have to be filled using expand_sparse_iterator
         keys = ['A', 'B', 'C']
         sparse_values = [(0, 100), (1, 200)]
 
         self.assertSparsezipsTo(keys, sparse_values, [('A', 100), ('B', 200), ('C', -1)])
 
     def test_sparsezip_zips_longest_collection(self):
-        # more values -> the missing 'keys' have to be filled with the default value
+        # More values -> the missing 'keys' have to be filled with the default value
         keys = ['A', 'B']
         values = [(0, 100), (1, 200), (2, 300)]
 

@@ -20,14 +20,12 @@
 
 from functools import partial
 from itertools import chain
-#import logging
 
 from django.core.exceptions import ValidationError
 from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField, CharField
-#from django.forms.utils import ErrorList
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -49,7 +47,6 @@ from ..models import Field # Report
 from ..report_aggregation_registry import field_aggregation_registry
 
 
-#logger = logging.getLogger(__name__)
 Report = get_report_model()
 
 
@@ -111,12 +108,10 @@ class ReportCreateForm(CremeEntityForm):
 
             hf = get_data('hf')
             if hf and not hf.can_view(self.user, ct)[0]:
-                #self.errors['hf'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
                 self.add_error('hf', _(u'Select a valid choice. That choice is not one of the available choices.'))
 
             efilter = get_data('filter')
             if efilter and not efilter.can_view(self.user, ct)[0]:
-                #self.errors['filter'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
                 self.add_error('filter', _(u'Select a valid choice. That choice is not one of the available choices.'))
 
         return cleaned_data
@@ -129,7 +124,6 @@ class ReportCreateForm(CremeEntityForm):
         if hf is not None:
             build_field = partial(Field.objects.create, report=report)
 
-#            for i, cell in enumerate(self.cleaned_data['hf'].cells, start=1):
             for i, cell in enumerate(self.cleaned_data['hf'].filtered_cells, start=1):
                 # TODO: check in clean() that id is OK
                 build_field(name=cell.value, title=cell.title, order=i,
@@ -220,7 +214,6 @@ class ReportHandsField(EntityCellsField):
 
     def _regular_fields_enum(self, model):
         fields = super(ReportHandsField, self)._regular_fields_enum(model)
-        # fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))))
         fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))
                                                 and issubclass(field.rel.to, CremeEntity)
                                                )
@@ -232,9 +225,6 @@ class ReportHandsField(EntityCellsField):
     def content_type(self, ct):
         EntityCellsField.content_type.fset(self, ct)
 
-        #if ct is None:
-            #widget.regular_aggregates = ()
-        #else:
         if ct is not None:
             builders = self._builders
             widget = self.widget
@@ -285,10 +275,8 @@ class ReportFieldsForm(CremeForm):
         cells = []
         for column in entity.columns:
             # TODO: this is a hack : EntityCellWidgets only use value & type_id to check initial data
-            #     it would be better to use a method column.hand.to_entity_cell()
+            #       it would be better to use a method column.hand.to_entity_cell()
             if column.hand:  # Check validity
-#                cell = EntityCell(value=column.name)
-#                cell.type_id = _HAND_2_CELL_MAP[column.type]
                 if column.type == RFT_FIELD:
                     # Only the non_hiddable_cells with class EntityCellRegularField are used.
                     cell = EntityCellRegularField.build(self.report.ct.model_class(), column.name)

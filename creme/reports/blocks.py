@@ -24,7 +24,6 @@ from creme.creme_core.models import InstanceBlockConfigItem
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
 from . import get_report_model, get_rgraph_model
-#from .models import Report, Field, ReportGraph
 from .models import Field
 from .report_chart_registry import report_chart_registry
 
@@ -76,13 +75,12 @@ class ReportGraphsBlock(QuerysetBlock):
 class ReportGraphBlock(Block):
     id_           = InstanceBlockConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
-    verbose_name  = "Report's graph" # Overloaded by __init__()
+    verbose_name  = "Report's graph"  # Overloaded by __init__()
     template_name = 'reports/templatetags/block_report_graph.html'
-    #order_by      = 'name'
 
     def __init__(self, instance_block_config):
         super(ReportGraphBlock, self).__init__()
-        #self.verbose = instance_block_config.verbose #TODO: delete 'verbose' field ?
+        # self.verbose = instance_block_config.verbose #TODO: delete 'verbose' field ?
         self.instance_block_id = instance_block_config.id
         self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_block(instance_block_config)
         self.verbose_name = fetcher.verbose_name
@@ -109,14 +107,14 @@ class ReportGraphBlock(Block):
                            )
 
     def portal_display(self, context, ct_ids):
-        #No specific things on portals so we use home display
+        # No specific things on portals so we use home display
         return self.home_display(context)
 
-    def home_display(self, context): #TODO: factorise detailview_display()
+    def home_display(self, context):  # TODO: factorise detailview_display()
         fetcher = self.fetcher
         x, y = fetcher.fetch()
 
-        #TODO: update_url ??
+        # TODO: update_url ??
         return self._render(self.get_block_template_context(
                                 context,
                                 graph=fetcher.graph,
