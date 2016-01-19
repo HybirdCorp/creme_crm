@@ -26,7 +26,6 @@ from django.template import Library
 
 from creme.persons import get_organisation_model
 from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
-#from creme.persons.models import Organisation
 
 from creme.activities.constants import (STATUS_IN_PROGRESS, NARROW,
         ACTIVITYTYPE_PHONECALL, REL_SUB_ACTIVITY_SUBJECT)
@@ -47,10 +46,12 @@ def prepare_fields(context, instance, *field_names):
 
     return ''
 
+
 _DOCUMENT_CLASSES = [
         (re.compile('Android',          re.I), 'android'),
         (re.compile('iPhone|iPad|iPod', re.I), 'ios'),
     ]
+
 
 @register.simple_tag
 def document_class(request):
@@ -63,15 +64,18 @@ def document_class(request):
 
     return 'all'
 
+
 _EMPLOYERS_RTYPE_IDS = (REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES)
+
 
 # TODO: improve Contact.get_employers() ? Add a method Contact.get_managed_orga() ?
 # TODO: pre-populate ?
-@register.filter # TODO: factorise with field_printers ?
+@register.filter  # TODO: factorise with field_printers ?
 def employers(contact):
     return Organisation.objects.filter(relations__type__in=_EMPLOYERS_RTYPE_IDS,
                                        relations__object_entity=contact.id,
                                       )
+
 
 # TODO: remove when Organisation can participate
 @register.filter
@@ -89,6 +93,7 @@ _BUTTONS = {
     'done':             'mobile/frags/button_done.html',
     NO_BUTTON:          '',
   }
+
 
 # TODO: takes user instead of context ??
 @register.inclusion_tag('mobile/templatetags/activity_card.html', takes_context=True)
@@ -116,6 +121,7 @@ def activity_card(context, activity, button_panel=START_STOP_BUTTONS, show_date=
             'shortcut':           shortcut,
             'extra_classes':      extra_classes,
            }
+
 
 @register.inclusion_tag('mobile/templatetags/footer.html')
 def get_footer(show_delog=True):
