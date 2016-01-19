@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -31,7 +30,6 @@ from .. import get_organisation_model
 from ..constants import (REL_SUB_SUSPECT, REL_SUB_PROSPECT,
         REL_SUB_CUSTOMER_SUPPLIER, DEFAULT_HFILTER_ORGA)
 from ..forms.organisation import OrganisationForm
-#from ..models import Organisation
 
 
 Organisation = get_organisation_model()
@@ -59,12 +57,10 @@ def abstract_view_organisation(request,organisation_id,
                               ):
     return view_entity(request, organisation_id, model=Organisation,
                        template=template,
-                       # path='/persons/organisation',
                       )
 
 
 @login_required
-# @permission_required(('persons', 'persons.add_organisation'))
 @permission_required(('persons', cperm(Organisation)))
 def add(request):
     return abstract_add_organisation(request)
@@ -85,10 +81,7 @@ def detailview(request, organisation_id):
 @login_required
 @permission_required('persons')
 def listview(request):
-    # return list_view(request, Organisation, extra_dict={'add_url': '/persons/organisation/add'})
-    return list_view(request, Organisation, hf_pk=DEFAULT_HFILTER_ORGA,
-                     # extra_dict={'add_url': reverse('persons__create_organisation')},
-                    )
+    return list_view(request, Organisation, hf_pk=DEFAULT_HFILTER_ORGA)
 
 
 # TODO: set the HF in the url ????

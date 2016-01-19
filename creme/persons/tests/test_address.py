@@ -11,19 +11,13 @@ try:
 
     from .base import (skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation,
             Address, Organisation, Contact)
-    # from ..models import Address, Organisation, Contact
     from ..blocks import other_address_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-# __all__ = ('AddressTestCase',)
-
-
 @skipIfCustomAddress
 class AddressTestCase(CremeTestCase):
-    #ADD_URL = '/persons/address/add/%s'
-
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
@@ -39,7 +33,6 @@ class AddressTestCase(CremeTestCase):
         return reverse('persons__create_address', args=(entity.id,))
 
     def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
-#        response = self.client.post(self.ADD_URL % orga.id,
         response = self.client.post(self._build_add_url(orga),
                                     data={'name':       name,
                                           'address':    address,
@@ -76,7 +69,6 @@ class AddressTestCase(CremeTestCase):
         orga = self.login()
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
-        #self.assertGET200(self.ADD_URL % orga.id)
         self.assertGET200(self._build_add_url(orga))
 
         name = 'Address#1'
@@ -119,7 +111,6 @@ class AddressTestCase(CremeTestCase):
         orga = self.login()
         self.assertGET404('/persons/address/add/invalid/%s' % orga.id)
 
-#        url = '/persons/address/add/billing/%s' % orga.id
         url = reverse('persons__create_billing_address', args=(orga.id,))
         response = self.assertGET200(url)
 
@@ -145,7 +136,6 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(city,       address.city)
         self.assertEqual(addr_value, address.address)
         self.assertEqual('',         address.po_box)
-#        self.assertEqual('',         address.name)
         self.assertEqual(_(u'Billing address'), address.name)
 
         self.assertEqual(address, self.refresh(orga).billing_address)
@@ -162,7 +152,6 @@ class AddressTestCase(CremeTestCase):
     @skipIfCustomOrganisation
     def test_create_shipping(self):
         orga = self.login()
-#        url = '/persons/address/add/shipping/%s' % orga.id
         url = reverse('persons__create_shipping_address', args=(orga.id,))
         self.assertGET200(url)
 
@@ -181,7 +170,6 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(country,    address.country)
         self.assertEqual(addr_value, address.address)
         self.assertEqual('',         address.zipcode)
-#        self.assertEqual('',         address.name)
         self.assertEqual(_(u'Shipping address'), address.name)
 
         self.assertEqual(address, self.refresh(orga).shipping_address)
@@ -202,7 +190,6 @@ class AddressTestCase(CremeTestCase):
         self._create_address(orga, name, address_value, po_box, city, state, zipcode, country, department)
         address = Address.objects.filter(object_id=orga.id)[0]
 
-        #url = '/persons/address/edit/%s' % address.id
         url = address.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -382,9 +369,8 @@ class AddressTestCase(CremeTestCase):
         self.assertIsNotNone(address)
         self.assertEqual(country, address.country)
 
-        #hlines = self._get_hlines()
         hlines = list(HistoryLine.objects.order_by('id'))
-        self.assertEqual(old_count + 2, len(hlines)) #1 creation + 1 auxiliary (NB: not edition with double save)
+        self.assertEqual(old_count + 2, len(hlines))  # 1 creation + 1 auxiliary (NB: not edition with double save)
 
         hline = hlines[-2]
         self.assertEqual(gainax.id,          hline.entity.id)
@@ -406,6 +392,5 @@ class AddressTestCase(CremeTestCase):
                                 'value': address,
                                }
                          ],
-#                         hline.verbose_modifications
                          hline.get_verbose_modifications(self.user)
                         )

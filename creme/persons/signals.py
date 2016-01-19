@@ -22,7 +22,6 @@ import logging
 
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
-#from django.db.transaction import atomic
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
 
@@ -44,8 +43,6 @@ def sync_with_user(sender, instance, created, **kwargs):
     if getattr(instance, '_disable_sync_with_contact', False):
         return
 
-    ##when received during 'syncdb' it fails because the Contact table does not exist
-    #with atomic():
     try:
         if created:
             instance._linked_contact_cache = _create_linked_contact(instance)
@@ -60,16 +57,14 @@ def sync_with_user(sender, instance, created, **kwargs):
                     ' do not worry because it is normal) (%s)', instance, e
                    )
 
+
 @receiver(post_delete, sender=CremeEntity)
 def dispose_addresses(sender, instance, **kwargs):
     get_address_model().objects.filter(object_id=instance.id).delete()
 
+
 @receiver(pre_merge_related)
 def handle_merge(sender, other_entity, **kwargs):
-#    excluded_pk = filter(None, [other_entity.billing_address_id, other_entity.shipping_address_id])
-#
-#    for address in get_address_model().objects.filter(object_id=other_entity.id) \
-#                                              .exclude(pk__in=excluded_pk):
     for address in other_entity.other_addresses:
         address.owner = sender
         address.save()

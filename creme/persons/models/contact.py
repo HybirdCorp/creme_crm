@@ -18,28 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from future_builtins import filter
 import logging
-#import warnings
+# import warnings
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
-        DateField, EmailField, URLField, SET_NULL) #ProtectedError
-#from django.db.transaction import atomic
+        DateField, EmailField, URLField, SET_NULL)
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
-from creme.creme_core.models import CremeEntity, Language #, CremeEntityManager
+from creme.creme_core.models import CremeEntity, Language  # CremeEntityManager
 from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.utils import update_model_instance
 
 from creme.media_managers.models import Image
 
-from ..import get_contact_model, get_organisation_model # get_address_model
+from ..import get_contact_model, get_organisation_model
 from ..constants import REL_OBJ_EMPLOYED_BY
-#from .address import Address
 from .base import PersonWithAddressesMixin
 from .other_models import Civility, Position, Sector
 
@@ -47,7 +44,6 @@ from .other_models import Civility, Position, Sector
 logger = logging.getLogger(__name__)
 
 
-#class Contact(CremeEntity):
 class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     civility    = ForeignKey(Civility, verbose_name=_(u'Civility'),
                              blank=True, null=True, on_delete=SET_NULL,
@@ -76,20 +72,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     url_site    = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)\
                           .set_tags(optional=True)
     language    = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
-                                  blank=True, editable=False, # null=True,
+                                  blank=True, editable=False,
                                  ).set_tags(viewable=False) # TODO: remove this field
-##    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
-#    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-#                                  verbose_name=_(u'Billing address'),
-#                                  blank=True, null=True,  editable=False, on_delete=SET_NULL,
-#                                  related_name='billing_address_contact_set',
-#                                 ).set_tags(enumerable=False, optional=True) #clonable=False useless
-##    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
-#    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-#                                  verbose_name=_(u'Shipping address'),
-#                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
-#                                  related_name='shipping_address_contact_set',
-#                                 ).set_tags(enumerable=False, optional=True)
     is_user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
                           blank=True, null=True, related_name='related_contact',
                           on_delete=SET_NULL, editable=False
@@ -100,7 +84,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                           blank=True, null=True, on_delete=SET_NULL,
                          ).set_tags(optional=True)
 
-    #objects = CremeEntityManager()
+    # objects = CremeEntityManager()
 
     # Needed because we expand its function fields in other apps (ie. billing)
     # TODO: refactor
@@ -119,14 +103,12 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         civ = self.civility
 
         if civ and civ.shortcut:
-#            return u'%s %s %s' % (self.civility.shortcut, self.first_name, self.last_name)
             return ugettext('%(civility)s %(first_name)s %(last_name)s') % {
                         'civility':   civ.shortcut,
                         'first_name': self.first_name,
                         'last_name':  self.last_name,
                     }
 
-        #return u'%s %s' % (self.first_name, self.last_name)
         if self.first_name:
             return ugettext('%(first_name)s %(last_name)s') % {
                             'first_name': self.first_name,
@@ -137,7 +119,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     def _check_deletion(self):
         if self.is_user is not None:
-            #raise ProtectedError(ugettext(u'A user is associated with this contact.'), [self])
             raise SpecificProtectedError(ugettext(u'A user is associated with this contact.'),
                                          [self]
                                         )
@@ -151,14 +132,11 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                 raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))
 
     def get_employers(self):
-#        from .organisation import Organisation
-#        return Organisation.objects.filter(relations__type=REL_OBJ_EMPLOYED_BY, relations__object_entity=self.id)
         return get_organisation_model().objects.filter(relations__type=REL_OBJ_EMPLOYED_BY,
                                                        relations__object_entity=self.id,
                                                       )
 
     def get_absolute_url(self):
-#        return "/persons/contact/%s" % self.id
         return reverse('persons__view_contact', args=(self.id,))
 
     @staticmethod
@@ -166,54 +144,20 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         return reverse('persons__create_contact')
 
     def get_edit_absolute_url(self):
-#        return "/persons/contact/edit/%s" % self.id
         return reverse('persons__edit_contact', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/persons/contacts"
         return reverse('persons__list_contacts')
-
-#    @staticmethod
-#    def get_user_contact_or_mock(user):
-#        warnings.warn("Contact.get_user_contact_or_mock() is deprecated ; use User.linked_contact instead.",
-#                      DeprecationWarning
-#                     )
-#
-#        try:
-#            contact = Contact.objects.get(is_user=user)
-#        except Contact.DoesNotExist:
-#            contact = Contact()
-#        return contact
 
     def delete(self):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-#        super(Contact, self).delete()
         super(AbstractContact, self).delete()
 
     def _post_save_clone(self, source):
-#        save = False
-#
-#        if source.billing_address is not None:
-#            self.billing_address = source.billing_address.clone(self)
-#            save = True
-#
-#        if source.shipping_address is not None:
-#            self.shipping_address = source.shipping_address.clone(self)
-#            save = True
-#
-#        if save:
-#            self.save()
-#
-#        excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
-##        for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
-#        for address in get_address_model().objects.filter(object_id=source.id) \
-#                                                  .exclude(pk__in=excl_source_addr_ids):
-#            address.clone(self)
         self._aux_post_save_clone(source)
 
     def save(self, *args, **kwargs):
-#        super(Contact, self).save(*args, **kwargs)
         super(AbstractContact, self).save(*args, **kwargs)
 
         rel_user = self.is_user
@@ -228,7 +172,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     def trash(self):
         self._check_deletion()
-#        super(Contact, self).trash()
         super(AbstractContact, self).trash()
 
 
@@ -240,22 +183,19 @@ class Contact(AbstractContact):
 # Manage the related User ------------------------------------------------------
 
 def _create_linked_contact(user):
-#    return Contact.objects.create(user=user, is_user=user,
-    return get_contact_model().objects.create(user=user, is_user=user,
-                                  last_name=user.last_name or user.username.title(),
-                                  first_name=user.first_name or _('N/A'),
-                                  email=user.email or _('replaceMe@byYourAddress.com'),
-                                  # TODO assert user is not a team + enforce non team clean() ?
-                                  #last_name=user.last_name,
-                                  #first_name=user.first_name,
-                                  #email=user.email,
-                                 )
+    return get_contact_model().objects\
+                              .create(user=user, is_user=user,
+                                      last_name=user.last_name or user.username.title(),
+                                      first_name=user.first_name or _('N/A'),
+                                      email=user.email or _('replaceMe@byYourAddress.com'),
+                                      # TODO assert user is not a team + enforce non team clean() ?
+                                     )
+
 
 def _get_linked_contact(self):
     contact = getattr(self, '_linked_contact_cache', None)
 
     if contact is None:
-#        contacts = Contact.objects.filter(is_user=self)[:2]
         contacts = get_contact_model().objects.filter(is_user=self)[:2]
 
         if not contacts:

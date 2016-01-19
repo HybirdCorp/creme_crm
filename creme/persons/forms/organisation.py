@@ -24,16 +24,14 @@ from creme.creme_core.forms import CreatorEntityField, CremeDateTimeField
 
 from creme.media_managers.models import Image
 
-#from ..models import Organisation
 from .. import get_organisation_model
 from .base import _BasePersonForm
 
 
-# TODO: these 2  fields should be generated automatically...
+# TODO: these 2 fields should be generated automatically...
 class OrganisationForm(_BasePersonForm):
     creation_date = CremeDateTimeField(label=_(u"Creation date"), required=False)
     image         = CreatorEntityField(label=_(u"Logo"), required=False, model=Image)
 
     class Meta(_BasePersonForm.Meta):
-#        model = Organisation
         model = get_organisation_model()

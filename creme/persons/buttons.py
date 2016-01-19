@@ -25,7 +25,6 @@ from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import Relation
 
 from . import get_contact_model, get_organisation_model
-#from .models import Organisation, Contact
 from .constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT,
         REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER)
 
@@ -112,7 +111,7 @@ class AddLinkedContactButton(Button):
     id_           = Button.generate_id('persons', 'add_linked_contact')
     verbose_name  = _(u'Add a related contact')
     template_name = 'persons/templatetags/button_add_linked_contact.html'
-    permission    = cperm(Contact) #TODO: 'persons.addrelated_contact' ??
+    permission    = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
     def get_ctypes(self):
         return (Organisation,)

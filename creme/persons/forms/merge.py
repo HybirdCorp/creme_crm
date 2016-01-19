@@ -26,22 +26,20 @@ from creme.creme_core.forms.merge import MergeEntitiesBaseForm, mergefield_facto
 from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model, get_contact_model
-#from ..models import Address, Contact
 
 
 Contact = get_contact_model()
 Address = get_address_model()
-##_FIELD_NAMES = Address._INFO_FIELD_NAMES
-#_FIELD_NAMES = Address.info_field_names() #todo: remove not-editable fields ??
+
 _BILL_PREFIX = 'billaddr_'
 _SHIP_PREFIX = 'shipaddr_'
 
 
 class _PersonMergeForm(MergeEntitiesBaseForm):
-    _address_field_names = () # Overloaded by get_merge_form_builder()
+    _address_field_names = ()  # Overloaded by get_merge_form_builder()
 
     def __init__(self, entity1, entity2, *args, **kwargs):
-        if isinstance(entity1, Contact): #TODO: create a ContactMergeForm ?
+        if isinstance(entity1, Contact):  # TODO: create a ContactMergeForm ?
             if entity2.is_user:
                 if entity1.is_user:
                     raise self.CanNotMergeError(_('Can not merge 2 Contacts which represent some users.'))
@@ -52,9 +50,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
     def _build_initial_address_dict(self, address, initial, prefix):
         getter = (lambda fname: '') if address is None else \
-                    lambda fname: getattr(address, fname)
+                 lambda fname: getattr(address, fname)
 
-#        for fname in _FIELD_NAMES:
         for fname in self._address_field_names:
             initial[prefix + fname] = getter(fname)
 
@@ -68,7 +65,6 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         return initial
 
     def _save_address(self, entity1, entity2, attr_name, cleaned_data, prefix, name):
-#        address = getattr(entity1, attr_name)
         address = getattr(entity1, attr_name, None)
         empty = True
         was_none = False
@@ -78,17 +74,14 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
             address.owner = entity1
             was_none = True
 
-#        for fname in _FIELD_NAMES:
         for fname in self._address_field_names:
-#            setattr(address, fname, cleaned_data[prefix + fname])
             value = cleaned_data.get(prefix + fname)
             setattr(address, fname, value)
 
             if value:
                 empty = False
 
-#        if address:
-        if not empty: # We do not use Address.__nonzero__() because we ignore the address' name.
+        if not empty:  # We do not use Address.__nonzero__() because we ignore the address' name.
             address.save()
             setattr(entity1, attr_name, address)
             return was_none, ()
@@ -114,9 +107,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
 # TODO: can we build the form once instead of build it each time ??
 # TODO: factorise with lv_import.py ?
-#def get_merge_form_builder():
 def get_merge_form_builder(model):
-    address_field_names = list(Address.info_field_names()) # _FIELD_NAMES
+    address_field_names = list(Address.info_field_names())
     # TODO: factorise with lv_import.py
     try:
        address_field_names.remove('name')

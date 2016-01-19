@@ -24,17 +24,9 @@ from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, extr
 from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model
-#from ..models import Address
 
 
 Address = get_address_model()
-##_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
-#_FIELD_NAMES = list(Address.info_field_names()) #todo: remove not-editable fields ??
-#
-#try:
-#    _FIELD_NAMES.remove('name')
-#except ValueError:
-#    pass
 
 # TODO: factorise (MergeForm) ?
 _BILL_PREFIX = 'billaddr_'
@@ -57,7 +49,6 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
         address_dict = {}
         save = False
 
-#        for field_name in _FIELD_NAMES:
         for field_name in self._address_field_names:
             extr_value, err_msg = data[prefix + field_name].extract_value(line)
             if extr_value:
@@ -70,7 +61,7 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
             address_dict['name'] = name
             address = getattr(person, attr_name, None)
 
-            if address is not None: # Update
+            if address is not None:  # Update
                 for fname, fvalue in address_dict.iteritems():
                     setattr(address, fname, fvalue)
 
@@ -93,7 +84,7 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
 
 
 def get_csv_form_builder(header_dict, choices, model):
-    address_field_names = list(Address.info_field_names()) # _FIELD_NAMES TODO: remove not-editable fields ??
+    address_field_names = list(Address.info_field_names())  # TODO: remove not-editable fields ??
     try:
        address_field_names.remove('name')
     except ValueError:

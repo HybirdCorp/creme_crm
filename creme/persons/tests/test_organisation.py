@@ -20,14 +20,11 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-# __all__ = ('OrganisationTestCase',)
-
-
 @skipIfCustomOrganisation
 class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     lv_import_data = {
             'step':     1,
-            #'document': doc.id, 'user': self.user.id,
+            # 'document': doc.id, 'user': self.user.id,
             'name_colselect': 1,
 
             'sector_colselect':         0,
@@ -48,7 +45,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             'capital_colselect':        0,
             'siret_colselect':          0,
 
-            #'property_types', 'fixed_relations', 'dyn_relations',
+            # 'property_types', 'fixed_relations', 'dyn_relations',
 
             'billaddr_address_colselect':    0,   'shipaddr_address_colselect':    0,
             'billaddr_po_box_colselect':     0,   'shipaddr_po_box_colselect':     0,
@@ -71,7 +68,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_createview01(self):
         user = self.login()
 
-#        url = '/persons/organisation/add'
         url = reverse('persons__create_organisation')
         self.assertGET200(url)
 
@@ -178,7 +174,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'name': name,
 
                                           'billing_address-address':    b_address,
-                                          'billing_address-po_box':     b_po_box, # <== should not be used
+                                          'billing_address-po_box':     b_po_box,  # <== should not be used
                                           'billing_address-zipcode':    b_zipcode,
                                           'billing_address-city':       b_city,
                                           'billing_address-department': b_department,
@@ -223,7 +219,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         name = 'Bebop'
         orga = Organisation.objects.create(user=user, name=name)
-#        url = '/persons/organisation/edit/%s' % orga.id
         url = orga.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -250,13 +245,12 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
 
-#        response = self.assertGET200('/persons/organisations')
         response = self.assertGET200(Organisation.get_lv_absolute_url())
 
         with self.assertNoException():
             orgas_page = response.context['entities']
 
-        self.assertEqual(3, orgas_page.paginator.count) #3: our 2 orgas + default orga
+        self.assertEqual(3, orgas_page.paginator.count)  # 3: our 2 orgas + default orga
 
         orgas_set = set(orgas_page.object_list)
         self.assertIn(nerv, orgas_set)
@@ -344,13 +338,13 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                     )
 
         mng_orga01 = self._build_managed_orga()
-        customer01 = Contact.objects.create(user=self.other_user, first_name='Jet', last_name='Black') #can not link it
+        customer01 = Contact.objects.create(user=self.other_user, first_name='Jet', last_name='Black')  # Can not link it
         self.assertPOST403('/persons/%s/become_customer' % customer01.id,
                            data={'id': mng_orga01.id}, follow=True
                           )
         self.assertEqual(0, Relation.objects.filter(subject_entity=customer01.id).count())
 
-        mng_orga02 = self._build_managed_orga(user=self.other_user)  #can not link it
+        mng_orga02 = self._build_managed_orga(user=self.other_user)  # Can not link it
         customer02 = Contact.objects.create(user=user, first_name='Vicious', last_name='??')
         self.assertPOST403('/persons/%s/become_customer' % customer02.id,
                            data={'id': mng_orga02.id}, follow=True
@@ -485,7 +479,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'name_2':      orga02.name,
                                           'name_merged': orga01.name,
 
-                                           # Billing address
+                                          # Billing address
                                           'billaddr_address_1':      bill_addr01.address,
                                           'billaddr_address_2':      bill_addr02.address,
                                           'billaddr_address_merged': bill_addr01.address,
@@ -597,7 +591,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'name_2':      orga02.name,
                                           'name_merged': orga01.name,
 
-                                           # Billing address
+                                          # Billing address
                                           'billaddr_name_1':      '',
                                           'billaddr_name_2':      '',
                                           'billaddr_name_merged': 'Merged name',
@@ -643,7 +637,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         address = addresses[0]
         self.assertEqual(orga01.billing_address, address)
-#        self.assertEqual('Merged name',          address.name)
         self.assertEqual(_('Billing address'),   address.name)
         self.assertEqual('Merged address',       address.address)
         self.assertEqual('Merged PO box',        address.po_box)
@@ -684,7 +677,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'name_2':      orga02.name,
                                           'name_merged': orga01.name,
 
-                                           # Billing address
+                                          # Billing address
                                           'billaddr_name_1':      '',
                                           'billaddr_name_2':      '',
                                           'billaddr_name_merged': '',
@@ -746,10 +739,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             fields = response.context['form'].fields
 
-        self.assertNotIn('billaddr_name', fields) # exclusion is hard-coded
+        self.assertNotIn('billaddr_name', fields)  # Exclusion is hard-coded
         self.assertIn('billaddr_city', fields)
         self.assertIn('billaddr_country', fields)
-        self.assertNotIn('billaddr_po_box', fields) # exclusion by configuration
+        self.assertNotIn('billaddr_po_box', fields)  # Exclusion by configuration
 
     @skipIfCustomAddress
     def test_merge05(self):
@@ -926,7 +919,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         addr1 = self.refresh(addr1)
         self.assertEqual(city1, addr1.city)
         self.assertEqual(address_val1, addr1.address)
-        self.assertEqual(country,      addr1.country) # value not erased
+        self.assertEqual(country,      addr1.country)  # Value not erased
 
         addr2 = self.refresh(addr2)
         self.assertEqual(city2, addr2.city)
@@ -949,7 +942,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                               user=user.id,
 
                                               billaddr_city_colselect=2,
-                                              billaddr_po_box_colselect=3, # should not be used
+                                              billaddr_po_box_colselect=3,  # Should not be used
                                              )
                                    )
         self.assertNoFormError(response)
@@ -974,8 +967,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                               document=doc.id,
                                               user=user.id,
 
-                                              billaddr_city_colselect=2,   # should not be used
-                                              billaddr_po_box_colselect=3, # should not be used
+                                              billaddr_city_colselect=2,  # Should not be used
+                                              billaddr_po_box_colselect=3,  # Should not be used
                                              )
                                    )
         self.assertNoFormError(response)

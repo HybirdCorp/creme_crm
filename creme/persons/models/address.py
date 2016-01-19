@@ -27,10 +27,9 @@ from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeModel, FieldsConfig #CremeEntity
+from creme.creme_core.models import CremeModel, FieldsConfig
 
 
-#class Address(CremeModel):
 class AbstractAddress(CremeModel):
     name       = CharField(_(u"Name"), max_length=100, blank=True, null=True)
     address    = TextField(_(u"Address"), blank=True, null=True)
@@ -67,10 +66,6 @@ class AbstractAddress(CremeModel):
         verbose_name_plural = _(u'Addresses')
 
     def __unicode__(self):
-#        s = u' '.join(filter(None, [self.address, self.zipcode, self.city, self.department]))
-#
-#        if not s:
-#            s = u' '.join(filter(None, [self.po_box, self.state, self.country]))
         s = u''
         join = self.STR_SEPARATOR.join
         allowed_fnames = set(self.info_field_names())
@@ -86,13 +81,10 @@ class AbstractAddress(CremeModel):
         return s
 
     def get_edit_absolute_url(self):
-#        return '/persons/address/edit/%s' % self.id
         return reverse('persons__edit_address', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
         return self.owner
-
-#    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
     def __nonzero__(self):  # Used by forms to detect empty addresses
         return any(fvalue for fname, fvalue in self.info_fields)
@@ -113,12 +105,6 @@ class AbstractAddress(CremeModel):
 
     @classmethod
     def info_field_names(cls):
-#        fnames = cls._info_field_names
-#
-#        if fnames is None:
-#            excluded = {'id', 'content_type', 'object_id'}
-#            cls._info_field_names = fnames = \
-#                tuple(f.name for f in cls._meta.fields if f.name not in excluded)
         is_field_hidden = FieldsConfig.get_4_model(cls).is_field_hidden
         excluded = {'id', 'content_type', 'object_id'}
         return tuple(f.name
@@ -128,7 +114,6 @@ class AbstractAddress(CremeModel):
 
     @property
     def info_fields(self):
-#        for fname in self._INFO_FIELD_NAMES:
         for fname in self.info_field_names():
             yield fname, getattr(self, fname)
 

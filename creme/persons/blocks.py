@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from future_builtins import filter
-
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
@@ -30,10 +28,8 @@ from creme.creme_core.models import Relation
 from creme.activities import get_activity_model
 from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
         REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY)
-#from creme.activities.models import Activity
 
 from . import get_address_model, get_contact_model, get_organisation_model
-#from .models import Contact, Organisation, Address
 from .constants import (REL_SUB_MANAGES, REL_OBJ_MANAGES,
         REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY, REL_SUB_CUSTOMER_SUPPLIER,
         REL_SUB_PROSPECT, REL_SUB_INACTIVE)
@@ -89,7 +85,7 @@ class ManagersBlock(QuerysetBlock):
         return orga.get_managers()
 
     def _get_add_title(self):
-        return _(u'Create a manager') #lazy -> translated only if used
+        return _(u'Create a manager')  # Lazy -> translated only if used
 
     def detailview_display(self, context):
         orga = context['object']
@@ -119,7 +115,7 @@ class EmployeesBlock(ManagersBlock):
         return orga.get_employees()
 
     def _get_add_title(self):
-        return _(u'Create an employee') #lazy -> translated only if used
+        return _(u'Create an employee')  # Lazy -> translated only if used
 
 
 class NeglectedOrganisationsBlock(PaginatedBlock):
@@ -151,7 +147,7 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                                                  .distinct()
 
         if not future_activities:
-            return neglected_orgas_qs #no need to rerieve it & transform into a list (good idea ??)
+            return neglected_orgas_qs  # No need to rerieve it & transform into a list (good idea ??)
 
         neglected_orgas = list(neglected_orgas_qs.exclude(relations__object_entity__in=future_activities,
                                                           relations__type__in=self._RTYPE_IDS_ORGA_N_ACT,
@@ -169,7 +165,7 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                                                      object_entity__in=future_activities,
                                                     )
 
-            neglected_map = {orga.id: True for orga in neglected_orgas} #True means 'neglected'
+            neglected_map = {orga.id: True for orga in neglected_orgas}  # 'True' means 'neglected'
             for rel in activity_links:
                 neglected_map[linked_people_map[rel.subject_entity_id]] = False
 
@@ -191,13 +187,6 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                            )
 
 
-##_ADDRESS_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
-#_ADDRESS_FIELD_NAMES = list(Address.info_field_names()) #todo: factorise (see CSV import) ?
-#
-#try:
-#    _ADDRESS_FIELD_NAMES.remove('name')
-#except ValueError:
-#    pass
 # TODO: factorise (see CSV import) ? (exclue param in info_field_names())
 def _get_address_field_names():
     field_names = list(Address.info_field_names())
@@ -208,6 +197,7 @@ def _get_address_field_names():
        pass
 
     return field_names
+
 
 class AddressBlock(Block):
     id_           = Block.generate_id('persons', 'address')
@@ -259,9 +249,8 @@ class AddressBlock(Block):
                                             ),
                                 b_address=b_address,
                                 s_address=s_address,
-#                                field_names=_ADDRESS_FIELD_NAMES,
                                 field_names=_get_address_field_names(), #TODO: cache in context ??
-                                address_model=Address, #for fields' verbose name
+                                address_model=Address,  # For fields' verbose name
                                 colspan=colspan,
                                )
                            )
@@ -279,17 +268,13 @@ class OtherAddressBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         person = context['object']
-#        excluded_addresses_pk = filter(None, [person.billing_address_id, person.shipping_address_id])
 
         return self._render(self.get_block_template_context(
                                 context,
-#                                Address.objects.filter(object_id=person.id)
-#                                               .exclude(pk__in=excluded_addresses_pk),
                                 person.other_addresses,
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (
                                                 self.id_, person.pk,
                                             ),
-#                                field_names=_ADDRESS_FIELD_NAMES,
                                 field_names=_get_address_field_names(),
                                 ct_id=self._ADDRESS_CT_ID,
                                )
