@@ -25,7 +25,7 @@ from creme.creme_core.models import CremeModel, CremePropertyType
 
 
 class MarketSegment(CremeModel):
-    name          = CharField(_(u"Name"), max_length=100) #TODO: unique ?
+    name          = CharField(_(u"Name"), max_length=100)  # TODO: unique ?
     property_type = ForeignKey(CremePropertyType, null=True, editable=False).set_tags(viewable=False)
 
     class Meta:

@@ -11,9 +11,7 @@ try:
             FakeOrganisation as Organisation)
     from creme.creme_core.models import EntityFilter
 
-    #from creme.persons.models import Contact, Organisation
-
-    from ..models import ActObjectivePatternComponent  # ActObjectivePattern
+    from ..models import ActObjectivePatternComponent
     from .base import CommercialBaseTestCase, skipIfCustomPattern, ActObjectivePattern
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -33,7 +31,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         return '/commercial/objective_pattern/component/%s/add_parent' % component.id
 
     def test_create(self):
-#        url = '/commercial/objective_pattern/add'
         url = reverse('commercial__create_pattern')
         self.assertGET200(url)
 
@@ -283,7 +280,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         url = self._build_addcomp_url(pattern)
 
         response = self.client.post(url, data={'name':         'Signed opportunities',
-                                               'success_rate': 0, #minimunm is 1
+                                               'success_rate': 0,  # Minimunm is 1
                                               }
                                    )
         self.assertFormError(response, 'form', 'success_rate',
@@ -293,7 +290,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                             )
 
         response = self.client.post(url, data={'name':         'Signed opportunities',
-                                               'success_rate': 101, #maximum is 100
+                                               'success_rate': 101,  # Maximum is 100
                                               }
                                    )
         self.assertFormError(response, 'form', 'success_rate',
@@ -317,7 +314,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         child02 = create_comp(name='Child 02', parent=root01)
         child21 = create_comp(name='Child 21', parent=child02)
 
-        comptree = pattern.get_components_tree() #TODO: test that no additionnal queries are done ???
+        comptree = pattern.get_components_tree()  # TODO: test that no additional queries are done ???
         self.assertIsInstance(comptree, list)
         self.assertEqual(2, len(comptree))
 
@@ -355,13 +352,13 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
     def test_delete_pattern_component02(self):
         pattern = self._create_pattern()
         create_comp = partial(ActObjectivePatternComponent.objects.create, pattern=pattern, success_rate=1)
-        comp00 = create_comp(name='Signed opportunities') #NB: should not be removed
+        comp00 = create_comp(name='Signed opportunities')  # NB: should not be removed
         comp01 = create_comp(name='DELETE ME')
         comp02 = create_comp(name='Will be orphaned01',  parent=comp01)
         comp03 = create_comp(name='Will be orphaned02',  parent=comp01)
         comp04 = create_comp(name='Will be orphaned03',  parent=comp02)
-        comp05 = create_comp(name='Smiles done') #NB: should not be removed
-        comp06 = create_comp(name='Stand by me',         parent=comp05) #NB: should not be removed
+        comp05 = create_comp(name='Smiles done')  # NB: should not be removed
+        comp06 = create_comp(name='Stand by me',         parent=comp05)  # NB: should not be removed
 
         self.assertNoFormError(self._delete_comp(comp01), status=302)
 
@@ -409,7 +406,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(1, cloned_comp1.success_rate)
         self.assertEqual(ct_orga, cloned_comp1.ctype)
         self.assertIsNone(cloned_comp1.filter)
-        #self.assertCompNamesEqual(cloned_comp1.children, '1.1', '1.2')
 
         with self.assertNoException():
             cloned_comp11, cloned_comp12 = cloned_comp1.children.all()

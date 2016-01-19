@@ -13,6 +13,9 @@ notification_key = SettingKey(id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABL
                               app_label='commercial', type=SettingKey.BOOL,
                              )
 orga_approaches_key = SettingKey(id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
-                                 description=_(u"Display only organisations' commercial approaches on organisations' file. (Otherwise, display organisations', managers', employees', related opportunities' commercial approaches)"),
+                                 description=_(u"Display only organisations' commercial approaches on organisations' file."
+                                               u" (Otherwise, display organisations', managers', employees', "
+                                               u"related opportunities' commercial approaches)"
+                                              ),
                                  app_label='commercial', type=SettingKey.BOOL,
                                 )

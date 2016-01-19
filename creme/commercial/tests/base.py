@@ -7,7 +7,6 @@ skip_strategy_tests = False
 try:
     from unittest import skipIf
 
-#    from creme.creme_core.models import CremePropertyType
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons import get_contact_model, get_organisation_model
@@ -16,17 +15,16 @@ try:
 
     from creme.opportunities import get_opportunity_model
 
+    from creme import commercial
     from ..models import MarketSegment
-    from .. import (act_model_is_custom, pattern_model_is_custom, strategy_model_is_custom,
-            get_act_model, get_pattern_model, get_strategy_model)
 
-    skip_act_tests      = act_model_is_custom()
-    skip_pattern_tests  = pattern_model_is_custom()
-    skip_strategy_tests = strategy_model_is_custom()
+    skip_act_tests      = commercial.act_model_is_custom()
+    skip_pattern_tests  = commercial.pattern_model_is_custom()
+    skip_strategy_tests = commercial.strategy_model_is_custom()
 
-    Act = get_act_model()
-    ActObjectivePattern = get_pattern_model()
-    Strategy = get_strategy_model()
+    Act = commercial.get_act_model()
+    ActObjectivePattern = commercial.get_pattern_model()
+    Strategy = commercial.get_strategy_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -65,14 +63,9 @@ class CommercialBaseTestCase(CremeTestCase):
     def _build_add_segmentdesc_url(self, strategy):
         return '/commercial/strategy/%s/add/segment/' % strategy.id
 
-    #def _build_ctypefilter_field(self, ctype, efilter=None):
-        #return '{"ctype": "%s", "efilter": "%s"}' % (ctype.id, efilter.id if efilter else '')
     def _build_ctypefilter_field(self, ctype=None, efilter=None):
         return '{"ctype": "%s", "efilter": "%s"}' % (ctype.id if ctype else 0, efilter.id if efilter else '')
 
-#    def _create_segment(self):
-#        ptype = CremePropertyType.create('commercial-_prop_unitest', 'Segment type')
-#        return MarketSegment.objects.create(name='Segment#1', property_type=ptype)
     def _create_segment(self, name='Segment#1'):
         self.assertNoFormError(self.client.post(self.ADD_SEGMENT_URL, data={'name': name}))
 

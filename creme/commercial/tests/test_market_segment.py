@@ -7,18 +7,15 @@ try:
 
     from creme.creme_core.models import RelationType, CremePropertyType, CremeProperty
 
-    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import MarketSegment  # Strategy
+    from ..models import MarketSegment
     from .base import CommercialBaseTestCase, Organisation, Strategy
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class MarketSegmentTestCase(CommercialBaseTestCase):
-#    ADD_URL = '/commercial/market_segment/add'
-
     def _build_delete_url(self, segment):
         return '/commercial/market_segment/delete/%s' % segment.id
 
@@ -180,7 +177,6 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
     def test_segment_delete02(self):
         "Cannot delete if there is only one segment"
-#        segment = self._create_segment('Industry')
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
 
         self.assertGET409(self._build_delete_url(segment))
@@ -226,14 +222,14 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         ptypes = lambda orga: [p.type for p in orga.properties.all()]
 
-        self.assertEqual(expected, ptypes(orga1)) # Only one property, not 2 (with the same type)
+        self.assertEqual(expected, ptypes(orga1))  # Only one property, not 2 (with the same type)
         self.assertEqual(expected, ptypes(orga2))
         self.assertEqual(expected, ptypes(orga3))
 
     def test_segment_delete06(self):
         "Cannot delete the segment with property_type=NULL"
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
-        self._create_segment('Industry') # We add this segment to not try to delete the last one.
+        self._create_segment('Industry')  # We add this segment to not try to delete the last one.
 
         self.assertGET409(self._build_delete_url(segment))
 

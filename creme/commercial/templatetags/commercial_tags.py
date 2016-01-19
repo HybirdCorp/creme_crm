@@ -26,9 +26,11 @@ from creme.creme_core.gui.quick_forms import quickforms_registry
 
 register = Library()
 
+
 @register.filter
 def has_quickform(ctype):
     return quickforms_registry.get_form(ctype.model_class()) is not None
+
 
 @register.simple_tag
 def get_segments_for_category(strategy, orga, category):
@@ -36,6 +38,7 @@ def get_segments_for_category(strategy, orga, category):
                                             for segment in strategy.get_segments_for_category(orga, category)
                                        )
                             )
+
 
 @register.inclusion_tag('commercial/templatetags/widget_score.html', takes_context=True)
 def widget_asset_score(context, segment_desc, asset):
@@ -49,6 +52,7 @@ def widget_asset_score(context, segment_desc, asset):
 
     return context
 
+
 @register.inclusion_tag('commercial/templatetags/widget_score.html', takes_context=True)
 def widget_charm_score(context, segment, charm):
     strategy = context['strategy']
@@ -60,6 +64,7 @@ def widget_charm_score(context, segment, charm):
     context['has_perm'] = context['user'].has_perm_to_change(strategy)
 
     return context
+
 
 @register.inclusion_tag('commercial/templatetags/widget_category.html', takes_context=True)
 def widget_segment_category(context, segment):

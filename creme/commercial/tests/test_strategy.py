@@ -10,7 +10,6 @@ try:
 
     from creme.creme_core.models import CremePropertyType
 
-    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
@@ -46,7 +45,6 @@ class StrategyTestCase(CommercialBaseTestCase):
                           )
 
     def test_strategy_create(self):
-#        url = '/commercial/strategy/add'
         url = reverse('commercial__create_strategy')
         self.assertGET200(url)
 
@@ -69,7 +67,6 @@ class StrategyTestCase(CommercialBaseTestCase):
         name = 'Strat#1'
         strategy = Strategy.objects.create(user=self.user, name=name)
 
-#        url = '/commercial/strategy/edit/%s' % strategy.id
         url = strategy.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -85,7 +82,6 @@ class StrategyTestCase(CommercialBaseTestCase):
     def test_listview(self):
         create_strategy = partial(Strategy.objects.create, user=self.user)
         strategies = {create_strategy(name='Strat#1'), create_strategy(name='Strat#2')}
-#        response = self.assertGET200('/commercial/strategies')
         response = self.assertGET200(reverse('commercial__list_strategies'))
 
         with self.assertNoException():
@@ -278,7 +274,6 @@ class StrategyTestCase(CommercialBaseTestCase):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         name = 'Size'
         asset = CommercialAsset.objects.create(name=name, strategy=strategy)
-        #url = '/commercial/asset/edit/%s/' % asset.id
         url = asset.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -315,7 +310,6 @@ class StrategyTestCase(CommercialBaseTestCase):
         name = 'Size'
         charm = MarketSegmentCharm.objects.create(name=name, strategy=strategy)
 
-        #url = '/commercial/charm/edit/%s/' % charm.id
         url = charm.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -355,7 +349,7 @@ class StrategyTestCase(CommercialBaseTestCase):
                                             strategy.id, orga.id
                                         )
                                     )
-        #self.assertTemplateUsed(response, 'commercial/templatetags/widget_score.html') #TODO: do not work ??
+        # self.assertTemplateUsed(response, 'commercial/templatetags/widget_score.html') #TODO: do not work ??
         self.assertContains(response, '<select name="asset_score_%s_%s"' % (asset.id, segment_desc.id))
         self.assertContains(response, '<select name="charm_score_%s_%s"' % (charm.id, segment_desc.id))
 
@@ -363,7 +357,7 @@ class StrategyTestCase(CommercialBaseTestCase):
                                             strategy.id, orga.id
                                         )
                                     )
-        #self.assertTemplateUsed(response, 'commercial/templatetags/widget_category.html') #TODO: do not work ??
+        # self.assertTemplateUsed(response, 'commercial/templatetags/widget_category.html') #TODO: do not work ??
         self.assertContains(response, '<select name="segment_catselect_%s"' % segment_desc.id)
 
     @skipIfCustomOrganisation
@@ -410,12 +404,12 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual([orga2], list(strategy1.evaluated_orgas.all()))
 
         self.assertDoesNotExist(asset_score1)
-        self.get_object_or_fail(CommercialAssetScore, pk=asset_score2.pk) #no deleted (other orga)
-        self.get_object_or_fail(CommercialAssetScore, pk=asset_score3.pk) #no deleted (other strategy)
+        self.get_object_or_fail(CommercialAssetScore, pk=asset_score2.pk)  # Not deleted (other orga)
+        self.get_object_or_fail(CommercialAssetScore, pk=asset_score3.pk)  # Not deleted (other strategy)
 
         self.assertDoesNotExist(charm_score1)
-        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score2.pk) #no deleted (other orga)
-        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score3.pk) #no deleted (other strategy)
+        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score2.pk)  # Not deleted (other orga)
+        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score3.pk)  # Not deleted (other strategy)
 
     @skipIfCustomOrganisation
     def test_set_asset_score01(self):
@@ -432,7 +426,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         score = 3
         self._set_asset_score(strategy, orga, asset, segment_desc, score)
 
-        strategy = self.refresh(strategy) #cache....
+        strategy = self.refresh(strategy)  # Cache....
         self.assertEqual(score, strategy.get_asset_score(orga, asset, segment_desc))
         self.assertEqual([(score, 3)], strategy.get_assets_totals(orga))
 
@@ -463,7 +457,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self._set_asset_score(strategy, orga, asset02, segment_desc01, score21)
         self._set_asset_score(strategy, orga, asset02, segment_desc02, score22)
 
-        strategy = self.refresh(strategy) #(cache....)
+        strategy = self.refresh(strategy)  # (cache....)
         self.assertEqual(score11, strategy.get_asset_score(orga, asset01, segment_desc01))
         self.assertEqual(score12, strategy.get_asset_score(orga, asset01, segment_desc02))
         self.assertEqual(score21, strategy.get_asset_score(orga, asset02, segment_desc01))
@@ -488,7 +482,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         score = 3
         self._set_charm_score(strategy, orga, charm, segment_desc, score)
 
-        strategy = self.refresh(strategy) #cache...
+        strategy = self.refresh(strategy)  # Cache...
         self.assertEqual(score, strategy.get_charm_score(orga, charm, segment_desc))
         self.assertEqual([(score, 3)], strategy.get_charms_totals(orga))
 
@@ -590,7 +584,7 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         self._set_segment_category(strategy, individual, orga, 2)
 
-        strategy = self.refresh(strategy) #(cache....)
+        strategy = self.refresh(strategy)  # (cache....)
         self.assertEqual([association.id], list(segment_ids(strategy, orga, 4)))
         self.assertEqual([],               list(segment_ids(strategy, orga, 3)))
         self.assertEqual([industry.id],    list(segment_ids(strategy, orga, 1)))
@@ -626,7 +620,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self._set_segment_category(strategy, segment_desc, orga, 2)
 
         self.assertEqual(1, Strategy.objects.count())
-        self.assertEqual(2, MarketSegment.objects.count()) # 1 + 'All the organisations'
+        self.assertEqual(2, MarketSegment.objects.count())  # 1 + 'All the organisations'
         self.assertEqual(1, MarketSegmentDescription.objects.count())
         self.assertEqual(1, CommercialAsset.objects.count())
         self.assertEqual(1, MarketSegmentCharm.objects.count())
@@ -649,7 +643,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         segment_desc = self._create_segment_desc(strategy, 'People')
 
         self.assertEqual(1, strategy.segment_info.count())
-        self.assertEqual(2, MarketSegment.objects.count()) # 1 + 'All the organisations'
+        self.assertEqual(2, MarketSegment.objects.count())  # 1 + 'All the organisations'
 
         ct = ContentType.objects.get_for_model(MarketSegmentDescription)
         self.client.post('/creme_core/entity/delete_related/%s' % ct.id,

@@ -27,7 +27,6 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import list_view
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 from creme.persons.views.contact import abstract_add_contact
 
 from ..constants import PROP_IS_A_SALESMAN
@@ -56,7 +55,6 @@ def abstract_list_salesmen(request, title=_(u'List of salesmen')):
 
 
 @login_required
-# @permission_required('persons', 'persons.add_contact')
 @permission_required('persons', cperm(Contact))
 def add(request):
     return abstract_add_salesman(request)

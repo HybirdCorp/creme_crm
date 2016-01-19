@@ -28,11 +28,9 @@ from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, lis
 from creme.creme_core.models import Relation, SettingValue
 
 from creme.persons import get_organisation_model
-#from creme.persons.models import Organisation
 
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.constants import REL_SUB_TARGETS
-#from creme.opportunities.models import Opportunity
 
 from . import get_act_model, get_pattern_model, get_strategy_model
 from .models import (CommercialApproach, MarketSegment, MarketSegmentDescription,
@@ -54,9 +52,7 @@ class ApproachesBlock(QuerysetBlock):
     verbose_name  = _(u'Commercial approaches')
     template_name = 'commercial/templatetags/block_approaches.html'
 
-    #_ORGA_CT_ID = get_ct(Organisation).id
-
-    #TODO: factorise with assistants blocks (CremeEntity method ??)
+    # TODO: factorise with assistants blocks (CremeEntity method ??)
     @staticmethod
     def _populate_related_real_entities(comapps, user):
         entities_ids_by_ct = defaultdict(set)
@@ -77,8 +73,6 @@ class ApproachesBlock(QuerysetBlock):
         entity = context['object']
         pk = entity.pk
 
-#        #if entity.entity_type_id == self._ORGA_CT_ID and \
-#        if isinstance(entity, Organisation) and \
         if isinstance(entity, get_organisation_model()) and \
            not SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
             # TODO: regroup the queries
@@ -124,20 +118,19 @@ class SegmentsBlock(QuerysetBlock):
     verbose_name  = u'Market segments'
     template_name = 'commercial/templatetags/block_segments.html'
     configurable  = False
-    permission    = 'commercial' #NB: used by the view creme_core.views.blocks.reload_basic
+    permission    = 'commercial'  # NB: used by the view creme_core.views.blocks.reload_basic
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
                         context, MarketSegment.objects.all(),
                         update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                        #has_perm=context['request'].user.has_perm('commercial'), #todo: better credentials ?
                        )
                     )
 
 
 class SegmentDescriptionsBlock(PaginatedBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'segment_info')
-    dependencies  = (MarketSegment,) #MarketSegmentDescription ??
+    dependencies  = (MarketSegment,)  # MarketSegmentDescription ??
     verbose_name  = _(u'Market segment descriptions')
     template_name = 'commercial/templatetags/block_segment_info.html'
     target_ctypes = (Strategy,)
@@ -214,13 +207,13 @@ class EvaluatedOrgasBlock(QuerysetBlock):
 
 class AssetsMatrixBlock(Block):
     id_           = Block.generate_id('commercial', 'assets_matrix')
-    #dependencies  = (CommercialAsset,) #useless (custom reload view....)
+    # dependencies  = (CommercialAsset,) #useless (custom reload view....)
     verbose_name  = u'Assets / segments matrix'
     template_name = 'commercial/templatetags/block_assets_matrix.html'
     configurable  = False
 
     def detailview_display(self, context):
-        #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
+        # NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_block_template_context(
@@ -235,13 +228,13 @@ class AssetsMatrixBlock(Block):
 
 class CharmsMatrixBlock(Block):
     id_           = Block.generate_id('commercial', 'charms_matrix')
-    #dependencies  = (MarketSegmentCharm,) #useless (custom reload view....)
+    # dependencies  = (MarketSegmentCharm,) #useless (custom reload view....)
     verbose_name  = u'Charms / segments matrix'
     template_name = 'commercial/templatetags/block_charms_matrix.html'
     configurable  = False
 
     def detailview_display(self, context):
-        #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
+        # NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_block_template_context(
@@ -256,13 +249,13 @@ class CharmsMatrixBlock(Block):
 
 class AssetsCharmsMatrixBlock(Block):
     id_           = Block.generate_id('commercial', 'assets_charms_matrix')
-    #dependencies  = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
+    # dependencies  = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     verbose_name  = u'Assets / Charms segments matrix'
     template_name = 'commercial/templatetags/block_assets_charms_matrix.html'
     configurable  = False
 
     def detailview_display(self, context):
-        #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
+        # NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_block_template_context(
@@ -285,10 +278,11 @@ class ActObjectivesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         act_id = context['object'].id
-        #TODO: pre-populate EntityFilters ??
+        # TODO: pre-populate EntityFilters ??
         return self._render(self.get_block_template_context(
                         context,
-                        ActObjective.objects.filter(act=act_id), #NB: "act.objectives.all()" causes a strange additional query...
+                        # NB: "act.objectives.all()" causes a strange additional query...
+                        ActObjective.objects.filter(act=act_id),
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
                         ct_id=self._OBJECTIVE_CT_ID,
                        )
@@ -304,7 +298,7 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
     # => Problem the block is not reloaded when a Relationship is created from
     #    the RelationsBlock....
     # TODO: improve the block dependencies system
-    #relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
+    # relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
     verbose_name  = _(u'Opportunities related to a Commercial Action')
     template_name = 'commercial/templatetags/block_opportunities.html'
     target_ctypes = (Act,)
