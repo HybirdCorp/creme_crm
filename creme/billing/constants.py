@@ -2,7 +2,6 @@
 
 from decimal import Decimal, ROUND_HALF_UP  # ROUND_UP ROUND_DOWN ROUND_HALF_EVEN
 
-#from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -37,8 +36,6 @@ DEFAULT_HFILTER_TEMPLATE = 'billing-hf_template'
 
 DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
 
-#ISSUED_CREDIT_NOTE = 2 # TODO workflow status
-
 ############################################
 # DEPRECATED
 PERCENT_PK = 1
@@ -56,11 +53,3 @@ DISCOUNT_ITEM_AMOUNT = 3
 ############################################
 
 DEFAULT_QUANTITY = Decimal('1.00')
-
-#PRODUCT_LINE_TYPE = 1
-#SERVICE_LINE_TYPE = 2
-#
-#LINE_TYPES = {
-#    PRODUCT_LINE_TYPE: _(u'Product'),
-#    SERVICE_LINE_TYPE: _(u'Service'),
-#}

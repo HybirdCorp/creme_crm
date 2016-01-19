@@ -13,12 +13,9 @@ try:
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             SetCredentials, Relation, RelationType, Currency)
 
-    # from creme.persons import get_organisation_model
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
-    # from creme.persons.models import Organisation, Address
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    # from .. import get_invoice_model
     from ..models import (AdditionalInformation, PaymentInformation, PaymentTerms,
             InvoiceStatus, QuoteStatus, SalesOrderStatus)
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -108,7 +105,7 @@ class ConvertTestCase(_BillingTestCase):
         self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED,     object_entity=target)
         self.assertRelationCount(1, target,  REL_SUB_CUSTOMER_SUPPLIER, object_entity=source)
 
-        #Addresses are cloned
+        # Addresses are cloned
         billing_address = invoice.billing_address
         self.assertIsInstance(billing_address, Address)
         self.assertEqual(invoice,     billing_address.owner)
@@ -149,7 +146,7 @@ class ConvertTestCase(_BillingTestCase):
         # Invoice = get_invoice_model()
 
         get_ct = ContentType.objects.get_for_model
-        self.role.creatable_ctypes = [get_ct(Quote)] #not get_ct(Invoice)
+        self.role.creatable_ctypes = [get_ct(Quote)]  # Not get_ct(Invoice)
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE |
@@ -165,7 +162,6 @@ class ConvertTestCase(_BillingTestCase):
     def test_convert04(self):
         "Credentials (view) errors"
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
-        # Invoice = get_invoice_model()
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote), get_ct(Invoice)]
@@ -205,7 +201,7 @@ class ConvertTestCase(_BillingTestCase):
         service_line_otf = create_sline(on_the_fly_item="otf2",             unit_price=Decimal("4"))
         service_line     = create_sline(related_item=self.create_service(), unit_price=Decimal("5"))
 
-        #quote.save()#To set total_vat...
+        # quote.save() # To set total_vat...
         quote = self.refresh(quote)
 
         quote_property = CremeProperty.objects.create(creme_entity=quote, type=CremePropertyType.objects.all()[0])
@@ -225,13 +221,13 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(2, invoice.get_lines(ProductLine).count())
 
         q_otf_item = Q(on_the_fly_item=None)
-        invoice_service_line     = invoice.get_lines(ServiceLine).get(q_otf_item)#Should be with the related_item
+        invoice_service_line     = invoice.get_lines(ServiceLine).get(q_otf_item)  # Should be with the related_item
         invoice_service_line_otf = invoice.get_lines(ServiceLine).get(~q_otf_item)
 
         self.assertEqual(service_line.related_item,     invoice_service_line.related_item)
         self.assertEqual(service_line_otf.related_item, invoice_service_line_otf.related_item)
 
-        invoice_product_line     = invoice.get_lines(ProductLine).get(q_otf_item)#Should be with the related_item
+        invoice_product_line     = invoice.get_lines(ProductLine).get(q_otf_item)  # Should be with the related_item
         invoice_product_line_otf = invoice.get_lines(ProductLine).get(~q_otf_item)
 
         self.assertEqual(product_line.related_item,     invoice_product_line.related_item)
@@ -254,7 +250,7 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
     def test_convert06(self):
-        "Quote -> SalesOrder : status id can not be converted (bugfix)"
+        "Quote -> SalesOrder: status id can not be converted (bugfix)"
         self.login()
 
         status = QuoteStatus.objects.create(name='Cashing', order=5)
@@ -296,8 +292,6 @@ class ConvertTestCase(_BillingTestCase):
     def test_not_copiable_relations(self):
         self.login()
         self.assertEqual(0, Relation.objects.count())
-        # Organisation = get_organisation_model()
-        # Invoice = get_invoice_model()
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving', (Quote, Invoice)),
@@ -347,9 +341,6 @@ class ConvertTestCase(_BillingTestCase):
     def test_converted_relations(self):
         self.login()
         from ..registry import relationtype_converter
-
-        # Organisation = get_organisation_model()
-        # Invoice = get_invoice_model()
 
         self.assertEqual(0, Relation.objects.count())
         quote, source, target = self.create_quote_n_orgas('My Quote')

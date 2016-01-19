@@ -26,7 +26,6 @@ from .base import Base
 from .other_models import QuoteStatus
 
 
-#class Quote(Base):
 class AbstractQuote(Base):
     status           = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT)
     acceptation_date = DateField(_(u"Acceptation date"), blank=True, null=True)\
@@ -35,7 +34,6 @@ class AbstractQuote(Base):
     creation_label = _('Add a quote')
 
     def get_absolute_url(self):
-#        return "/billing/quote/%s" % self.id
         return reverse('billing__view_quote', args=(self.id,))
 
     @staticmethod
@@ -43,12 +41,10 @@ class AbstractQuote(Base):
         return reverse('billing__create_quote')
 
     def get_edit_absolute_url(self):
-#        return "/billing/quote/edit/%s" % self.id
         return reverse('billing__edit_quote', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/billing/quotes"
         return reverse('billing__list_quotes')
 
     def build(self, template):
@@ -59,12 +55,10 @@ class AbstractQuote(Base):
                                                                   'order': tpl_status_id,
                                                                  },
                                                        )[0]
-#        return super(Quote, self).build(template)
+
         return super(AbstractQuote, self).build(template)
 
-#    class Meta:
     class Meta(Base.Meta):
-#        app_label = 'billing'
         abstract = True
         verbose_name = _(u'Quote')
         verbose_name_plural = _(u'Quotes')

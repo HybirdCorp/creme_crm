@@ -56,14 +56,10 @@ class BillingConfig(CremeAppConfig):
         creme_registry.register_entity_models(self.Invoice, self.Quote,
                                               self.SalesOrder, self.CreditNote,
                                               self.ServiceLine, self.ProductLine,
-                                             ) #Line
+                                             )
 
     def register_blocks(self, block_registry):
         from .blocks import block_list # BillingBlock
-
-#        for model in (self.Quote, self.Invoice, self.SalesOrder,
-#                      self.CreditNote, self.TemplateBase):
-#            block_registry.register_4_model(model, BillingBlock())
 
         block_registry.register(*block_list)
         block_registry.register_invalid_models(self.ProductLine, self.ServiceLine)

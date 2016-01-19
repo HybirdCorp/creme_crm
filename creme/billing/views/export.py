@@ -33,8 +33,6 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 
 from creme.billing import get_invoice_model
-#from creme.billing.constants import CURRENCY #TODO: use it ?
-#from creme.billing.models import Invoice
 
 
 @login_required
@@ -44,15 +42,9 @@ def export_as_pdf(request, base_id):
     source = entity.get_source().get_real_entity()
     target = entity.get_target().get_real_entity()
 
-#    if isinstance(entity, Invoice):
-#        template_file = 'billing/templates/invoice.tex'
-#    else:
-#        template_file = 'billing/templates/billings.tex'
     template_name = 'invoice' if isinstance(entity, get_invoice_model()) else 'billings'
-
     document_name = _(entity._meta.verbose_name)
 
-#    t = loader.get_template(template_file)
     t = loader.get_template('billing/templates/%s.tex' % template_name)
     context = Context({
             'plines':        entity.product_lines,
@@ -70,10 +62,10 @@ def export_as_pdf(request, base_id):
     basename = '%s_%i' % (document_name, entity.id)
 
     file_path = join(dir_path, '%s.tex' % basename)
-    f = open(file_path, 'w') #TODO: use 'with' statement
+    f = open(file_path, 'w')  # TODO: use 'with' statement
     f.write(smart_str(t.render(context)))
     f.close()
 
-    retcode = subprocess.call(['pdflatex', '-output-directory', dir_path, file_path]) #TODO: test retcode ??
+    retcode = subprocess.call(['pdflatex', '-output-directory', dir_path, file_path])  # TODO: test retcode ??
 
     return HttpResponseRedirect('/download_file/upload/billing/%s.pdf' % basename)

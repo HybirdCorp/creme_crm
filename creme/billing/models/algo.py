@@ -25,11 +25,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import CTypeForeignKey
 
-#from creme.persons.models import Organisation
-
 
 class ConfigBillingAlgo(CremeModel):
-#    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'))
     name_algo    = CharField(_(u"Algo name"), max_length=400)
     ct           = CTypeForeignKey()
@@ -45,7 +42,6 @@ class ConfigBillingAlgo(CremeModel):
 
 
 class SimpleBillingAlgo(Model):
-#    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'))
     last_number  = IntegerField()
     prefix       = CharField(_(u'Invoice prefix'), max_length=400)

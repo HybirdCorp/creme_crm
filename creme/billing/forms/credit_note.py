@@ -29,7 +29,6 @@ from creme.creme_core.models.relation import Relation
 
 from .. import get_credit_note_model
 from ..constants import REL_SUB_BILL_RECEIVED, REL_OBJ_CREDIT_NOTE_APPLIED
-#from ..models import CreditNote
 from .base import BaseCreateForm, BaseEditForm
 
 

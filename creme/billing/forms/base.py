@@ -21,8 +21,7 @@
 from itertools import chain
 import logging
 
-#from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _ # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import (CremeEntityForm, CremeDateField,
         GenericEntityField, CreatorEntityField)
@@ -31,10 +30,8 @@ from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first
 
 from creme.persons import get_contact_model, get_organisation_model, get_address_model
-#from creme.persons.models import Organisation, Address, Contact
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-# from ..models import Line
 
 
 logger = logging.getLogger(__name__)
@@ -44,26 +41,23 @@ logger = logging.getLogger(__name__)
 def copy_or_create_address(address, owner, name):
     if address is None:
         name = unicode(name)
-#        return Address.objects.create(name=name, owner=owner, address=name)
         return get_address_model().objects.create(name=name, owner=owner, address=name)
 
     return address.clone(owner)
 
+
 def first_managed_orga_id():
     try:
-#        return Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0]
         return get_organisation_model().get_all_managed_by_creme().values_list('id', flat=True)[0]
     except IndexError:
         logger.warn('No managed organisation ?!')
 
 
 class BaseEditForm(CremeEntityForm):
-#    source = CreatorEntityField(label=_(u"Source organisation"), model=Organisation)
-#    target = GenericEntityField(label=_(u"Target"), models=[Organisation, Contact]) #, required=True
     source = CreatorEntityField(label=_(u"Source organisation"), model=get_organisation_model())
     target = GenericEntityField(label=_(u"Target"),
                                 models=[get_organisation_model(), get_contact_model()],
-                               ) #, required=True
+                               )
 
     issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
     expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)
@@ -85,7 +79,7 @@ class BaseEditForm(CremeEntityForm):
 
         pk = self.instance.pk
 
-        if pk is not None: # Edit mode
+        if pk is not None:  # Edit mode
             relations = Relation.objects.filter(subject_entity=pk, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED))
 
             issued_relation   = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_ISSUED), None)
@@ -98,16 +92,6 @@ class BaseEditForm(CremeEntityForm):
             if received_relation:
                 self.received_relation = received_relation
                 self.fields['target'].initial = received_relation.object_entity
-
-#    def clean_discount(self):
-#        discount = self.cleaned_data.get('discount')
-#
-#        if not (0 <= discount <= 100):
-#            raise ValidationError(ugettext(u"Your discount is a %. It must be between 0 and 100%"),
-#                                  code='invalid_percentage',
-#                                 )
-#
-#        return discount
 
     def clean_source(self):
         return validate_linkable_entity(self.cleaned_data['source'], self.user)
@@ -145,14 +129,14 @@ class BaseEditForm(CremeEntityForm):
 
         instance = super(BaseEditForm, self).save(*args, **kwargs)
 
-        self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source) #TODO: move this intelligence in models.Base.save()
+        self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source)  # TODO: move this intelligence in models.Base.save()
         self._manage_relation(self.received_relation, REL_SUB_BILL_RECEIVED, target)
 
         # TODO: do this in model/with signal to avoid errors ???
         if self.old_user_id and self.old_user_id != user.id:
             # Do not use queryset.update() to call the CremeEntity.save() method TODO: change with future Credentials system ??
-#            for line in instance.get_lines(Line):
-            for line in chain(instance.product_lines, instance.service_lines): # TODO: we need a way to retrieve all lines with potential other types...
+            # TODO: we need a way to retrieve all lines with potential other types...
+            for line in chain(instance.product_lines, instance.service_lines):
                 line.user = instance.user
                 line.save()
 

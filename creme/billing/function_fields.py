@@ -22,22 +22,20 @@ import datetime
 
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal # FunctionFieldResult
+from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
 from creme.creme_core.models import FieldsConfig
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Organisation, Contact
 
 from . import get_invoice_model, get_quote_model
 from .constants import REL_OBJ_BILL_RECEIVED, REL_OBJ_BILL_ISSUED
-#from .models import Invoice, Quote
 
 
 Contact      = get_contact_model()
 Organisation = get_organisation_model()
 
-Invoice      = get_invoice_model()
-Quote        = get_quote_model()
+Invoice = get_invoice_model()
+Quote   = get_quote_model()
 
 
 def sum_totals_no_vat(model, entity, **kwargs):
@@ -54,8 +52,10 @@ def sum_totals_no_vat(model, entity, **kwargs):
                                              **kwargs)
     return sum(billing_document.total_no_vat for billing_document in billing_documents)
 
+
 def get_total_pending(entity):
     return sum_totals_no_vat(Invoice, entity, status__pending_payment=True)
+
 
 # TODO: move to CremeEntity ? (see Opportunity too)
 # TODO: remove when FieldsConfig cache has been added.
@@ -66,6 +66,7 @@ def _get_quote_fieldsconfig(entity):
         entity._fconfig_quote_cache = fc = FieldsConfig.get_4_model(Quote)
 
     return fc
+
 
 def get_total_won_quote_last_year(entity):
     if _get_quote_fieldsconfig(entity).is_fieldname_hidden('acceptation_date'):
@@ -93,7 +94,7 @@ def get_total_won_quote_this_year(entity):
 
 
 class _BaseTotalWonQuote(FunctionField):
-    result_type = FunctionFieldDecimal # Useful to get the rigth CSS class in listview
+    result_type = FunctionFieldDecimal  # Useful to get the rigth CSS class in listview
 
     @classmethod
     def populate_entities(cls, entities):
@@ -107,10 +108,9 @@ class _BaseTotalWonQuote(FunctionField):
 class _TotalPendingPayment(FunctionField):
     name         = "total_pending_payment"
     verbose_name = _(u"Total Pending Payment")
-    result_type  = FunctionFieldDecimal # Useful to get the rigth CSS class in listview
+    result_type  = FunctionFieldDecimal  # Useful to get the rigth CSS class in listview
 
     def __call__(self, entity):
-#        return FunctionFieldResult(get_total_pending(entity))
         return FunctionFieldDecimal(get_total_pending(entity))
 
     # TODO: use cache for creme_orgas_billings_ids + regroup queries
@@ -118,13 +118,11 @@ class _TotalPendingPayment(FunctionField):
     #     pass
 
 
-#class _TotalWonQuoteThisYear(FunctionField):
 class _TotalWonQuoteThisYear(_BaseTotalWonQuote):
     name         = "total_won_quote_this_year"
     verbose_name = _(u"Total Won Quote This Year")
 
     def __call__(self, entity):
-#       return FunctionFieldResult(get_total_won_quote_this_year(entity))
         return FunctionFieldDecimal(get_total_won_quote_this_year(entity))
 
     # TODO: see _TotalPendingPayment
@@ -132,13 +130,11 @@ class _TotalWonQuoteThisYear(_BaseTotalWonQuote):
     #     pass
 
 
-#class _TotalWonQuoteLastYear(FunctionField):
 class _TotalWonQuoteLastYear(_BaseTotalWonQuote):
     name         = "total_won_quote_last_year"
     verbose_name = _(u"Total Won Quote Last Year")
 
     def __call__(self, entity):
-#        return FunctionFieldResult(get_total_won_quote_last_year(entity))
         return FunctionFieldDecimal(get_total_won_quote_last_year(entity))
 
     # TODO: see _TotalPendingPayment

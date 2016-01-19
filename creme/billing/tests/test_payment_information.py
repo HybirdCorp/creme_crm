@@ -6,10 +6,9 @@ try:
 
     from creme.creme_core.models import Currency, FieldsConfig
 
-    # from creme.persons.models import Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import PaymentInformation  # Invoice
+    from ..models import PaymentInformation
     from .base import _BillingTestCase, skipIfCustomInvoice, Invoice, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -18,7 +17,7 @@ except Exception as e:
 @skipIfCustomOrganisation
 class PaymentInformationTestCase(_BillingTestCase):
     def setUp(self):
-        #_BillingTestCase.setUp(self)
+        # _BillingTestCase.setUp(self)
         self.login()
 
     def _build_add_url(self, orga):
@@ -101,7 +100,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         orga2 = create_orga(name='Sega')
 
         create_pi = PaymentInformation.objects.create
-        pi_21 = create_pi(organisation=orga2, name="RIB 1", is_default=True) #first if no filter by organisation
+        pi_21 = create_pi(organisation=orga2, name="RIB 1", is_default=True)  # First if no filter by organisation
         pi_11 = create_pi(organisation=orga1, name="RIB 1", is_default=True)
         pi_12 = create_pi(organisation=orga1, name="RIB 2", is_default=False)
 

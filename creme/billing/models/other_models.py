@@ -19,14 +19,12 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CharField, BooleanField, TextField, ForeignKey #PositiveIntegerField
+from django.db.models import CharField, BooleanField, TextField, ForeignKey
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import BasicAutoField
-
-#from creme.persons.models import Organisation
 
 
 class SettlementTerms(CremeModel):
@@ -44,9 +42,8 @@ class SettlementTerms(CremeModel):
 
 class AbstractStatus(CremeModel):
     name      = CharField(_(u'Name'), max_length=100)
-    is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
-    #order     = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False) #used by creme_config
-    order     = BasicAutoField(_('Order')) #used by creme_config
+    is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    order     = BasicAutoField(_('Order'))  # Used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -92,7 +89,7 @@ class CreditNoteStatus(AbstractStatus):
 class AdditionalInformation(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
     description = TextField(verbose_name=_(u"Description"), blank=True, null=True)
-    is_custom   = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+    is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -107,7 +104,7 @@ class AdditionalInformation(CremeModel):
 class PaymentTerms(CremeModel):
     name        = CharField(_(u'Payment terms'), max_length=100)
     description = TextField(verbose_name=_(u"Description"), blank=True, null=True)
-    is_custom   = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+    is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -132,7 +129,6 @@ class PaymentInformation(CremeModel):
     bic                   = CharField(_(u'BIC'), max_length=100, blank=True, null=True)
 
     is_default            = BooleanField(_(u'Is default?'), default=False)
-#    organisation          = ForeignKey(Organisation, verbose_name=_(u'Target organisation'),
     organisation          = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Target organisation'),
                                        related_name='PaymentInformationOrganisation_set',
                                       )
@@ -146,7 +142,7 @@ class PaymentInformation(CremeModel):
         verbose_name_plural = pgettext_lazy('billing-plural',   u'Payment information')
         ordering = ('name',)
 
-    #TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too) ???
+    # TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too) ??
     @atomic
     def save(self, *args, **kwargs):
         if self.is_default:
@@ -159,15 +155,11 @@ class PaymentInformation(CremeModel):
     @atomic
     def delete(self, *args, **kwargs):
         if self.is_default:
-            #existing_pi = PaymentInformation.objects.filter(organisation=self.organisation) \
-                                                    #.exclude(id=self.id)[:1]
             first_pi = PaymentInformation.objects.filter(organisation=self.organisation) \
                                                  .exclude(id=self.id) \
                                                  .first()
 
-            #if existing_pi:
             if first_pi:
-                #first_pi = existing_pi[0]
                 first_pi.is_default = True
                 first_pi.save()
 

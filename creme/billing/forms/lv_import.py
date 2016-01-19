@@ -28,7 +28,6 @@ from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first, update_model_instance
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation # Address
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from .base import copy_or_create_address
@@ -44,12 +43,10 @@ def _copy_or_update_address(source, dest, attr_name, addr_name):
     source_addr = getattr(source, attr_name, None)
     dest_addr   = getattr(dest,   attr_name, None)
 
-    if dest_addr is None: #should not happen
+    if dest_addr is None:  # Should not happen
         setattr(dest, attr_name, copy_or_create_address(source_addr, source, addr_name))
     elif source_addr is None:
-        #name = unicode(addr_name)
-        #setattr(dest, attr_name, Address.objects.create(name=name, owner=dest, address=name))
-        # should we empty the fields of the Address ?
+        # Should we empty the fields of the Address ?
         pass
     else:
         change = update_model_instance(dest_addr, **dict(source_addr.info_fields))
@@ -71,9 +68,6 @@ def get_import_form_builder(header_dict, choices):
                                               help_text=_('In update mode, update the shipping address from the target.')
                                              )
 
-        #class Meta:
-            #exclude = ('billing_address', 'shipping_address')
-
         def _post_instance_creation(self, instance, line, updated):
             super(InvoiceLVImportForm, self)._post_instance_creation(instance, line, updated)
             cdata = self.cleaned_data
@@ -90,8 +84,7 @@ def get_import_form_builder(header_dict, choices):
                                  user=instance.user,
                                 )
 
-            #TODO: move this intelligence in models.Base.save() (see regular Forms)
-            #if not cdata['key_fields']:
+            # TODO: move this intelligence in models.Base.save() (see regular Forms)
             if not updated:
                 create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
                 create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
@@ -99,7 +92,7 @@ def get_import_form_builder(header_dict, choices):
                 instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
                 instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
                 instance.save()
-            else: # update mode
+            else:  # Update mode
                 relations = Relation.objects.filter(subject_entity=instance.pk,
                                                     type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED)
                                                    )
@@ -132,6 +125,5 @@ def get_import_form_builder(header_dict, choices):
 
                 if b_change or s_change:
                     instance.save()
-
 
     return InvoiceLVImportForm

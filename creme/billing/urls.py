@@ -18,7 +18,6 @@ urlpatterns = [
 
     url(r'^(?P<document_id>\d+)/convert/$', convert.convert),
 
-#    url(r'^lines$',                                line.listview),
     url(r'^line/(?P<line_id>\d+)/add_to_catalog',  line.add_to_catalog),
     url(r'^(?P<document_id>\d+)/multi_save_lines', line.multi_save_lines),
 ]
@@ -29,8 +28,6 @@ if not invoice_model_is_custom():
     urlpatterns += [
         url(r'^invoices$',                                    invoice.listview,        name='billing__list_invoices'),
         url(r'^invoice/add$',                                 invoice.add,             name='billing__create_invoice'),
-#        url(r'^invoice/add/(?P<entity_id>\d+)$',                           'add_from_detailview', name='billing__create_invoice_for_target'),
-#        url(r'^invoice/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations',  name='billing__create_related_invoice'),
         url(r'^invoice/add/(?P<target_id>\d+)$',              invoice.add_related,     name='billing__create_related_invoice'),
         url(r'^invoice/edit/(?P<invoice_id>\d+)$',            invoice.edit,            name='billing__edit_invoice'),
         url(r'^invoice/generate_number/(?P<invoice_id>\d+)$', invoice.generate_number, name='billing__generate_invoice_number'),
@@ -43,7 +40,6 @@ if not quote_model_is_custom():
     urlpatterns += [
         url(r'^quotes$',                       quote.listview,    name='billing__list_quotes'),
         url(r'^quote/add$',                    quote.add,         name='billing__create_quote'),
-#        url(r'^quote/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations', name='billing__create_related_quote'),
         url(r'^quote/add/(?P<target_id>\d+)$', quote.add_related, name='billing__create_related_quote'),
         url(r'^quote/edit/(?P<quote_id>\d+)$', quote.edit,        name='billing__edit_quote'),
         url(r'^quote/(?P<quote_id>\d+)$',      quote.detailview,  name='billing__view_quote'),
@@ -55,7 +51,6 @@ if not sales_order_model_is_custom():
     urlpatterns += [
         url(r'^sales_orders$',                       sales_order.listview,    name='billing__list_orders'),
         url(r'^sales_order/add$',                    sales_order.add,         name='billing__create_order'),
-#        url(r'^sales_order/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations', name='billing__create_related_order'),
         url(r'^sales_order/add/(?P<target_id>\d+)$', sales_order.add_related, name='billing__create_related_order'),
         url(r'^sales_order/edit/(?P<order_id>\d+)$', sales_order.edit,        name='billing__edit_order'),
         url(r'^sales_order/(?P<order_id>\d+)$',      sales_order.detailview,  name='billing__view_order'),
@@ -65,7 +60,7 @@ if not credit_note_model_is_custom():
     from .views import credit_note
 
     urlpatterns += [
-        url(r'^credit_note$',                                                               credit_note.listview,                   name='billing__list_cnotes'), #TODO: change to '^credit_noteS'
+        url(r'^credit_note$',                                                               credit_note.listview,                   name='billing__list_cnotes'),  # TODO: change to '^credit_noteS'
         url(r'^credit_note/add$',                                                           credit_note.add,                        name='billing__create_cnote'),
         url(r'^credit_note/edit/(?P<credit_note_id>\d+)$',                                  credit_note.edit,                       name='billing__edit_cnote'),
         url(r'^credit_note/(?P<credit_note_id>\d+)$',                                       credit_note.detailview,                 name='billing__view_cnote'),

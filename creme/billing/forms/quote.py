@@ -24,7 +24,6 @@ from creme.creme_core.forms import CremeDateField
 
 from creme.persons.workflow import transform_target_into_prospect
 
-#from ..models import Quote
 from .. import get_quote_model
 from .base import BaseCreateForm, BaseEditForm
 

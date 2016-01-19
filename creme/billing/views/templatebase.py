@@ -27,7 +27,6 @@ from creme.creme_core.views.generic import edit_entity, list_view, view_entity
 from .. import get_template_base_model, get_sales_order_model, get_invoice_model
 from ..constants import DEFAULT_HFILTER_TEMPLATE
 from ..forms.templatebase import TemplateBaseEditForm
-#from ..models import TemplateBase
 
 
 TemplateBase = get_template_base_model()
@@ -52,7 +51,7 @@ def detailview(request, template_id):
     has_perm = user.has_perm
     isnt_staff = not user.is_staff
 
-    return view_entity(request, template_id, TemplateBase, # '/billing/template',
+    return view_entity(request, template_id, TemplateBase,
                        template='billing/view_template.html',
                        extra_template_dict={
                             'can_download':       False,
@@ -66,6 +65,5 @@ def detailview(request, template_id):
 @permission_required('billing')
 def listview(request):
     return list_view(request, TemplateBase, hf_pk=DEFAULT_HFILTER_TEMPLATE,
-                     # extra_dict={'add_url': '/recurrents/generator/add'}
                      extra_dict={'add_url': reverse('recurrents__create_generator')},
                     )

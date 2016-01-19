@@ -10,7 +10,7 @@ try:
 
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
-    from ..models import SalesOrderStatus  # SalesOrder
+    from ..models import SalesOrderStatus
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import _BillingTestCase, skipIfCustomSalesOrder, SalesOrder
 except Exception as e:
@@ -21,11 +21,10 @@ except Exception as e:
 @skipIfCustomSalesOrder
 class SalesOrderTestCase(_BillingTestCase):
     def setUp(self):
-        #_BillingTestCase.setUp(self)
+        # _BillingTestCase.setUp(self)
         self.login()
 
     def test_createview01(self):
-#        self.assertGET200('/billing/sales_order/add')
         self.assertGET200(reverse('billing__create_order'))
 
         currency = Currency.objects.all()[0]
@@ -41,8 +40,6 @@ class SalesOrderTestCase(_BillingTestCase):
 
     def test_create_linked(self):
         source, target = self.create_orgas()
-##        url = '/billing/sales_order/add/%s/source/%s' % (target.id, source.id)
-#        url = reverse('billing__create_related_order', args=(target.id, source.id))
         url = reverse('billing__create_related_order', args=(target.id,))
         response = self.assertGET200(url)
 
@@ -50,7 +47,6 @@ class SalesOrderTestCase(_BillingTestCase):
             form = response.context['form']
 
         self.assertEqual({'status': 1,
-                          #'source': str(source.id),
                           'target': target
                          },
                          form.initial
@@ -76,8 +72,8 @@ class SalesOrderTestCase(_BillingTestCase):
         order = self.get_object_or_fail(SalesOrder, name=name)
         self.assertEqual(date(year=2013, month=12, day=13), order.issuing_date)
         self.assertEqual(date(year=2014, month=1,  day=20), order.expiration_date)
-        self.assertEqual(currency,                         order.currency)
-        self.assertEqual(status,                           order.status)
+        self.assertEqual(currency, order.currency)
+        self.assertEqual(status,   order.status)
 
         self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
@@ -90,7 +86,9 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         name     = name.title()
-        currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$', international_symbol=u'MUSD', is_custom=True)
+        currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$',
+                                           international_symbol=u'MUSD', is_custom=True,
+                                          )
         status   = SalesOrderStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
                                     data={'user':            self.user.pk,
@@ -117,7 +115,6 @@ class SalesOrderTestCase(_BillingTestCase):
         order1 = self.create_salesorder_n_orgas('Order1')[0]
         order2 = self.create_salesorder_n_orgas('Order2')[0]
 
-#        response = self.assertGET200('/billing/sales_orders')
         response = self.assertGET200(reverse('billing__list_orders'))
 
         with self.assertNoException():

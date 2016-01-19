@@ -25,21 +25,18 @@ import logging
 
 from django.conf import settings
 from django.db.models import (CharField, TextField, ForeignKey, DateField,
-        SET_NULL, PROTECT) # DecimalField
+        SET_NULL, PROTECT)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import CremeEntity, Relation, Currency
 from creme.creme_core.models.fields import MoneyField
 
-#from creme.persons.models import Address
-
 from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
         REL_SUB_HAS_LINE, REL_OBJ_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
         REL_OBJ_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL)
 from ..utils import round_to_2
 
-#from .line import Line
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
 from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
@@ -57,26 +54,20 @@ class Base(CremeEntity):
                                 .set_tags(optional=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)\
                                 .set_tags(optional=True)
-#    discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     discount         = BillingDiscountField(_(u'Overall discount'), default=DEFAULT_DECIMAL,
                                             max_digits=10, decimal_places=2,
                                            )
-#    billing_address  = ForeignKey(Address,
     billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
                                   verbose_name=_(u'Billing address'),
-#                                  related_name='BillingAddress_set',
                                   related_name='+',
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
                                  ).set_tags(enumerable=False)
-#    shipping_address = ForeignKey(Address,
     shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
                                   verbose_name=_(u'Shipping address'),
-#                                  related_name='ShippingAddress_set',
                                   related_name='+',
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
                                  ).set_tags(enumerable=False)
     currency         = ForeignKey(Currency, verbose_name=_(u'Currency'),
-#                                  related_name='Currency_set',
                                   related_name='+',
                                   default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
                                  )
@@ -91,12 +82,10 @@ class Base(CremeEntity):
                                  )
     additional_info  = ForeignKey(AdditionalInformation,
                                   verbose_name=_(u'Additional Information'),
-#                                  related_name='AdditionalInformation_set',
                                   related_name='+',
                                   blank=True, null=True, on_delete=SET_NULL,
                                  ).set_tags(clonable=False, optional=True)
     payment_terms    = ForeignKey(PaymentTerms, verbose_name=_(u'Payment Terms'),
-#                                  related_name='PaymentTerms_set',
                                   related_name='+',
                                   blank=True, null=True, on_delete=SET_NULL,
                                  ).set_tags(clonable=False, optional=True)
@@ -122,7 +111,6 @@ class Base(CremeEntity):
         return self.name
 
     def _pre_delete(self):
-#        lines = list(Line.objects.filter(relations__object_entity=self.id))
         lines = list(chain(self.product_lines, self.service_lines))
 
         for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED,
@@ -176,7 +164,7 @@ class Base(CremeEntity):
         return credit_notes
 
     def generate_number(self, source=None):
-        from creme.billing.registry import algo_registry #lazy loading of number generators
+        from creme.billing.registry import algo_registry  # Lazy loading of number generators
 
         if source is None:
             source = self.get_source()
@@ -196,7 +184,7 @@ class Base(CremeEntity):
     def product_lines(self):
         if self._productlines_cache is None:
             queryset = ProductLine.objects.filter(relations__object_entity=self.id)
-            bool(queryset) #force the retrieving all lines (no slice)
+            bool(queryset)  # Force the retrieving all lines (no slice)
             self._productlines_cache = queryset
         else:
             logger.debug('Cache HIT for product lines in document pk=%s !!' % self.id)
@@ -252,12 +240,10 @@ class Base(CremeEntity):
 
     def _get_total(self):
         lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()
-        #return DEFAULT_DECIMAL if total < DEFAULT_DECIMAL else total
         return max(DEFAULT_DECIMAL, lines_total - creditnotes_total)
 
     def _get_total_with_tax(self):
         lines_total_with_tax, creditnotes_total = self._get_lines_total_n_creditnotes_total_with_tax()
-        #return DEFAULT_DECIMAL if total_with_tax < DEFAULT_DECIMAL else total_with_tax
         return max(DEFAULT_DECIMAL, lines_total_with_tax - creditnotes_total)
 
     def _pre_save_clone(self, source):
@@ -268,7 +254,7 @@ class Base(CremeEntity):
 
     def _copy_relations(self, source):
         from ..registry import relationtype_converter
-        #not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
+        # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
         relation_create = Relation.objects.create
         class_map = relationtype_converter.get_class_map(source, self)
         super(Base, self)._copy_relations(source, allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED])
@@ -306,10 +292,10 @@ class Base(CremeEntity):
     # TODO: Can not we really factorise with clone()
     def build(self, template):
         self._build_object(template)
-        self._post_save_clone(template) #copy addresses
+        self._post_save_clone(template)  # Copy addresses
         self._build_lines(template, ProductLine)
         self._build_lines(template, ServiceLine)
-        #self._post_clone(template) #copy lines TODO: replace the 2 previous lines
+        # self._post_clone(template) #copy lines TODO: replace the 2 previous lines
         self._build_relations(template)
         self._build_properties(template)
         return self
@@ -334,9 +320,9 @@ class Base(CremeEntity):
 
     def _build_lines(self, template, klass):
         logger.debug("=> Clone lines")
-        #warnings.warn("billing.Base._build_lines() method is deprecated; use _post_clone() instead",
-                      #DeprecationWarning
-                     #) TODO
+        # warnings.warn("billing.Base._build_lines() method is deprecated; use _post_clone() instead",
+        #               DeprecationWarning
+        #              ) TODO
         for line in template.get_lines(klass):
             line.clone(self)
 

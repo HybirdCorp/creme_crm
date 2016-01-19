@@ -33,8 +33,6 @@ from creme.persons import get_organisation_model
 
 from .. import (get_invoice_model, get_quote_model,
         get_sales_order_model, get_credit_note_model, get_template_base_model)
-#from creme.billing.models import (PaymentInformation, Invoice, Quote, SalesOrder,
-#        CreditNote, TemplateBase) #Base
 from ..forms.payment_information import (PaymentInformationCreateForm,
         PaymentInformationEditForm)
 from ..models import PaymentInformation
@@ -49,6 +47,7 @@ def add(request, entity_id):
                          submit_label=_('Save the payment information'),
                         )
 
+
 @login_required
 @permission_required('billing')
 def edit(request, payment_information_id):
@@ -57,17 +56,16 @@ def edit(request, payment_information_id):
                                   _(u"Payment information for «%s»"),
                                  )
 
+
 @jsonify
 @login_required
 @permission_required('billing')
 @POST_only
 def set_default(request, payment_information_id, billing_id):
-    pi      = get_object_or_404(PaymentInformation, pk=payment_information_id)
-#    billing_doc = get_object_or_404(Base, pk=billing_id)
+    pi = get_object_or_404(PaymentInformation, pk=payment_information_id)
     billing_doc = get_object_or_404(CremeEntity, pk=billing_id).get_real_entity()
-    user    = request.user
+    user = request.user
 
-#    if not isinstance(billing_doc, (Invoice, Quote, SalesOrder, CreditNote, TemplateBase)):
     if not isinstance(billing_doc, (get_invoice_model(), get_quote_model(),
                                     get_sales_order_model(), get_credit_note_model(),
                                     get_template_base_model(),

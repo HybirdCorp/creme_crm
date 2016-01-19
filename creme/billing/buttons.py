@@ -24,10 +24,9 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
 
 from creme.persons import get_organisation_model, get_contact_model
-#from creme.persons.models import Contact, Organisation
 
 from . import get_invoice_model, get_quote_model, get_sales_order_model
-from .models import Base #Quote, Invoice, SalesOrder
+from .models import Base
 
 
 Invoice      = get_invoice_model()
@@ -41,7 +40,6 @@ class GenerateInvoiceNumberButton(Button):
     template_name = 'billing/templatetags/button_generate_invoice_number.html'
 
     def get_ctypes(self):
-#        from .models import Invoice
         return (Invoice,)
 
     def has_perm(self, context):
@@ -53,26 +51,17 @@ class GenerateInvoiceNumberButton(Button):
 
 class _AddBillingDocumentButton(Button):
     template_name   = 'billing/templatetags/button_add_billing_document.html'
-    model_to_create = Base #overload
+    model_to_create = Base  # Overload
     url_name        = 'OVERLOADME'
 
     def get_ctypes(self):
-        #return (Organisation, Contact)
         return (get_organisation_model(), get_contact_model())
 
     def has_perm(self, context):
         return context['user'].has_perm_to_create(self.model_to_create)
 
-#    def ok_4_display(self, entity):
-##        self.__managed_orga = Organisation.get_all_managed_by_creme()
-#        self.__managed_orga = get_organisation_model().get_all_managed_by_creme()
-#        return bool(self.__managed_orga)
-
     def render(self, context):
-#        context['managed_orga'] = self.__managed_orga
         context['verbose_name'] = self.verbose_name
-#        context['which_document'] = self.model_to_create.__name__.lower()
-#        context['become_url'] = self.become_url % context['object'].id
         context['model_vname'] = self.model_to_create._meta.verbose_name
         context['url_name'] = self.url_name
 
@@ -81,11 +70,10 @@ class _AddBillingDocumentButton(Button):
 
 class AddInvoiceButton(_AddBillingDocumentButton):
     model_to_create = Invoice
-    id_             = Button.generate_id('billing', 'add_invoice')
-    verbose_name    = _(u'Add a related invoice')
-    permission      = cperm(Invoice)
-#    become_url      = "/billing/invoice/add/%s"
-    url_name      = 'billing__create_related_invoice'
+    id_          = Button.generate_id('billing', 'add_invoice')
+    verbose_name = _(u'Add a related invoice')
+    permission   = cperm(Invoice)
+    url_name     = 'billing__create_related_invoice'
 
 
 class AddSalesOrderButton(_AddBillingDocumentButton):
@@ -93,22 +81,21 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
     id_             = Button.generate_id('billing', 'add_salesorder')
     verbose_name    = _(u'Add a related sales order')
     permission      = cperm(SalesOrder)
-#    become_url      = "/billing/sales_order/add/%s"
     url_name        = 'billing__create_related_order'
+
 
 class AddQuoteButton(_AddBillingDocumentButton):
     model_to_create = Quote
     id_             = Button.generate_id('billing', 'add_quote')
     verbose_name    = _(u'Add a related quote')
     permission      = cperm(Quote)
-#    become_url      = "/billing/quote/add/%s"
     url_name        = 'billing__create_related_quote'
 
 
-generate_invoice_number_button  = GenerateInvoiceNumberButton()
-add_related_quote               = AddQuoteButton()
-add_related_salesorder          = AddSalesOrderButton()
-add_related_invoice             = AddInvoiceButton()
+generate_invoice_number_button = GenerateInvoiceNumberButton()
+add_related_quote              = AddQuoteButton()
+add_related_salesorder         = AddSalesOrderButton()
+add_related_invoice            = AddInvoiceButton()
 
 button_list = (
         generate_invoice_number_button,

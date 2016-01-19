@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from ..models import SalesOrder
 from .. import get_sales_order_model
 from .base import BaseCreateForm, BaseEditForm
 

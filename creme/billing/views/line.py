@@ -32,13 +32,10 @@ from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_to_entity, list_view, inner_popup
 
 from creme.products import get_product_model, get_service_model
-#from creme.products.models import Product, Service
 
 from .. import get_product_line_model, get_service_line_model
-#from ..constants import PRODUCT_LINE_TYPE
 from ..forms.line import (ProductLineMultipleAddForm, ServiceLineMultipleAddForm,
         LineEditForm, AddToCatalogForm)
-#from ..models import ProductLine, ServiceLine #Line
 
 
 ProductLine = get_product_line_model()
@@ -77,12 +74,6 @@ def add_multiple_service_line(request, document_id):
     return abstract_add_multiple_service_line(request, document_id)
 
 
-#@login_required
-#@permission_required('billing')
-#def listview(request):
-#    return list_view(request, Line, show_actions=False)
-
-
 @login_required
 @permission_required('billing')
 def listview_product_line(request):
@@ -98,8 +89,6 @@ def listview_service_line(request):
 @login_required
 @permission_required('billing')
 def add_to_catalog(request, line_id):
-#    line = get_object_or_404(Line, pk=line_id)
-#    related_item_class = Product if line.type == PRODUCT_LINE_TYPE else Service
     line = get_object_or_404(CremeEntity, pk=line_id).get_real_entity()
 
     # TODO: method in Line instead ?

@@ -30,21 +30,17 @@ from .base import Base
 from .other_models import CreditNoteStatus
 
 
-#class CreditNote(Base):
 class AbstractCreditNote(Base):
     status = ForeignKey(CreditNoteStatus, verbose_name=_(u"Status of credit note"), on_delete=PROTECT)
 
     creation_label = _('Add a credit note')
 
-#    class Meta:
     class Meta(Base.Meta):
         abstract = True
-#        app_label = 'billing'
         verbose_name = _(u'Credit note')
         verbose_name_plural = _(u'Credit notes')
 
     def get_absolute_url(self):
-#        return "/billing/credit_note/%s" % self.id
         return reverse('billing__view_cnote', args=(self.id,))
 
     @staticmethod
@@ -52,20 +48,17 @@ class AbstractCreditNote(Base):
         return reverse('billing__create_cnote')
 
     def get_edit_absolute_url(self):
-#        return "/billing/credit_note/edit/%s" % self.id
         return reverse('billing__edit_cnote', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/billing/credit_note"
         return reverse('billing__list_cnotes')
 
-    #TODO: factorise the build() methods
+    # TODO: factorise the build() methods
     def build(self, template):
         # Specific recurrent generation rules
-        status_id = 1 #default status (see populate.py)
+        status_id = 1  # Default status (see populate.py)
 
-#        if isinstance(template, TemplateBase):
         if isinstance(template, get_template_base_model()):
             tpl_status_id = template.status_id
 
@@ -74,11 +67,10 @@ class AbstractCreditNote(Base):
 
         self.status_id = status_id
 
-#        return super(CreditNote, self).build(template)
         return super(AbstractCreditNote, self).build(template)
 
     def _update_linked_docs(self):
-        #TODO: factorise (Relation.get_real_objects() ??)
+        # TODO: factorise (Relation.get_real_objects() ??)
         relations = Relation.objects.filter(subject_entity=self.id,
                                             type=REL_SUB_CREDIT_NOTE_APPLIED,
                                            ) \
@@ -89,12 +81,10 @@ class AbstractCreditNote(Base):
             rel.object_entity.get_real_entity().save()
 
     def restore(self):
-#        super(CreditNote, self).restore()
         super(AbstractCreditNote, self).restore()
         self._update_linked_docs()
 
     def trash(self):
-#        super(CreditNote, self).trash()
         super(AbstractCreditNote, self).trash()
         self._update_linked_docs()
 

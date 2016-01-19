@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
@@ -33,7 +32,6 @@ from .. import get_credit_note_model
 from ..constants import REL_OBJ_CREDIT_NOTE_APPLIED, DEFAULT_HFILTER_CNOTE
 from ..forms.credit_note import (CreditNoteCreateForm,
         CreditNoteEditForm, CreditNotePopupEditForm, CreditNoteRelatedForm)
-#from creme.billing.models import CreditNote
 
 
 CreditNote = get_credit_note_model()
@@ -68,14 +66,12 @@ def abstract_edit_cnote_comment(request, credit_note_id, form=CreditNotePopupEdi
 
 def abstract_view_creditnote(request, credit_note_id, template='billing/view_billing.html'):
     return view_entity(request, credit_note_id, CreditNote,
-                       # path='/billing/credit_note',
                        template=template,
                        extra_template_dict={'can_download': True},
                       )
 
 
 @login_required
-# @permission_required(('billing', 'billing.add_creditnote'))
 @permission_required(('billing', cperm(CreditNote)))
 def add(request):
     return abstract_add_credit_note(request)
@@ -83,7 +79,6 @@ def add(request):
 
 @login_required
 @permission_required('billing')
-# def add_related_credit_note(request, base_id):
 def link_to_credit_notes(request, base_id):
     return abstract_link_to_credit_notes(request, base_id)
 
@@ -109,9 +104,7 @@ def detailview(request, credit_note_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, CreditNote, hf_pk=DEFAULT_HFILTER_CNOTE,
-                     # extra_dict={'add_url': reverse('billing__create_cnote')},
-                    )
+    return list_view(request, CreditNote, hf_pk=DEFAULT_HFILTER_CNOTE)
 
 
 @login_required

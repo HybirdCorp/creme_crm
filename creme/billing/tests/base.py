@@ -21,35 +21,34 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (Relation, Currency,
-            CremePropertyType, CremeProperty) #Vat
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME # DEFAULT_VAT
+            CremePropertyType, CremeProperty)
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
-    # from creme.persons.models import Contact, Organisation, Address
 
     from creme.products import get_product_model, get_service_model
-    from creme.products.models import Category, SubCategory  # Product, Service
+    from creme.products.models import Category, SubCategory
 
-    from .. import *
+    from creme import billing
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from ..models import QuoteStatus
 
-    skip_cnote_tests    = credit_note_model_is_custom()
-    skip_invoice_tests  = invoice_model_is_custom()
-    skip_quote_tests    = quote_model_is_custom()
-    skip_order_tests    = sales_order_model_is_custom()
-    skip_template_tests = template_base_model_is_custom()
-    skip_pline_tests    = product_line_model_is_custom()
-    skip_sline_tests    = service_line_model_is_custom()
+    skip_cnote_tests    = billing.credit_note_model_is_custom()
+    skip_invoice_tests  = billing.invoice_model_is_custom()
+    skip_quote_tests    = billing.quote_model_is_custom()
+    skip_order_tests    = billing.sales_order_model_is_custom()
+    skip_template_tests = billing.template_base_model_is_custom()
+    skip_pline_tests    = billing.product_line_model_is_custom()
+    skip_sline_tests    = billing.service_line_model_is_custom()
 
-    CreditNote   = get_credit_note_model()
-    Invoice      = get_invoice_model()
-    Quote        = get_quote_model()
-    SalesOrder   = get_sales_order_model()
-    TemplateBase = get_template_base_model()
+    CreditNote   = billing.get_credit_note_model()
+    Invoice      = billing.get_invoice_model()
+    Quote        = billing.get_quote_model()
+    SalesOrder   = billing.get_sales_order_model()
+    TemplateBase = billing.get_template_base_model()
 
-    ProductLine = get_product_line_model()
-    ServiceLine = get_service_line_model()
+    ProductLine = billing.get_product_line_model()
+    ServiceLine = billing.get_service_line_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -97,7 +96,7 @@ class _BillingTestCaseMixin(object):
                                                         *args, **kwargs
                                                        )
 
-    def assertAddressContentEqual(self, address1, address2): #TODO: move in persons ??
+    def assertAddressContentEqual(self, address1, address2):  # TODO: move in persons ??
         self.assertIsInstance(address1, Address)
         self.assertIsInstance(address2, Address)
 
@@ -110,7 +109,6 @@ class _BillingTestCaseMixin(object):
     def create_invoice(self, name, source, target, currency=None, discount=Decimal(), user=None):
         user = user or self.user
         currency = currency or Currency.objects.all()[0]
-#        response = self.client.post('/billing/invoice/add', follow=True,
         response = self.client.post(reverse('billing__create_invoice'), follow=True,
                                     data={'user':            user.pk,
                                           'name':            name,
@@ -144,7 +142,6 @@ class _BillingTestCaseMixin(object):
     def create_quote(self, name, source, target, currency=None, status=None):
         status = status or QuoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
-#        response = self.client.post('/billing/quote/add', follow=True,
         response = self.client.post(reverse('billing__create_quote'), follow=True,
                                     data={'user':            self.user.pk,
                                           'name':            name,
@@ -191,9 +188,8 @@ class _BillingTestCaseMixin(object):
                                       category=cat, sub_category=subcat
                                      )
 
-    def create_salesorder(self, name, source, target, currency=None, status=None): #TODO inline (used once)
+    def create_salesorder(self, name, source, target, currency=None, status=None):  # TODO inline (used once)
         currency = currency or Currency.objects.all()[0]
-#        response = self.client.post('/billing/sales_order/add', follow=True,
         response = self.client.post(reverse('billing__create_order'), follow=True,
                                     data={'user':            self.user.pk,
                                           'name':            name,
@@ -233,31 +229,25 @@ class _BillingTestCaseMixin(object):
 
 
 class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCaseMixin):
-#class _BillingTestCase(CremeTestCase, _BillingTestCaseMixin, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        #cls.populate('creme_core', 'creme_config', 'billing')
-        #cls.populate('creme_config', 'billing')
         cls.populate('creme_core', 'billing')
-        #Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
-
-        #cls.autodiscover()
 
     def _aux_test_csv_import(self, model, status_model, update=False):
         count = model.objects.count()
         create_orga = partial(Organisation.objects.create, user=self.user)
         create_contact = partial(Contact.objects.create, user=self.user)
 
-        #sources -------------------------------------------------------------
+        # Sources --------------------------------------------------------------
         source1 = create_orga(name='Nerv')
 
         source2_name = 'Seele'
         self.assertFalse(Organisation.objects.filter(name=source2_name))
 
-        #targets -------------------------------------------------------------
+        # Targets --------------------------------------------------------------
         target1 = create_orga(name='Acme')
-        #TODO: factorise
+        # TODO: factorise
         create_addr = partial(Address.objects.create, owner=target1)
         target1.shipping_address = create_addr(name='ShippingAddr', address='Temple of fire',
                                                po_box='6565', zipcode='789', city='Konoha',
@@ -277,7 +267,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         target4_last_name = 'Katsuragi'
         self.assertFalse(Contact.objects.filter(last_name=target4_last_name))
 
-        #---------------------------------------------------------------------
+        # ----------------------------------------------------------------------
 
         lines_count = 4
         names   = ['Billdoc #%04i' % i for i in xrange(1, lines_count + 1)]
@@ -301,7 +291,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         def_currency = Currency.objects.all()[0]
         data = {'step':     1,
                 'document': doc.id,
-                #has_header
+                # has_header
 
                 'user': self.user.id,
                 'key_fields': ['name'] if update else [],
@@ -328,9 +318,9 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                 'payment_terms_colselect':   0,
                 'payment_type_colselect':    0,
 
-                #'property_types',
-                #'fixed_relations',
-                #'dyn_relations',
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
                }
         response = self.assertPOST200(url, data=data)
         self.assertFormError(response, 'form', 'source', _(u'Enter a valid value.'))
@@ -376,9 +366,9 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
             self.assertEqual('',             billing_doc.comment)
             self.assertIsNone(billing_doc.additional_info)
             self.assertIsNone(billing_doc.payment_terms)
-            #self.assertIsNone(billing_doc.payment_type) #only in invoice... TODO lambda ??
+            # self.assertIsNone(billing_doc.payment_type) #only in invoice... TODO lambda ??
 
-        #billing_doc1
+        # Billing_doc1
         billing_doc1 = billing_docs[0]
         imp_source1 = billing_doc1.get_source()
         self.assertIsNotNone(imp_source1)
@@ -396,7 +386,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         self.assertAddressContentEqual(target1.billing_address, billing_address)
         self.assertEqual(billing_doc1, billing_address.owner)
 
-        #billing_doc2
+        # Billing_doc2
         billing_doc2 = billing_docs[1]
         imp_source2 = billing_doc2.get_source()
         self.assertIsNotNone(imp_source2)
@@ -408,12 +398,12 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         target2 = self.get_object_or_fail(Organisation, name=target2_name)
         self.assertEqual(imp_target2.get_real_entity(), target2)
 
-        #billing_doc3
+        # Billing_doc3
         imp_target3 = billing_docs[2].get_target()
         self.assertIsNotNone(imp_target3)
         self.assertEqual(target3, imp_target3.get_real_entity())
 
-        #billing_doc4
+        # Billing_doc4
         imp_target4 = billing_docs[3].get_target()
         self.assertIsNotNone(imp_target4)
         target4 = self.get_object_or_fail(Contact, last_name=target4_last_name)
@@ -435,7 +425,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         def_status = status_model.objects.all()[0]
         bdoc = model.objects.create(user=user, name='Billdoc #1', status=def_status)
 
-        #TODO: copy the API of Opportunities
+        # TODO: copy the API of Opportunities
         create_rel = partial(Relation.objects.create, subject_entity=bdoc, user=user)
         create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source1)
         create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target1)
@@ -496,7 +486,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                                             'target_persons_organisation_colselect': 4,
                                             'target_persons_organisation_create':    True,
                                             'target_persons_contact_colselect':      0,
-                                            #'target_persons_contact_create':         True,
+                                            # 'target_persons_contact_create':         True,
 
                                             'override_billing_addr':  'on' if override_billing_addr else '',
                                             'override_shipping_addr': 'on' if override_shipping_addr else '',
