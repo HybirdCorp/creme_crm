@@ -40,13 +40,12 @@ from creme.creme_core.models import RelationType, Relation, FieldsConfig
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-# from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from creme.media_managers.models import Image
 
 from creme.persons import get_contact_model, get_organisation_model, get_address_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
-from creme.persons.models import Civility, Position  # Contact Address Organisation
+from creme.persons.models import Civility, Position
 
 from ..vcf_lib import readOne as read_vcf
 
@@ -89,14 +88,6 @@ class VcfImportForm(CremeModelWithUserForm):
 
     vcf_step = IntegerField(widget=HiddenInput)
 
-    # civility   = CreatorModelChoiceField(label=_('Civility'), required=False,
-    #                                      queryset=Civility.objects.all(),
-    #                                     )
-    # first_name = CharField(label=_('First name'))
-    # last_name  = CharField(label=_('Last name'))
-    # position   = CreatorModelChoiceField(label=_('Position'), required=False,
-    #                                      queryset=Position.objects.all(),
-    #                                     )
     image_encoded = CharField(required=False, widget=HiddenInput)
 
     # Details
@@ -120,7 +111,6 @@ class VcfImportForm(CremeModelWithUserForm):
                                         )
     organisation = CreatorEntityField(label=_('Organisation'), required=False, model=Organisation)
     relation = ModelChoiceField(label=_('Position in the organisation'),
-                                #queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)),
                                 queryset=RelationType.objects.none(),
                                 initial=REL_SUB_EMPLOYED_BY, required=False,
                                 empty_label='',

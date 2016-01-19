@@ -28,7 +28,6 @@ from creme.creme_core.auth.decorators import permission_required, login_required
 from creme.creme_core.utils import get_from_POST_or_404
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from ..forms.vcf import VcfForm, VcfImportForm
 from ..vcfgenerator import VcfGenerator
@@ -84,7 +83,6 @@ def abstract_vcf_import(request, file_form=VcfForm, import_form=VcfImportForm,
 
 
 @login_required
-# @permission_required(('persons', 'persons.add_contact'))
 @permission_required(('persons', cperm(Contact)))
 def vcf_import(request):
     return abstract_vcf_import(request)

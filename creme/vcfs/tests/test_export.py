@@ -9,7 +9,7 @@ try:
             ButtonMenuItem, FieldsConfig)
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
-    from creme.persons.models import Civility  # Contact Organisation Address
+    from creme.persons.models import Civility
     from creme.persons.constants import REL_OBJ_EMPLOYED_BY
     from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation)
@@ -86,9 +86,9 @@ class VcfExportTestCase(CremeTestCase):
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.DELETE |
                                             EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK, # no EntityCredentials.VIEW
+                                            EntityCredentials.UNLINK,  # Not EntityCredentials.VIEW
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
