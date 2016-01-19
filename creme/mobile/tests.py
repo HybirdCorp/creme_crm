@@ -16,11 +16,9 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.models import Relation
-    #from creme.creme_core.utils.dates import make_aware_dt
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities  import get_activity_model
@@ -44,17 +42,11 @@ Activity = get_activity_model()
 
 
 class MobileTestCase(CremeTestCase):
-    PORTAL_URL              = '/mobile/'
-    PERSONS_PORTAL_URL      = '/mobile/persons'
-#    CREATE_CONTACT_URL      = '/mobile/contact/add'
-#    CREATE_ORGA_URL         = '/mobile/organisation/add'
-    SEARCH_PERSON_URL       = '/mobile/person/search'
-    ACTIVITIES_PORTAL_URL   = '/mobile/activities'
-    PCALL_PANEL_URL         = '/mobile/phone_call/panel'
-#    WF_FAILED_URL           = '/mobile/phone_call/failed'
-#    WF_POSTPONED_URL        = '/mobile/phone_call/postponed'
-#    WF_LASTED5MIN_URL       = '/mobile/phone_call/lasted_5_minutes'
-#    WF_JUSTDONE_URL         = '/mobile/phone_call/just_done'
+    PORTAL_URL            = '/mobile/'
+    PERSONS_PORTAL_URL    = '/mobile/persons'
+    SEARCH_PERSON_URL     = '/mobile/person/search'
+    ACTIVITIES_PORTAL_URL = '/mobile/activities'
+    PCALL_PANEL_URL       = '/mobile/phone_call/panel'
 
     @classmethod
     def setUpClass(cls):
@@ -71,8 +63,8 @@ class MobileTestCase(CremeTestCase):
 
     def login(self, is_superuser=True, other_is_owner=False):
         return super(MobileTestCase, self).login(is_superuser,
-                                                  allowed_apps=['activities', 'persons'],
-                                                 )  # 'creme_core'
+                                                 allowed_apps=['activities', 'persons'],
+                                                )  # 'creme_core'
 
     def _build_start_url(self, activity):
         return '/mobile/activity/%s/start' % activity.id
@@ -141,7 +133,6 @@ class MobileTestCase(CremeTestCase):
 
         return activity
 
-
     def _existing_pcall_ids(self):
         return list(Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
                                     .values_list('id', flat=True)
@@ -157,29 +148,29 @@ class MobileTestCase(CremeTestCase):
             return self._get_created_pcalls(existing_pcall_ids).get()
 
     def test_login(self):
-      url = '/mobile/login/'
-      response = self.assertGET200(url)
-      self.assertTemplateUsed(response, 'mobile/login.html')
+        url = '/mobile/login/'
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'mobile/login.html')
 
-      with self.assertNoException():
+        with self.assertNoException():
           response.context['REDIRECT_FIELD_NAME']
 
-      username = 'gally'
-      password = 'passwd'
-      get_user_model().objects.create_superuser(username,
-                                                first_name='Gally',
-                                                last_name='Alita',
-                                                email='gally@zalem.org',
-                                                password=password,
-                                               )
+        username = 'gally'
+        password = 'passwd'
+        get_user_model().objects.create_superuser(username,
+                                                  first_name='Gally',
+                                                  last_name='Alita',
+                                                  email='gally@zalem.org',
+                                                  password=password,
+                                                 )
 
-      response = self.assertPOST200(url, follow=True,
-                                    data={'username': username,
-                                          'password': password,
-                                          'next':     self.PORTAL_URL,
-                                         }
-                                   )
-      self.assertRedirects(response, self.PORTAL_URL)
+        response = self.assertPOST200(url, follow=True,
+                                      data={'username': username,
+                                            'password': password,
+                                            'next':     self.PORTAL_URL,
+                                           }
+                                     )
+        self.assertRedirects(response, self.PORTAL_URL)
 
     def test_logout(self):
         self.login()
@@ -188,13 +179,11 @@ class MobileTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_portal(self):
-        self.login()
-        contact = self.user.linked_contact
-        #now_val = now()
+        user = self.login()
+        contact = user.linked_contact
         now_val = localtime(now())
 
         def today(hour=14, minute=0, second=0):
-            #return make_aware_dt(datetime.combine(now_val, time(hour=hour, minute=minute)))
             return datetime(year=now_val.year, month=now_val.month, day=now_val.day,
                             hour=hour, minute=minute, second=second,
                             tzinfo=now_val.tzinfo
@@ -345,18 +334,15 @@ class MobileTestCase(CremeTestCase):
 
         name = 'KOF'
         phone = '111111'
-        #email = 'contact@kof.org'
         response = self.assertPOST200(url, follow=True,
                                       data={'name':  name,
                                             'phone': phone,
-                                            #'email': email,
                                            }
                                      )
         self.assertNoFormError(response)
 
         kof = self.get_object_or_fail(Organisation, name=name)
         self.assertEqual(phone, kof.phone)
-        #self.assertEqual(email, kof.email)
         self.assertFalse(self.user.mobile_favorite.all())
 
         self.assertRedirects(response, self.PERSONS_PORTAL_URL)
@@ -392,17 +378,18 @@ class MobileTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'mobile/search.html')
 
         with self.assertNoException():
-            contacts = response.context['contacts']
-            orgas    = response.context['organisations']
+            ctxt = response.context
+            contacts = ctxt['contacts']
+            orgas    = ctxt['organisations']
 
         self.assertEqual(0, len(contacts))
         self.assertEqual(0, len(orgas))
 
     @skipIfCustomContact
     def test_search_persons02(self):
-        self.login()
+        user = self.login()
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         create_contact(first_name='Rei',   last_name='Ayanami')
         create_contact(first_name='Asuka', last_name='Langley')
         shinji = create_contact(first_name='Shinji', last_name='Ikari', mobile='559966')
@@ -422,17 +409,17 @@ class MobileTestCase(CremeTestCase):
     @skipIfCustomOrganisation
     def test_search_persons03(self):
         "Search in organisations which employ ('employed by')"
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         kof = create_orga(name='KingOfFighters')
         ff = create_orga(name='Fatal fury')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         may = create_contact(first_name='May', last_name='Shiranui')
         create_contact(first_name='Asuka', last_name='Langley')
 
-        create_rel = partial(Relation.objects.create, type_id=REL_SUB_EMPLOYED_BY, user=self.user)
+        create_rel = partial(Relation.objects.create, type_id=REL_SUB_EMPLOYED_BY, user=user)
         create_rel(subject_entity=may, object_entity=kof)
         create_rel(subject_entity=may, object_entity=ff)  # Can cause duplicates
 
@@ -448,18 +435,18 @@ class MobileTestCase(CremeTestCase):
     @skipIfCustomOrganisation
     def test_search_persons04(self):
         "Search in organisations which employ ('managed by')"
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         kof = create_orga(name='KingOfFighters')
         create_orga(name='Fatal fury')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         may = create_contact(first_name='May', last_name='Shiranui')
         create_contact(first_name='Asuka', last_name='Langley')
 
         Relation.objects.create(subject_entity=may, object_entity=kof,
-                                type_id=REL_SUB_MANAGES, user=self.user,
+                                type_id=REL_SUB_MANAGES, user=user,
                                )
 
         response = self.assertGET200(self.SEARCH_PERSON_URL,
@@ -511,11 +498,9 @@ class MobileTestCase(CremeTestCase):
     def test_start_activity03(self):
         "Floating time activity"
         user = self.login()
-
         now_val = now()
 
         def today(hour=14, minute=0):
-            #return make_aware_dt(datetime.combine(now_val, time(hour=hour, minute=minute)))
             return datetime(year=now_val.year, month=now_val.month, day=now_val.day,
                             hour=hour, minute=minute,
                             tzinfo=now_val.tzinfo
@@ -531,7 +516,6 @@ class MobileTestCase(CremeTestCase):
         self.assertPOST200(self._build_start_url(meeting), follow=True)
 
         meeting = self.refresh(meeting)
-        #self.assertLess((now() - meeting.start).seconds, 10)
         self.assertDatetimesAlmostEqual(now(), meeting.start)
         self.assertEqual(end, meeting.end)
         self.assertEqual(NARROW, meeting.floating_type)
@@ -794,7 +778,7 @@ class MobileTestCase(CremeTestCase):
         response = self.assertPOST200(url, follow=True)
         self.assertEqual(STATUS_DONE, self.refresh(pcall).status_id)
 
-        self.assertRedirects(response, self.PORTAL_URL) #TODO: test with other REFERRER
+        self.assertRedirects(response, self.PORTAL_URL)  # TODO: test with other REFERRER
 
         # ------
         meeting = self._create_meeting('Meeting#1', participant=contact)
@@ -833,9 +817,9 @@ class MobileTestCase(CremeTestCase):
     @skipIfCustomActivity
     def test_phone_call_wf_failed02(self):
         "Not a Phone call => error"
-        self.login()
+        user = self.login()
 
-        meeting = self._create_meeting('Meeting#1', participant=self.user.linked_contact)
+        meeting = self._create_meeting('Meeting#1', participant=user.linked_contact)
         self.assertPOST404(self.WF_FAILED_URL, data={'pcall_id': meeting.id})
 
     @skipIfCustomActivity
@@ -926,8 +910,6 @@ class MobileTestCase(CremeTestCase):
                                    description='blablabla',
                                    floating_type=FLOATING_TIME,
                                   )
-        #old_start = pcall.start
-        #old_end = pcall.end
 
         url = self.WF_POSTPONED_URL
         self.assertGET404(url)
@@ -941,8 +923,6 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
         self.assertEqual(STATUS_DONE,                      pcall.status_id)
         self.assertEqual(NARROW,                           pcall.floating_type)
-        #self.assertEqual(old_start,                        pcall.start)
-        #self.assertEqual(old_end,                          pcall.end)
 
         start = self.create_datetime(utc=True, year=2014, month=4, day=22,
                                      hour=16, minute=17, second=28
@@ -957,19 +937,16 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(STATUS_PLANNED, pcall2.status_id)
         self.assertEqual(FLOATING_TIME,  pcall2.floating_type)
 
-        #today = now().day
         tomorrow = (now() + relativedelta(days=1)).day
 
         start = localtime(pcall2.start)
         self.assertEqual(0, start.hour)
         self.assertEqual(0, start.minute)
-        #self.assertEqual(1, start.day - today)
         self.assertEqual(tomorrow, start.day)
 
         end = localtime(pcall2.end)
         self.assertEqual(23, end.hour)
         self.assertEqual(59, end.minute)
-        #self.assertEqual(1,  end.day - today)
         self.assertEqual(tomorrow, end.day)
 
     @skipIfCustomContact
@@ -1023,19 +1000,16 @@ class MobileTestCase(CremeTestCase):
                          }
                         )
 
-        #today = now().day
         tomorrow = (now() + relativedelta(days=1)).day
 
         start = localtime(pp_pcall.start)
         self.assertEqual(0, start.hour)
         self.assertEqual(0, start.minute)
-        #self.assertEqual(1, start.day - today)
         self.assertEqual(tomorrow, start.day)
 
         end = localtime(pp_pcall.end)
         self.assertEqual(23, end.hour)
         self.assertEqual(59, end.minute)
-        #self.assertEqual(1,  end.day - today)
         self.assertEqual(tomorrow, end.day)
 
         self.assertEqual(_('Call to %s from Creme Mobile') % other_part,
@@ -1142,8 +1116,7 @@ class MobileTestCase(CremeTestCase):
 
         pcall = self.refresh(pcall)
         self.assertEqual(STATUS_DONE, pcall.status_id)
-        #self.assertEqual(start, pcall.start)
-        self.assertDatetimesAlmostEqual(start, pcall.start) #NB: MySQL does not record milliseconds...
+        self.assertDatetimesAlmostEqual(start, pcall.start)  # NB: MySQL does not record milliseconds...
         self.assertDatetimesAlmostEqual(now(), pcall.end)
 
     @skipIfCustomActivity

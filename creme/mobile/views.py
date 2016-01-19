@@ -44,7 +44,6 @@ from creme.creme_core.views.generic import add_entity
 
 from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-#from creme.persons.models import Contact, Organisation
 
 from creme.activities import get_activity_model
 from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
@@ -52,7 +51,7 @@ from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
         ACTIVITYTYPE_PHONECALL,
         ACTIVITYSUBTYPE_PHONECALL_FAILED, ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED)
-from creme.activities.models import Calendar #Activity
+from creme.activities.models import Calendar
 
 from .forms import MobileContactCreateForm, MobileOrganisationCreateForm
 from .models import MobileFavorite
@@ -90,12 +89,6 @@ def lw_exceptions(view):
         except ConflictError as e:
             status = 409
             msg = _('You can not perform this action because of business constraints.')
-        #except Exception as e:
-            #status = 500
-            #msg = _('An internal error has occurred.')
-
-            ##todo: what about sentry ???
-            #logger.exception(e)
 
         return render(request, 'mobile/error.html',
                       {'status':    status,
@@ -130,7 +123,7 @@ def lw_ajax_exceptions(view):
             content = unicode(e)
             status = 400
 
-        return HttpResponse(content, status=status) #, content_type='text/javascript'
+        return HttpResponse(content, status=status)
 
     return _aux
 
@@ -139,9 +132,6 @@ def lw_ajax_exceptions(view):
 @mobile_login_required
 def portal(request):
     user = request.user
-
-    #now_val = now()
-    #build_dt = lambda h, m, s: make_aware_dt(datetime.combine(now_val, time(hour=h, minute=m, second=s)))
     now_val = localtime(now())
     build_dt = lambda h, m, s: datetime(year=now_val.year, month=now_val.month, day=now_val.day,
                                         hour=h, minute=m, second=s,
@@ -198,21 +188,18 @@ def persons_portal(request):
     user = request.user
     cred_filter = partial(EntityCredentials.filter, user)
 
-    # Contact = get_contact_model()
-    # Organisation = get_organisation_model()
-
     return render(request, 'mobile/directory.html',
                   {'favorite_contacts': cred_filter(Contact.objects.filter(is_deleted=False,
                                                                            mobile_favorite__user=user,
                                                                           )
                                                    ),
-                    'contact_model': Contact,
+                   'contact_model': Contact,
 
-                    'favorite_organisations': cred_filter(Organisation.objects.filter(is_deleted=False,
-                                                                                      mobile_favorite__user=user,
-                                                                                     )
-                                                         ),
-                    'orga_model': Organisation,
+                   'favorite_organisations': cred_filter(Organisation.objects.filter(is_deleted=False,
+                                                                                     mobile_favorite__user=user,
+                                                                                    )
+                                                        ),
+                   'orga_model': Organisation,
                   }
                  )
 
@@ -231,7 +218,6 @@ def abstract_create_contact(request, form=MobileContactCreateForm,
 
 @lw_exceptions
 @mobile_login_required
-# @permission_required('persons.add_contact')
 @permission_required(cperm(Contact))
 def create_contact(request):
     return abstract_create_contact(request)
@@ -250,7 +236,6 @@ def abstract_create_organisation(request, form=MobileOrganisationCreateForm,
 
 @lw_exceptions
 @mobile_login_required
-# @permission_required('persons.add_organisation')
 @permission_required(cperm(Organisation))
 def create_organisation(request):
     return abstract_create_organisation(request)
@@ -263,9 +248,6 @@ def search_person(request):
 
     if len(search) < 3:
         raise ConflictError(_('Your search is too short.'))  # TODO: client-side validation
-
-    # Contact = get_contact_model()
-    # Organisation = get_organisation_model()
 
     # TODO: populate employers
     contacts = EntityCredentials.filter(
@@ -368,8 +350,6 @@ def activities_portal(request):
     if floating_count == FLOATING_SIZE:
       floating_count = floating_qs.count()
 
-    #tomorrow = now_val + timedelta(days=1)
-    #build_dt = lambda h, m, s: make_aware_dt(datetime.combine(tomorrow, time(hour=h, minute=m, second=s)))
     tomorrow = localtime(now_val + timedelta(days=1))
     build_dt = lambda h, m, s: datetime(year=tomorrow.year, month=tomorrow.month, day=tomorrow.day,
                                         hour=h, minute=m, second=s,
@@ -508,9 +488,8 @@ def _get_participants(user, POST):
 def _add_participants(activity, persons):
     create_relation = partial(Relation.objects.create,
                               subject_entity=activity, user=activity.user,
-                              #type_id=REL_OBJ_PART_2_ACTIVITY TODO: when orga can participate
+                              # type_id=REL_OBJ_PART_2_ACTIVITY TODO: when orga can participate
                              )
-    # Contact = get_contact_model()
 
     # TODO: when orga can participate
     for person in persons:

@@ -27,7 +27,6 @@ from creme.creme_core.forms import CremeModelForm
 
 from creme.persons import get_organisation_model
 from creme.persons.forms.quick import ContactQuickForm
-#from creme.persons.models import Organisation
 
 from .models import MobileFavorite
 
@@ -55,10 +54,6 @@ class PhoneInput(Input):
     input_type = 'tel'
 
 
-#class EmailInput(Input):
-#    input_type = 'email'
-
-
 class MobileContactCreateForm(ContactQuickForm):
     is_favorite = BooleanField(label=pgettext_lazy('mobile-contact', u'Is favorite'), required=False)
 
@@ -67,13 +62,12 @@ class MobileContactCreateForm(ContactQuickForm):
         widgets = {
             'phone':  PhoneInput,
             'mobile': PhoneInput,
-            #'email':  EmailInput,
           }
 
     def __init__(self, *args, **kwargs):
         super(MobileContactCreateForm, self).__init__(*args, **kwargs)
         self.instance.user = self.user
-        del self.fields['user'] #TODO: useful ?? (not in MobileOrganisationCreateForm)
+        del self.fields['user']  # TODO: useful ?? (not in MobileOrganisationCreateForm)
 
         errors = self.errors
 
@@ -104,14 +98,13 @@ class MobileOrganisationCreateForm(CremeModelForm):
 
     class Meta:
         model = Organisation
-        #fields = ('name', 'phone', 'email')
         fields = ('name', 'phone')
 
     def __init__(self, *args, **kwargs):
         super(MobileOrganisationCreateForm, self).__init__(*args, **kwargs)
         self.instance.user = self.user
 
-        #TODO: factorise
+        # TODO: factorise
         errors = self.errors
 
         for fname, field in self.fields.iteritems():
