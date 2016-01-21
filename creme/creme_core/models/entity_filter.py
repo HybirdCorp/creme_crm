@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from itertools import izip_longest
 from json import loads as jsonloads, dumps as jsondumps
 import logging
 from re import compile as compile_re
-import warnings
+# import warnings
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -144,30 +144,30 @@ class EntityFilter(Model):  # CremeModel ???
     def __unicode__(self):
         return self.name
 
-    def can_edit_or_delete(self, user):
-        warnings.warn("EntityFilter.can_edit_or_delete() method is deprecated; use can_edit()/can_delete() methods instead",
-                      DeprecationWarning
-                     )
-
-        if not self.is_custom:
-            return (False, ugettext(u"This filter can't be edited/deleted"))
-
-        if not self.user_id:  # All users allowed
-            return (True, 'OK')
-
-        if user.is_superuser:
-            return (True, 'OK')
-
-        if not user.has_perm(self.entity_type.app_label):
-            return (False, ugettext(u"You are not allowed to access to this app"))
-
-        if not self.user.is_team:
-            if self.user_id == user.id:
-                return (True, 'OK')
-        elif self.user.team_m2m_teamside.filter(teammate=user).exists(): #TODO: move in a User method ??
-            return (True, 'OK')
-
-        return (False, ugettext(u"You are not allowed to edit/delete this filter"))
+    # def can_edit_or_delete(self, user):
+    #     warnings.warn("EntityFilter.can_edit_or_delete() method is deprecated; use can_edit()/can_delete() methods instead",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     if not self.is_custom:
+    #         return (False, ugettext(u"This filter can't be edited/deleted"))
+    #
+    #     if not self.user_id:  # All users allowed
+    #         return (True, 'OK')
+    #
+    #     if user.is_superuser:
+    #         return (True, 'OK')
+    #
+    #     if not user.has_perm(self.entity_type.app_label):
+    #         return (False, ugettext(u"You are not allowed to access to this app"))
+    #
+    #     if not self.user.is_team:
+    #         if self.user_id == user.id:
+    #             return (True, 'OK')
+    #     elif self.user.team_m2m_teamside.filter(teammate=user).exists(): #TODO: move in a User method ??
+    #         return (True, 'OK')
+    #
+    #     return (False, ugettext(u"You are not allowed to edit/delete this filter"))
 
     def can_delete(self, user):
         if not self.is_custom:
