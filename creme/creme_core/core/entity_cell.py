@@ -276,7 +276,7 @@ class EntityCellCustomField(EntityCell):
         CustomField.FLOAT:      DecimalField,
         CustomField.BOOL:       BooleanField,
         CustomField.ENUM:       ForeignKey,
-        CustomField.ENUM:       ManyToManyField,
+        CustomField.MULTI_ENUM: ManyToManyField,
     }
 
     def __init__(self, customfield):
