@@ -954,7 +954,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                         },
                                          }
                                    )
-        self.assertFormError(response, 'form', field=None, errors=_(u'There is a cycle with a subfilter.'))
+        self.assertFormError(response, 'form', field=None, errors=_(u'There is a cycle with a sub-filter.'))
 
     def test_edit06(self):
         "Versionned PK (odd chars)"

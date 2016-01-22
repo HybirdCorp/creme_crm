@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,10 +26,10 @@ from .base import CremeModel
 
 # TODO add the possibility to choose a default currency which will be used everywhere in the CRM
 class Currency(CremeModel):
-    name                    = CharField(_(u'Currency'), max_length=100)
-    local_symbol            = CharField(_(u'Local symbol'), max_length=100)
-    international_symbol    = CharField(_(u'International symbol'), max_length=100)
-    is_custom               = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+    name                 = CharField(_(u'Currency'), max_length=100)
+    local_symbol         = CharField(_(u'Local symbol'), max_length=100)
+    international_symbol = CharField(_(u'International symbol'), max_length=100)
+    is_custom            = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -37,5 +37,5 @@ class Currency(CremeModel):
     class Meta:
         app_label = 'creme_core'
         verbose_name = _(u'Currency')
-        verbose_name_plural = _(u'Currency')
+        verbose_name_plural = _(u'Currencies')
         ordering = ('name',)

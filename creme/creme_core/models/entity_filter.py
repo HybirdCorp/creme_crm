@@ -216,7 +216,7 @@ class EntityFilter(Model):  # CremeModel ???
             raise EntityFilter.CycleError(ugettext(u'A condition can not reference its own filter.'))
 
         if self.get_connected_filter_ids() & ref_filter_ids: #TODO: method intersection not null
-            raise EntityFilter.CycleError(ugettext(u'There is a cycle with a subfilter.'))
+            raise EntityFilter.CycleError(ugettext(u'There is a cycle with a sub-filter.'))
 
     def _check_privacy_parent_filters(self, is_private, owner):
         if not self.id:
@@ -443,7 +443,7 @@ class EntityFilter(Model):  # CremeModel ???
             if parents:
                 raise EntityFilter.DependenciesError(
                         ugettext(u'You can not delete this filter, '
-                                 u'because it is used as subfilter by : %s'
+                                 u'because it is used as sub-filter by : %s'
                                 ) % u', '.join(parents)
                 )
 
