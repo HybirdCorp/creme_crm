@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-13 16:37+0100\n"
+"POT-Creation-Date: 2016-01-21 18:20+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -75,7 +75,7 @@ msgstr "Fichier XLSX"
 msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
-#: blocks.py:36 forms/list_view_import.py:1204 models/creme_property.py:107
+#: blocks.py:36 forms/list_view_import.py:1206 models/creme_property.py:107
 #: models/entity.py:49
 msgid "Properties"
 msgstr "Propriétés"
@@ -186,7 +186,7 @@ msgstr "Actions"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:264 forms/list_view_import.py:1201 models/base.py:133
+#: forms/base.py:264 forms/list_view_import.py:1203 models/base.py:133
 #: models/entity_filter.py:114 models/header_filter.py:75
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
@@ -511,8 +511,8 @@ msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
 
-#: forms/header_filter.py:137 forms/list_view_import.py:293
-#: forms/list_view_import.py:542
+#: forms/header_filter.py:137 forms/list_view_import.py:295
+#: forms/list_view_import.py:544
 msgid "Enter a valid value."
 msgstr "Saisissez une valeur valide."
 
@@ -543,15 +543,15 @@ msgid "A private view of list must belong to you (or one of your teams)."
 msgstr ""
 "Une vue de liste privée doit vous être attribuée (ou à une des vos équipe)."
 
-#: forms/list_view_import.py:65
+#: forms/list_view_import.py:67
 msgid "File to import"
 msgstr "Fichier à importer"
 
-#: forms/list_view_import.py:69
+#: forms/list_view_import.py:71
 msgid "Header present ?"
 msgstr "Entête présent ?"
 
-#: forms/list_view_import.py:70
+#: forms/list_view_import.py:72
 msgid ""
 "Does the first line of the line contain the header of the columns (eg: "
 "\"Last name\",\"First name\") ?"
@@ -559,23 +559,23 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/list_view_import.py:76 forms/list_view_import.py:1019
+#: forms/list_view_import.py:78 forms/list_view_import.py:1021
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/list_view_import.py:77 forms/list_view_import.py:114
+#: forms/list_view_import.py:79 forms/list_view_import.py:116
 #, python-format
 msgid "Error reading document, unsupported file type: %(file)s."
 msgstr ""
 "Erreur lors de la lecture du document, type de fichier non supporté: "
 "%(file)s."
 
-#: forms/list_view_import.py:78
+#: forms/list_view_import.py:80
 #, python-format
 msgid "Error reading document: %(error)s."
 msgstr "Erreur lors de la lecture du document: %(error)s."
 
-#: forms/list_view_import.py:176
+#: forms/list_view_import.py:178
 #, python-format
 msgid ""
 "Error while extracting value: tried to retrieve and then build \"%(value)s"
@@ -585,7 +585,7 @@ msgstr ""
 "construire \"%(value)s\" (colonne %(column)s) sur %(model)s. Erreur brute: "
 "[%(raw_error)s]"
 
-#: forms/list_view_import.py:185
+#: forms/list_view_import.py:187
 #, python-format
 msgid ""
 "Error while extracting value: tried to retrieve \"%(value)s\" (column "
@@ -594,20 +594,20 @@ msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver \"%(value)s"
 "\" (colonne %(column)s) sur %(model)s. Erreur brute: [%(raw_error)s]"
 
-#: forms/list_view_import.py:257
+#: forms/list_view_import.py:259
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/list_view_import.py:264 forms/list_view_import.py:503
-#: forms/list_view_import.py:900
+#: forms/list_view_import.py:266 forms/list_view_import.py:505
+#: forms/list_view_import.py:902
 msgid "Create if not found ?"
 msgstr "Créer si non trouvé ?"
 
-#: forms/list_view_import.py:272 forms/list_view_import.py:908
+#: forms/list_view_import.py:274 forms/list_view_import.py:910
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/list_view_import.py:426
+#: forms/list_view_import.py:428
 #, python-format
 msgid ""
 "Error while extracting value [%(raw_error)s]: tried to retrieve and then "
@@ -616,7 +616,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur (%(raw_error)s) : a essayé de "
 "retrouver et puis de construire \"%(value)s\" sur %(model)s"
 
-#: forms/list_view_import.py:435
+#: forms/list_view_import.py:437
 #, python-format
 msgid ""
 "Error while extracting value [%(raw_error)s]: tried to retrieve \"%(value)s"
@@ -625,12 +625,12 @@ msgstr ""
 "Erreur lors de l'extraction de valeur (%(raw_error)s) : a essayé de "
 "retrouver \"%(value)s\" sur %(model)s"
 
-#: forms/list_view_import.py:543 forms/list_view_import.py:1218
+#: forms/list_view_import.py:545 forms/list_view_import.py:1220
 #, python-format
 msgid "You are not allowed to create: %(model)s"
 msgstr "Vous n'avez pas la permission de créer : %(model)s"
 
-#: forms/list_view_import.py:623
+#: forms/list_view_import.py:625
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -641,7 +641,7 @@ msgstr ""
 "essayé de retrouver %(field)s=\"%(value)s\" (colonne %(column)s) sur "
 "%(model)s Erreur brute: [%(raw_error)s]"
 
-#: forms/list_view_import.py:644
+#: forms/list_view_import.py:646
 #, python-format
 msgid ""
 "Error while extracting value: tried to build %(model)s with data=%(data)s "
@@ -650,7 +650,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire %(model)s "
 "avec données=%(data)s (colonne %(column)s) => erreurrs=%(errors)s"
 
-#: forms/list_view_import.py:653
+#: forms/list_view_import.py:655
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -659,19 +659,19 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver %(field)s=\"%(value)s\" (column %(column)s) sur %(model)s"
 
-#: forms/list_view_import.py:689
+#: forms/list_view_import.py:691
 msgid "The entity"
 msgstr "La fiche"
 
-#: forms/list_view_import.py:692
+#: forms/list_view_import.py:694
 msgid "which field"
 msgstr "quel champs"
 
-#: forms/list_view_import.py:694
+#: forms/list_view_import.py:696
 msgid "equals to"
 msgstr "Est égal à"
 
-#: forms/list_view_import.py:700
+#: forms/list_view_import.py:702
 msgid ""
 "Create entities if they are not found ? (only fields followed by [CREATION] "
 "allows you to create, if they exist)"
@@ -679,15 +679,15 @@ msgstr ""
 "Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
 "[CRÉATION] vous permettent de créer, si ils existent)"
 
-#: forms/list_view_import.py:718
+#: forms/list_view_import.py:720
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/list_view_import.py:719
+#: forms/list_view_import.py:721
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/list_view_import.py:860
+#: forms/list_view_import.py:862
 #, python-format
 msgid ""
 "Error while extracting value: tried to retrieve the choice \"%(value)s"
@@ -696,11 +696,11 @@ msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver le choix "
 "\"%(value)s\" (colonne %(column)s). Erreur brute: [%(raw_error)s]"
 
-#: forms/list_view_import.py:1007
+#: forms/list_view_import.py:1009
 msgid "Key fields"
 msgstr "Champs clé"
 
-#: forms/list_view_import.py:1010
+#: forms/list_view_import.py:1012
 msgid ""
 "Select at least one field if you want to use the \"update\" mode. If an "
 "entity already exists with the same field values, it will be simply updated "
@@ -714,19 +714,19 @@ msgstr ""
 "Mais si plusieurs fiches sont trouvées, une nouvelle fiche sera créée (pour "
 "éviter les erreurs)."
 
-#: forms/list_view_import.py:1018
+#: forms/list_view_import.py:1020
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/list_view_import.py:1026
+#: forms/list_view_import.py:1028
 msgid "Update mode"
 msgstr "Mode mise-à-jour"
 
-#: forms/list_view_import.py:1027 forms/list_view_import.py:1212
+#: forms/list_view_import.py:1029 forms/list_view_import.py:1214
 msgid "Field values"
 msgstr "Valeurs de champ"
 
-#: forms/list_view_import.py:1147
+#: forms/list_view_import.py:1149
 msgid ""
 "Several entities corresponding to the search have been found. So a new "
 "entity have been created to avoid errors."
@@ -734,36 +734,36 @@ msgstr ""
 "Plusieurs fiches correspondant à la recherche ont été trouvées. Donc une "
 "nouvelle fiche a été créée pour éviter les erreurs."
 
-#: forms/list_view_import.py:1207
+#: forms/list_view_import.py:1209
 msgid "Fixed relationships"
 msgstr "Relations fixes"
 
-#: forms/list_view_import.py:1208
+#: forms/list_view_import.py:1210
 msgid "Relationships from the file"
 msgstr "Relations depuis le fichier"
 
-#: forms/list_view_import.py:1211
+#: forms/list_view_import.py:1213
 msgid "General"
 msgstr "Général"
 
-#: forms/list_view_import.py:1213
+#: forms/list_view_import.py:1215
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/list_view_import.py:1214
+#: forms/list_view_import.py:1216
 msgid "Associated relationships"
 msgstr "Relations associées"
 
-#: forms/list_view_import.py:1345
+#: forms/list_view_import.py:1347
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
 
-#: forms/list_view_import.py:1349
+#: forms/list_view_import.py:1351
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/list_view_import.py:1356
+#: forms/list_view_import.py:1358
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -1200,7 +1200,7 @@ msgstr "Types de propriété"
 msgid "Property"
 msgstr "Propriété"
 
-#: models/currency.py:29 models/currency.py:39 models/currency.py:40
+#: models/currency.py:29 models/currency.py:39
 msgid "Currency"
 msgstr "Devise"
 
@@ -1211,6 +1211,10 @@ msgstr "Symbole local"
 #: models/currency.py:31
 msgid "International symbol"
 msgstr "Symbol international"
+
+#: models/currency.py:40
+msgid "Currencies"
+msgstr "Devises"
 
 #: models/custom_field.py:53
 msgid "Field name"
@@ -1295,22 +1299,17 @@ msgstr "Filtre de fiche"
 msgid "Filters of Entity"
 msgstr "Filtres de fiche"
 
-#: models/entity_filter.py:153 models/entity_filter.py:174
+#: models/entity_filter.py:174
 msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
-#: models/entity_filter.py:162 models/entity_filter.py:192
-#: models/header_filter.py:113 models/header_filter.py:141
+#: models/entity_filter.py:192 models/header_filter.py:141
 #: views/batch_process.py:37 views/batch_process.py:83 views/entity.py:168
 #: views/entity_filter.py:55 views/entity_filter.py:156
-#: views/generic/listview.py:245 views/header_filter.py:46
+#: views/generic/listview.py:248 views/header_filter.py:46
 #: views/header_filter.py:128
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
-
-#: models/entity_filter.py:170
-msgid "You are not allowed to edit/delete this filter"
-msgstr "Vous n'êtes pas autorisé à modifier/supprimer ce filtre"
 
 #: models/entity_filter.py:201
 msgid "You are not allowed to view/edit/delete this filter"
@@ -1321,8 +1320,8 @@ msgid "A condition can not reference its own filter."
 msgstr "Une condition ne peut pas référencer son propre filtre."
 
 #: models/entity_filter.py:219
-msgid "There is a cycle with a subfilter."
-msgstr "Il y a un cycle avec un sous filtre."
+msgid "There is a cycle with a sub-filter."
+msgstr "Il y a un cycle avec un sous-filtre."
 
 #: models/entity_filter.py:233
 #, python-format
@@ -1411,7 +1410,8 @@ msgstr[1] ""
 
 #: models/entity_filter.py:445
 #, python-format
-msgid "You can not delete this filter, because it is used as subfilter by : %s"
+msgid ""
+"You can not delete this filter, because it is used as sub-filter by : %s"
 msgstr ""
 "Vous ne pouvez pas supprimer ce filtre, car il est utilisé comme sous-filtre "
 "par : %s"
@@ -1527,17 +1527,13 @@ msgstr "Est privée ?"
 msgid "Add a view"
 msgstr "Ajouter une vue"
 
-#: models/header_filter.py:104
-msgid "This view can't be edited/deleted"
-msgstr "Cette vue ne peut être modifiée/supprimée"
-
-#: models/header_filter.py:121 models/header_filter.py:150
-msgid "You are not allowed to edit/delete this view"
-msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
-
 #: models/header_filter.py:125
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être supprimée"
+
+#: models/header_filter.py:150
+msgid "You are not allowed to edit/delete this view"
+msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
 #: models/history.py:232 models/history.py:238
 #, python-format
@@ -1740,35 +1736,35 @@ msgstr "possède"
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:80
+#: populate.py:79
 msgid "Euro"
 msgstr "Euro"
 
-#: populate.py:80
+#: populate.py:79
 msgid "€"
 msgstr "€"
 
-#: populate.py:80
+#: populate.py:79
 msgid "EUR"
 msgstr "EUR"
 
-#: populate.py:83
+#: populate.py:82
 msgid "United States dollar"
 msgstr "Dollar américain"
 
-#: populate.py:83
+#: populate.py:82
 msgid "$"
 msgstr "$"
 
-#: populate.py:83
+#: populate.py:82
 msgid "USD"
 msgstr "USD"
 
-#: populate.py:85
+#: populate.py:84
 msgid "French"
 msgstr "Français"
 
-#: populate.py:86
+#: populate.py:85
 msgid "English"
 msgstr "Anglais"
 
@@ -2920,12 +2916,12 @@ msgstr "Enregistrer la fiche"
 msgid "You can not edit this model"
 msgstr "Vous ne pouvez pas modifier ce modèle"
 
-#: views/generic/listview.py:188
+#: views/generic/listview.py:191
 #, python-format
 msgid "List of %s"
 msgstr "Liste des %s"
 
-#: views/generic/listview.py:232 views/generic/listview.py:273
+#: views/generic/listview.py:235 views/generic/listview.py:276
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
@@ -3004,6 +3000,12 @@ msgstr "Recherche vide…"
 #, python-format
 msgid "Please enter at least %s characters"
 msgstr "Veuillez entrer au moins %s caractères"
+
+#~ msgid "You are not allowed to edit/delete this filter"
+#~ msgstr "Vous n'êtes pas autorisé à modifier/supprimer ce filtre"
+
+#~ msgid "This view can't be edited/deleted"
+#~ msgstr "Cette vue ne peut être modifiée/supprimée"
 
 #~ msgid "Open"
 #~ msgstr "Ouvrir"
