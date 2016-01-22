@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+
+# TODO : add limitation to overflow. if the separator doesn't exist in many following chunks,
+#        the overflow string will contains all of them and may cause memory limitation problems.
 def iter_splitchunks(chunks, sep, filter):
     """ Iterator through chunks as split single stream.
-
-    TODO : add limitation to overflow. if the separator doesn't exist in many following chunks,
-    the overflow string will contains all of them and may cause memory limitation problems.
 
     @param chunks: iterator of list of strings
     @param sep: split separator
@@ -35,31 +35,31 @@ def iter_splitchunks(chunks, sep, filter):
         idx = 0
         next_idx = chunk.find(sep) # find first separator
 
-        #print 'chunk:"' + chunk.replace('\n', '\\n') + '"'
+        # print 'chunk:"' + chunk.replace('\n', '\\n') + '"'
 
-        # if next separator in chunk, split it !
+        # If next separator in chunk, split it !
         while next_idx != -1:
             # call given filter function on substring between current and next separators 
             next_val = filter(overflow + chunk[idx:next_idx])
 
-            #print '    next:', next_idx, 'index:', idx, 'overflow:"' + overflow + '" val:"' + overflow + chunk[idx:next_idx] + '"', 'chunk:"' + chunk[next_idx+1:].replace('\n', '\\n') + '"'
+            # print '    next:', next_idx, 'index:', idx, 'overflow:"' + overflow + '" val:"' + overflow + chunk[idx:next_idx] + '"', 'chunk:"' + chunk[next_idx+1:].replace('\n', '\\n') + '"'
 
-            # reset overflow
+            # Reset overflow
             overflow = ''
 
-            # if filter return a non empty string, return it 
+            # If filter return a non empty string, return it
             if next_val:
                 yield next_val
 
-            # shift current index and find the next one 
+            # Shift current index and find the next one
             idx = next_idx + 1
             next_idx = chunk.find(sep, idx)
 
-        # if no separator (index = 0) append the entire chunk to overflow. 
-        # Else overflow is the remaining string after last separator
+        # If no separator (index = 0) append the entire chunk to overflow ;
+        # else overflow is the remaining string after last separator
         overflow = overflow + chunk if idx == 0 else chunk[idx:]
 
-    # this line handle case of last entry without separator at end of chunks
+    # This line handle case of last entry without separator at end of chunks
     next_val = filter(overflow) if overflow else ''
 
     if next_val:
@@ -67,8 +67,8 @@ def iter_splitchunks(chunks, sep, filter):
 
 
 def iter_as_chunk(iterable, step):
-    """Iterator that returns chunks from an iterable.
-    @param chunks: iterator
+    """Iterator which returns chunks from an iterable.
+    @param iterable: iterator
     @param step: chunks size
     """
     chunk = []
@@ -83,9 +83,10 @@ def iter_as_chunk(iterable, step):
     if chunk:
         yield chunk
 
+
 def iter_as_slices(iterable, step):
-    """ Iterator that returns chunks from an iterable using slices (usefull for requests)
-    @param chunks: iterator
+    """ Iterator that returns chunks from an iterable using slices (useful for requests)
+    @param iterable: iterator
     @param step: chunks size
     """
     index = 0
