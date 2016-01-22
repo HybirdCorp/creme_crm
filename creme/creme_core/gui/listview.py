@@ -24,7 +24,7 @@ from future_builtins import filter
 from itertools import chain
 import logging
 
-from django.db.models import Q, DateField, ForeignKey, ManyToManyField #DateTimeField
+from django.db.models import Q, DateField, ForeignKey, ManyToManyField
 from django.db.models.fields.related import RelatedField
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
@@ -40,6 +40,7 @@ from ..utils.queries import QSerializer
 
 NULL_FK = 'NULL'
 logger = logging.getLogger(__name__)
+
 
 def simple_value(value):
     if value:
@@ -67,20 +68,13 @@ class ListViewState(object):
         self._ordering = []
 
     def __repr__(self):
-        return u'<ListViewState(efilter_id=%s, hfilter_id=%s, page=%s, rows=%s, _search=%s, sort=%s%s, url=%s, research=%s)>' % (
+        return u'<ListViewState(efilter_id=%s, hfilter_id=%s, page=%s,' \
+               u' rows=%s, _search=%s, sort=%s%s, url=%s, research=%s)>' % (
                     self.entity_filter_id, self.header_filter_id, self.page, self.rows,
                     self._search, self.sort_order, self.sort_field, self.url, self.research,
                 )
 
     def register_in_session(self, request):
-#        session = request.session
-#        current_lvs = session.get(self.url or request.path) #todo: pop() ??
-#        if current_lvs is not None:
-#            try:
-#                del session[self.url or request.path] #useful ???????
-#            except KeyError:
-#                pass
-#        session[self.url] = self
         serialized = dict(self.__dict__)
 
         if self.extra_q is not None:
@@ -90,7 +84,6 @@ class ListViewState(object):
 
     @staticmethod
     def get_state(request, url=None):
-#        return request.session.get(url or request.path)
         lvs = None
         data = request.session.get(url or request.path)
 
@@ -107,8 +100,6 @@ class ListViewState(object):
 
     @staticmethod
     def build_from_request(request, **kwargs):
-        #kwargs.update((str(k), v) for k, v in request.POST.items())
-        #kwargs.update((str(k), v) for k, v in request.REQUEST.items())
         kwargs.update((str(k), v) for k, v in chain(request.POST.iteritems(),
                                                     request.GET.iteritems(),
                                                    )
@@ -124,7 +115,6 @@ class ListViewState(object):
             if not POST and self.research:
                 return
 
-            #getlist = request.REQUEST.getlist
             GET = request.GET
             list_session = []
 
@@ -133,7 +123,6 @@ class ListViewState(object):
                     continue
 
                 cell_key = cell.key
-                #values = getlist(cell_key)
                 values = chain(POST.getlist(cell_key), GET.getlist(cell_key))
 
                 if values:
@@ -178,15 +167,14 @@ class ListViewState(object):
                 # TODO: Hacks for dates => refactor
                 if isinstance(field, DateField):
                     condition = self._build_date_range_dict(cell.value, value)
-#                elif isinstance(field, ForeignKey) and value[0] == NULL_FK:
-                elif isinstance(field, (ForeignKey, ManyToManyField)) and value[0] == NULL_FK: # TODO: hasattr(field, 'rel') ? [wait for django1.8 field API]
+                # TODO: hasattr(field, 'rel') ?
+                elif isinstance(field, (ForeignKey, ManyToManyField)) and value[0] == NULL_FK:
                     condition = {'%s__isnull' % cell.value: True}
                 else:
                     condition = self._build_condition(cell.filter_string, value)
 
                 query &= Q(**condition)
             elif isinstance(cell, EntityCellRelation):
-#                query &= Relation.filter_in(model, cell.relation_type, value[0])
                 rel_searches.append((cell.relation_type, value[0]))
             elif isinstance(cell, EntityCellFunctionField):
                 if cell.has_a_filter:
@@ -197,10 +185,10 @@ class ListViewState(object):
 
         # NB: If we search on several RelationType at the same time, we have to
         # build auxiliary queries, because the ORM will join with the Relation
-        # table only once (& so the resut will be empty, because one value
+        # table only once (& so the result will be empty, because one value
         # cannot match several searches).
         if rel_searches:
-            if len(rel_searches) == 1: # we can optimize these case
+            if len(rel_searches) == 1:  # We can optimize these case
                 rtype, value = rel_searches[0]
                 query &= Relation.filter_in(model, rtype, value)
             else:
@@ -237,7 +225,7 @@ class ListViewState(object):
                 query &= Q(**condition)
             else:  # TODO; factorise...
                 for cf, pattern, value in searches:
-                    pattern = pattern.partition('__')[2]  # remove 'tableprefix__'
+                    pattern = pattern.partition('__')[2]  # Remove 'tableprefix__'
 
                     if field_type == CustomField.DATETIME:
                         condition = self._build_date_range_dict('value', value)
@@ -264,11 +252,11 @@ class ListViewState(object):
         return query
 
     def _get_regular_sortfield(self, cell):
-        # compatiblity
+        # Compatiblity
         if cell.filter_string.endswith('__header_filter_search_field__icontains'):
             return cell.value + '__header_filter_search_field'
 
-        # related field without subfield
+        # Related field without subfield
         if isinstance(cell.field_info[0], RelatedField) and len(cell.field_info) == 1:
             subfield_model = cell.field_info[0].rel.to
             subfield_ordering = subfield_model._meta.ordering

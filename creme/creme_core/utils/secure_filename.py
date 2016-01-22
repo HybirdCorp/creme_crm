@@ -21,11 +21,12 @@ _windows_device_files = ('CON', 'AUX', 'COM1', 'COM2', 'COM3', 'COM4', 'LPT1',
                          'LPT2', 'LPT3', 'PRN', 'NUL')
 _filename_ascii_strip_re = re.compile(r'[^A-Za-z0-9_.-]')
 
+
 def secure_filename(filename):
-    r"""Pass it a filename and it will return a secure version of it.  This
-    filename can then savely be stored on a regular file system and passed
-    to :func:`os.path.join`.  The filename returned is an ASCII only string
-    for maximum portability.
+    """Pass it a filename and it will return a secure version of it.
+    This filename can then savely be stored on a regular file system and passed
+    to :func:`os.path.join`.
+    The filename returned is an ASCII only string for maximum portability.
 
     On windows system the function also makes sure that the file is not
     named after one of the special device files.
@@ -50,9 +51,9 @@ def secure_filename(filename):
     filename = str(_filename_ascii_strip_re.sub('', '_'.join(
                    filename.split()))).strip('._')
 
-    # on nt a couple of special files are present in each folder.  We
-    # have to ensure that the target file is not such a filename.  In
-    # this case we prepend an underline
+    # On NT a couple of special files are present in each folder.
+    #  We have to ensure that the target file is not such a filename.
+    #  In this case we prepend an underline.
     if os.name == 'nt':
         if filename.split('.')[0].upper() in _windows_device_files:
             filename = '_' + filename

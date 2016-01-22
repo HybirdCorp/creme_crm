@@ -25,7 +25,6 @@ from django.contrib.auth import get_user_model
 from django.db.models.fields import FieldDoesNotExist
 from django.forms import Form, ModelForm, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
-#from django.utils.datastructures import SortedDict as OrderedDict
 
 from ..models import CremeEntity, CustomFieldValue, FieldsConfig
 
@@ -46,7 +45,7 @@ class _FieldBlock(object):
         @param verbose_name name of the block (displayed in the output)
         @param field_names sequence of strings (fields names in the form) or string '*' (wildcard->all remaining fields)
         """
-        self.name        = verbose_name
+        self.name = verbose_name
         self.field_names = list(field_names) if field_names != '*' else field_names
 
     def __unicode__(self):  # For debugging
@@ -72,9 +71,8 @@ class FieldBlocksGroup(object):
                 wildcard_cat = cat
             else:
                 field_set |= set(field_names)
-#                blocks_data[cat] = (block.name, [(form[fn], form.fields[fn].required) for fn in field_names])
-
                 block_data = []
+
                 for fn in field_names:
                     try:
                         bound_field = form[fn]
@@ -192,7 +190,7 @@ class HookableForm(object):
         for callback in self._creme_post_save_callbacks:
             callback(self)
 
-    def as_span(self): #TODO: in another base class
+    def as_span(self):  # TODO: in another base class
         """Returns this form rendered as HTML <span>s."""
         return self._html_output(normal_row=u'<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
                                  error_row=u'%s',
@@ -261,14 +259,10 @@ class CremeModelForm(ModelForm, HookableForm):
 
 
 class CremeModelWithUserForm(CremeModelForm):
-    user = ModelChoiceField(label=_('Owner user'), empty_label=None,
-#                            queryset=get_user_model().objects.filter(is_staff=False),
-                            queryset=None,
-                           )
+    user = ModelChoiceField(label=_('Owner user'), empty_label=None, queryset=None)
 
     def __init__(self, user, *args, **kwargs):
         super(CremeModelWithUserForm, self).__init__(user=user, *args, **kwargs)
-#        self.fields['user'].initial = user.id
         user_f = self.fields['user']
         user_f.queryset = get_user_model().objects.filter(is_staff=False)
         user_f.initial = user.id

@@ -33,30 +33,35 @@ DATETIME_ISO8601_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 def date_2_dict(d):
     return {'year': d.year, 'month': d.month, 'day': d.day}
 
-def get_dt_to_iso8601_str(dt): #TODO: rename, it is not true ISO 8601 !!!!
+
+def get_dt_to_iso8601_str(dt):  # TODO: rename, it is not true ISO 8601 !!!!
     """Converts the datetime into a string in iso8601 format without any separators.
     >>> get_dt_to_iso8601_str(datetime.datetime(2011, 4, 27, 10, 9, 54))
     '20110427T100954Z'
     """
     return dt.strftime("%Y%m%dT%H%M%SZ")
 
+
 def get_dt_from_iso8601_str(dt_str):
     """Builds a datetime instance from a iso8601 (without any separators) formatted string.
     @throws ValueError
-    >>>get_dt_from_iso8601_str("20110427T100954Z")
+    >>> get_dt_from_iso8601_str("20110427T100954Z")
     datetime.datetime(2011, 4, 27, 10, 9, 54)
     """
     return datetime.strptime(dt_str, "%Y%m%dT%H%M%SZ")
 
-def get_dt_from_json_str(dt_str): #TODO: rename 'dt_from_json_str'
+
+def get_dt_from_json_str(dt_str):  # TODO: rename 'dt_from_json_str'
     """Return a TZ aware datetime parsed from the JSON format date (Date.toJSON()
     method in JavaScript): YYYY-MM-DDTHH:mm:ss.sssZ
     @throws ValueError
     """
     return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), utc)
 
+
 def dt_to_json_str(dt):
     return dt.strftime(DATETIME_ISO8601_FMT)
+
 
 def get_dt_from_str(dt_str):
     """Returns a datetime from filled formats in settings, or None.
@@ -75,6 +80,7 @@ def get_dt_from_str(dt_str):
         except TypeError:
             break
 
+
 def get_date_from_str(date_str):
     "Returns a date from filled formats in settings, or None."
     for fmt in formats.get_format('DATE_INPUT_FORMATS'):
@@ -84,6 +90,7 @@ def get_date_from_str(date_str):
             continue
         except TypeError:
             break
+
 
 def make_aware_dt(dt):
     return make_aware(dt, get_current_timezone())

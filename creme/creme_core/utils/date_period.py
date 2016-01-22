@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import absolute_import #for collections...
+from __future__ import absolute_import  # For collections...
 
 import logging
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
-from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY #, SECONDLY
+from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY  # SECONDLY
 
 from django.utils.translation import ugettext_lazy as _, ungettext
 
@@ -33,8 +33,8 @@ logger = logging.getLogger(__name__)
 
 
 class DatePeriod(object):
-    name = 'base_date_period' #overload
-    verbose_name = u'Date period' #overload
+    name = 'base_date_period'  # Overload
+    verbose_name = u'Date period'  # Overload
 
     def __unicode__(self):
         return unicode(self.verbose_name)
@@ -142,7 +142,7 @@ class DatePeriodRegistry(object):
         """Return a list of tuples which can be used to build the DatePeriodField formfield.
         @param choices List of names or None, used to filter the registry elements.
                        If None provided, return all the elements.
-        @return the tuples (name, period_klass.verbose_name) of registry elements.
+        @return The tuples (name, period_klass.verbose_name) of registry elements.
         """
         is_allowed = (lambda name: True) if choices is None else \
                      lambda name: name in choices
@@ -169,7 +169,8 @@ class DatePeriodRegistry(object):
             name = period.name
 
             if periods_map.has_key(name):
-                logger.warning("Duplicate date period's id or period registered twice : %s", name) #exception instead ???
+                # TODO: exception instead ?
+                logger.warning("Duplicate date period's id or period registered twice : %s", name)
 
             periods_map[name] = period
 

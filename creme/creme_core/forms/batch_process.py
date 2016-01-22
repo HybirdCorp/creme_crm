@@ -54,9 +54,6 @@ class BatchActionsWidget(SelectorList):
 
         # TODO: improve SelectorList.add_* to avoid attribute 'auto'
         chained_input.add_dselect('name', attrs=sub_attrs,
-#                                  options=[(fname, field.verbose_name)
-#                                                for fname, field in self.fields.iteritems()
-#                                          ],
                                    options=self.fields,
                                  )
         chained_input.add_dselect('operator', attrs=sub_attrs,
@@ -65,11 +62,12 @@ class BatchActionsWidget(SelectorList):
                                  )
 
         pinput = PolymorphicInput(key='${operator}', attrs=sub_attrs)
-        pinput.set_default_input(widget=DynamicInput, attrs=sub_attrs) # TODO: count if the operators with need_arg=False are more ?
+        # TODO: count if the operators with need_arg=False are more ?
+        pinput.set_default_input(widget=DynamicInput, attrs=sub_attrs)
 
         for op_id, operator in batch_operator_manager.operators():
             if not operator.need_arg:
-                pinput.add_input(op_id, widget=DynamicInput, attrs=sub_attrs, type='hidden') # TODO: DynamicHiddenInput
+                pinput.add_input(op_id, widget=DynamicInput, attrs=sub_attrs, type='hidden')  # TODO: DynamicHiddenInput
 
         chained_input.add_input('value', pinput, attrs=sub_attrs)
 
@@ -77,7 +75,7 @@ class BatchActionsWidget(SelectorList):
 
 
 class BatchActionsField(JSONField):
-    widget = BatchActionsWidget # Should have 'model' & 'fields' attributes
+    widget = BatchActionsWidget  # Should have 'model' & 'fields' attributes
     default_error_messages = {
         'invalidfield':    _(u"This field is invalid with this model."),
         'reusedfield':     _(u"The field «%(field)s» can not be used twice."),
@@ -100,8 +98,6 @@ class BatchActionsField(JSONField):
     def model(self, model):
         self._model = model
 
-#        [...]
-#        self._build_widget()
         widget = self.widget
         widget.model = model
         widget.fields = CallableChoiceIterator(
@@ -134,9 +130,6 @@ class BatchActionsField(JSONField):
             self._fields = OrderedDict(fields)
 
         return self._fields
-
-#    def _create_widget(self):
-#        return BatchActionsWidget(self._model, self._fields)
 
     def _clean_fieldname(self, entry, used_fields):
         fname = self.clean_value(entry, 'name', str)
@@ -202,7 +195,6 @@ class BatchProcessForm(CremeForm):
         super(BatchProcessForm, self).__init__(*args, **kwargs)
         ct = self.initial['content_type']
         fields = self.fields
-        #fields['filter'].queryset = EntityFilter.objects.filter(entity_type=ct)
         fields['filter'].queryset = EntityFilter.get_for_user(self.user, ct)
         fields['actions'].model = self._entity_type = ct.model_class()
 
@@ -229,11 +221,11 @@ class BatchProcessForm(CremeForm):
 
     @property
     def modified_objects_count(self):
-        return  self._modified_objects_count
+        return self._modified_objects_count
 
     @property
     def read_objects_count(self):
-        return  self._read_objects_count
+        return self._read_objects_count
 
     # TODO: move to a job when job engine is done
     def save(self, *args, **kwargs):

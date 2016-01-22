@@ -47,12 +47,14 @@ def widget_render_input(renderer, widget, name, value, context, **kwargs):
 
     return renderer(widget, name, value, input_attrs)
 
+
 def widget_render_hidden_input(widget, name, value, context):
     input_attrs = {'class': ' '.join(['ui-creme-input', context.get('typename')]),
                    'type':  'hidden',
                   }
 
     return Input.render(widget, name, value, input_attrs)
+
 
 def widget_render_context(typename, attrs, css='', **kwargs):
     id   = attrs.get('id')
@@ -69,24 +71,24 @@ def widget_render_context(typename, attrs, css='', **kwargs):
 
     return context
 
+
 # TODO: to be improved....
 class DynamicInput(TextInput):
     def __init__(self, type='text', attrs=None):
         super(DynamicInput, self).__init__(attrs)
-        #self.type = type
         self.input_type = type
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
-        #context = widget_render_context('ui-creme-dinput', attrs, type=self.type)
         context = widget_render_context('ui-creme-dinput', attrs)
 
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context)) #, url=self.url
 
 # TODO ??? DynamicHiddenInput
-#class HiddenInput(Input): #from django
-    #input_type = 'hidden'
-    #is_hidden = True
+# class HiddenInput(Input): #from django
+#     input_type = 'hidden'
+#     is_hidden = True
+
 
 class EnchancedSelectOptions(object):
     class Choice(object):
@@ -196,11 +198,9 @@ class DynamicSelectMultiple(SelectMultiple, EnchancedSelectOptions):
 
 
 class ActionButtonList(Widget):
-#    def __init__(self, delegate, attrs=None, actions=None):
     def __init__(self, delegate, attrs=None, actions=()):
         super(ActionButtonList, self).__init__(attrs)
         self.delegate = delegate
-#        self.actions = actions or []
         self.actions = list(actions)
         self.from_python = None
 
@@ -214,7 +214,6 @@ class ActionButtonList(Widget):
         return self
 
     def clear_actions(self):
-#        self.actions = []
         self.actions[:] = ()
         return self
 
@@ -261,10 +260,11 @@ class PolymorphicInput(TextInput):
         self.inputs = []
         self.default_input = None
         self.set_inputs(*args)
-        self.from_python = None # TODO: wait for django 1.2 and new widget api to remove this hack
+        self.from_python = None  # TODO: wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
-        value = self.from_python(value) if self.from_python is not None else value # TODO: wait for django 1.2 and new widget api to remove this hack
+        # TODO: wait for django 1.2 and new widget api to remove this hack
+        value = self.from_python(value) if self.from_python is not None else value
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
         context = widget_render_context('ui-creme-polymorphicselect', attrs,
@@ -302,7 +302,9 @@ class PolymorphicInput(TextInput):
                  ]
 
         if self.default_input:
-            output.append('<script selector-key="*" type="text/template">%s</script>' % (self.default_input.render('', '')))
+            output.append('<script selector-key="*" type="text/template">%s</script>' %
+                                self.default_input.render('', '')
+                         )
 
         return '\n'.join(output)
 
@@ -310,7 +312,6 @@ class PolymorphicInput(TextInput):
 class DateRangeSelect(TextInput):
     def __init__(self, attrs=None, choices=None):
         super(DateRangeSelect, self).__init__(attrs)
-#        self.choices = self.range_choices()
         self.choices = choices
 
     def range_choices(self):
@@ -360,7 +361,7 @@ class ChainedInput(TextInput):
         super(ChainedInput, self).__init__(attrs)
         self.inputs = []
         self.set_inputs(*args)
-        self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
+        self.from_python = None  # TODO : wait for django 1.2 and new widget api to remove this hack
 
     def __deepcopy__(self, memo):
         obj = super(ChainedInput, self).__deepcopy__(memo)
@@ -368,7 +369,8 @@ class ChainedInput(TextInput):
         return obj
 
     def render(self, name, value, attrs=None):
-        value = self.from_python(value) if self.from_python is not None else value # TODO: wait for django 1.2 and new widget api to remove this hack
+        # TODO: wait for django 1.2 and new widget api to remove this hack
+        value = self.from_python(value) if self.from_python is not None else value
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
         context = widget_render_context('ui-creme-chainedselect', attrs,
@@ -398,15 +400,16 @@ class ChainedInput(TextInput):
         self.inputs.append((name, widget(attrs=attrs or {}, **kwargs) if callable(widget) else widget))
 
     # TODO ?
-    #def clear(self):
-        #self.inputs[:] = ()
+    # def clear(self):
+    #     self.inputs[:] = ()
 
     def _render_inputs(self, attrs):
         direction = attrs.get('direction', ChainedInput.HORIZONTAL)
         output = [u'<ul class="ui-layout %s">' % direction]
 
-        output.extend(u'<li chained-name="%s" class="ui-creme-chainedselect-item">%s</li>' % (name, input.render('', ''))
-                         for name, input in self.inputs
+        output.extend(u'<li chained-name="%s" class="ui-creme-chainedselect-item">%s</li>' % (
+                            name, input.render('', '')
+                        ) for name, input in self.inputs
                      )
 
         if attrs.pop('reset', True):
@@ -443,14 +446,14 @@ class SelectorList(TextInput):
         self.selector = selector
         self.enabled = enabled
         self.actions = [self.Action('add', _(u'Add'))]
-        self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
+        # TODO : wait for django 1.2 and new widget api to remove this hack
+        self.from_python = None
 
     def add_action(self, name, label, enabled=True, **kwargs):
         self.actions.append(self.Action(name, label, enabled, **kwargs))
         return self
 
     def clear_actions(self):
-#        self.actions = []
         self.actions[:] = ()
         return self
 
@@ -470,12 +473,16 @@ class SelectorList(TextInput):
                    'title': title,
                   }
 
-        return u'<li><button class="ui-creme-actionbutton selectorlist-%(name)s" title="%(title)s" alt="%(title)s" type="button" %(attr)s>'\
-                '    %(label)s'\
-                '</button></li>' % context
+        return (u'<li>'
+                  u'<button class="ui-creme-actionbutton selectorlist-%(name)s" '
+                          u'title="%(title)s" alt="%(title)s" type="button" %(attr)s>'
+                    u'%(label)s'
+                  u'</button>'
+                u'</li>' % context)
 
     def render(self, name, value, attrs=None):
-        value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
+        # TODO : wait for django 1.2 and new widget api to remove this hack
+        value = self.from_python(value) if self.from_python is not None else value
         attrs = self.build_attrs(attrs, name=name, type='hidden')
         clonelast = 'cloneLast' if attrs.pop('clonelast', True) else ''
         disabled = 'disabled' if not self.enabled else ''
@@ -501,7 +508,8 @@ class SelectorList(TextInput):
 class EntitySelector(TextInput):
     def __init__(self, content_type=None, attrs=None):
         super(EntitySelector, self).__init__(attrs)
-        self.url = '/creme_core/list_view/popup/' + content_type + '/${selection}?q_filter=${qfilter}' if content_type else \
+        self.url = '/creme_core/list_view/popup/' + content_type + '/${selection}?q_filter=${qfilter}'\
+                   if content_type else \
                    '/creme_core/list_view/popup/${ctype}/${selection}?q_filter=${qfilter}'
         self.text_url = '/creme_core/relation/entity/${id}/json'
         self.from_python = None
@@ -571,10 +579,6 @@ class CTEntitySelector(ChainedInput):
         self.add_input('entity', widget=actions)
 
         return super(CTEntitySelector, self).render(name, value, attrs)
-
-#    @property
-#    def actions(self):
-#        return self._actions
 
 
 class MultiCTEntitySelector(SelectorList):
@@ -688,7 +692,7 @@ class MultiEntityCreatorWidget(SelectorList):
         if model is None:
             delegate = Label(empty_label='Model is not set')
         else:
-            self.clear_actions() # TODO: indicate that we do not want actions in __init__
+            self.clear_actions()  # TODO: indicate that we do not want actions in __init__
             self.add_action('add', getattr(model, 'selection_label', _(u'Select')))
 
             delegate = EntitySelector(unicode(ContentType.objects.get_for_model(model).id),
@@ -741,27 +745,26 @@ class DateTimeWidget(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        return mark_safe("""
-            <ul id="%(id)s_datetimepicker" class="ui-creme-datetimepicker">
-                %(input)s
-                <li>%(date_label)s</li>
-                <li class="date"><input class="ui-corner-all" type="text" maxlength="12"/></li>
-                <li>%(time_label)s</li>
-                <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>
-                <li>%(hour_label)s</li>
-                <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>
-                <li>%(minute_label)s</li>
-                <li class="clear"><button type="button">%(clear_label)s</button></li>
-                <li class="now"><button type="button">%(now_label)s</button></li>
-            </ul>
-            <script type="text/javascript">
-                $('.ui-creme-datetimepicker#%(id)s_datetimepicker').each(function() {creme.forms.DateTimePicker.init($(this));});
-            </script>""" % {
-                'input':        super(DateTimeWidget, self).render(name, value, attrs),
+        return mark_safe(
+"""<ul id="%(id)s_datetimepicker" class="ui-creme-datetimepicker">
+    %(input)s
+    <li>%(date_label)s</li>
+    <li class="date"><input class="ui-corner-all" type="text" maxlength="12"/></li>
+    <li>%(time_label)s</li>
+    <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>
+    <li>%(hour_label)s</li>
+    <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>
+    <li>%(minute_label)s</li>
+    <li class="clear"><button type="button">%(clear_label)s</button></li>
+    <li class="now"><button type="button">%(now_label)s</button></li>
+</ul>
+<script type="text/javascript">
+    $('.ui-creme-datetimepicker#%(id)s_datetimepicker').each(function() {creme.forms.DateTimePicker.init($(this));});
+</script>""" % {'input':        super(DateTimeWidget, self).render(name, value, attrs),
                 'date_label':   _(u'On'),
                 'time_label':   _(u'at'),
-                'hour_label':   _(u'h'), #TODO: improve i18n
-                'minute_label': '',      #TODO: improve i18n
+                'hour_label':   _(u'h'),  # TODO: improve i18n
+                'minute_label': '',       # TODO: improve i18n
                 'id':           attrs['id'],
                 'clear_label':  _(u'Clean'),
                 'now_label':    _(u'Now'),
@@ -813,6 +816,7 @@ class CalendarWidget(TextInput):
                                   'input': widget_render_input(TextInput.render, self, name, value, context,
                                                                format=dateformat),
                               })
+
 
 # TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup
 class DependentSelect(Select):
@@ -886,30 +890,6 @@ class TinyMCEEditor(Textarea):
         return mark_safe(widget_render_input(Textarea.render, self, name, value, context, 
                                              plugin='tinymce', 
                                              plugin_options=plugin_options))
-
-#        rendered = super(TinyMCEEditor, self).render(name, value, attrs)
-##        extended_valid_elements : "a[name|href|target|title|onclick]",
-##        script_url : '%(MEDIA_URL)stiny_mce/tiny_mce_src.js',
-#        return mark_safe(u'''%(input)s
-#                            <script type="text/javascript" src="%(MEDIA_URL)stiny_mce/jquery.tinymce.js"></script>
-#                            <script type="text/javascript">
-#                                jQuery('#id_%(name)s').tinymce({
-#                                    mode : "textareas",
-#                                    script_url : '%(MEDIA_URL)stiny_mce/tiny_mce.js',
-#                                    convert_urls : false,
-#                                    theme : "advanced",
-#                                    height: 300,
-#                                    plugins : "spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template, fullpage",
-#                                    theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
-#                                    theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
-#                                    theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
-#                                    theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,blockquote,pagebreak,|,insertfile,insertimage",
-#                                    theme_advanced_toolbar_location : "top",
-#                                    theme_advanced_toolbar_align : "left",
-#                                    theme_advanced_path_location : "bottom",
-#                                    theme_advanced_resizing : true
-#                                });
-#                            </script>''' % {'MEDIA_URL': settings.MEDIA_URL, 'name': name, 'input': rendered})
 
 
 class ColorPickerWidget(TextInput):
@@ -1010,7 +990,9 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
                }
 
     def _render_body(self, attrs, filtertype):
-        return '<div class="checklist-body"><ul class="checklist-content %s %s"></ul></div>' % (filtertype or '', self.columntype)
+        return '<div class="checklist-body"><ul class="checklist-content %s %s"></ul></div>' % (
+                    filtertype or '', self.columntype
+                )
 
 
 class OrderedMultipleChoiceWidget(SelectMultiple):
@@ -1060,7 +1042,7 @@ u"""</tbody></table>
         selected = []
         for key, value in data.iteritems():
             if key.startswith(prefix_check):
-                index = key[len(prefix_check):] #in fact not an int...
+                index = key[len(prefix_check):]  # In fact not an int...
                 order = int(data.get(prefix_order + index) or 0)
                 value = data[prefix_value + index]
                 selected.append((order, value))
@@ -1081,7 +1063,6 @@ class Label(TextInput):
         return mark_safe(u'%(input)s<span %(attrs)s>%(content)s</span>' % {
                 'input':   super(Label, self).render(name, value, {'style': 'display:none;'}),
                 'attrs':   flatatt(self.build_attrs(attrs, name=name)),
-#                'content': conditional_escape(force_unicode(value if value is not None else self.empty_label)),
                 'content': conditional_escape(force_unicode(value or self.empty_label)),
             })
 
@@ -1112,11 +1093,11 @@ class ListEditionWidget(Widget):
                 else:
                     label = new_label
 
-            output.append(row  % {'i':        i,
-                                  'name':     name,
-                                  'label':    escape(label),
-                                  'checked':  checked,
-                                 }
+            output.append(row % {'i':        i,
+                                 'name':     name,
+                                 'label':    escape(label),
+                                 'checked':  checked,
+                                }
                          )
 
         output.append(u'</tbody></table>')
@@ -1134,8 +1115,8 @@ class ListEditionWidget(Widget):
                ]
 
 
-# TODO : Deprecated widget. will be removed in 1.7.
-# TODO : Think to remove javascript file creme_core/js/widgets/adaptivewidget.js
+# TODO: Deprecated widget. will be removed in 1.7.
+# TODO: Think to remove javascript file creme_core/js/widgets/adaptivewidget.js
 class AdaptiveWidget(Select):
     def __init__(self, ct_id, object_id="", attrs=None, choices=()):
         super(AdaptiveWidget, self).__init__(attrs, choices)
@@ -1165,7 +1146,7 @@ class AdaptiveWidget(Select):
 class DatePeriodWidget(MultiWidget):
     def __init__(self, choices=(), attrs=None):
         widgets = (Select(choices=choices, attrs={'class': 'dperiod-type'}),
-                   TextInput(attrs={'class': 'dperiod-value'}), #TODO: min_value
+                   TextInput(attrs={'class': 'dperiod-value'}),  # TODO: min_value
                   )
         super(DatePeriodWidget, self).__init__(widgets, attrs)
 
@@ -1194,11 +1175,9 @@ class DatePeriodWidget(MultiWidget):
 
 
 class DateRangeWidget(MultiWidget):
-#    def __init__(self, attrs=None):
     def __init__(self, choices=(), attrs=None):
         self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'
 
-#        widgets = (Select(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()), attrs={'class': 'range-type'}),
         widgets = (Select(choices=choices, attrs={'class': 'range-type'}),
                    CalendarWidget(attrs={'class': 'date-start'}),
                    CalendarWidget(attrs={'class': 'date-end'}),
@@ -1278,9 +1257,6 @@ class ChoiceOrCharWidget(MultiWidget):
             return value[0], value[1]
 
         return None, None
-
-    #def format_output(self, rendered_widgets):
-        #return u'<div>%s</div>' % (u''.join(u'<div>%s</div>' % w for w in rendered_widgets))
 
 
 class CremeRadioFieldRenderer(RadioFieldRenderer):

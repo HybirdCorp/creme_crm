@@ -32,7 +32,8 @@ class QuickFormsRegistry(object):
         forms = self._forms
 
         if forms.has_key(model):
-            logger.warning("A Quick Form is already registered for the model : %s", model)  # exception instead ???
+            # TODO: exception instead ?
+            logger.warning("A Quick Form is already registered for the model : %s", model)
 
         forms[model] = form
 

@@ -32,8 +32,9 @@ class CremePropertyType(CremeModel):
     id             = CharField(primary_key=True, max_length=100)
     text           = CharField(max_length=200, unique=True)
     subject_ctypes = ManyToManyField(ContentType, blank=True, related_name='subject_ctypes_creme_property_set')
-    is_custom      = BooleanField(default=False) #TODO: editable=False ??
-    is_copiable    = BooleanField(default=True)  # if True, the properties with this type can be copied (ie when cloning or converting an entity)
+    is_custom      = BooleanField(default=False)  # TODO: editable=False ??
+    # If True, the properties with this type can be copied (ie: when cloning or converting an entity).
+    is_copiable    = BooleanField(default=True)
 
     creation_label = _('Add a type of property')
 
@@ -45,10 +46,6 @@ class CremePropertyType(CremeModel):
 
     def __unicode__(self):
         return self.text
-
-    # def delete(self):
-    #     CremeProperty.objects.filter(type=self).delete()
-    #     super(CremePropertyType, self).delete()
 
     def get_absolute_url(self):
         return '/creme_core/property/type/%s' % self.id
@@ -66,17 +63,15 @@ class CremePropertyType(CremeModel):
     @staticmethod
     def create(str_pk, text, subject_ctypes=(), is_custom=False, generate_pk=False, is_copiable=True):
         """Helps the creation of new CremePropertyType.
-        @param subject_ctypes Sequence of CremeEntity classes/ContentType objects.
-        @param generate_pk If True, str_pk is used as prefix to generate pk.
+        @param subject_ctypes: Sequence of CremeEntity classes/ContentType objects.
+        @param generate_pk: If True, str_pk is used as prefix to generate pk.
         """
         if not generate_pk:
-            #from creme.creme_core.utils import create_or_update
-            #property_type = create_or_update(CremePropertyType, str_pk, text=text, is_custom=is_custom, is_copiable=is_copiable)
             property_type = CremePropertyType.objects.update_or_create(
                                     id=str_pk,
                                     defaults={'text': text,
                                               'is_custom': is_custom,
-                                              'is_copiable':is_copiable,
+                                              'is_copiable': is_copiable,
                                              }
                                 )[0]
         else:
@@ -84,11 +79,10 @@ class CremePropertyType(CremeModel):
             property_type = CremePropertyType(text=text, is_custom=is_custom, is_copiable=is_copiable)
             generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
 
-        #property_type.property_i18n_set.all().delete()
-        #CremePropertyText_i18n.objects.create(property_type_id=property_type.id, language_code='FRA', i18n_text=text)
-
         get_ct = ContentType.objects.get_for_model
-        property_type.subject_ctypes = [(model if isinstance(model, ContentType) else get_ct(model)) for model in subject_ctypes]
+        property_type.subject_ctypes = [model if isinstance(model, ContentType) else get_ct(model)
+                                            for model in subject_ctypes
+                                       ]
 
         return property_type
 
@@ -99,7 +93,7 @@ class CremePropertyType(CremeModel):
 
 class CremeProperty(CremeModel):
     type         = ForeignKey(CremePropertyType)
-    creme_entity = ForeignKey(CremeEntity, related_name="properties") #related_name="creme_property_set" ??
+    creme_entity = ForeignKey(CremeEntity, related_name="properties")  # related_name="creme_property_set" ??
 
     class Meta:
         app_label = 'creme_core'
@@ -109,7 +103,7 @@ class CremeProperty(CremeModel):
     def __unicode__(self):
         return unicode(self.type)
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.creme_entity
 
 
@@ -118,26 +112,17 @@ def _handle_merge(sender, other_entity, **kwargs):
     """Delete 'Duplicated' CremeProperties (ie: exist in the removed entity &
     the remaining entity).
     """
-    #sender_id = sender.id
-    #prop_filter = sender.properties.filter
-
-    #for prop in other_entity.properties.all():
-        #if prop_filter(creme_entity=sender_id, type=prop.type_id).exists():
-            #prop.delete()
-        ##else:
-            ##prop.creme_entity = sender
-            ##prop.save()
-
     from .history import HistoryLine
 
     ptype_ids = sender.properties.values_list('type', flat=True)
 
     for prop in other_entity.properties.filter(type__in=ptype_ids):
-        # duplicates deletetion would be confusing to the user (the
+        # Duplicates' deletion would be confusing to the user (the
         # property type is still related to the remaining entity). So we
         # disable the history for it.
         HistoryLine.disable(prop)
         prop.delete()
+
 
 @receiver(pre_replace_related, sender=CremePropertyType)
 def _handle_replacement(sender, old_instance, new_instance, **kwargs):
@@ -150,10 +135,10 @@ def _handle_replacement(sender, old_instance, new_instance, **kwargs):
 
     # IDs of entities with duplicates
     e_ids = CremeEntity.objects.filter(properties__type__in=[old_instance, new_instance]) \
-                                .annotate(prop_count=Count('properties')) \
-                                .filter(prop_count__gte=2) \
-                                .values_list('id', flat=True)
+                               .annotate(prop_count=Count('properties')) \
+                               .filter(prop_count__gte=2) \
+                               .values_list('id', flat=True)
 
     for prop in CremeProperty.objects.filter(creme_entity__in=e_ids, type=old_instance):
-        HistoryLine.disable(prop) #see _handle_merge()
+        HistoryLine.disable(prop)  # See _handle_merge()
         prop.delete()

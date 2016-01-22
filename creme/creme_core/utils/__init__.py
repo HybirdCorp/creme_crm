@@ -99,7 +99,7 @@ def create_if_needed(model, get_dict, **attrs):
     return instance
 
 
-def update_model_instance(obj, **fields):  # TODO: django 1.5: save only modified fields
+def update_model_instance(obj, **fields):
     """Update the field values of an instance, and save it only if it has changed."""
     save = False
 
@@ -108,6 +108,7 @@ def update_model_instance(obj, **fields):  # TODO: django 1.5: save only modifie
             setattr(obj, f_name, f_value)
             save = True
 
+    # TODO: save only modified fields ?
     if save:
         obj.save()
 
@@ -119,21 +120,18 @@ def replace_related_object(old_instance, new_instance):
     pre_replace_related.send(sender=old_instance.__class__,
                              old_instance=old_instance,
                              new_instance=new_instance,
-                            ) # send_robust() ??
+                            )  # send_robust() ??
 
-#    for rel_objects in old_instance._meta.get_all_related_objects():
-    for rel_objects in (f for f in old_instance._meta.get_fields()
-                            #if (f.one_to_many or f.one_to_one) and f.auto_created
-                            if f.one_to_many
-                       ):
+    meta = old_instance._meta
+
+    for rel_objects in (f for f in meta.get_fields() if f.one_to_many):
         field_name = rel_objects.field.name
 
         for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():
             setattr(rel_object, field_name, new_instance)
             rel_object.save()
 
-#    for rel_objects in old_instance._meta.get_all_related_many_to_many_objects():
-    for rel_objects in (f for f in old_instance._meta.get_fields(include_hidden=True)
+    for rel_objects in (f for f in meta.get_fields(include_hidden=True)
                             if f.many_to_many and f.auto_created
                        ):
         field_name = rel_objects.field.name
@@ -187,7 +185,8 @@ def jsonify(func):
 
 
 def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
-    """@param cast A function that cast the return value, and raise an Exception if it is not possible (eg: int)
+    """@param cast A function that cast the return value,
+                   and raise an Exception if it is not possible (eg: int).
     """
     value = method.get(key)
 
@@ -368,26 +367,17 @@ def safe_unicode(value, encodings=None):
 
 
 def safe_unicode_error(err, encodings=None):
-    #return safe_unicode(err.message)
-
     # Is this method deprecated for python 3.* (but str/unicode conversions won't be useful at all) ??
     try:
         return unicode(err)
     except:
         pass
 
-    # TODO : keep this deprecated method until migration to python 3.*, because some old APIs may use it in python 2.*
+    # TODO : keep this deprecated method until migration to python 3.*,
+    #        because some old APIs may use it in python 2.*
     msg = err.message
 
-    #if isinstance(msg, basestring):
     return safe_unicode(msg, encodings)
-
-    #try:
-        #return unicode(msg)
-    #except:
-        #pass
-
-    #return unicode(err.__class__.__name__)
 
 
 def log_traceback(logger, limit=10):

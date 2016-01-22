@@ -20,22 +20,18 @@
 
 from collections import defaultdict
 import logging
-#import warnings
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT
-#from django.db import transaction
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.http import Http404
-#from django.utils.encoding import force_unicode, smart_str
-#from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
 from ..signals import pre_merge_related
 from .base import CremeModel, CremeAbstractEntity
-from .entity import CremeEntity
 from .creme_property import CremePropertyType
+from .entity import CremeEntity
 
 
 logger = logging.getLogger(__name__)
@@ -46,17 +42,19 @@ class RelationType(CremeModel):
     If *_ctypes = null --> all ContentTypes are valid.
     If *_properties = null --> all CremeProperties are valid.
     """
-    id = CharField(primary_key=True, max_length=100) # NB: convention: 'app_name-foobar'
-                                                     # BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
+    id = CharField(primary_key=True, max_length=100)  # NB: convention: 'app_name-foobar'
+                                                      # BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
 
-    subject_ctypes     = ManyToManyField(ContentType,       blank=True, related_name='relationtype_subjects_set') # null=True
-    object_ctypes      = ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')  # null=True
-    subject_properties = ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_subjects_set') # null=True
-    object_properties  = ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_objects_set')  # null=True
+    subject_ctypes     = ManyToManyField(ContentType,       blank=True, related_name='relationtype_subjects_set')
+    object_ctypes      = ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')
+    subject_properties = ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_subjects_set')
+    object_properties  = ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_objects_set')
 
-    is_internal = BooleanField(default=False) # if True, the relations with this type can not be created/deleted directly by the users.
-    is_custom   = BooleanField(default=False) # if True, the RelationType can ot be deleted (in creme_config).
-    is_copiable = BooleanField(default=True)  # if True, the relations with this type can be copied (ie when cloning or converting an entity)
+    is_internal = BooleanField(default=False)  # If True, the relations with this type cannot
+                                               #  be created/deleted directly by the users.
+    is_custom   = BooleanField(default=False)  # If True, the RelationType can ot be deleted (in creme_config).
+    is_copiable = BooleanField(default=True)   # If True, the relations with this type can be copied
+                                               #  (ie when cloning or converting an entity)
 
     predicate      = CharField(_(u'Predicate'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
@@ -69,7 +67,7 @@ class RelationType(CremeModel):
     def __unicode__(self):
         sym_type = self.symmetric_type
         symmetric_pred = ugettext(u'No relationship') if sym_type is None else sym_type.predicate
-        return u'%s — %s' % (self.predicate, symmetric_pred) #NB: — == "\xE2\x80\x94" == &mdash;
+        return u'%s — %s' % (self.predicate, symmetric_pred)  # NB: — == "\xE2\x80\x94" == &mdash;
 
     def add_subject_ctypes(self, *models):
         get_ct = ContentType.objects.get_for_model
@@ -91,7 +89,6 @@ class RelationType(CremeModel):
         return types
 
     @staticmethod
-    #@transaction.commit_manually
     @atomic
     def create(subject_desc, object_desc, is_custom=False, generate_pk=False, is_internal=False, is_copiable=(True, True)):
         """
@@ -99,9 +96,7 @@ class RelationType(CremeModel):
         @param object_desc See subject_desc
         @param generate_pk If True, 'string_pk' args are used as prefix to generate pks.
         """
-        #from creme.creme_core.utils import create_or_update
-
-        padding       = ((), ()) #in case sequence_of_cremeEntityClasses or sequence_of_propertyType not given
+        padding       = ((), ())  # In case sequence_of_cremeEntityClasses or sequence_of_propertyType not given.
         subject_desc += padding
         object_desc  += padding
 
@@ -114,10 +109,6 @@ class RelationType(CremeModel):
         pred_object  = object_desc[1]
 
         if not generate_pk:
-#            sub_relation_type = create_or_update(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom,
-#                                                                           is_internal=is_internal, is_copiable=is_copiable[0])
-#            obj_relation_type = create_or_update(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom,
-#                                                                           is_internal=is_internal, is_copiable=is_copiable[1])
             update_or_create = RelationType.objects.update_or_create
             defaults = {'is_custom': is_custom, 'is_internal': is_internal}
             sub_relation_type = update_or_create(id=pk_subject,
@@ -176,12 +167,10 @@ class RelationType(CremeModel):
         sub_relation_type.save()
         obj_relation_type.save()
 
-        #transaction.commit()
-
-        return (sub_relation_type, obj_relation_type)
+        return sub_relation_type, obj_relation_type
 
     def is_compatible(self, ctype_id):
-        #TODO: check if self.subject_ctypes.all() is already retrieved (prefetch_related)?
+        # TODO: check if self.subject_ctypes.all() is already retrieved (prefetch_related)?
         subject_ctypes = frozenset(self.subject_ctypes.values_list('id', flat=True))
 
         return not subject_ctypes or ctype_id in subject_ctypes
@@ -191,9 +180,9 @@ class RelationType(CremeModel):
             raise Http404(ugettext("You can't add/delete the relationships with this type (internal type)"))
 
 
-# TODO: remove CremeAbstractEntity inheritage (user/modified not useful any more ??) ??
+# TODO: remove CremeAbstractEntity inheritance (user/modified not useful any more ??) ??
 class Relation(CremeAbstractEntity):
-    type               = ForeignKey(RelationType, blank=True, null=True) #TODO: nullable=False
+    type               = ForeignKey(RelationType, blank=True, null=True)  # TODO: nullable=False
     symmetric_relation = ForeignKey('self', blank=True, null=True)
     subject_entity     = ForeignKey(CremeEntity, related_name='relations', on_delete=PROTECT)
     object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=PROTECT)
@@ -204,21 +193,11 @@ class Relation(CremeAbstractEntity):
         verbose_name_plural = _(u'Relationships')
 
     def __unicode__(self):
-        # TODO: as_a() method ?? (mark_safe)
-        #subject = self.subject_entity
-        #object_ = self.object_entity
-        #str_ = u'<a href="%s">%s</a> -- %s --> <a href="%s">%s</a>' % (
-                                #subject.get_absolute_url(), escape(subject),
-                                #escape(self.type),
-                                #object_.get_absolute_url(), escape(object_)
-                            #)
-
-        #return force_unicode(smart_str(str_)) #hum....
         return u'«%s» %s «%s»' % (self.subject_entity, self.type, self.object_entity)
 
     def _build_symmetric_relation(self, update):
         """Overload me in child classes.
-        @param update Boolean: True->updating object ; False->creating object.
+        @param update: Boolean. True->updating object ; False->creating object.
         """
         if update:
             sym_relation = self.symmetric_relation
@@ -229,29 +208,12 @@ class Relation(CremeAbstractEntity):
                                     symmetric_relation=self,
                                     subject_entity=self.object_entity,
                                     object_entity=self.subject_entity,
-                                   )
+                                    )
 
         return sym_relation
 
-#    @transaction.commit_manually
     @atomic
     def save(self, using='default', force_insert=False):
-#        try:
-#            update = bool(self.pk)
-#
-#            super(Relation, self).save(using=using, force_insert=force_insert)
-#
-#            sym_relation = self._build_symmetric_relation(update)
-#            super(Relation, sym_relation).save(using=using, force_insert=force_insert)
-#
-#            if self.symmetric_relation is None:
-#                self.symmetric_relation = sym_relation
-#                super(Relation, self).save(using=using, force_insert=False)
-#        except Exception:
-#            logger.exception('Error in creme_core.Relation.save()')
-#            transaction.rollback()
-#        else:
-#            transaction.commit()
         update = bool(self.pk)
 
         super(Relation, self).save(using=using, force_insert=force_insert)
@@ -269,17 +231,19 @@ class Relation(CremeAbstractEntity):
     @staticmethod
     def populate_real_object_entities(relations):
         """Faster than call get_real_entity() on each relation.object_entity.
-        @param relations Iterable of Relation objects.
-        tips: better if object_entity attribute is already populated
+        @param relations: Iterable of Relation objects.
+
+        Tips: better if object_entity attribute is already populated
         -> (eg: use select_related('object_entity') on the queryset)
         """
         CremeEntity.populate_real_entities([relation.object_entity for relation in relations])
 
+    # TODO: remove 'model' ; rename other args... (move to EntityCellRelation ??)
     @staticmethod
-    def filter_in(model, filter_predicate, value_for_filter): # TODO: remove 'model' ; rename other args... (move to EntityCellRelation ??)
+    def filter_in(model, filter_predicate, value_for_filter):
         return Q(relations__type=filter_predicate,
                  relations__object_entity__header_filter_search_field__icontains=value_for_filter,
-                )
+                 )
 
 
 class SemiFixedRelationType(CremeModel):

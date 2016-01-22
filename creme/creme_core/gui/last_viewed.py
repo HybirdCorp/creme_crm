@@ -91,7 +91,7 @@ class LastViewedItem(object):
     def _serialize_all(session, items):
         session['last_viewed_items'] = [item.as_dict() for item in items]
 
-    #TODO: use the future entity representation table
+    # TODO: use the future entity representation table
     @staticmethod
     def get_all(request):
         items = []
@@ -103,7 +103,7 @@ class LastViewedItem(object):
             updated = False
 
             if len(old_items) > MAX_LAST_ITEMS:
-                updated = True # The settings has change since the list has been stored
+                updated = True  # The settings has change since the list has been stored
                 del old_items[MAX_LAST_ITEMS:]
 
             entities = {e.id: e for e in CremeEntity.objects
@@ -111,7 +111,7 @@ class LastViewedItem(object):
                                                             pk__in=[item.pk for item in old_items],
                                                            )
                        }
-            updated |= (len(old_items) != len(entities)) # If any entitiy has been deleted -> must update
+            updated |= (len(old_items) != len(entities))  # If any entity has been deleted -> must update
 
             for item in old_items:
                 entity = entities.get(item.pk)
@@ -119,7 +119,7 @@ class LastViewedItem(object):
                 if entity:
                     if entity.modified > item.modified:
                         updated = True
-                        item.update(entity.get_real_entity()) #TODO: use CremeEntity.populate_real_entities()
+                        item.update(entity.get_real_entity())  # TODO: use CremeEntity.populate_real_entities()
 
                     items.append(item)
 

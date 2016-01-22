@@ -24,7 +24,7 @@ from django.db.models import Q
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType #CremeEntity
+from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
 from ..utils import entities2unicode
 from .base import CremeForm, FieldBlockManager
 from .fields import MultiRelationEntityField

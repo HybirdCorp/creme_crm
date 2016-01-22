@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .auth import CremeUser, EntityCredentials, UserRole, SetCredentials #, UserProfile, TeamM2M
+from .auth import CremeUser, EntityCredentials, UserRole, SetCredentials
 
-from .base import CremeModel, CremeAbstractEntity#, CremeEntityManager
+from .base import CremeModel, CremeAbstractEntity
 from .entity import CremeEntity
 
 from .setting_value import SettingValue

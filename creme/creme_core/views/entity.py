@@ -28,7 +28,6 @@ from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
-#from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
@@ -57,7 +56,7 @@ def get_creme_entities_repr(request, entities_ids):
     e_ids = [int(e_id) for e_id in entities_ids.split(',') if e_id]
 
     entities = CremeEntity.objects.in_bulk(e_ids)
-    CremeEntity.populate_real_entities(list(entities.itervalues())) # NB: list + itervalues = Py3K ready
+    CremeEntity.populate_real_entities(list(entities.itervalues()))  # NB: list + itervalues = Py3K ready
 
     user = request.user
     has_perm = user.has_perm_to_view
@@ -303,7 +302,6 @@ def merge(request, entity1_id, entity2_id):
         raise ConflictError('You can not merge an entity with itself.')
 
     if entity1.entity_type_id != entity2.entity_type_id:
-        #raise Http404('You can not merge entities of different types.')
         raise ConflictError('You can not merge entities of different types.')
 
     user = request.user
@@ -340,7 +338,6 @@ def merge(request, entity1_id, entity2_id):
         try:
             merge_form = EntitiesMergeForm(user=request.user, entity1=entity1, entity2=entity2)
         except MergeEntitiesBaseForm.CanNotMergeError as e:
-            #raise Http404(e)
             raise ConflictError(e)
 
         cancel_url = request.META.get('HTTP_REFERER')
@@ -383,7 +380,6 @@ def empty_trash(request):
         errors = []  # TODO: LimitedList
         # NB: we do not use delete() method of queryset in order to send signals
         entities = EntityCredentials.filter(user,
-                                            #CremeEntity.objects.only_deleted(),
                                             CremeEntity.objects.filter(is_deleted=True),
                                             EntityCredentials.DELETE,
                                            )
@@ -435,7 +431,7 @@ def restore_entity(request, entity_id):
         raise Http404(_(u'This model does not use the generic deletion view.'))
 
     if hasattr(entity, 'get_related_entity'):
-        raise Http404('Can not restore an auxiliary entity') #see trash_entity()
+        raise Http404('Can not restore an auxiliary entity')  # See trash_entity()
 
     request.user.has_perm_to_delete_or_die(entity)
     entity.restore()
@@ -460,8 +456,6 @@ def _delete_entity(user, entity):
         if not user.has_perm_to_change(related):
             return 403, _(u'%s : <b>Permission denied</b>') % entity.allowed_unicode(user)
 
-        #entity.relations.exclude(type__is_internal=True).delete()
-        #entity.properties.all().delete()
         trash = False
     else:
         if not user.has_perm_to_delete(entity):
@@ -523,14 +517,13 @@ def delete_entities(request):
     for entity in entities:
         error = _delete_entity(user, entity.get_real_entity())
         if error:
-            errors[error[0]].append(error[1]) #TODO: use error[2] if exists ??
+            errors[error[0]].append(error[1])  # TODO: use error[2] if exists ??
 
     if not errors:
         status = 200
         message = _('Operation successfully completed')
     else:
         status = min(errors.iterkeys())
-        #message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
         message = json_dumps({'count': len(entity_ids),
                               'errors': [msg for error_messages in errors.itervalues() for msg in error_messages],
                              }
@@ -547,22 +540,17 @@ def delete_entity(request, entity_id):
     error = _delete_entity(request.user, entity)
 
     if error:
-        #code, msg = error #TODO: Python3 => code, msg, *args = error
+        # code, msg = error #TODO: Python3 => code, msg, *args = error
         code, msg, args = error if len(error) == 3 else error + ({},)
 
         if code == 404: raise Http404(msg)
-        #if code == 403: raise PermissionDenied(msg)
         # TODO: 400 => ConflictError ??
-
-        #if request.is_ajax():
-            #return HttpResponse(smart_unicode(msg), content_type='text/javascript', status=code)
 
         raise PermissionDenied(msg, args)
 
     if request.is_ajax():
         return HttpResponse(content_type='text/javascript')
 
-#    return HttpResponseRedirect(entity.get_lv_absolute_url())
     if hasattr(entity, 'get_lv_absolute_url'):
         url = entity.get_lv_absolute_url()
     elif hasattr(entity, 'get_related_entity'):
@@ -576,8 +564,8 @@ def delete_entity(request, entity_id):
 @login_required
 def delete_related_to_entity(request, ct_id):
     """Delete a model related to a CremeEntity.
-    @param request Request with POST method ; POST data should contain an 'id'(=pk) value.
-    @param model A django model class that implements the method get_related_entity().
+    @param request: Request with POST method ; POST data should contain an 'id'(=pk) value.
+    @param model: A django model class that implements the method get_related_entity().
     """
     model = get_ct_or_404(ct_id).model_class()
     if issubclass(model, CremeEntity):
@@ -591,12 +579,6 @@ def delete_related_to_entity(request, ct_id):
     try:
         auxiliary.delete()
     except ProtectedError as e:
-        #msg = e.args[0]
-
-        #if request.is_ajax():
-            #return HttpResponse(smart_unicode(msg), content_type="text/javascript", status=400)
-
-        #raise Http404(unicode(msg)) #todo enhance 404 rendering to use the message...
         raise PermissionDenied(e.args[0])
 
     if request.is_ajax():

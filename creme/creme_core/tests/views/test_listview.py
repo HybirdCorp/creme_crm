@@ -24,11 +24,6 @@ try:
     from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.models.entity_filter import EntityFilterList
     from creme.creme_core.utils import safe_unicode
-#    from creme.creme_core.tests.base import skipIfNotInstalled
-
-#    from creme.persons.models import Organisation, Contact, Civility, Sector, Address
-
-#    from creme.activities.models import Activity, ActivityType
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -37,8 +32,6 @@ class ListViewTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-
-#        cls.populate('creme_core', 'creme_config', 'billing')
         cls.populate('creme_core')
 
         cls.url = Organisation.get_lv_absolute_url()
@@ -210,20 +203,20 @@ class ListViewTestCase(ViewsTestCase):
 
         post(bebop, swordfish)
         post(swordfish, bebop, '-')
-        post(bebop, swordfish, '*') #invalid value
-        post(bebop, swordfish, sort_field='unknown') #invalid value
+        post(bebop, swordfish, '*')  # Invalid value
+        post(bebop, swordfish, sort_field='unknown')  # Invalid value
 
     # TODO: for now there should not be CremeEntity with 'id' as ordering
-    #def test_order02_prelude(self):
-        #"Sort by ForeignKey"
-        ##NB: the DatabaseError cannot be rollbacked here in the test context,
-        ##    so we cannot do this test in test_order02, because it cause an error.
-        #try:
-            #bool(Contact.objects.order_by('image'))
-        #except:
-            #pass
-        #else:
-            #self.fail('ORM bug has been fixed ?! => reactivate FK on CremeEntity sorting')
+    # def test_order02_prelude(self):
+    #     "Sort by ForeignKey"
+    #     #NB: the DatabaseError cannot be rollbacked here in the test context,
+    #     #    so we cannot do this test in test_order02, because it cause an error.
+    #     try:
+    #         bool(Contact.objects.order_by('image'))
+    #     except:
+    #         pass
+    #     else:
+    #         self.fail('ORM bug has been fixed ?! => reactivate FK on CremeEntity sorting')
 
     def assertListViewContentOrder(self, response, key, entries):
             content = safe_unicode(self._get_lv_content(response))
@@ -231,7 +224,8 @@ class ListViewTestCase(ViewsTestCase):
                         for e in entries
                     ]
             self.assertListEqual(list(entries),
-                                 [line[1] for line in sorted(lines, key=lambda e:e[0])])
+                                 [line[1] for line in sorted(lines, key=lambda e: e[0])]
+                                )
 
     def test_order02(self):
         "Sort by ForeignKey"
@@ -256,7 +250,6 @@ class ListViewTestCase(ViewsTestCase):
         cell_civ_name = build_cell(name='civility__title')
 
         self.assertTrue(cell_civ.sortable)
-        #self.assertFalse(cell_image.sortable)
         self.assertTrue(cell_image.sortable)
         self.assertTrue(cell_img_name.sortable)
         self.assertTrue(cell_civ_name.sortable)
@@ -304,10 +297,8 @@ class ListViewTestCase(ViewsTestCase):
         post('regular_field-civility__title', False, faye, spike)
         post('regular_field-civility__title', True, spike, faye)
 
-#    @skipIfNotInstalled('creme.emails')
     def test_order03(self):
         "Unsortable fields: ManyToMany, FunctionFields"
-#        from creme.emails.models import EmailCampaign
         user = self.login()
 
         # Bug on ORM with M2M happens only if there is at least one entity
@@ -332,25 +323,13 @@ class ListViewTestCase(ViewsTestCase):
         user = self.login()
         self.assertTrue('-start', Activity._meta.ordering[0])
 
-#        act_type = ActivityType.objects.create(pk='creme_core-lvtest1', name='Karate session',
-#                                               default_day_duration=1, default_hour_duration="00:15:00",
-#                                               is_custom=True,
-#                                              )
-
         act_type = ActivityType.objects.all()[0]
         create_act = partial(Activity.objects.create, user=user, type=act_type)
         act1 = create_act(title='Act#1', start=now())
         act2 = create_act(title='Act#2', start=act1.start + timedelta(hours=1))
 
-#        HeaderFilter.create(pk='test-hf_act', name='Activity view',
-#                            model=Activity,
-#                            cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-#                                        (EntityCellRegularField, {'name': 'start'}),
-#                                       ],
-#                           )
         hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakeactivity') # see fake populate
 
-#        response = self.assertPOST200(Activity.get_lv_absolute_url())
         response = self.assertPOST200(Activity.get_lv_absolute_url(), {'hfilter': hf.pk})
         content = self._get_lv_content(response)
         first_idx  = self.assertFound(act2.title, content)
@@ -378,11 +357,9 @@ class ListViewTestCase(ViewsTestCase):
 
         url = Contact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
-#        response = self.assertPOST200(url, {'hfilter': 'persons-hf_contact'})
         hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakecontact')  # See fake populate
         response = self.assertPOST200(url, {'hfilter': hf.pk})
 
-        #entries = Contact.objects.order_by('last_name', 'first_name')
         entries = Contact.objects.all()
         self.assertListViewContentOrder(response, 'last_name', entries)
 
@@ -449,7 +426,6 @@ class ListViewTestCase(ViewsTestCase):
 
         def create_contact(first_name, last_name, address):
             contact = Contact.objects.create(user=user, first_name=first_name, last_name=last_name)
-#            contact.billing_address = Address.objects.create(owner=contact, name=address)
             contact.address = Address.objects.create(entity=contact, value=address)
             contact.save()
             return contact
@@ -462,51 +438,41 @@ class ListViewTestCase(ViewsTestCase):
                                  cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
                                              (EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
-#                                             (EntityCellRegularField, {'name': 'billing_address'}),
                                              (EntityCellRegularField, {'name': 'address'}),
                                          ],
                            )
 
         url = Contact.get_lv_absolute_url()
-        # for the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
+        # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
         response = self.assertPOST200(url, {'hfilter':     hf.id,
-#                                            'sort_field': 'regular_field-billing_address',
                                             'sort_field': 'regular_field-address',
                                             'sort_order': '',
                                            })
 
-#        entries = Contact.objects.order_by('billing_address__pk', 'last_name', 'first_name')
         entries = Contact.objects.order_by('address__pk', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
-#        self.assertEqual('regular_field-billing_address', listview_state.sort_field)
         self.assertEqual('regular_field-address', listview_state.sort_field)
         self.assertEqual('', listview_state.sort_order)
-#        self.assertListEqual(['billing_address__pk', 'last_name', 'first_name'], listview_state._ordering)
         self.assertListEqual(['address__pk', 'last_name', 'first_name'],
                              listview_state._ordering
                             )
 
-#        Address._meta.ordering = ('name',)
         Address._meta.ordering = ('value',)  # TODO: create another test model instead ??
 
         response = self.assertPOST200(url, {'hfilter': hf.id,
-#                                            'sort_field': 'regular_field-billing_address',
                                             'sort_field': 'regular_field-address',
                                             'sort_order': '',
                                            }
                                      )
 
-#        entries = Contact.objects.order_by('billing_address__name', 'last_name', 'first_name')
         entries = Contact.objects.order_by('address__value', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
-#        self.assertEqual('regular_field-billing_address', listview_state.sort_field)
         self.assertEqual('regular_field-address', listview_state.sort_field)
         self.assertEqual('', listview_state.sort_order)
-#        self.assertListEqual(['billing_address__name', 'last_name', 'first_name'], listview_state._ordering)
         self.assertListEqual(['address__value', 'last_name', 'first_name'],
                              listview_state._ordering
                             )
@@ -617,7 +583,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        # invalid json : ignore filter 
+        # Invalid json : ignore filter
         response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"'})
 
         content = self._get_lv_content(response)
@@ -635,7 +601,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        # invalid field : ignore filter 
+        # Invalid field : ignore filter
         response = self.assertGET200(self.url, data={'q_filter': '{"unknown_model_field":"Bebop"}'})
 
         content = self._get_lv_content(response)
@@ -792,8 +758,8 @@ class ListViewTestCase(ViewsTestCase):
         create_dt = self.create_datetime
         set_created(bebop,      create_dt(year=2075, month=3, day=26))
         set_created(swordfish,  create_dt(year=2074, month=6, day=5, hour=12))
-        set_created(swordfish2, create_dt(year=2074, month=6, day=6, hour=0))  #next day
-        set_created(sf_alpha,   create_dt(year=2074, month=6, day=4, hour=23, minute=59)) #previous day
+        set_created(swordfish2, create_dt(year=2074, month=6, day=6, hour=0))  # Next day
+        set_created(sf_alpha,   create_dt(year=2074, month=6, day=4, hour=23, minute=59))  # Previous day
         set_created(redtail,    create_dt(year=2076, month=7, day=25))
 
         hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='created'))
@@ -837,8 +803,6 @@ class ListViewTestCase(ViewsTestCase):
         miss   = create_civ(title='Miss')
         self.assertLess(mister.id, miss.id)
 
-#        img_faye = self.create_image(ident=1)
-#        img_ed   = self.create_image(ident=2)
         create_img = partial(Image.objects.create, user=user)
         img_faye = create_img(name='Faye selfie')
         img_ed   = create_img(name='Ed selfie')
@@ -997,11 +961,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(doc3.title, content)
         self.assertNotIn(doc4.title, content)
 
-#    @skipIfNotInstalled('creme.emails')
     def test_search_m2mfields01(self):
         "M2M to CremeEntity model"
-#        from creme.emails.models import EmailCampaign
-
         user = self.login()
         hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
                                  model=EmailCampaign,
@@ -1081,7 +1042,7 @@ class ListViewTestCase(ViewsTestCase):
                                          )
             return self._get_lv_content(response)
 
-        content = search(cat1.name[:5])  # invalid we need an ID => no filter
+        content = search(cat1.name[:5])  # Invalid we need an ID => no filter
         self.assertIn(img1.name, content)
         self.assertIn(img3.name, content)
 
@@ -1493,7 +1454,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail,      orgas_set)
         self.assertNotIn(dragons,   orgas_set)
 
-        set_cfvalue(cfield_color, dragons, color1.id)  # type is NULL
+        set_cfvalue(cfield_color, dragons, color1.id)  # Type is NULL
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       '_search':       1,
@@ -1706,28 +1667,19 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(bebop,  orgas_set)
         self.assertNotIn(eva01,  orgas_set)
 
-#    @skipIfNotInstalled('creme.assistants')
     def test_search_functionfield02(self):
         "Can not search on this FunctionField"
-#        from creme.assistants.models import ToDo
-
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
-#        ToDo.objects.create(user=user, creme_entity=bebop, title='Reparation',
-#                            description='To be repaired.',
-#                           )
-
-#        func_field = Organisation.function_fields.get('assistants-get_todos')
         func_field = Organisation.function_fields.get('tests-get_fake_todos')
         self._build_hf(EntityCellFunctionField(func_field))
 
         response = self.assertPOST200(self.url, data={'_search':       1,
                                                       'regular_field-name': '',
-#                                                      'function_field-%s' % func_field.name: 'repair',
                                                       'function_field-%s' % func_field.name: bebop.name,
                                                      }
                                      )

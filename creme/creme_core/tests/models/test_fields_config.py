@@ -26,10 +26,6 @@ class FieldsConfigTestCase(CremeTestCase):
         super(FieldsConfigTestCase, self).setUp()
         set_global_info(per_request_cache={})
 
-#    def tearDown(self):
-#        super(FieldsConfigTestCase, self).tearDown()
-#        set_global_info(per_request_cache={})
-
     def test_create01(self):
         h_field1 = 'phone'
         h_field2 = 'mobile'
@@ -52,10 +48,10 @@ class FieldsConfigTestCase(CremeTestCase):
         "Invalid field: ignored"
         h_field = 'phone'
         fconf = FieldsConfig.create(FakeContact,
-                            descriptions=[(h_field,   {FieldsConfig.HIDDEN: True}),
-                                          ('invalid', {FieldsConfig.HIDDEN: True}),
-                                         ],
-                           )
+                                    descriptions=[(h_field,   {FieldsConfig.HIDDEN: True}),
+                                                  ('invalid', {FieldsConfig.HIDDEN: True}),
+                                                 ],
+                                   )
 
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
         self.assertEqual(1, len(fconf.descriptions))
@@ -64,10 +60,10 @@ class FieldsConfigTestCase(CremeTestCase):
         "Field is not optional: ignored"
         h_field = 'phone'
         fconf = FieldsConfig.create(FakeContact,
-                            descriptions=[(h_field,     {FieldsConfig.HIDDEN: True}),
-                                          ('last_name', {FieldsConfig.HIDDEN: True}),
-                                         ],
-                           )
+                                    descriptions=[(h_field,     {FieldsConfig.HIDDEN: True}),
+                                                  ('last_name', {FieldsConfig.HIDDEN: True}),
+                                                 ],
+                                   )
 
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
         self.assertEqual(1, len(fconf.descriptions))
@@ -87,11 +83,11 @@ class FieldsConfigTestCase(CremeTestCase):
     def test_create_errors_05(self):
         "Invalid model"
         is_valid = fields_config_registry.is_model_valid
-        self.assertTrue(is_valid(FakeContact))      # registered CremeEntity
-        self.assertTrue(is_valid(FakeOrganisation)) # idem
-        self.assertFalse(is_valid(CremeEntity))     # not registered
-        self.assertFalse(is_valid(FakeCivility))    # not a CremeEntity
-        self.assertTrue(is_valid(FakeAddress))      # registered extra model
+        self.assertTrue(is_valid(FakeContact))      # Registered CremeEntity
+        self.assertTrue(is_valid(FakeOrganisation))  # Idem
+        self.assertFalse(is_valid(CremeEntity))     # Not registered
+        self.assertFalse(is_valid(FakeCivility))    # Not a CremeEntity
+        self.assertTrue(is_valid(FakeAddress))      # Registered extra model
 
         create_fc = FieldsConfig.create
 
@@ -205,7 +201,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('phone',  fields)
         self.assertNotIn('mobile', fields)
 
-        #last_name = u'Senjōgahara' MySQL does not like this....
+        # last_name = u'Senjōgahara' MySQL does not like this....
         last_name = u'Senjougahara'
         first_name = u'Hitagi'
         response = self.client.post(url, follow=True,
@@ -232,7 +228,7 @@ class FieldsConfigTestCase(CremeTestCase):
             class Meta(FakeContactForm.Meta):
                 exclude = ('mobile', )
 
-        with self.assertNoException(): # KeyError...
+        with self.assertNoException():  # KeyError...
             fields = TestFakeContactForm(user=user).fields
 
         self.assertIn('last_name', fields)
@@ -273,7 +269,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def test_ct_cache(self):
         model = FakeContact
-        ContentType.objects.get_for_model(model) # ensure that ContentType is filled
+        ContentType.objects.get_for_model(model)  # Ensure that ContentType is filled
 
         fconf = FieldsConfig.create(model,
                                     descriptions=[('last_name', {FieldsConfig.HIDDEN: True})],

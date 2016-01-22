@@ -43,11 +43,14 @@ class EntitiesHeaderWidget(Widget):
         value_1, value_2, value_m = value or ('', '', '')
 
         return mark_safe(u'<ul %(attrs)s>'
-                             ' <li class="li_merge_entity_header1">%(header_1)s</li>'
-                             ' <li class="li_merge_result_header">%(header_merged)s</li>'
-                             ' <li class="li_merge_entity_header2">%(header_2)s</li>'
+                             '<li class="li_merge_entity_header1">%(header_1)s</li>'
+                             '<li class="li_merge_result_header">%(header_merged)s</li>'
+                             '<li class="li_merge_entity_header2">%(header_2)s</li>'
                           '</ul>' % {
-                            'attrs':         flatatt(self.build_attrs(attrs, name=name, **{'class': 'merge_entity_field ui-layout hbox'})),
+                            'attrs': flatatt(self.build_attrs(attrs, name=name,
+                                                              **{'class': 'merge_entity_field ui-layout hbox'}
+                                                             )
+                                            ),
                             'header_1':      escape(value_1),
                             'header_merged': escape(value_m),
                             'header_2':      escape(value_2),
@@ -64,7 +67,7 @@ class MergeWidget(Widget):
         value_1, value_2, value_m = value or ('', '', '')
         widget = self._original_widget
         render = widget.render
-        #TODO: improve Wigdets with a 'read_only' param -> each type choose the right html attribute
+        # TODO: improve Wigdets with a 'read_only' param -> each type choose the right html attribute
         ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readOnly'
 
         return mark_safe(u'<ul %(attrs)s>'
@@ -72,7 +75,10 @@ class MergeWidget(Widget):
                               '<li class="li_merge_result">%(input_merged)s</li>'
                               '<li class="li_merge_entity2">%(input_2)s</li>'
                           '</ul>' % {
-                            'attrs':        flatatt(self.build_attrs(attrs, name=name, **{'class': 'merge_entity_field ui-layout hbox'})),
+                            'attrs': flatatt(self.build_attrs(attrs, name=name,
+                                                              **{'class': 'merge_entity_field ui-layout hbox'}
+                                                             )
+                                           ),
                             'input_1':      render('%s_1' % name,      value_1, attrs={ro_attr: True, 'class': 'merge_entity1'}),
                             'input_merged': render('%s_merged' % name, value_m, attrs={'class': 'merge_result'}),
                             'input_2':      render('%s_2' % name,      value_2, attrs={ro_attr: True, 'class': 'merge_entity2'}),
@@ -95,7 +101,7 @@ class MergeField(Field):
         self._original_field = modelform_field
         self._restricted_queryset = None
 
-        #TODO: ManyToManyField ??
+        # TODO: ManyToManyField ??
         if isinstance(model_field, ForeignKey) and issubclass(model_field.rel.to, CremeEntity):
             qs = modelform_field.queryset
             self._restricted_queryset = qs
@@ -133,7 +139,7 @@ class MergeEntitiesBaseForm(CremeForm):
         entity1_initial = build_initial(entity1)
         entity2_initial = build_initial(entity2)
 
-        #the older entity is prefered
+        # The older entity is prefered
         initial_index = 0 if entity1.modified <= entity2.modified else 1
 
         for name, field in fields.iteritems():
@@ -141,12 +147,12 @@ class MergeEntitiesBaseForm(CremeForm):
                 field.initial = (unicode(entity1), unicode(entity2), _('Merged entity'))
             else:
                 initial = [entity1_initial[name], entity2_initial[name]]
-                #we try to initialize with prefered one, but we use the other if it is empty.
+                # We try to initialize with prefered one, but we use the other if it is empty.
                 initial.append(initial[initial_index] or initial[1 - initial_index])
                 field.set_merge_initial(initial)
 
-        # custom fields --------------------------------------------------------
-        #TODO: factorise (CremeEntityForm ? get_custom_fields_n_values ? ...)
+        # Custom fields --------------------------------------------------------
+        # TODO: factorise (CremeEntityForm ? get_custom_fields_n_values ? ...)
         cfields = CustomField.objects.filter(content_type=entity1.entity_type)
         CremeEntity.populate_custom_values([entity1, entity2], cfields)
         self._customs = customs = [(cfield,
@@ -173,7 +179,7 @@ class MergeEntitiesBaseForm(CremeForm):
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
         for i, (custom_field, cvalue1, cvalue2) in enumerate(self._customs):
-            value = cleaned_data[_CUSTOM_NAME % i] #TODO: factorize with __init__() ?
+            value = cleaned_data[_CUSTOM_NAME % i]  # TODO: factorize with __init__() ?
             CustomFieldValue.save_values_for_entities(custom_field, [entity1], value)
 
             if cvalue2 is not None:
@@ -203,12 +209,6 @@ class MergeEntitiesBaseForm(CremeForm):
         self._post_entity1_update(entity1, entity2, self.cleaned_data)
         pre_merge_related.send_robust(sender=entity1, other_entity=entity2)
 
-#        for rel_objects in entity2._meta.get_all_related_objects():
-#            field_name = rel_objects.field.name
-#
-#            for rel_object in getattr(entity2, rel_objects.get_accessor_name()).all():
-#                setattr(rel_object, field_name, entity1)
-#                rel_object.save()
         replace_related_object(entity2, entity1)
 
         try:
@@ -222,16 +222,15 @@ class MergeEntitiesBaseForm(CremeForm):
 def mergefield_factory(modelfield):
     formfield = modelfield.formfield()
 
-    if not formfield: #happens for crementity_ptr (OneToOneField)
+    if not formfield:  # Happens for crementity_ptr (OneToOneField)
         return None
 
     return MergeField(formfield, modelfield, label=modelfield.verbose_name)
 
+
 def form_factory(model):
-    #TODO: use a cache ??
+    # TODO: use a cache ??
     mergeform_factory = merge_form_registry.get(model)
-#    base_form_class = MergeEntitiesBaseForm if mergeform_factory is None else \
-#                      mergeform_factory()
 
     if mergeform_factory is not None:
         base_form_class = mergeform_factory()

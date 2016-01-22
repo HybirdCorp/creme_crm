@@ -11,8 +11,6 @@ try:
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
-
-    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -55,7 +53,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['types'].choices
 
-        #choices are sorted with 'text'
+        # Choices are sorted with 'text'
         choices = list(choices)
         i1 = self.assertIndex((ptype02.id, ptype02.text), choices)
         i2 = self.assertIndex((ptype01.id, ptype01.text), choices)
@@ -69,8 +67,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual(2, len(properties))
         self.assertEqual({ptype01, ptype02}, {p.type for p in properties})
 
-        #-----------------------------------------------------------------------
-        response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]}) #one new and one old property
+        # ----------------------------------------------------------------------
+        response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]}) # One new and one old property
         self.assertFormError(response, 'form', 'types',
                              _('Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': ptype01.id,
@@ -84,7 +82,6 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertGET200(url)
 
         text = 'is beautiful'
-        #count = CremePropertyType.objects.count()
         self.assertFalse(CremePropertyType.objects.filter(text=text))
 
         response = self.client.post(url, follow=True, data={'text': text})
@@ -121,9 +118,9 @@ class PropertyViewsTestCase(ViewsTestCase):
         "is_custom=False"
         self.login()
         ptype = CremePropertyType.create('test-foobar', 'is beautiful',
-                                      [ContentType.objects.get_for_model(Contact)],
-                                      is_custom=False,
-                                     )
+                                        [ContentType.objects.get_for_model(Contact)],
+                                        is_custom=False,
+                                       )
 
         self.assertGET404(ptype.get_edit_absolute_url())
 
@@ -152,19 +149,6 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual(text,      ptype.text)
         self.assertEqual([ct_orga], list(ptype.subject_ctypes.all()))
 
-    #def test_list_types(self):
-        #self.login()
-
-        #create_ptype = CremePropertyType.create
-        #ptype1  = create_ptype(str_pk='test-prop_hairy', text='is hairy')
-        #ptype2  = create_ptype(str_pk='test-prop_beard', text='is bearded')
-
-        #response = self.assertGET200(CremePropertyType.get_lv_absolute_url())
-        #self.assertTemplateUsed(response, 'creme_core/list_property_types.html')
-
-        #self.assertContains(response, unicode(ptype1))
-        #self.assertContains(response, unicode(ptype2))
-
     def test_delete_related(self):
         self.login()
 
@@ -180,11 +164,11 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertDoesNotExist(prop)
 
     def test_delete_from_type(self):
-        self.login()
+        user = self.login()
 
         ptype = CremePropertyType.create(str_pk='test-prop_foobar', text='hairy')
 
-        create_entity = partial(CremeEntity.objects.create, user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         entity1 = create_entity()
         entity2 = create_entity()
 
@@ -235,8 +219,7 @@ class PropertyViewsTestCase(ViewsTestCase):
                                     )
         self.assertFormError(response, 'form', 'types', _(u'This field is required.'))
 
-        response = self.client.post(url, data={#'entities':     ','.join(str(e.id) for e in entities),
-                                               'types':        [ptype01.id, ptype02.id],
+        response = self.client.post(url, data={'types':        [ptype01.id, ptype02.id],
                                                'entities_lbl': '',
                                               }
                                    )
@@ -282,7 +265,6 @@ class PropertyViewsTestCase(ViewsTestCase):
         response = self.client.post(url,
                                     data={'entities_lbl':     'do not care',
                                           'bad_entities_lbl': 'do not care',
-                                          #'entities':         '%s,%s' % (entity03.id, entity04.id),
                                           'types':            [ptype01.id, ptype02.id],
                                          }
                                    )
@@ -333,23 +315,17 @@ class PropertyViewsTestCase(ViewsTestCase):
         url = self._build_bulk_url(self.centity_ct, entity01, uneditable)
         self.assertGET200(url)
 
-        #response = self.assertPOST200(url, data={'entities_lbl': 'd:p',
-                                                 #'entities':     '%s' % (uneditable.id,),
-                                                 #'types':        [ptype01.id, ptype02.id],
-                                                #}
-                                     #)
-        #self.assertFormError(response, 'form', None,
-                             #[_(u"Some entities are not editable: %s") % uneditable]
-                            #)
         response = self.client.post(url, data={'entities_lbl': 'd:p',
-                                               #'entities':     '%s' % (uneditable.id,),
                                                'types':        [ptype01.id, ptype02.id],
                                               }
                                    )
         self.assertNoFormError(response)
 
-        self.assertEqual([entity01], [p.creme_entity for p in CremeProperty.objects.filter(type=ptype01)])
-        self.assertEqual([entity01], [p.creme_entity for p in CremeProperty.objects.filter(type=ptype02)])
+        def tagged_enties(ptype):
+            return [p.creme_entity for p in CremeProperty.objects.filter(type=ptype)]
+
+        self.assertEqual([entity01], tagged_enties(ptype01))
+        self.assertEqual([entity01], tagged_enties(ptype02))
 
     def test_not_copiable_properties(self):
         self.login()
@@ -396,24 +372,10 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual(ptype, ctxt_ptype)
 
         self.assertContains(response,    ' id="block_creme_core-property_type_info"')
-#        self.assertContains(response,    ' id="block_creme_core-tagged-persons-contact"')
-#        self.assertContains(response,    ' id="block_creme_core-tagged-persons-organisation"')
         self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakecontact"')
         self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakeorganisation"')
-#        self.assertNotContains(response, ' id="block_creme_core-tagged-billing-invoice"')
         self.assertNotContains(response, ' id="block_creme_core-tagged-billing-fakeimage"')
         self.assertNotContains(response, ' id="block_creme_core-misc_tagged_entities"')
-
-#        def assertBlockIsEmpty(block_id):
-#            content = response.content
-#            att = ' id="%s"' % block_id
-#            idx = content.find(att)
-#            self.assertNotEqual(-1, idx, 'Block "%s" not in content' % block_id)
-#            idx += len(att)
-#            self.assertIn('</table>', content[idx:idx + 20])
-
-##        assertBlockIsEmpty('block_creme_core-tagged-billing-invoice')
-#        assertBlockIsEmpty('block_creme_core-tagged-creme_core-fakeimage')
 
         self.assertContains(response, unicode(entity1))
         self.assertNotContains(response, unicode(entity2))
@@ -434,8 +396,6 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(ptype.get_absolute_url())
 
-#        self.assertContains(response,    ' id="block_creme_core-tagged-persons-contact"')
-#        self.assertNotContains(response, ' id="block_creme_core-tagged-persons-organisation"')
         self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakecontact"')
         self.assertNotContains(response, ' id="block_creme_core-tagged-creme_core-fakeorganisation"')
         self.assertContains(response,    ' id="block_creme_core-misc_tagged_entities"')
@@ -451,7 +411,6 @@ class PropertyViewsTestCase(ViewsTestCase):
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
         url_fmt = '/creme_core/property/type/%s/reload_block/%s/'
-#        block_id = 'block_creme_core-tagged-persons-contact'
         block_id = 'block_creme_core-tagged-creme_core-fakecontact'
         response = self.assertGET200(url_fmt % (ptype.id, block_id))
 

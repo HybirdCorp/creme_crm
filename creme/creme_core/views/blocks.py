@@ -22,7 +22,6 @@ from functools import partial
 import logging
 
 from django.core.exceptions import PermissionDenied
-#from django.template import RequestContext
 from django.template.context import make_context
 from django.template.engine import Engine
 from django.shortcuts import get_object_or_404
@@ -32,10 +31,11 @@ from ..blocks import relations_block
 from ..gui.block import block_registry, str2list, BlocksManager
 from ..models import CremeEntity
 from ..models.block import BlockState
-from ..utils import jsonify, get_ct_or_404 #, get_from_POST_or_404
+from ..utils import jsonify, get_ct_or_404
 
 
 logger = logging.getLogger(__name__)
+
 
 def build_context(request, **kwargs):
     context = make_context({}, request)
@@ -43,9 +43,10 @@ def build_context(request, **kwargs):
     for processor in Engine.get_default().template_context_processors:
         context.update(processor(request))
 
-    context.update(kwargs) # Updated _after_ processors in order to avoid shadowing
+    context.update(kwargs)  # Updated _after_ processors in order to avoid shadowing
 
     return context.flatten()
+
 
 def _get_depblock_ids(request, block_id):
     ids = [block_id]
@@ -55,6 +56,7 @@ def _get_depblock_ids(request, block_id):
         ids.extend(posted_deps.split(','))
 
     return ids
+
 
 def _build_blocks_render(request, block_id, blocks_manager, block_render_function, check_permission=False):
     block_renders = []
@@ -85,6 +87,7 @@ def _build_blocks_render(request, block_id, blocks_manager, block_render_functio
 
     return block_renders
 
+
 def _render_detail(block, context):
     fun = getattr(block, 'detailview_display', None)
 
@@ -93,6 +96,7 @@ def _render_detail(block, context):
 
     logger.warn('Block without detailview_display() : %s (id=%s)', block.__class__, block.id_)
 
+
 @login_required
 @jsonify
 def reload_detailview(request, block_id, entity_id):
@@ -100,18 +104,16 @@ def reload_detailview(request, block_id, entity_id):
 
     request.user.has_perm_to_view_or_die(entity)
 
-#    context = RequestContext(request)
-#    context['object'] = entity
     context = build_context(request, object=entity)
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context),
                                 partial(_render_detail, context=context)
                                )
 
+
 @login_required
 @jsonify
 def reload_home(request, block_id):
-#    context = RequestContext(request)
     context = build_context(request)
 
     def render_home(block):
@@ -124,10 +126,10 @@ def reload_home(request, block_id):
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context), render_home)
 
+
 @login_required
 @jsonify
 def reload_portal(request, block_id, ct_ids):
-#    context = RequestContext(request)
     context = build_context(request)
     ct_ids = str2list(ct_ids)
     app_labels = {get_ct_or_404(ct_id).model_class()._meta.app_label for ct_id in ct_ids}
@@ -137,7 +139,7 @@ def reload_portal(request, block_id, ct_ids):
 
     app_label = iter(app_labels).next()
 
-    if not request.user.has_perm(app_label): #TODO: in a role method ??
+    if not request.user.has_perm(app_label):  # TODO: in a role method ??
         raise PermissionDenied('You are not allowed to access to the app: %s' % app_label)
 
     def render_portal(block):
@@ -150,6 +152,7 @@ def reload_portal(request, block_id, ct_ids):
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context), render_portal)
 
+
 @login_required
 @jsonify
 def reload_basic(request, block_id):
@@ -158,7 +161,6 @@ def reload_basic(request, block_id):
     eg: permission = "creme_config.can_admin"
     'permission = None' means 'no permission required' ; use with caution :)
     """
-#    context = RequestContext(request)
     context = build_context(request)
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context),
@@ -173,8 +175,6 @@ def reload_relations_block(request, entity_id, relation_type_ids=''):
 
     request.user.has_perm_to_view_or_die(entity)
 
-#    context = RequestContext(request)
-#    context['object'] = entity
     context = build_context(request, object=entity)
 
     blocks_manager = BlocksManager.get(context)
@@ -187,13 +187,14 @@ def reload_relations_block(request, entity_id, relation_type_ids=''):
 @login_required
 @jsonify
 def set_state(request, block_id):
-#    is_open = bool(get_from_POST_or_404(request.POST, 'is_open', int))
     POST_get = request.POST.get
     is_open           = POST_get('is_open')
     show_empty_fields = POST_get('show_empty_fields')
     state_changed = False
 
-    bs = BlockState.objects.get_or_create(block_id=block_id, user=request.user)[0]#TODO: Avoid the query if there is no post param?
+    # TODO: Avoid the query if there is no post param?
+    bs = BlockState.objects.get_or_create(block_id=block_id, user=request.user)[0]
+
     if is_open is not None:
         bs.is_open = bool(int(is_open))
         state_changed = True

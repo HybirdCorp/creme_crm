@@ -61,7 +61,6 @@ class _BulkUpdateRegistry(object):
             return issubclass(field.rel.to, CremeModel) or field.name in self.expandables
 
         def is_updatable(self, field):
-#            return field.editable or isinstance(field, CustomField)
             return isinstance(field, CustomField) or (
                    field.editable and not FieldsConfig.get_4_model(self._model).is_field_hidden(field))
 
@@ -196,19 +195,18 @@ class _BulkUpdateRegistry(object):
             bulk_status.expandables.update(set(expandables))
 
         if innerforms:
-            #bulk_status._innerforms.update(dict(innerforms))
             bulk_status._innerforms.update(innerforms)
 
-        # manage child and parent classes
+        # Manage child and parent classes
         for other_model, other_status in self._status.iteritems():
             if other_model is not model:
                 if issubclass(other_model, model):
-                    # registered subclass inherits exclusions of new model
+                    # Registered subclass inherits exclusions of new model
                     other_status.excludes.update(bulk_status.excludes)
                     other_status.expandables.update(bulk_status.expandables)
                     self._merge_innerforms(parent_status=bulk_status, child_status=other_status)
                 elif issubclass(model, other_model):
-                    # new model inherits exclusions and custom forms of registered superclass
+                    # New model inherits exclusions and custom forms of registered superclass
                     bulk_status.excludes.update(other_status.excludes)
                     bulk_status.expandables.update(other_status.expandables)
                     self._merge_innerforms(parent_status=other_status, child_status=bulk_status)
@@ -226,7 +224,7 @@ class _BulkUpdateRegistry(object):
     def status(self, model):
         bulk_status = self._status.get(model)
 
-        # get excluded field by inheritance in case of working model is not registered yet
+        # Get excluded field by inheritance in case of working model is not registered yet
         if bulk_status is None:
             bulk_status = self.register(model)
 

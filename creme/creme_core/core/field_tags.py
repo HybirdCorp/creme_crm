@@ -50,29 +50,28 @@ def _add_tags_to_fields():
     Field.set_tags = _set_tags
     Field.get_tag  = _get_tag
 
-    # viewable
+    # 'viewable'
     Field._cremetag_viewable = True
     AutoField._cremetag_viewable = False
     OneToOneField._cremetag_viewable = False
 
-    # clonable
+    # 'clonable'
     Field._cremetag_clonable = True
     AutoField._cremetag_clonable = False
     OneToOneField._cremetag_clonable = False
 
-    # enumerable
+    # 'enumerable'
     Field._cremetag_enumerable = False
     ForeignKey._cremetag_enumerable = True
     ManyToManyField._cremetag_enumerable = True
     OneToOneField._cremetag_enumerable = False
 
-    # optional
+    # 'optional'
     Field._cremetag_optional = False
 
     # TODO: could become useless with HeaderFilter refactoring, that ignores
     #       by default the sub fields of FK. (to be continued...)
     # ContentType hooking
     get_ct_field = ContentType._meta.get_field
-#    for fname in ('name', 'app_label', 'model'):
     for fname in ('app_label', 'model'):
         get_ct_field(fname).set_tags(viewable=False)

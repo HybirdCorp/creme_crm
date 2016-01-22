@@ -17,10 +17,7 @@ try:
     from creme.creme_core.utils.dates import (get_dt_from_str, get_date_from_str,
         get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict,
         get_dt_from_json_str, dt_to_json_str)
-        #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt get_naive_dt_from_tzdate
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
-
-    #from creme.persons.models import Civility, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -50,7 +47,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(['Naruto'], ko)
 
     def test_truncate_str_01(self):
-        s = string.letters #Assuming len(s) == 52
+        s = string.letters  # Assuming len(s) == 52
         self.assertEqual(50, len(truncate_str(s, 50)))
         self.assertEqual(s[:-2], truncate_str(s, 50))
 
@@ -74,7 +71,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(pk,       civ.pk)
         self.assertEqual(title,    civ.title)
 
-        civ = self.get_object_or_fail(Civility, pk=pk) #Check has been saved
+        civ = self.get_object_or_fail(Civility, pk=pk)  # Check has been saved
 
         self.assertEqual(title, civ.title)
 
@@ -82,8 +79,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(title, civ.title)
 
     def test_create_if_needed02(self):
-        self.login()
-        user = self.user
+        user = self.login()
         url = '/foo/bar'
         label = 'Oh yeah'
         order = 3
@@ -95,7 +91,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(label,  pmi.label)
         self.assertEqual(order,  pmi.order)
 
-        pmi = self.get_object_or_fail(PreferedMenuItem, pk=pmi.pk) #Check has been saved
+        pmi = self.get_object_or_fail(PreferedMenuItem, pk=pmi.pk)  # Check has been saved
 
         self.assertEqual(label,  pmi.label)
         self.assertEqual(order,  pmi.order)
@@ -106,7 +102,6 @@ class MiscTestCase(CremeTestCase):
 
     def test_update_model_instance01(self):
         self.login()
-
         first_name = 'punpun'
         last_name = 'punpunyama'
         pupun = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
@@ -144,9 +139,9 @@ class MiscTestCase(CremeTestCase):
     def test_get_from_request_or_404(self):
         request = {'name': 'robert', 'age': '36'}
 
-        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_') # key error
-        self.assertRaises(Http404, get_from_GET_or_404, request, 'name', int) # cast error
-        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_', int, default='string') #cast error
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_')  # Key error
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name', int)  # Cast error
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_', int, default='string')  # Cast error
 
         self.assertEqual('36', get_from_POST_or_404(request, 'age'))
         self.assertEqual(36, get_from_POST_or_404(request, 'age', int))
@@ -157,7 +152,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(u"aé‡ae15", safe_unicode("a\xe9\x87ae15"))
         self.assertEqual(u"aé‡ae15", safe_unicode("aé‡ae15"))
 
-        # custom encoding list
+        # Custom encoding list
         self.assertEqual(u"a\ufffdae15", safe_unicode("a\xe9\x87ae15", ('utf-8',)))
         self.assertEqual(u"aé‡ae15", safe_unicode("a\xe9\x87ae15", ('cp1252',)))
 
@@ -171,12 +166,11 @@ class MiscTestCase(CremeTestCase):
 
         class false_unicode_object(object):
             def __init__(self, text):
-                self.text = text;
+                self.text = text
 
             def __unicode__(self):
                 return self.text
 
-        #self.assertEqual(u"<class 'creme.creme_core.tests.utils.no_unicode_object'>", safe_unicode(no_unicode_object))
         self.assertEqual(u"<class 'creme.creme_core.tests.utils.test_main.no_unicode_object'>",
                          safe_unicode(no_unicode_object)
                         )
@@ -195,7 +189,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(u"aé‡ae15", safe_unicode_error(OSError("aé‡ae15")))
         self.assertEqual(u"aé‡ae15", safe_unicode_error(Exception("aé‡ae15")))
 
-        # custom encoding list
+        # Custom encoding list
         self.assertEqual(u"a\ufffdae15", safe_unicode_error(OSError("a\xe9\x87ae15"), ('utf-8',)))
         self.assertEqual(u"a\ufffdae15", safe_unicode_error(Exception("a\xe9\x87ae15"), ('utf-8',)))
 
@@ -247,12 +241,12 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual([u'1234…', '12', '12'],
                          ellipsis_multi(['123456', '12', '12'], 9)
                         )
-        self.assertEqual([u'12…', '12', u'123…'], # [u'123…', '12', u'12…'] would be better...
+        self.assertEqual([u'12…', '12', u'123…'],  # [u'123…', '12', u'12…'] would be better...
                          ellipsis_multi(['123456', '12', '12345'], 9)
                         )
 
 
-class DependenceSortTestCase(CremeTestCase): #TODO: SimpleTestCase
+class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
     class DepSortable(object):
         def __init__(self, name, deps=None):
             self.name = name
@@ -399,7 +393,7 @@ class UnicodeCollationTestCase(CremeTestCase):
 
         sort = partial(sorted, key=collator.sort_key)
         words = ['Caff', 'Cafe', 'Cafard', u'Café']
-        self.assertEqual(['Cafard', 'Cafe', 'Caff', u'Café'], sorted(words)) # standard sort
+        self.assertEqual(['Cafard', 'Cafe', 'Caff', u'Café'], sorted(words))  # Standard sort
         self.assertEqual(['Cafard', 'Cafe', u'Café', 'Caff'], sort(words))
 
         self.assertEqual(['La', u'Là', u'Lä', 'Las', 'Le'],
@@ -409,28 +403,29 @@ class UnicodeCollationTestCase(CremeTestCase):
                          sort(['hats', 'gloves', 'shoes', u'ĝloves']),
                         )
 
-    #def test_uca02(self):
-        #"Original lib"
-        #from os.path import join
-        #from pyuca import Collator
-
-        #path = join(settings.CREME_ROOT, 'creme_core', 'utils', 'allkeys.txt')
-        #collator = Collator(path)
-        #sort = partial(sorted, key=collator.sort_key)
-        #words = ['Caff', 'Cafe', 'Cafard', u'Café']
-        #self.assertEqual(['Cafard', 'Cafe', 'Caff', u'Café'], sorted(words)) # standard sort
-        #self.assertEqual(['Cafard', 'Cafe', u'Café', 'Caff'], sort(words))
-
-        #self.assertEqual(['La', u'Là', u'Lä', 'Las', 'Le'],
-                         #sort(['La', u'Là', 'Le', u'Lä', 'Las'])
-                        #)
-        #self.assertEqual(['gloves', u'ĝloves', 'hats', 'shoes'],
-                         #sort(['hats', 'gloves', 'shoes', u'ĝloves']),
-                        #)
-
-        ##test memory comsumption
-        ##from time import sleep
-        ##sleep(10)
+    # NB: keep this comment (until we use the real 'pyuca' lib)
+    # def test_uca02(self):
+    #     "Original lib"
+    #     from os.path import join
+    #     from pyuca import Collator
+    #
+    #     path = join(settings.CREME_ROOT, 'creme_core', 'utils', 'allkeys.txt')
+    #     collator = Collator(path)
+    #     sort = partial(sorted, key=collator.sort_key)
+    #     words = ['Caff', 'Cafe', 'Cafard', u'Café']
+    #     self.assertEqual(['Cafard', 'Cafe', 'Caff', u'Café'], sorted(words)) # standard sort
+    #     self.assertEqual(['Cafard', 'Cafe', u'Café', 'Caff'], sort(words))
+    #
+    #     self.assertEqual(['La', u'Là', u'Lä', 'Las', 'Le'],
+    #                      sort(['La', u'Là', 'Le', u'Lä', 'Las'])
+    #                     )
+    #     self.assertEqual(['gloves', u'ĝloves', 'hats', 'shoes'],
+    #                      sort(['hats', 'gloves', 'shoes', u'ĝloves']),
+    #                     )
+    #
+    #     #test memory comsumption
+    #     #from time import sleep
+    #     #sleep(10)
 
 
 class CurrencyFormatTestCase(CremeTestCase):
@@ -446,8 +441,6 @@ class CurrencyFormatTestCase(CremeTestCase):
         from creme.creme_core.models import Currency, SettingValue
         from creme.creme_core.utils.currency_format import currency
 
-        #sk = self.get_object_or_fail(SettingKey, pk=DISPLAY_CURRENCY_LOCAL_SYMBOL)
-        #sv = self.get_object_or_fail(SettingValue, key=sk)
         sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL)
         self.assertTrue(sv.value)
 

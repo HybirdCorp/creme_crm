@@ -55,6 +55,7 @@ def get_q_from_dict(dict, is_or=False):
 
     return q
 
+
 def get_first_or_None(model):
     """Get the first model instance, if there is at least one, or return None."""
     warnings.warn("get_first_or_None() is deprecated; use my_model.objects.first() instead",
@@ -106,7 +107,7 @@ class QSerializer(object):
     """
     def _serialize_value(self, value):
         if isinstance(value, date):
-            #TODO: same format for deserialization...
+            # TODO: same format for deserialization...
             return value.strftime(DATETIME_ISO8601_FMT
                                   if isinstance(value, datetime) else
                                   DATE_ISO8601_FMT

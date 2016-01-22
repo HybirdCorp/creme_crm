@@ -18,30 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from imp import find_module
-#import logging
 import warnings
 
-#from django.conf import settings
 
-
-#logger = logging.getLogger(__name__)
-
-
-#todo: move to core ?
-#todo: use creme_core.utils.imports ???
 def autodiscover():
     """Auto-discover in INSTALLED_APPS the creme_core_register.py files. DEPRECATED"""
-#    for app in settings.INSTALLED_APPS: #todo: only INSTALLED_CREME_APPS
-#        try:
-#            find_module("creme_core_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-#        except ImportError:
-#            # there is no app creme_config.py, skip it
-#            continue
-#        __import__("%s.creme_core_register" % app)
     warnings.warn("creme_core.autodiscover() function is deprecated.",
                   DeprecationWarning
                  )
+
 
 # Model Fields Hooking ---------------------------------------------------------
 from creme.creme_core.core.field_tags import _add_tags_to_fields
@@ -49,11 +34,13 @@ from creme.creme_core.core.field_tags import _add_tags_to_fields
 _add_tags_to_fields()
 
 
-#ForeignKey's null_label adding ------------------------------------------------
+# ForeignKey's null_label adding ------------------------------------------------
 from django.db.models import ForeignKey
+
 
 def _get_null_label(self):
     return getattr(self, '_creme_null_label', '')
+
 
 def _set_null_label(self, null_label):
     self._creme_null_label = null_label
@@ -62,6 +49,7 @@ def _set_null_label(self, null_label):
 
 ForeignKey.get_null_label = _get_null_label
 ForeignKey.set_null_label = _set_null_label
+
 
 # ------------------------------------------------------------------------------
 

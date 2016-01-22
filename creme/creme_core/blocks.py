@@ -38,16 +38,18 @@ class PropertiesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        return self._render(self.get_block_template_context(context, entity.properties.select_related('type'),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            ct_id=ContentType.objects.get_for_model(CremeProperty).id,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                                context, entity.properties.select_related('type'),
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                ct_id=ContentType.objects.get_for_model(CremeProperty).id,
+                           ))
 
 
 class RelationsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_core', 'relations')
-    dependencies  = (Relation,) #NB: (Relation, CremeEntity) but useless
-    relation_type_deps = () #voluntarily void -> see detailview_display(): only types not present in another block are displayed
+    dependencies  = (Relation,)  # NB: (Relation, CremeEntity) but useless
+    relation_type_deps = ()  # Voluntarily void -> see detailview_display():
+                             #  only types not present in another block are displayed.
     order_by      = 'type'
     verbose_name  = _(u'Relationships')
     template_name = 'creme_core/templatetags/block_relations.html'
@@ -65,7 +67,7 @@ class RelationsBlock(QuerysetBlock):
 
         btc = self.get_block_template_context(context, relations, update_url=update_url)
 
-        #NB: DB optimisation
+        # NB: DB optimisation
         Relation.populate_real_object_entities(btc['page'].object_list)
 
         return self._render(btc)
@@ -73,7 +75,7 @@ class RelationsBlock(QuerysetBlock):
 
 class CustomFieldsBlock(SimpleBlock):
     id_           = SimpleBlock.generate_id('creme_core', 'customfields')
-    #dependencies  = ()
+    # dependencies  = ()
     verbose_name  = _(u'Custom fields')
     template_name = 'creme_core/templatetags/block_customfields.html'
 
@@ -86,7 +88,7 @@ class HistoryBlock(QuerysetBlock):
     verbose_name  = _(u'History')
     template_name = 'creme_core/templatetags/block_history.html'
 
-    #TODO: factorise (see assistants.block) ??
+    # TODO: factorise (see assistants.block) ??
     @staticmethod
     def _populate_related_real_entities(hlines, user):
         hlines = [hline for hline in hlines if hline.entity_id]
@@ -105,7 +107,8 @@ class HistoryBlock(QuerysetBlock):
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
 
         for hline in hlines:
-            hline.entity = entities_map.get(hline.entity_id) # Should not happen (means that entity does not exist anymore) but...
+            # Should not happen (means that entity does not exist anymore) but...
+            hline.entity = entities_map.get(hline.entity_id)
 
     @staticmethod
     def _populate_users(hlines, user):
@@ -143,7 +146,8 @@ class HistoryBlock(QuerysetBlock):
         self._populate_users(hlines, context['request'].user)
 
         for hline in hlines:
-            hline.can_be_viewed = True # All lines are referencing context['object'], which can be viewed.
+            # All lines are referencing context['object'], which can be viewed.
+            hline.can_be_viewed = True
 
         return self._render(btc)
 
@@ -187,12 +191,11 @@ class TrashBlock(QuerysetBlock):
     verbose_name  = _(u'Trash')
     template_name = 'creme_core/templatetags/block_trash.html'
     page_size     = 25
-    permission    = None # NB: the template uses credentials
-    configurable  = False # TODO: allows on home page ?
+    permission    = None  # NB: the template uses credentials
+    configurable  = False  # TODO: allows on home page ?
 
     def detailview_display(self, context):
         btc = self.get_block_template_context(context,
-                                              #CremeEntity.objects.only_deleted(),
                                               CremeEntity.objects.filter(is_deleted=True),
                                               update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                              )

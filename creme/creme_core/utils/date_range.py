@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import division, absolute_import #for collections...
+from __future__ import division, absolute_import  # For collections...
 
 from calendar import monthrange
 from collections import OrderedDict
@@ -39,8 +39,10 @@ _DAY_END   = {'hour': 23, 'minute': 59, 'second': 59}
 def get_month_last_day(year, month):
     return monthrange(year, month)[1]
 
+
 def get_quarter(month):
     return ((month - 1) // 3) + 1
+
 
 def get_quarter_dates(year, quarter):
     """@param quarter 1 <= integer <= 4"""
@@ -52,8 +54,8 @@ def get_quarter_dates(year, quarter):
 
 
 class DateRange(object):
-    name = 'base_date_range' #overload
-    verbose_name = u'Date range' #overload
+    name = 'base_date_range'  # Overload
+    verbose_name = u'Date range'  # Overload
 
     def __unicode__(self):
         return unicode(self.verbose_name)
@@ -87,7 +89,7 @@ class CustomRange(DateRange):
         self._end   = end
 
     def get_dates(self, now):
-        return (self._start, self._end)
+        return self._start, self._end
 
 
 class PreviousYearRange(DateRange):
@@ -170,7 +172,7 @@ class NextMonthRange(DateRange):
             start = now.replace(month=month, day=1,                                   **_DAY_START)
             end   = now.replace(month=month, day=get_month_last_day(now.year, month), **_DAY_END)
 
-        return (start, end)
+        return start, end
 
 
 class PreviousQuarterRange(DateRange):
@@ -224,7 +226,7 @@ class FutureRange(DateRange):
 
     @staticmethod
     def get_dates(now):
-        return (now, None)
+        return now, None
 
 
 class PastRange(DateRange):
@@ -233,7 +235,7 @@ class PastRange(DateRange):
 
     @staticmethod
     def get_dates(now):
-        return (None, now)
+        return None, now
 
 
 class YesterdayRange(DateRange):
@@ -286,6 +288,7 @@ class NotEmptyRange(DateRange):
     def get_q_dict(self, field, now):
         return {'%s__isnull' % field: False}
 
+
 class DateRangeRegistry(object):
     def __init__(self, *dranges):
         self._ranges = OrderedDict()
@@ -305,7 +308,8 @@ class DateRangeRegistry(object):
             name = drange.name
 
             if ranges_map.has_key(name):
-                logger.warning("Duplicate date range's id or date range registered twice : %s", name) #exception instead ???
+                # TODO: exception instead ?
+                logger.warning("Duplicate date range's id or date range registered twice : %s", name)
 
             ranges_map[name] = drange
 

@@ -13,10 +13,6 @@ try:
             FakeActivity as Activity, FakeActivityType as ActivityType)
     from creme.creme_core.models import CremePropertyType
     from creme.creme_core.utils.queries import get_first_or_None, QSerializer
-
-#    from creme.persons.models import Civility, Contact, Organisation, Position
-
-#    from creme.activities.models import Activity, ActivityType
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -55,12 +51,7 @@ class QueriesTestCase(CremeTestCase):
                                 )
 
     def _create_activity_type(self):
-        return ActivityType.objects.create(#pk='creme_core-tournament',
-                                           name='Tournament',
-                                           #default_day_duration=3,
-                                           #default_hour_duration="00:00:00",
-                                           #is_custom=True,
-                                          )
+        return ActivityType.objects.create(name='Tournament')
 
     def _create_contacts(self):
         create_pos = Position.objects.create
@@ -124,7 +115,7 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [self.adrian])
 
         str_q = QSerializer().dumps(q)
-        #print str_q
+        # print(str_q)
         self._assertQEqual(Contact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_04(self):
@@ -136,7 +127,7 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [self.richard, self.adrian])
 
         str_q = QSerializer().dumps(q)
-        #print str_q
+        # print(str_q)
         self._assertQEqual(Contact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_05(self):
@@ -177,7 +168,7 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [acts[0]])
 
         str_q = QSerializer().dumps(q)
-        #print str_q
+        # print(str_q)
         self._assertQEqual(Activity, q, QSerializer().loads(str_q))
 
     def test_q_serializer_08(self): 
@@ -193,7 +184,7 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [o2])
 
         str_q = QSerializer().dumps(q)
-        #print str_q
+        # print(str_q)
         self._assertQEqual(Organisation, q, QSerializer().loads(str_q))
 
     def test_q_serializer_09(self): 
@@ -214,7 +205,7 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [acts[1]])
 
         str_q = QSerializer().dumps(q)
-        #print str_q
+        # print(str_q)
         self._assertQEqual(Activity, q, QSerializer().loads(str_q))
 
     def test_q_serializer_10(self): 
@@ -240,7 +231,7 @@ class QueriesTestCase(CremeTestCase):
 
         qsr = QSerializer()
         str_q = qsr.dumps(q)
-        #print str_q
+        # print(str_q)
         self._assertQEqual(Contact, q, qsr.loads(str_q))
 
     def test_q_serializer_12(self):
@@ -260,4 +251,4 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q, [self.richard, self.marianne])
         self.assertRaises(SerializationError, qsr.dumps, q)
 
-    #TODO: test get_q_from_dict()
+    # TODO: test get_q_from_dict()

@@ -32,13 +32,6 @@ class CastError(Exception):
 def cast_2_str(value):
     return str(value)
 
-#def cast_2_int(value):
-    #try:
-        #value = int(value)
-    #except (ValueError, TypeError):
-        #raise CastError(ugettext('enter a whole number'))
-
-    #return value
 
 def cast_2_positive_int(value):
     try:
@@ -71,7 +64,7 @@ class BatchOperator(object):
         return self._function(x)
 
     def cast(self, value):
-        return self._cast_function(value) #can raise CastError
+        return self._cast_function(value)  # Can raise CastError
 
     @property
     def need_arg(self):
@@ -108,7 +101,6 @@ class BatchOperatorManager(object):
         }
 
     def _get_category(self, model_field_type):
-        #return self._OPERATOR_FIELD_MATRIX.get(model_field_type)
         for field_cls, cat in self._OPERATOR_FIELD_MATRIX.iteritems():
             if issubclass(model_field_type, field_cls):
                 return cat

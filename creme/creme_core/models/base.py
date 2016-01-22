@@ -24,7 +24,6 @@ import logging
 import os
 
 from django.contrib.contenttypes.models import ContentType
-#from django.db import transaction
 from django.db.models import Model, CharField, BooleanField, FileField, Manager
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
@@ -39,10 +38,11 @@ logger = logging.getLogger(__name__)
 
 
 class CremeModel(Model):
-    _delete_files = True  # Delegate the deletion of the file on system when a model has one or more FileField subclasses
+    _delete_files = True  # Delegate the deletion of the file on system
+                          # when a model has one or more FileField sub-classes.
     creation_label = _('Add')
     # TODO : do a complete refactor for _CremeModel.selection_label
-    #selection_label = _('Select') 
+    # selection_label = _('Select')
 
     class Meta:
         abstract = True
@@ -57,7 +57,6 @@ class CremeModel(Model):
         for m2m_field in self._meta.many_to_many:
             getattr(self, m2m_field.name).clear()
 
-#        for related_m2m_field in self._meta.get_all_related_many_to_many_objects():
         for related_m2m_field in (f for f in self._meta.get_fields(include_hidden=True)
                                     if f.many_to_many and f.auto_created
                                  ):
@@ -67,25 +66,6 @@ class CremeModel(Model):
         super(CremeModel, self).delete()
 
     def delete(self):
-#        file_fields = []
-#        _delete_files = self._delete_files
-#
-#        with transaction.commit_manually():
-#            try:
-#                if _delete_files:
-#                    file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
-#                                    for field in chain(self._meta.fields, self._meta.many_to_many)
-#                                        if issubclass(field.__class__, FileField) #TODO: isinstance(field, FileField)
-#                                  ]
-#
-#                self._delete_without_transaction()
-#                transaction.commit()
-#            #except Exception as e:
-#            except:
-#                transaction.rollback()
-#                #NB: logger.whatever() breaks the functioning of commit/rollback feature...
-#                #logger.debug('Error in CremeModel.delete(): %s', e)
-#                raise
         file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
                         for field in chain(self._meta.fields, self._meta.many_to_many)
                             if isinstance(field, FileField) and getattr(self, field.name)
@@ -98,7 +78,6 @@ class CremeModel(Model):
             logger.exception('Error in CremeModel.delete()')
             raise
 
-#        if _delete_files:
         if file_fields:
             obj_filter = self._default_manager.filter
             os_remove = os.remove
@@ -108,15 +87,15 @@ class CremeModel(Model):
                     os_remove(full_path)  # TODO: Catch OSError ?
 
 
-#class CremeEntityManager(Manager):
-    #def get_query_set(self):
-        #return self.even_deleted().filter(is_deleted=False)
-
-    #def only_deleted(self):
-        #return self.even_deleted().filter(is_deleted=True)
-
-    #def even_deleted(self):
-        #return super(CremeEntityManager, self).get_query_set()
+# class CremeEntityManager(Manager):
+#     def get_query_set(self):
+#         return self.even_deleted().filter(is_deleted=False)
+#
+#     def only_deleted(self):
+#         return self.even_deleted().filter(is_deleted=True)
+#
+#     def even_deleted(self):
+#         return super(CremeEntityManager, self).get_query_set()
 
 _SEARCH_FIELD_MAX_LENGTH = 200
 
@@ -132,7 +111,7 @@ class CremeAbstractEntity(CremeModel):
     is_actived = BooleanField(default=False, editable=False).set_tags(viewable=False)
     user       = CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    #objects = CremeEntityManager()
+    # objects = CremeEntityManager()
     objects = Manager()
 
     _real_entity = None
@@ -167,7 +146,6 @@ class CremeAbstractEntity(CremeModel):
                 entity = self
             else:
                 entity = self._real_entity = ct.get_object_for_this_type(id=self.id)
-                #entity = self._real_entity = ct.model_class().objects.even_deleted().get(id=self.id)
 
         return entity
 
@@ -192,7 +170,6 @@ class CremeAbstractEntity(CremeModel):
 
         for ct_id, entity_ids in entities_by_ct.iteritems():
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entity_ids))
-            #entities_map.update(get_ct(ct_id).model_class().objects.even_deleted().in_bulk(entity_ids))
 
         for entity in entities:
             entity._real_entity = entities_map[entity.id]

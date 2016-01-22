@@ -26,7 +26,7 @@ from ..models import SearchConfigItem, FieldsConfig
 class Searcher(object):
     def __init__(self, models, user):
         self._search_map = search_map = {}
-        models = list(models) # Several iterations
+        models = list(models)  # Several iterations
         fconfigs = FieldsConfig.get_4_models(models)
 
         for sci in SearchConfigItem.get_4_models(models, user):
@@ -39,7 +39,7 @@ class Searcher(object):
                                             if not is_hidden(sfield.name.split('__', 1)[0])
                                     ]
 
-    def _build_query(self, research, fields): # TODO: inline ??
+    def _build_query(self, research, fields):  # TODO: inline ??
         "Build a Q with all params fields"
         result_q = Q()
 
@@ -64,8 +64,8 @@ class Searcher(object):
         """
         searchfields = self.get_fields(model)
 
-        assert searchfields is not None # search on a disabled model ?
+        assert searchfields is not None  # search on a disabled model ?
 
-        # TODO: distint() only if there is a JOIN...
+        # TODO: distinct() only if there is a JOIN...
         return model.objects.filter(self._build_query(research, searchfields)).distinct() \
                if searchfields else None

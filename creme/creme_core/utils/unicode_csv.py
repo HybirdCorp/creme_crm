@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#Code based on code from the official Python documentation :
+# Code based on code from the official Python documentation :
 # http://docs.python.org/release/2.5.4/lib/csv-examples.html
 
 import csv, codecs, cStringIO
@@ -8,7 +8,7 @@ import csv, codecs, cStringIO
 
 class UTF8Recoder(object):
     """
-    Iterator that reads an encoded stream and reencodes the input to UTF-8
+    Iterator that reads an encoded stream and re-encodes the input to UTF-8
     """
     __slots__ = ('reader',)
 
@@ -62,9 +62,9 @@ class UnicodeWriter(object):
         data = data.decode("utf-8")
         # ... and reencode it into the target encoding
         data = self.encoder.encode(data)
-        # write to the target stream
+        # Write to the target stream
         self.stream.write(data)
-        # empty queue
+        # Empty queue
         self.queue.truncate(0)
 
     def writerows(self, rows):

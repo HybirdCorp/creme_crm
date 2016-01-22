@@ -26,14 +26,14 @@ from ..core.setting_key import SettingKey, setting_key_registry
 from ..utils import bool_as_html
 
 
-#TODO: move to utils
+# TODO: move to utils
 def print_hour(value):
     return _('%sh') % value
 
 
-#TODO: Add a null and blank attribute ?? And a unique together with key, user
+# TODO: Add a null and blank attribute ?? And a unique together with key, user
 class SettingValue(Model):
-    key_id    = CharField(max_length=100) #see SettingKey.id
+    key_id    = CharField(max_length=100)  # See SettingKey.id
     user      = ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     value_str = TextField()
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-#   This code is derived from the 'currency' function of the module 'locale.py' of the Python2.7 standard library.
+#   This code is derived from the 'currency' function of the module 'locale.py'
+#   of the Python2.7 standard library.
 #   The function has been modified to take the id of the wanted currency.
 #
 #    Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
@@ -9,7 +10,8 @@
 #
 #    Copyright (C) 2009-2014  Hybird
 #
-#    This file is released under the Python License (http://www.opensource.org/licenses/Python-2.0)
+#    This file is released under the Python License
+#    (http://www.opensource.org/licenses/Python-2.0)
 ################################################################################
 
 import os
@@ -32,23 +34,26 @@ if os.name == WINDOWS:
         'en': 'english',
         'fr': 'fra',
     }
+
     def standardized_locale_code(django_code):
         return LOCALE_MAP[django_code]
 else:
     def standardized_locale_code(django_code):
         return translation.to_locale(django_code)
 
-#TODO: use an object Formatter in order to avoid multiple queries of SettingValue VS cache (in global_info)
+
+# TODO: use an object Formatter in order to avoid multiple queries of SettingValue VS cache (in global_info)
 def currency(val, currency_or_id=None):
     """Replace a formatted string for an amount.
-    @param val Amount as a numeric value.
-    @param currency_or_id Instance of creme_core.models.Currency, or an ID of Currency instance.
+    @param val: Amount as a numeric value.
+    @param currency_or_id: Instance of creme_core.models.Currency, or an ID of Currency instance.
     """
     LC_MONETARY = locale.LC_MONETARY
     lang = standardized_locale_code(settings.LANGUAGE_CODE)
 
     try:
-        locale.setlocale(LC_MONETARY, (lang, settings.DEFAULT_ENCODING)) #will certainly fail on Windows (because of utf-8)
+        # Will certainly fail on Windows (because of utf-8)
+        locale.setlocale(LC_MONETARY, (lang, settings.DEFAULT_ENCODING))
     except:
         try:
             locale.setlocale(LC_MONETARY, lang)
@@ -68,7 +73,7 @@ def currency(val, currency_or_id=None):
     else:
         smb = ''
 
-    # check for illegal values
+    # Check for illegal values
     digits = conv[not is_local_symbol and 'int_frac_digits' or 'frac_digits']
 
     s = locale.format('%%.%if' % digits, abs(val), True, monetary=True)
@@ -77,16 +82,16 @@ def currency(val, currency_or_id=None):
     # '<' and '>' are markers if the sign must be inserted between symbol and value
     s = '<' + s + '>'
 
-    precedes = conv[val<0 and 'n_cs_precedes' or 'p_cs_precedes']
-    separated = conv[val<0 and 'n_sep_by_space' or 'p_sep_by_space']
+    precedes = conv[val < 0 and 'n_cs_precedes' or 'p_cs_precedes']
+    separated = conv[val < 0 and 'n_sep_by_space' or 'p_sep_by_space']
 
     if precedes:
         s = smb + (separated and ' ' or '') + s
     else:
         s = s + (separated and ' ' or '') + smb
 
-    sign_pos = conv[val<0 and 'n_sign_posn' or 'p_sign_posn']
-    sign = conv[val<0 and 'negative_sign' or 'positive_sign']
+    sign_pos = conv[val < 0 and 'n_sign_posn' or 'p_sign_posn']
+    sign = conv[val < 0 and 'negative_sign' or 'positive_sign']
 
     if sign_pos == 0:
         s = '(' + s + ')'
@@ -99,7 +104,7 @@ def currency(val, currency_or_id=None):
     elif sign_pos == 4:
         s = s.replace('>', sign)
     else:
-        # the default if nothing specified;
+        # The default if nothing specified;
         # this should be the most fitting sign position
         s = sign + s
 

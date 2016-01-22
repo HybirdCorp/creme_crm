@@ -17,15 +17,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template import Library
 from django.contrib.contenttypes.models import ContentType
+from django.template import Library
 
 from ..gui.quick_forms import quickforms_registry
 
 
-#TODO: regroup with some others templatetags files (eg search_panel, menu) ?????
+# TODO: regroup with some others templatetags files (eg search_panel, menu) ?????
 
 register = Library()
+
 
 @register.inclusion_tag('creme_core/templatetags/quickforms_panel.html', takes_context=True)
 def get_quickforms_panel(context, target_node_id='sub_content'):

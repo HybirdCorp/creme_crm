@@ -25,10 +25,8 @@ from django.db.models import (Field, FieldDoesNotExist, BooleanField, PositiveIn
         DecimalField, DateField, DateTimeField, ForeignKey, ManyToManyField)
 from django.utils.translation import ugettext_lazy as _
 
-#from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, RelationType, CustomField
 from ..models.fields import DatePeriodField
-#from ..templatetags.creme_widgets import widget_entity_hyperlink
 from ..utils.meta import FieldInfo
 from .function_field import FunctionFieldDecimal
 
@@ -87,7 +85,7 @@ class EntityCell(object):
      - other entities linked by a Relation (of a given RelationType)
      - ...
     """
-    type_id = None # Used for register ; overload in child classes (string type)
+    type_id = None  # Used for register ; overload in child classes (string type)
 
     _listview_css_class = None
     _header_listview_css_class = None
@@ -108,7 +106,7 @@ class EntityCell(object):
         return u"<EntityCell(type=%s, value='%s')>" % (self.type_id, self.value)
 
     def __unicode__(self):
-        return self.title # Used by CustomBlockConfigItem block (creme_config)
+        return self.title  # Used by CustomBlockConfigItem block (creme_config)
 
     def _get_field_class(self):
         return Field
@@ -153,19 +151,16 @@ class EntityCell(object):
         return {'type': self.type_id, 'value': self.value}
 
 
-#@CELLS_MAP TODO
+# @CELLS_MAP TODO
 class EntityCellActions(EntityCell):
     type_id = 'actions'
 
     def __init__(self):
         super(EntityCellActions, self).__init__(value='entity_actions',
                                                 title=_(u'Actions'),
-                                                #has_a_filter=False,
-                                                #editable=False,
                                                )
 
-    #def render_html(self, entity, user):
-        # TODO
+    # def render_html(self, entity, user): TODO
 
 
 @CELLS_MAP
@@ -182,17 +177,12 @@ class EntityCellRegularField(EntityCell):
         sortable = True
         pattern = "%s__icontains"
 
-#        if isinstance(field, ForeignKey):
         if isinstance(field, (ForeignKey, ManyToManyField)):  # TODO: hasattr(field, 'rel') ?  django1.8 field API ?
             if len(field_info) == 1:
                 pattern = "%s"  # TODO: factorise
-
-                # if issubclass(field.rel.to, CremeEntity):
-                #     pattern = '%s__header_filter_search_field__icontains'
             else:
                 field = field_info[1]  # The sub-field is considered as the main field
 
-                # if isinstance(field, ForeignKey):
                 if isinstance(field, (ForeignKey, ManyToManyField)):
                     pattern = '%s'  # TODO '%s__exact' ?
 
@@ -206,9 +196,6 @@ class EntityCellRegularField(EntityCell):
         elif isinstance(field, DatePeriodField):
             has_a_filter = False
             sortable = False
-#        elif isinstance(field, ManyToManyField):
-#            has_a_filter = False
-#            sortable = False
         elif isinstance(field, (ForeignKey, ManyToManyField)) and \
              issubclass(field.rel.to, CremeEntity):
             pattern = '%s__header_filter_search_field__icontains'
@@ -266,7 +253,7 @@ class EntityCellCustomField(EntityCell):
 
     _CF_PATTERNS = {
             CustomField.BOOL:       '%s__value__creme-boolean',
-            CustomField.DATETIME:   '%s__value__range', #TODO: quick search overload this, to use gte/lte when it is needed
+            CustomField.DATETIME:   '%s__value__range',  # TODO: quick search overload this, to use gte/lte when it is needed
             CustomField.ENUM:       '%s__value__exact',
             CustomField.MULTI_ENUM: '%s__value__exact',
         }
@@ -286,8 +273,8 @@ class EntityCellCustomField(EntityCell):
         super(EntityCellCustomField, self).__init__(value=unicode(customfield.id),
                                                     title=customfield.name,
                                                     has_a_filter=True,
-                                                    editable=False, # TODO: make it editable
-                                                    sortable=False, # TODO: make it sortable
+                                                    editable=False,  # TODO: make it editable
+                                                    sortable=False,  # TODO: make it sortable
                                                     is_hidden=False,
                                                     filter_string=pattern % customfield.get_value_class().get_related_name(),
                                                    )
@@ -339,7 +326,6 @@ class EntityCellFunctionField(EntityCell):
                                                       title=unicode(func_field.verbose_name),
                                                       has_a_filter=func_field.has_filter,
                                                       is_hidden=func_field.is_hidden,
-                                                      #editable=False,
                                                      )
 
     @staticmethod
@@ -380,7 +366,6 @@ class EntityCellRelation(EntityCell):
         super(EntityCellRelation, self).__init__(value=unicode(rtype.id),
                                                  title=rtype.predicate,
                                                  has_a_filter=True,
-                                                 #editable=False ,
                                                  is_hidden=is_hidden,
                                                 )
 
@@ -429,7 +414,7 @@ class EntityCellRelation(EntityCell):
                         )
 
 
-#@CELLS_MAP TODO ??
+# @CELLS_MAP TODO ??
 class EntityCellVolatile(EntityCell):
     type_id = 'volatile'
 
@@ -437,8 +422,7 @@ class EntityCellVolatile(EntityCell):
         self._render_func = render_func
         super(EntityCellVolatile, self).__init__(value=value,
                                                  title=title,
-                                                 has_a_filter=True, # TODO: ??
-                                                 #editable=False,
+                                                 has_a_filter=True,  # TODO: ??
                                                  is_hidden=is_hidden,
                                                 )
 

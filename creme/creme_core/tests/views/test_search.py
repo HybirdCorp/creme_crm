@@ -35,7 +35,7 @@ class SearchViewTestCase(ViewsTestCase):
         ViewsTestCase.tearDownClass()
 
         del QuerysetBlock.page_size
-        assert QuerysetBlock.page_size # In PaginatedBlock
+        assert QuerysetBlock.page_size  # In PaginatedBlock
 
         SearchConfigItem.objects.all().delete()
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
@@ -110,8 +110,8 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertContains(response, self.linus.get_absolute_url())
-        self.assertContains(response, self.linus2.get_absolute_url()) # deleted
-        self.assertContains(response, self.andrew.get_absolute_url()) # in sector__title
+        self.assertContains(response, self.linus2.get_absolute_url())  # Deleted
+        self.assertContains(response, self.andrew.get_absolute_url())  # In sector__title
         self.assertNotContains(response, self.alan.get_absolute_url())
 
     def test_search03(self):
@@ -149,10 +149,10 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(_(u"Empty search…"),
                          self._search().context['error_message']
                         )
-        self.assertEqual(404, self._search('linus', 1024).status_code) # ct_id=1024 DOES NOT EXIST
+        self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
 
     def test_search05(self):
-        "No config for contact"
+        "No config for Contact"
         self.login()
         self._build_contacts()
         self._setup_orgas()

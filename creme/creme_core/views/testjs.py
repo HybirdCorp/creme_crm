@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date #datetime
+from datetime import date
 from time import sleep
 
 import logging
@@ -60,6 +60,7 @@ TEST_IMAGE_URLS = ('images/add_32.png',
                    'images/action_not_in_time_48.png',
                    'images/wait.gif',
                   )
+
 
 class MockImage(object):
     def __init__(self, url, width, height=None):
@@ -127,11 +128,13 @@ class DummyListBlock(PaginatedBlock):
 
 dummy_list_block = DummyListBlock()
 
+
 def js_testview_or_404(request, message, error):
     if is_testenvironment(request) or not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)
 
     logger.warn(message)
+
 
 def js_testview_context(request, viewname):
     try:
@@ -152,7 +155,7 @@ def js_testview_context(request, viewname):
 
     get = request.GET.get
 
-    return  {
+    return {
         'THEME_LIST':      [(theme_id, unicode(theme_vname))
                                 for theme_id, theme_vname in settings.THEMES
                            ],
@@ -164,11 +167,14 @@ def js_testview_context(request, viewname):
         'TEST_CONTENTTYPES': dict(ContentType.objects.values_list('model', 'id'))
     }
 
+
 def test_http_response(request):
     if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
         raise Http404('This is view is only reachable during javascript or server unittests')
 
-    logger.warn("Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.")
+    logger.warn("Beware : If you are not running unittest this view shouldn't be reachable."
+                " Check your server configuration."
+               )
 
     status = int(request.GET.get('status', 200))
     delay = int(request.GET.get('delay', 0))
@@ -197,6 +203,7 @@ def test_http_response(request):
                         content_type='text/html', status=status,
                        )
 
+
 @login_required
 def test_js(request):
     js_testview_or_404(request, 
@@ -204,6 +211,7 @@ def test_js(request):
                        'This is view is only reachable during javascript unittests')
 
     return render(request, 'creme_core/test_js.html')
+
 
 @login_required
 def test_widget(request, widget):

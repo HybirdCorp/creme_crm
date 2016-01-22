@@ -26,6 +26,7 @@ from .entity_credentials import EntityCredentials
 _ADD_PREFIX = 'add_'
 _EXPORT_PREFIX = 'export_'
 
+
 class EntityBackend(ModelBackend):
     supports_object_permissions = True
 
@@ -37,14 +38,12 @@ class EntityBackend(ModelBackend):
             app_name, dot, action_name = perm.partition('.')
 
             if not action_name:
-                if app_name == 'my_page': #NB: for side menu (TODO: can we improve that ??)
+                if app_name == 'my_page':  # NB: for side menu (TODO: can we improve that ??)
                     return True
 
-                #return user_obj.role.is_app_allowed_or_administrable(app_name)
                 return user_obj.has_perm_to_access(app_name)
 
             if action_name == 'can_admin':
-                #return app_name in user_obj.role.admin_4_apps
                 return user_obj.has_perm_to_admin(app_name)
 
             if action_name.startswith(_ADD_PREFIX):

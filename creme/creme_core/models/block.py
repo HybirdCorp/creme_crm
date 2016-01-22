@@ -51,7 +51,8 @@ logger = logging.getLogger(__name__)
 class BlockDetailviewLocation(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
     role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None)
-    superuser    = BooleanField(u'related to superusers', default=False, editable=False) # TODO: a UserRole for superusers instead ??
+    # TODO: a UserRole for superusers instead ??
+    superuser    = BooleanField(u'related to superusers', default=False, editable=False)
     block_id     = CharField(max_length=100)
     order        = PositiveIntegerField()
     zone         = PositiveSmallIntegerField()
@@ -75,13 +76,13 @@ class BlockDetailviewLocation(CremeModel):
             )
 
     @staticmethod
-    def create(block_id, order, zone, model=None, role=None): # TODO: rename 'create_if_needed'
+    def create(block_id, order, zone, model=None, role=None):  # TODO: rename 'create_if_needed'
         """Create an instance of BlockDetailviewLocation, but if only if the related
         block is not already on the configuration.
-        @param zone Value in BlockDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
-        @param model A class inheriting CremeEntity ; None means default configuration.
-        @param role Can be None (ie: 'Default configuration'), a UserRole instance,
-                    or the string 'superuser'.
+        @param zone: Value in BlockDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
+        @param model: A class inheriting CremeEntity ; None means default configuration.
+        @param role: Can be None (ie: 'Default configuration'), a UserRole instance,
+                     or the string 'superuser'.
         """
         kwargs = {'role': None, 'superuser': False}
 
@@ -140,7 +141,7 @@ class BlockPortalLocation(CremeModel):
             )
 
     @staticmethod
-    def create(block_id, order, app_name=''): # TODO: rename create_or_update ?
+    def create(block_id, order, app_name=''):  # TODO: rename create_or_update ?
         try:
             loc = BlockPortalLocation.objects.get(app_name=app_name, block_id=block_id)
         except Exception:
@@ -183,11 +184,13 @@ class BlockMypageLocation(CremeModel):
                     for loc in BlockMypageLocation.objects.filter(user=None):
                         create(user=instance, block_id=loc.block_id, order=loc.order)
                 except Exception:
-                    #TODO: if should not be true anymore when south is built-in django (BlockMypageLocation table exists when the first User is created)
-                    logger.warn('Can not create block config for this user: %s (if it is the first user, do not worry because it is normal)' % instance)
+                    # TODO: still useful ? (BlockMypageLocation table should exist when the first User is created)
+                    logger.warn('Can not create block config for this user: %s'
+                                ' (if it is the first user, do not worry because it is normal)' % instance
+                               )
 
     @staticmethod
-    def create(block_id, order, user=None): # TODO: rename create_or_update ?
+    def create(block_id, order, user=None):  # TODO: rename create_or_update ?
         try:
             loc = BlockMypageLocation.objects.get(user=user, block_id=block_id)
         except Exception:
@@ -205,15 +208,14 @@ class BlockMypageLocation(CremeModel):
         return block_registry.get_blocks((self.block_id,))[0].verbose_name
 
 
-#post_save.connect(BlockMypageLocation._copy_default_config, sender=User,
 post_save.connect(BlockMypageLocation._copy_default_config, sender=settings.AUTH_USER_MODEL,
                   dispatch_uid='creme_core-blockmypagelocation._copy_default_config'
                  )
 
 
 class RelationBlockItem(CremeModel):
-    block_id       = CharField(_(u"Block ID"), max_length=100, editable=False) #TODO: not really useful (can be retrieved with type)
-#    relation_type  = ForeignKey(RelationType, verbose_name=_(u"Related type of relationship"), unique=True)
+    # TODO: not really useful (can be retrieved with type)
+    block_id       = CharField(_(u"Block ID"), max_length=100, editable=False)
     relation_type  = OneToOneField(RelationType, verbose_name=_(u"Related type of relationship"))
     json_cells_map = TextField(editable=False, null=True) #TODO: JSONField
 
@@ -221,8 +223,6 @@ class RelationBlockItem(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        #verbose_name = _(u'Specific relationship block')
-        #verbose_name_plural = _(u'Specific relationship blocks')
 
     def __init__(self, *args, **kwargs):
         super(RelationBlockItem, self).__init__(*args, **kwargs)
@@ -230,7 +230,7 @@ class RelationBlockItem(CremeModel):
             self._cells_map = {}
             self._dump_cells_map()
 
-    def __unicode__(self): # NB: useful for creme_config titles
+    def __unicode__(self):  # NB: useful for creme_config titles
         return self.relation_type.predicate
 
     def delete(self):
@@ -240,7 +240,7 @@ class RelationBlockItem(CremeModel):
 
     @property
     def all_ctypes_configured(self):
-        #TODO: cache (object_ctypes) ??
+        # TODO: cache (object_ctypes) ??
         compat_ctype_ids = set(self.relation_type.object_ctypes.values_list('id', flat=True)) or \
                            {ct.id for ct in creme_entity_content_types()}
 
@@ -284,7 +284,7 @@ class RelationBlockItem(CremeModel):
 
             for ct_id, cells_as_dicts in jsonloads(self.json_cells_map).iteritems():
                 ct = get_ct(ct_id)
-                cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts) #TODO: do it lazily ??
+                cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)  # TODO: do it lazily ??
 
                 if errors:
                     total_errors = True
@@ -310,7 +310,7 @@ class RelationBlockItem(CremeModel):
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, cells in self._cells_by_ct().iteritems():
-            yield get_ct(ct_id), cells #TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
+            yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
 
     def set_cells(self, ctype, cells):
         self._cells_by_ct()[ctype.id] = cells
@@ -327,12 +327,9 @@ class InstanceBlockConfigItem(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        #verbose_name = _(u"Instance's Block to display")
-        #verbose_name_plural = _(u"Instance's Blocks to display")
         ordering = ('id',)
 
     def __unicode__(self):
-        #return unicode(self.verbose or self.entity)
         return self.block.verbose_name
 
     def delete(self):
@@ -366,8 +363,8 @@ class InstanceBlockConfigItem(CremeModel):
 
     @staticmethod
     def generate_id(block_class, entity, key):
-        """@param key String that allows to make the difference between 2 instances
-                      of the same Block class and the same CremeEntity instance.
+        """@param key: String that allows to make the difference between 2 instances
+                       of the same Block class and the same CremeEntity instance.
         """
         if key and any((c in key) for c in ('#', '@', '&', ':', ' ')):
             raise ValueError('InstanceBlockConfigItem.generate_id: usage of a '
@@ -385,7 +382,7 @@ class CustomBlockConfigItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_(u'Related type'), editable=False)
     name         = CharField(_(u'Name'), max_length=200)
-    json_cells   = TextField(editable=False, null=True) #TODO: JSONField
+    json_cells   = TextField(editable=False, null=True)  # TODO: JSONField
 
     _cells = None
 
@@ -415,7 +412,7 @@ class CustomBlockConfigItem(CremeModel):
     def id_from_block_id(block_id):
         try:
             prefix, cbci_id = block_id.split('-', 1)
-        except ValueError: #unpacking error
+        except ValueError:  # Unpacking error
             return None
 
         return None if prefix != 'customblock' else cbci_id
@@ -423,7 +420,7 @@ class CustomBlockConfigItem(CremeModel):
     def _dump_cells(self, cells):
         self.json_cells = jsondumps([cell.to_dict() for cell in cells])
 
-    #TODO: factorise with HeaderFilter.cells
+    # TODO: factorise with HeaderFilter.cells
     @property
     def cells(self):
         cells = self._cells
@@ -460,14 +457,12 @@ class CustomBlockConfigItem(CremeModel):
 class BlockState(CremeModel):
     user              = ForeignKey(settings.AUTH_USER_MODEL)
     block_id          = CharField(_(u"Block ID"), max_length=100)
-    is_open           = BooleanField(default=True) #Is block has to appear as opened or closed
-    show_empty_fields = BooleanField(default=True) #Are empty fields in block have to be shown or not
+    is_open           = BooleanField(default=True)  # Is block has to appear as opened or closed
+    show_empty_fields = BooleanField(default=True)  # Are empty fields in block have to be shown or not
 
     class Meta:
         app_label = 'creme_core'
-        #verbose_name = _(u'Block state')
-        #verbose_name_plural = _(u'Blocks states')
-        unique_together = ("user", "block_id")
+        unique_together = ('user', 'block_id')
 
     @staticmethod
     def get_for_block_id(block_id, user):
@@ -490,15 +485,16 @@ class BlockState(CremeModel):
     @staticmethod
     def get_for_block_ids(block_ids, user):
         """Get current states of blocks
-        @params block_ids: a list of block ids
-        @params user: owner of a blockstate
+        @param block_ids: a list of block ids.
+        @param user: owner of a blockstate.
         @returns: a dict with block_id as key and state as value
         """
         states = {}
 
-        get_sv = SettingValue.objects.get #TODO: group queries ??
+        # TODO: Method for get_default_states?
+        get_sv = SettingValue.objects.get  # TODO: group queries ?? + cache ?
         is_default_open             = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
-        is_default_fields_displayed = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value #TODO: Method for get_default_states?
+        is_default_fields_displayed = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
 
         for state in BlockState.objects.filter(block_id__in=block_ids, user=user):
             states[state.block_id] = state
@@ -507,14 +503,14 @@ class BlockState(CremeModel):
                               show_empty_fields=is_default_fields_displayed,
                              )
 
-        for block_id in set(block_ids) - set(states.keys()): # Blocks with unset state
+        for block_id in set(block_ids) - set(states.keys()):  # Blocks with unset state
             states[block_id] = block_state(block_id=block_id)
 
         return states
 
     @property
     def classes(self):
-        """Generate css classes for current state"""
+        """Generate CSS classes for current state"""
         classes = []
         if not self.is_open:
             classes.append('collapsed')

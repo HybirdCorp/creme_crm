@@ -48,7 +48,6 @@ class Command(BaseCommand):
                           'but with some translations without context. [default: %(default)s]'
                     )
 
-    # def handle(self, *args, **options):
     def handle(self, **options):
         try:
             from polib import pofile
@@ -95,8 +94,6 @@ class Command(BaseCommand):
                 entries_per_msg = defaultdict(list)
 
                 for entry in entries:
-                    # entries_per_msg[entry.msgstr].append(entry)
-
                     if entry.msgid_plural:
                         entries_per_msg[entry.msgstr_plural[0]].append(entry)
                     else:

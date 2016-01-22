@@ -80,10 +80,6 @@ def get_clone_button(context, entity, user):
 def get_entity_actions(context, entity):
     user = context['user']
 
-    # context.update({
-    #         'id':      entity.id,
-    #         'actions': entity.get_actions(user),
-    #        })
     context['id'] = entity.id  # TODO: new context VS object.id
     context['actions'] = entity.get_actions(user)
 
@@ -136,6 +132,7 @@ def _get_image_path_for_model(theme, model, size):
         path = ''
 
     return path
+
 
 def _get_image_for_model(theme, model, size):
     path = _get_image_path_for_model(theme, model, size)

@@ -25,7 +25,6 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def setUp(self):
         super(MiscViewsTestCase, self).setUp()
-#        self.login()
 
         self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
         settings.FORCE_JS_TESTVIEW = False
@@ -44,16 +43,6 @@ class MiscViewsTestCase(ViewsTestCase):
         response = self.assertGET200('/my_page')
         self.assertTemplateUsed(response, 'creme_core/my_page.html')
 
-#    def test_clean(self):
-#        self.login()
-#
-#        #reverse() forces all views to load & can detect some errors
-#        #will be useless when test covers all code
-#        #Problem: it 'artificially' increases coverage rate
-#        from django.core.urlresolvers import reverse
-#        with self.assertNoException():
-#            reverse('creme_logout')
-
     def test_logout(self):
         self.login()
 
@@ -67,23 +56,23 @@ class MiscViewsTestCase(ViewsTestCase):
         self.login()
         factory = RequestFactory()
 
-        request = factory.get('/test_js');
+        request = factory.get('/test_js')
         self.assertFalse(settings.FORCE_JS_TESTVIEW)
-        self.assertTrue(is_testenvironment(request));
+        self.assertTrue(is_testenvironment(request))
 
         with self.assertRaises(Http404):
             js_testview_or_404(request, '', '')
 
         settings.FORCE_JS_TESTVIEW = True
         self.assertTrue(settings.FORCE_JS_TESTVIEW)
-        self.assertTrue(is_testenvironment(request));
+        self.assertTrue(is_testenvironment(request))
 
         with self.assertRaises(Http404):
             js_testview_or_404(request, '', '')
 
         request.META['SERVER_NAME'] = 'otherserver'
         self.assertTrue(settings.FORCE_JS_TESTVIEW)
-        self.assertFalse(is_testenvironment(request));
+        self.assertFalse(is_testenvironment(request))
 
         with self.assertNoException():
             js_testview_or_404(request, '', '')
@@ -131,7 +120,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def test_auth_decorators01(self):
         self.login(is_superuser=False,
-                   allowed_apps=['documents'],  # not creme_core
+                   allowed_apps=['documents'],  # Not 'creme_core'
                    creatable_models=[FakeContact],
                   )
         self.assertGET403('/tests/contact/add')
@@ -139,7 +128,7 @@ class MiscViewsTestCase(ViewsTestCase):
     def test_auth_decorators02(self):
         self.login(is_superuser=False,
                    allowed_apps=['creme_core'],
-                   creatable_models=[FakeImage],  # not FakeContact
+                   creatable_models=[FakeImage],  # Not FakeContact
                   )
         self.assertGET403('/tests/contact/add')
 
@@ -152,7 +141,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def test_auth_decorators_multiperm01(self):
         self.login(is_superuser=False,
-                   allowed_apps=['documents'],  # not creme_core
+                   allowed_apps=['documents'],  # Not 'creme_core'
                    creatable_models=[FakeOrganisation],
                   )
         self.assertGET403('/tests/organisation/add')
@@ -160,7 +149,7 @@ class MiscViewsTestCase(ViewsTestCase):
     def test_auth_decorators_multiperm02(self):
         self.login(is_superuser=False,
                    allowed_apps=['creme_core'],
-                   creatable_models=[FakeImage],  # not FakeOrganisation
+                   creatable_models=[FakeImage],  # Not FakeOrganisation
                   )
         self.assertGET403('/tests/organisation/add')
 
@@ -182,16 +171,15 @@ class LanguageTestCase(ViewsTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/creme_core/language/portal/').status_code)
+        self.assertGET200('/creme_config/creme_core/language/portal/')
 
     def test_create(self):
         url = '/creme_config/creme_core/language/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Klingon'
         code = 'KLN'
-        response = self.client.post(url, data={'name': name, 'code': code})
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, data={'name': name, 'code': code})
         self.assertNoFormError(response)
 
         self.get_object_or_fail(Language, name=name, code=code)
@@ -202,12 +190,11 @@ class LanguageTestCase(ViewsTestCase):
         language = Language.objects.create(name=name, code=code)
 
         url = '/creme_config/creme_core/language/edit/%s' % language.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = name.title()
         code = 'KLN'
-        response = self.client.post(url, data={'name': name, 'code': code})
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, data={'name': name, 'code': code})
         self.assertNoFormError(response)
 
         language = self.refresh(language)
@@ -288,13 +275,3 @@ class CurrencyTestCase(ViewsTestCase):
                            data={'id': currency.id}
                           )
         self.assertDoesNotExist(currency)
-
-
-#class ExceptionMiddlewareTestCase(ViewsTestCase):
-#    @classmethod
-#    def setUpClass(cls):
-#        ViewsTestCase.setUpClass()
-#        cls.populate('creme_core')
-#
-#    def setUp(self):
-#        self.login()

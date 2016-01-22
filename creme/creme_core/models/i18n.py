@@ -23,6 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .base import CremeModel
 
+
 class Language(CremeModel):
     name = CharField(_('Name'), max_length=100)
     code = CharField(_('Code'), max_length=5)

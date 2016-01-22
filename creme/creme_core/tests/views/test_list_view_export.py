@@ -5,7 +5,6 @@ try:
     from functools import partial
     from unittest import skipIf
 
-#    from django.apps import apps
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.encoding import force_unicode
@@ -23,11 +22,6 @@ try:
             EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (RelationType, Relation, FieldsConfig,
             CremePropertyType, CremeProperty, HeaderFilter)
-#    from creme.creme_core.tests.base import skipIfNotInstalled
-
-#    from creme.media_managers.models import Image
-
-#    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -43,11 +37,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-#        apps = ['creme_core', 'persons']
-#        if 'creme.billing' in settings.INSTALLED_APPS:
-#            apps.append('billing')
-#
-#        cls.populate(*apps)
         cls.populate('creme_core')
         cls.ct = ContentType.objects.get_for_model(Contact)
 
@@ -103,7 +92,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                  EntityCellRegularField.build(model=Contact, name='last_name'),
                  EntityCellRegularField.build(model=Contact, name='first_name'),
                  EntityCellRelation(rtype=rtype_pilots),
-                 #TODO: EntityCellCustomField
+                 # TODO: EntityCellCustomField
                  EntityCellFunctionField(func_field=Contact.function_fields.get('get_pretty_properties')),
                 ]
         HeaderFilter.create(pk='test-hf_contact', name='Contact view',
@@ -117,7 +106,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     def _set_listview_state(self, model=Contact):
         lv_url = model.get_lv_absolute_url()
-        self.assertGET200(lv_url) #set the current list view state...
+        self.assertGET200(lv_url)  # Set the current list view state...
 
         return lv_url
 
@@ -161,12 +150,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
 
-        #TODO: sort the relations/properties by they verbose_name ??
+        # TODO: sort the relations/properties by they verbose_name ??
         it = (force_unicode(line) for line in response.content.splitlines())
         self.assertEqual(it.next(), u','.join(u'"%s"' % hfi.title for hfi in cells))
         self.assertEqual(it.next(), u'"","Black","Jet","Bebop",""')
-#        self.assertEqual(it.next(), u'"","Bouquet","Mireille","",""')
-#        self.assertEqual(it.next(), u'"","Creme","Fulbert","",""')
         self.assertIn(it.next(), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
                                   u'"","Spiegel","Spike","Swordfish/Bebop",""')
                      )
@@ -174,7 +161,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                   u'"","Valentine","Faye","","is beautiful/is a girl"')
                      )
         self.assertEqual(it.next(), u'"","Wong","Edward","","is a girl"')
-#        self.assertEqual(it.next(), u'"","Yumura","Kirika","",""')
         self.assertRaises(StopIteration, it.next)
 
     def test_list_view_export02(self):
@@ -185,12 +171,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_url(self.ct, doc_type='scsv'), data={'list_url': lv_url})
 
-        #TODO: sort the relations/properties by they verbose_name ??
+        # TODO: sort the relations/properties by they verbose_name ??
         it = (force_unicode(line) for line in response.content.splitlines())
         self.assertEqual(it.next(), u';'.join(u'"%s"' % hfi.title for hfi in cells))
         self.assertEqual(it.next(), u'"";"Black";"Jet";"Bebop";""')
-#        self.assertEqual(it.next(), u'"";"Bouquet";"Mireille";"";""')
-#        self.assertEqual(it.next(), u'"";"Creme";"Fulbert";"";""')
         self.assertIn(it.next(), (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
                                   u'"";"Spiegel";"Spike";"Swordfish/Bebop";""')
                      )
@@ -198,24 +182,21 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                   u'"";"Valentine";"Faye";"";"is beautiful/is a girl"')
                      )
         self.assertEqual(it.next(), u'"";"Wong";"Edward";"";"is a girl"')
-#        self.assertEqual(it.next(), u'"";"Yumura";"Kirika";"";""')
         self.assertRaises(StopIteration, it.next)
 
     def test_list_view_export03(self):
         "'export' credential"
-#        self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
         self.login(is_superuser=False)
         self._build_hf_n_contacts()
         url = self._build_url(self.ct)
         data = {'list_url': self._set_listview_state()}
         self.assertGET403(url, data=data)
 
-        self.role.exportable_ctypes = [self.ct] # set the 'export' credentials
+        self.role.exportable_ctypes = [self.ct]  # Set the 'export' credentials
         self.assertGET200(url, data=data)
 
     def test_list_view_export04(self):
         "Credential"
-#        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes = [self.ct]
 
@@ -239,10 +220,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                      data={'list_url': self._set_listview_state()}
                                     )
         result = map(force_unicode, response.content.splitlines())
-        #self.assertEqual(6, len(result)) #Fulbert & Kirika are not viewable
         self.assertEqual(result[1], '"","Black","Jet","",""')
-#        self.assertEqual(result[2], '"","Bouquet","Mireille","",""')
-#        self.assertEqual(result[3], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[3], u'"","Wong","Edward","","is a girl"')
 
@@ -262,14 +240,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
 
         result = [force_unicode(line) for line in response.content.splitlines()]
-#        self.assertEqual(4, len(result))
-#
-#        mireille = self.other_user.linked_contact
-#        self.assertEqual(result[1],
-#                         u'"%s","%s"' % (mireille.last_name,
-#                                         date_format(localtime(mireille.created), 'DATETIME_FORMAT'),
-#                                        )
-#                        )
         self.assertEqual(2, len(result))
         self.assertEqual(result[1],
                          u'"%s","%s"' % (spike.last_name,
@@ -279,7 +249,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     def test_list_view_export06(self):
         "FK field on CremeEntity"
-#        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'persons', 'media_managers'])
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes = [self.ct]
 
@@ -306,17 +275,13 @@ class CSVExportViewsTestCase(ViewsTestCase):
         it = (force_unicode(line) for line in response.content.splitlines()); it.next()
 
         self.assertEqual(it.next(), '"Black","Jet face","Jet\'s selfie"')
-#        self.assertEqual(it.next(), '"Bouquet","",""')
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
         self.assertEqual(it.next(), '"Spiegel","%s","%s"' % (HIDDEN_VALUE, HIDDEN_VALUE))
         self.assertEqual(it.next(), '"Valentine","",""')
 
-#    @skipIfNotInstalled('creme.emails')
     def test_list_view_export07(self):
         "M2M field on CremeEntities"
-#        from creme.emails.models import EmailCampaign, MailingList
-
         user = self.login()
 
         create_camp = partial(EmailCampaign.objects.create, user=user)
@@ -361,14 +326,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(it.next(),
                          u','.join(u'"%s"' % u for u in [_('Civility'),
                                                          _('Last name'),
-                                                         #_('First name'),
                                                          'pilots',
                                                          _('Properties'),
                                                         ]
                                   )
                         )
-
-        #self.assertEqual(it.next(), u'"","Black","Jet","Bebop",""')
         self.assertEqual(it.next(), u'"","Black","Bebop",""')
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
@@ -383,14 +345,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
         it = iter(XlrdReader(None, file_contents=response.content))
         self.assertEqual(it.next(), [hfi.title for hfi in cells])
         self.assertEqual(it.next(), ["", "Black", "Jet", "Bebop", ""])
-#        self.assertEqual(it.next(), ["", "Bouquet", "Mireille", "", ""])
-#        self.assertEqual(it.next(), ["", "Creme", "Fulbert", "", ""])
         self.assertIn(it.next(), (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],
                                   ["", "Spiegel", "Spike", "Swordfish/Bebop", ""]))
         self.assertIn(it.next(), (["", "Valentine", "Faye", "", "is a girl/is beautiful"],
                                   ["", "Valentine", "Faye", "", "is beautiful/is a girl"]))
         self.assertEqual(it.next(), ["", "Wong", "Edward", "", "is a girl"])
-#        self.assertEqual(it.next(), ["", "Yumura", "Kirika", "", ""])
         self.assertRaises(StopIteration, it.next)
 
     def test_print_integer01(self):
@@ -417,39 +376,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertIn(u'"Swordfish","20000"', lines)
         self.assertIn(u'"Redtail",""', lines)
 
-#    @skipIfNotInstalled('creme.billing')
     def test_print_integer02(self):
         "Field with choices"
         user = self.login()
 
-#        from creme.billing.models import Invoice, InvoiceStatus, Line, ProductLine
-#        from creme.billing.constants import DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT
-#
-#        invoice = Invoice.objects.create(user=user, name='Invoice',
-#                                         expiration_date=date(year=2012, month=12, day=15),
-#                                         status=InvoiceStatus.objects.all()[0]
-#                                        )
-#
-#        create_pline = partial(ProductLine.objects.create, user=user, related_document=invoice)
-#        create_pline(on_the_fly_item='Fly1', discount_unit=DISCOUNT_PERCENT)
-#        create_pline(on_the_fly_item='Fly2', discount_unit=DISCOUNT_LINE_AMOUNT)
-#
-#        build = partial(EntityCellRegularField.build, model=Line)
-#        HeaderFilter.create(pk='test-hf_pline', name='ProductLine view',
-#                            model=ProductLine,
-#                            cells_desc=[build(name='on_the_fly_item'),
-#                                        build(name='discount_unit'),
-#                                       ],
-#                           )
-#
-#        lv_url = self._set_listview_state(model=ProductLine)
-#        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(ProductLine)),
-#                                     data={'list_url': lv_url}, follow=True,
-#                                    )
-#
-#        lines = {force_unicode(line) for line in response.content.splitlines()}
-#        self.assertIn(u'"Fly1","%s"' % _(u'Percent'), lines)
-#        self.assertIn(u'"Fly2","%s"' % _(u'Amount'), lines)
         invoice = FakeInvoice.objects.create(user=user, name='Invoice',
                                              expiration_date=date(year=2012, month=12, day=15),
                                             )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date #datetime
+    from datetime import date
     from decimal import Decimal
     from time import sleep
 
@@ -21,10 +21,6 @@ try:
             TYPE_AUX_CREATION, TYPE_AUX_EDITION, TYPE_AUX_DELETION,
             TYPE_RELATED, TYPE_PROP_ADD, TYPE_PROP_DEL,
             TYPE_RELATION, TYPE_SYM_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL)
-
-#    from creme.persons.models import Contact, Organisation, Sector, LegalForm
-
-#    from creme.assistants.models import ToDo
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -56,7 +52,6 @@ class HistoryTestCase(CremeTestCase):
         if extra_args:
             data.update(extra_args)
 
-        #self.assertNoFormError(self.client.post('/persons/organisation/add', follow=True, data=data))
         self.assertNoFormError(self.client.post('/tests/organisation/add', follow=True, data=data))
 
         return self.get_object_or_fail(Organisation, name=name)
@@ -68,7 +63,6 @@ class HistoryTestCase(CremeTestCase):
         if extra_args:
             data.update(extra_args)
 
-        #self.assertNoFormError(self.client.post('/persons/contact/add', follow=True, data=data))
         self.assertNoFormError(self.client.post('/tests/contact/add', follow=True, data=data))
 
         return self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
@@ -102,13 +96,6 @@ class HistoryTestCase(CremeTestCase):
     def test_creation_n_aux(self):
         "Address is auxiliary + double save() because of addresses caused problems"
         old_count = HistoryLine.objects.count()
-#        country = 'Japan'
-#        gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
-#                                          extra_args={'billing_address-country': country}
-#                                         )
-#        address = gainax.billing_address
-#        self.assertIsNotNone(address)
-#        self.assertEqual(country, address.country)
         gainax = Organisation.objects.create(user=self.other_user, name='Gainax')
         gainax.address = address = Address.objects.create(entity=gainax, country='Japan')
         gainax.save()
@@ -134,12 +121,10 @@ class HistoryTestCase(CremeTestCase):
                          hline.modifications
                         )
         self.assertEqual([_(u'Add <%(type)s>: “%(value)s”') % {
-#                                'type':  _(u'Address'),
                                 'type':  'Test address',
                                 'value': address,
                                }
                          ],
-#                         hline.verbose_modifications
                          hline.get_verbose_modifications(self.user),
                         )
 
@@ -194,7 +179,8 @@ about this fantastic animation studio."""
 
         phone = old_phone + '07'
         email = 'contact@gainax.jp'
-        description += 'In this studio were created lots of excellent animes like "Evangelion" or "Fushigi no umi no Nadia".'
+        description += 'In this studio were created lots of excellent animes ' \
+                       'like "Evangelion" or "Fushigi no umi no Nadia".'
         response = self.client.post(gainax.get_edit_absolute_url(), follow=True,
                                     data={'user':          self.user.id,
                                           'name':          name,
@@ -220,7 +206,6 @@ about this fantastic animation studio."""
         self.assertIn(['subject_to_vat', True], modifs, modifs)
         self.assertIn(['legal_form', lform.id, None], modifs, modifs)
 
-#        vmodifs = hline.verbose_modifications
         vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(7, len(vmodifs))
 
@@ -242,7 +227,6 @@ about this fantastic animation studio."""
                                               },
                       vmodifs
                      )
-#        self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')},
         self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation')},
                       vmodifs
                      )
@@ -323,7 +307,6 @@ about this fantastic animation studio."""
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
         self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Photograph'),
-                                               #'value': _(u'Entity #%s') % img.id,
                                                'value': img,
                                               },
                       vmodifs[0]
@@ -351,7 +334,7 @@ about this fantastic animation studio."""
         self.assertEqual(1, len(vmodifs))
         self.assertEqual(self.FSTRING_3_VALUES % {'field':    _(u'Capital'),
                                                   'oldvalue': old_capital,
-                                                  'value':    '', # <== not None
+                                                  'value':    '',  # <== not None
                                                  },
                          vmodifs[0]
                         )
@@ -384,13 +367,12 @@ about this fantastic animation studio."""
         self.assertBetweenDates(hline)
 
         creation_line = self.refresh(creation_line)
-        self.assertIsNone(hline.entity)
-        self.assertEqual(entity_repr, hline.entity_repr)
+        self.assertIsNone(creation_line.entity)
+        self.assertEqual(entity_repr, creation_line.entity_repr)
 
     def test_deletion02(self):
         "With auxiliary models"
         gainax = Organisation.objects.create(user=self.user, name='Gainax')
-        #ToDo.objects.create(user=user, creme_entity=gainax, title='Todo#1')
         Address.objects.create(entity=gainax, city='Tokyo')
         old_count = HistoryLine.objects.count()
 
@@ -498,12 +480,10 @@ about this fantastic animation studio."""
         self.assertGreater(hline.date, gainax.modified)
 
         FSTRING = _(u'Add property “%s”')
-#        self.assertEqual([FSTRING % ptype.text], hline.verbose_modifications)
         self.assertEqual([FSTRING % ptype.text], hline.get_verbose_modifications(user))
 
         expected = [FSTRING % ptype.id]
         prop.delete(); ptype.delete()
-#        self.assertEqual(expected, self.refresh(hline).verbose_modifications)
         self.assertEqual(expected, self.refresh(hline).get_verbose_modifications(user))
 
     def test_delete_property01(self):
@@ -533,7 +513,6 @@ about this fantastic animation studio."""
 
         ptype.text = ptype.text.title()
         ptype.save()
-#        self.assertEqual([_(u'Delete property “%s”') % ptype.text], hline.verbose_modifications)
         self.assertEqual([_(u'Delete property “%s”') % ptype.text],
                          hline.get_verbose_modifications(user)
                         )
@@ -575,15 +554,12 @@ about this fantastic animation studio."""
         self.assertEqual(hline.id,     hline_sym.related_line.id)
 
         FSTRING = _(u'Add a relationship “%s”')
-#        self.assertEqual([FSTRING % rtype.predicate],  hline.verbose_modifications)
-#        self.assertEqual([FSTRING % srtype.predicate], hline_sym.verbose_modifications)
         self.assertEqual([FSTRING % rtype.predicate],  hline.get_verbose_modifications(user))
         self.assertEqual([FSTRING % srtype.predicate], hline_sym.get_verbose_modifications(user))
 
         rtype_id = rtype.id
         relation.delete(); rtype.delete()
         self.assertDoesNotExist(rtype)
-#        self.assertEqual([FSTRING % rtype_id], self.refresh(hline).verbose_modifications)
         self.assertEqual([FSTRING % rtype_id], self.refresh(hline).get_verbose_modifications(user))
 
     def test_add_relation02(self):
@@ -650,7 +626,6 @@ about this fantastic animation studio."""
 
         rtype.predicate = rtype.predicate.title()
         rtype.save()
-#        self.assertEqual([_(u'Delete a relationship “%s”') % rtype.predicate], hline.verbose_modifications)
         self.assertEqual([_(u'Delete a relationship “%s”') % rtype.predicate],
                          hline.get_verbose_modifications(user)
                         )
@@ -682,19 +657,12 @@ about this fantastic animation studio."""
         "Address"
         country = 'Japan'
         old_city = 'MITAKA'
-        gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
-#                                          extra_args={'billing_address-country': country,
-#                                                      'billing_address-city':    old_city,
-#                                                     }
-                                         )
-#        address = gainax.billing_address
-#        self.assertIsNotNone(address)
+        gainax = self._build_organisation(user=self.other_user.id, name='Gainax')
         address = Address.objects.create(entity=gainax, country=country, city=old_city)
 
         old_count = HistoryLine.objects.count()
         city = old_city.title()
         department = 'Tokyo'
-#        response = self.client.post('/persons/address/edit/%s' % address.id,
         response = self.client.post(address.get_edit_absolute_url(),
                                     data={'country':    country,
                                           'city':       city,
@@ -725,12 +693,10 @@ about this fantastic animation studio."""
                          hline.modifications
                         )
 
-#        vmodifs = hline.verbose_modifications
         vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(3, len(vmodifs))
 
         self.assertEqual(_(u'Edit <%(type)s>: “%(value)s”') % {
-#                                'type':  _(u'Address'),
                                 'type':  'Test address',
                                 'value': address,
                                },
@@ -748,42 +714,26 @@ about this fantastic animation studio."""
                          vmodifs[2]
                         )
 
-#    @skipIfNotInstalled('creme.billing')
     def test_edit_auxiliary02(self):
         """Billing.Line
         - an auxiliary + CremeEntity at the same time
         - DecimalField
         - field with choices.
         """
-#        from creme.billing.models import Invoice, InvoiceStatus, ProductLine
-#        self.populate('billing')
-
-#        old_count = HistoryLine.objects.count()
         user = self.user
         invoice = Invoice.objects.create(user=user, name='Invoice',
                                          expiration_date=date(year=2012, month=12, day=15),
-#                                         status=InvoiceStatus.objects.create(name='OK'),
                                         )
         old_count = HistoryLine.objects.count()
-#        pline = ProductLine.objects.create(on_the_fly_item='DeathNote', user=user,
-#                                           related_document=invoice,
-#                                           quantity=Decimal('1'),
-#                                          )
         pline = InvoiceLine.objects.create(item='DeathNote', user=user,
                                           invoice=invoice, quantity=Decimal('1'),
                                           discount_unit=FAKE_AMOUNT_UNIT,
                                          )
 
         hlines = self._get_hlines()
-#        self.assertEqual(old_count + 4,     len(hlines))
-#        self.assertEqual(TYPE_CREATION,     hlines[-4].type)
-#        self.assertEqual(TYPE_AUX_CREATION, hlines[-3].type)
-#        self.assertEqual(TYPE_RELATION,     hlines[-2].type) # relation between Line & Invoice
-#        self.assertEqual(TYPE_SYM_RELATION, hlines[-1].type) # idem
         self.assertEqual(old_count + 1,     len(hlines))
         self.assertEqual(TYPE_AUX_CREATION, hlines[-1].type)
 
-#        old_count += 4
         old_count += 1
 
         pline.quantity = Decimal('2')
@@ -792,10 +742,10 @@ about this fantastic animation studio."""
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
+
         hline = hlines[-1]
         self.assertEqual(TYPE_AUX_EDITION,   hline.type)
 
-#        vmodifs = hline.verbose_modifications
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(3, len(vmodifs))
         self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Quantity'),
@@ -815,11 +765,9 @@ about this fantastic animation studio."""
         "Auxiliary: Address"
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
-#        todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1')
         address = Address.objects.create(entity=nerv, city='Tokyo')
         old_count = HistoryLine.objects.count()
 
-#        todo.delete()
         address.delete()
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
@@ -828,16 +776,13 @@ about this fantastic animation studio."""
         self.assertEqual(nerv.id,           hline.entity.id)
         self.assertEqual(TYPE_AUX_DELETION, hline.type)
 
-#        vmodifs = hline.verbose_modifications
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 
         self.assertEqual(_(u'Delete <%(type)s>: “%(value)s”') % {
-#                                'type':  _(u'Todo'),
-#                                'value': todo,
-                                'type':  u'Test address',
-                                'value': address,
-                               },
+                            'type':  u'Test address',
+                            'value': address,
+                           },
                          vmodifs[0]
                         )
 
@@ -910,7 +855,6 @@ about this fantastic animation studio."""
                                                    'value':    'NERV',
                                                   },
                          ],
-#                         hline.verbose_modifications
                          hline.get_verbose_modifications(user)
                         )
 
@@ -920,7 +864,6 @@ about this fantastic animation studio."""
         hline = self.refresh(hline)  # Clean cache
 
         with self.assertNoException():
-#            vmodifs = hline.verbose_modifications
             vmodifs = hline.get_verbose_modifications(user)
 
         self.assertEqual([self.FSTRING_1_VALUE % {'field': fname}], vmodifs)

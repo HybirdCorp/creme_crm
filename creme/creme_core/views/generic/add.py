@@ -20,7 +20,7 @@
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext_lazy as _ #, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 from .popup import inner_popup
@@ -52,7 +52,7 @@ def add_entity(request, form_class, url_redirect='',
             return HttpResponseRedirect(url_redirect)
 
         cancel_url = POST.get('cancel_url')
-    else: #GET
+    else:  # GET
         entity_form = form_class(user=request.user, initial=extra_initial)
         cancel_url = request.META.get('HTTP_REFERER')
 
@@ -126,7 +126,6 @@ def add_model_with_popup(request, form_class, title=None, initial=None,
 
     return inner_popup(request, template,
                        {'form':   form,
-#                        'title':  title or ugettext(u'New'),
                         'title':  title or _(u'New'),
                         'submit_label': submit_label,
                        },

@@ -11,10 +11,7 @@ try:
     from .base import ViewsTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    #from creme.creme_core.gui import bulk_update_registry
     from creme.creme_core.models import EntityFilter, EntityFilterCondition, SetCredentials
-
-#    from creme.persons.models import Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -27,7 +24,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-#        cls.populate('creme_core', 'persons')
         cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
@@ -41,12 +37,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                      )
 
     def test_no_app_perm(self):
-#        self.login(is_superuser=False)
-        self.login(is_superuser=False, allowed_apps=['documents']) #not 'creme_core'
+        self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
         self.assertGET403(self.build_url(Organisation))
 
     def test_app_perm(self):
-#        self.login(is_superuser=False, allowed_apps=['persons'])
         self.login(is_superuser=False, allowed_apps=['creme_core'])
         self.assertGET200(self.build_url(Organisation))
 
@@ -90,7 +84,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             back_url = response.context['back_url']
             form = response.context['form']
 
-        #self.assertEqual(u"http://testserver%s" % Organisation.get_lv_absolute_url(), back_url)
         self.assertEqual(Organisation.get_lv_absolute_url(), back_url)
 
         self.assertIs(Organisation, form.entity_type)
@@ -125,7 +118,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             back_url = response.context['back_url']
             form = response.context['form']
 
-        #self.assertEqual(u"http://testserver%s" % Contact.get_lv_absolute_url(), back_url)
         self.assertEqual(Contact.get_lv_absolute_url(), back_url)
 
         self.assertIs(Contact, form.entity_type)
@@ -138,7 +130,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self.build_url(Contact), follow=True,
                                       data={'actions': self.format_str1 % {
-                                                            'name':     'unknown_field', # <============= HERE
+                                                            'name':     'unknown_field',  # <============= HERE
                                                             'operator': 'lower',
                                                             'value':    '',
                                                         },
@@ -151,7 +143,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 # TODO: uncomment when a model has a field with batchable type and not inner editable (maybe a test model)
 #    def test_validation_error02(self):
 #        "Field is not inner editable -> invalid"
-##        self.autodiscover()
 #        self.login()
 #
 #        fname = 'siren'
@@ -184,7 +175,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                  ],
                                      )
 
-        # we set the current list view state
+        # We set the current list view state
         self.assertGET200(Organisation.get_lv_absolute_url(), data={'filter': efilter.id})
 
         response = self.assertGET200(self.build_url(Organisation))
@@ -201,9 +192,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         contact = Contact.objects.create(user=self.user, first_name='kanji', last_name='sasahara')
         response = self.client.post(self.build_url(Contact), follow=True,
                                     data={'actions': self.format_str2 % {
-                                                            'name01': 'first_name', 'operator01': 'title', 'value01': '',
-                                                            'name02': 'last_name',  'operator02': 'upper', 'value02': '',
-                                                        },
+                                                        'name01': 'first_name', 'operator01': 'title', 'value01': '',
+                                                        'name02': 'last_name',  'operator02': 'upper', 'value02': '',
+                                                    },
                                          }
                                    )
         self.assertNoFormError(response)
@@ -231,9 +222,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                             )
 
     def test_with_filter01(self):
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club')
@@ -247,7 +238,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                     ),
                                                  ],
                                      )
-        self.assertEqual({orga02, orga03}, set(efilter.filter(Organisation.objects.all()))) # <== not 'orga01'
+        self.assertEqual({orga02, orga03}, set(efilter.filter(Organisation.objects.all())))  # <== not 'orga01'
 
         response = self.client.post(self.build_url(Organisation), follow=True,
                                     data={'filter':  efilter.id,
@@ -262,7 +253,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.assertEqual('manga club', self.refresh(orga02).name)
         self.assertEqual('anime club', self.refresh(orga03).name)
-        self.assertEqual('Genshiken',  self.refresh(orga01).name) # <== not changed
+        self.assertEqual('Genshiken',  self.refresh(orga01).name)  # <== not changed
 
         with self.assertNoException():
             form = response.context['form']
@@ -298,12 +289,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                             )
 
     def test_use_edit_perm(self):
-#        self.login(is_superuser=False, allowed_apps=['persons'])
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
-                        EntityCredentials.LINK | EntityCredentials.UNLINK, #no CHANGE
+                        EntityCredentials.LINK | EntityCredentials.UNLINK,  # Not 'CHANGE'
                   set_type=SetCredentials.ESET_ALL
                  )
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
@@ -313,9 +303,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         create_orga = Organisation.objects.create
         orga01 = create_orga(user=self.other_user, name='Genshiken')
-        orga02 = create_orga(user=self.user,       name='Manga club')
+        orga02 = create_orga(user=user,            name='Manga club')
 
-        self.assertFalse(self.user.has_perm_to_change(orga01)) # <== user cannot change
+        self.assertFalse(self.user.has_perm_to_change(orga01))  # <== user cannot change
         self.assertTrue(self.user.has_perm_to_change(orga02))
 
         response = self.client.post(self.build_url(Organisation), follow=True,
@@ -329,15 +319,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
         self.assertEqual('manga club', self.refresh(orga02).name)
-        self.assertEqual('Genshiken',  self.refresh(orga01).name) # <== not changed
+        self.assertEqual('Genshiken',  self.refresh(orga01).name)  # <== not changed
 
         self.assertEqual(1, response.context['form'].read_objects_count)
 
     def test_model_error(self):
-        self.login()
+        user = self.login()
 
         description = 'Genshiken member'
-
         efilter = EntityFilter.create('test-filter01', 'Belongs to Genshiken',
                                       Contact, is_custom=True,
                                       conditions=[EntityFilterCondition.build_4_field(
@@ -351,7 +340,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         first_name = 'Kanako'
         last_name = 'Ouno'
-        create_contact = partial(Contact.objects.create, user=self.user, description=description)
+        create_contact = partial(Contact.objects.create, user=user, description=description)
         contact01 = create_contact(first_name=first_name, last_name=last_name)
         create_contact(first_name='Mitsunori', last_name='Kugayama')
 
@@ -372,8 +361,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
         contact01 = self.refresh(contact01)
-        self.assertEqual(last_name,  contact01.last_name) #no change !!
-        self.assertEqual(first_name, contact01.first_name) #TODO: make the changes that are possible (u'KANAKO') ??
+        self.assertEqual(last_name,  contact01.last_name)  # No change !!
+        self.assertEqual(first_name, contact01.first_name)  # TODO: make the changes that are possible (u'KANAKO') ??
 
         form = response.context['form']
         self.assertEqual(1, form.modified_objects_count)
@@ -400,7 +389,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertGET404(self.build_ops_url(ct_id=1216545, field='name'))
 
     def test_get_ops02(self):
-        "Charfield"
+        "CharField"
         self.login()
 
         def assertStrOps(fieldname):
@@ -436,8 +425,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_get_ops05(self):
         "No app credentials"
-#        self.login(is_superuser=False, allowed_apps=['creme_core']) #not 'persons'
-        self.login(is_superuser=False, allowed_apps=['documents']) #not 'creme_core'
+        self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
         self.assertGET403(self.build_ops_url(self.contact_ct_id, 'first_name'))
 
     def test_get_ops06(self):
@@ -446,4 +434,4 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
 
-    #TODO: custom fields ??
+    # TODO: custom fields ??

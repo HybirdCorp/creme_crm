@@ -55,17 +55,15 @@ def json_list_enumerable(request, ct_id):
         app_name = ct.app_label
 
         if not request.user.has_perm(app_name):
-            #raise Http404(_(u"You are not allowed to access to this app %s") % app_name)
             raise Http404(u"You are not allowed to access to the app '%s'" % app_name)
 
         try:
-#            config_registry.get_app(app_name).get_model_conf(ct.id)
             config_registry.get_app(app_name).get_model_conf(model=model)
         except (KeyError, NotRegisteredInConfig):
-            #raise Http404(_(u"Content type is not registered in config"))
             raise Http404(u"Content type is not registered in config")
 
     return [(e.id, unicode(e)) for e in model.objects.all()]
+
 
 @login_required
 @jsonify
@@ -74,6 +72,7 @@ def json_list_userfilter(request):
                       ((e.id, unicode(e)) for e in get_user_model().objects.all()),
                      )
                )
+
 
 @login_required
 @jsonify

@@ -22,8 +22,7 @@ from functools import partial
 from itertools import chain
 import warnings
 
-#from django.db import models
-from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist, DateField #Field
+from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist, DateField
 
 from .unicode_collation import collator
 
@@ -46,10 +45,8 @@ def get_instance_field_info(obj, field_name):
         field_value = getattr(obj, subfield_name)
 
         if issubclass(field_class, ManyToManyField):
-            #return (field_class, getattr(obj, subfield_name).all())
             field_value = field_value.all()
 
-        #return (field_class, getattr(obj, subfield_name))
         return field_class, field_value
     except (AttributeError, FieldDoesNotExist):
         return None, ''
@@ -65,7 +62,6 @@ class FieldInfo(object):
 
         for subfield_name in subfield_names[:-1]:
             field = model._meta.get_field(subfield_name)
-            #model = field.rel.to
             rel = getattr(field, 'rel', None)
 
             if rel is None:
@@ -99,63 +95,9 @@ class FieldInfo(object):
         return u' - '.join(unicode(field.verbose_name) for field in self.__fields)
 
 
-#def get_model_field_info(model, field_name, silent=True):
-#    """ For a field_name 'att1__att2__att3', it returns the list of dicts
-#        [
-#         {'field': django.db.models.fields.related.ForeignKey for model.att1, 'model': YourModelClass for model.att1},
-#         {'field': django.db.models.fields.related.ForeignKey for model.att2, 'model': YourModelClass for model.att2},
-#         {'field': django.db.models.fields.FieldClass for model.att3,         'model': None},
-#        ]
-#    """
-#    warnings.warn("get_model_field_info() method is deprecated; Use FieldInfo class instead",
-#                  DeprecationWarning
-#                 )
-#    subfield_names = field_name.split('__')
-#    info = []
-#
-#    try:
-#        for subfield_name in subfield_names[:-1]:
-#            field = model._meta.get_field(subfield_name)
-#            model = field.rel.to
-#            info.append({'field': field, 'model': model})
-#
-#        field = model._meta.get_field(subfield_names[-1])
-#        #todo: isinstance() ?? ManyToManyField too ??
-#        model = None if not field.get_internal_type() == 'ForeignKey' else field.rel.to
-#        info.append({'field': field, 'model': model})
-#    except (AttributeError, FieldDoesNotExist) as e:
-#        if not silent:
-#            raise FieldDoesNotExist(e)
-#
-#    return info
-
-#def get_verbose_field_name(model, field_name, separator=" - ", silent=True):
-#    """ For a field_name 'att1__att2__att3' it returns
-#        att1_verbose_name - att2_verbose_name - att3_verbose_name
-#        - is the default separator
-#    """
-#    warnings.warn("get_verbose_field_name() method is deprecated; Use FieldInfo class instead",
-#                  DeprecationWarning
-#                 )
-#    fields = get_model_field_info(model, field_name, silent)
-#    return separator.join([unicode(f['field'].verbose_name) for f in fields])
-
-#def get_related_field(model, related_field_name):
-#    for related_field in model._meta.get_all_related_objects():
-#        if related_field.var_name == related_field_name:
-#            return related_field
-## Possible django1.8 implementation:
-##    for f in model._meta.get_fields():
-##        #if (f.one_to_many or f.one_to_one) and f.auto_created and \
-##           #f.name == related_field_name:
-##        #if (f.one_to_many or f.one_to_one) and \
-##            #f.related_model._meta.model_name == related_field_name: # XXX: UGLY ! collisons are possible
-##        if (f.one_to_many or f.one_to_one) and f.name == related_field_name:
-##            return f
-
 def is_date_field(field):
-    #return isinstance(field, (models.DateTimeField, models.DateField))
     return isinstance(field, DateField)
+
 
 def get_date_fields(model, exclude_func=lambda f: False):
     warnings.warn("get_date_fields() function is deprecated (because it is probably useless).",
@@ -166,7 +108,8 @@ def get_date_fields(model, exclude_func=lambda f: False):
 
 # ModelFieldEnumerator -------------------------------------------------------
 class _FilterModelFieldQuery(object):
-    _TAGS = ('viewable', 'clonable', 'enumerable', 'optional') #TODO: use a constants in fields_tags ?? set() ?
+    # TODO: use a constants in fields_tags ?? set() ?
+    _TAGS = ('viewable', 'clonable', 'enumerable', 'optional')
 
     def __init__(self, function=None, **kwargs):
         self._conditions = conditions = []
@@ -222,7 +165,6 @@ class ModelFieldEnumerator(object):
             if all(ffilter(field, depth) for ffilter in ffilters):
                 field_info = parents_fields + (field,)
 
-#                if field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
                 if isinstance(field, (ForeignKey, ManyToManyField)):
                     if rem_depth:
                         if include_fk:
@@ -256,13 +198,6 @@ class ModelFieldEnumerator(object):
 
     def choices(self, printer=lambda field: unicode(field.verbose_name)):
         """@return A list of tuple (field_name, field_verbose_name)."""
-#        return [('__'.join(field.name for field in fields_info),
-#                 ' - '.join(chain((u'[%s]' % field.verbose_name for field in fields_info[:-1]),
-#                                  [printer(fields_info[-1])]
-#                                 )
-#                           )
-#                ) for fields_info in self
-#               ]
         sort_key = collator.sort_key
         sortable_choices = []
 
@@ -275,7 +210,7 @@ class ModelFieldEnumerator(object):
 
             # The sort key (list.sort() will compare tuples, so the first elements,
             # then eventually the second ones etc...)
-            key = tuple(chain([len(fields_info)], # NB: ensure that fields are first, then sub-fields...
+            key = tuple(chain([len(fields_info)],  # NB: ensure that fields are first, then sub-fields...
                               (sort_key(vname) for vname in fk_vnames),
                               [sort_key(terminal_vname)]
                              )
@@ -290,6 +225,6 @@ class ModelFieldEnumerator(object):
 
             sortable_choices.append((key, choice))
 
-        sortable_choices.sort(key=lambda c: c[0]) # Sort with our previously computed key
+        sortable_choices.sort(key=lambda c: c[0])  # Sort with our previously computed key
 
-        return [c[1] for c in sortable_choices] # Extract choices
+        return [c[1] for c in sortable_choices]  # Extract choices

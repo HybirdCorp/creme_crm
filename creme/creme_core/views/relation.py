@@ -50,6 +50,7 @@ def _fields_values(instances, getters, range, sort_getter=None, user=None):
 
     return result
 
+
 def _clean_getters_arg(field, allowed_fields):
     getter = allowed_fields.get(field)
 
@@ -57,6 +58,7 @@ def _clean_getters_arg(field, allowed_fields):
         raise PermissionDenied("Forbidden field '%s'" % field)
 
     return getter
+
 
 def _clean_fields_values_args(data, allowed_fields):
     if not data:
@@ -75,13 +77,15 @@ def _clean_fields_values_args(data, allowed_fields):
 
     return getters, range, sort_getter
 
+
 JSON_ENTITY_FIELDS = {'unicode':     lambda e, user: e.allowed_unicode(user),
                       'id':          lambda e, user: e.id,
                       'entity_type': lambda e, user: e.entity_type_id,
                       'summary':     lambda e, user: e.get_real_entity().get_entity_summary(user),
                      }
 
-#TODO: move to entity.py, (rename ?) & change also url
+
+# TODO: move to entity.py, (rename ?) & change also url
 @login_required
 @jsonify
 def json_entity_get(request, entity_id):
@@ -90,33 +94,36 @@ def json_entity_get(request, entity_id):
 
     return _fields_values(query, getters, (0, 1), sort, request.user)
 
+
 JSON_PREDICATE_FIELDS = {'unicode': lambda e, user: unicode(e),
                          'id':      lambda e, user: e.id
                         }
 
+
 @login_required
 @jsonify
-def json_entity_rtypes(request, entity_id): #TODO: seems unused
+def json_entity_rtypes(request, entity_id):  # TODO: seems unused
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     request.user.has_perm_to_view_or_die(entity)
 
-    #TODO: use CremePropertyType constraints too
+    # TODO: use CremePropertyType constraints too
     rtypes = RelationType.objects.filter(is_internal=False) \
                                  .filter(Q(subject_ctypes=entity.entity_type) |
                                          Q(subject_ctypes__isnull=True)
                                         ) \
                                  .order_by('predicate') \
-                                 .distinct() #TODO: distinct useful ??
+                                 .distinct()  # TODO: distinct useful ??
 
-    #TODO: use unicode collation ?
+    # TODO: use unicode collation ?
 
     return _fields_values(rtypes, *_clean_fields_values_args(request.GET, JSON_PREDICATE_FIELDS))
 
 
 JSON_CONTENT_TYPE_FIELDS = {'unicode':  lambda e, user: unicode(e),
-                            #'name':     lambda e: e.name, #deprecated field
+                            # 'name':     lambda e: e.name, #deprecated field
                             'id':       lambda e, user: e.id
                            }
+
 
 @login_required
 @jsonify
@@ -128,6 +135,7 @@ def json_rtype_ctypes(request, rtype_id):
         content_types = list(creme_entity_content_types())
 
     return _fields_values(content_types, getters, range, sort)
+
 
 @login_required
 def add_relations(request, subject_id, rtype_id=None):
@@ -166,11 +174,12 @@ def add_relations(request, subject_id, rtype_id=None):
                        delegate_reload=True,
                       )
 
+
+# TODO: Factorise with add_properties_bulk and bulk_update?
 @login_required
-def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factorise with add_properties_bulk and bulk_update?
+def add_relations_bulk(request, model_ct_id, relations_types=None):
     user = request.user
-    model    = get_ct_or_404(model_ct_id).model_class()
-    #entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
+    model = get_ct_or_404(model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or request.GET.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
@@ -210,6 +219,7 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factor
                        delegate_reload=True,
                       )
 
+
 @login_required
 def delete(request):
     relation = get_object_or_404(Relation, pk=get_from_POST_or_404(request.POST, 'id'))
@@ -227,6 +237,7 @@ def delete(request):
         return HttpResponse("", content_type="text/javascript")
 
     return redirect(subject.get_real_entity())
+
 
 @login_required
 def delete_similar(request):
@@ -254,6 +265,7 @@ def delete_similar(request):
 
     return redirect(subject.get_real_entity())
 
+
 @login_required
 def delete_all(request):
     subject_id = get_from_POST_or_404(request.POST, 'subject_id')
@@ -279,6 +291,7 @@ def delete_all(request):
 
     return HttpResponse(message, content_type="text/javascript", status=status)
 
+
 @login_required
 def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False, *args, **kwargs):
     """Display an inner popup to select entities to link as relations' objects.
@@ -294,19 +307,14 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     rtype = get_object_or_404(RelationType, pk=rtype_id)
     rtype.is_not_internal_or_die()
 
-    #TODO: filter with relation creds too
-#    #extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #It seems that way causes some entities linked with another reelation type to be skipped...
-#    extra_q = ~Q(pk__in=CremeEntity.objects.filter(relations__type=rtype.symmetric_type_id,
-#                                                   relations__object_entity=subject_id,
-#                                                  )
-#                                           .values_list('id', flat=True)
-#                )
+    # TODO: filter with relation creds too
+    # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
     extra_q = ~Q(pk__in=list(CremeEntity.objects
                                         .filter(relations__type=rtype.symmetric_type_id,
                                                 relations__object_entity=subject_id,
                                                )
                                         .values_list('id', flat=True)
-                            ) # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
+                            )
                 )
 
     prop_types = list(rtype.object_properties.all())
@@ -319,7 +327,8 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
 
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_q=extra_q)
 
-#TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?
+
+# TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?
 @login_required
 def add_relations_with_same_type(request):
     """Allow to create from a POST request several relations with the same
@@ -338,14 +347,15 @@ def add_relations_with_same_type(request):
     rtype = get_object_or_404(RelationType, pk=rtype_id)
     rtype.is_not_internal_or_die()
 
-    entity_ids.append(subject_id) #NB: so we can do only one query
+    entity_ids.append(subject_id)  # NB: so we can do only one query
     entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
 
     subject_properties = frozenset(rtype.subject_properties.values_list('id', flat=True))
     object_properties  = frozenset(rtype.object_properties.values_list('id', flat=True))
 
     if subject_properties or object_properties:
-        CremeEntity.populate_properties(entities) #Optimise the get_properties() (but it retrieves CremePropertyType objects too)
+        # Optimise the get_properties() (but it retrieves CremePropertyType objects too)
+        CremeEntity.populate_properties(entities)
 
     for i, entity in enumerate(entities):
         if entity.id == subject_id:
@@ -360,10 +370,10 @@ def add_relations_with_same_type(request):
     errors = defaultdict(list)
     len_diff = len(entity_ids) - len(entities)
 
-    if len_diff != 1: #'subject' has been poped from entities, but not subject_id from entity_ids, so 1 and not 0
+    if len_diff != 1:  # 'subject' has been pop from entities, but not subject_id from entity_ids, so 1 and not 0
         errors[404].append(_(u"%s entities doesn't exist / doesn't exist any more") % len_diff)
 
-    #TODO: move in a RelationType method ??
+    # TODO: move in a RelationType method ??
     subject_ctypes = frozenset(int(ct_id) for ct_id in rtype.subject_ctypes.values_list('id', flat=True))
     if subject_ctypes and subject.entity_type_id not in subject_ctypes:
         raise ConflictError('Incompatible type for subject')
@@ -371,12 +381,13 @@ def add_relations_with_same_type(request):
     if subject_properties and not any(p.type_id in subject_properties for p in subject.get_properties()):
         raise ConflictError('Missing compatible property for subject')
 
-    #TODO: move in a RelationType method ??
+    # TODO: move in a RelationType method ??
     object_ctypes = frozenset(int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True))
     check_ctype = (lambda e: e.entity_type_id in object_ctypes) if object_ctypes else \
                   lambda e: True
 
-    check_properties = (lambda e: any(p.type_id in object_properties for p in e.get_properties())) if object_properties else \
+    check_properties = (lambda e: any(p.type_id in object_properties for p in e.get_properties())) \
+                       if object_properties else \
                        lambda e: True
 
     create_relation = Relation.objects.create

@@ -28,11 +28,14 @@ from ..global_info import get_global_info
 def get_creme_media_url(theme, url):
     return media_url("%s/%s" % (theme ,url))
 
+
 def creme_media_themed_url(url):
     return get_creme_media_url(get_current_theme(), url)
 
+
 def get_current_theme():
     return get_global_info('usertheme') or settings.DEFAULT_THEME
+
 
 def get_current_theme_vb(theme_name=None):
     """Get the verbose name of the current theme"""

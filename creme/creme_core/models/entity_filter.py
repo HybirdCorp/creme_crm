@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from future_builtins import filter
-from datetime import datetime # date
+from datetime import datetime
 from itertools import izip_longest
 from json import loads as jsonloads, dumps as jsondumps
 import logging
@@ -35,7 +34,6 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-#from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, ungettext
 from django.utils.timezone import now
 
@@ -111,11 +109,14 @@ class EntityFilter(Model):  # CremeModel ???
     """
     id          = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name        = CharField(max_length=100, verbose_name=_('Name'))
-    user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True).set_tags(viewable=False) #verbose_name=_(u'Owner')
+    user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True).set_tags(viewable=False)
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     is_custom   = BooleanField(editable=False, default=True).set_tags(viewable=False)
-    is_private  = BooleanField(pgettext_lazy('creme_core-entity_filter', u'Is private?'), default=False)  # 'True' means: can only be viewed (and so edited/deleted) by its owner.
-    use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False).set_tags(viewable=False)
+
+    # 'True' means: can only be viewed (and so edited/deleted) by its owner.
+    is_private = BooleanField(pgettext_lazy('creme_core-entity_filter', u'Is private?'), default=False)
+
+    use_or = BooleanField(verbose_name=_(u'Use "OR"'), default=False).set_tags(viewable=False)
 
     creation_label = _('Add a filter')
     _conditions_cache = None
@@ -164,7 +165,7 @@ class EntityFilter(Model):  # CremeModel ???
     #     if not self.user.is_team:
     #         if self.user_id == user.id:
     #             return (True, 'OK')
-    #     elif self.user.team_m2m_teamside.filter(teammate=user).exists(): #TODO: move in a User method ??
+    #     elif self.user.team_m2m_teamside.filter(teammate=user).exists(): #todo: move in a User method ??
     #         return (True, 'OK')
     #
     #     return (False, ugettext(u"You are not allowed to edit/delete this filter"))
@@ -179,30 +180,29 @@ class EntityFilter(Model):  # CremeModel ???
         assert not user.is_team
 
         if not self.user_id:  # All users allowed
-            return (True, 'OK')
+            return True, 'OK'
 
         if user.is_staff:
-            return (True, 'OK')
+            return True, 'OK'
 
-        #if user.is_superuser:
         if user.is_superuser and not self.is_private:
-            return (True, 'OK')
+            return True, 'OK'
 
         if not user.has_perm(self.entity_type.app_label):
-            return (False, ugettext(u"You are not allowed to access to this app"))
+            return False, ugettext(u"You are not allowed to access to this app")
 
         if not self.user.is_team:
             if self.user_id == user.id:
-                return (True, 'OK')
-        #elif self.user.team_m2m_teamside.filter(teammate=user).exists():
-        elif user.id in self.user.teammates: #TODO: move in a User method ??
-            return (True, 'OK')
+                return True, 'OK'
 
-        return (False, ugettext(u"You are not allowed to view/edit/delete this filter"))
+        elif user.id in self.user.teammates:  # TODO: move in a User method ??
+            return True, 'OK'
+
+        return False, ugettext(u"You are not allowed to view/edit/delete this filter")
 
     def can_view(self, user, content_type=None):
         if content_type and content_type != self.entity_type:
-            return (False, 'Invalid entity type')
+            return False, 'Invalid entity type'
 
         return self.can_edit(user)
 
@@ -215,7 +215,7 @@ class EntityFilter(Model):  # CremeModel ???
         if self.id in ref_filter_ids:
             raise EntityFilter.CycleError(ugettext(u'A condition can not reference its own filter.'))
 
-        if self.get_connected_filter_ids() & ref_filter_ids: #TODO: method intersection not null
+        if self.get_connected_filter_ids() & ref_filter_ids:  # TODO: method intersection not null
             raise EntityFilter.CycleError(ugettext(u'There is a cycle with a sub-filter.'))
 
     def _check_privacy_parent_filters(self, is_private, owner):
@@ -236,8 +236,6 @@ class EntityFilter(Model):  # CremeModel ???
                         )
 
             if owner.is_team:
-                #parent_user = parent_filter.user
-
                 if parent_filter.user.is_team:
                     if parent_filter.user != owner:
                         raise EntityFilter.PrivacyError(
@@ -585,11 +583,10 @@ class EntityFilter(Model):  # CremeModel ???
         if not efilters:
             raise EntityFilter.DoesNotExist('No EntityFilter with pk="%s"' % base_pk)
 
-        #VERSION_RE = compile_re(r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\])$')
         VERSION_RE = compile_re(r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$')
 
         def key(efilter):
-            # we build a tuple which can easily compared with the other generated tuples.
+            # We build a tuple which can easily compared with the other generated tuples.
             # Example of PKs: 'base_pk' 'base_pk[1.15]' 'base_pk[1.15 alpha]'
             #                 'base_pk[1.15 rc]' 'base_pk[1.15 rc11]' 'base_pk[1.15 rc11]2'
             # eg: 'base_pk[1.15 rc11]2'
@@ -607,9 +604,10 @@ class EntityFilter(Model):  # CremeModel ???
 
             version_num_tuple = tuple(int(x) for x in version_num.split('.'))
 
-            version_mod = groupdict['version_mod'] or ''  # '', alpha', 'beta' or 'rc' -> yeah, they are already alphabetically sorted
+            # '', alpha', 'beta' or 'rc' -> yeah, they are already alphabetically sorted.
+            version_mod = groupdict['version_mod'] or ''
 
-            version_modnum_str = groupdict['version_modnum'] # eg '11' in 'rc11'
+            version_modnum_str = groupdict['version_modnum']  # eg '11' in 'rc11'
             version_modnum = int(version_modnum_str) if version_modnum_str else 1
 
             copy_num_str = groupdict['copy_num']  # eg '11' in 'base_pk[1.5]11'
@@ -638,10 +636,10 @@ class _ConditionOperator(object):
     _NO_SUBPART_VALIDATION_FIELDS = {models.EmailField, models.IPAddressField}
 
     def __init__(self, name, key_pattern, exclude=False, accept_subpart=True, allowed_fieldtypes=None):
-        self._key_pattern        = key_pattern
-        self._exclude            = exclude
-        self._accept_subpart     = accept_subpart
-        self.name                = name
+        self._key_pattern    = key_pattern
+        self._exclude        = exclude
+        self._accept_subpart = accept_subpart
+        self.name            = name
 
         # Needed by javascript widget to filter operators for each field type
         self._allowed_fieldtypes = allowed_fieldtypes or tuple()
@@ -702,12 +700,15 @@ class _ConditionBooleanOperator(_ConditionOperator):
 
 class _IsEmptyOperator(_ConditionBooleanOperator):
     def __init__(self, name, exclude=False, **kwargs):
-        super(_IsEmptyOperator, self).__init__(name, key_pattern='%s__isnull', exclude=exclude, accept_subpart=False, **kwargs)
+        super(_IsEmptyOperator, self).__init__(name, key_pattern='%s__isnull',
+                                               exclude=exclude, accept_subpart=False,
+                                               **kwargs
+                                              )
 
     def get_q(self, efcondition, values):
         field_name = efcondition.name
 
-        # As default, set isnull operator (allways true, negate is done later)
+        # As default, set isnull operator (always true, negate is done later)
         query = Q(**{self.key_pattern % field_name: True})
 
         # Add filter for text fields, "isEmpty" should mean null or empty string
@@ -854,7 +855,9 @@ class EntityFilterCondition(Model):
         if custom_field.field_type == CustomField.BOOL and operator not in (EntityFilterCondition.EQUALS,
                                                                             EntityFilterCondition.EQUALS_NOT,
                                                                             EntityFilterCondition.ISEMPTY):
-            raise EntityFilterCondition.ValueError('build_4_customfield(): BOOL type is only compatible with EQUALS, EQUALS_NOT and ISEMPTY operators')
+            raise EntityFilterCondition.ValueError('build_4_customfield(): BOOL type is only compatible with'
+                                                   ' EQUALS, EQUALS_NOT and ISEMPTY operators'
+                                                  )
 
         if not isinstance(value, (list, tuple)):
             raise EntityFilterCondition.ValueError('build_4_customfield(): value is not an array')
@@ -955,7 +958,11 @@ class EntityFilterCondition(Model):
             raise EntityFilterCondition.ValueError(str(e))
 
         return EntityFilterCondition(type=EntityFilterCondition.EFC_FIELD,
-                                     name=name, value=EntityFilterCondition.encode_value({'operator': operator, 'values': values})
+                                     name=name,
+                                     value=EntityFilterCondition.encode_value({'operator': operator,
+                                                                               'values': values,
+                                                                              }
+                                                                             )
                                     )
 
     @staticmethod
@@ -1061,7 +1068,7 @@ class EntityFilterCondition(Model):
         resolve = EntityFilter.resolve_variable
         values = search_info['value']
 
-        # HACK : compatibility code thats convert old filters values into array.
+        # HACK : compatibility code which converts old filters values into array.
         if not isinstance(values, (list, tuple)):
             values = [values]
 
@@ -1087,7 +1094,11 @@ class EntityFilterCondition(Model):
         if operator.exclude:
             query.negate()
 
-        return Q(pk__in=self.filter.entity_type.model_class().objects.filter(query).values_list('id', flat=True))
+        return Q(pk__in=self.filter.entity_type.model_class()
+                                               .objects
+                                               .filter(query)
+                                               .values_list('id', flat=True)
+                )
 
     def _load_daterange(self, decoded_value):
         get = decoded_value.get
@@ -1109,7 +1120,11 @@ class EntityFilterCondition(Model):
         q_dict = self._load_daterange(search_info).get_q_dict(field=fname, now=now())
         q_dict['%s__custom_field' % related_name] = int(self.name)
 
-        return Q(pk__in=self.filter.entity_type.model_class().objects.filter(**q_dict).values_list('id', flat=True))
+        return Q(pk__in=self.filter.entity_type.model_class()
+                                               .objects
+                                               .filter(**q_dict)
+                                               .values_list('id', flat=True)
+                )
 
     def _get_q_field(self, user):
         search_info = self.decoded_value
@@ -1154,7 +1169,6 @@ class EntityFilterCondition(Model):
     #       on relations use it when there is only one condition on relations ??
     def _get_q_relation_subfilter(self, user):
         value = self.decoded_value
-        # subfilter = EntityFilter.objects.get(pk=value['filter_id'])
         subfilter = self._get_subfilter()
         filtered = subfilter.filter(subfilter.entity_type.model_class().objects.all()).values_list('id', flat=True)
 
@@ -1180,7 +1194,6 @@ class EntityFilterCondition(Model):
         return query
 
     _GET_Q_FUNCS = {
-            # EFC_SUBFILTER:          (lambda self, user: EntityFilter.objects.get(id=self.name).get_q(user)),
             EFC_SUBFILTER:          (lambda self, user: self._get_subfilter().get_q(user)),
             EFC_FIELD:              _get_q_field,
             EFC_RELATION:           _get_q_relation,

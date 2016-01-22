@@ -27,8 +27,9 @@ from .fields import CTypeForeignKey
 
 
 class ButtonMenuItem(CremeModel):
-    id           = CharField(primary_key=True, max_length=100) #TODO: pk string still useful ???
-    content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True) #null means: all ContentTypes are accepted.
+    id           = CharField(primary_key=True, max_length=100)  # TODO: pk string still useful ???
+    # 'null' means: all ContentTypes are accepted.
+    content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
     button_id    = CharField(_(u"Button ID"), max_length=100, blank=False, null=False)
     order        = PositiveIntegerField(_(u"Priority"))
 
@@ -46,9 +47,9 @@ class ButtonMenuItem(CremeModel):
     @staticmethod
     def create_if_needed(pk, model, button, order):
         """Creation helper ; useful for populate.py scripts.
-        @param model Can be None for 'all models'
+        @param model: Can be None for 'all models'.
         """
-        #TODO: remove pkstring & use ('content_type', 'button_id') as PK
+        # TODO: remove pkstring & use ('content_type', 'button_id') as PK
         return ButtonMenuItem.objects.get_or_create(
                     pk=pk,
                     defaults={'content_type': ContentType.objects.get_for_model(model) if model else None,

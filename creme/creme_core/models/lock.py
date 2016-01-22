@@ -21,12 +21,11 @@
 import warnings
 
 from django.db.models import Model, CharField
-from django.db.utils import IntegrityError
-#from django.db import transaction
 from django.db.transaction import atomic
+from django.db.utils import IntegrityError
 
 
-class MutexLockedException(Exception): #TODO: inner class
+class MutexLockedException(Exception):  # TODO: inner class ?
     def __init__(self, *args, **kwargs):
         super(MutexLockedException, self).__init__('Mutex is already locked')
 
@@ -49,22 +48,13 @@ class Mutex(Model):
         if self.is_locked():
             raise MutexLockedException()
 
-#        sid = transaction.savepoint()
-#
-#        try:
-#            self.save()
-#        except IntegrityError:
-#            transaction.savepoint_rollback(sid)
-#            raise MutexLockedException('Mutex is already locked')
-#        finally:
-#            transaction.savepoint_commit(sid)
         try:
             with atomic():
                 self.save()
         except IntegrityError:
             raise MutexLockedException('Mutex is already locked')
 
-        #return self
+        # return self ?
 
     def release(self):
         if not self.is_locked():
@@ -88,6 +78,7 @@ class Mutex(Model):
 
 def mutexify(func, lock_name):
     warnings.warn("mutexify decorator is deprecated; use mutex_autolock instead", DeprecationWarning)
+
     def _aux(*args, **kwargs):
         try:
             lock = Mutex.get_n_lock(lock_name)

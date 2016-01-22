@@ -27,11 +27,11 @@ logger = logging.getLogger(__name__)
 
 
 class Button(object):
-    id_           = None   #overload with an unicode object ; use generate_id()
-    verbose_name  = 'BUTTON' #used in the user configuration (see ButtonMenuItem)
-    template_name = 'creme_core/templatetags/button.html' #used to render the button of course
-    permission    = None #None means not permission needed ; overload to set to 'myapp.add_mymodel' for example
-                         #BEWARE: you have to use the context variable 'has_perm' yourself !!
+    id_           = None  # Overload with an unicode object ; use generate_id()
+    verbose_name  = 'BUTTON'  # Used in the user configuration (see ButtonMenuItem)
+    template_name = 'creme_core/templatetags/button.html'  # Used to render the button of course
+    permission    = None  # None means not permission needed ; overload to set to 'myapp.add_mymodel' for example.
+                          # BEWARE: you have to use the context variable 'has_perm' yourself !!
 
     @staticmethod
     def generate_id(app_name, name):
@@ -76,7 +76,8 @@ class ButtonsRegistry(object):
             button_id = button.id_
 
             if buttons_dic.has_key(button_id):
-                logger.warning("Duplicate button's id or button registered twice : %s", button_id) #exception instead ???
+                #TODO: exception instead ?
+                logger.warning("Duplicate button's id or button registered twice : %s", button_id)
 
             buttons_dic[button_id] = button
 
@@ -99,7 +100,6 @@ class ButtonsRegistry(object):
 
             if button is None:
                 logger.warning('Button seems deprecated: %s', button_id)
-                #button = Button()
             elif button.ok_4_display(entity):
                 buttons_2_display.append(button)
 

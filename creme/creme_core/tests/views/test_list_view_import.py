@@ -15,8 +15,6 @@ try:
             RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue)
     from creme.creme_core.utils import update_model_instance
 
-#    from creme.persons.models import Contact, Organisation, Position, Sector
-
     from creme.documents.models import Document
     from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 except Exception as e:
@@ -28,19 +26,17 @@ except Exception as e:
 class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     lv_import_data = {
             'step': 1,
-            #'document':   doc.id,
-            #'has_header': True,
-            #'user':       self.user.id,
+            # 'document':   doc.id,
+            # 'has_header': True,
+            # 'user':       self.user.id,
 
             'first_name_colselect': 1,
             'last_name_colselect':  2,
 
             'civility_colselect':    0,
             'description_colselect': 0,
-#            'skype_colselect':       0,
             'phone_colselect':       0,
             'mobile_colselect':      0,
-#            'fax_colselect':         0,
             'position_colselect':    0,
             'sector_colselect':      0,
             'email_colselect':       0,
@@ -51,17 +47,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             'is_a_nerd_colselect':    0,
             'languages_colselect':    0,
 
-            #'property_types',
-            #'fixed_relations',
-            #'dyn_relations',
+            # 'property_types',
+            # 'fixed_relations',
+            # 'dyn_relations',
 
-#            'billaddr_address_colselect':    0,  'shipaddr_address_colselect':    0,
-#            'billaddr_po_box_colselect':     0,  'shipaddr_po_box_colselect':     0,
-#            'billaddr_city_colselect':       0,  'shipaddr_city_colselect':       0,
-#            'billaddr_state_colselect':      0,  'shipaddr_state_colselect':      0,
-#            'billaddr_zipcode_colselect':    0,  'shipaddr_zipcode_colselect':    0,
-#            'billaddr_country_colselect':    0,  'shipaddr_country_colselect':    0,
-#            'billaddr_department_colselect': 0,  'shipaddr_department_colselect': 0,
             'address_value_colselect':      0,
             'address_zipcode_colselect':    0,
             'address_city_colselect':       0,
@@ -72,8 +61,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-
-        #cls.populate('creme_core', 'creme_config')
         cls.populate('creme_core')
 
         cls.ct = ContentType.objects.get_for_model(Contact)
@@ -104,7 +91,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         response = self.client.post(url, data={'step':     0,
                                                'document': doc.id,
-                                               #has_header
+                                               # has_header
                                               }
                                    )
         self.assertNoFormError(response)
@@ -117,8 +104,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(url, data=dict(self.lv_import_data,
                                                    document=doc.id,
                                                    user=user.id,
-                                                   #first_name_colselect=1,
-                                                   #last_name_colselect=2,
                                                   ),
                                    )
         self.assertNoFormError(response)
@@ -136,10 +121,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         for first_name, last_name in lines:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
             self.assertEqual(user, contact.user)
-#            self.assertIsNone(contact.billing_address)
             self.assertIsNone(contact.address)
 
-    def _test_import02(self, builder): #use header, default value, model search and create, properties, fixed and dynamic relations
+    def _test_import02(self, builder):
+        "Use header, default value, model search and create, properties, fixed and dynamic relations"
         self.login()
 
         pos_title  = 'Pilot'
@@ -187,21 +172,19 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                           data=dict(self.lv_import_data,
                                     document=doc.id, has_header=True,
                                     user=self.user.id,
-                                    #first_name_colselect=1,
-                                    #last_name_colselect=2,
 
                                     description_colselect=0,
                                     description_defval=default_descr,
 
                                     position_colselect=3,
                                     position_subfield='title',
-                                    position_defval='', #the browser POST an empty string
+                                    position_defval='',  # The browser POST an empty string
                                     position_create=True,
 
                                     sector_colselect=4,
                                     sector_subfield='title',
-                                    sector_defval='', #the browser POST an empty string
-                                    #sector_create=False,
+                                    sector_defval='',  # The browser POST an empty string
+                                    # sector_create=False,
 
                                     property_types=[ptype.id],
                                     fixed_relations='[{"rtype":"%s","ctype":"%s","entity":"%s"}]'  % (
@@ -209,7 +192,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                         ),
                                     dyn_relations=self._dyn_relations_value(employed, Organisation, 6, 'name'),
 
-#                                    billaddr_city_colselect=5,
                                     address_city_colselect=5,
                                    )
                     )
@@ -218,21 +200,18 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             form = response.context['form']
 
-        lines_count = len(lines) - 1 # '-1' for header
-        self.assertEqual(lines_count, len(form.import_errors)) #sector not found
+        lines_count = len(lines) - 1  # '-1' for header
+        self.assertEqual(lines_count, len(form.import_errors))  # Sector not found
         self.assertEqual(lines_count, form.imported_objects_count)
         self.assertEqual(lines_count, form.lines_count)
         self.assertEqual(contact_count + lines_count, Contact.objects.count())
 
-        #positions = Position.objects.all()
         positions = Position.objects.exclude(id__in=position_ids)
         self.assertEqual(1, len(positions))
-        #self.assertEqual(pos_count + 1, len(positions))
 
         position = positions[0]
         self.assertEqual(pos_title, position.title)
 
-        #self.assertFalse(Sector.objects.exists())
         self.assertFalse(Sector.objects.exclude(id__in=sector_ids).exists())
 
         for first_name, last_name, pos_title, sector_title, city_name, orga_name in lines[1:]:
@@ -244,7 +223,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             self.assertRelationCount(1, contact, employed.id, nerv)
 
         rei = Contact.objects.get(first_name=lines[1][0])
-#        self.assertEqual(city, rei.billing_address.city)
         address = rei.address
         self.assertIsInstance(address, Address)
         self.assertEqual(city, address.city)
@@ -264,8 +242,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_import_url(Contact),
                                     data=dict(self.lv_import_data, document=doc.id,
                                               user=self.user.id,
-                                              #first_name_colselect=1,
-                                              #last_name_colselect=2,
 
                                               dyn_relations=self._dyn_relations_value(employed, Organisation, 3, 'name'),
                                               dyn_relations_can_create=True,
@@ -274,7 +250,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
 
         form = response.context['form']
-        self.assertEqual(0, len(form.import_errors)) #sector not found
+        self.assertEqual(0, len(form.import_errors))  # Sector not found
         self.assertEqual(1, form.imported_objects_count)
 
         #contacts = Contact.objects.all()
@@ -316,10 +292,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
     def test_csv_import04(self): 
         "Other separator"
-        self.login()
+        user = self.login()
         contact_ids = list(Contact.objects.values_list('id', flat=True))
-
-        #self.assertFalse(Contact.objects.exists())
 
         lines = [(u'First name', u'Last name'),
                  (u'Unchô',      u'Kan-u'),
@@ -337,15 +311,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         response = self.client.post(url, data=dict(self.lv_import_data, document=doc.id,
                                                    has_header=True,
-                                                   user=self.user.id,
-                                                   #first_name_colselect=1,
-                                                   #last_name_colselect=2,
+                                                   user=user.id,
                                                   ),
                                    )
         self.assertNoFormError(response)
         self.assertEqual([], list(response.context['form'].import_errors))
 
-        #self.assertEqual(len(lines) - 1, Contact.objects.count())
         self.assertEqual(len(lines) - 1, Contact.objects.exclude(id__in=contact_ids).count())
 
         for first_name, last_name in lines[1:]:
@@ -383,8 +354,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=user.id,
-                                              #first_name_colselect=1,
-                                              #last_name_colselect=2,
                                               key_fields=['first_name', 'last_name'],
                                               **{'custom_field_%s_colselect' % cf_int.id: 3,
                                                  'custom_field_%s_colselect' % cf_str.id: 0,
@@ -393,7 +362,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                              ),
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(len(lines) - 2, # 2 = 1 header + 1 update
+        self.assertEqual(len(lines) - 2,  # 2 = 1 header + 1 update
                          Contact.objects.exclude(id__in=contact_ids).count()
                         )
 
@@ -428,7 +397,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
     def test_csv_import_customfields02(self): 
         "CustomField.ENUM/MULTI_ENUM (no creation of choice)"
-        self.login()
+        user = self.login()
         contact_ids = list(Contact.objects.values_list('id', flat=True))
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
@@ -441,7 +410,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         create_evalue(custom_field=cf_enum, value='Kick')
         create_evalue(custom_field=cf_enum, value='Hold')
 
-        create_evalue(custom_field=cf_enum2, value='Punch') #try to annoy the search on 'punch'
+        create_evalue(custom_field=cf_enum2, value='Punch')  # Try to annoy the search on 'punch'
 
         create_evalue(custom_field=cf_menum, value='Sword')
         spear = create_evalue(custom_field=cf_menum, value='Spear')
@@ -455,9 +424,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_import_url(Contact),
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
-                                              user=self.user.id,
-                                              #first_name_colselect=1,
-                                              #last_name_colselect=2,
+                                              user=user.id,
                                               **{'custom_field_%s_colselect' % cf_enum.id:  3,
                                                  'custom_field_%s_colselect' % cf_enum2.id: 0,
                                                  'custom_field_%s_colselect' % cf_menum.id: 4,
@@ -465,7 +432,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                              ),
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(len(lines) - 1, #1 header
+        self.assertEqual(len(lines) - 1,  # 1 header
                          Contact.objects.exclude(id__in=contact_ids).count()
                         )
 
@@ -487,8 +454,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         error = errors[0]
         self.assertEqual(list(lines[2]), error.line)
         self.assertEqual(_(u'Error while extracting value: tried to retrieve '
-                            'the choice "%(value)s" (column %(column)s). '
-                            'Raw error: [%(raw_error)s]') % {
+                           u'the choice "%(value)s" (column %(column)s). '
+                           u'Raw error: [%(raw_error)s]') % {
                                 'raw_error': 'CustomFieldEnumValue matching query does not exist.',
                                 'column':    3,
                                 'value':     'strangulation',
@@ -499,7 +466,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
     def test_csv_import_customfields03(self): 
         "CustomField.ENUM (creation of choice if not found)"
-        self.login()
+        user = self.login()
         contact_ids = list(Contact.objects.values_list('id', flat=True))
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
@@ -520,9 +487,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_import_url(Contact),
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
-                                              user=self.user.id,
-                                              #first_name_colselect=1,
-                                              #last_name_colselect=2,
+                                              user=user.id,
                                               **{'custom_field_%s_colselect' % cf_enum.id: 3,
                                                  'custom_field_%s_create' % cf_enum.id:    True,
 
@@ -532,7 +497,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                              ),
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(len(lines) - 1, #1 header
+        self.assertEqual(len(lines) - 1,  # 1 header
                          Contact.objects.exclude(id__in=contact_ids).count()
                         )
 
@@ -555,14 +520,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                        )
         self.assertEqual([spear], list(get_cf_values(cf_menum, kanu).value.all()))
 
-        #ryubi = get_contact(3)
-        self.assertEqual(2, CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count()) #not '' choice
+        self.assertEqual(2, CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count())  # Not '' choice
 
         self.assertEqual(0, len(response.context['form'].import_errors))
 
     def test_csv_import_customfields04(self):
         "CustomField.ENUM/MULTI_ENUM: creation credentials"
-#        self.login(is_superuser=False, allowed_apps=['persons', 'documents'],
         self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
                    creatable_models=[Contact, Document],
                   )
@@ -586,8 +549,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=self.user.id,
-                                              #first_name_colselect=1,
-                                              #last_name_colselect=2,
                                               **{'custom_field_%s_colselect' % cf_enum.id: 3,
                                                  'custom_field_%s_create' % cf_enum.id: True,
 
@@ -620,7 +581,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
     def test_csv_import_customfields05(self): 
         "Default value"
-        self.login()
+        user = self.login()
         contact_ids = list(Contact.objects.values_list('id', flat=True))
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
@@ -642,9 +603,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             return self.client.post(self._build_import_url(Contact),
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
-                                              user=self.user.id,
-                                              #first_name_colselect=1,
-                                              #last_name_colselect=2,
+                                              user=user.id,
                                               key_fields=['first_name', 'last_name'],
                                               **{'custom_field_%s_colselect' % cf_int.id: 3,
                                                  'custom_field_%s_defval'    % cf_int.id: defint,
@@ -669,12 +628,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                          Contact.objects.exclude(id__in=contact_ids).count()
                         )
 
-        def get_contact(line_index): #TODO: inline ?
-            line = lines[line_index]
-            return self.get_object_or_fail(Contact, first_name=line[0], last_name=line[1])
+        line = lines[1]
+        kanu = self.get_object_or_fail(Contact, first_name=line[0], last_name=line[1])
 
         get_cf_values = self._get_cf_values
-        kanu = get_contact(1)
         self.assertEqual(180,   get_cf_values(cf_int,  kanu).value)
         self.assertEqual(punch, get_cf_values(cf_enum, kanu).value)
         self.assertEqual([sword], list(get_cf_values(cf_menum, kanu).value.all()))
@@ -688,8 +645,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                       data={'step': 0, 'document': doc.id}
                                      )
         self.assertFormError(response, 'form', None,
-#                             _(u"Error reading document, unsupported file type: %s.") %
-#                                    doc.filedata.name
                              _(u"Error reading document, unsupported file type: %(file)s.") % {
                                     'file': doc.filedata.name,
                                 }
@@ -735,16 +690,14 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
     def test_credentials01(self):
         "Creation credentials for imported model"
-#        user = self.login(is_superuser=False, allowed_apps=['persons'],
         user = self.login(is_superuser=False, allowed_apps=['creme_core'],
-                   creatable_models=[Organisation], #not Contact
+                   creatable_models=[Organisation],  # Not Contact
                   )
         self.assertFalse(user.has_perm_to_create(Contact))
         self.assertGET403(self._build_import_url(Contact))
 
     def test_credentials02(self):
         "Creation credentials for 'auxiliary' models"
-#        self.login(is_superuser=False, allowed_apps=['persons', 'documents'],
         self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
                    creatable_models=[Contact, Organisation, Document],
                   )
@@ -765,9 +718,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
     def test_credentials03(self):
         "Creation credentials for related entities"
-#        self.login(is_superuser=False, allowed_apps=['persons', 'documents'],
         self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
-                   creatable_models=[Contact, Document], #not Organisation
+                   creatable_models=[Contact, Document],  # Not Organisation
                   )
 
         employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
@@ -785,7 +737,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                ),
                                      )
         self.assertFormError(response, 'form', 'dyn_relations', 
-#                             _(u'You are not allowed to create: %s') % u'Test Organisation'
                              _(u'You are not allowed to create: %(model)s') % {
                                     'model': u'Test Organisation',
                                 }
@@ -819,11 +770,11 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         update_model_instance(rei, mobile=rei_mobile, email=rei_email)
 
-        #This relation & this property should not be duplicated
+        # This relation & this property should not be duplicated
         Relation.objects.create(subject_entity=rei, type=loves, object_entity=shinji, user=user)
         CremeProperty.objects.create(type=ptype1, creme_entity=rei)
 
-        #Should not be modified, even is 'first_name' is searched
+        # Should not be modified, even is 'first_name' is searched
         rei2 = Contact.objects.get_or_create(first_name=rei_info['first_name'],
                                             last_name='Iyanima',
                                             defaults={'user': user},
@@ -842,8 +793,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                     data=dict(self.lv_import_data, document=doc.id,
                                               user=user.id,
                                               key_fields=['first_name', 'last_name'],
-                                              #first_name_colselect=1,
-                                              #last_name_colselect=2,
                                               phone_colselect=3,
                                               email_colselect=4,
                                               property_types=[ptype1.id, ptype2.id],
@@ -868,12 +817,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         rei = self.refresh(rei)
         self.assertEqual(rei_info['phone'], rei.phone)
-        self.assertEqual(rei_mobile,        rei.mobile) # value not erased (no column)
-        self.assertEqual(rei_email,         rei.email) # value not erased (empty cell)
+        self.assertEqual(rei_mobile,        rei.mobile)  # Value not erased (no column)
+        self.assertEqual(rei_email,         rei.email)   # Value not erased (empty cell)
         self.assertRelationCount(1, rei, loves.id, gendo)
-        self.assertRelationCount(1, rei, loves.id, shinji) #<== not 2 !
+        self.assertRelationCount(1, rei, loves.id, shinji)  # <== not 2 !
         self.get_object_or_fail(CremeProperty, type=ptype2, creme_entity=rei.id)
-        self.get_object_or_fail(CremeProperty, type=ptype1, creme_entity=rei.id) #<= not 2 !
+        self.get_object_or_fail(CremeProperty, type=ptype1, creme_entity=rei.id)  # <= not 2 !
 
         self.assertIsNone(self.refresh(rei2).phone)
         self.get_object_or_fail(Contact, **asuka_info)
@@ -959,7 +908,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(count + 1, Contact.objects.count())
         self.get_object_or_fail(Contact, last_name=last_name, first_name=first_name)
 
-    #def test_import_with_updateXX(self): TODO: test search on FK ? exclude them ??
+    # def test_import_with_updateXX(self): TODO: test search on FK ? exclude them ??
 
     def test_fields_config(self):
         user = self.login()
@@ -993,7 +942,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                     data=dict(self.lv_import_data, document=doc.id,
                                               user=user.id,
                                               key_fields=['first_name', 'last_name'],
-                                              phone_colselect=3, # should be ignored
+                                              phone_colselect=3,  # Should be ignored
                                               email_colselect=4,
                                              ),
                                    )

@@ -31,6 +31,7 @@ from .utils.media import get_current_theme, get_current_theme_vb
 def get_logo_url(request):
     return {'logo_url': settings.LOGO_URL}
 
+
 def get_css_theme(request):
     current_theme = get_current_theme()
 
@@ -39,17 +40,22 @@ def get_css_theme(request):
             'THEME_VERBOSE_NAME': get_current_theme_vb(current_theme),
            }
 
+
 def get_today(request):
     return {'today': now()}
+
 
 def get_blocks_manager(request):
     return {BlocksManager.var_name: BlocksManager()}
 
+
 def get_fields_configs(request):
     return {'fields_configs': FieldsConfig.LocalCache()}
 
+
 def get_version(request):
     return {'creme_version': __version__}
+
 
 def get_django_version(request):
     if settings.DEBUG:

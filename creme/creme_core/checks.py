@@ -44,6 +44,7 @@ def check_secret_key(**kwargs):
 
     return errors
 
+
 def check_uninstalled_apps(**kwargs):
     """Check the badly uninstalled apps.
     BEWARE: it crashes if the ContentType table does not exist (first migration).
@@ -88,7 +89,7 @@ def check_creme_core_registers(**kwargs):
                         __import__(app_name, {}, {}, [app_config.label]).__path__,
                        )
         except ImportError:
-            pass # There is no creme_core_register.py => OK
+            pass  # There is no creme_core_register.py => OK
         else:
             errors.append(Error('You seem to still use the "creme_core_register" feature.',
                                 hint='Use the AppConfig feature instead & remove the '

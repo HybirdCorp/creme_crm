@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from __future__ import with_statement
-
 import os
 from random import randint
 
@@ -31,6 +29,7 @@ from ..auth.decorators import login_required
 from ..utils.secure_filename import secure_filename
 
 MAXINT = 100000
+
 
 def handle_uploaded_file(f, path=None, name=None):
     """Handle an uploaded file by a form and return the complete file's path
@@ -80,6 +79,7 @@ def handle_uploaded_file(f, path=None, name=None):
 
     return os.path.join(return_path, name)
 
+
 @login_required
 def download_file(request, location, mimetype=None):
     if mimetype is not None:
@@ -87,13 +87,13 @@ def download_file(request, location, mimetype=None):
     else:
         name_parts = location.replace('\\','/').rpartition('/')[2].split('.')
 
-        if len(name_parts) == 1: #should not happen
+        if len(name_parts) == 1:  # Should not happen
             ftype = 'text/plain'
             name = name_parts[0]
         else:
             if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
                name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
-                name_parts.pop() #drop the added '.txt'
+                name_parts.pop()  # Drop the added '.txt'
 
             name = '.'.join(name_parts)
             ftype = name_parts[-1]
@@ -110,6 +110,7 @@ def download_file(request, location, mimetype=None):
     response['Content-Disposition'] = "attachment; filename=%s" % (name.replace(' ','_'))
 
     return response
+
 
 def fetch_resources(uri, rel):
     """Callback to allow pisa/reportlab to retrieve Images,Stylesheets, etc.

@@ -5,7 +5,6 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    #from django.contrib.auth.models import User
     from django.core.files.base import ContentFile
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.deletion import ProtectedError
@@ -24,12 +23,6 @@ try:
             FunctionFieldResult, FunctionFieldResultsList)
     from creme.creme_core.core.field_tags import InvalidFieldTag
 
-#    from creme.persons.models import Contact, Organisation, Civility
-
-#    from creme.media_managers.models import MediaCategory, Image
-
-#    from creme.activities.models import Activity, ActivityType, Status
-#    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -38,11 +31,9 @@ class EntityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-#        cls.populate('creme_core', 'media_managers', 'persons', 'activities')
         cls.populate('creme_core')
 
     def setUp(self):
-#        self.user = User.objects.create(username='name')
         self.login()
 
     def test_entity01(self):
@@ -53,7 +44,7 @@ class EntityTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(now_value, entity.created)
         self.assertDatetimesAlmostEqual(now_value, entity.modified)
 
-    def test_property01(self): #TODO: create a test case for CremeProperty ???
+    def test_property01(self):  # TODO: create a test case for CremeProperty ???
         text = 'TEXT'
 
         with self.assertNoException():
@@ -121,22 +112,23 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('is_staff').get_tag('viewable'))
         self.assertFalse(get_field('last_login').get_tag('viewable'))
         self.assertFalse(get_field('date_joined').get_tag('viewable'))
-        #self.assertFalse(get_field('groups').get_tag('viewable'))
-        #self.assertFalse(get_field('user_permissions').get_tag('viewable'))
         self.assertFalse(get_field('role').get_tag('viewable'))
 
     def test_clone01(self):
+        user = self.user
         self._build_rtypes_n_ptypes()
 
         created = modified = now()
-        entity1 = CremeEntity.objects.create(user=self.user)
-        original_ce = CremeEntity.objects.create(created=created, modified=modified, is_deleted=False, is_actived=True, user=self.user)
+        entity1 = CremeEntity.objects.create(user=user)
+        original_ce = CremeEntity.objects.create(created=created, modified=modified,
+                                                 is_deleted=False, is_actived=True, user=user,
+                                                )
 
-        create_rel = partial(Relation.objects.create, user=self.user,
+        create_rel = partial(Relation.objects.create, user=user,
                              subject_entity=original_ce, object_entity=entity1,
                             )
         create_rel(type=self.rtype1)
-        create_rel(type=self.rtype3) #internal
+        create_rel(type=self.rtype3)  # Internal
 
         create_prop = partial(CremeProperty.objects.create, creme_entity=original_ce)
         create_prop(type=self.ptype01)
@@ -160,6 +152,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone02(self):
         "Clone regular fields"
+        user = self.user
         self._build_rtypes_n_ptypes()
 
         civility = Civility.objects.all()[0]
@@ -167,10 +160,9 @@ class EntityTestCase(CremeTestCase):
         sasuke  = CremeEntity.objects.create(user=self.user)
         sakura  = CremeEntity.objects.create(user=self.user)
 
-#        image = self.create_image()
-        image = Image.objects.create(user=self.user, name='Naruto selfie')
+        image = Image.objects.create(user=user, name='Naruto selfie')
 
-        naruto = Contact.objects.create(user=self.user, civility=civility,
+        naruto = Contact.objects.create(user=user, civility=civility,
                                         first_name=u'Naruto', last_name=u'Uzumaki',
                                         description=u"Ninja", birthday=now(),
                                         phone='123456', mobile=u"+81 0 0 0 00 01",
@@ -193,10 +185,9 @@ class EntityTestCase(CremeTestCase):
         self.assertSameRelationsNProperties(naruto, kage_bunshin)
 
         for attr in ['civility', 'first_name', 'last_name', 'description',
-                     'birthday', 'image']: #'mobile', 'email',
+                     'birthday', 'image']:
             self.assertEqual(getattr(naruto, attr), getattr(kage_bunshin, attr))
 
-#        self.assertEqual(set(naruto.language.all()), set(kage_bunshin.language.all()))
         self.assertEqual(set(naruto.languages.all()), set(kage_bunshin.languages.all()))
 
     def test_clone03(self):
@@ -219,7 +210,6 @@ class EntityTestCase(CremeTestCase):
         orga = Organisation.objects.create(name=u"Konoha", user=self.user)
 
         CustomFieldInteger.objects.create(custom_field=cf_int, entity=orga, value=50)
-#        CustomFieldValue.save_values_for_entities(cf_int, [orga], 50)
         CustomFieldFloat.objects.create(custom_field=cf_float, entity=orga, value=Decimal("10.5"))
         CustomFieldBoolean.objects.create(custom_field=cf_bool, entity=orga, value=True)
         CustomFieldString.objects.create(custom_field=cf_str, entity=orga, value="kunai")
@@ -247,7 +237,6 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone04(self):
         "ManyToMany"
-        #image = self.create_image()
         image1 = Image.objects.create(user=self.user, name='Konoha by nigth')
         image1.categories = categories = list(MediaCategory.objects.all())
         self.assertTrue(categories)
@@ -255,7 +244,7 @@ class EntityTestCase(CremeTestCase):
         image2 = image1.clone()
         self.assertNotEqual(image1.pk, image2.pk)
 
-        for attr in ('user', 'name'): #, 'image', 'description'
+        for attr in ('user', 'name'):
             self.assertEqual(getattr(image1, attr), getattr(image2, attr))
 
         self.assertEqual(set(image1.categories.values_list('pk', flat=True)),
@@ -349,7 +338,7 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result.for_html())
         self.assertEqual('Awesome/Wonderful',                           result.for_csv())
 
-    def test_prettypropertiesfield02(self): #prefetch with populate_entities()
+    def test_prettypropertiesfield02(self):  # Prefetch with populate_entities()
         entity1 = CremeEntity.objects.create(user=self.user)
         entity2 = CremeEntity.objects.create(user=self.user)
 
@@ -380,21 +369,29 @@ class EntityTestCase(CremeTestCase):
         field_C = create_field(name='C', field_type=CustomField.INT)
 
         orga = Organisation.objects.create(name=u"Konoha", user=self.user)
-        value_A = CustomFieldInteger.objects.create(custom_field=field_A, entity=orga, value=50)
-        value_B = CustomFieldInteger.objects.create(custom_field=field_B, entity=orga, value=100)
 
-        # empty cache
+        create_cf = CustomFieldInteger.objects.create
+        value_A = create_cf(custom_field=field_A, entity=orga, value=50)
+        value_B = create_cf(custom_field=field_B, entity=orga, value=100)
+
+        # Empty cache
         self.assertDictEqual(orga._cvalues_map, {})
 
         self.assertEqual(value_A, orga.get_custom_value(field_A))
         self.assertDictEqual(orga._cvalues_map, {field_A.pk: value_A})
 
         self.assertEqual(value_B, orga.get_custom_value(field_B))
-        self.assertDictEqual(orga._cvalues_map, {field_A.pk: value_A,
-                                                 field_B.pk: value_B,})
+        self.assertDictEqual(orga._cvalues_map,
+                             {field_A.pk: value_A,
+                              field_B.pk: value_B,
+                             }
+                            )
 
         self.assertIsNone(orga.get_custom_value(field_C))
-        self.assertDictEqual(orga._cvalues_map, {field_A.pk: value_A,
-                                                 field_B.pk: value_B,
-                                                 field_C.pk: None,})
+        self.assertDictEqual(orga._cvalues_map,
+                             {field_A.pk: value_A,
+                              field_B.pk: value_B,
+                              field_C.pk: None,
+                             }
+                            )
 

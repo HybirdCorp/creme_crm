@@ -56,8 +56,6 @@ def contact_listview(request):
 
 
 @login_required
-#@permission_required('creme_core')
-#@permission_required('creme_core.add_fakeorganisation')
 @permission_required(('creme_core', 'creme_core.add_fakeorganisation'))
 def organisation_add(request):
     return generic.add_entity(request, fake_forms.FakeOrganisationForm)
@@ -74,9 +72,7 @@ def organisation_edit(request, orga_id):
 @login_required
 @permission_required('creme_core')
 def organisation_detailview(request, orga_id):
-    return generic.view_entity(request, orga_id, fake_models.FakeOrganisation,
-                               # '/tests/organisation',
-                              )
+    return generic.view_entity(request, orga_id, fake_models.FakeOrganisation)
 
 
 @login_required
@@ -119,9 +115,7 @@ def campaign_listview(request):
 @login_required
 @permission_required('creme_core')
 def invoice_detailview(request, invoice_id):
-    return generic.view_entity(request, invoice_id, fake_models.FakeInvoice,
-                               # '/tests/invoice',
-                              )
+    return generic.view_entity(request, invoice_id, fake_models.FakeInvoice)
 
 
 @login_required

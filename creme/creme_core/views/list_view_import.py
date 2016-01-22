@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,13 +22,14 @@ from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.forms.list_view_import import UploadForm, form_factory
-from creme.creme_core.gui.list_view_import import import_form_registry
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404
+from ..auth.decorators import login_required
+from ..forms.list_view_import import UploadForm, form_factory
+from ..gui.list_view_import import import_form_registry
+from ..utils import get_ct_or_404, get_from_POST_or_404
 
-#django wizard doesn't manage to inject its input in the 2nd form
+# django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)
+
 
 @login_required
 def import_listview(request, ct_id):
@@ -45,7 +46,7 @@ def import_listview(request, ct_id):
 
     if request.method == 'POST':
         POST = request.POST
-        step = get_from_POST_or_404(POST, 'step', cast=int, default=0) #TODO: int -> boundedInt
+        step = get_from_POST_or_404(POST, 'step', cast=int, default=0)  # TODO: int -> boundedInt
         form = UploadForm(user=user, data=POST)
 
         if step == 0:
@@ -64,7 +65,7 @@ def import_listview(request, ct_id):
             if step != 1:
                 raise Http404('Step should be in (0, 1)')
 
-            form.is_valid() #clean fields
+            form.is_valid()  # Clean fields
 
             ImportForm = form_factory(ct, form.header)
             form = ImportForm(user=user, data=POST)

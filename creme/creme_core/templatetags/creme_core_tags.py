@@ -27,8 +27,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
-#from django.template.defaultfilters import escape
-#from django.utils.safestring import mark_safe
 
 from mediagenerator.generators.bundles.utils import _render_include_media
 
@@ -50,6 +48,7 @@ register = Library()
 def print_boolean(x):
     return bool_as_html(x)
 
+
 @register.filter
 def get_value(dic, key, default=''):
     """
@@ -65,9 +64,10 @@ def get_value(dic, key, default=''):
     """
     try:
         return dic.get(key, default)
-    except Exception as e: #TODO: really useful ???
+    except Exception as e:  # TODO: really useful ???
         logger.debug('Exception in get_value(): %s', e)
         return default
+
 
 @register.filter
 def get_meta_value(obj, key, default=''):
@@ -76,11 +76,13 @@ def get_meta_value(obj, key, default=''):
     except:
         return default
 
+
 # TODO: still useful ??
 @register.filter(name="get_tag")
 def get_fieldtag(field, tag):
     """eg: {% if field|get_tag:'viewable' %}"""
     return field.get_tag(tag)
+
 
 @register.simple_tag
 def get_field_verbose_name(model_or_entity, field_name):
@@ -89,6 +91,7 @@ def get_field_verbose_name(model_or_entity, field_name):
     except FieldDoesNotExist as e:
         logger.debug('Exception in get_field_verbose_name(): %s', e)
         return 'INVALID FIELD'
+
 
 @register.assignment_tag(takes_context=True)
 def get_viewable_fields(context, instance):
@@ -99,95 +102,113 @@ def get_viewable_fields(context, instance):
                     if field.get_tag('viewable') and not is_hidden(field)
            ]
 
+
 @register.filter
 def is_none(obj):
     return obj is None
+
 
 @register.filter
 def is_entity(obj):
     return isinstance(obj, CremeEntity)
 
+
 @register.filter
 def is_relation(obj):
     return isinstance(obj, Relation)
 
-#@register.filter(name="lt")
-#def lt(object1, object2):
-    #return object1 < object2
+# @register.filter(name="lt")
+# def lt(object1, object2):
+#     return object1 < object2
+#
+# @register.filter(name="gt")
+# def gt(object1, object2):
+#     return object1 > object2
+#
+# @register.filter(name="lte")
+# def lte(object1, object2):
+#     return object1 <= object2
+#
+# @register.filter(name="gte")
+# def gte(object1, object2):
+#     return object1 >= object2
+#
+# @register.filter(name="eq")
+# def eq(object1, object2):
+#     return object1 == object2
 
-#@register.filter(name="gt")
-#def gt(object1, object2):
-    #return object1 > object2
-
-#@register.filter(name="lte")
-#def lte(object1, object2):
-    #return object1 <= object2
-
-#@register.filter(name="gte")
-#def gte(object1, object2):
-    #return object1 >= object2
-
-#@register.filter(name="eq")
-#def eq(object1, object2):
-    #return object1 == object2
 
 @register.filter
 def sub(object1, object2):
     return object1 - object2
 
+
 @register.filter
 def and_op(object1, object2):
     return object1 and object2
+
 
 @register.filter
 def or_op(object1, object2):
     return object1 or object2
 
+
 @register.filter(name="bool")
 def _bool(object1):
     return bool(object1)
+
 
 @register.filter(name="str")
 def _str(object1):
     return str(object1)
 
-#NB: 'abs' name gives a template syntax error
+
+# NB: 'abs' name gives a template syntax error
 @register.filter
 def absolute(integer):
     return abs(integer)
+
 
 @register.filter(name="in")
 def in_list(obj, list):
     return obj in list
 
+
 @register.filter
 def idiv(integer, integer2):
     return integer / integer2
+
 
 @register.filter
 def mult(integer, integer2):
     return integer * integer2
 
-#TODO: divisibleby in builtins....
+
+# TODO: divisibleby in builtins....
 @register.filter
 def mod(integer, integer2):
     return integer % integer2
+
 
 @register.filter(name="xrange")
 def x_range(integer, start=0):
     return xrange(start, start + integer)
 
+
 @register.filter
 def isiterable(iterable):
     return hasattr(iterable, '__iter__')
+
 
 @register.filter(name="format")
 def format_string(ustring, format_str):
     return format_str % ustring
 
+
 @register.filter
 def to_timestamp(date):
     return date.strftime('%s')
+
 
 @register.filter
 def uca_sort(iterable):
@@ -196,40 +217,48 @@ def uca_sort(iterable):
 
     return strs
 
+
 @register.filter
 def allowed_unicode(entity, user):
     return entity.allowed_unicode(user)
+
 
 @register.filter
 def format_amount(amount, currency_or_id=None):
     return currency(amount, currency_or_id)
 
+
 @register.filter
 def optionize_model_iterable(iterable, type='tuple'):
     if type == 'dict':
-        return ({'value':model.id, 'label':safe_unicode(model)} for model in iterable)
+        return ({'value': model.id, 'label': safe_unicode(model)} for model in iterable)
     else:
         return ((model.id, safe_unicode(model)) for model in iterable)
+
 
 @register.filter
 def jsonify(value):
     return json_dump(list(value) if isinstance(value, GeneratorType) else value)
 
+
 @register.simple_tag
 def get_entity_summary(entity, user):
     return entity.get_entity_summary(user)
 
+
 @register.simple_tag(takes_context=True)
 def get_entity_html_attrs(context, entity):
     return u' '.join(u'%s="%s"' % item for item in entity.get_html_attrs(context).iteritems())
+
 
 @register.filter
 def verbose_modifications(history_line, user):
     return history_line.get_verbose_modifications(user)
 
 
-#TAG : "templatize"-------------------------------------------------------------
+# TAG : "templatize"------------------------------------------------------------
 _templatize_re = compile_re(r'(.*?) as (\w+)')
+
 
 @register.tag(name="templatize")
 def do_templatize(parser, token):
@@ -251,6 +280,7 @@ def do_templatize(parser, token):
 
     return TemplatizeNode(template_string[1:-1], var_name)
 
+
 class TemplatizeNode(TemplateNode):
     def __init__(self, template_string, var_name):
         self.inner_template = Template(template_string)
@@ -263,14 +293,17 @@ class TemplatizeNode(TemplateNode):
         context[self.var_name] = self.inner_template.render(context)
         return ''
 
-#TAG : "print_field"------------------------------------------------------------
+
+# TAG : "print_field"-----------------------------------------------------------
 _PRINT_FIELD_RE = compile_re(r'object=(.*?) field=(.*?)$')
+
 
 @register.tag(name="print_field")
 def do_print_field(parser, token):
     """Eg:{% print_field object=object field='created' %}"""
     try:
-        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
     except ValueError:
         raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
@@ -282,8 +315,9 @@ def do_print_field(parser, token):
     compile_filter = parser.compile_filter
 
     return FieldPrinterNode(obj_var=TemplateLiteral(compile_filter(obj_str), obj_str),
-                            field_var=TemplateLiteral(compile_filter(field_str), field_str)
+                            field_var=TemplateLiteral(compile_filter(field_str), field_str),
                            )
+
 
 class FieldPrinterNode(TemplateNode):
     def __init__(self, obj_var, field_var):
@@ -296,20 +330,23 @@ class FieldPrinterNode(TemplateNode):
 
         return field_printers_registry.get_html_field_value(obj, field_name, context['user'])
 
-#TAG : "has_perm_to"------------------------------------------------------------
 
-#TODO: move to a 'creme_auth' file ??
+# TAG : "has_perm_to"-----------------------------------------------------------
+
+# TODO: move to a 'creme_auth' file ??
 _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
+
 
 def _can_create(model_or_ct, user):
     ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
     return user.has_perm('%s.add_%s' % (ct.app_label, ct.model))
-    #return user.has_perm_to_create(ct) #TODO + had the possibility to pass CT directly
+    # return user.has_perm_to_create(ct) #TODO + had the possibility to pass CT directly
+
 
 def _can_export(model_or_ct, user):
     ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
     return user.has_perm('%s.export_%s' % (ct.app_label, ct.model))
-    #return user.has_perm_to_export(ct) #TODO ?
+    # return user.has_perm_to_export(ct) #TODO ?
 
 _PERMS_FUNCS = {
         'create': _can_create,
@@ -322,6 +359,7 @@ _PERMS_FUNCS = {
         'access': lambda app_name, user: user.has_perm_to_access(app_name),
         'admin':  lambda app_name, user: user.has_perm_to_admin(app_name),
     }
+
 
 @register.tag(name="has_perm_to")
 def do_has_perm_to(parser, token):
@@ -354,6 +392,7 @@ def do_has_perm_to(parser, token):
 
     return HasPermToNode(perm_func, entity_var, var_name)
 
+
 class HasPermToNode(TemplateNode):
     def __init__(self, perm_func, entity_var, var_name):
         self.perm_func = perm_func
@@ -364,15 +403,19 @@ class HasPermToNode(TemplateNode):
         return "<HasPermTo node>"
 
     def render(self, context):
-        var  = self.entity_var.eval(context) #can raise template.VariableDoesNotExist...
+        var  = self.entity_var.eval(context)  # Can raise template.VariableDoesNotExist...
         user = context['user']
         context[self.var_name] = self.perm_func(var, user)
 
         return ''
 
+# TAG : "has_perm_to [end]------------------------------------------------------
+
+
 @register.simple_tag(takes_context=True)
 def creme_media_url(context, url):
     return get_creme_media_url(context.get('THEME_NAME', 'chantilly'), url)
+
 
 @register.tag(name='include_creme_media')
 def do_include_creme_media(parser, token):
@@ -384,6 +427,7 @@ def do_include_creme_media(parser, token):
 
     return MediaNode(TemplateLiteral(parser.compile_filter(arg), arg))
 
+
 class MediaNode(TemplateNode):
     def __init__(self, bundle_var):
         self.bundle_var = bundle_var
@@ -393,12 +437,14 @@ class MediaNode(TemplateNode):
 
         return _render_include_media(get_current_theme() + bundle, variation={})
 
+
 @register.assignment_tag
 def get_export_backends():
     return json_dump([[backend.id, unicode(backend.verbose_name)]
                         for backend in export_backend_registry.iterbackends()
                      ]
                     )
+
 
 @register.assignment_tag
 def get_import_backends():

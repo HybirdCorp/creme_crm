@@ -26,7 +26,7 @@ from django.db.models import Q
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
-from django.utils.translation import ungettext #ugettext
+from django.utils.translation import ungettext
 
 from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
 from ..models import Relation, BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
@@ -61,7 +61,7 @@ class InnerTemplateVar(object):
         return self.tpl.render(context)
 
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 _BLOCK_HEADER_RE = compile_re(r'colspan=(?P<colspan>.*?)(\scollapsable=(?P<collapsable>.+))?$')
 
 @register.tag(name="get_block_header")
@@ -75,7 +75,7 @@ def do_block_header(parser, token):
           {% end_get_block_header %}
     """
     try:
-        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)  # Splitting by None == splitting by spaces.
     except ValueError:
         raise TemplateSyntaxError("%r tag requires 1 or 2 arguments" % token.contents.split()[0])
 
@@ -102,6 +102,7 @@ def do_block_header(parser, token):
 
     return HeaderNode(nodelist, colspan, collapsable)
 
+
 class HeaderNode(TemplateNode):
     def __init__(self, nodelist, colspan, collapsable):
         self.header_tpl = get_template('creme_core/templatetags/widgets/block_header.html')
@@ -110,11 +111,6 @@ class HeaderNode(TemplateNode):
         self.collapsable = collapsable
 
     def render(self, context):
-#        context['content'] = self.nodelist.render(context)
-#        context['colspan'] = self.colspan.eval(context)
-#        context['class']   = 'collapser' if self.collapsable.eval(context) else ''
-#
-#        return self.header_tpl.render(context)
         h_context = context.flatten()
         h_context['content'] = self.nodelist.render(context)
         h_context['colspan'] = self.colspan.eval(context)
@@ -122,17 +118,17 @@ class HeaderNode(TemplateNode):
 
         return self.header_tpl.render(h_context)
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_reload_uri.html', takes_context=True)
-def get_block_reload_uri(context): #{% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
+def get_block_reload_uri(context):  # {% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_relation_reload_uri.html', takes_context=True)
 def get_block_relation_reload_uri(context):
     "Specific to relation block, it aim to reload all relations blocks on the page at the same time."
     block_id = context['block_name']
-    #TODO: move a part in BlocksManager ?? ('_blocks' is private...)
+    # TODO: move a part in BlocksManager ?? ('_blocks' is private...)
     context['deps'] = ','.join(block.id_ for block in BlocksManager.get(context)._blocks
                                             if (block.dependencies == '*'
                                                 or Relation in block.dependencies
@@ -140,6 +136,7 @@ def get_block_relation_reload_uri(context):
                               )
 
     return context
+
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
 def get_block_title(context, singular_title, plural_title, icon='', short_title='', count=None):
@@ -154,10 +151,10 @@ def get_block_title(context, singular_title, plural_title, icon='', short_title=
 
     return context
 
+
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
 def get_basic_block_header(context, title, icon='', short_title=''):
     context.update({
-            #'title':       ugettext(title),
             'title':       title,
             'icon':        icon,
             'short_title': short_title,
@@ -191,12 +188,13 @@ def get_column_header(context, column_name, field_name):
 def get_toggle_empty_field_button(context):
     return context
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 _LINE_CREATOR_RE = compile_re(r'at_url (.*?) with_label (.*?) with_perms (.*?)$')
+
 
 def _do_line_creator(parser, token, template_path):
     try:
-        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)  # Splitting by None == splitting by spaces.
     except ValueError:
         raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
@@ -208,16 +206,14 @@ def _do_line_creator(parser, token, template_path):
     compile_filter = parser.compile_filter
 
     first_char = url[0]
-#    if not (first_char == url[-1] and first_char in ('"', "'")):
-#        raise TemplateSyntaxError("%r tag's url argument should be in quotes" % tag_name)
-    if first_char in ('"', "'"): # URL is a quoted (template) string
+    if first_char in ('"', "'"):  # URL is a quoted (template) string
         if first_char != url[-1]:
             raise TemplateSyntaxError("%r tag's url argument should end with a "
                                       "quote if it's a template string" % tag_name
                                      )
 
         url_var = InnerTemplateVar(Template(url[1:-1]))
-    else: # URL is a variable node
+    else:  # URL is a variable node
         url_var = TemplateLiteral(compile_filter(url), url)
 
     return LineCreatorNode(url_var=url_var, #url=url[1:-1],
@@ -227,27 +223,20 @@ def _do_line_creator(parser, token, template_path):
                           )
 
 class LineCreatorNode(TemplateNode):
-#    def __init__(self, url,  label_var, perm_var, template_path):
     def __init__(self, url_var, label_var, perm_var, template_path):
         self.template  = get_template(template_path)
-#        self.url_tpl   = Template(url)
         self.url_var   = url_var
         self.perm_var  = perm_var
         self.label_var = label_var
 
     def render(self, context):
-##        context['action_url'] = self.url_tpl.render(context)
-#        context['action_url'] = self.url_var.eval(context)
-#        context['label']      = self.label_var.eval(context)
-#        context['line_perm']  = self.perm_var.eval(context)
-#
-#        return self.template.render(context)
         l_context = context.flatten()
         l_context['action_url'] = self.url_var.eval(context)
         l_context['label']      = self.label_var.eval(context)
         l_context['line_perm']  = self.perm_var.eval(context)
 
         return self.template.render(l_context)
+
 
 @register.tag(name="get_line_adder")
 def do_line_adder(parser, token):
@@ -259,18 +248,21 @@ def do_line_adder(parser, token):
     """
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_adder.html')
 
+
 @register.tag(name="get_line_linker")
 def do_line_linker(parser, token):
     """Eg: {% get_line_linker at_url '/assistants/action/link/{{object.id}}/' with_label _("Link to existing Stuffs") with_perms has_perm %}"""
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_linker.html')
+
 
 @register.tag(name="get_line_viewer")
 def do_line_viewer(parser, token):
     """Eg: {% get_line_viewer at_url '/assistants/action/link/{{object.id}}/' with_label _("View this object") with_perms has_perm %}"""
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_viewer.html')
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 _LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id (.*?) with_label (.*?) with_perms (.*?)(\ssimple|\smultiple)?$')
+
 
 @register.tag(name="get_line_relator")
 def do_line_relator(parser, token):
@@ -300,6 +292,7 @@ def do_line_relator(parser, token):
                            is_multiple=is_multiple
                           )
 
+
 class LineRelatorNode(TemplateNode):
     def __init__(self, subject_var, rtype_id_var, ctype_id_var, label_var, perm_var, is_multiple):
         self.template = get_template('creme_core/templatetags/widgets/block_line_relator.html')
@@ -311,14 +304,6 @@ class LineRelatorNode(TemplateNode):
         self.is_multiple  = is_multiple
 
     def render(self, context):
-#        context['subject_id']   = self.subject_var.eval(context).id
-#        context['rtype_id']     = self.rtype_id_var.eval(context)
-#        context['ct_id']        = self.ctype_id_var.eval(context)
-#        context['label']        = self.label_var.eval(context)
-#        context['line_perm']    = self.perm_var.eval(context)
-#        context['is_multiple']  = self.is_multiple
-#
-#        return self.template.render(context)
         r_context = context.flatten()
         r_context['subject_id']   = self.subject_var.eval(context).id
         r_context['rtype_id']     = self.rtype_id_var.eval(context)
@@ -330,8 +315,9 @@ class LineRelatorNode(TemplateNode):
         return self.template.render(r_context)
 
 
-#TAGS: "get_line_deletor" & "get_line_unlinker" ----------------------------------
+# TAGS: "get_line_deletor" & "get_line_unlinker" -------------------------------
 _LINE_SUPPR_RE = compile_re(r'at_url (.*?) with_args (.*?) with_perms (.*?)$')
+
 
 def _do_line_suppr(parser, token, template_path):
     try:
@@ -346,54 +332,43 @@ def _do_line_suppr(parser, token, template_path):
 
     suppr_url, post_args, perm_str = match.groups()
 
-#    for group in (suppr_url, post_args):
-#        first_char = group[0]
-#        if not (first_char == group[-1] and first_char in ('"', "'")):
-#            raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
-
     first_char = suppr_url[0]
-    if first_char in ('"', "'"): # URL is a quoted (template) string
+    if first_char in ('"', "'"):  # URL is a quoted (template) string
         if first_char != suppr_url[-1]:
             raise TemplateSyntaxError("%r tag's url argument should end with a "
                                       "quote if it's a template string" % tag_name
                                      )
 
         url_var = InnerTemplateVar(Template(suppr_url[1:-1]))
-    else: # URL is a variable node
+    else:  # URL is a variable node
         url_var = TemplateLiteral(parser.compile_filter(suppr_url), suppr_url)
 
     first_char = post_args[0]
     if not (first_char == post_args[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
 
-    return LineSuppressorNode(url_var=url_var, #url=suppr_url[1:-1],
+    return LineSuppressorNode(url_var=url_var,
                               post_args=post_args[1:-1],
                               perm_var=TemplateLiteral(parser.compile_filter(perm_str), perm_str),
                               template_path=template_path,
                              )
 
+
 class LineSuppressorNode(TemplateNode):
-#    def __init__(self, url, post_args, perm_var, template_path):
     def __init__(self, url_var, post_args, perm_var, template_path):
         self.template = get_template(template_path)
-#        self.url_tpl  = Template(url)
         self.url_var   = url_var
         self.args_tpl = Template(post_args)
         self.perm_var = perm_var
 
     def render(self, context):
-##        context['action_url'] = self.url_tpl.render(context)
-#        context['action_url'] = self.url_var.eval(context)
-#        context['post_args']  = self.args_tpl.render(context)
-#        context['line_perm']  = self.perm_var.eval(context)
-#
-#        return self.template.render(context)
         s_context = context.flatten()
         s_context['action_url'] = self.url_var.eval(context)
         s_context['post_args']  = self.args_tpl.render(context)
         s_context['line_perm']  = self.perm_var.eval(context)
 
         return self.template.render(s_context)
+
 
 @register.tag(name="get_line_deletor")
 def do_line_deletor(parser, token):
@@ -405,20 +380,22 @@ def do_line_deletor(parser, token):
     """
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_deletor.html')
 
+
 @register.tag(name="get_line_unlinker")
 def do_line_unlinker(parser, token):
     """Eg: {% get_line_unlinker at_url '/app/model/unlink' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_unlinker.html')
 
 
-#TAG: "get_field_editor" -----------------------------------------------------
+# TAG: "get_field_editor" ------------------------------------------------------
 _FIELD_EDITOR_RE = compile_re(r'on (.*?) (.*?) for (.*?)$')
+
 
 @register.tag(name="get_field_editor")
 def do_get_field_editor(parser, token):
     """Eg: {% get_field_editor on custom|regular|entity_cell field|'field_name'|"field_name" for object %}"""
     try:
-        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)  # Splitting by None == splitting by spaces.
     except ValueError:
         raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
@@ -435,6 +412,7 @@ def do_get_field_editor(parser, token):
 
     return field_editor_node(TemplateLiteral(parser.compile_filter(field_str), field_str),
                              TemplateLiteral(parser.compile_filter(object_str), object_str))
+
 
 class RegularFieldEditorNode(TemplateNode):
     template_name = 'creme_core/templatetags/widgets/block_field_editor.html'
@@ -458,16 +436,9 @@ class RegularFieldEditorNode(TemplateNode):
         instance = self.object_var.eval(context)
         field    = self.field_var.eval(context)
 
-        #TODO: factorise with other code that manage auxiliary entities
+        # TODO: factorise with other code that manage auxiliary entities
         owner = instance.get_related_entity() if hasattr(instance, 'get_related_entity') else instance
 
-#        context['object']    = instance
-#        context['ct_id']     = ContentType.objects.get_for_model(instance).pk #TODO: instance.entity_type_id ??
-#        context['edit_perm'] = context['user'].has_perm_to_change(owner)
-#
-#        self._update_context(context, field, instance)
-#
-#        return get_template(self.template_name).render(context)
         e_context = context.flatten()
         e_context['object']    = instance
         e_context['ct_id']     = ContentType.objects.get_for_model(instance).pk #TODO: instance.entity_type_id ??
@@ -477,19 +448,18 @@ class RegularFieldEditorNode(TemplateNode):
 
         return get_template(self.template_name).render(e_context)
 
+
 class CustomFieldEditorNode(RegularFieldEditorNode):
     def _update_context(self, context, field, instance):
         context['field']     = 'customfield-%d' % field.id
         context['updatable'] = True
 
+
 class EntityCellEditorNode(RegularFieldEditorNode):
     def _update_context(self, context, cell, instance):
         if isinstance(cell, EntityCellRegularField):
-            #model = instance.entity_type.model_class()
-            #field_name = cell.value.partition('__')[0]
             field_name = cell.field_info[0].name
             context['field'] = field_name
-            #context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
             context['updatable'] = bulk_update_registry.is_updatable(instance.__class__,
                                                                      field_name,
                                                                      exclude_unique=False,
@@ -500,13 +470,15 @@ class EntityCellEditorNode(RegularFieldEditorNode):
         else:
             context['updatable'] = False
 
+
 _FIELD_EDITOR_NODES = {'regular':       RegularFieldEditorNode,
                        'custom':        CustomFieldEditorNode,
                        'entity_cell':   EntityCellEditorNode,
                       }
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 _LINE_EDITOR_RE = compile_re(r'at_url (.*?) with_perms (.*?)$')
+
 
 @register.tag(name="get_line_editor")
 def do_line_editor(parser, token):
@@ -522,10 +494,6 @@ def do_line_editor(parser, token):
 
     edit_url, perm_str = match.groups()
     first_char = edit_url[0]
-    #if not (first_char == edit_url[-1] and first_char in ('"', "'")):
-        #raise TemplateSyntaxError("%r tag's url argument should be in quotes" % tag_name)
-
-    #return LineEditorNode(edit_url[1:-1], TemplateLiteral(parser.compile_filter(perm_str), perm_str))
 
     if first_char in ('"', "'"):
         if first_char != edit_url[-1]:
@@ -539,34 +507,30 @@ def do_line_editor(parser, token):
 
     return LineEditorNode(edit_url_var, TemplateLiteral(parser.compile_filter(perm_str), perm_str))
 
+
 class LineEditorNode(TemplateNode):
-    #def __init__(self, edit_url, perm_var):
     def __init__(self, edit_url_var, perm_var):
         self.template = get_template('creme_core/templatetags/widgets/block_line_editor.html')
-        #self.url_tpl = Template(edit_url)
         self.edit_url_var = edit_url_var
         self.perm_var = perm_var
 
     def render(self, context):
-#        #context['edit_url'] = self.url_tpl.render(context)
-#        context['edit_url'] = self.edit_url_var.eval(context)
-#        context['edit_line_perm'] = self.perm_var.eval(context)
-#
-#        return self.template.render(context)
         e_context = context.flatten()
         e_context['edit_url'] = self.edit_url_var.eval(context)
         e_context['edit_line_perm'] = self.perm_var.eval(context)
 
         return self.template.render(e_context)
 
-#-------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 _LISTVIEW_BUTTON_RE = compile_re(r'with_ct_id (.*?) with_label (.*?) with_q_filter (.*?)$')
+
 
 @register.tag(name="get_listview_button")
 def do_line_lister(parser, token):
     """Eg: {% get_listview_button with_ct_id ct_id with_label _("List of related products") with_q_filter q_filter %}"""
     try:
-        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)  # Splitting by None == splitting by spaces.
     except ValueError:
         raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
@@ -582,6 +546,7 @@ def do_line_lister(parser, token):
                               q_filter_var=TemplateLiteral(compile_filter(q_filter_str), q_filter_str),
                              )
 
+
 class ListViewButtonNode(TemplateNode):
     def __init__(self, ctype_id_var, label_var, q_filter_var):
         self.template = get_template('creme_core/templatetags/widgets/block_listview_button.html')
@@ -590,11 +555,6 @@ class ListViewButtonNode(TemplateNode):
         self.q_filter_var = q_filter_var
 
     def render(self, context):
-#        context['ct_id']    = self.ctype_id_var.eval(context)
-#        context['label']    = self.label_var.eval(context)
-#        context['q_filter'] = self.q_filter_var.eval(context) or {}
-#
-#        return self.template.render(context)
         b_context = context.flatten()
         b_context['ct_id']    = self.ctype_id_var.eval(context)
         b_context['label']    = self.label_var.eval(context)
@@ -602,8 +562,9 @@ class ListViewButtonNode(TemplateNode):
 
         return self.template.render(b_context)
 
-#-------------------------------------------------------------------------------
-#TODO: Django 1.4 => can use keyword :)
+
+# ------------------------------------------------------------------------------
+# TODO:  use keyword ?
 @register.inclusion_tag('creme_core/templatetags/widgets/block_footer.html', takes_context=True)
 def get_block_footer(context, colspan):
     assert 'page' in context, 'Use the templatetag <get_block_footer> only on paginated blocks (problem with: %s)' % context.get('block_name', 'Unknown block id')
@@ -611,8 +572,9 @@ def get_block_footer(context, colspan):
     return context
 
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 _BLOCK_IMPORTER_RE = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
+
 
 @register.tag(name="import_block")
 def do_block_importer(parser, token):
@@ -641,10 +603,11 @@ def do_block_importer(parser, token):
 
     return BlockImporterNode(app_name[1:-1], block_name[1:-1], alias[1:-1])
 
+
 class BlockImporterNode(TemplateNode):
     def __init__(self, app_name, block_name, alias):
         self.block = block_registry[Block.generate_id(app_name, block_name)]
-        self.alias = alias #name of the block in this template
+        self.alias = alias  # Name of the block in this template
 
     def render(self, context):
         BlocksManager.get(context).add_group(self.alias, self.block)
@@ -680,16 +643,12 @@ def do_block_detailviewer(parser, token):
 
 class BlockDetailViewerNode(TemplateNode):
     def __init__(self, block_alias):
-        self.alias = block_alias #name of the block in this template
+        self.alias = block_alias  # Name of the block in this template
 
     def render(self, context):
         block = BlocksManager.get(context).pop_group(self.alias)[0]
 
-#        return block.detailview_display(context)
         return block.detailview_display(context.flatten())
-        #detailview_display = getattr(block, 'detailview_display', None)
-        #return detailview_display(context) if detailview_display else \
-               #"THIS BLOCK CAN'T BE DISPLAY ON DETAILVIEW (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
 
 
 @register.tag(name="import_object_block")
@@ -709,6 +668,7 @@ def do_object_block_importer(parser, token):
 
     return ObjectBlockImporterNode(alias=alias[1:-1])
 
+
 class ObjectBlockImporterNode(TemplateNode):
     def __init__(self, alias):
         self.alias = alias
@@ -721,6 +681,7 @@ class ObjectBlockImporterNode(TemplateNode):
 @register.tag(name="import_detailview_blocks")
 def do_detailview_blocks_importer(parser, token):
     return DetailviewBlocksImporterNode()
+
 
 class DetailviewBlocksImporterNode(TemplateNode):
     _GROUPS = ((_DETAIL_BLOCKS_TOP,    BlockDetailviewLocation.TOP),
@@ -745,7 +706,8 @@ class DetailviewBlocksImporterNode(TemplateNode):
 
         # We fallback to the default config is there is no config for this content type.
         locs = [loc for loc in locs
-                    #if loc.content_type_id is not None # NB: useless as long as default conf cannot have a related role
+                    # NB: useless as long as default conf cannot have a related role
+                    # if loc.content_type_id is not None
                     if loc.superuser == is_superuser and loc.role == role
                ] or [loc for loc in locs if loc.content_type_id is not None] or locs
         loc_map = defaultdict(list)
@@ -753,7 +715,7 @@ class DetailviewBlocksImporterNode(TemplateNode):
         for loc in locs:
             block_id = loc.block_id
 
-            if block_id: # Populate scripts can leave void block ids
+            if block_id:  # Populate scripts can leave void block ids
                 if BlockDetailviewLocation.id_is_4_model(block_id):
                     block_id = block_registry.get_block_4_object(entity).id_
 
@@ -775,6 +737,7 @@ _ZONES_MAP = {
         'bottom': _DETAIL_BLOCKS_BOTTOM,
     }
 
+
 @register.tag(name="display_detailview_blocks")
 def do_detailview_blocks_displayer(parser, token):
     """{% display_detailview_blocks right %}"""
@@ -789,6 +752,7 @@ def do_detailview_blocks_displayer(parser, token):
         raise TemplateSyntaxError("%r argument must be in: %s" % (tag_name, '/'.join(_ZONES_MAP.iterkeys())))
 
     return DetailviewBlocksDisplayerNode(group_name)
+
 
 class DetailviewBlocksDisplayerNode(TemplateNode):
     def __init__(self, group_name):
@@ -811,8 +775,8 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
             yield detailview_display(context)
 
     def render(self, context):
-#        return ''.join(op for op in self.block_outputs(context))
         return ''.join(op for op in self.block_outputs(context.flatten()))
+
 
 # PORTAL BLOCKS ----------------------------------------------------------------
 
@@ -827,9 +791,10 @@ def do_block_portalviewer(parser, token):
 
     return BlockPortalViewerNode(_parse_block_alias(tag_name, block_alias), ct_ids_varname)
 
+
 class BlockPortalViewerNode(TemplateNode):
     def __init__(self, block_alias, ct_ids_varname):
-        self.alias = block_alias #name of the block in this template
+        self.alias = block_alias  # Name of the block in this template
         self.ct_ids_varname = ct_ids_varname
 
     def render(self, context):
@@ -838,7 +803,8 @@ class BlockPortalViewerNode(TemplateNode):
         return block.portal_display(context, context[self.ct_ids_varname])
 
 
-def _parse_one_var_tag(token): #TODO: move in creme_core.utils
+# TODO: move in creme_core.utils
+def _parse_one_var_tag(token):
     try:
         # Splitting by None == splitting by spaces.
         tag_name, var_name = token.contents.split(None, 1)
@@ -863,6 +829,7 @@ def do_portal_blocks_importer(parser, token):
 
     return PortalBlocksImporterNode(TemplateLiteral(parser.compile_filter(appname_str), appname_str))
 
+
 class PortalBlocksImporterNode(TemplateNode):
     def __init__(self, appname_var):
         self.appname_var = appname_var
@@ -873,18 +840,20 @@ class PortalBlocksImporterNode(TemplateNode):
         locs = BlockPortalLocation.objects.filter(Q(app_name='') | Q(app_name=app_name)) \
                                           .order_by('order')
 
-        #we fallback to the default config is there is no config for this app.
+        # We fallback to the default config is there is no config for this app.
         block_ids = [loc.block_id for loc in locs if loc.app_name] or [loc.block_id for loc in locs]
 
         blocks_manager.add_group(_PORTAL_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
-#TODO: use TemplateLiteral
+
+# TODO: use TemplateLiteral
 @register.tag(name="display_portal_blocks")
 def do_portal_blocks_displayer(parser, token):
     """Eg: {% display_portal_blocks ct_ids %}"""
     return PortalBlocksDisplayerNode(_parse_one_var_tag(token))
+
 
 class PortalBlocksDisplayerNode(TemplateNode):
     def __init__(self, ct_ids_varname):
@@ -903,7 +872,6 @@ class PortalBlocksDisplayerNode(TemplateNode):
                 yield "THIS BLOCK CAN'T BE DISPLAY ON PORTAL (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
 
     def render(self, context):
-#        return ''.join(op for op in self.block_outputs(context))
         return ''.join(op for op in self.block_outputs(context.flatten()))
 
 
@@ -912,6 +880,7 @@ class PortalBlocksDisplayerNode(TemplateNode):
 @register.tag(name="import_home_blocks")
 def do_home_blocks_importer(parser, token):
     return HomeBlocksImporterNode()
+
 
 class HomeBlocksImporterNode(TemplateNode):
     def render(self, context):
@@ -928,6 +897,7 @@ class HomeBlocksImporterNode(TemplateNode):
 def do_mypage_blocks_importer(parser, token):
     return MypageBlocksImporterNode()
 
+
 class MypageBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
@@ -943,6 +913,7 @@ class MypageBlocksImporterNode(TemplateNode):
 def do_home_blocks_displayer(parser, token):
     return HomeBlocksDisplayerNode()
 
+
 class HomeBlocksDisplayerNode(TemplateNode):
     GROUP_NAME   = _HOME_BLOCKS
     BAD_CONF_MSG = "THIS BLOCK CAN'T BE DISPLAY ON HOME (YOU HAVE A CONFIG PROBLEM): %s"
@@ -957,7 +928,6 @@ class HomeBlocksDisplayerNode(TemplateNode):
                 yield self.BAD_CONF_MSG % block.id_
 
     def render(self, context):
-#        return ''.join(op for op in self.block_outputs(context))
         return ''.join(op for op in self.block_outputs(context.flatten()))
 
 
@@ -965,12 +935,13 @@ class HomeBlocksDisplayerNode(TemplateNode):
 def do_mypage_blocks_displayer(parser, token):
     return MypageBlocksDisplayerNode()
 
+
 class MypageBlocksDisplayerNode(HomeBlocksDisplayerNode):
     GROUP_NAME   = _MYPAGE_BLOCKS
     BAD_CONF_MSG = "THIS BLOCK CAN'T BE DISPLAY ON MYPAGE (YOU HAVE A CONFIG PROBLEM): %s"
 
 
-# BLOCKS DEPENDENCIES ------------------------------------------------------------------
+# BLOCKS DEPENDENCIES ----------------------------------------------------------
 
 @register.inclusion_tag('creme_core/templatetags/blocks_dependencies.html', takes_context=True)
 def get_blocks_dependencies(context):
@@ -980,14 +951,17 @@ def get_blocks_dependencies(context):
             'remaining_groups': blocks_manager.get_remaining_groups(),
            }
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 _BLOCKS_IMPORTER_RE = compile_re(r'(.*?) as (.*?)$')
 
 @register.tag(name="import_blocks")
 def do_blocks_importer(parser, token):
-    #{% import_blocks blocks as 'my_blocks' %} with blocks a list of blocks
+    """ With blocks a list of blocks:
+    {% import_blocks blocks as 'my_blocks' %}
+    """
     try:
-        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
     except ValueError:
         raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
@@ -1013,14 +987,19 @@ class BlocksImporterNode(TemplateNode):
         BlocksManager.get(context).add_group(self.alias, *self.blocks_var.eval(context))
         return ""
 
-#-------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 _BLOCKS_DISPLAYER_RE = compile_re(r'(.*?)$')
+
 
 @register.tag(name="display_blocks")
 def do_blocks_displayer(parser, token):
-    #{% display_blocks 'my_blocks' %} #Nb my_blocks previously imported with import_blocks
+    """ With 'my_blocks' previously imported with {% import_blocks ... %}
+    {% display_blocks 'my_blocks' %}
+    """
     try:
-        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
     except ValueError:
         raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
@@ -1028,7 +1007,7 @@ def do_blocks_displayer(parser, token):
     if not match:
         raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
-    alias =  match.groups()[0]
+    alias = match.groups()[0]
 
     _arg_in_quotes_or_die(alias, tag_name)
 
@@ -1039,11 +1018,10 @@ class BlocksDisplayerNode(TemplateNode):
     def __init__(self, alias):
         self.alias = alias
 
-    def block_outputs(self, context): #TODO: useless (inline the call)
+    def block_outputs(self, context):  # TODO: useless (inline the call)
         for block in BlocksManager.get(context).pop_group(self.alias):
             yield block.detailview_display(context)
 
     def render(self, context):
-#        return ''.join(op for op in self.block_outputs(context))
         return ''.join(op for op in self.block_outputs(context.flatten()))
 

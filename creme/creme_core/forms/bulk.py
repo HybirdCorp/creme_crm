@@ -28,7 +28,7 @@ from django.db.models.fields.related import ForeignKey, RelatedField, ManyToMany
 from django.db.models.query_utils import Q
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
-from django.forms.models import ModelMultipleChoiceField #model_to_dict
+from django.forms.models import ModelMultipleChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -221,7 +221,7 @@ class BulkForm(CremeForm):
         instance = getattr(entity, self.model_parent_field.name)
 
         if instance is None:
-            #TODO: code + _bulk_error_messages + params
+            # TODO: code + _bulk_error_messages + params
             raise ValidationError(ugettext(u'The field %s is empty') % self.model_parent_field.verbose_name)
 
         return self._bulk_clean_entity(instance, values)

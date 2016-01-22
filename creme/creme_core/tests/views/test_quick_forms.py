@@ -9,8 +9,6 @@ try:
     from .base import CremeTestCase
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeCivility as Civility)
-
-    #from creme.persons.models import Contact, Civility, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -19,7 +17,6 @@ class QuickFormTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-#        cls.populate('creme_core', 'persons')
         cls.populate('creme_core')
 
     def quickform_data(self, count):
@@ -67,7 +64,6 @@ class QuickFormTestCase(CremeTestCase):
         self.assertPOST404(self._build_quickform_url(Civility), data)
 
     def test_add_unallowed(self):
-#        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'),
         self.login(is_superuser=False,
                    creatable_models=[Organisation],
                   )
@@ -134,17 +130,11 @@ class QuickFormTestCase(CremeTestCase):
         self.quickform_data_append(data, 2, last_name='Mireille', email='invalid')
 
         response = self.assertPOST200(self._build_quickform_url(Contact, 3), data)
-        ##self.assertFormSetError(response, 'formset', 0, 'last_name')
-        ##self.assertFormSetError(response, 'formset', 0, 'email')
-        #self.assertNoFormsetError(response, 'formset', 0, 'last_name')
-        #self.assertNoFormsetError(response, 'formset', 0, 'email')
-        #self.assertNoFormsetError(response, 'formset', 0, '__all__')
         self.assertNoFormsetError(response, 'formset', 0)
 
         self.assertFormsetError(response, 'formset', 1, 'last_name', _(u'This field is required.'))
         self.assertFormsetError(response, 'formset', 1, 'email',     _(u'Enter a valid email address.'))
 
-        #self.assertFormSetError(response, 'formset', 2, 'last_name')
         self.assertNoFormsetError(response, 'formset', 2, 'last_name')
         self.assertFormsetError(response, 'formset', 2, 'email', _(u'Enter a valid email address.'))
 
@@ -208,4 +198,4 @@ class QuickFormTestCase(CremeTestCase):
                          response.content
                         )
 
-    #TODO : test_add_multiple_from_widget(self)
+    # TODO : test_add_multiple_from_widget(self)

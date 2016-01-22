@@ -4,8 +4,6 @@ try:
     from functools import partial
     from json import loads as jsonloads, dumps as jsondumps
 
-    #from django.conf import settings
-    #from django.utils.translation import ugettext as _
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
 
@@ -16,8 +14,6 @@ try:
             EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, Relation, HeaderFilter, CremeEntity
     from creme.creme_core.models.header_filter import HeaderFilterList
-
-    #from creme.persons.models import Contact, Organisation, Position, Sector
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -31,11 +27,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         cls.contact_ct = get_ct(Contact) #TODO: used once ?!
         cls.orga_ct    = get_ct(Organisation)
-
-        #create_hf = partial(HeaderFilter.create, is_custom=True)
-        #cls.hf_contact = create_hf(pk='hftest_tests-hf_contact', name='Test Contact view', model=Contact)
-        #cls.hf_orga    = create_hf(pk='hftest_tests-hf_orga',    name='Test Orga view',    model=Organisation)
-
 
     def assertCellEqual(self, cell1, cell2):
         self.assertIs(cell1.__class__, cell2.__class__)
@@ -68,14 +59,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual([{'type': 'regular_field', 'value': 'first_name'}],
                          deserialized
                         )
-
-        #name += 'v2'
-        #hf = HeaderFilter.create(pk=pk, name=name, model=Organisation, is_custom=False, user=self.user)
-        #self.assertEqual(name,         hf.name)
-        #self.assertEqual(self.user,    hf.user)
-        #self.assertEqual(self.orga_ct, hf.entity_type)
-        #self.assertIs(hf.is_custom, False)
-        #self.assertFalse(hf.cells)
 
     def test_create02(self):
         "With cells"
@@ -142,15 +125,14 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_create_errors(self):
         user = self.login()
 
-        #Private + no user => error
+        # Private + no user => error
         with self.assertRaises(ValueError):
             HeaderFilter.create(pk='tests-hf_contact', name='Contact view edited',
-                                #user=self.user,
                                 model=Contact, is_private=True,
                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
                                )
 
-        #Private + not is_custom => error
+        # Private + not is_custom => error
         with self.assertRaises(ValueError):
             HeaderFilter.create(pk='tests-hf_contact', name='Contact view edited',
                                 user=user, model=Contact,
@@ -178,7 +160,6 @@ class HeaderFiltersTestCase(CremeTestCase):
                                  cells_desc=cells,
                                 )
 
-        #cells.append(build_cell(name='phone'))
         cells.append(build_cell(name='description'))
         hf.cells = cells
         hf.save()
@@ -241,7 +222,7 @@ class HeaderFiltersTestCase(CremeTestCase):
                          deserialized
                         )
 
-        #---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(id=hf.id) \
                             .update(json_cells=jsondumps([{'type': 'function_field'},
                                                           {'type': 'regular_field', 'value': rfield_name},
@@ -252,9 +233,9 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(cells))
         self.assertIsInstance(cells[0], EntityCellRegularField)
 
-        #---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(id=hf.id) \
-                            .update(json_cells=jsondumps([{'type': 'function_field'}, #not 'value' key
+                            .update(json_cells=jsondumps([{'type': 'function_field'},  # Not 'value' key
                                                           {'type': 'regular_field', 'value': rfield_name},
                                                          ]))
         hf = self.refresh(hf)
@@ -262,9 +243,9 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(cells))
         self.assertIsInstance(cells[0], EntityCellRegularField)
 
-        #---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(id=hf.id) \
-                            .update(json_cells=jsondumps([{}, #no 'type' key
+                            .update(json_cells=jsondumps([{},  # No 'type' key
                                                           {'type': 'regular_field', 'value': rfield_name},
                                                          ]))
         hf = self.refresh(hf)
@@ -272,12 +253,12 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(cells))
         self.assertIsInstance(cells[0], EntityCellRegularField)
 
-        #---------------------------------------------------------------------
-        HeaderFilter.objects.filter(id=hf.id).update(json_cells=jsondumps([1])) #not a dict
+        # ---------------------------------------------------------------------
+        HeaderFilter.objects.filter(id=hf.id).update(json_cells=jsondumps([1]))  # Not a dict
         self.assertEqual(0, len(self.refresh(hf).cells))
 
-        #---------------------------------------------------------------------
-        HeaderFilter.objects.filter(id=hf.id).update(json_cells=jsondumps(1)) #not a list
+        # ---------------------------------------------------------------------
+        HeaderFilter.objects.filter(id=hf.id).update(json_cells=jsondumps(1))  # Not a list
         self.assertEqual(0, len(self.refresh(hf).cells))
 
     def test_populate_entities_fields01(self):
@@ -307,16 +288,13 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
                                  cells_desc=[build(name='last_name'), build(name='first_name'),
                                              build(name='position'),
-                                             #build(name='sector__title'),
                                              build(name='civility__title'),
                                             ],
                                 )
 
         pos = Position.objects.create(title='Pilot')
-        #sector = Sector.objects.create(title='Army')
         civ = Civility.objects.all()[0]
         create_contact = partial(Contact.objects.create, user=user, position_id=pos.id,
-                                 #sector_id=sector.id
                                  civility_id=civ.id,
                                 )
         contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
@@ -329,8 +307,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             contacts[0].position
             contacts[1].position
-            #contacts[0].sector
-            #contacts[1].sector
             contacts[0].civility
             contacts[1].civility
 
@@ -341,7 +317,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         cell1 = EntityCellRegularField.build(model=Contact, name='last_name')
 
         cell2 = EntityCellRegularField.build(model=Contact, name='first_name')
-        cell2.value = 'invalid' #filter_string='invalid__icontains',
+        cell2.value = 'invalid'  # filter_string='invalid__icontains'
 
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view',
                                  model=Contact, cells_desc=[cell1, cell2],
@@ -354,7 +330,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         hf = self.refresh(hf)
         new_cells = hf.cells
-        #TODO: assertCellsEqual
+        # TODO: assertCellsEqual
         self.assertEqual(1, len(new_cells))
         self.assertCellEqual(cell1, new_cells[0])
 
@@ -376,7 +352,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         cell1 = EntityCellRegularField.build(model=Contact, name='last_name')
 
         cell2 = EntityCellRegularField.build(model=Contact, name='user__username')
-        cell2.value = 'user__invalid' #filter_string='__icontains',
+        cell2.value = 'user__invalid'  # filter_string='__icontains'
 
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
                                  cells_desc=[cell1, cell2],
@@ -474,10 +450,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         user = self.login(is_superuser=False)
         other_user = self.other_user
 
-#        role = self.role
-#        role.allowed_apps = ['persons']
-#        role.save()
-
         User = get_user_model()
         teammate = User.objects.create(username='fulbertc',
                                        email='fulbnert@creme.org', role=self.role,
@@ -538,15 +510,15 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         hf1 = create_hf(1)
 
-        #hf2 = create_hf(2,  user=user)
         with self.assertRaises(ValueError):
             create_hf(2,  user=user)
 
         hf3 = create_hf(3,  user=other_user)
-        hf4 = create_hf(4,  user=other_user, is_private=True, is_custom=True) #<= this,one can not be seen by not staff users
+
+        # This,one can not be seen by not staff users
+        hf4 = create_hf(4,  user=other_user, is_private=True, is_custom=True)
 
         hfl = HeaderFilterList(self.orga_ct, user)
         self.assertIn(hf1, hfl)
-        #self.assertIn(hf2, hfl)
         self.assertIn(hf3, hfl)
         self.assertIn(hf4, hfl)
