@@ -25,7 +25,6 @@ from django.db import models
 from django.template.defaultfilters import linebreaks
 from django.utils.formats import date_format, number_format
 from django.utils.html import escape, urlize
-#from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext_lazy as _
 
@@ -33,7 +32,7 @@ from ..models import CremeEntity, fields
 from ..templatetags.creme_widgets import widget_entity_hyperlink
 from ..utils import bool_as_html
 from ..utils.collections import ClassKeyedMap
-from ..utils.meta import FieldInfo #get_model_field_info
+from ..utils.meta import FieldInfo
 
 
 # TODO: in settings
@@ -68,14 +67,14 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
 
 
 def simple_print(entity, fval, user, field):  # TODO: rename simple_print_html
-    return unicode(escape(fval)) if fval is not None else "" #TODO: remove 'unicode()'
+    return unicode(escape(fval)) if fval is not None else ""  # TODO: remove 'unicode()'
 
 
 def simple_print_csv(entity, fval, user, field):
     return unicode(fval) if fval is not None else ""
 
 
-def print_image(entity, fval, user, field): #TODO: rename print_image_html
+def print_image(entity, fval, user, field):  # TODO: rename print_image_html
     return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
                 'url':  fval.url,
                 'size': image_size(fval),
@@ -83,7 +82,7 @@ def print_image(entity, fval, user, field): #TODO: rename print_image_html
 
 
 def print_integer(entity, fval, user, field):
-    if field.choices: #TODO: manage 'choices' for other types...
+    if field.choices:  # TODO: manage 'choices' for other types...
         fval = getattr(entity, 'get_%s_display' % field.name)()
 
     return fval if fval is not None else ''
@@ -132,9 +131,7 @@ def print_foreignkey(entity, fval, user, field):  # TODO: rename print_foreignke
     if isinstance(fval, CremeEntity):
         return widget_entity_hyperlink(fval, user)
 
-    #return escape(unicode(fval)) if fval else u''
     if fval is None:
-        #return unicode(field.get_null_label())
         null_label = field.get_null_label()
         return u'<em>%s</em>' % null_label if null_label else ''
 
@@ -160,14 +157,17 @@ def print_many2many(entity, fval, user, field):  # TODO: rename print_many2many_
             return settings.HIDDEN_VALUE
 
         if isinstance(e, Image):
-            return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (e.get_image_url(),
-                                                                                   ' class="is_deleted"' if e.is_deleted else u'',
-                                                                                   e.get_entity_summary(user)
-                                                                                  )
+            return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (
+                            e.get_image_url(),
+                            ' class="is_deleted"' if e.is_deleted else u'',
+                            e.get_entity_summary(user),
+                        )
 
-        return u'<a target="_blank" href="%s"%s>%s</a>' % (e.get_absolute_url(),
-                                                           ' class="is_deleted"' if e.is_deleted else u'',
-                                                           e.get_entity_summary(user))
+        return u'<a target="_blank" href="%s"%s>%s</a>' % (
+                    e.get_absolute_url(),
+                    ' class="is_deleted"' if e.is_deleted else u'',
+                    e.get_entity_summary(user),
+                )
 
     if issubclass(fval.model, CremeEntity):
         output.extend('<li>%s</li>' % print_entity_link(e) for e in fval.filter(is_deleted=False))
@@ -216,7 +216,6 @@ def print_email_html(entity, fval, user, field):
 
 
 def print_text_html(entity, fval, user, field):
-    # return linebreaks(fval) if fval else ''
     return linebreaks(urlize(fval, autoescape=True)) if fval else ''
 
 
@@ -258,7 +257,7 @@ class _FieldPrintersRegistry(object):
 
                     (models.DateField,          print_date),
                     (models.DateTimeField,      print_datetime),
-                    #(models.ImageField,         print_image_csv, TODO ??
+                    # (models.ImageField,         print_image_csv, TODO ??
 
                     (models.ForeignKey,         print_foreignkey_csv),
                     (models.ManyToManyField,    print_many2many_csv),
@@ -393,7 +392,6 @@ class _FieldPrintersRegistry(object):
             print_func = self._printers_maps[output][base_field.__class__]
 
             def printer(obj, user):
-                #return mark_safe(print_func(obj, getattr(obj, base_name), user))
                 return print_func(obj, getattr(obj, base_name), user, base_field)
 
         return printer

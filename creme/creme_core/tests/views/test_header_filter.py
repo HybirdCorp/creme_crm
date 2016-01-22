@@ -16,9 +16,6 @@ try:
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (HeaderFilter, CremeEntity,
             FieldsConfig, RelationType, CustomField)
-
-#    from creme.persons.constants import REL_SUB_EMPLOYED_BY
-#    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -29,11 +26,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-#        cls.populate('persons')
         cls.populate('creme_core')
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
-
-        #HeaderFilter.objects.all().delete()
 
         cls._hf_backup = list(HeaderFilter.objects.all())
         HeaderFilter.objects.all().delete()
@@ -115,8 +109,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         build_4_field = partial(EntityCellRegularField.build, model=Contact)
         self.assertCellsEqual([build_4_field(name='first_name'),
                                build_4_field(name='last_name'),
-#                               build_4_field(name='email'),
-#                               EntityCellRelation(RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)),
                                EntityCellRelation(RelationType.objects.get(pk=FAKE_REL_SUB_EMPLOYED_BY)),
                               ],
                               cells_f.initial
@@ -128,7 +120,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                     data={'name': name,
                                           'user': user.id,
                                           'is_private': 'on',
-                                          'cells': 'relation-%(rtype)s,regular_field-%(rfield)s,function_field-%(ffield)s,custom_field-%(cfield)s' % {
+                                          'cells': 'relation-%(rtype)s,'
+                                                   'regular_field-%(rfield)s,'
+                                                   'function_field-%(ffield)s,'
+                                                   'custom_field-%(cfield)s' % {
                                                         'rfield': field_name,
                                                         'cfield': customfield.id,
                                                         'rtype':  loves.id,
@@ -163,13 +158,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_create03(self):
         "Check app credentials"
-#        self.login(is_superuser=False)
         self.login(is_superuser=False, allowed_apps=['documents'])
 
         uri = self._build_add_url(self.contact_ct)
         self.assertGET403(uri)
 
-#        self.role.allowed_apps = ['persons']
         self.role.allowed_apps = ['documents', 'creme_core']
         self.role.save()
 
@@ -194,9 +187,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                             'user': owner.id,
                                             'is_private': 'on',
                                             'cells': 'regular_field-first_name',
-                                            }
+                                           },
                                      )
-
 
         response = post(self.other_user)
         msg = _('A private view of list must belong to you (or one of your teams).')
@@ -210,7 +202,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.get_object_or_fail(HeaderFilter, name=name)
 
     def test_create05(self):
-        "A staff  user can create a private filter for another user"
+        "A staff user can create a private filter for another user"
         self.login(is_staff=True)
         name = 'DefaultHeaderFilter'
 
@@ -222,7 +214,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                             'cells': 'regular_field-first_name',
                                            },
                                      )
-
 
         response = post(self.other_user)
         self.assertNoFormError(response)
@@ -251,16 +242,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertIn(rf_prefix + valid_fname,     choices_keys)
         self.assertNotIn(rf_prefix + hidden_fname, choices_keys)
 
-    #def test_edit01(self):
-        #"Not editable"
-        #self.login()
-
-        #hf = HeaderFilter.create(pk='tests-hf_entity', name='Entity view',
-                                 #model=CremeEntity, is_custom=False,
-                                 #cells_desc=[EntityCellRegularField.build(model=CremeEntity, name='created')],
-                                #)
-        #self.assertGET403(self._build_edit_url(hf))
-
     def test_edit01(self):
         self.login()
 
@@ -281,10 +262,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         name = 'Entity view v2'
         field2 = 'last_name'
         response = self.client.post(url, data={'name':  name,
-                                               'cells': 'regular_field-%s,regular_field-%s' % (
+                                               'cells': 'regular_field-%s,'
+                                                        'regular_field-%s' % (
                                                                 field1, field2,
                                                             ),
-                                              }
+                                              },
                                    )
         self.assertNoFormError(response, status=302)
 
@@ -308,7 +290,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertGET200(self._build_edit_url(hf))
 
     def test_edit03(self):
-        "Can not edit HeaderFilter that belongs to another user"
+        "Cannot edit HeaderFilter that belongs to another user"
         self.login(is_superuser=False)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -318,7 +300,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_edit04(self):
         "User do not have the app credentials"
-#        user = self.login(is_superuser=False)
         user = self.login(is_superuser=False, allowed_apps=['documents'])
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -329,9 +310,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_edit05(self):
         "User belongs to the team -> OK"
         user = self.login(is_superuser=False)
-
-#        self.role.allowed_apps = ['persons']
-#        self.role.save()
 
         my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [user]
@@ -345,12 +323,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         "User does not belong to the team -> error"
         self.login(is_superuser=False)
 
-#        self.role.allowed_apps = ['persons']
-#        self.role.save()
-
         User = get_user_model()
         my_team = User.objects.create(username='TeamTitan', is_team=True)
-        #my_team.teammates = [self.user] # <=====
+        # my_team.teammates = [self.user] # <=====
 
         a_team = User.objects.create(username='A-team', is_team=True)
         a_team.teammates = [self.user]
@@ -404,7 +379,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         response = self.client.post(url, data={'name':       hf.name,
                                                'user':       self.user.id,
-                                               'is_private': 'on', #should not be used
+                                               'is_private': 'on',  # Should not be used
                                                'cells':      'regular_field-last_name',
                                               }
                                    )
@@ -439,7 +414,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         rf_prefix = 'regular_field-'
         self.assertIn(rf_prefix + valid_fname,   choices_keys)
-        self.assertIn(rf_prefix + hidden_fname1, choices_keys) # was already in the HeaderFilter => still proposed
+        self.assertIn(rf_prefix + hidden_fname1, choices_keys)  # Was already in the HeaderFilter => still proposed
         self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
 
     def test_delete01(self):
@@ -466,9 +441,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         "Belongs to another user"
         self.login(is_superuser=False)
 
-#        self.role.allowed_apps = ['persons']
-#        self.role.save()
-
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=Contact, is_custom=True, user=self.other_user,
                                 )
@@ -478,9 +450,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_delete04(self):
         "The user belongs to the owner team -> ok"
         user = self.login(is_superuser=False)
-
-#        self.role.allowed_apps = ['persons']
-#        self.role.save()
 
         my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [user]
@@ -494,9 +463,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_delete05(self):
         "Belongs to a team (not mine) -> KO"
         user = self.login(is_superuser=False)
-
-#        self.role.allowed_apps = ['persons']
-#        self.role.save()
 
         User = get_user_model()
         a_team = User.objects.create(username='TeamTitan', is_team=True)
@@ -548,6 +514,5 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_hfilters_for_ctype03(self):
         "No app credentials"
-#        self.login(is_superuser=False)
         self.login(is_superuser=False, allowed_apps=['documents'])
         self.assertGET403(self._build_get4ctype_url(self.contact_ct))

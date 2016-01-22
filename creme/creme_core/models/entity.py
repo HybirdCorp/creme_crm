@@ -75,7 +75,7 @@ class CremeEntity(CremeAbstractEntity):
 
     class Meta:
         app_label = 'creme_core'
-        #ordering = ('id',) # order by id on a FK can cause a crashes
+        # ordering = ('id',) # order by id on a FK can cause a crashes
         ordering = ('header_filter_search_field',)
 
     def __init__(self, *args, **kwargs):
@@ -109,7 +109,8 @@ class CremeEntity(CremeAbstractEntity):
         return unicode(real_entity)
 
     def allowed_unicode(self, user):
-        return unicode(self) if user.has_perm_to_view(self) else ugettext(u'Entity #%s (not viewable)') % self.id
+        return unicode(self) if user.has_perm_to_view(self) else \
+               ugettext(u'Entity #%s (not viewable)') % self.id
 
     @staticmethod
     def get_real_entity_by_id(pk):
@@ -216,9 +217,9 @@ class CremeEntity(CremeAbstractEntity):
 
         try:
             cvalue = self._cvalues_map[custom_field.id]
-            #logger.debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
+            # logger.debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
         except KeyError:
-            #logger.debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
+            # logger.debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
             CremeEntity.populate_custom_values([self], [custom_field])
             cvalue = self._cvalues_map.get(custom_field.id)
 
@@ -233,7 +234,7 @@ class CremeEntity(CremeAbstractEntity):
             for custom_field in custom_fields:
                 cf_id = custom_field.id
                 entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id)
-                #logger.debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
+                # logger.debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
     def get_entity_summary(self, user):
         return escape(self.allowed_unicode(user))
@@ -249,7 +250,7 @@ class CremeEntity(CremeAbstractEntity):
 
         return '<a target="_blank" href="%s">%s</a>' % (self.get_absolute_url(), escape(unicode(self)))
 
-    def get_actions(self, user): # TODO: improve icon/css class management....
+    def get_actions(self, user):  # TODO: improve icon/css class management....
         actions = []
 
         edit_url = self.get_edit_absolute_url()
@@ -275,7 +276,9 @@ class CremeEntity(CremeAbstractEntity):
                }
 
     def get_custom_fields_n_values(self):
-        cfields = CustomField.objects.filter(content_type=self.entity_type_id) #TODO: in a staticmethod of CustomField ??
+        # TODO: in a staticmethod of CustomField ??
+        cfields = CustomField.objects.filter(content_type=self.entity_type_id)
+
         CremeEntity.populate_custom_values([self], cfields)
 
         return [(cfield, self.get_custom_value(cfield)) for cfield in cfields]
@@ -307,8 +310,8 @@ class CremeEntity(CremeAbstractEntity):
 
     @staticmethod
     def populate_fk_fields(entities, field_names):
-        """@param entities Sequence of CremeEntity (iterated several times -> not an iterator)
-                           with the _same_ ContentType.
+        """@param entities: Sequence of CremeEntity (iterated several times -> not an iterator)
+                            with the _same_ ContentType.
         """
         if not entities:
             return
@@ -357,15 +360,21 @@ class CremeEntity(CremeAbstractEntity):
                 CustomFieldValue.save_values_for_entities(custom_field, [self], value)
 
     def _pre_save_clone(self, source):
-        """Called just before saving the entity which is already populated with source attributes (except m2m)"""
+        """Called just before saving the entity which is already populated
+        with source attributes (except m2m).
+        """
         pass
 
     def _post_save_clone(self, source):
-        """Called just after saving the entity (m2m and custom fields are not already cloned & saved)"""
+        """Called just after saving the entity (m2m and custom fields are
+         not already cloned & saved).
+        """
         pass
 
     def _post_clone(self, source):
-        """Called after all clone operations (object cloned with all his m2m, custom values, properties and relations"""
+        """Called after all clone operations (object cloned with all his
+         M2M, custom values, properties and relations.
+        """
         pass
 
     def _clone_m2m(self, source):
@@ -375,8 +384,8 @@ class CremeEntity(CremeAbstractEntity):
             setattr(self, field_name, getattr(source, field_name).all())
 
     def _clone_object(self):
-        """Clone and returns a new saved instance of self
-        NB: Clones also customs values
+        """Clone and returns a new saved instance of self.
+        NB: Clones also customs values.
         """
         fields_kv = {}
 
@@ -402,8 +411,8 @@ class CremeEntity(CremeAbstractEntity):
             creme_property_create(type_id=type_id, creme_entity=self)
 
     def _copy_relations(self, source, allowed_internal=()):
-        """@param allowed_internal Sequence of RelationTypes pk with is_internal=True.
-                                   Relationships with these types will be cloned anyway.
+        """@param allowed_internal: Sequence of RelationTypes pk with is_internal=True.
+                                    Relationships with these types will be cloned anyway.
         """
         relation_create = Relation.objects.create
 

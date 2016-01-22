@@ -17,8 +17,6 @@ try:
     from creme.creme_core.models import (RelationType, Relation,
             BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
             InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
-
-#    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -56,11 +54,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
                 print('CremeBlockTagsTestCase: test-data backup problem with model=%s' % model)
 
     def setUp(self):
-#        self.login()
-
         self.factory = RequestFactory()
 
-    def _build_request(self, url='/'): #TODO: in CremeTestCase ??
+    def _build_request(self, url='/'):  # TODO: in CremeTestCase ??
         request = self.factory.get(url)
         request.session = SessionBase()
         request.user = self.user
@@ -203,7 +199,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
             BlockDetailviewLocation.create(block_id=block.id_, order=i, zone=zone, model=Organisation)
 
-        BlockDetailviewLocation.create(block_id=blocks[0].id_, order=1, zone=BlockDetailviewLocation.BOTTOM) #default conf should be ignored
+        # Default conf should be ignored
+        BlockDetailviewLocation.create(block_id=blocks[0].id_, order=1, zone=BlockDetailviewLocation.BOTTOM)
         block_registry.register(*blocks)
 
         with self.assertNoException():
@@ -254,7 +251,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         BlockDetailviewLocation.create(block_id=blocks[0].id_, order=1, model=Organisation,
                                        zone=BlockDetailviewLocation.BOTTOM,
-                                      ) # Default conf for the CT should be ignored
+                                      )  # Default conf for the CT should be ignored
         self.assertEqual(5, BlockDetailviewLocation.objects.count())
 
         block_registry.register(*blocks)
@@ -307,7 +304,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         BlockDetailviewLocation.create(block_id=blocks[0].id_, order=1, model=Organisation,
                                        zone=BlockDetailviewLocation.BOTTOM,
-                                      ) # Default conf should be ignored
+                                      )  # Default conf should be ignored
         self.assertEqual(5, BlockDetailviewLocation.objects.count())
 
         block_registry.register(*blocks)
@@ -354,7 +351,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         class OrgaInstanceBlock(Block):
             id_  = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
-            #dependencies = ()
+            # dependencies = ()
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
 
             def __init__(self, instance_block_config_item):
@@ -444,7 +441,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                                    )
                                     )
 
-        self.assertIn(rt.predicate,   render)
+        self.assertIn(rt.predicate, render)
 
         return seele, render
 
@@ -558,7 +555,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
             BlockPortalLocation.create(block_id=block.id_, order=i, app_name='persons')
 
-        BlockPortalLocation.create(block_id=blocks[0].id_, order=1)  #default conf should be ignored
+        BlockPortalLocation.create(block_id=blocks[0].id_, order=1)  # Default conf should be ignored
         block_registry.register(*blocks)
 
         ct_ids = [ContentType.objects.get_for_model(Organisation).id]
@@ -680,7 +677,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         block1 = FooBlock1()
         block2 = FooBlock2()
-        #block_registry.register(block1, block2) #useless
+        # block_registry.register(block1, block2) #useless
 
         with self.assertNoException():
             template = Template("{% load creme_block %}"
@@ -730,7 +727,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                                    )
                                     )
 
-        #TODO: improve...
+        # TODO: improve...
         render = render.strip()
         self.assertIn('creme.utils.blocks_deps', render)
         self.assertIn('creme.utils.getBlocksDeps', render)
@@ -783,7 +780,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                                     {'base_url':   '/base/url/',
                                                      'update_url': '/update/url/',
                                                      'blocks':     [block1, block2, block3, block4],
-                                                     'block_name': block2.id_, #we simulate the displaying of 'block2'
+                                                     'block_name': block2.id_,  # We simulate the displaying of 'block2'
                                                     }
                                                    )
                                     )

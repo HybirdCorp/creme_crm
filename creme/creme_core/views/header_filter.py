@@ -38,6 +38,7 @@ def _set_current_hf(request, path, hf_instance):
         lvs.header_filter_id = hf_instance.id
         lvs.register_in_session(request)
 
+
 @login_required
 def add(request, content_type_id, extra_template_dict=None):
     ct_entity = get_ct_or_404(content_type_id)
@@ -66,11 +67,11 @@ def add(request, content_type_id, extra_template_dict=None):
                       function_post_save=lambda r, i: _set_current_hf(r, callback_url, i),
                      )
 
+
 @login_required
 def edit(request, header_filter_id):
     hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
     user = request.user
-    #allowed, msg = hf.can_edit_or_delete(user)
     allowed, msg = hf.can_edit(user)
 
     if not allowed:
@@ -97,11 +98,11 @@ def edit(request, header_filter_id):
                   }
                  )
 
+
 @login_required
 def delete(request):
     hf           = get_object_or_404(HeaderFilter, pk=get_from_POST_or_404(request.POST, 'id'))
     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
-    #allowed, msg = hf.can_edit_or_delete(request.user)
     allowed, msg = hf.can_delete(request.user)
 
     if allowed:
@@ -118,13 +119,14 @@ def delete(request):
 
     return HttpResponseRedirect(callback_url)
 
+
 @login_required
 @jsonify
 def get_for_ctype(request, ct_id):
     ct = get_ct_or_404(ct_id)
     user = request.user
 
-    if not user.has_perm(ct.app_label): #TODO: helper in auth.py ??
+    if not user.has_perm(ct.app_label):  # TODO: helper in auth.py ??
         raise PermissionDenied(ugettext(u"You are not allowed to access to this app"))
 
     return list(HeaderFilter.get_for_user(user, ct).values_list('id', 'name'))

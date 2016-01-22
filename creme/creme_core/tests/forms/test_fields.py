@@ -16,8 +16,6 @@ try:
     from creme.creme_core.models import RelationType, CremePropertyType, Currency
     from creme.creme_core.utils.date_period import DatePeriod
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
-
-#    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -73,10 +71,6 @@ class DatePeriodFieldTestCase(FieldTestCase):
                                        )
 
     def test_notnull(self):
-        #self.assertFieldValidationError(IntegerField, 'min_value',
-                                        #DatePeriodField().clean, ['days', '0'],
-                                        #message_args={'limit_value': 1}
-                                       #)
         with self.assertRaises(ValidationError) as cm:
             DatePeriodField().clean(['days', '0'])
 
@@ -91,8 +85,6 @@ class DatePeriodFieldTestCase(FieldTestCase):
 class DateRangeFieldTestCase(FieldTestCase):
     def test_clean_empty_customized(self):
         clean = DateRangeField().clean
-        #self.assertFieldValidationError(DateRangeField, 'customized_empty', clean, [u"", u"", u""])
-        #self.assertFieldValidationError(DateRangeField, 'customized_empty', clean, None)
         self.assertFieldValidationError(DateRangeField, 'required', clean, ['', '', ''])
         self.assertFieldValidationError(DateRangeField, 'required', clean, None)
 
@@ -213,7 +205,7 @@ class ChoiceOrCharFieldTestCase(FieldTestCase):
 
         self.assertEqual((None, None), cleaned)
 
-    #TODO: set 'Other' label
+    # TODO: set 'Other' label
 
 
 class _CTypeChoiceFieldTestCase(FieldTestCase):
@@ -237,7 +229,6 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         self.assertEqual(sorted([(ct1.pk, unicode(ct1)),
                                  (ct2.pk, unicode(ct2)),
                                 ], key=lambda ct: ct[1]),
-#                         field.widget.choices
                          list(field.widget.choices)
                         )
 
@@ -255,7 +246,6 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
                          sorted([(ct1.pk, unicode(ct1)),
                                  (ct2.pk, unicode(ct2)),
                                 ], key=lambda ct: ct[1]),
-#                         field.widget.choices
                          list(field.widget.choices)
                         )
 
@@ -279,8 +269,6 @@ class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
         cls.ct1 = get_ct(Contact)
         cls.ct2 = get_ct(Organisation)
         cls.ct3 = get_ct(Currency)
-
-        #cls.autodiscover()
 
 
 class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):

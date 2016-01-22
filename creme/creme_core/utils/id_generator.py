@@ -20,7 +20,6 @@
 
 import logging
 
-#from django.db import transaction, IntegrityError
 from django.db import IntegrityError
 from django.db.transaction import atomic
 
@@ -49,37 +48,8 @@ def generate_string_id_and_save(model, objects, prefix):
     index = max(id_list) if id_list else 0
     last_exception = None
 
-#    #We use transaction because the IntegrityError aborts the current transaction on PGSQL
-#    with transaction.commit_manually():
-#        try:
-#            for obj in objects:
-#                for i in xrange(1000): #avoid infinite loop
-#                    sid = transaction.savepoint()
-#                    index += 1
-#                    obj.id = prefix + str(index)
-#
-#                    try:
-#                        obj.save(force_insert=True)
-#                    except IntegrityError as e: #an object with this id already exists
-#                        #TODO: indeed it can be raise if the given object if badly build.... --> improve this (detect the guilty column)???
-#                        logger.debug('generate_string_id_and_save(): id "%s" already exists ? (%s)', obj.id, e)
-#                        last_exception = e
-#                        obj.pk = None
-#
-#                        transaction.savepoint_rollback(sid)
-#                    else:
-#                        transaction.savepoint_commit(sid)
-#                        break
-#                else:
-#                    raise last_exception #use transaction to delete saved objects ????
-#        except Exception:
-#            transaction.rollback()
-#            #logger.exception('generate_string_id_and_save') #we noticed that it breaks rollback feature...
-#            raise
-#        else:
-#            transaction.commit()
     for obj in objects:
-        for i in xrange(1000): # Avoid infinite loop
+        for i in xrange(1000):  # Avoid infinite loop
             index += 1
             obj.id = prefix + str(index)
 
@@ -87,8 +57,9 @@ def generate_string_id_and_save(model, objects, prefix):
                 # We use transaction because the IntegrityError aborts the current transaction on PGSQL
                 with atomic():
                     obj.save(force_insert=True)
-            except IntegrityError as e: #an object with this id already exists
-                # TODO: indeed it can be raise if the given object if badly build.... --> improve this (detect the guilty column)???
+            except IntegrityError as e:  # An object with this id already exists
+                # TODO: indeed it can be raise if the given object if badly build....
+                #       --> improve this (detect the guilty column) ?
                 logger.debug('generate_string_id_and_save(): id "%s" already exists ? (%s)', obj.id, e)
                 last_exception = e
                 obj.pk = None

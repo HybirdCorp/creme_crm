@@ -28,13 +28,12 @@ from ..utils.unicode_collation import collator
 
 register = template.Library()
 
+
 @register.inclusion_tag('creme_core/templatetags/search_panel.html', takes_context=True)
-#def get_search_panel(context, target_node_id='sub_content'):
 def get_search_panel(context):
     get_ct = ContentType.objects.get_for_model
     content_types = [{'id':           get_ct(model).id,
                       'verbose_name': unicode(model._meta.verbose_name),
-                     #} for model in creme_registry.iter_entity_models()
                      } for model in Searcher(creme_registry.iter_entity_models(),
                                              context['user'],
                                             ).models
@@ -42,10 +41,6 @@ def get_search_panel(context):
     sort_key = collator.sort_key
     content_types.sort(key=lambda k: sort_key(k['verbose_name']))
 
-    #context.update({
-            #'content_types':  content_types,
-            #'target_node_id': target_node_id, #Ajax version / set your target html node's id
-        #})
     context['content_types'] = content_types
 
     return context

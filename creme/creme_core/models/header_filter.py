@@ -38,9 +38,6 @@ class HeaderFilterList(list):
     """Contains all the HeaderFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's a cache.
     """
-    #def __init__(self, content_type):
-        #super(HeaderFilterList, self).__init__(HeaderFilter.objects.filter(entity_type=content_type))
-        #self._selected = None
     def __init__(self, content_type, user):
         super(HeaderFilterList, self).__init__(HeaderFilter.get_for_user(user, content_type))
         self._selected = None
@@ -51,7 +48,7 @@ class HeaderFilterList(list):
 
     def select_by_id(self, *ids):
         """Try several HeaderFilter ids"""
-        #linear search but with few items after all...
+        # Linear search but with few items after all...
         for hf_id in ids:
             for hf in self:
                 if hf.id == hf_id:
@@ -66,17 +63,23 @@ class HeaderFilterList(list):
         return self._selected
 
 
-class HeaderFilter(Model): #CremeModel ???
+class HeaderFilter(Model):  # CremeModel ???
     """View of list : sets of columns (see EntityCell) stored for a specific
     ContentType of CremeEntity.
     """
     id          = CharField(primary_key=True, max_length=100, editable=False)
     name        = CharField(_('Name of the view'), max_length=100)
-    user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True) #verbose_name=_(u'Owner')
+    user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True)
     entity_type = CTypeForeignKey(editable=False)
-    is_custom   = BooleanField(blank=False, default=True, editable=False) #'False' means: cannot be deleted (to be sure that a ContentTypehas always at least one existing HeaderFilter)
-    is_private  = BooleanField(pgettext_lazy('creme_core-header_filter', u'Is private?'), default=False) #'True' means: can only be viewed (and so edited/deleted) by its owner.
-    json_cells  = TextField(editable=False, null=True) #TODO: JSONField ? CellsField ?
+
+    # 'False' means: cannot be deleted (to be sure that a ContentType
+    #  has always at least one existing HeaderFilter)
+    is_custom = BooleanField(blank=False, default=True, editable=False)
+
+    # 'True' means: can only be viewed (and so edited/deleted) by its owner.
+    is_private = BooleanField(pgettext_lazy('creme_core-header_filter', u'Is private?'), default=False)
+
+    json_cells = TextField(editable=False, null=True) #TODO: JSONField ? CellsField ?
 
     creation_label = _('Add a view')
     _cells = None
@@ -92,7 +95,6 @@ class HeaderFilter(Model): #CremeModel ???
             self.cells = []
 
     def __unicode__(self):
-        #return u'<HeaderFilter: name="%s">' % self.name
         return self.name
 
     # def can_edit_or_delete(self, user):
@@ -126,67 +128,34 @@ class HeaderFilter(Model): #CremeModel ???
 
         return self.can_edit(user)
 
-    #TODO: factorise with EntityFilter.can_edit ???
+    # TODO: factorise with EntityFilter.can_edit ???
     def can_edit(self, user):
-        if not self.user_id: #all users allowed
-            return (True, 'OK')
+        if not self.user_id:  # All users allowed
+            return True, 'OK'
 
         if user.is_staff:
-            return (True, 'OK')
+            return True, 'OK'
 
         if user.is_superuser and not self.is_private:
-            return (True, 'OK')
+            return True, 'OK'
 
         if not user.has_perm(self.entity_type.app_label):
-            return (False, ugettext(u"You are not allowed to access to this app"))
+            return False, ugettext(u"You are not allowed to access to this app")
 
         if not self.user.is_team:
             if self.user_id == user.id:
-                return (True, 'OK')
-        #elif self.user.team_m2m_teamside.filter(teammate=user).exists():
+                return True, 'OK'
         elif user.id in self.user.teammates:
-            return (True, 'OK')
+            return True, 'OK'
 
-        return (False, ugettext(u"You are not allowed to edit/delete this view"))
+        return False, ugettext(u"You are not allowed to edit/delete this view")
 
     def can_view(self, user, content_type=None):
         if content_type and content_type != self.entity_type:
-            return (False, 'Invalid entity type')
+            return False, 'Invalid entity type'
 
         return self.can_edit(user)
 
-    #@staticmethod
-    #def create(pk, name, model, is_custom=False, user=None, cells_desc=()):
-        #"""Creation helper ; useful for populate.py scripts.
-        #It clean old EntityCells.
-        #@param cells_desc List of objects where each one can other:
-            #- an instance of EntityCell (one of its child class of course).
-            #- a tuple (class, args)
-              #where 'class' is child class of EntityCell, & 'args' is a dict
-              #containing parameters for the build() method of the previous class.
-        #"""
-        #from ..core.entity_cell import EntityCell
-        #from ..utils import create_or_update
-
-        #cells = []
-
-        #for cell_desc in cells_desc:
-            #if cell_desc is None:
-                #continue
-
-            #if isinstance(cell_desc, EntityCell):
-                #cells.append(cell_desc)
-            #else:
-                #cell = cell_desc[0].build(model=model, **cell_desc[1])
-
-                #if cell is not None:
-                    #cells.append(cell)
-
-        #return create_or_update(HeaderFilter, pk=pk,
-                                #name=name, is_custom=is_custom, user=user,
-                                #entity_type=ContentType.objects.get_for_model(model),
-                                #cells=cells,
-                               #)
     @staticmethod
     def create(pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
         """Creation helper ; useful for populate.py scripts.

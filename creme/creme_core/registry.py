@@ -52,7 +52,6 @@ class CremeRegistry(object):
     CRED_ADMIN   = 0b10
 
     def __init__(self):
-#        self._entity_models = []
         self._entity_models = OrderedSet()
         self._apps = {}
         self._extending_apps = defaultdict(list)
@@ -63,7 +62,7 @@ class CremeRegistry(object):
                      extended_app=None,
                     ):
         if extended_app is not None:
-            #TODO: check that's a valid app name
+            # TODO: check that's a valid app name
             credentials = self.CRED_NONE
             self._extending_apps[extended_app].append(name)
 
@@ -108,7 +107,6 @@ class CremeRegistry(object):
                            )
                 model._meta.ordering = ('header_filter_search_field',)
 
-#            entity_models.append(model)
             entity_models.add(model)
 
     def is_entity_model_registered(self, model):
@@ -155,6 +153,7 @@ class _BackendRegistry(object):
 
                 backends[backend_id] = BackendClass
             self._backends = backends
+
         return self._backends
 
     def iterbackends(self):

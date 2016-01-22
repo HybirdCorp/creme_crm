@@ -27,6 +27,7 @@ from ..auth.decorators import login_required
 def home(request):
     return render(request, 'creme_core/home.html')
 
+
 @login_required
 def my_page(request):
     return render(request, 'creme_core/my_page.html')

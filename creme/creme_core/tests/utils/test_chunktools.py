@@ -63,7 +63,6 @@ s556"""
             self.assertEqual(5, len(chunk), 'Bad size for chunk %i : %s' % (i, chunk))
 
         self.assertEqual('9', chunks[-1])
-
         self.assertEqual(data, ''.join(chunks))
 
     def test_iter_as_chunks01(self):
@@ -94,25 +93,24 @@ s556"""
             self.assertEqual(5, len(chunk), 'Bad size for chunk %i : %s' % (i, chunk))
 
         self.assertEqual(['9'], chunks[-1])
-
         self.assertEqual(data, ''.join(''.join(chunk) for chunk in chunks))
 
     def test_iter_splitchunks01(self):
-        #Tests small_chunks
+        "Tests small_chunks"
         chunk_size = 5
         entries = list(chunktools.iter_splitchunks(self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter))
 
         self.assertRightEntries(entries)
 
     def test_iter_splitchunks02(self):
-        #Test big_chunks
+        "Test big_chunks"
         chunk_size = len(self.data) / 2
         entries = list(chunktools.iter_splitchunks(self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter))
 
         self.assertRightEntries(entries)
 
     def test_iter_splitchunks03(self):
-        #Test with one chunk
+        "Test with one chunk"
         chunk_size = len(self.data) * 2
         entries = list(chunktools.iter_splitchunks(self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter))
 

@@ -20,7 +20,6 @@
 
 import logging
 
-#from django.db import models
 from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
 from django.template import Library
 from django.utils.translation import ugettext as _
@@ -30,9 +29,8 @@ from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
 from ..gui.listview import NULL_FK
 from ..gui.list_view_import import import_form_registry
 from ..models import CustomField
-from ..models.fields import EntityCTypeForeignKey # DatePeriodField
+from ..models.fields import EntityCTypeForeignKey
 from ..utils import creme_entity_content_types, build_ct_choices
-#from ..utils.meta import get_model_field_info
 
 
 logger = logging.getLogger(__name__)
@@ -45,17 +43,14 @@ def get_listview_entity_filters(context):
 
     if efilter:
         efilter_id = efilter.id
-        #permission = efilter.can_edit_or_delete(context['user'])[0]
         user = context['user']
         can_edit   = efilter.can_edit(user)[0]
         can_delete = efilter.can_delete(user)[0]
     else:
         efilter_id = 0
-        #permission = False
         can_edit = can_delete = False
 
     context['efilter_id'] = efilter_id
-    #context['can_edit_or_delete'] = permission
     context['can_edit'] = can_edit
     context['can_delete'] = can_delete
 
@@ -68,14 +63,13 @@ def get_listview_headerfilters(context):
     user = context['user']
 
     context['hfilter_id'] = hfilter.id
-    #context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['user'])[0]
     context['can_edit']   = hfilter.can_edit(user)[0]
     context['can_delete'] = hfilter.can_delete(user)[0]
 
     return context
 
 
-# get_listview_columns_header ##################################################
+# get_listview_columns_header --------------------------------------------------
 
 def _build_bool_search_widget(widget_ctx, search_value):
     # TODO : Hack or not ? / Remember selected value ?
@@ -100,7 +94,7 @@ def _build_date_search_widget(widget_ctx, search_value):
 
 
 def _build_select_search_widget(widget_ctx, search_value, choices):
-    selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None #bof bof
+    selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None  # meh
     widget_ctx['type'] = 'select'
     widget_ctx['values'] = [{'value':    key,
                              'text':     unicode(val),
@@ -124,8 +118,7 @@ def get_listview_columns_header(context):
         if isinstance(cell, EntityCellRegularField):
             field = cell.field_info[-1]
 
-#            if isinstance(field, ForeignKey):
-            if isinstance(field, (ForeignKey, ManyToManyField)): # TODO: hasattr(field, 'rel') ? [wait for django1.8 field API]
+            if isinstance(field, (ForeignKey, ManyToManyField)):  # TODO: hasattr(field, 'rel') ?
                 if cell.filter_string.endswith('__header_filter_search_field__icontains'):
                     if search_value:
                         widget_ctx['value'] = search_value[0]
@@ -149,9 +142,6 @@ def get_listview_columns_header(context):
                 _build_select_search_widget(widget_ctx, search_value, field.choices)
             elif isinstance(field, BooleanField):
                 _build_bool_search_widget(widget_ctx, search_value)
-            #elif isinstance(field, DatePeriodField): #todo: JSONField ? 'searchable' tag
-                #continue
-            #elif isinstance(field, (models.DateField, models.DateTimeField)):
             elif isinstance(field, DateField):
                 _build_date_search_widget(widget_ctx, search_value)
             elif search_value:
@@ -173,10 +163,7 @@ def get_listview_columns_header(context):
                 choices = [(NULL_FK, _('* is empty *'))]
                 choices.extend(cf.customfieldenumvalue_set.values_list('id', 'value'))
 
-                _build_select_search_widget(widget_ctx, search_value,
-                                            #cf.customfieldenumvalue_set.values_list('id', 'value')
-                                            choices,
-                                           )
+                _build_select_search_widget(widget_ctx, search_value, choices)
             elif field_type == CustomField.DATETIME:
                 _build_date_search_widget(widget_ctx, search_value)
             elif field_type == CustomField.BOOL:
@@ -192,6 +179,7 @@ def get_listview_columns_header(context):
 
 # ------------------------------------------------------------------------------
 
+
 @register.simple_tag
 def get_listview_cell(cell, entity, user):
     try:
@@ -199,7 +187,7 @@ def get_listview_cell(cell, entity, user):
     except Exception as e:
         logger.debug('Templatetag "get_listview_cell": %s', e)
 
-    return u""
+    return u''
 
 
 @register.assignment_tag

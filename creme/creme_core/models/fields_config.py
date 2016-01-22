@@ -29,15 +29,14 @@ from django.utils.translation import ugettext as _
 from ..core.entity_cell import EntityCellRegularField
 from ..global_info import get_global_info, set_global_info
 from .base import CremeModel
-from .fields import CTypeOneToOneField #CTypeForeignKey
+from .fields import CTypeOneToOneField
 
 logger = logging.getLogger(__name__)
 
 
 class FieldsConfig(CremeModel):
-#    content_type     = CTypeForeignKey(editable=False, primary_key=True)
-    content_type     = CTypeOneToOneField(editable=False, primary_key=True) #verbose_name=_(u'Related type')
-    raw_descriptions = TextField(editable=False) # null=True  #TODO: JSONField ?
+    content_type     = CTypeOneToOneField(editable=False, primary_key=True)  # verbose_name=_(u'Related type')
+    raw_descriptions = TextField(editable=False)  # null=True  #TODO: JSONField ?
 
     HIDDEN = 'hidden'
 
@@ -89,7 +88,7 @@ class FieldsConfig(CremeModel):
                 return True
 
             if len(field_info) > 1:
-                assert len(field_info) == 2 # TODO: manage deeper fields + unit tests
+                assert len(field_info) == 2  # TODO: manage deeper fields + unit tests
 
                 if self.get_4_model(field_info[0].rel.to).is_field_hidden(field_info[1]):
                     return True
@@ -131,7 +130,7 @@ class FieldsConfig(CremeModel):
         return errors, safe_descriptions
 
     @classmethod
-    def create(cls, model, descriptions=()): # TODO: in a manager ?
+    def create(cls, model, descriptions=()):  # TODO: in a manager ?
         from ..gui.fields_config import fields_config_registry
 
         if not fields_config_registry.is_model_valid(model):
@@ -237,7 +236,7 @@ class FieldsConfig(CremeModel):
             fc = cache.get(cache_key_fmt % ct.id)
 
             if fc is None:
-                if fields_config_registry.is_model_valid(model): # Avoid useless queries
+                if fields_config_registry.is_model_valid(model):  # Avoid useless queries
                     not_cached_ctypes.append(ct)
             else:
                 result[model] = fc

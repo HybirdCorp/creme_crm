@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.contrib.contenttypes.models import ContentType
-
 
 class FormRegistry(object):
     class UnregisteredCTypeException(Exception):
@@ -35,19 +33,16 @@ class FormRegistry(object):
          and which returns a form class that inherits creme_core.forms.list_view_import.ImportForm.
         'factory' can be None: it means that this ContentType use a generic import form.
         """
-        #self._form_factories[ContentType.objects.get_for_model(model).id] = factory
         self._form_factories[model] = factory
 
     def get(self, ct):
         try:
-            #return self._form_factories[ct.id]
             return self._form_factories[ct.model_class()]
         except KeyError:
             raise self.UnregisteredCTypeException('Unregistered ContentType: %s' % ct)
 
     def is_registered(self, ct):
-        #return ct.id in self._form_factories
-        return ct.model_class() in self._form_factories #TODO: accept model directly ??
+        return ct.model_class() in self._form_factories  # TODO: accept model directly ??
 
 
 import_form_registry = FormRegistry()

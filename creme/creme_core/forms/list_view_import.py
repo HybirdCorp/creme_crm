@@ -48,7 +48,6 @@ from creme.creme_core.models import (CremePropertyType, CremeProperty,
 from creme.creme_core.registry import import_backend_registry
 from creme.creme_core.utils.collections import LimitedList
 
-# from creme.documents.models import Document
 from creme.documents import get_document_model
 
 from ..utils.meta import ModelFieldEnumerator
@@ -65,7 +64,6 @@ Document = get_document_model()
 class UploadForm(CremeForm):
     step       = IntegerField(widget=HiddenInput)
     document   = CreatorEntityField(label=_(u'File to import'), model=Document,
-                                    #create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
                                     create_action_url=reverse('documents__create_document_from_widget', args=(1,)),
                                    )
     has_header = BooleanField(label=_(u'Header present ?'), required=False,
@@ -149,7 +147,7 @@ class Extractor(object):
         self._m2m = multiple
 
         if create_if_unfound:
-            self._fk_form = modelform_factory(subfield_model, fields='__all__') # TODO: creme_config form ??
+            self._fk_form = modelform_factory(subfield_model, fields='__all__')  # TODO: creme_config form ??
 
     def extract_value(self, line):
         value = None
@@ -164,16 +162,17 @@ class Extractor(object):
                 try:
                     retriever = self._fk_model.objects.filter if self._m2m else \
                                 self._fk_model.objects.get
-                    return retriever(**data), err_msg # TODO: improve self._value_castor avoid the direct 'return' ?
+                    return retriever(**data), err_msg  # TODO: improve self._value_castor avoid the direct 'return' ?
                 except Exception as e:
                     fk_form = self._fk_form
 
-                    if fk_form: # Try to create the referenced instance
+                    if fk_form:  # Try to create the referenced instance
                         creator = fk_form(data=data)
 
                         if creator.is_valid():
                             creator.save()
-                            return creator.instance, err_msg # TODO: improve self._value_castor avoid the direct 'return' ?
+                            # TODO: improve self._value_castor avoid the direct 'return' ?
+                            return creator.instance, err_msg
                         else:
                             err_msg = ugettext(u'Error while extracting value: tried to retrieve '
                                                 'and then build "%(value)s" (column %(column)s) on %(model)s. '
@@ -247,7 +246,7 @@ class ExtractorWidget(SelectMultiple):
         id_ = attrs['id']
 
         if self.subfield_select:
-            hide_select = (len(self.subfield_select) == 1) # The <select> is annoying if there is only one option
+            hide_select = (len(self.subfield_select) == 1)  # The <select> is annoying if there is only one option
 
             out_append(u'</td>'
                         '<td class="csv_subfields_select">%(label)s %(select)s %(check)s'
@@ -297,14 +296,13 @@ class ExtractorField(Field):
 
     # TODO: default values + properties which update widget
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
-#        super(ExtractorField, self).__init__(widget=ExtractorWidget, *args, **kwargs)
         super(ExtractorField, self).__init__(*args, **kwargs)
         self.required = modelform_field.required
         modelform_field.required = False
 
         self._modelfield = modelfield
         self._user = None
-        self._can_create = False # If True and field is a FK/M2M -> the referenced model can be created
+        self._can_create = False  # If True and field is a FK/M2M -> the referenced model can be created
 
         widget = self.widget
 
@@ -330,8 +328,6 @@ class ExtractorField(Field):
             app_name = model._meta.app_label
 
             try:
-#                config_registry.get_app(app_name) \
-#                               .get_model_conf(ContentType.objects.get_for_model(model).id)
                 config_registry.get_app(app_name).get_model_conf(model=model)
             except (KeyError, NotRegisteredInConfig):
                 pass
@@ -374,10 +370,12 @@ class ExtractorField(Field):
             modelfield = self._modelfield
             extractor.set_subfield_search(subfield_search, modelfield.rel.to,
                                           multiple=isinstance(modelfield, ManyToManyField),
-                                          create_if_unfound=subfield_create, # TODO: improve widget to disable creation check instead of hide it.
+                                          # TODO: improve widget to disable creation check instead of hide it.
+                                          create_if_unfound=subfield_create,
                                          )
 
         return extractor
+
 
 # Extractors (and related field/widget) for entities----------------------------
 
@@ -403,7 +401,7 @@ class EntityExtractor(object):
         index = command.column_index
 
         # TODO: manage credentials (linkable (& viewable ?))
-        if not index: # 0 -> not in csv
+        if not index:  # 0 -> not in csv
             return None, None
 
         value = line[index - 1]
@@ -423,7 +421,7 @@ class EntityExtractor(object):
 
                 try:
                     created.full_clean() # Can raise ValidationError
-                    created.save() # TODO should we use save points for this line ?
+                    created.save()  # TODO should we use save points for this line ?
                 except Exception as e:
                     error_msg = _(u'Error while extracting value [%(raw_error)s]: '
                                    'tried to retrieve and then build "%(value)s" on %(model)s') % {
@@ -465,10 +463,9 @@ class EntityExtractor(object):
 
 # TODO: use ul/li instead of table...
 class EntityExtractorWidget(ExtractorWidget):
-#    def __init__(self, *args, **kwargs):
     def __init__(self, models_info=(), *args, **kwargs):
         super(EntityExtractorWidget, self).__init__(*args, **kwargs)
-        #self.propose_creation = False # TODO
+        # self.propose_creation = False # TODO
         self.models_info = models_info
 
     def _build_model_id(self, model):
@@ -492,7 +489,7 @@ class EntityExtractorWidget(ExtractorWidget):
         return self._render_select(self._build_colselect_id(name, model_id),
                                    choices=chain(self.choices, choices),
                                    sel_val=sel_val,
-                                   attrs={'class': 'csv_col_select'}, # TODO: id
+                                   attrs={'class': 'csv_col_select'},  # TODO: id
                                   )
 
     def _render_line(self, output, name, cmd, choices, model):
@@ -550,7 +547,6 @@ class EntityExtractorField(Field):
         """@param model_info Sequence of tuple (Entity class, field name)
                              Field name if used to get or create class instances.
         """
-#        super(EntityExtractorField, self).__init__(widget=EntityExtractorWidget, *args, **kwargs)
         super(EntityExtractorField, self).__init__(*args, **kwargs)
         self.models_info = models_info
         self.allowed_indexes = {c[0] for c in choices}
@@ -619,7 +615,6 @@ class RelationExtractor(object):
             model = self._related_model
 
             try:
-                #object_entities = EntityCredentials.filter(user, model.objects.filter(**data))[:1]
                 object_entity = EntityCredentials.filter(user, model.objects.filter(**data)).first()
             except Exception as e:
                 err_msg = ugettext('Error while extracting value to build a Relation: '
@@ -632,11 +627,9 @@ class RelationExtractor(object):
                                         'model':     model._meta.verbose_name,
                                     }
             else:
-                #if object_entities:
                 if object_entity is not None:
-                    #object_entity = object_entities[0]
-                    pass # TODO: ugly
-                elif self._related_form: #try to create the referenced instance
+                    pass  # TODO: ugly
+                elif self._related_form:  # Try to create the referenced instance
                     data['user'] = user.id
                     creator = self._related_form(data=data)
 
@@ -725,11 +718,6 @@ class RelationExtractorField(MultiRelationEntityField):
         super(RelationExtractorField, self).__init__(*args, **kwargs)
         self.columns = columns
 
-#    def _create_widget(self):
-#        return RelationExtractorSelector(columns=self._columns,
-#                                         relation_types=self._get_options,
-#                                        )
-
     @property
     def columns(self):
         return self._columns
@@ -737,7 +725,6 @@ class RelationExtractorField(MultiRelationEntityField):
     @columns.setter
     def columns(self, columns):
         self._columns = columns
-#        self._build_widget()
         self.widget.columns = columns
 
     def clean(self, value):
@@ -790,7 +777,6 @@ class RelationExtractorField(MultiRelationEntityField):
             try:
                 ct = ContentType.objects.get_for_id(ctype_pk)
                 model = ct.model_class()
-#                model._meta.get_field_by_name(searchfield)
                 model._meta.get_field(searchfield)
             except ContentType.DoesNotExist:
                 raise ValidationError(self.error_messages['ctypedoesnotexist'],
@@ -816,6 +802,7 @@ class RelationExtractorField(MultiRelationEntityField):
 
         return MultiRelationsExtractor(extractors)
 
+
 # Extractors (and related field/widget) for custom fields ----------------------
 
 class CustomFieldExtractor(object):
@@ -838,7 +825,7 @@ class CustomFieldExtractor(object):
     def extract_value(self, line):
         err_msg = None
 
-        if self._column_index: # 0 -> not in csv
+        if self._column_index:  # 0 -> not in csv
             value = line[self._column_index - 1]
 
             if value and self._manage_enum:
@@ -876,6 +863,7 @@ class CustomFieldExtractor(object):
 
         return self._value_castor(value), err_msg
 
+
 # TODO: make a BaseExtractorWidget ??
 class CustomFieldExtractorWidget(ExtractorWidget):
     def render(self, name, value, attrs=None, choices=()):
@@ -897,7 +885,8 @@ class CustomFieldExtractorWidget(ExtractorWidget):
 
         if self.propose_creation:
             create_id = '%s_create' % name
-            out_append(u'</td><td>&nbsp;<label for="%(id)s">%(label)s:<input type="checkbox" name="%(id)s" %(checked)s></label>' % {
+            out_append(u'</td><td>&nbsp;'
+                       u'<label for="%(id)s">%(label)s:<input type="checkbox" name="%(id)s" %(checked)s></label>' % {
                             'id': create_id,
                             'label': ugettext('Create if not found ?'),
                             'checked': 'checked' if get('can_create') else '',
@@ -922,6 +911,7 @@ class CustomFieldExtractorWidget(ExtractorWidget):
                 'can_create':      get('%s_create' % name, False),
                 'default_value':   self.default_value_widget.value_from_datadict(data, files, '%s_defval' % name),
                }
+
 
 # TODO: factorise
 class CustomfieldExtractorField(Field):
@@ -965,8 +955,8 @@ class CustomfieldExtractorField(Field):
         def_value = value['default_value']
 
         if def_value:
-            self._original_field.clean(def_value) # To raise ValidationError if needed
-        elif self.required and not col_index: # Should be useful while CustomFields can not be marked as required
+            self._original_field.clean(def_value)  # To raise ValidationError if needed
+        elif self.required and not col_index:  # Should be useful while CustomFields can not be marked as required
             raise ValidationError(self.error_messages['required'], code='required')
 
         # TODO: check that col_index is in self._choices ???
@@ -982,7 +972,7 @@ class CustomfieldExtractorField(Field):
 
         return extractor
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 
 class LVImportError(object):
@@ -1021,8 +1011,8 @@ class ImportForm(CremeModelForm):
         'forbidden_read': _("You have not the credentials to read this document."),
     }
 
-    choices = [(0, 'Not in the file')] + [(i, 'Column %s' % i) for i in xrange(1, 21)] # overload by factory
-    header_dict = {} #idem
+    choices = [(0, 'Not in the file')] + [(i, 'Column %s' % i) for i in xrange(1, 21)]  # Overloaded by factory
+    header_dict = {}  # Idem
 
     blocks = FieldBlockManager(
         ('general', _(u'Update mode'),  ('step', 'document', 'has_header', 'key_fields',)),
@@ -1031,7 +1021,7 @@ class ImportForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ImportForm, self).__init__(*args, **kwargs)
-        self.import_errors = LimitedList(50) # Contains LVImportErrors
+        self.import_errors = LimitedList(50)  # Contains LVImportErrors
         self.imported_objects_count = 0  # TODO: properties ??
         self.updated_objects_count = 0
         self.lines_count = 0
@@ -1070,7 +1060,7 @@ class ImportForm(CremeModelForm):
 
         return document
 
-    def _post_instance_creation(self, instance, line, updated): # Overload me
+    def _post_instance_creation(self, instance, line, updated):  # Overload me
         pass
 
     def _pre_instance_save(self, instance, line): # overload me
@@ -1082,8 +1072,8 @@ class ImportForm(CremeModelForm):
         append_error = self.append_error
 
         exclude = frozenset(self._meta.exclude or ())
-        regular_fields   = [] # Contains tuples (field_name, cleaned_field_value)
-        extractor_fields = [] # Contains tuples (field_name, extractor)
+        regular_fields   = []  # Contains tuples (field_name, cleaned_field_value)
+        extractor_fields = []  # Contains tuples (field_name, extractor)
 
         for field in model_class._meta.fields:
             fname = field.name
@@ -1122,7 +1112,7 @@ class ImportForm(CremeModelForm):
         for i, line in enumerate(filter(None, lines), start=1):
             try:
                 instance = model_class()
-                updated = False #'True' means: object has been updated, not created from scratch
+                updated = False  # 'True' means: object has been updated, not created from scratch
 
                 extr_values = []
                 for fname, extractor in extractor_fields:
@@ -1178,7 +1168,7 @@ class ImportForm(CremeModelForm):
                 self._post_instance_creation(instance, line, updated)
 
                 for m2m in self._meta.model._meta.many_to_many:
-                    extractor = get_cleaned(m2m.name)  # can be a regular_field ????
+                    extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
                     if extractor:
                         # TODO: factorise
                         extr_value, err_msg = extractor.extract_value(line)
@@ -1206,7 +1196,9 @@ class ImportForm4CremeEntity(ImportForm):
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
                                                widget=UnorderedMultipleChoiceWidget)
-    fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'), required=False, autocomplete=True)
+    fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'),
+                                               required=False, autocomplete=True,
+                                              )
     dyn_relations   = RelationExtractorField(label=_(u'Relationships from the file'), required=False)
 
     blocks = FieldBlockManager(
@@ -1257,7 +1249,7 @@ class ImportForm4CremeEntity(ImportForm):
 
         return relations
 
-    def clean_dyn_relations(self): # TODO: move this validation in RelationExtractorField.clean()
+    def clean_dyn_relations(self):  # TODO: move this validation in RelationExtractorField.clean()
         extractors = self.cleaned_data['dyn_relations']
         can_create = self.user.has_perm_to_create
 
@@ -1315,13 +1307,12 @@ class ImportForm4CremeEntity(ImportForm):
 def extractorfield_factory(modelfield, header_dict, choices):
     formfield = modelfield.formfield()
 
-    if not formfield: # Happens for crementity_ptr (OneToOneField)
+    if not formfield:  # Happens for crementity_ptr (OneToOneField)
         return None
 
     selected_column = header_dict.get(slugify(modelfield.verbose_name))
     if selected_column is None:
         selected_column = header_dict.get(slugify(modelfield.name), 0)
-
 
     if formfield.required:
         # We remove the '----' choice when it is useless
@@ -1330,7 +1321,7 @@ def extractorfield_factory(modelfield, header_dict, choices):
 
         if options is not None and len(options) > 1:
             formfield.empty_label = None
-            formfield.choices = options #we force the refreshing of widget's choices
+            formfield.choices = options  # we force the refreshing of widget's choices
 
     return ExtractorField(choices, modelfield, formfield,
                           label=modelfield.verbose_name,

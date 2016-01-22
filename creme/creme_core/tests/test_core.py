@@ -16,14 +16,13 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeDocument as Document)
-
-    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class FunctionFieldsTestCase(CremeTestCase):
-    def test_manager01(self): #constructor with no args, add() & get() methods
+    def test_manager01(self):
+        "Constructor with no args, add() & get() methods"
         ffm = FunctionFieldsManager()
         self.assertFalse(list(ffm))
 
@@ -48,7 +47,8 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertIs(ff02, ffm.get(fname02))
         self.assertEqual([ff01, ff02], sorted(ffm, key=lambda ff: ff.name))
 
-    def test_manager02(self): #constructor with args
+    def test_manager02(self):
+        "Constructor with args"
         fname01 = "name01"
         fname02 = "name02"
 
@@ -68,7 +68,8 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertIs(ff02, ffm.get(fname02))
         self.assertEqual([ff01, ff02], sorted(ffm, key=lambda ff: ff.name))
 
-    def test_manager03(self): #new() method
+    def test_manager03(self):
+        "new() method"
         fname01 = "name01"
         fname02 = "name02"
 
@@ -94,7 +95,8 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertIs(ff02, ffm02.get(fname02))
         self.assertEqual([ff01, ff02], sorted(ffm02, key=lambda ff: ff.name))
 
-    def test_manager04(self): #new() method + add() on "base instance"
+    def test_manager04(self):
+        "new() method + add() on 'base instance'"
         fname01 = "name01"
         fname02 = "name02"
 
@@ -112,7 +114,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         ffm01 = FunctionFieldsManager()
         ffm02 = ffm01.new(ff02)
 
-        ffm01.add(ff01) # <== added after new()
+        ffm01.add(ff01)  # <== added after new()
 
         self.assertIs(ff01, ffm01.get(fname01))
         self.assertIsNone(ffm01.get(fname02))
@@ -213,11 +215,6 @@ class BatchActionTestCase(CremeTestCase):
         self.assertEqual('HARUHI', haruhi.first_name)
 
     def test_changed02(self):
-#        baction = BatchAction(Organisation, 'name', 'rm_substr', value='Foobar')
-#        name = 'SOS no Dan'
-#        sos = Organisation(name=name)
-#        self.assertFalse(baction(sos))
-#        self.assertEqual(name, sos.name)
         baction = BatchAction(Contact, 'last_name', 'rm_substr', value='Foobar')
         first_name = 'Haruhi'
         last_name = 'Suzumiya'
@@ -240,7 +237,7 @@ class BatchActionTestCase(CremeTestCase):
 
     def test_operand_error(self):
         with self.assertRaises(BatchAction.ValueError) as cm:
-            BatchAction(Contact, 'last_name', 'rm_start', value='three') #not int
+            BatchAction(Contact, 'last_name', 'rm_start', value='three')  # Not int
 
         self.assertEqual(_('%(operator)s : %(message)s.') % {
                                 'operator': _('Remove the start (N characters)'),
@@ -250,7 +247,7 @@ class BatchActionTestCase(CremeTestCase):
                         )
 
         with self.assertRaises(BatchAction.ValueError) as cm:
-            BatchAction(Contact, 'last_name', 'rm_end', value='-3') #not positive
+            BatchAction(Contact, 'last_name', 'rm_end', value='-3')  # Not positive
 
         self.assertEqual(_('%(operator)s : %(message)s.') % {
                                 'operator': _('Remove the end (N characters)'),
@@ -265,9 +262,7 @@ class EntityCellTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
 
-        get_ct = ContentType.objects.get_for_model #TODO: inline
-        cls.contact_ct = get_ct(Contact)
-        #cls.orga_ct    = get_ct(Organisation)
+        cls.contact_ct = ContentType.objects.get_for_model(Contact)
 
     def test_build_4_field01(self):
         field_name = 'first_name'
@@ -289,8 +284,6 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_field03(self):
         "Boolean field"
-#        cell = EntityCellRegularField.build(model=Organisation, name='subject_to_vat')
-#        self.assertEqual('subject_to_vat__creme-boolean', cell.filter_string)
         cell = EntityCellRegularField.build(model=Contact, name='is_a_nerd')
         self.assertEqual('is_a_nerd__creme-boolean', cell.filter_string)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
@@ -330,13 +323,11 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_field08(self):
         "ManyToMany"
-#        cell = EntityCellRegularField.build(model=Contact, name='language')
         cell = EntityCellRegularField.build(model=Contact, name='languages')
         self.assertIs(cell.has_a_filter, True)
         self.assertEqual('languages', cell.filter_string)
         self.assertIs(cell.sortable, False)
 
-#        cell = EntityCellRegularField.build(model=Contact, name='language__name')
         cell = EntityCellRegularField.build(model=Contact, name='languages__name')
         self.assertIs(cell.has_a_filter, True)
         self.assertEqual('languages__name__icontains', cell.filter_string)
@@ -458,7 +449,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(name,            cell.value)
         self.assertEqual(unicode(funfield.verbose_name), cell.title)
-        self.assertIs(cell.has_a_filter, True) #TODO: test with a non-filterable FunctionField
+        self.assertIs(cell.has_a_filter, True)  # TODO: test with a non-filterable FunctionField
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
         self.assertIs(cell.is_hidden,    False)

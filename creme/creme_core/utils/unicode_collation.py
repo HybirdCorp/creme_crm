@@ -48,7 +48,7 @@ class _Node(object):
 
     def __init__(self):
         self.value = None
-        self._children = None #Memory optimisation: children are created only if needed
+        self._children = None  # Memory optimisation: children are created only if needed
 
     def get_next_node(self, key):
         next_node = None
@@ -76,12 +76,12 @@ class _Collator:
             from os.path import dirname, join
             filename = join(dirname(__file__), 'allkeys.txt')
 
-        #weights = {} #cache of (int, int, int, int) elements
+        # weights = {} #cache of (int, int, int, int) elements
         match = compile_re(r'^(?P<charList>[0-9A-F]{4,6}(?:[\s]+[0-9A-F]{4,6})*)[\s]*;[\s]*'
                             '(?P<collElement>(?:[\s]*\[(?:[\*|\.][0-9A-F]{4,6}){3,4}\])+)[\s]*'
                             '(?:#.*$|$)'
                           ).match
-        findall_ce = compile_re('\[.([^\]]+)\]?').findall #'ce' means 'collation element'
+        findall_ce = compile_re('\[.([^\]]+)\]?').findall  # 'ce' means 'collation element'
         add = self._add
 
         with open(filename) as f:
@@ -145,7 +145,7 @@ class _Collator:
 
         for level in xrange(4):
             if level:
-                append(0) # level separator
+                append(0)  # Level separator
 
             for element in collation_elements:
                 try:

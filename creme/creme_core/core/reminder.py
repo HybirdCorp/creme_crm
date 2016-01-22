@@ -18,12 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from functools import partial
 import logging
 
 from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
-#from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
 from django.utils.timezone import now
 
@@ -35,8 +33,8 @@ FIRST_REMINDER = 1
 
 
 class Reminder(object):
-    id    = None   #overload with an unicode object ; use generate_id()
-    model = None   #overload with a CremeModel
+    id    = None  # Overload with an unicode object ; use generate_id()
+    model = None  # Overload with a CremeModel
 
     def __init__(self):
         pass
@@ -54,7 +52,7 @@ class Reminder(object):
     def generate_email_body(self, object):
         pass
 
-    def get_Q_filter(self): #TODO: get_queryset instead ????
+    def get_Q_filter(self):  # TODO: get_queryset instead ????
         pass
 
     def ok_for_continue (self):
@@ -70,10 +68,6 @@ class Reminder(object):
                    ]
 
         try:
-#            connection = get_connection()
-#            connection.open()
-#            connection.send_messages(messages)
-#            connection.close()
             with get_connection() as connection:
                 connection.send_messages(messages)
         except Exception:
@@ -81,7 +75,7 @@ class Reminder(object):
 
             return False
 
-        return True #means 'OK'
+        return True  # Means 'OK'
 
     def execute(self):
         if not self.ok_for_continue():
@@ -89,20 +83,8 @@ class Reminder(object):
 
         model = self.model
         dt_now = now().replace(microsecond=0, second=0)
-        #reminder_filter = partial(DateReminder.objects.filter,
-                                  #model_content_type=ContentType.objects.get_for_model(model),
-                                 #)
-
-        #for instance in model.objects.filter(self.get_Q_filter()):
-            #if not reminder_filter(model_id=instance.id).exists():
-                #self.send_mails(instance)
-                #DateReminder.objects.create(date_of_remind=dt_now,
-                                            #ident=FIRST_REMINDER,
-                                            #object_of_reminder=instance,
-                                           #)
 
         for instance in model.objects.filter(self.get_Q_filter()).exclude(reminded=True):
-            #if self.send_mails(instance): #problem -> job is runned immediatly/indefinitely because reminded flag is not set
             self.send_mails(instance)
 
             with atomic():
@@ -127,7 +109,8 @@ class ReminderRegistry(object):
         reminder_id = reminder.id
 
         if reminders.has_key(reminder_id):
-            logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id) #exception instead ???
+            # TODO: exception instead ?
+            logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id)
 
         reminders[reminder_id] = reminder
 

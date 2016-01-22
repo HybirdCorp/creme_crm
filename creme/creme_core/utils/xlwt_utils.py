@@ -29,7 +29,7 @@ class XlwtWriter(object):
         self.wb = wb = Workbook(encoding='utf-8')
         self.ws = wb.add_sheet("sheet 1")
         self.date_format = XFStyle()
-        self.date_format.num_format_str = 'dd/mm/yyyy' #TODO: convert from settings.DATE_FORMAT
+        self.date_format.num_format_str = 'dd/mm/yyyy'  # TODO: convert from settings.DATE_FORMAT
 
     def writerow(self, line):
         write = self.ws.write

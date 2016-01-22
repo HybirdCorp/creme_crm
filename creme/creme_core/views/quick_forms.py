@@ -31,10 +31,10 @@ from ..utils import get_ct_or_404
 from .generic import inner_popup
 
 
-#TODO: it seems there is a problem with formsets : if the 'user' field is empty
-#      it does not raise a Validation exception, but it causes a SQL integrity
-#      error ; we are saved by the 'empty_label=None' of user field, but it is
-#      not really perfect...
+# TODO: it seems there is a problem with formsets : if the 'user' field is empty
+#       it does not raise a Validation exception, but it causes a SQL integrity
+#       error ; we are saved by the 'empty_label=None' of user field, but it is
+#       not really perfect...
 
 @login_required
 def add(request, ct_id, count):
@@ -43,7 +43,7 @@ def add(request, ct_id, count):
     user = request.user
 
     if not user.has_perm_to_create(model):
-        #TODO: manage/display error on js side (for now it just does nothing)
+        # TODO: manage/display error on js side (for now it just does nothing)
         raise PermissionDenied('You are not allowed to create entity with type "%s"' % model_name)
 
     base_form_class = quickforms_registry.get_form(model)
@@ -66,7 +66,7 @@ def add(request, ct_id, count):
         qformset = qformset_class(data=request.POST, files=request.FILES or None)
 
         if qformset.is_valid():
-            for form in qformset.forms: #TODO: django1.3 -> "for form in qformset:"
+            for form in qformset.forms:  # TODO: "for form in qformset:"
                 form.save()
     else:
         qformset = qformset_class()
@@ -80,6 +80,7 @@ def add(request, ct_id, count):
                        delegate_reload=True,
                       )
 
+
 def json_quickform_response(instance):
     response = {'value': instance.id,
                 'added': [(instance.id, unicode(instance))],
@@ -89,6 +90,7 @@ def json_quickform_response(instance):
                         content_type="text/html",
                        )
 
+
 @login_required
 def add_from_widget(request, ct_id, count):
     model = get_ct_or_404(ct_id).model_class()
@@ -96,7 +98,7 @@ def add_from_widget(request, ct_id, count):
     user = request.user
 
     if not user.has_perm_to_create(model):
-        #TODO: manage/display error on js side (for now it just does nothing)
+        # TODO: manage/display error on JS side (for now it just does nothing)
         raise PermissionDenied('You are not allowed to create entity with type "%s"' % model_name)
 
     form_class = quickforms_registry.get_form(model)
@@ -112,9 +114,8 @@ def add_from_widget(request, ct_id, count):
     if request.method == 'GET' or not form.is_valid():
         return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
                            {'form':   form,
-                            #'title':  _('New value'),
                             'title':  model.creation_label,
-                            #'submit_label': model.save_label, TODO ?
+                            # 'submit_label': model.save_label, TODO ?
                            },
                            is_valid=form.is_valid(),
                            reload=False,

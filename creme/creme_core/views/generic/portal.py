@@ -18,16 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
-#from creme.creme_core.models import CremeEntity
 from creme.creme_core.auth.decorators import login_required
 
 
-#TODO: remove 'models' arg (and use app_name to get the related contenttypes) ??
+# TODO: remove 'models' arg (and use app_name to get the related contenttypes) ??
 @login_required
 def app_portal(request, app_name, template, models, stats, config_url=None, extra_template_dict=None):
     has_perm = request.user.has_perm
@@ -39,7 +38,7 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
 
     try:
         ct_ids = [get_ct(model).id for model in models]
-    except TypeError: #models is a not a sequence -> CremeEntity
+    except TypeError:  # 'models' is a not a sequence -> CremeEntity
         ct_ids = [get_ct(models).id]
 
     template_dict = {'app_name':     app_name,

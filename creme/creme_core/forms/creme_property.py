@@ -21,13 +21,11 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import ModelMultipleChoiceField, CharField # ValidationError
-#from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..models import CremePropertyType, CremeProperty
 from ..utils import entities2unicode
 from .base import CremeForm
-#from .validators import validate_editable_entities
 from .widgets import UnorderedMultipleChoiceWidget, Label
 
 
@@ -47,12 +45,12 @@ class _AddPropertiesForm(CremeForm):
 
 class AddPropertiesForm(_AddPropertiesForm):
     def __init__(self, entity, *args, **kwargs):
-        # we need this entity in super constructor when post_init_callback is called.
+        # We need this entity in super constructor when post_init_callback is called.
         # TODO: Add unit tests for this !
         self.entity = entity
         super(AddPropertiesForm, self).__init__(*args, **kwargs)
 
-        #TODO: move queryset to a CremePropertyType method ??
+        # TODO: move queryset to a CremePropertyType method ??
         excluded = CremeProperty.objects.filter(creme_entity=entity).values_list('type', flat=True)
         self.fields['types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=entity.entity_type_id) |
                                                                          Q(subject_ctypes__isnull=True)) \
@@ -71,7 +69,7 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         fields = self.fields
         ct = ContentType.objects.get_for_model(model)
 
-        fields['types'].queryset = CremePropertyType.get_compatible_ones(ct)#TODO:Sort?
+        fields['types'].queryset = CremePropertyType.get_compatible_ones(ct) # TODO:Sort?
         fields['entities_lbl'].initial = entities2unicode(entities, self.user) if entities else ugettext(u'NONE !')
 
         if forbidden_entities:
@@ -80,23 +78,5 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
                                                    initial=entities2unicode(forbidden_entities, self.user),
                                                   )
 
-    #def clean(self):
-        #cleaned_data = self.cleaned_data
-
-        #if not self._errors:
-            #types_ids = cleaned_data['types'].values_list('id', flat=True)
-
-            #if not types_ids:
-                #raise ValidationError(ugettext(u'No property types'))
-
-            #if CremePropertyType.objects.filter(pk__in=types_ids).count() < len(types_ids):
-                #raise ValidationError(ugettext(u"Some property types doesn't not exist"))
-
-            #validate_editable_entities(cleaned_data['entities'], self.user)
-
-        #return cleaned_data
-
     def save(self):
-        #cleaned_data = self.cleaned_data
-        #self._create_properties(cleaned_data['entities'], cleaned_data['types'])
         self._create_properties(self.entities, self.cleaned_data['types'])

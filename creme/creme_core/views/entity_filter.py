@@ -24,7 +24,6 @@ from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-#from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
@@ -36,7 +35,7 @@ from ..models import EntityFilter, RelationType, CremeEntity
 from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
 from .generic import add_entity
 
-#TODO: factorise with HeaderFilter ??
+# TODO: factorise with HeaderFilter ??
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +45,7 @@ def _set_current_efilter(request, path, filter_instance):
     if lvs:
         lvs.entity_filter_id = filter_instance.id
         lvs.register_in_session(request)
+
 
 @login_required
 def add(request, ct_id):
@@ -72,11 +72,11 @@ def add(request, ct_id):
                       extra_template_dict={'submit_label': _('Save the filter')},
                      )
 
+
 @login_required
 def edit(request, efilter_id):
     efilter = get_object_or_404(EntityFilter, pk=efilter_id)
     user = request.user
-    #allowed, msg = efilter.can_edit_or_delete(user)
     allowed, msg = efilter.can_edit(user)
 
     if not allowed:
@@ -107,9 +107,8 @@ def edit(request, efilter_id):
 def delete(request):
     efilter      = get_object_or_404(EntityFilter, pk=get_from_POST_or_404(request.POST, 'id'))
     callback_url = efilter.entity_type.model_class().get_lv_absolute_url()
-    #allowed, msg = efilter.can_edit_or_delete(request.user)
     allowed, msg = efilter.can_delete(request.user)
-    status = 400 #TODO: 409 ??
+    status = 400  # TODO: 409 ??
 
     if allowed:
         try:
@@ -120,7 +119,6 @@ def delete(request):
             return_msg = _(u'"%s" can not be deleted because of its dependencies.') % efilter
             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
                                            {'objects': e.args[1][:25], 'user': request.user},
-#                                           context_instance=RequestContext(request),
                                            request=request,
                                           )
         else:
@@ -134,7 +132,8 @@ def delete(request):
 
     return HttpResponseRedirect(callback_url)
 
-#TODO: factorise with views.relations.json_predicate_content_types  ???
+
+# TODO: factorise with views.relations.json_predicate_content_types  ???
 @login_required
 @jsonify
 def get_content_types(request, rtype_id):
@@ -146,13 +145,14 @@ def get_content_types(request, rtype_id):
 
     return choices
 
+
 @login_required
 @jsonify
 def get_for_ctype(request, ct_id, include_all=False):
     ct = get_ct_or_404(ct_id)
     user = request.user
 
-    if not user.has_perm(ct.app_label): #TODO: helper in auth.py ??
+    if not user.has_perm(ct.app_label):  # TODO: helper in auth.py ??
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
     choices = [('', _(u'All'))] if include_all else []

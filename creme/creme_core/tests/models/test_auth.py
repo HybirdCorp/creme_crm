@@ -3,7 +3,6 @@
 try:
     from functools import partial
 
-    #from django.contrib.auth.models import User, Permission
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import PermissionDenied
     from django.db.models.deletion import ProtectedError
@@ -15,8 +14,6 @@ try:
     from creme.creme_core.models import CremeUser
     from creme.creme_core.models import(CremeEntity, CremePropertyType,
             CremeProperty, Relation, UserRole, SetCredentials)
-
-    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -24,15 +21,7 @@ except Exception as e:
 class CredentialsTestCase(CremeTestCase):
     password = 'password'
 
-#    @classmethod
-#    def setUpClass(cls):
-#        CremeTestCase.setUpClass()
-#        cls.autodiscover()
-
     def setUp(self):
-#        create_user = User.objects.create_user
-#        self.user       = user  = create_user('Kenji', 'kenji@century.jp', self.password)
-#        self.other_user = other = create_user('Shogun', 'shogun@century.jp', 'uselesspw') #TODO: remove from here ??
         create_user = CremeUser.objects.create_user
         self.user = user = create_user(username='Kenji', email='kenji@century.jp',
                                        first_name='Kenji', last_name='Gendou',
@@ -42,7 +31,7 @@ class CredentialsTestCase(CremeTestCase):
                                               first_name='Choji', last_name='Ochiai',
                                               email='shogun@century.jp',
                                               password='uselesspw',
-                                             ) #TODO: remove from here ??
+                                             )  # TODO: remove from here ??
 
         create_contact = Contact.objects.create 
         self.contact1 = create_contact(user=user,  first_name='Musashi', last_name='Miyamoto')
@@ -78,21 +67,9 @@ class CredentialsTestCase(CremeTestCase):
     def _build_contact_qs(self):
         return Contact.objects.filter(pk__in=(self.contact1.id, self.contact2.id))
 
-#    def test_regularperms01(self):
-#        "Regular perms not used"
-#        ct = ContentType.objects.get_for_model(CremeProperty)
-#
-#        try:
-#            perm = Permission.objects.get(codename='add_cremeproperty', content_type=ct)
-#        except Permission.DoesNotExist as e:
-#            self.fail(str(e))
-#
-#        self.user.user_permissions.add(perm)
-#        self.assertFalse(self.user.has_perm('creme_core.add_cremeproperty'))
-
     def test_super_user(self):
         user = self.user
-        user.is_superuser = True #<====
+        user.is_superuser = True  # <====
 
         has_perm = user.has_perm
         contact1 = self.contact1
@@ -109,7 +86,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(has_perm('creme_core.link_entity',   contact2))
         self.assertTrue(has_perm('creme_core.unlink_entity', contact2))
 
-        #helpers ---------------------------------------------------------------
+        # Helpers --------------------------------------------------------------
         self.assertTrue(user.has_perm_to_view(contact1))
         self.assertTrue(user.has_perm_to_change(contact1))
         self.assertTrue(user.has_perm_to_delete(contact1))
@@ -119,14 +96,14 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_view(contact2))
         self.assertTrue(user.has_perm_to_change(contact2))
 
-        #helpers (exception version) -------------------------------------------
+        # Helpers (exception version) ------------------------------------------
         self.assertNoException(user.has_perm_to_view_or_die,   contact1)
         self.assertNoException(user.has_perm_to_change_or_die, contact1)
         self.assertNoException(user.has_perm_to_delete_or_die, contact1)
         self.assertNoException(user.has_perm_to_link_or_die,   contact1)
         self.assertNoException(user.has_perm_to_unlink_or_die, contact1)
 
-        #filtering --------------------------------------------------------------
+        # Filtering ------------------------------------------------------------
         with self.assertNumQueries(0):
             qs = EntityCredentials.filter(user, self._build_contact_qs())
 
@@ -134,7 +111,7 @@ class CredentialsTestCase(CremeTestCase):
                          self._ids_list(qs)
                         )
 
-    #TODO: this tests contribute_to_model too
+    # TODO: this tests contribute_to_model too
     def test_role_esetall_view(self):
         "VIEW + ESET_ALL"
         user = self.user
@@ -154,16 +131,16 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(has_perm('creme_core.view_entity',    contact2))
         self.assertFalse(has_perm('creme_core.change_entity', contact2))
 
-        #helpers ---------------------------------------------------------------
-        #refresh caches
+        # Helpers --------------------------------------------------------------
+        # Refresh caches
         user = self.refresh(user)
         contact1 = self.refresh(contact1)
 
-        with self.assertNumQueries(2): #2 = get UserRole +  its SetCredentials
+        with self.assertNumQueries(2):  # 2 = get UserRole +  its SetCredentials
             can_view = user.has_perm_to_view(contact1)
         self.assertTrue(can_view)
 
-        with self.assertNumQueries(0): #UserRole & SetCredentials are cached
+        with self.assertNumQueries(0):  # UserRole & SetCredentials are cached
             can_change = user.has_perm_to_change(contact1)
         self.assertFalse(can_change)
 
@@ -174,20 +151,14 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_view(contact2))
         self.assertFalse(user.has_perm_to_change(contact2))
 
-        #helpers (exception version) -------------------------------------------
-        #self.assertNoException(contact1.can_view_or_die, user)
-        #self.assertRaises(PermissionDenied, contact1.can_change_or_die, user)
-        #self.assertRaises(PermissionDenied, contact1.can_delete_or_die, user)
-        #self.assertRaises(PermissionDenied, contact1.can_link_or_die, user)
-        #self.assertRaises(PermissionDenied, contact1.can_unlink_or_die, user)
-
+        # Helpers (exception version) ------------------------------------------
         self.assertNoException(user.has_perm_to_view_or_die, contact1)
         self.assertRaises(PermissionDenied, user.has_perm_to_change_or_die, contact1)
         self.assertRaises(PermissionDenied, user.has_perm_to_delete_or_die, contact1)
         self.assertRaises(PermissionDenied, user.has_perm_to_link_or_die,   contact1)
         self.assertRaises(PermissionDenied, user.has_perm_to_unlink_or_die, contact1)
 
-        #filtering --------------------------------------------------------------
+        # Filtering ------------------------------------------------------------
         efilter = EntityCredentials.filter
         qs1 = self._build_contact_qs()
 
@@ -222,13 +193,11 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assertFalse(has_perm('creme_core.view_entity',   self.contact2))
 
-        #helpers ---------------------------------------------------------------
-        #self.assertFalse(contact1.can_view(user))
+        # Helpers --------------------------------------------------------------
         self.assertFalse(user.has_perm_to_view(contact1))
-        #self.assertRaises(PermissionDenied, contact1.can_view_or_die, user)
         self.assertRaises(PermissionDenied, user.has_perm_to_view_or_die, contact1)
 
-        #filtering --------------------------------------------------------------
+        # Filtering ------------------------------------------------------------
         self.assertFalse(EntityCredentials.filter(user, self._build_contact_qs()))
 
     def test_role_esetall_change(self):
@@ -434,12 +403,6 @@ class CredentialsTestCase(CremeTestCase):
 
         contact1 = self.contact1
 
-        #self.assertFalse(contact1.can_view(user))
-        #self.assertFalse(contact1.can_change(user))
-        #self.assertTrue(contact1.can_delete(user))
-        #self.assertFalse(contact1.can_link(user))
-        #self.assertFalse(contact1.can_unlink(user))
-
         self.assertFalse(user.has_perm_to_view(contact1))
         self.assertFalse(user.has_perm_to_change(contact1))
         self.assertTrue(user.has_perm_to_delete(contact1))
@@ -553,24 +516,24 @@ class CredentialsTestCase(CremeTestCase):
                          )
 
         contact1 = self.contact1
-        self.assertTrue(user.has_perm_to_view(contact1)) # <=====
+        self.assertTrue(user.has_perm_to_view(contact1))  # <=====
         self.assertFalse(user.has_perm_to_change(contact1))
         self.assertFalse(user.has_perm_to_delete(contact1))
         self.assertFalse(user.has_perm_to_link(contact1))
         self.assertFalse(user.has_perm_to_unlink(contact1))
 
         contact2 = self.contact2
-        self.assertTrue(user.has_perm_to_view(contact2)) # <=====
+        self.assertTrue(user.has_perm_to_view(contact2))  # <=====
         self.assertFalse(user.has_perm_to_change(contact2))
 
         orga = Organisation.objects.create(user=user, name='Yoshioka')
-        self.assertFalse(user.has_perm_to_view(orga)) # <=====
+        self.assertFalse(user.has_perm_to_view(orga))  # <=====
         self.assertFalse(user.has_perm_to_change(orga))
         self.assertFalse(user.has_perm_to_delete(orga))
         self.assertFalse(user.has_perm_to_link(orga))
         self.assertFalse(user.has_perm_to_unlink(orga))
 
-        #filtering -------------------------------------------------------------
+        # Filtering ------------------------------------------------------------
         efilter = partial(EntityCredentials.filter, user)
         qs = self._build_contact_qs()
         self.assertEqual([contact1.id, contact2.id],
@@ -591,17 +554,17 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assertFalse(has_perm('creme_core.add_cremeproperty'))
         self.assertFalse(has_perm('creme_core.add_relation'))
-        self.assertFalse(has_perm_to_create(CremeProperty)) #helper
+        self.assertFalse(has_perm_to_create(CremeProperty))  # Helper
 
         get_ct = ContentType.objects.get_for_model
         role.creatable_ctypes = [get_ct(CremeProperty), get_ct(Relation)]
 
-        user.role = self.refresh(role) #refresh cache
+        user.role = self.refresh(role)  # Refresh cache
         self.assertTrue(has_perm('creme_core.add_cremeproperty'))
         self.assertTrue(has_perm('creme_core.add_relation'))
         self.assertFalse(has_perm('creme_core.add_cremepropertytype'))
 
-        #helpers
+        # Helpers
         self.assertTrue(has_perm_to_create(CremeProperty))
         self.assertFalse(has_perm_to_create(CremePropertyType))
 
@@ -611,7 +574,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(has_perm_to_create(prop))
         self.assertFalse(has_perm_to_create(ptype))
 
-        #helpers (with exception)
+        # Helpers (with exception)
         with self.assertNoException():
             user.has_perm_to_create_or_die(prop)
 
@@ -635,15 +598,13 @@ class CredentialsTestCase(CremeTestCase):
 
         role.exportable_ctypes.add(ContentType.objects.get_for_model(Contact))
 
-        user.role = self.refresh(role) #refresh cache
-#        self.assertTrue(has_perm('persons.export_contact'))
-#        self.assertFalse(has_perm('persons.export_organisation'))
+        user.role = self.refresh(role)  # Refresh cache
         self.assertTrue(has_perm('creme_core.export_fakecontact'))
         self.assertFalse(has_perm('creme_core.export_fakeorganisation'))
         self.assertTrue(has_perm_to_export(Contact))
         self.assertFalse(has_perm_to_export(Organisation))
 
-        #helpers (with exception)
+        # Helpers (with exception)
         with self.assertNoException():
             user.has_perm_to_export_or_die(Contact)
 
@@ -654,7 +615,7 @@ class CredentialsTestCase(CremeTestCase):
         user.is_superuser = True
         self.assertTrue(user.has_perm('persons.export_contact'))
 
-    #TODO: test extending apps
+    # TODO: test extending apps
     def test_app_creds01(self):
         user = self.user
         role = self._create_role('Salesman', users=[user])
@@ -670,7 +631,6 @@ class CredentialsTestCase(CremeTestCase):
         role.save()
 
         user = self.refresh(user)
-        #role = self.refresh(role)
         role = user.role
         allowed_apps = role.allowed_apps
         self.assertEqual(2, len(allowed_apps))
@@ -687,7 +647,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_access('foobar'))
         self.assertFalse(user.has_perm_to_access('quux'))
 
-    #TODO: test extending apps
+    # TODO: test extending apps
     def test_app_creds02(self):
         "Admin_4_apps"
         user = self.user
@@ -725,8 +685,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(user.has_perm('quux.can_admin'))
 
         with self.assertNoException():
-             user.has_perm_to_admin_or_die('creme_core')
-             user.has_perm_to_admin_or_die('foobar')
+            user.has_perm_to_admin_or_die('creme_core')
+            user.has_perm_to_admin_or_die('foobar')
 
         invalid_app = 'quux'
         with self.assertRaises(PermissionDenied) as cm:
@@ -771,7 +731,7 @@ class CredentialsTestCase(CremeTestCase):
         role = self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                                  set_creds=[(EntityCredentials.CHANGE, SetCredentials.ESET_OWN),
                                             (EntityCredentials.VIEW,   SetCredentials.ESET_ALL)
-                                           ]
+                                           ],
                                 )
 
         self.assertRaises(ProtectedError, role.delete)
@@ -802,7 +762,7 @@ class CredentialsTestCase(CremeTestCase):
         team = self.refresh(team)
         self.assertEqual({user.id: user, other.id: other}, team.teammates)
 
-        with self.assertNumQueries(0): #teammates are cached
+        with self.assertNumQueries(0):  # Teammates are cached
             team.teammates
 
         self.assertTrue(all(isinstance(u, CremeUser) for u in teammates.itervalues()))
@@ -836,34 +796,34 @@ class CredentialsTestCase(CremeTestCase):
 
         team = self._create_team('Teamee', [user])
 
-        entity = self.refresh(CremeEntity.objects.create(user=team)) #no cache
-        user = self.refresh(user) #refresh cache
+        entity = self.refresh(CremeEntity.objects.create(user=team))  # No cache
+        user = self.refresh(user)  # Refresh cache
 
-        with self.assertNumQueries(3): #role, SetCredentials & teams
+        with self.assertNumQueries(3):  # Role, SetCredentials & teams
             can_view = user.has_perm_to_view(entity)
-        self.assertTrue(can_view) #belongs to the team
+        self.assertTrue(can_view)  # Belongs to the team
 
-        with self.assertNumQueries(0): #role, SetCredentials & teams -> cached
+        with self.assertNumQueries(0):  # Role, SetCredentials & teams -> cached
             can_change = user.has_perm_to_change(entity)
         self.assertFalse(can_change)
 
         self.assertFalse(other.has_perm_to_view(entity))
 
-        #'teams' property-------------------------------------------------------
+        # 'teams' property------------------------------------------------------
         self.assertEqual([team], user.teams)
         self.assertEqual([],     other.teams)
 
-        #filtering -------------------------------------------------------------
-        user = self.refresh(user) #refresh caches
+        # Filtering ------------------------------------------------------------
+        user = self.refresh(user)  # Refresh caches
 
         qs = CremeEntity.objects.filter(pk=entity.id)
         efilter = EntityCredentials.filter
 
-        with self.assertNumQueries(3): #role, SetCredentials & teams
+        with self.assertNumQueries(3):  # Role, SetCredentials & teams
             viewable = efilter(user, qs, perm=EntityCredentials.VIEW)
-        self.assertEqual([entity.id], self._ids_list(viewable)) #belongs to the team
+        self.assertEqual([entity.id], self._ids_list(viewable))  # Belongs to the team
 
-        with self.assertNumQueries(0): #role, SetCredentials & teams --> cache
+        with self.assertNumQueries(0):  # Role, SetCredentials & teams --> cache
             editable = efilter(user, qs, perm=EntityCredentials.CHANGE)
         self.assertFalse(editable)
 
@@ -883,17 +843,17 @@ class CredentialsTestCase(CremeTestCase):
         team3 = create_team('Teamee 3', [other])
 
         entity1 = CremeEntity.objects.create(user=team1)
-        self.assertTrue(user.has_perm_to_view(entity1)) #belongs to the team
+        self.assertTrue(user.has_perm_to_view(entity1))  # Belongs to the team
         self.assertFalse(user.has_perm_to_change(entity1))
         self.assertFalse(other.has_perm_to_view(entity1))
 
         entity2 = CremeEntity.objects.create(user=team2)
-        self.assertTrue(user.has_perm_to_view(entity2)) #belongs to the team
+        self.assertTrue(user.has_perm_to_view(entity2))  # Belongs to the team
         self.assertFalse(user.has_perm_to_change(entity2))
         self.assertTrue(other.has_perm_to_view(entity2))
         self.assertFalse(other.has_perm_to_change(entity2))
 
-        #'teams' property-------------------------------------------------------
+        # 'teams' property------------------------------------------------------
         teams = user.teams
         self.assertEqual(2, len(teams))
         self.assertEqual({team1, team2}, set(teams))
@@ -901,7 +861,7 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertNumQueries(0): #teams are cached
             user.teams
 
-        #filtering -------------------------------------------------------------
+        # Filtering ------------------------------------------------------------
         entity3 = CremeEntity.objects.create(user=team3)
 
         qs = CremeEntity.objects.filter(pk__in=[entity1.id, entity2.id, entity3.id])
@@ -914,10 +874,9 @@ class CredentialsTestCase(CremeTestCase):
     def test_has_perm_to_link01(self):
         "Super user"
         user = self.user
-        user.is_superuser = True #<====
+        user.is_superuser = True  # <====
 
-        #has_perm = user.has_perm_to_link
-        #self.assertTrue(user.has_perm_to_link()) TODO ??
+        # self.assertTrue(user.has_perm_to_link()) TODO ??
         self.assertTrue(user.has_perm_to_link(Organisation))
 
         with self.assertNoException():
@@ -931,7 +890,7 @@ class CredentialsTestCase(CremeTestCase):
                          )
 
         has_perm_to_link = user.has_perm_to_link
-        #self.assertFalse(user.has_perm_to_link()) TODO ??
+        # self.assertFalse(user.has_perm_to_link()) TODO ??
         self.assertFalse(has_perm_to_link(Organisation))
         self.assertFalse(has_perm_to_link(Organisation, owner=None))
         self.assertFalse(has_perm_to_link(Organisation, owner=self.other_user))
@@ -976,7 +935,7 @@ class CredentialsTestCase(CremeTestCase):
         user = self.user
         self._create_role('Worker', ['creme_core'], users=[user],
                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL),
-                                     (EntityCredentials.LINK, SetCredentials.ESET_ALL, Contact), #<= not Organisation
+                                     (EntityCredentials.LINK, SetCredentials.ESET_ALL, Contact),  # <= not Organisation
                                     ]
                          )
 
@@ -1018,21 +977,12 @@ class CredentialsTestCase(CremeTestCase):
                          )
 
         contact = self.contact1
-        #self.assertTrue(contact.can_change(user))
-        #self.assertTrue(contact.can_link(user))
-        #self.assertTrue(contact.can_unlink(user))
         self.assertTrue(user.has_perm_to_change(contact))
         self.assertTrue(user.has_perm_to_link(contact))
         self.assertTrue(user.has_perm_to_unlink(contact))
 
         contact.trash()
 
-        #with self.assertNoException(): #refresh cache
-            #contact = self.refresh(contact)
-
-        #self.assertFalse(contact.can_change(user))
-        #self.assertFalse(contact.can_link(user))
-        #self.assertTrue(contact.can_unlink(user))
         self.assertFalse(user.has_perm_to_change(contact))
         self.assertFalse(user.has_perm_to_link(contact))
         self.assertTrue(user.has_perm_to_unlink(contact))

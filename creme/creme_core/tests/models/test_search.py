@@ -6,8 +6,6 @@ try:
     from creme.creme_core.models import SearchConfigItem, UserRole
     from ..base import CremeTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
-
-    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -34,7 +32,6 @@ class SearchConfigTestCase(CremeTestCase):
 
         sc_item = sc_items[0]
         self.assertEqual(Contact, sc_item.content_type.model_class())
-#        self.assertIsNone(sc_item.user)
         self.assertIsNone(sc_item.role)
         self.assertIs(sc_item.superuser, False)
         self.assertEqual('first_name,last_name', sc_item.field_names)
@@ -64,17 +61,14 @@ class SearchConfigTestCase(CremeTestCase):
     def test_create_if_needed02(self):
         "With a role"
         self.login()
-        #user = self.user
 
         role = self.role
-#        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name'], user)
         sc_item = SearchConfigItem.create_if_needed(Organisation, ['name'], role=role)
         self.assertIsInstance(sc_item, SearchConfigItem)
 
         self.assertEqual(1, SearchConfigItem.objects.count())
 
         self.assertEqual(Organisation, sc_item.content_type.model_class())
-#        self.assertEqual(user,         sc_item.user)
         self.assertEqual(role,         sc_item.role)
         self.assertFalse(sc_item.superuser)
 
@@ -131,7 +125,6 @@ class SearchConfigTestCase(CremeTestCase):
 
         sfields = {sf.name for sf in sc_item.searchfields}
         self.assertIn('name', sfields)
-#        self.assertIn('shipping_address__city', sfields)
         self.assertIn('address__city', sfields)
         self.assertNotIn('creation_date', sfields)
 
@@ -147,7 +140,7 @@ class SearchConfigTestCase(CremeTestCase):
         sc_item.field_names += ',invalid'
         sc_item.save()
 
-        sc_item = self.refresh(sc_item) #no cache any more
+        sc_item = self.refresh(sc_item)  # No cache any more
 
         self.assertEqual(['name', 'phone'], [sf.name for sf in sc_item.searchfields])
         self.assertEqual('name,phone', sc_item.field_names)
@@ -158,7 +151,7 @@ class SearchConfigTestCase(CremeTestCase):
         sc_item.field_names = 'invalid01,invalid02'
         sc_item.save()
 
-        sc_item = self.refresh(sc_item) #no cache any more
+        sc_item = self.refresh(sc_item)  # No cache anymore
 
         sfields = {sf.name for sf in sc_item.searchfields}
         self.assertIn('name', sfields)
@@ -254,7 +247,7 @@ class SearchConfigTestCase(CremeTestCase):
         create(Contact, ['description'], role='superuser')
         create(Contact, ['first_name', 'last_name'])
         create(Contact, ['first_name'], role=role2)
-        sc_item = create(Contact, ['last_name'], role=self.role) # <===
+        sc_item = create(Contact, ['last_name'], role=self.role)  # <===
         create(Contact, ['first_name', 'description'], role=role3)
 
         configs = list(SearchConfigItem.get_4_models([Contact], self.other_user))
@@ -285,7 +278,7 @@ class SearchConfigTestCase(CremeTestCase):
         create = SearchConfigItem.create_if_needed
         create(Contact, ['first_name', 'last_name'])
         create(Contact, ['first_name'], role=role2)
-        sc_item = create(Contact, ['last_name'], role='superuser') # <==
+        sc_item = create(Contact, ['last_name'], role='superuser')  # <==
         create(Contact, ['first_name', 'description'], role=role3)
 
         self.assertEqual(sc_item,

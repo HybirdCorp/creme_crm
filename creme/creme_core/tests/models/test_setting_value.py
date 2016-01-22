@@ -10,13 +10,11 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-#TODO: clean registry in teardDown....
+# TODO: clean registry in teardDown....
 class SettingValueTestCase(CremeTestCase):
     def test_type_string(self):
-        sk = SettingKey(#id='persons-test_model_string',
-                        'creme_core-test_model_string',
+        sk = SettingKey('creme_core-test_model_string',
                         description=u"Page title",
-                        #app_label=None,
                         app_label='creme_core',
                         type=SettingKey.STRING, hidden=False,
                        )

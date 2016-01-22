@@ -7,8 +7,6 @@ try:
     from creme.creme_core.models import CremeEntity, RelationType, Relation
     from ..base import CremeTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
-
-    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -17,7 +15,6 @@ class RelationsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        #cls.populate('creme_config')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
     def setUp(self):
@@ -58,7 +55,7 @@ class RelationsTestCase(CremeTestCase):
                                            subject_entity=create_entity(user=self.user),
                                            object_entity=create_entity(user=self.user))
 
-        #This will not update symmetric relation !!
+        # This will not update symmetric relation !!
         relation.subject_entity = create_entity(user=self.user)
         relation.object_entity  = create_entity(user=self.user)
 

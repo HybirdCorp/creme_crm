@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from datetime import datetime
 from decimal import Decimal
 from functools import partial
 from json import loads as jsonloads, JSONEncoder
@@ -92,15 +91,12 @@ def _basic_printer(field, val, user):
 
     return val
 
-#def _fk_printer(field, val):
+
 def _fk_printer(field, val, user):
     if val is None:
         return ''
 
     model = field.rel.to
-
-#    if issubclass(model, CremeEntity):
-#        return ugettext(u'Entity #%s') % val
 
     try:
         out = model.objects.get(pk=val)
@@ -115,7 +111,6 @@ def _fk_printer(field, val, user):
 
 # TODO: ClassKeyedMap ?
 _PRINTERS = {
-#        'BooleanField': (lambda field, val: ugettext(u'True') if val else ugettext(u'False')),
         'BooleanField': (lambda field, val, user: ugettext(u'True') if val else ugettext(u'False')),
         'ForeignKey':   _fk_printer,
     }
@@ -220,7 +215,6 @@ class _HistoryLineType(object):
     def _get_printer(self, field):
         return _PRINTERS.get(field.get_internal_type(), _basic_printer)
 
-#    def _verbose_modifications_4_fields(self, model_class, modifications):
     def _verbose_modifications_4_fields(self, model_class, modifications, user):
         get_field = model_class._meta.get_field
 
@@ -239,27 +233,24 @@ class _HistoryLineType(object):
                 elif length == 2:
                     vmodif = ugettext(u'Set field “%(field)s” to “%(value)s”') % {
                                         'field': field_vname,
-#                                        'value': self._get_printer(field)(field, modif[1]),
                                         'value': self._get_printer(field)(field, modif[1], user),
                                        }
-                else: #length == 3
+                else:  #length == 3
                     printer = self._get_printer(field)
                     vmodif = ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
                                             'field':    field_vname,
-#                                            'oldvalue': printer(field, modif[1]), #todo: improve for fk ???
-#                                            'value':    printer(field, modif[2]),
                                             'oldvalue': printer(field, modif[1], user),
                                             'value':    printer(field, modif[2], user),
                                         }
 
             yield vmodif
 
-#    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
         for m in self._verbose_modifications_4_fields(entity_ctype.model_class(),
                                                       modifications, user,
                                                      ):
             yield m
+
 
 @TYPES_MAP(TYPE_CREATION)
 class _HLTEntityCreation(_HistoryLineType):
@@ -339,12 +330,11 @@ class _HLTPropertyCreation(_HistoryLineType):
                                             modifs=[prop.type_id]
                                            )
 
-#    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ptype_id = modifications[0]
 
         try:
-            ptype_text = CremePropertyType.objects.get(pk=ptype_id).text # TODO: use cache ?
+            ptype_text = CremePropertyType.objects.get(pk=ptype_id).text  # TODO: use cache ?
         except CremePropertyType.DoesNotExist:
             ptype_text = ptype_id
 
@@ -390,7 +380,6 @@ class _HLTRelation(_HistoryLineType):
                               _HLTSymRelation, relation.modified,
                              )
 
-#    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
         rtype_id = modifications[0]
 
@@ -443,9 +432,8 @@ class _HLTAuxCreation(_HistoryLineType):
                                             modifs=cls._build_modifs(related),
                                            )
 
-#    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
-        ct_id, aux_id, str_obj = modifications # TODO: use aux_id to display an up-to-date value ??
+        ct_id, aux_id, str_obj = modifications  # TODO: use aux_id to display an up-to-date value ??
 
         yield ugettext(u'Add <%(type)s>: “%(value)s”') % {
                         'type':  self._model_info(ct_id)[1],
@@ -469,7 +457,6 @@ class _HLTAuxEdition(_HLTAuxCreation):
                     modifs=[cls._build_modifs(related)] + fields_modifs,
                 )
 
-#    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, aux_id, str_obj = modifications[0]  # TODO: idem (see _HLTAuxCreation)
         model_class, verbose_name = self._model_info(ct_id)
@@ -479,7 +466,6 @@ class _HLTAuxEdition(_HLTAuxCreation):
                         'value': str_obj,
                     }
 
-#        for m in self._verbose_modifications_4_fields(model_class, modifications[1:]):
         for m in self._verbose_modifications_4_fields(model_class, modifications[1:], user):
             yield m
 
@@ -492,7 +478,6 @@ class _HLTAuxDeletion(_HLTAuxCreation):
     def _build_modifs(related):
         return [_get_ct(related).id, unicode(related)]
 
-#    def verbose_modifications(self, modifications, entity_ctype):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, str_obj = modifications
 
@@ -504,9 +489,11 @@ class _HLTAuxDeletion(_HLTAuxCreation):
 
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
-    entity_ctype = CTypeForeignKey()        # We do not use entity.entity_type because we keep history of the deleted entities
-    entity_owner = CremeUserForeignKey()    # We do not use entity.user because we keep history of the deleted entities
-    username     = CharField(max_length=30) # Not a Fk to a User object because we want to keep the same line after the deletion of a User.
+    entity_ctype = CTypeForeignKey()  # We do not use entity.entity_type because
+                                     #  we keep history of the deleted entities.
+    entity_owner = CremeUserForeignKey() # We do not use entity.user because we keep history of the deleted entities
+    username     = CharField(max_length=30)  # Not a Fk to a User object because we want to
+                                             # keep the same line after the deletion of a User.
     date         = CreationDateTimeField()
     type         = PositiveSmallIntegerField() # See TYPE_*
     value        = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
@@ -531,7 +518,7 @@ class HistoryLine(Model):
     @atomic
     def delete_lines(line_qs):
         """Delete the given HistoryLines & the lines related to them.
-        @param line_qs QurySet on HistoryLine
+        @param line_qs: QuerySet on HistoryLine.
         """
         from ..utils.chunktools import iter_as_slices
 
@@ -564,7 +551,7 @@ class HistoryLine(Model):
     @staticmethod
     def disable(instance):
         """Disable history for this instance.
-        @type instance Can be an instance of CremeEntity, Relation, CremeProperty, an auxiliary model.
+        @type instance: Can be an instance of CremeEntity, Relation, CremeProperty, an auxiliary model.
         """
         instance._hline_disabled = True
 
@@ -616,16 +603,6 @@ class HistoryLine(Model):
 
         return self._modifications
 
-#    @property
-#    def verbose_modifications(self):
-#        try:
-#            return list(self.line_type.verbose_modifications(self.modifications,
-#                                                             self.entity_ctype,
-#                                                            )
-#                       )
-#        except Exception:
-#            logger.exception('Error in %s', self.__class__.__name__)
-#            return ['??']
     def get_verbose_modifications(self, user):
         try:
             return list(self.line_type.verbose_modifications(self.modifications,
@@ -660,10 +637,10 @@ class HistoryLine(Model):
     @staticmethod
     def _create_line_4_instance(instance, ltype, date=None, modifs=(), related_line_id=None):
         """Builder.
-        @param ltype See TYPE_*
-        @param date If not given, will be 'now'.
-        @param modifs List of tuples containing JSONifiable values.
-        @param related_line_id HistoryLine.id
+        @param ltype: See TYPE_*
+        @param date: If not given, will be 'now'.
+        @param modifs: List of tuples containing JSONifiable values.
+        @param related_line_id: HistoryLine.id.
         """
         kwargs = {'entity': instance,
                   'entity_ctype': instance.entity_type,
@@ -684,9 +661,9 @@ class HistoryLine(Model):
             super(HistoryLine, self).save(*args, **kwargs)
 
     # TODO: ?? (see HistoryBlock)
-    #@property
-    #def user(self):
-        #[...]
+    # @property
+    # def user(self):
+    #     [...]
 
 
 # TODO: method of CremeEntity ??
@@ -707,13 +684,13 @@ def _prepare_log(sender, instance, **kwargs):
     #      problem with billing lines : the update view does not retrieve
     #      final class, so 'instance.entity_type_id == _get_ct(instance).id'
     #      test avoid the creation of a line --> find a better way to test if a final object is alive ?
-    #if isinstance(instance, CremeEntity):
-        #if not instance.id or instance.entity_type_id != _get_ct(instance).id:
-            #return
-    #elif not hasattr(instance, 'get_related_entity'):
-        #return
-
-    #_HistoryLineType._create_entity_backup(instance)
+    # if isinstance(instance, CremeEntity):
+    #     if not instance.id or instance.entity_type_id != _get_ct(instance).id:
+    #         return
+    # elif not hasattr(instance, 'get_related_entity'):
+    #     return
+    #
+    # _HistoryLineType._create_entity_backup(instance)
 
 
 @receiver(post_save)
@@ -784,7 +761,6 @@ def _log_deletion(sender, instance, **kwargs):
 
 
 class HistoryConfigItem(Model):
-#    relation_type = ForeignKey(RelationType, unique=True)
     relation_type = OneToOneField(RelationType)
 
     class Meta:

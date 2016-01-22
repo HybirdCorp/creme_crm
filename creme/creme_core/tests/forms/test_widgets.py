@@ -6,8 +6,6 @@ try:
     from ..fake_models import FakeContact as Contact
     from .base import FieldTestCase
     from creme.creme_core.forms.widgets import DynamicSelect, UnorderedMultipleChoiceWidget
-
-    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -20,12 +18,10 @@ class DynamicSelectTestCase(FieldTestCase):
         self.assertListEqual([(1, 'A'), (2, 'B')], select.choices)
 
     def test_options_queryset(self):
-        self.login()
+        user = self.login()
+        Contact.objects.create(last_name='Doe', first_name='John', user=user)
 
         select = DynamicSelect(options=Contact.objects.values_list('id', 'last_name'))
-
-        Contact.objects.create(last_name='Doe', first_name='John', user=self.user)
-
         self.assertIsInstance(select.options, QuerySet)
         self.assertListEqual(list(Contact.objects.values_list('id', 'last_name')),
                              list(select.choices)
@@ -35,20 +31,20 @@ class DynamicSelectTestCase(FieldTestCase):
         select = DynamicSelect(options=lambda: [(id, str(id)) for id in xrange(10)])
 
         self.assertTrue(callable(select.options))
-        self.assertListEqual([(id, str(id)) for id in xrange(10)],
+        self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
                              select.choices)
 
-        self.assertListEqual([(id, str(id)) for id in xrange(10)],
+        self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
                              select.choices)
 
     def test_options_generator(self):
-        select = DynamicSelect(options=((id, str(id)) for id in xrange(10)))
+        select = DynamicSelect(options=((id_, str(id_)) for id_ in xrange(10)))
 
         self.assertIsInstance(select.options, list)
-        self.assertListEqual([(id, str(id)) for id in xrange(10)],
+        self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
                              select.choices)
 
-        self.assertListEqual([(id, str(id)) for id in xrange(10)],
+        self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
                              select.choices)
 
     def test_render_options(self):
@@ -65,10 +61,14 @@ class DynamicSelectTestCase(FieldTestCase):
         self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (1, 'is disabled', 'A'),
                          select.render_option(['2'], DynamicSelect.Choice(1, True, 'is disabled'), 'A'))
 
-        self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (1, 'is disabled', 'A'),
+        self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (
+                                1, 'is disabled', 'A',
+                            ),
                          select.render_option(['1'], DynamicSelect.Choice(1, True, 'is disabled'), 'A'))
 
-        self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (2, 'is enabled', 'B'),
+        self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (
+                                2, 'is enabled', 'B',
+                            ),
                          select.render_option(['2'], DynamicSelect.Choice(2, False, 'is enabled'), 'B'))
 
     def test_render(self):
@@ -91,6 +91,7 @@ class DynamicSelectTestCase(FieldTestCase):
                          u'</select>',
                          select.render('test', 2))
 
+
 class UnorderedMultipleChoiceTestCase(FieldTestCase):
     def test_option_list(self):
         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')])
@@ -112,12 +113,18 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     def test_render_options_choices(self):
         select = UnorderedMultipleChoiceWidget()
 
-        self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (1, 'is disabled', 'A'),
+        self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (
+                                1, 'is disabled', 'A',
+                            ),
                          select.render_option(['2'], UnorderedMultipleChoiceWidget.Choice(1, True, 'is disabled'), 'A'))
 
-        self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (1, 'is disabled', 'A'),
+        self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (
+                                1, 'is disabled', 'A',
+                            ),
                          select.render_option(['1'], UnorderedMultipleChoiceWidget.Choice(1, True, 'is disabled'), 'A'))
 
-        self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (2, 'is enabled', 'B'),
+        self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (
+                                2, 'is enabled', 'B',
+                            ),
                          select.render_option(['2'], UnorderedMultipleChoiceWidget.Choice(2, False, 'is enabled'), 'B'))
 

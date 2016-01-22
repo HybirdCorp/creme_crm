@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
-already_runned = False
+already_run = False
+
 
 def ready():
-    global already_runned
+    global already_run
 
-    if already_runned:
+    if already_run:
         return
 
-    already_runned = True
+    already_run = True
 
     from ..gui import (block_registry, fields_config_registry, import_form_registry,
             merge_form_registry, quickforms_registry, smart_columns_registry)
@@ -31,7 +32,7 @@ def ready():
                                           FakeInvoiceLine,
                                          )
 
-    block_registry.register_invalid_models(FakeInvoiceLine) # see creme_config tests
+    block_registry.register_invalid_models(FakeInvoiceLine)  # See creme_config tests
 
     fields_config_registry.register(FakeAddress)
 
@@ -40,9 +41,9 @@ def ready():
     reg_qform(FakeOrganisation, FakeOrganisationQuickForm)
 
     smart_columns_registry.register_model(FakeContact) \
-                        .register_field('first_name') \
-                        .register_field('last_name') \
-                        .register_relationtype(FAKE_REL_SUB_EMPLOYED_BY)
+                          .register_field('first_name') \
+                          .register_field('last_name') \
+                          .register_relationtype(FAKE_REL_SUB_EMPLOYED_BY)
 
     reg_csv_form = import_form_registry.register
     reg_csv_form(FakeContact,      get_csv_form_builder)

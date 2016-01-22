@@ -23,7 +23,6 @@ import logging
 from operator import or_ as or_op
 from re import compile as re_compile
 
-#from django.contrib.auth.models import User
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, _user_has_perm
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -36,10 +35,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..auth.entity_credentials import EntityCredentials
 from ..registry import creme_registry, NotRegistered
-#from ..utils.contribute_to_model import contribute_to_model
 from ..utils.unicode_collation import collator
 from .fields import CTypeForeignKey
-#from .entity import CremeEntity
 
 
 logger = logging.getLogger(__name__)
@@ -47,11 +44,11 @@ logger = logging.getLogger(__name__)
 
 class UserRole(Model):
     name              = CharField(_(u'Name'), max_length=100) # TODO: unique=True
-    #superior         = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
+    # superior         = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
     creatable_ctypes  = ManyToManyField(ContentType, verbose_name=_(u'Creatable resources'),  related_name='roles_allowing_creation') # null=True,
     exportable_ctypes = ManyToManyField(ContentType, verbose_name=_(u'Exportable resources'), related_name='roles_allowing_export')   # null=True,
-    raw_allowed_apps  = TextField(default='') #use 'allowed_apps' property
-    raw_admin_4_apps  = TextField(default='') #use 'admin_4_apps' property
+    raw_allowed_apps  = TextField(default='')  # Use 'allowed_apps' property
+    raw_admin_4_apps  = TextField(default='')  # Use 'admin_4_apps' property
 
     class Meta:
         app_label = 'creme_core'
@@ -119,7 +116,6 @@ class UserRole(Model):
         return app_name in self.extended_admin_4_apps
 
     def is_app_allowed_or_administrable(self, app_name):
-#        return (app_name in self.allowed_apps) or (app_name in self.admin_4_apps)
         return (app_name in self.extended_allowed_apps) or self.is_app_administrable(app_name)
 
     def _build_apps_verbose(self, app_names):
@@ -129,10 +125,10 @@ class UserRole(Model):
 
         return apps
 
-    def get_admin_4_apps_verbose(self): #for templates
+    def get_admin_4_apps_verbose(self):  # For templates
         return self._build_apps_verbose(self.admin_4_apps)
 
-    def get_allowed_apps_verbose(self): #for templates
+    def get_allowed_apps_verbose(self):  # For templates
         return self._build_apps_verbose(self.allowed_apps)
 
     def can_create(self, app_name, model_name):
@@ -144,7 +140,7 @@ class UserRole(Model):
 
         return (ct.id in self._creatable_ctypes_set)
 
-    def can_export(self, app_name, model_name): #TODO: factorise with can_create() ??
+    def can_export(self, app_name, model_name):  # TODO: factorise with can_create() ??
         """@return True if a model with ContentType(app_name, model_name) can be exported."""
         ct = ContentType.objects.get_by_natural_key(app_name, model_name)
 
@@ -176,8 +172,6 @@ class UserRole(Model):
 
     def get_perms(self, user, entity):
         """@return (can_view, can_change, can_delete, can_link, can_unlink) 5 boolean tuple"""
-        #todo: move this optimization in CremeEntity
-        #real_entity_class = ContentType.objects.get_for_id(entity.entity_type_id).model_class()
         real_entity_class = entity.entity_type.model_class()
 
         if self.is_app_allowed_or_administrable(real_entity_class._meta.app_label):
@@ -187,10 +181,11 @@ class UserRole(Model):
 
         return perms
 
-    #TODO: factorise
+    # TODO: factorise
     def filter(self, user, queryset, perm):
         """@param perm value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...)
-        @return A new (filtered) queryset"""
+        @return A new (filtered) queryset
+        """
         if self.is_app_allowed_or_administrable(queryset.model._meta.app_label):
             queryset = SetCredentials.filter(self._get_setcredentials(), user, queryset, perm)
         else:
@@ -201,15 +196,14 @@ class UserRole(Model):
 
 class SetCredentials(Model):
     role     = ForeignKey(UserRole, related_name='credentials')
-    value    = PositiveSmallIntegerField() #see EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
-    set_type = PositiveIntegerField() #see SetCredentials.ESET_*
-    #ctype    = ForeignKey(ContentType, null=True, blank=True)
+    value    = PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
+    set_type = PositiveIntegerField()  # See SetCredentials.ESET_* TODO: choices ?
     ctype    = CTypeForeignKey(null=True, blank=True)
-    #entity  = ForeignKey(CremeEntity, null=True) ??
+    # entity  = ForeignKey(CremeEntity, null=True) ??
 
-    #ESET means 'Entities SET'
-    ESET_ALL = 1 # => all entities
-    ESET_OWN = 2 # => his own entities
+    # 'ESET' means 'Entities SET'
+    ESET_ALL = 1  # => all entities
+    ESET_OWN = 2  # => his own entities
 
     ESETS_MAP = {ESET_ALL: _(u'all entities'),
                  ESET_OWN: _(u"user's own entities"),
@@ -251,7 +245,7 @@ class SetCredentials(Model):
         if not ctype_id or ctype_id == entity.entity_type_id:
             if self.set_type == SetCredentials.ESET_ALL:
                 return self.value
-            else: #SetCredentials.ESET_OWN
+            else:  # SetCredentials.ESET_OWN
                 user_id = entity.user_id
                 if user.id == user_id or any(user_id == t.id for t in user.teams):
                     return self.value
@@ -267,7 +261,7 @@ class SetCredentials(Model):
     def _can_do(sc_sequence, user, model, owner=None, perm=EntityCredentials.VIEW):
         allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id) #TODO: factorise
 
-        if owner is None: #None means: all user that allows the action
+        if owner is None:  # None means: all users who are allowed to do the action
             filtered_sc_sequence = sc_sequence
         else:
             ESET_OWN = SetCredentials.ESET_OWN
@@ -301,12 +295,12 @@ class SetCredentials(Model):
         allowed_ctype_ids = (None, ContentType.objects.get_for_model(queryset.model).id)
         ESET_ALL = SetCredentials.ESET_ALL
 
-        #NB: we sorte to get ESET_ALL creds before ESET_OWN ones (more priority)
+        # NB: we sort to get ESET_ALL creds before ESET_OWN ones (more priority)
         for sc in sorted(sc_sequence, key=lambda sc: sc.set_type):
             if sc.ctype_id in allowed_ctype_ids and sc.value & perm:
                 if sc.set_type == ESET_ALL:
-                    return queryset #no additionnal filtering needed
-                else: #SetCredentials.ESET_OWN
+                    return queryset  # No additionnal filtering needed
+                else:  # SetCredentials.ESET_OWN
                     teams = user.teams
                     return queryset.filter(user__in=[user] + teams) if teams else \
                            queryset.filter(user=user)
@@ -364,7 +358,6 @@ class CremeUserManager(BaseUserManager):
                user_qs[0]
 
 
-#class UserProfile(Model):
 class CremeUser(AbstractBaseUser):
     username     = CharField(_('Username'), max_length=30, unique=True,
                              help_text=_('Required. 30 characters or fewer. '
@@ -377,25 +370,25 @@ class CremeUser(AbstractBaseUser):
                                         ],
                             )
     last_name    = CharField(_(u'Last name'), max_length=100, blank=True)
-    first_name   = CharField(_(u'First name'), max_length=100, blank=True).set_tags(viewable=False) # NB: blank=True for teams
+    first_name   = CharField(_(u'First name'), max_length=100, blank=True)\
+                            .set_tags(viewable=False)  # NB: blank=True for teams
     email        = EmailField(_('Email address'), blank=True)
     date_joined  = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
     is_active    = BooleanField(_('Is active?'), default=True,
-                                #help_text=_('Designates whether this user should be treated as '
-                                            #'active. Unselect this instead of deleting accounts.'
-                                           #), TODO
+                                # help_text=_('Designates whether this user should be treated as '
+                                #             'active. Unselect this instead of deleting accounts.'
+                                #            ), TODO
                                ).set_tags(viewable=False)
     is_staff     = BooleanField(_('Is staff?'), default=False,
-                                #help_text=_('Designates whether the user can log into this admin site.'), TODO
+                                # help_text=_('Designates whether the user can log into this admin site.'), TODO
                                ).set_tags(viewable=False)
     is_superuser = BooleanField(_('Is a superuser?'), default=False,
-                                #help_text=_('If True, can create groups & events.') TODO
+                                # help_text=_('If True, can create groups & events.') TODO
                                ).set_tags(viewable=False)
     role         = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True,
                               on_delete=PROTECT,
                              ).set_tags(viewable=False)
     is_team      = BooleanField(verbose_name=_(u'Is a team?'), default=False).set_tags(viewable=False)
-    #children      = ManyToManyField('self', verbose_name=_(u'Child mailing lists'), symmetrical=False, related_name='parents_set')
     teammates_set = ManyToManyField('self', verbose_name=_(u'Teammates'),
                                     symmetrical=False, related_name='teams_set',
                                    ).set_tags(viewable=False)
@@ -409,7 +402,7 @@ class CremeUser(AbstractBaseUser):
     _teammates = None
 
     class Meta:
-        #abstract = True
+        # abstract = True TODO class  AbstractCremeUser ?
         ordering = ('username',)
         verbose_name = _('User')
         verbose_name_plural = _('Users')
@@ -419,7 +412,7 @@ class CremeUser(AbstractBaseUser):
         return self.get_full_name()
 
     def get_full_name(self):
-        #TODO: we could also check related contact to find first_name, last_name
+        # TODO: we could also check related contact to find first_name, last_name
         first_name = self.first_name
         last_name  = self.last_name
 
@@ -429,30 +422,29 @@ class CremeUser(AbstractBaseUser):
                         'last_name':  last_name[0],
                     }
         else:
-            return self.username #TODO: if not self.is_team else ugettext('%s (team)') % self.username
+            return self.username  # TODO: if not self.is_team else ugettext('%s (team)') % self.username
 
     def get_short_name(self):
         return self.username
 
-    #TODO: def clean() ?? (team + role= None etc...)
+    # TODO: def clean() ?? (team + role= None etc...)
 
-    #TODO find where forms are imported, making that method called BEFORE User has been contributed
+    # TODO find where forms are imported, making that method called BEFORE User has been contributed
     # @staticmethod
     # def get_common_ones():
     #     return User.objects.filter(is_staff=False)
 
-    @property #NB notice that a cache is built
+    @property  # NB notice that a cache is built
     def teams(self):
         assert not self.is_team
 
         teams = self._teams
         if teams is None:
-            #self._teams = teams = list(User.objects.filter(team_m2m_teamside__teammate=self))
             self._teams = teams = list(self.teams_set.all())
 
         return teams
 
-    @property #NB notice that cache and credentials are well updated when using this property
+    @property  # NB notice that cache and credentials are well updated when using this property
     def teammates(self):
         assert self.is_team
 
@@ -460,7 +452,6 @@ class CremeUser(AbstractBaseUser):
 
         if teammates is None:
             logger.debug('User.teammates: Cache MISS for user_id=%s', self.id)
-            #self._teammates = teammates = {u.id: u for u in User.objects.filter(team_m2m__team=self)}
             self._teammates = teammates = {u.id: u for u in self.teammates_set.all()}
         else:
             logger.debug('User.teammates: Cache HIT for user_id=%s', self.id)
@@ -472,21 +463,8 @@ class CremeUser(AbstractBaseUser):
         assert self.is_team
         assert not any(user.is_team for user in users)
 
-#        old_teammates = self.teammates
-#        new_teammates = {u.id: u for u in users}
-#
-#        old_set = set(old_teammates.iterkeys())
-#        new_set = set(new_teammates.iterkeys())
-#
-#        users2remove = [old_teammates[user_id] for user_id in (old_set - new_set)]
-#        TeamM2M.objects.filter(team=self, teammate__in=users2remove).delete()
-#
-#        users2add = [new_teammates[user_id] for user_id in (new_set - old_set)]
-#        for user in users2add:
-#            TeamM2M.objects.get_or_create(team=self, teammate=user)
         self.teammates_set = users
-
-        self._teammates = None #clear cache (we could rebuild it but ...)
+        self._teammates = None  # Clear cache (we could rebuild it but ...)
 
     def _get_credentials(self, entity):
         creds_map = getattr(entity, '_credentials_map', None)
@@ -529,8 +507,6 @@ class CremeUser(AbstractBaseUser):
         return self.is_superuser or self.role.is_app_allowed_or_administrable(app_name)
 
     def has_perm_to_admin(self, app_name):
-        #return self.has_perm('%s.can_admin' % app_name) #todo: app_name in self.role.admin_4_apps + use this method in backend
-#        return self.is_superuser or (app_name in self.role.admin_4_apps)
         return self.is_superuser or self.role.is_app_administrable(app_name)
 
     def has_perm_to_admin_or_die(self, app_name):
@@ -585,7 +561,7 @@ class CremeUser(AbstractBaseUser):
                                     entity.allowed_unicode(self)
                                   )
 
-    def has_perm_to_export(self, model_or_entity): #TODO: factorise with has_perm_to_create() ??
+    def has_perm_to_export(self, model_or_entity):  # TODO: factorise with has_perm_to_create() ??
         """Helper for has_perm() method.
         eg: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
         """
@@ -605,7 +581,7 @@ class CremeUser(AbstractBaseUser):
                      owner of the (future) entity. 'None' means: is there an
                      owner (at least) that allows linking.
         """
-        assert not self.is_team #teams can not be logged, it has no sense
+        assert not self.is_team  # Teams can not be logged, it has no sense
 
         from .entity import CremeEntity
 
@@ -617,7 +593,7 @@ class CremeUser(AbstractBaseUser):
         return True if self.is_superuser else \
                self.role.can_do_on_model(self, entity_or_model, owner, EntityCredentials.LINK)
 
-    def has_perm_to_link_or_die(self, entity_or_model, owner=None): #TODO: factorise ??
+    def has_perm_to_link_or_die(self, entity_or_model, owner=None):  # TODO: factorise ??
         from .entity import CremeEntity
 
         if not self.has_perm_to_link(entity_or_model, owner):
@@ -649,51 +625,9 @@ class CremeUser(AbstractBaseUser):
                                   )
 
 
-##todo: remove this class when we can contribute_to_model with a ManyToManyField
-#class TeamM2M(Model):
-#    team     = ForeignKey(User, related_name='team_m2m_teamside')
-#    teammate = ForeignKey(User, related_name='team_m2m')
-#
-#    class Meta:
-#        app_label = 'creme_core'
-
-
-##NB: We use a contribute_to_model() instead of regular Django's profile
-## management to avoid having a additional DB table and creating a annoying
-## signal handler to create the corresponding Profile object each time a User is
-## created
-#contribute_to_model(UserProfile, User)
-#
-##todo: we could also check related contact to find first_name, last_name
-#def _user_unicode(user):
-#    first_name = user.first_name
-#    last_name  = user.last_name
-#
-#    if first_name and last_name:
-#        return ugettext(u"%(first_name)s %(last_name)s.") % {
-#                    'first_name': first_name,
-#                    'last_name':  last_name[0],
-#                }
-#    else:
-#        return user.username
-#
-#User.__unicode__ = _user_unicode
-#User._meta.ordering = ('username',)
-#User._meta.verbose_name = _('User')
-#User._meta.verbose_name_plural = _('Users')
-
-#get_user_field = User._meta.get_field
 get_user_field = CremeUser._meta.get_field
-#for fname in ('first_name', 'password', 'is_staff', 'is_active', 'is_superuser',
-#              'last_login', 'date_joined', 'groups', 'user_permissions',
-#              'role', 'is_team',
-#             ):
 for fname in ('password', 'last_login'):
     get_user_field(fname).set_tags(viewable=False)
-
-#get_user_field('username').verbose_name = _('Username')
-#get_user_field('last_name').verbose_name = _('Last name')
-#get_user_field('email').verbose_name = _('Email address')
 
 del get_user_field
 

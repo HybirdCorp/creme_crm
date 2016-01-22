@@ -129,7 +129,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
                      ):
     """ Generic list_view wrapper / generator
     Accept only CremeEntity model and subclasses
-    @param post_process Function that takes the template context and the request as parameters (so you can modify the context).
+    @param post_process: Function that takes the template context and the
+                         request as parameters (so you can modify the context).
     """
     assert issubclass(model, CremeEntity), '%s is not a subclass of CremeEntity' % model
 
@@ -145,7 +146,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         rows = current_lvs.rows or 25
 
     try:
-        #TODO: rename '_search' attribute & POST param
+        # TODO: rename '_search' attribute & POST param
         current_lvs._search = search = bool(int(POST_get('_search')))
     except (ValueError, TypeError):
         search = current_lvs._search or False
@@ -197,12 +198,10 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'content_type':       ct,
         'content_type_id':    ct.id,
         'search':             search,
-        #'list_view_template': 'creme_core/frags/list_view.html',
         'content_template':   content_template,
         'o2m':                o2m,
-        # 'add_url':            None,
         'add_url':            model.get_create_absolute_url(),
-        'extra_bt_templates': None, # () instead ???,
+        'extra_bt_templates': None,  # TODO: () instead ???,
         'show_actions':       show_actions,
         'q_filter':           json_q_filter,
         'research_cellkeys':  {cell_key for cell_key, value in current_lvs.research},
@@ -213,7 +212,6 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         template_dict.update(extra_dict)
 
     if request.GET.get('ajax', False):  # TODO: request.is_ajax() ?
-#        template = 'creme_core/frags/list_view_content.html'
         template = template_dict['content_template']
 
     if post_process:
@@ -247,16 +245,14 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
     if not request.user.has_perm(ct.app_label):
         raise Http404(_(u"You are not allowed to access to this app"))
 
-    #req_get = request.REQUEST.get
     req_get = lambda k, default=None: request.POST.get(k, default) or request.GET.get(k, default)
     o2m = bool(int(o2m))
     kwargs['show_actions'] = bool(int(req_get('sa', False)))
     extra_dict = {
-#                  'list_view_template': 'creme_core/frags/list_view_popup.html',
-                  'js_handler':         req_get('js_handler'),
-                  'js_arguments':       req_get('js_arguments'),
-                  'whoami':             req_get('whoami'),
-                  'is_popup_view':      True,
+                  'js_handler':    req_get('js_handler'),
+                  'js_arguments':  req_get('js_arguments'),
+                  'whoami':        req_get('whoami'),
+                  'is_popup_view': True,
                  }
 
     extra_dict.update(kwargs.pop('extra_dict', None) or {})
@@ -265,7 +261,6 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
 
     try:
         template_name, template_dict = list_view_content(request, ct.model_class(), extra_dict=extra_dict,
-#                                                         template='creme_core/generics/list_entities_popup.html',
                                                          template='creme_core/frags/list_view.html',
                                                          extra_q=extra_q, o2m=o2m,
                                                          **kwargs

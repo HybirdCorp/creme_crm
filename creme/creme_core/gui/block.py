@@ -24,7 +24,6 @@ import logging
 
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.template.loader import get_template
-#from django.template import Context
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -40,12 +39,13 @@ def list4url(list_):
     "Special url list-to-string function"
     return ','.join(str(i) for i in list_)
 
+
 def str2list(string):
     "'1,2,3'  -> [1, 2, 3]"
     return [int(i) for i in string.split(',') if i.isdigit()]
 
 
-class _BlockContext(object): #TODO: rename to Context ?? (so Context-> TemplateContext)
+class _BlockContext(object):  # TODO: rename to Context ?? (so Context-> TemplateContext)
     def __repr__(self):
         return '<BlockContext>'
 
@@ -61,7 +61,6 @@ class _BlockContext(object): #TODO: rename to Context ?? (so Context-> TemplateC
 
         return instance
 
-    #def update(self, modified, template_context):
     def update(self, template_context):
         """Overload me (see _PaginatedBlockContext, _QuerysetBlockContext)"""
         return False
@@ -95,29 +94,33 @@ class Block(object):
     def home_display(self, context):
         return 'VOID BLOCK FOR HOME: %s' % self.verbose_name
     """
-    id_           = None               #overload with an unicode object ; use generate_id()
-    dependencies  = ()                 #list of the models on which the block depends (ie: generally the block displays these models)
-                                       # it also can be the '*' string, which is a wildcard meaning 'All models used in the page'.
-    relation_type_deps = ()            #list of id of RelationType objects on which the block depends ;
-                                       # only used for Blocks which have 'Relation' in their dependencies
-    read_only     = False              #'True' means : the block never causes a DB change on its dependencies models.
-                                       # ---> so when this is reload (eg: to change the pagination), it does not causes the dependant
-                                       # blocks to be reload (but it is still reload when the dependant blocks are reload of course).
-    verbose_name  = 'BLOCK'            #used in the user configuration (see BlockDetailviewLocation/BlockPortalLocation)
-    template_name = 'OVERLOAD_ME.html' #used to render the block of course
-    context_class = _BlockContext      #store the context in the session.
-    configurable  = True               #True: the Block can be add/removed to detailview/portal by configuration (see creme_config)
-    target_ctypes = ()                 #Tuple of CremeEntity classes that can have this type of block. 
-                                       # Empty tuple means that all types are ok. eg: (Contact, Organisation)
-    target_apps = ()                   #Tuple of name of the Apps that can have this Block on their portal.
-                                       # Empty tuple means that all Apps are ok. eg: ('persons',)
+    id_           = None               # Overload with an unicode object ; use generate_id()
+    dependencies  = ()                 # List of the models on which the block depends
+                                       #   (ie: generally the block displays these models) ;
+                                       #   it also can be the '*' string, which is a wildcard meaning
+                                       #   'All models used in the page'.
+    relation_type_deps = ()            # List of id of RelationType objects on which the block depends ;
+                                       #   only used for Blocks which have 'Relation' in their dependencies
+    read_only     = False              # 'True' means : the block never causes a DB change on its dependencies models.
+                                       #   ---> so when this is reload (eg: to change the pagination), it does
+                                       #   not causes the dependant blocks to be reload (but it is still
+                                       #   reload when the dependant blocks are reload of course).
+    verbose_name  = 'BLOCK'            # Used in the user configuration
+                                       #   (see BlockDetailviewLocation/BlockPortalLocation)
+    template_name = 'OVERLOAD_ME.html' # Used to render the block of course
+    context_class = _BlockContext      # Store the context in the session.
+    configurable  = True               # True: the Block can be add/removed to detailview/portal by
+                                       #   configuration (see creme_config)
+    target_ctypes = ()                 # Tuple of CremeEntity classes that can have this type of block.
+                                       #  Empty tuple means that all types are ok. eg: (Contact, Organisation)
+    target_apps = ()                   # Tuple of name of the Apps that can have this Block on their portal.
+                                       #   Empty tuple means that all Apps are ok. eg: ('persons',)
 
     @staticmethod
-    def generate_id(app_name, name): #### _generate_id ????
+    def generate_id(app_name, name):  # TODO: rename _generate_id ?
         return u'block_%s-%s' % (app_name, name)
 
     def _render(self, template_context):
-#        return get_template(self.template_name).render(Context(template_context))
         return get_template(self.template_name).render(template_context)
 
     def _simple_detailview_display(self, context):
@@ -129,41 +132,6 @@ class Block(object):
                                                     context['object'].pk,
                                                 ),
                            ))
-
-#    def __get_context(self, request, base_url, block_name):
-#        """Retrieve block's context stored in the session.
-#        In the session (request.session), blocks are stored like this (with "blockcontexts_manager" as key):
-#            {
-#                'base_url_for_element_1': {
-#                    'id_for_block01': _BlockContext<>,
-#                    'id_for_block02': _BlockContext<>,
-#                    ...
-#                },
-#                'base_url_for_element_2': {...},
-#                ...
-#            }
-#        Base url are opposite to ajax_url.
-#        Eg: '/tickets/ticket/21' for base url, ajax url could be '/creme_core/todo/reload/21/'.
-#        """
-#        modified = False
-#        session = request.session
-#
-#        blockcontexts_manager = session.get('blockcontexts_manager')
-#        if blockcontexts_manager is None:
-#            modified = True
-#            session['blockcontexts_manager'] = blockcontexts_manager = {}
-#
-#        page_blockcontexts = blockcontexts_manager.get(base_url)
-#        if page_blockcontexts is None:
-#            modified = True
-#            blockcontexts_manager[base_url] = page_blockcontexts = {}
-#
-#        blockcontext = page_blockcontexts.get(block_name)
-#        if blockcontext is None:
-#            modified = True
-#            page_blockcontexts[block_name] = blockcontext = self.context_class()
-#
-#        return blockcontext, modified
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         context['block_name'] = block_name
@@ -180,7 +148,6 @@ class Block(object):
         request = context['request']
         base_url = request.GET.get('base_url', request.path)
         block_name = self.id_
-        #block_context, modified = self.__get_context(request, base_url, block_name)
         session = request.session
 
         try:
@@ -196,11 +163,10 @@ class Block(object):
                                                         **extra_kwargs
                                                        )
 
-        #assert BlocksManager.get(context).block_is_registered(self) #!! problem with blocks in inner popups
+        # assert BlocksManager.get(context).block_is_registered(self) #!! problem with blocks in inner popups
         if not BlocksManager.get(context).block_is_registered(self):
             logger.debug('Not registered block: %s', self.id_)
 
-        #if block_context.update(modified, template_context):
         if block_context.update(template_context):
             session.setdefault('blockcontexts_manager', {}) \
                    .setdefault(base_url, {}) \
@@ -227,7 +193,6 @@ class _PaginatedBlockContext(_BlockContext):
     def as_dict(self):
         return {'page': self.page}
 
-    #def update(self, modified, template_context):
     def update(self, template_context):
         page = template_context['page'].number
 
@@ -245,7 +210,7 @@ class PaginatedBlock(Block):
     Ajax changes management is used to chnage page.
     """
     context_class = _PaginatedBlockContext
-    page_size     = settings.BLOCK_SIZE  #number of items in the page
+    page_size     = settings.BLOCK_SIZE  # Number of items in the page
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         request = context['request']
@@ -268,7 +233,9 @@ class PaginatedBlock(Block):
         except (EmptyPage, InvalidPage):
             page = paginator.page(paginator.num_pages)
 
-        return super(PaginatedBlock, self)._build_template_context(context, block_name, block_context, page=page, **extra_kwargs)
+        return super(PaginatedBlock, self)._build_template_context(context, block_name, block_context,
+                                                                   page=page, **extra_kwargs
+                                                                  )
 
     def get_block_template_context(self, context, objects, update_url='', **extra_kwargs):
         """@param objects Set of objects to display in the block."""
@@ -279,7 +246,7 @@ class _QuerysetBlockContext(_PaginatedBlockContext):
     __slots__ = ('page', '_order_by')
 
     def __init__(self):
-        super(_QuerysetBlockContext, self).__init__() #*args **kwargs ??
+        super(_QuerysetBlockContext, self).__init__()  # *args **kwargs ??
         self._order_by = ''
 
     def __repr__(self):
@@ -299,9 +266,7 @@ class _QuerysetBlockContext(_PaginatedBlockContext):
 
         return order_by
 
-    #def update(self, modified, template_context):
     def update(self, template_context):
-        #modified = super(_QuerysetBlockContext, self).update(modified, template_context)
         modified = super(_QuerysetBlockContext, self).update(template_context)
         order_by = template_context['order_by']
 
@@ -318,7 +283,7 @@ class QuerysetBlock(PaginatedBlock):
     changes are done with ajax of course.
     """
     context_class = _QuerysetBlockContext
-    order_by      = '' #default order_by value ; '' means no order_by
+    order_by      = ''  # Default order_by value ; '' means no order_by
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         request = context['request']
@@ -328,21 +293,27 @@ class QuerysetBlock(PaginatedBlock):
             request_order_by = request.GET.get('%s_order' % block_name)
 
             if request_order_by is not None:
-                order_by = request_order_by #TODO: test if order_by is valid (field name) ????
+                order_by = request_order_by  # TODO: test if order_by is valid (field name) ????
             else:
                 order_by = block_context.get_order_by(order_by)
 
             extra_kwargs['objects'] = extra_kwargs['objects'].order_by(order_by)
 
-        return super(QuerysetBlock, self)._build_template_context(context, block_name, block_context, order_by=order_by, **extra_kwargs)
+        return super(QuerysetBlock, self)._build_template_context(context, block_name, block_context,
+                                                                  order_by=order_by, **extra_kwargs
+                                                                 )
 
     def get_block_template_context(self, context, queryset, update_url='', **extra_kwargs):
         """@param queryset Set of objects to display in the block."""
-        return PaginatedBlock.get_block_template_context(self, context, objects=queryset, update_url=update_url, **extra_kwargs)
+        return PaginatedBlock.get_block_template_context(self, context,
+                                                         objects=queryset,
+                                                         update_url=update_url,
+                                                         **extra_kwargs
+                                                        )
 
 
 class SpecificRelationsBlock(QuerysetBlock):
-    dependencies  = (Relation,) # NB: (Relation, CremeEntity) but useless
+    dependencies  = (Relation,)  # NB: (Relation, CremeEntity) but useless
     order_by      = 'type'
     verbose_name  = _(u'Relationships')
     template_name = 'creme_core/templatetags/block_specific_relations.html'
@@ -379,16 +350,16 @@ class SpecificRelationsBlock(QuerysetBlock):
         relations = btc['page'].object_list
         entities_by_ct = defaultdict(list)
 
-        Relation.populate_real_object_entities(relations) # DB optimisation
+        Relation.populate_real_object_entities(relations)  # DB optimisation
 
         for relation in relations:
             entity = relation.object_entity.get_real_entity()
             entity.srb_relation_cache = relation
             entities_by_ct[entity.entity_type_id].append(entity)
 
-        groups = [] # List of tuples (entities_with_same_ct, headerfilter_items)
-        unconfigured_group = [] # Entities that do not have a customised columns setting
-        colspan = 1 # Unconfigured_group has one column
+        groups = []  # List of tuples (entities_with_same_ct, headerfilter_items)
+        unconfigured_group = []  # Entities that do not have a customised columns setting
+        colspan = 1  # Unconfigured_group has one column
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, entities in entities_by_ct.iteritems():
@@ -400,7 +371,7 @@ class SpecificRelationsBlock(QuerysetBlock):
             else:
                 unconfigured_group.extend(entities)
 
-        groups.append((unconfigured_group, None)) # Unconfigured_group must be at the end
+        groups.append((unconfigured_group, None))  # Unconfigured_group must be at the end
 
         btc['groups'] = groups
         btc['colspan'] = colspan + 1 # Add one because of 'Unlink' column
@@ -418,18 +389,19 @@ class CustomBlock(Block):
         "@param customblock_conf_item Instance of CustomBlockConfigItem"
         super(CustomBlock, self).__init__()
         self.id_ = id_
-        self.dependencies = (customblock_conf_item.content_type.model_class(),) # TODO: other model (FK, M2M, Relation)
-        #self.relation_type_deps = () #TODO: if cell is EntityCellRelation
+        self.dependencies = (customblock_conf_item.content_type.model_class(),)  # TODO: other model (FK, M2M, Relation)
+        # self.relation_type_deps = () #TODO: if cell is EntityCellRelation
         self.verbose_name = customblock_conf_item.name
         self.config_item = customblock_conf_item
 
     def detailview_display(self, context):
         entity = context['object']
 
-        return self._render(self.get_block_template_context(context,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            config_item=self.config_item,
-                                                           )
+        return self._render(self.get_block_template_context(
+                                    context,
+                                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                    config_item=self.config_item,
+                                   )
                            )
 
 
@@ -514,7 +486,7 @@ class BlocksManager(object):
 
     @staticmethod
     def get(context):
-        return context[BlocksManager.var_name] # Will raise exception if not created: OK
+        return context[BlocksManager.var_name]  # Will raise exception if not created: OK
 
     def get_remaining_groups(self):
         return self._blocks_groups.keys()
@@ -593,8 +565,6 @@ class _BlockRegistry(object):
             add(model)
 
     def register_4_model(self, model, block):  # TODO: had an 'overload' arg ??
-#        ct = ContentType.objects.get_for_model(model)
-#        block.id_ = self._generate_modelblock_id(ct)
         block.id_ = self._generate_modelblock_id(model)
 
         if not block.dependencies:
@@ -602,11 +572,8 @@ class _BlockRegistry(object):
 
         # NB: the key is the class, not the ContentType.id because it can cause
         # some inconsistencies in DB problem in unit tests (contenttypes cache bug with tests ??)
-#        self._object_blocks[ct.id] = block
         self._object_blocks[model] = block
 
-#    def _generate_modelblock_id(self, ct):
-#        return u'modelblock_%s-%s' % (ct.app_label, ct.model)
     def _generate_modelblock_id(self, model):
         meta = model._meta
         return u'modelblock_%s-%s' % (meta.app_label, meta.model_name)
@@ -617,7 +584,6 @@ class _BlockRegistry(object):
     def __iter__(self):
         return self._blocks.iteritems()
 
-    #def _get_block_4_instance(self, ibi, entity=None):
     def get_block_4_instance(self, ibi, entity=None):
         """Get a Block instance corresponding to a InstanceBlockConfigItem.
         @param ibi InstanceBlockConfigItem instance.
@@ -629,7 +595,7 @@ class _BlockRegistry(object):
 
         if block_class is None:
             logger.warning('Block class seems deprecated: %s', block_id)
-            #return None
+
             block = Block()
             block.verbose_name = '??'
             block.errors = [_('Unknow type of block (bad uninstall ?)')]
@@ -673,18 +639,19 @@ class _BlockRegistry(object):
 
         for id_ in block_ids:
             rbi = relation_blocks_items.get(id_)
-            ibi = instance_blocks_items.get(id_) #TODO: do only if needed....
-            cbci = custom_blocks_items.get(id_) #TODO: idem
+            ibi = instance_blocks_items.get(id_)  # TODO: do only if needed....
+            cbci = custom_blocks_items.get(id_)  # TODO: idem
 
             if rbi:
                 block = SpecificRelationsBlock(rbi)
             elif ibi:
-                #block = self._get_block_4_instance(ibi, entity) or Block()
                 block = self.get_block_4_instance(ibi, entity)
             elif cbci:
                 block = CustomBlock(id_, cbci)
-            elif id_.startswith('modelblock_'): #TODO: constant ?
-                block = self.get_block_4_object(ContentType.objects.get_by_natural_key(*id_[len('modelblock_'):].split('-')))
+            elif id_.startswith('modelblock_'):  # TODO: constant ?
+                block = self.get_block_4_object(ContentType.objects
+                                                           .get_by_natural_key(*id_[len('modelblock_'):].split('-'))
+                                               )
             else:
                 block = self._blocks.get(id_)
 
@@ -701,8 +668,6 @@ class _BlockRegistry(object):
         @param obj_or_ct Model (class inheriting CremeEntity), or ContentType instance
                          representing this model, or instance of this model.
         """
-#        ct = obj_or_ct if isinstance(obj_or_ct, ContentType) else ContentType.objects.get_for_model(obj_or_ct)
-#        block = self._object_blocks.get(ct.id)
         model = obj_or_ct.__class__ if isinstance(obj_or_ct, CremeEntity) else \
                 obj_or_ct.model_class() if isinstance(obj_or_ct, ContentType) else \
                 obj_or_ct
@@ -710,35 +675,31 @@ class _BlockRegistry(object):
 
         if not block:
             block = SimpleBlock()
-#            block.id_ = self._generate_modelblock_id(ct)
-#            block.dependencies = (ct.model_class(),)
             block.id_ = self._generate_modelblock_id(model)
             block.dependencies = (model,)
             block.template_name = 'creme_core/templatetags/block_object.html'
 
-#            self._object_blocks[ct.id] = block
             self._object_blocks[model] = block
 
         return block
 
     def get_compatible_blocks(self, model=None):
         """Returns the list of registered blocks that are configurable and compatible with the given ContentType.
-        @param model Constraint on a CremeEntity class ; None means blocks must be compatible with all kind of CremeEntity
+        @param model Constraint on a CremeEntity class ;
+                     None means blocks must be compatible with all kind of CremeEntity.
         """
         for block in self._blocks.itervalues():
             if block.configurable and hasattr(block, 'detailview_display') \
                and (not block.target_ctypes or model in block.target_ctypes):
                 yield block
 
-        #TODO: filter compatible relation types (but the constraints can change after we config blocks...)
-        for rbi in RelationBlockItem.objects.all(): #select_related('relation_type') ??
+        # TODO: filter compatible relation types (but the constraints can change after we config blocks...)
+        for rbi in RelationBlockItem.objects.all():  # TODO: select_related('relation_type') ??
             yield SpecificRelationsBlock(rbi)
 
         for ibi in InstanceBlockConfigItem.objects.all():
-            #block = self._get_block_4_instance(ibi)
             block = self.get_block_4_instance(ibi)
 
-            #if block and hasattr(block, 'detailview_display') \
             if hasattr(block, 'detailview_display') \
                and (not block.target_ctypes or model in block.target_ctypes):
                 yield block
@@ -756,10 +717,8 @@ class _BlockRegistry(object):
                 yield block
 
         for ibi in InstanceBlockConfigItem.objects.all():
-            #block = self._get_block_4_instance(ibi)
             block = self.get_block_4_instance(ibi)
 
-            #if block and hasattr(block, method_name) and \
             if hasattr(block, method_name) and \
                (not block.target_apps or app_name in block.target_apps):
                 yield block

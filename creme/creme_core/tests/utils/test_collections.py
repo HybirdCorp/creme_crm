@@ -82,7 +82,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertEqual(1, result)
         self.assertEqual(3, len(ckm))
 
-        self.assertEqual(0, ckm[Klass3]) #2nd access should hit the cache
+        self.assertEqual(0, ckm[Klass3])  # 2nd access should hit the cache
         self.assertEqual(3, len(ckm))
 
     def test_inheritage01(self):
@@ -100,7 +100,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         ckm[Klass3] = 3
 
         self.assertEqual(3, ckm[Klass3])
-        self.assertEqual(3, ckm[Klass4]) #cache must be updated
+        self.assertEqual(3, ckm[Klass4])  # Cache must be updated
 
     def test_inheritage02(self):
         "Inheriting values: more complex case (the nearest parent should be found)"
@@ -110,8 +110,8 @@ class ClassKeyedMapTestCase(CremeTestCase):
         class Klass4(Klass3): pass
 
         ckm = ClassKeyedMap([(Klass1, 1), (Klass2, 2), (Klass3, 3), (Klass4, 4)],
-                             default=0
-                            )
+                            default=0
+                           )
 
         class Klass5(Klass4): pass
 
@@ -124,7 +124,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         class Klass3(Klass2): pass
         class Klass4(Klass3): pass
 
-        ckm = ClassKeyedMap([(Klass1, 1), (Klass3, 3)], #not 2 & 4
+        ckm = ClassKeyedMap([(Klass1, 1), (Klass3, 3)],  # Not 2 & 4
                              default=0
                             )
 
@@ -132,7 +132,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertEqual(3, ckm[Klass4])
 
     def test_nearest_parent_class(self):
-        "Inheritance order must be kept when new value are added explicitely"
+        "Inheritance order must be kept when new value are added explicitly"
         class Klass1(object): pass
         class Klass2(Klass1): pass
         class Klass3(Klass2): pass

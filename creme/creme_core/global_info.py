@@ -30,12 +30,15 @@ except ImportError:
 
 _globals = defaultdict(dict)
 
+
 def get_global_info(key):
     thread_globals = _globals.get(currentThread())
     return thread_globals and thread_globals.get(key)
 
+
 def set_global_info(**kwargs):
     _globals[currentThread()].update(kwargs)
+
 
 def clear_global_info():
     # Don't use del _globals[currentThread()], it causes problems with dev server.

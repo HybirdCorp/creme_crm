@@ -35,7 +35,6 @@ def _element_iterator(tree):
 
             yield deep_change, element
 
-            #children = list(element.getchildren())
             children = list(element)
             if children:
                 elements.append(children)
@@ -51,6 +50,7 @@ def _element_iterator(tree):
 class XMLDiffError(Exception):
     pass
 
+
 class XMLDiff(object):
     def __init__(self, msg, node, root):
         self._msg  = msg
@@ -58,7 +58,6 @@ class XMLDiff(object):
         self._root = root
 
         node.text = ' -================= HERE : %s ==========%s' % (msg, node.text or '')
-        #node.tail = ' -================= HERE : %s ==========%s' % (msg, node.tail or '')
 
     @property
     def short_msg(self):
@@ -67,6 +66,7 @@ class XMLDiff(object):
     @property
     def long_msg(self):
         return ET.tostring(self._root, 'utf-8')
+
 
 def xml_diff(xml1, xml2):
     """Get the FIRST difference between 2 XML documents.
@@ -98,12 +98,13 @@ def xml_diff(xml1, xml2):
 
     try:
         while True:
-            #length comparison -------------------------------------------------
+            # Length comparison ------------------------------------------------
             try:
                 deep_change1, node1 = iter1.next()
             except StopIteration:
                 try:
-                    deep_change2, node2 = iter2.next()
+                    # deep_change2, node2 =
+                    iter2.next()
                 except StopIteration:
                     raise
                 else:
@@ -116,7 +117,7 @@ def xml_diff(xml1, xml2):
             except StopIteration:
                 return XMLDiff(u'Does not exist in second document', node1, tree1)
 
-            #deep comparison ---------------------------------------------------
+            # Deep comparison --------------------------------------------------
             if deep_change1 != deep_change2:
                 if deep_change1 > deep_change2:
                     return XMLDiff(u'Does not exist', node1, tree1)
@@ -125,11 +126,11 @@ def xml_diff(xml1, xml2):
                                previous_node1, tree1
                               )
 
-            #tag comparison ----------------------------------------------------
+            # Tag comparison ---------------------------------------------------
             if node1.tag != node2.tag:
                 return XMLDiff(u'Tag "%s" != "%s"' % (node1.tag, node2.tag), node1, tree1)
 
-            #attributes comparison ---------------------------------------------
+            # Attributes comparison --------------------------------------------
             attrs1 = dict(node1.items())
 
             for attr_name2, attr_value2 in node2.items():
@@ -150,14 +151,14 @@ def xml_diff(xml1, xml2):
                                 node1, tree1
                               )
 
-            #text comparison ---------------------------------------------------
+            # Text comparison --------------------------------------------------
             text1 = node1.text or ''; text1 = text1.strip()
             text2 = node2.text or ''; text2 = text2.strip()
 
             if text1 != text2:
                 return XMLDiff(u'Text "%s" != "%s"' % (text1, text2), node1, tree1)
 
-            #tail comparison ---------------------------------------------------
+            # Tail comparison --------------------------------------------------
             tail1 = node1.tail or ''; tail1 = tail1.strip()
             tail2 = node2.tail or ''; tail2 = tail2.strip()
 

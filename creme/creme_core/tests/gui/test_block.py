@@ -9,10 +9,6 @@ try:
         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
     from creme.creme_core.gui.block import (Block, SimpleBlock,
          SpecificRelationsBlock, CustomBlock, _BlockRegistry, BlocksManager)
-
-    #from creme.persons.models import Contact, Organisation
-
-    #from creme.activities.models import Activity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -28,40 +24,34 @@ class BlockRegistryTestCase(CremeTestCase):
         self.login()
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Mylove')
 
-
         class FoobarBlock1(Block):
             id_           = Block.generate_id('creme_core', 'foobar_block_1')
             verbose_name  = u'Testing purpose'
 
             def detailview_display(self, context): return self._render(self.get_block_template_context(context))
 
-
         class FoobarBlock2(SimpleBlock):
             id_           = Block.generate_id('creme_core', 'foobar_block_2')
             verbose_name  = u'Testing purpose'
             target_ctypes = (Contact, Organisation)
 
-
         class FoobarBlock3(SimpleBlock):
             id_           = Block.generate_id('creme_core', 'foobar_block_3')
             verbose_name  = u'Testing purpose'
 
-            target_ctypes = (Organisation,) #No contact
-
+            target_ctypes = (Organisation,)  # Not 'Contact'
 
         class FoobarBlock4(SimpleBlock):
             id_           = Block.generate_id('creme_core', 'foobar_block_4')
             verbose_name  = u'Testing purpose'
-            configurable  = False # <------
+            configurable  = False  # <------
 
-
-        class FoobarBlock5(Block): #No detailview_display()
+        class FoobarBlock5(Block):  # No detailview_display() method
             id_           = Block.generate_id('creme_core', 'foobar_block_5')
             verbose_name  = u'Testing purpose'
 
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
             def home_display(self, context):           return '<table id="%s"></table>' % self.id_
-
 
         class _FoobarInstanceBlock(Block):
             verbose_name  = u'Testing purpose'
@@ -69,37 +59,31 @@ class BlockRegistryTestCase(CremeTestCase):
             def __init__(self, instance_block_config_item):
                 self.ibci = instance_block_config_item
 
-
         class FoobarInstanceBlock1(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_1')
 
             def detailview_display(self, context):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
 
-
         class FoobarInstanceBlock2(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_2')
-            target_ctypes = (Contact, Organisation) # <-- OK !!
+            target_ctypes = (Contact, Organisation)  # <-- OK !!
 
             def detailview_display(self, context):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
-
 
         class FoobarInstanceBlock3(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_3')
-            #target_ctypes = (Organisation, Activity) # <-- KO !!
-            target_ctypes = (Organisation, Image) # <-- KO !!
+            target_ctypes = (Organisation, Image)  # <-- KO !!
 
             def detailview_display(self, context):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
-
 
         class FoobarInstanceBlock4(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_4')
 
-            def home_display(self, context): #<====== not detailview_display()
+            def home_display(self, context):  # <====== not detailview_display()
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
-
 
         create_ibci = InstanceBlockConfigItem.objects.create
         ibci1 = create_ibci(entity=casca, verbose=u"I am an awesome block", data='',
@@ -130,10 +114,14 @@ class BlockRegistryTestCase(CremeTestCase):
                           )
         create_cbci(id='test-organisations01', name='General (orga)', content_type=get_ct(Organisation),
                     cells=[EntityCellRegularField.build(Organisation, 'name')],
-                   ) #not compatible with Contact
+                   )  # Not compatible with Contact
 
         block_registry.register(foobar_block1, foobar_block2, FoobarBlock3(), FoobarBlock4(), foobar_block5)
-        block_registry.register_4_instance(FoobarInstanceBlock1, FoobarInstanceBlock2, FoobarInstanceBlock3, FoobarInstanceBlock4)
+        block_registry.register_4_instance(FoobarInstanceBlock1,
+                                           FoobarInstanceBlock2,
+                                           FoobarInstanceBlock3,
+                                           FoobarInstanceBlock4,
+                                          )
 
         blocks = sorted(block_registry.get_compatible_blocks(Contact), key=lambda b: b.id_)
         self.assertEqual(6, len(blocks))
@@ -163,43 +151,38 @@ class BlockRegistryTestCase(CremeTestCase):
             id_           = Block.generate_id('creme_core', 'foobar_block_1')
             verbose_name  = u'Testing purpose'
 
-            ##NB: only portal_display() method
-            #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
-            #def home_display(self, context): return '<table id="%s"></table>' % self.id_
+            # NB: only portal_display() method
+            # def detailview_display(self, context): [...]
+            # def home_display(self, context): [...]
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-
 
         class FoobarBlock2(Block):
             id_           = Block.generate_id('creme_core', 'foobar_block_2')
             verbose_name  = u'Testing purpose'
-            configurable  = False # <----
+            configurable  = False  # <----
 
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-
 
         class FoobarBlock3(Block):
             id_           = Block.generate_id('creme_core', 'foobar_block_3')
             verbose_name  = u'Testing purpose'
 
-            #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+            # def portal_display(self, context, ct_ids): [...]
             def home_display(self, context): return '<table id="%s"></table>' % self.id_
-
 
         class FoobarBlock4(Block):
             id_           = Block.generate_id('creme_core', 'foobar_block_4')
             verbose_name  = u'Testing purpose'
-            target_apps   = ('documents', 'persons', 'activities') # <-- OK
+            target_apps   = ('documents', 'persons', 'activities')  # <-- OK
 
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-
 
         class FoobarBlock5(Block):
             id_           = Block.generate_id('creme_core', 'foobar_block_5')
             verbose_name  = u'Testing purpose'
-            target_apps   = ('documents', 'activities') # <-- KO !!
+            target_apps   = ('documents', 'activities')  # <-- KO !!
 
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-
 
         class _FoobarInstanceBlock(Block):
             verbose_name  = u'Testing purpose'
@@ -207,37 +190,31 @@ class BlockRegistryTestCase(CremeTestCase):
             def __init__(self, instance_block_config_item):
                 self.ibci = instance_block_config_item
 
-
         class FoobarInstanceBlock1(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_1')
 
             def portal_display(self, context, ct_ids):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
 
-
         class FoobarInstanceBlock2(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_2')
-            target_apps   = ('documents', 'persons') # <-- OK !!
+            target_apps   = ('documents', 'persons')  # <-- OK !!
 
             def portal_display(self, context, ct_ids):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
-
 
         class FoobarInstanceBlock3(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_3')
-            target_apps   = ('documents', 'tickets') # <-- KO !!
+            target_apps   = ('documents', 'tickets')  # <-- KO !!
 
             def portal_display(self, context, ct_ids):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
-
 
         class FoobarInstanceBlock4(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_4')
 
-            def home_display(self, context): #<====== not portal_display()
+            def home_display(self, context):  # <====== not portal_display()
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
-
-
 
         create_ibci = InstanceBlockConfigItem.objects.create
         ibci1 = create_ibci(entity=casca, verbose=u"I am an awesome block", data='',
@@ -257,8 +234,17 @@ class BlockRegistryTestCase(CremeTestCase):
 
         foobar_block1 = FoobarBlock1()
         foobar_block4 = FoobarBlock4()
-        block_registry.register(foobar_block1, FoobarBlock2(), FoobarBlock3(), foobar_block4, FoobarBlock5())
-        block_registry.register_4_instance(FoobarInstanceBlock1, FoobarInstanceBlock2, FoobarInstanceBlock3, FoobarInstanceBlock4)
+        block_registry.register(foobar_block1,
+                                FoobarBlock2(),
+                                FoobarBlock3(),
+                                foobar_block4,
+                                FoobarBlock5(),
+                               )
+        block_registry.register_4_instance(FoobarInstanceBlock1,
+                                           FoobarInstanceBlock2,
+                                           FoobarInstanceBlock3,
+                                           FoobarInstanceBlock4,
+                                          )
 
         blocks = sorted(block_registry.get_compatible_portal_blocks('persons'), key=lambda b: b.id_)
         self.assertEqual(4, len(blocks))
@@ -271,15 +257,15 @@ class BlockRegistryTestCase(CremeTestCase):
             id_           = Block.generate_id('creme_core', 'BlockRegistryTestCase__test_get_compatible_portal_blocks02_1')
             verbose_name  = u'Testing purpose'
 
-            ##NB: only home_display() method
-            #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
-            #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+            # NB: only home_display() method
+            # def detailview_display(self, context): [...]
+            # def portal_display(self, context, ct_ids): [...]
             def home_display(self, context): return '<table id="%s"></table>' % self.id_
 
         class FoobarBlock2(Block):
             id_           = Block.generate_id('creme_core', 'BlockRegistryTestCase__test_get_compatible_portal_blocks02_2')
             verbose_name  = u'Testing purpose'
-            configurable  = False # <----
+            configurable  = False  # <----
 
             def home_display(self, context): return '<table id="%s"></table>' % self.id_
 
@@ -287,7 +273,7 @@ class BlockRegistryTestCase(CremeTestCase):
             id_           = Block.generate_id('creme_core', 'BlockRegistryTestCase__test_get_compatible_portal_blocks02_3')
             verbose_name  = u'Testing purpose'
 
-            #def home_display(self, context): return '<table id="%s"></table>' % self.id_
+            # def home_display(self, context): [...]
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
 
         block_registry = _BlockRegistry()
@@ -321,8 +307,8 @@ class BlockRegistryTestCase(CremeTestCase):
 
         self.assertEqual([block1, block2], block_registry.get_blocks([block1.id_, block2.id_]))
 
-        #-------------
-        blocks = block_registry.get_blocks([SimpleBlock.generate_id('creme_core', 'BlockRegistryTestCase__test_get_blocks_4')]) #not registered
+        # Not registered -------------
+        blocks = block_registry.get_blocks([SimpleBlock.generate_id('creme_core', 'BlockRegistryTestCase__test_get_blocks_4')])
         self.assertEqual(1, len(blocks))
         self.assertIsInstance(blocks[0], Block)
 
@@ -331,7 +317,6 @@ class BlockRegistryTestCase(CremeTestCase):
         class QuuxBlock1(SimpleBlock):
             id_          = SimpleBlock.generate_id('creme_core', 'BlockRegistryTestCase__test_get_blocks_2')
             verbose_name = u'Testing purpose #1'
-
 
         block1 = QuuxBlock1()
 
@@ -366,7 +351,6 @@ class BlockRegistryTestCase(CremeTestCase):
         block_registry = _BlockRegistry()
 
         block = block_registry.get_block_4_object(Organisation)
-        #self.assertEqual(u'modelblock_persons-organisation', block.id_)
         self.assertEqual(u'modelblock_creme_core-fakeorganisation', block.id_)
         self.assertEqual((Organisation,), block.dependencies)
 
@@ -377,7 +361,6 @@ class BlockRegistryTestCase(CremeTestCase):
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Mylove')
 
         block = block_registry.get_block_4_object(casca)
-        #self.assertEqual(u'modelblock_persons-contact', block.id_)
         self.assertEqual(u'modelblock_creme_core-fakecontact', block.id_)
         self.assertEqual((Contact,), block.dependencies)
 
@@ -391,7 +374,6 @@ class BlockRegistryTestCase(CremeTestCase):
         block_registry.register_4_model(Contact, block)
 
         self.assertIs(block_registry.get_block_4_object(Contact), block)
-        #self.assertEqual(u'modelblock_persons-contact', block.id_)
         self.assertEqual(u'modelblock_creme_core-fakecontact', block.id_)
         self.assertEqual((Contact,), block.dependencies)
 
@@ -412,7 +394,7 @@ class BlockRegistryTestCase(CremeTestCase):
             def detailview_display(self, context):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
                             self.id_, self.ibci.entity
-                        ) #useless :)
+                        )  # useless :)
 
         self.assertTrue(InstanceBlockConfigItem.id_is_specific(ContactBlock.id_))
 
@@ -435,8 +417,8 @@ class BlockRegistryTestCase(CremeTestCase):
         self.assertEqual(ibci.block_id, block.id_)
         self.assertEqual((Organisation,), block.dependencies)
 
-        #-----------------------------------------------------------------------
-        #In detailviews of an entity we give it in order to compute dependencies correctly
+        # ----------------------------------------------------------------------
+        # In detailviews of an entity we give it in order to compute dependencies correctly.
         judo = create_contact(user=self.user, first_name='Judo',  last_name='Doe')
         blocks = block_registry.get_blocks([ibci.block_id], entity=judo)
         self.assertEqual((Organisation, Contact), blocks[0].dependencies)
@@ -445,7 +427,7 @@ class BlockRegistryTestCase(CremeTestCase):
         blocks = block_registry.get_blocks([ibci.block_id], entity=hawk)
         self.assertEqual((Organisation,), blocks[0].dependencies)
 
-        #-----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         bad_block_id = InstanceBlockConfigItem.generate_base_id('creme_core', 'does_not_exist') + '#%s_' % casca.id
         InstanceBlockConfigItem.objects.create(entity=casca,
                                                block_id=bad_block_id,
@@ -460,14 +442,14 @@ class BlockRegistryTestCase(CremeTestCase):
         self.login()
 
         class BaseBlock(Block):
-            id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block') # <====== Used twice !!
+            id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')  # <====== Used twice !!
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
 
             def __init__(self, instance_block_config_item):
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity) #useless :)
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)  # Useless :)
 
         class ContactBlock(BaseBlock): pass
         class OrgaBlock(BaseBlock): pass
@@ -476,7 +458,7 @@ class BlockRegistryTestCase(CremeTestCase):
         block_registry.register_4_instance(ContactBlock)
         self.assertRaises(_BlockRegistry.RegistrationError, block_registry.register_4_instance, OrgaBlock)
 
-    #TODO different keys
+    # TODO different keys
 
 
 class BlocksManagerTestCase(CremeTestCase):
@@ -512,14 +494,14 @@ class BlocksManagerTestCase(CremeTestCase):
         mngr.add_group(name1, block1, block2, block3)
         self.assertTrue(mngr.block_is_registered(block1))
         self.assertFalse(mngr.block_is_registered(block4))
-        self.assertRaises(BlocksManager.Error, mngr.add_group, name1, block4) #same name
+        self.assertRaises(BlocksManager.Error, mngr.add_group, name1, block4)  # Same name
         self.assertDictEqual({block1.id_: set(),
                               block2.id_: set(),
                               block3.id_: set(),
                              },
                              mngr.get_dependencies_map()
                             )
-        self.assertRaises(BlocksManager.Error, mngr.add_group, 'gname2', block4) #deps already solved
+        self.assertRaises(BlocksManager.Error, mngr.add_group, 'gname2', block4)  # Deps already solved
 
     def test_manage02(self):
         class TestBlock(SimpleBlock):
@@ -550,9 +532,9 @@ class BlocksManagerTestCase(CremeTestCase):
         mngr.add_group('gname2', block4)
         self.assertEqual(['gname1', 'gname2'], mngr.get_remaining_groups())
 
-        #group = 
+        # group =
         mngr.pop_group('gname1')
-        #TODO: test group
+        # TODO: test group
         self.assertEqual(['gname2'], mngr.get_remaining_groups())
         self.assertRaises(KeyError, mngr.pop_group, 'gname1')
 
@@ -605,9 +587,6 @@ class BlocksManagerTestCase(CremeTestCase):
 
         block1 = FoobarBlock1(); block2 = FoobarBlock2()
         block3 = FoobarBlock3(); block4 = FoobarBlock4(); block5 = FoobarBlock5()
-        #block6 = FoobarBlock6(id_=TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_6'),
-                              #relation_type_id=rtype2_pk
-                             #)
         block6 = FoobarBlock6(RelationBlockItem.create(rtype2_pk))
 
         mngr = BlocksManager()
@@ -630,7 +609,7 @@ class BlocksManagerTestCase(CremeTestCase):
         self.assertEqual(set(rtypes_ids), mngr.used_relationtypes_ids)
 
     def test_wildcard01(self):
-        "Wilcard dependencies, read-only"
+        "Wildcard dependencies, read-only"
         id_fmt = 'BlocksManagerTestCase__wildcard01_%s'
 
         class FoobarBlock1(SimpleBlock):
@@ -661,7 +640,7 @@ class BlocksManagerTestCase(CremeTestCase):
         block5 = FoobarBlock5(); block6 = FoobarBlock6()
 
         mngr = BlocksManager()
-        #notice that block4 is before block3, but the dependencies are still OK
+        # Notice that block4 is before block3, but the dependencies are still OK
         mngr.add_group('gname', block1, block2, block4, block3, block5, block6)
 
         self.maxDiff = None
@@ -694,7 +673,7 @@ class BlocksManagerTestCase(CremeTestCase):
         class FoobarBlock4(SimpleBlock):
             id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_4')
             dependencies = (Organisation, Contact)
-            read_only = True #<=====
+            read_only = True  # <=====
 
         block3 = FoobarBlock3(); block4 = FoobarBlock4()
 
@@ -704,7 +683,7 @@ class BlocksManagerTestCase(CremeTestCase):
         self.assertDictEqual({block1.id_: set(),
                               block2.id_: {block4.id_},
                               block3.id_: {block4.id_},
-                              block4.id_: set(), #<=====
+                              block4.id_: set(),  # <=====
                              },
                              mngr.get_dependencies_map()
                             )
@@ -717,4 +696,4 @@ class BlocksManagerTestCase(CremeTestCase):
 
         self.assertIs(mngr, BlocksManager.get(fake_context))
 
-    #TODO: test def get_state(self, block_id, user)
+    # TODO: test def get_state(self, block_id, user)

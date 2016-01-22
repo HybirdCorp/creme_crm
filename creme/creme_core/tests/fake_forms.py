@@ -7,7 +7,7 @@ from ..forms.merge import MergeEntitiesBaseForm
 from .fake_models import FakeContact, FakeOrganisation, FakeAddress
 
 
-class FakeContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore custom fields
+class FakeContactQuickForm(CremeModelWithUserForm):  # Not CremeEntityForm to ignore custom fields
     class Meta:
         model = FakeContact
         fields = ('user', 'last_name', 'first_name', 'phone', 'email')
@@ -65,7 +65,7 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
             address_dict['entity'] = instance
             address = instance.address
 
-            if address is not None: #update
+            if address is not None:  # Update
                 for fname, fvalue in address_dict.iteritems():
                     setattr(address, fname, fvalue)
                 address.save()

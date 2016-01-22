@@ -54,7 +54,9 @@ class XLSUtilsTestCase(CremeTestCase):
         with self.assertRaises(XLRDError) as error:
             XlrdReader(filedata=self.get_file_path('data-invalid.xls'))
 
-        self.assertEquals(str(error.exception), "Unsupported format, or corrupt file: Expected BOF record; found 'this is '")
+        self.assertEquals(str(error.exception),
+                          "Unsupported format, or corrupt file: Expected BOF record; found 'this is '"
+                         )
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_sheet(self):

@@ -42,7 +42,7 @@ class ViewsTestCase(CremeTestCase):
 
         return user
 
-    def _set_all_creds_except_one(self, excluded): #TODO: in CremeTestCase ?
+    def _set_all_creds_except_one(self, excluded):  # TODO: in CremeTestCase ?
         value = EntityCredentials.NONE
 
         for cred in (EntityCredentials.VIEW, EntityCredentials.CHANGE,
@@ -57,7 +57,7 @@ class ViewsTestCase(CremeTestCase):
 
 
 class CSVImportBaseTestCaseMixin(object):
-    clean_files_in_teardown = True # See CremeTestCase
+    clean_files_in_teardown = True  # See CremeTestCase
 
     def _build_file(self, content, extension=None):
         tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')
@@ -75,7 +75,6 @@ class CSVImportBaseTestCaseMixin(object):
                                       )
 
         title = 'Test doc'
-#        response = self.client.post('/documents/document/add', follow=True,
         response = self.client.post(reverse('documents__create_document'), follow=True,
                                     data={'user':        self.user.id,
                                           'title':       title,

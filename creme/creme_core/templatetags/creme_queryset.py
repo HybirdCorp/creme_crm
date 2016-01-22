@@ -21,12 +21,12 @@ from django.template import Library
 
 register = Library()
 
-@register.filter(name="order_by")
+
+@register.filter(name='order_by')
 def order_by(qs, orders):
-    """
-        Applies order to a queryset.
-        orders have to respect the format : "order1,-order2,order3" no end ,
-        @Returns : Ordered queryset
+    """ Applies order to a queryset.
+    @param orders: have to respect the format : "order1,-order2,order3" no end ,
+    @return Ordered queryset.
     """
     return qs.order_by(*orders.split(','))
 

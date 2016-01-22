@@ -7,7 +7,6 @@ if not settings.TESTS_ON:
 else:
     from decimal import Decimal
 
-    #from django.contrib.auth.models import User
     from django.core.exceptions import ValidationError
     from django.db import models
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -20,7 +19,7 @@ else:
 
 
     class FakeFolderCategory(CremeModel):
-        name      = models.CharField(_(u'Category name'), max_length=100, unique=True)
+        name = models.CharField(_(u'Category name'), max_length=100, unique=True)
 #        is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
         def __unicode__(self):
@@ -222,7 +221,7 @@ else:
         def get_edit_absolute_url(self):
             return '/tests/address/edit/%s' % self.id
 
-        def get_related_entity(self): #for generic views
+        def get_related_entity(self):  # For generic views
             return self.entity
 
 
@@ -270,7 +269,7 @@ else:
                                             blank=True, null=True, on_delete=models.SET_NULL,
                                            ).set_tags(optional=True)
 
-    #    creation_label = _('Add a contact')
+#        creation_label = _('Add a contact')
 
         class Meta:
             app_label = 'creme_core'
@@ -312,7 +311,7 @@ else:
     class _GetFakeTodos(FunctionField):
         name         = 'tests-get_fake_todos'
         verbose_name = _(u"Fake Todos")
-        #has_filter   = False #==> cannot search
+        # has_filter   = False #==> cannot search
 
         def __call__(self, entity):
             return FunctionFieldResultsList(FunctionFieldResult('Todo %s #%s' % (entity, i))
@@ -352,7 +351,7 @@ else:
 
         function_fields = CremeEntity.function_fields.new(_GetFakeTodos())
 
-    #    creation_label = _('Add an organisation')
+#        creation_label = _('Add an organisation')
 
         class Meta:
             app_label = 'creme_core'
@@ -376,7 +375,7 @@ else:
 
     class FakeActivityType(CremeModel):
         name  = models.CharField(_(u'Name'), max_length=100, unique=True)
-        order = BasicAutoField(_('Order')) #used by creme_config
+        order = BasicAutoField(_('Order'))  # Used by creme_config
 
         class Meta:
             app_label = 'creme_core'
@@ -390,10 +389,10 @@ else:
         start = models.DateTimeField(_(u'Start'), blank=True, null=True)
         end   = models.DateTimeField(_(u'End'), blank=True, null=True)
         type  = models.ForeignKey(FakeActivityType, verbose_name=_(u'Activity type'),
-                                  on_delete=models.PROTECT, #editable=False,
+                                  on_delete=models.PROTECT,  # editable=False,
                                  )
 
-    #    creation_label = _('Add an activity')
+#        creation_label = _('Add an activity')
 
         class Meta:
             app_label = 'creme_core'
@@ -404,11 +403,11 @@ else:
         def __unicode__(self):
             return self.title
 
-    #    def get_absolute_url(self):
-    #        return "/activities/activity/%s" % self.id
+#        def get_absolute_url(self):
+#            return "/activities/activity/%s" % self.id
 
-    #    def get_edit_absolute_url(self):
-    #        return "/activities/activity/edit/%s" % self.id
+#        def get_edit_absolute_url(self):
+#            return "/activities/activity/edit/%s" % self.id
 
         @staticmethod
         def get_lv_absolute_url():
@@ -427,15 +426,15 @@ else:
         def __unicode__(self) :
             return self.name
 
-    #    def get_absolute_url(self):
-    #        return "/emails/mailing_list/%s" % self.id
+#        def get_absolute_url(self):
+#            return "/emails/mailing_list/%s" % self.id
 
-    #    def get_edit_absolute_url(self):
-    #        return "/emails/mailing_list/edit/%s" % self.id
+#        def get_edit_absolute_url(self):
+#            return "/emails/mailing_list/edit/%s" % self.id
 
-    #    @staticmethod
-    #    def get_lv_absolute_url():
-    #        return "/emails/mailing_lists"
+#        @staticmethod
+#        def get_lv_absolute_url():
+#            return "/emails/mailing_lists"
 
 
     class FakeEmailCampaign(CremeEntity):
@@ -451,11 +450,11 @@ else:
         def __unicode__(self):
             return self.name
 
-    #    def get_absolute_url(self):
-    #        return "/emails/campaign/%s" % self.id
+#        def get_absolute_url(self):
+#            return "/emails/campaign/%s" % self.id
 
-    #    def get_edit_absolute_url(self):
-    #        return "/emails/campaign/edit/%s" % self.id
+#        def get_edit_absolute_url(self):
+#            return "/emails/campaign/edit/%s" % self.id
 
         @staticmethod
         def get_lv_absolute_url():
@@ -488,8 +487,8 @@ else:
         def get_absolute_url(self):
             return '/tests/invoice/%s' % self.id
 
-    #    def get_edit_absolute_url(self):
-    #        return "/billing/invoice/edit/%s" % self.id
+#        def get_edit_absolute_url(self):
+#            return "/billing/invoice/edit/%s" % self.id
 
         @staticmethod
         def get_lv_absolute_url():

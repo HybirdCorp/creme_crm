@@ -3,7 +3,6 @@
 from datetime import datetime, timedelta
 from os import remove as delete_file, listdir, makedirs
 from os import path as os_path
-#from tempfile import NamedTemporaryFile
 from unittest import skipIf
 import warnings
 
@@ -18,10 +17,6 @@ from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyT
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..global_info import clear_global_info
 from ..utils.xml_utils import xml_diff, XMLDiffError
-#from ..registry import creme_registry
-#from .. import autodiscover
-
-#from creme.media_managers.models import Image
 
 
 def skipIfNotInstalled(app_name):
@@ -47,7 +42,7 @@ class _AssertNoExceptionContext(object):
 
 class _CremeTestCase(object):
     # NB: set this line in inherited classes to clean upload/documents directory in tearDown
-    #clean_files_in_teardown = True
+    # clean_files_in_teardown = True
 
     @classmethod
     def setUpClass(cls):
@@ -86,14 +81,12 @@ class _CremeTestCase(object):
 
         superuser = CremeUser(username='kirika', email='kirika@noir.jp',
                          first_name='Kirika', last_name='Yumura',
-                         #is_superuser=True,
                          is_superuser=True or is_staff,
                          is_staff=is_staff,
                         )
         superuser.set_password(password)
         superuser.save()
 
-        #role = UserRole.objects.create(name='Basic')
         role = UserRole(name='Basic')
         role.allowed_apps = allowed_apps
         role.admin_4_apps = admin_4_apps
@@ -124,9 +117,6 @@ class _CremeTestCase(object):
 
     @staticmethod
     def autodiscover():
-        #if not list(creme_registry.iter_apps()):
-            #autodiscover()
-
         warnings.warn("_CremeTestCase.autodiscover() method is deprecated.",
                       DeprecationWarning
                      )
@@ -391,7 +381,6 @@ class _CremeTestCase(object):
         self.assertSameProperties(entity1, entity2)
         self.assertSameRelations(entity1, entity2, exclude_internal)
 
-    #def assertXMLEqual(self, expected, actual):
     def assertXMLEqualv2(self, expected, actual):
         """Compare 2 strings representing XML document, with the XML semantic.
         @param expected XML string ; tip: better if it is well indented to have better error message.
@@ -425,16 +414,6 @@ class _CremeTestCase(object):
 
         from creme.media_managers.tests import create_image
         return create_image(user or self.user, ident)
-#        tmpfile = NamedTemporaryFile()
-#        tmpfile.width = tmpfile.height = 0
-#        tmpfile._committed = True
-#        tmpfile.path = 'upload/file_%s.jpg' % ident
-#
-#        return Image.objects.create(user=user or self.user,
-#                                    image=tmpfile,
-#                                    name=u'Image #%s' % ident,
-#                                    description=u"Desc"
-#                                   )
 
     def get_object_or_fail(self, model, **kwargs):
         try:

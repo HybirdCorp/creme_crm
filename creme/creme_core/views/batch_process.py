@@ -28,17 +28,19 @@ from ..forms.batch_process import BatchProcessForm
 from ..gui.listview import ListViewState
 from ..utils import get_ct_or_404, jsonify
 
+
 @login_required
 def batch_process(request, ct_id):
     ct = get_ct_or_404(ct_id)
     user = request.user
 
-    if not user.has_perm(ct.app_label): #TODO: factorise
+    if not user.has_perm(ct.app_label):  # TODO: factorise
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
     if request.method == 'POST':
         POST = request.POST
-        bp_form = BatchProcessForm(user=user, data=request.POST, initial={'content_type': ct}) #TODO: make 'content_type' a real arg ?
+        # TODO: make 'content_type' a real arg ?
+        bp_form = BatchProcessForm(user=user, data=request.POST, initial={'content_type': ct})
 
         if bp_form.is_valid():
             bp_form.save()
@@ -73,6 +75,7 @@ def batch_process(request, ct_id):
                    'cancel_url':    cancel_url,
                   }
                  )
+
 
 @login_required
 @jsonify

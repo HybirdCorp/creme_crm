@@ -22,12 +22,10 @@ from functools import wraps
 from itertools import chain
 
 from django.apps import apps
-#from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import AppCommand, CommandError
 from django.core.management.color import no_style
-#from django.core.management.sql import sql_delete
-from django.db import connections, DEFAULT_DB_ALIAS  # transaction
+from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.migrations.recorder import MigrationRecorder
 from django.dispatch import receiver
 from django.utils.encoding import force_unicode
@@ -263,7 +261,6 @@ class Command(AppCommand):
 
                     continue
 
-                # if verbosity > 1:
                 if verbosity:
                     self.stdout.write('Trying to flush "%s" (%s%s instances)...\n' % (
                                             model.__name__,
@@ -389,7 +386,7 @@ class Command(AppCommand):
         if dep_error:
             self.stderr.write(u" [KO] Dependencies loop (cannot find a safe deletion order).\n"
                               u"SQL commands:\n%s\n" %
-                                u'\n'.join(sql_commands) # .encode('utf-8')  ??
+                                u'\n'.join(sql_commands)  # TODO: .encode('utf-8')  ??
                              )
 
             raise CommandError('Sadly you have to DELETE the remaining tables MANUALLY, '
@@ -397,7 +394,6 @@ class Command(AppCommand):
                               )
 
         if sql_commands:
-            # if verbosity > 1:
             if verbosity:
                 self.stdout.write('Trying to delete tables...')
 
@@ -415,21 +411,17 @@ class Command(AppCommand):
                     if verbosity:
                         self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
             except Exception as e:
-#                transaction.rollback_unless_managed()
-
                 self.stderr.write(u" [KO] Original error: %(error)s.\n"
                                   u"Remaining SQL commands:\n"
                                   u"%(commands)s\n" % {
                                         'error': force_unicode(e),  # PostGreSQL returns localized errors...
-                                        'commands': u'\n'.join(sql_commands),  # .encode('utf-8')  ??
+                                        'commands': u'\n'.join(sql_commands),  # TODO: .encode('utf-8')  ??
                                       }
                                  )
 
                 raise CommandError('Sadly you have to DELETE the remaining tables MANUALLY, '
                                    'and THEN REMOVE "%s" from your settings.' % app_label,
                                   )
-
-#            transaction.commit_unless_managed()
 
             if verbosity > 1:
                 self.stdout.write(' [OK] All tables have been deleted',
@@ -438,7 +430,6 @@ class Command(AppCommand):
         elif verbosity:
             self.stdout.write('No table to delete.')
 
-#    def handle_app(self, app, **options):
     def handle_app_config(self, app_config, **options):
         verbosity = int(options.get('verbosity'))
         app_label = app_config.label

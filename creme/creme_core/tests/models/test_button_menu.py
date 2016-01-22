@@ -5,8 +5,6 @@ try:
     from ..fake_models import FakeContact as Contact
     from creme.creme_core.models import ButtonMenuItem
     from creme.creme_core.gui.button_menu import Button
-
-    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -48,7 +46,7 @@ class ButtonMenuItemTestCase(CremeTestCase):
         self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
         self.assertIsNone(bmi.content_type)
 
-    def test_create_if_needed03(self): #TODO: remove this test when pkstring is removed
+    def test_create_if_needed03(self):  # TODO: remove this test when pkstring is removed
         "PK collision"
         class TestButton(Button):
             id_          = Button.generate_id('creme_core', 'test_create_if_needed03')

@@ -18,10 +18,6 @@ try:
     from creme.creme_core.models.history import (HistoryLine, TYPE_EDITION,
             TYPE_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL,
             TYPE_PROP_ADD, TYPE_PROP_DEL)
-
-#    from creme.media_managers.models import Image
-
-#    from creme.persons.models import Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -30,9 +26,7 @@ class MergeViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-#        cls.populate('creme_core', 'persons') #'persons' for HeaderFilter
-        cls.populate('creme_core') # HeaderFilter for FakeContact/Orga
-#        cls.autodiscover()
+        cls.populate('creme_core')  # HeaderFilter for FakeContact/FakeOrganisation
 
     def _build_select_url(self, e1):
         return '/creme_core/entity/merge/select_other/%s' % e1.id
@@ -65,7 +59,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_select_entity_for_merge02(self):
         "View credentials"
-#        user = self.login(is_superuser=False, allowed_apps=['persons'])
         user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(
@@ -79,7 +72,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_select_entity_for_merge03(self):
         "Edit credentials"
-#        user = self.login(is_superuser=False, allowed_apps=['persons'])
         user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(role=self.role,
@@ -96,7 +88,6 @@ class MergeViewsTestCase(ViewsTestCase):
         self.login()
         self.assertIsNone(merge_form_registry.get(Image))
 
-#        image = self.create_image()
         image = Image.objects.create(user=self.user, name='IMG#1')
         self.assertGET409(self._build_select_url(image))
 
@@ -127,7 +118,7 @@ class MergeViewsTestCase(ViewsTestCase):
         rel2 = create_rel(subject_entity=contact01, object_entity=orga02)
         rel3 = create_rel(subject_entity=contact02, object_entity=orga02)
 
-        #'prop3 'should be deleted, because orga01 has already a property with the same type
+        # 'prop3 'should be deleted, because orga01 has already a property with the same type
         create_prop = CremeProperty.objects.create
         prop1 = create_prop(type=ptype01, creme_entity=orga01)
         prop2 = create_prop(type=ptype02, creme_entity=orga02)
@@ -149,7 +140,7 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertTrue(f_name.required)
         self.assertEqual([orga01.name,  orga02.name,  orga01.name],  f_name.initial)
-        self.assertEqual([orga01.email, orga02.email, orga02.email], f_email.initial) #orga01.email is empty
+        self.assertEqual([orga01.email, orga02.email, orga02.email], f_email.initial)  # orga01.email is empty
 
         self.assertFalse(fields['capital'].required)
 
@@ -161,15 +152,15 @@ class MergeViewsTestCase(ViewsTestCase):
 
                                           'name_1':      orga01.name,
                                           'name_2':      orga02.name,
-                                          'name_merged': orga01.name, #<======
+                                          'name_merged': orga01.name,  # <======
 
                                           'description_1':      orga01.description,
                                           'description_2':      orga02.description,
-                                          'description_merged': description, #<======
+                                          'description_merged': description,  # <======
 
                                           'email_1':      orga01.email,
                                           'email_2':      orga02.email,
-                                          'email_merged': orga02.email, #<======
+                                          'email_merged': orga02.email,  # <======
 
                                          }
                                    )
@@ -196,7 +187,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(new_orga01.id, sym_rel3.subject_entity_id)
         self.assertEqual(contact02.id,  sym_rel3.object_entity_id)
 
-        #rel2 should have been deleted (no doublon)
+        # rel2 should have been deleted (no doublon)
         self.assertDoesNotExist(rel2)
         self.assertRelationCount(1, contact01, rtype.id, orga01)
 
@@ -208,10 +199,10 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(ptype02,   prop2.type)
         self.assertEqual(orga01.id, prop2.creme_entity_id)
 
-        #prop3 should have been deleted (no doublon)
+        # prop3 should have been deleted (no doublon)
         self.assertDoesNotExist(prop3)
 
-        #HistoryLines: duplicated relations/properties that are deleted are do not generate line
+        # HistoryLines: duplicated relations/properties that are deleted are do not generate line
         hline_types = set(HistoryLine.objects.filter(id__gt=last_hline_id).values_list('type', flat=True))
         self.assertIn(TYPE_EDITION,  hline_types)
         self.assertIn(TYPE_RELATION, hline_types)
@@ -225,14 +216,10 @@ class MergeViewsTestCase(ViewsTestCase):
         "2 Contacts, M2M, foreign key to CremeEntities"
         user = self.login()
 
-#        image1 = self.create_image(ident=1)
-#        image2 = self.create_image(ident=2)
-#        self.create_image(ident=3) #image3 should not be proposed by the form
-
         create_img = partial(Image.objects.create, user=user)
         image1 = create_img(name='Kosaka face')
         image2 = create_img(name='Kosuaka selfie')
-        create_img(name='Genshiken logo') #image3 should not be proposed by the form
+        create_img(name='Genshiken logo')  # Should not be proposed by the form
 
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
@@ -241,8 +228,6 @@ class MergeViewsTestCase(ViewsTestCase):
         language1, language2 = Language.objects.all()[:2]
         language3 = Language.objects.create(name=u'Klingon', code='KLN')
 
-        #contact01.language = [language1]
-        #contact02.language = [language1, language2]
         contact01.languages = [language1]
         contact02.languages = [language1, language2]
 
@@ -254,7 +239,7 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertFalse(f_image.required)
         self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
-        self.assertEqual({(image1.id, unicode(image1)), (image2.id, unicode(image2))}, #not image3 !
+        self.assertEqual({(image1.id, unicode(image1)), (image2.id, unicode(image2))},  # not image #3 !
                          set(f_image._original_field.choices)
                         )
 
@@ -271,12 +256,9 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'last_name_2':      contact02.last_name,
                                           'last_name_merged': contact01.last_name,
 
-                                          #'language_1':      [language1.id],
-                                          #'language_2':      [language1.id, language2.id],
-                                          #'language_merged': [language3.id], #<======
                                           'languages_1':      [language1.id],
                                           'languages_2':      [language1.id, language2.id],
-                                          'languages_merged': [language3.id], #<======
+                                          'languages_merged': [language3.id],  # <======
 
                                           'image_1':      image1.id,
                                           'image_2':      image2.id,
@@ -291,7 +273,6 @@ class MergeViewsTestCase(ViewsTestCase):
         new_contact01 = self.refresh(contact01)
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
-        #self.assertEqual([language3],          list(new_contact01.language.all()))
         self.assertEqual([language3],          list(new_contact01.languages.all()))
         self.assertEqual(image2,               new_contact01.image)
 
@@ -317,8 +298,6 @@ class MergeViewsTestCase(ViewsTestCase):
     def test_merge04(self):
         "Nullable foreign key to CremeEntities"
         user = self.login()
-
-#        image = self.create_image()
         image = Image.objects.create(user=user, name='Kosaka face')
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -340,8 +319,6 @@ class MergeViewsTestCase(ViewsTestCase):
         user = self.login()
         self.assertIsNone(merge_form_registry.get(Image))
 
-#        image1 = self.create_image(ident=1)
-#        image2 = self.create_image(ident=2)
         create_image = partial(Image.objects.create, user=user)
         image1 = create_image(name='IMG#1')
         image2 = create_image(name='IMG#2')
@@ -461,11 +438,11 @@ class MergeViewsTestCase(ViewsTestCase):
                                       follow=True,
                                       data={'user_1':      user.id,
                                             'user_2':      user.id,
-                                            #'user_merged': user.id, #<============
+                                            # 'user_merged': user.id,  # <======
 
                                             'name_1':      orga01.name,
                                             'name_2':      orga02.name,
-                                            'name_merged': '', #<======
+                                            'name_merged': '',  # <======
                                            }
                                      )
         self.assertFormError(response, 'form', 'user', _(u'This field is required.'))
@@ -479,7 +456,6 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertGET409(self.build_merge_url(orga, orga))
 
     def test_perm01(self):
-#        user = self.login(is_superuser=False, allowed_apps=['persons'])
         user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(

@@ -11,9 +11,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('CremeDateTagsTestCase',)
-
-
 class CremeDateTagsTestCase(CremeTestCase):
     def test_timedelta_pprint(self):
         with self.assertNoException():
@@ -34,9 +31,11 @@ class CremeDateTagsTestCase(CremeTestCase):
                                   datetime(year=2011, month=3, day=12, hour=20, minute=50, second=30),
                         }))
 
-        self.assertEqual(_('%s day(s)') % 3 + '#' +
-                          _('%s hour(s)') % 4 + '#' +
-                          _('%s minute(s)') % 19 + '#' +
-                          _('%s second(s)') % 2,
+        self.assertEqual('%s#%s#%s#%s' % (
+                                _('%s day(s)') % 3,
+                                _('%s hour(s)') % 4,
+                                _('%s minute(s)') % 19,
+                                _('%s second(s)') % 2,
+                            ),
                          render.strip()
                         )

@@ -32,8 +32,11 @@ relation_patterns = [
     url(r'^add/(?P<subject_id>\d+)$',                                                                         relation.add_relations),
     url(r'^add/(?P<subject_id>\d+)/(?P<rtype_id>[\w-]+)$',                                                    relation.add_relations),
     url(r'^add_from_predicate/save$',                                                                         relation.add_relations_with_same_type),
-    url(r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<relations_types>([-_\w]+[,]*)+)/$',                       relation.add_relations_bulk),#Beware of the order!!!
+
+    # Beware of the order!!!
+    url(r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<relations_types>([-_\w]+[,]*)+)/$',                       relation.add_relations_bulk),
     url(r'^add_to_entities/(?P<model_ct_id>\d+)/$',                                                           relation.add_relations_bulk),
+
     # TODO: 'simple' param as GET param ??
     url(r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)$',        relation.objects_to_link_selection),
     url(r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple$', relation.objects_to_link_selection, {'o2m': True}),
@@ -59,11 +62,18 @@ property_patterns = [
 blocks_patterns = [
     url(r'^relations_block/(?P<entity_id>\d+)/$',                                  blocks.reload_relations_block),
     url(r'^relations_block/(?P<entity_id>\d+)/(?P<relation_type_ids>[\w,-]+)/$',   blocks.reload_relations_block),
-    url(r'^(?P<block_id>[\w\-\|]+)/(?P<entity_id>\d+)/$',                          blocks.reload_detailview),  # TODO: change url to detailview/(?P<block_id>[\w-]+)....
+
+    # TODO: change url to detailview/(?P<block_id>[\w-]+)....
+    url(r'^(?P<block_id>[\w\-\|]+)/(?P<entity_id>\d+)/$',                          blocks.reload_detailview),
+
     url(r'^home/(?P<block_id>[\w\-\|]+)/$',                                        blocks.reload_home),
     url(r'^portal/(?P<block_id>[\w\-\|]+)/(?P<ct_ids>[\d,]+)/$',                   blocks.reload_portal),
-    url(r'^basic/(?P<block_id>[\w\-\|]+)/$',                                       blocks.reload_basic),  # Most of blocks in creme_config for example
-    url(r'^set_state/(?P<block_id>[\w\-\|]+)/$',                                   blocks.set_state),  # TODO: change url (reload not fit here...)
+
+    # Most of blocks in creme_config for example
+    url(r'^basic/(?P<block_id>[\w\-\|]+)/$',                                       blocks.reload_basic),
+
+    # TODO: change url (reload not fit here...)
+    url(r'^set_state/(?P<block_id>[\w\-\|]+)/$',                                   blocks.set_state),
 ]
 
 entity_filter_patterns = [
@@ -101,7 +111,9 @@ creme_core_patterns = [
     url(r'^list_view/import/(?P<ct_id>\d+)$',                                 list_view_import.import_listview),
     url(r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',          list_view_export.dl_listview),
     url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',   list_view_export.dl_listview_header),
-    url(r'^list_view/batch_process/(?P<ct_id>\d+)$',                          batch_process.batch_process), #TODO: change url (remove 'list_view'...)??
+
+    # TODO: change url (remove 'list_view'...)??
+    url(r'^list_view/batch_process/(?P<ct_id>\d+)$',                          batch_process.batch_process),
     url(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)$', batch_process.get_ops),
 
     # Search
@@ -116,7 +128,8 @@ urlpatterns = [
     url(r'^$',        index.home),
     url(r'^my_page$', index.my_page),
 
-    url(r'^download_file/(?P<location>.*)$', file_handling.download_file), # TODO : To be replaced
+    # TODO : To be replaced
+    url(r'^download_file/(?P<location>.*)$', file_handling.download_file),
 
     url(r'^creme_core/', include(creme_core_patterns)),
 
@@ -129,15 +142,15 @@ if settings.TESTS_ON:
     from .tests import fake_views
 
     urlpatterns += [
-        url(r'^tests/documents$',                  fake_views.document_listview),
-        #(r'^tests/document/add$',                  'document_add'),
-        #(r'^tests/document/edit/(?P<doc_id>\d+)$', 'document_edit'),
-        #(r'^tests/document/(?P<doc_id>\d+)$',      'document_detailview'),
+        url(r'^tests/documents$', fake_views.document_listview),
+        # (r'^tests/document/add$',                  'document_add'),
+        # (r'^tests/document/edit/(?P<doc_id>\d+)$', 'document_edit'),
+        # (r'^tests/document/(?P<doc_id>\d+)$',      'document_detailview'),
 
-        url(r'^tests/images$',                     fake_views.image_listview),
-        #(r'^tests/image/add$',                    'image_add'),
-        #(r'^tests/image/edit/(?P<image_id>\d+)$', 'image_edit'),
-        url(r'^tests/image/(?P<image_id>\d+)$',    fake_views.image_detailview),
+        url(r'^tests/images$',                  fake_views.image_listview),
+        # (r'^tests/image/add$',                    'image_add'),
+        # (r'^tests/image/edit/(?P<image_id>\d+)$', 'image_edit'),
+        url(r'^tests/image/(?P<image_id>\d+)$', fake_views.image_detailview),
 
         url(r'^tests/contacts$',                         fake_views.contact_listview),
         url(r'^tests/contact/add$',                      fake_views.contact_add),
@@ -152,20 +165,20 @@ if settings.TESTS_ON:
         url(r'^tests/address/add/(?P<entity_id>\d+)$',     fake_views.address_add),
         url(r'^tests/address/edit/(?P<address_id>\d+)',    fake_views.address_edit),
 
-        url(r'^tests/activities$',                  fake_views.activity_listview),
-        #(r'^tests/activity/add$',                  'activity_add'),
-        #(r'^tests/activity/edit/(?P<act_id>\d+)$', 'activity_edit'),
-        #(r'^tests/activity/(?P<act_id>\d+)$',      'activity_detailview'),
+        url(r'^tests/activities$', fake_views.activity_listview),
+        # (r'^tests/activity/add$',                  'activity_add'),
+        # (r'^tests/activity/edit/(?P<act_id>\d+)$', 'activity_edit'),
+        # (r'^tests/activity/(?P<act_id>\d+)$',      'activity_detailview'),
 
-        url(r'^tests/e_campaigns$',                        fake_views.campaign_listview),
-        #(r'^tests/e_campaign/add$',                       'campaign_add'),
-        #(r'^tests/e_campaign/edit/(?P<campaign_id>\d+)$', 'campaign_edit'),
-        #(r'^tests/e_campaign/(?P<campaign_id>\d+)$',      'campaign_detailview'),
+        url(r'^tests/e_campaigns$', fake_views.campaign_listview),
+        # (r'^tests/e_campaign/add$',                       'campaign_add'),
+        # (r'^tests/e_campaign/edit/(?P<campaign_id>\d+)$', 'campaign_edit'),
+        # (r'^tests/e_campaign/(?P<campaign_id>\d+)$',      'campaign_detailview'),
 
-        url(r'^tests/invoices$',                        fake_views.invoice_listview),
-        #(r'^tests/invoice/add$',                       'invoice_add'),
-        #(r'^tests/invoice/edit/(?P<invoice_id>\d+)$',  'invoice_edit'),
-        url(r'^tests/invoice/(?P<invoice_id>\d+)$',     fake_views.invoice_detailview),
+        url(r'^tests/invoices$',                    fake_views.invoice_listview),
+        # (r'^tests/invoice/add$',                       'invoice_add'),
+        # (r'^tests/invoice/edit/(?P<invoice_id>\d+)$',  'invoice_edit'),
+        url(r'^tests/invoice/(?P<invoice_id>\d+)$', fake_views.invoice_detailview),
 
         url(r'^tests/invoice_lines$', fake_views.invoice_lines_listview),
     ]

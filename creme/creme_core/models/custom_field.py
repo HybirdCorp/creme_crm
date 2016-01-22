@@ -20,15 +20,13 @@
 
 from collections import defaultdict, OrderedDict
 
-from django.db.models import (ForeignKey, CharField, PositiveSmallIntegerField, IntegerField,
-                              DecimalField, DateTimeField, BooleanField, ManyToManyField)
+from django.core.validators import EMPTY_VALUES
+from django.db.models import (ForeignKey, CharField, PositiveSmallIntegerField,
+        IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField)
 from django import forms
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext, ugettext_lazy as _
-#from django.utils.datastructures import SortedDict as OrderedDict
-#from django.contrib.contenttypes.models import ContentType
-from django.core.validators import EMPTY_VALUES
 
 from .base import CremeModel
 from .entity import CremeEntity
@@ -51,12 +49,11 @@ class CustomField(CremeModel):
     MULTI_ENUM  = 101
 
     name          = CharField(_(u'Field name'), max_length=100)
-    #content_type  = ForeignKey(ContentType, verbose_name=_(u'Related type'))
     content_type  = CTypeForeignKey(verbose_name=_(u'Related type'))
-    field_type    = PositiveSmallIntegerField(_(u'Field type')) #see INT, FLOAT etc...
-    #default_value = CharField(_(u'Valeur par defaut'), max_length=100, blank=True, null=True)
-    #extra_args    = CharField(max_length=500, blank=True, null=True)
-    #required      = BooleanField(defaut=False) ????
+    field_type    = PositiveSmallIntegerField(_(u'Field type'))  # See INT, FLOAT etc...
+    # default_value = CharField(_(u'Valeur par defaut'), max_length=100, blank=True, null=True)
+    # extra_args    = CharField(max_length=500, blank=True, null=True)
+    # required      = BooleanField(defaut=False) ????
 
     class Meta:
        app_label = 'creme_core'
@@ -70,7 +67,10 @@ class CustomField(CremeModel):
     def delete(self):
         for value_class in _TABLES.itervalues():
             value_class.objects.filter(custom_field=self).delete()
-        self.customfieldenumvalue_set.all().delete() #Beware: don't call the CustomFieldEnumValue.delete() to avoid loop
+
+        # Beware: we don't call the CustomFieldEnumValue.delete() to avoid loop.
+        self.customfieldenumvalue_set.all().delete()
+
         super(CustomField, self).delete()
 
     def type_verbose_name(self):
@@ -86,7 +86,7 @@ class CustomField(CremeModel):
         """Return unicode object containing the human readable value of this custom field for an entity
         It manages CustomField which type is ENUM.
         """
-        #TODO: select_related() for enum ???
+        # TODO: select_related() for enum ???
         cf_values = self.get_value_class().objects.filter(custom_field=self.id, entity=entity_id)
 
         return unicode(cf_values[0]) if cf_values else u''
@@ -101,7 +101,7 @@ class CustomField(CremeModel):
             cfield_map[cfield.field_type].append(cfield)
 
         cvalues_map = defaultdict(lambda: defaultdict(list))
-        entities = [e.id for e in entities] #NB: 'list(entities)' ==> made strangely a query for every entity ;(
+        entities = [e.id for e in entities]  # NB: 'list(entities)' ==> made strangely a query for every entity ;(
 
         for field_type, cfields_list in cfield_map.iteritems():
             for cvalue in _TABLES[field_type]._get_4_entities(entities, cfields_list):
@@ -113,7 +113,7 @@ class CustomField(CremeModel):
 class CustomFieldValue(CremeModel):
     custom_field = ForeignKey(CustomField)
     entity       = ForeignKey(CremeEntity)
-    #value       = FoobarField()  --> implement in inherited classes
+    # value       = FoobarField()  --> implement in inherited classes
 
     class Meta:
         abstract = True
@@ -150,7 +150,7 @@ class CustomFieldValue(CremeModel):
         field.initial = self.value
 
     @staticmethod
-    def _get_formfield(**kwargs): #overload meeee
+    def _get_formfield(**kwargs):  # Overload meeee
         return forms.Field(**kwargs)
 
     @classmethod
@@ -246,15 +246,14 @@ class CustomFieldDateTime(CustomFieldValue):
     class Meta:
         app_label = 'creme_core'
 
-    #TODO: factorise with gui.field_printers
+    # TODO: factorise with gui.field_printers
     def __unicode__(self):
         value = self.value
-        #return date_format(value, 'DATETIME_FORMAT') if value else ''
         return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''
 
     @staticmethod
     def _get_formfield(**kwargs):
-        #TODO: hook DateTimeField to automatically use DateTimeWidget
+        # TODO: hook DateTimeField to automatically use DateTimeWidget
         from creme.creme_core.forms.widgets import DateTimeWidget
         kwargs['widget'] = DateTimeWidget
         return forms.DateTimeField(**kwargs)
@@ -276,7 +275,7 @@ class CustomFieldBoolean(CustomFieldValue):
         return forms.NullBooleanField(**kwargs)
 
     def set_value_n_save(self, value):
-        #Boolean default value is False
+        # Boolean default value is False
         if value is not None:
             self.value = value
             self.save()
@@ -340,10 +339,6 @@ class CustomFieldMultiEnum(CustomFieldValue):
         app_label = 'creme_core'
 
     def __unicode__(self):
-        #output = ['<ul>']
-        #output.extend(u'<li>%s</li>' % val for val in self.value.all())
-        #output.append('</ul>')
-        #return u''.join(output)
         return u' / '.join(unicode(val) for val in self.get_enumvalues())
 
     @staticmethod
@@ -353,7 +348,8 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
-        #TODO: for a m2m select_related() doesn't work -> can fill the enumvalues cache easily (must use BaseQuery.join in query.py ....)
+        # TODO: for a m2m select_related() doesn't work
+        #       -> can fill the enumvalues cache easily (must use BaseQuery.join in query.py ....)
         return cls.objects.filter(custom_field__in=cfields, entity__in=entities)
 
     @staticmethod
@@ -371,7 +367,7 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     def set_value_n_save(self, value):
         if not self.pk:
-            self.save() #M2M field need a pk
+            self.save()  # M2M field need a pk
 
         self.value = value
 

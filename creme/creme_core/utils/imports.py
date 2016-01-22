@@ -22,32 +22,24 @@ from imp import find_module
 from importlib import import_module
 
 from django.apps import apps
-#from django.conf import settings
 
 
 def find_n_import(filename, imports):
     results = []
 
-#    for app in settings.INSTALLED_APPS:
-#        try:
-#            find_module(filename, __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-#        except ImportError as e:
-#            # there is no app report_backend_register.py, skip it
-#            continue
-#
-#        results.append(__import__("%s.%s" % (app, filename), globals(), locals(), imports, -1))
     for app_config in apps.get_app_configs():
         app_name = app_config.name
 
         try:
             find_module(filename, __import__(app_name, {}, {}, [app_name.split(".")[-1]]).__path__)
         except ImportError:
-            # there is no app report_backend_register.py, skip it
+            # There is no app report_backend_register.py, skip it
             continue
 
         results.append(__import__("%s.%s" % (app_name, filename), globals(), locals(), imports, -1))
 
     return results
+
 
 def import_object(objectpath):
     i = objectpath.rfind('.')
@@ -64,8 +56,9 @@ def import_object(objectpath):
 
     return result
 
+
 def safe_import_object(objectpath):
     try:
         return import_object(objectpath)
     except Exception as e:
-        print 'An error occured trying to import "%s": [%s]' % (objectpath, e)
+        print 'An error occurred trying to import "%s": [%s]' % (objectpath, e)

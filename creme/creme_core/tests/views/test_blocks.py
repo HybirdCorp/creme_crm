@@ -16,15 +16,13 @@ try:
             InstanceBlockConfigItem, _BlockRegistry)
     from creme.creme_core.models import (SetCredentials, RelationType, Relation,
             BlockState, BlockDetailviewLocation, CustomBlockConfigItem, FieldsConfig)
-
-    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class BlockViewTestCase(CremeTestCase):
     SET_STATE_URL = '/creme_core/blocks/reload/set_state/%s/'
-    #TODO: other urls...
+    # TODO: other urls...
 
     @classmethod
     def setUpClass(cls):
@@ -52,7 +50,7 @@ class BlockViewTestCase(CremeTestCase):
         bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
         self.assertFalse(bstate.is_open)
 
-        self.assertPOST200(self.SET_STATE_URL % block_id, data={}) #No data
+        self.assertPOST200(self.SET_STATE_URL % block_id, data={})  # No data
         self.assertEqual(1, BlockState.objects.count())
 
         bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
@@ -99,7 +97,7 @@ class BlockViewTestCase(CremeTestCase):
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class ContactBlock(Block):
-            id_  = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
+            id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
             dependencies = (Organisation,)
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
 
@@ -109,7 +107,7 @@ class BlockViewTestCase(CremeTestCase):
             def detailview_display(self, context):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
                             self.id_, self.ibci.entity
-                        ) #useless :)
+                        )  # Useless :)
 
         self.assertTrue(InstanceBlockConfigItem.id_is_specific(ContactBlock.id_))
 
@@ -128,7 +126,6 @@ class BlockViewTestCase(CremeTestCase):
 
         self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
 
-
     class TestBlock(Block):
         verbose_name = u'Testing purpose'
 
@@ -141,14 +138,14 @@ class BlockViewTestCase(CremeTestCase):
 
         def detailview_display(self, context):
             self.contact = context.get('object')
-            return  self.string_format_detail % self.id_
+            return self.string_format_detail % self.id_
 
         def home_display(self, context):
-            return  self.string_format_home % self.id_
+            return self.string_format_home % self.id_
 
         def portal_display(self, context, ct_ids):
             self.ct_ids = ct_ids
-            return  self.string_format_portal % self.id_
+            return self.string_format_portal % self.id_
 
     def test_reload_detailview01(self):
         user = self.login()
@@ -214,7 +211,6 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_detailview04(self):
         "Not superuser"
-#        self.login(is_superuser=False, allowed_apps=['persons'])
         self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
@@ -298,7 +294,6 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_portal02(self):
         "Do not have the credentials"
-#        self.login(is_superuser=False)
         self.login(is_superuser=False, allowed_apps=('documents'))
 
         class FoobarBlock1(self.TestBlock):
@@ -442,7 +437,6 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_relations03(self):
         "Do not have the credentials"
-#        self.login(is_superuser=False, allowed_apps=['persons'])
         self.login(is_superuser=False)
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
         self.assertFalse(self.user.has_perm_to_view(atom))
@@ -450,7 +444,6 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_relations04(self):
         "Not superuser"
-#        self.login(is_superuser=False, allowed_apps=['persons'])
         self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
@@ -509,7 +502,7 @@ class BlockViewTestCase(CremeTestCase):
                               ],
                     )
         bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
-                                             order=1000, # should be the last block
+                                             order=1000,  # Should be the last block
                                              model=Contact,
                                              zone=BlockDetailviewLocation.BOTTOM,
                                             )
@@ -541,7 +534,7 @@ class BlockViewTestCase(CremeTestCase):
                               ],
                     )
         bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
-                                             order=1000, # should be the last block
+                                             order=1000,  # Should be the last block
                                              model=Contact,
                                              zone=BlockDetailviewLocation.BOTTOM,
                                             )
@@ -574,7 +567,7 @@ class BlockViewTestCase(CremeTestCase):
                               ],
                     )
         bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
-                                             order=1000, # should be the last block
+                                             order=1000,  # Should be the last block
                                              model=Contact,
                                              zone=BlockDetailviewLocation.BOTTOM,
                                             )

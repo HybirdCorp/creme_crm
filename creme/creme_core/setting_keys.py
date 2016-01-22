@@ -16,6 +16,8 @@ block_showempty_key = SettingKey(id=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELD
                                  app_label='creme_core', type=SettingKey.BOOL,
                                 )
 currency_symbol_key = SettingKey(id=DISPLAY_CURRENCY_LOCAL_SYMBOL,
-                                 description=_(u"Display the currency local symbol (ex: €) ? If no the international symbol will be used (ex: EUR)"),
+                                 description=_(u"Display the currency local symbol (ex: €) ? "
+                                               u"If no the international symbol will be used (ex: EUR)"
+                                              ),
                                  app_label='creme_core', type=SettingKey.BOOL,
                                 )

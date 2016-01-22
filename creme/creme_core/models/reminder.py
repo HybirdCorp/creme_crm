@@ -18,19 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, DateTimeField, ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
 
 
-class DateReminder(Model): #not CremeModel ??
+class DateReminder(Model):  # CremeModel ?
     date_of_remind     = DateTimeField(blank=True, null=True)
     ident              = PositiveIntegerField()
-    model_content_type = ForeignKey(ContentType, related_name="reminders_set")
+    model_content_type = ForeignKey(ContentType, related_name='reminders_set')
     model_id           = PositiveIntegerField()
 
-    object_of_reminder = GenericForeignKey(ct_field="model_content_type", fk_field="model_id")
+    object_of_reminder = GenericForeignKey(ct_field='model_content_type', fk_field='model_id')
 
     class Meta:
         app_label = 'creme_core'

@@ -18,12 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from functools import partial
 from time import time
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-#from django.template.context import RequestContext
 from django.shortcuts import render
 from django.utils.translation import ugettext as _, ungettext
 
@@ -40,7 +38,7 @@ MIN_RESEARCH_LENGTH = 3
 
 
 class FoundEntitiesBlock(QuerysetBlock):
-    #dependencies  = (CremeProperty,) #TODO: ??
+    # dependencies  = (CremeProperty,) #TODO: ??
     template_name = 'creme_core/templatetags/block_found_entities.html'
 
     def __init__(self, searcher, model, research, user, id=None):
@@ -53,8 +51,9 @@ class FoundEntitiesBlock(QuerysetBlock):
                                           'found-%s-%s-%s' % (
                                                 ctype.app_label,
                                                 ctype.model,
-                                                int(time()), #we generate an unique ID for each research, in order
-                                                             # to avoid sharing state (eg: page number) between researches.
+                                                # We generate an unique ID for each research, in order
+                                                # to avoid sharing state (eg: page number) between researches.
+                                                int(time()),
                                             )
                                          )
 
@@ -84,7 +83,8 @@ class FoundEntitiesBlock(QuerysetBlock):
         results = searcher.search(model, research)
 
         if results is None:
-            qs = model.objects.all()[:1] # HACK: ensures that the block is displayed (with a strange title anyway...)
+            # HACK: ensures that the block is displayed (with a strange title anyway...)
+            qs = model.objects.all()[:1]
         else:
             qs = EntityCredentials.filter(self.user, results)
 
@@ -92,7 +92,8 @@ class FoundEntitiesBlock(QuerysetBlock):
                     context, qs,
                     update_url='/creme_core/search/reload_block/%s/%s' % (self.id_, research),
                     sfields=searcher.get_fields(model),
-                    ctype=self.ctype, #if the model is inserted in the context, the template call it and create an instance...
+                    # If the model is inserted in the context, the template call it and create an instance...
+                    ctype=self.ctype,
                     short_title=verbose_name,
                 )
 
@@ -134,7 +135,7 @@ def search(request):
         user = request.user
         searcher = Searcher(models, user)
 
-        models = list(searcher.models) # remove disabled models
+        models = list(searcher.models)  # Remove disabled models
         blocks.extend(FoundEntitiesBlock(searcher, model, research, user) for model in models)
 
     t_ctx['research'] = research
@@ -159,5 +160,4 @@ def reload_block(request, block_id, research):
     model = ctype.model_class()
     block = FoundEntitiesBlock(Searcher([model], user), model, research, user, id=block_id)
 
-#    return [(block.id_, block.detailview_display(RequestContext(request)))]
     return [(block.id_, block.detailview_display(build_context(request)))]

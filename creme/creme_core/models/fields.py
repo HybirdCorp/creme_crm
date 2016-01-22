@@ -23,7 +23,7 @@ from json import loads as jsonloads, dumps as jsondumps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
-        PositiveIntegerField, OneToOneField, ForeignKey, SET, Max) #SubfieldBase
+        PositiveIntegerField, OneToOneField, ForeignKey, SET, Max)
 from django.utils.timezone import now
 
 from ..utils.date_period import date_period_registry, DatePeriod
@@ -33,25 +33,11 @@ from ..utils.date_period import date_period_registry, DatePeriod
 # TODO: fix the max_lenght value ?,
 class PhoneField(CharField):
     pass
-#    def south_field_triple(self):
-#        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
-#        from south.modelsinspector import introspector
-#        field_class = "django.db.models.fields.CharField"
-#        args, kwargs = introspector(self)
-#
-#        return (field_class, args, kwargs)
 
 
 # TODO: Make a real api for this
 class DurationField(CharField):
     pass
-#    def south_field_triple(self):
-#        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
-#        from south.modelsinspector import introspector
-#        field_class = "django.db.models.fields.CharField"
-#        args, kwargs = introspector(self)
-#
-#        return (field_class, args, kwargs)
 
 
 class UnsafeHTMLField(TextField):
@@ -59,10 +45,8 @@ class UnsafeHTMLField(TextField):
 
 
 class DatePeriodField(TextField):  # TODO: inherit from a JSONField
-#    __metaclass__ = SubfieldBase
-
     def to_python(self, value):
-        if not value: # if value is None: ??
+        if not value:  # if value is None: ??
             return None
 
         if isinstance(value, basestring):
@@ -88,7 +72,7 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
         return jsondumps(value.as_dict())
 
     def formfield(self, **kwargs):
-        from ..forms.fields import DatePeriodField as DatePeriodFormField #lazy loading
+        from ..forms.fields import DatePeriodField as DatePeriodFormField  # Lazy loading
 
         defaults = {'form_class': DatePeriodFormField}
         defaults.update(kwargs)
@@ -97,23 +81,9 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
         # (we could define the 'widget' key in 'defaults'...)
         return super(TextField, self).formfield(**defaults)
 
-#    def south_field_triple(self):
-#        from south.modelsinspector import introspector
-#        field_class = "django.db.models.fields.TextField"
-#        args, kwargs = introspector(self)
-#
-#        return (field_class, args, kwargs)
-
 
 class MoneyField(DecimalField):
     pass
-#    def south_field_triple(self):
-#        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
-#        from south.modelsinspector import introspector
-#        field_class = "django.db.models.fields.DecimalField"
-#        args, kwargs = introspector(self)
-#
-#        return (field_class, args, kwargs)
 
 
 def _transfer_assignation():
@@ -125,16 +95,14 @@ class CremeUserForeignKey(ForeignKey):
 
     def __init__(self, **kwargs):
         kwargs['limit_choices_to'] = {'is_staff': False}
-        kwargs['on_delete'] = SET(_transfer_assignation)#Overide on_delete, even if it was already defined in kwargs
-        #super(CremeUserForeignKey, self).__init__(settings.AUTH_USER_MODEL, **kwargs)
-        #kwargs['to'] = settings.AUTH_USER_MODEL
+        # Override on_delete, even if it was already defined in kwargs
+        kwargs['on_delete'] = SET(_transfer_assignation)
         kwargs.setdefault('to', settings.AUTH_USER_MODEL)
         super(CremeUserForeignKey, self).__init__(**kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super(CremeUserForeignKey, self).deconstruct()
 
-        #kwargs.pop('to', None)
         kwargs.pop('limit_choices_to', None)
         del kwargs['on_delete']
 
@@ -142,14 +110,6 @@ class CremeUserForeignKey(ForeignKey):
 
     def get_internal_type(self):
         return "ForeignKey"
-
-#    def south_field_triple(self):
-#        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
-#        from south.modelsinspector import introspector
-#        field_class = "django.db.models.fields.related.ForeignKey"
-#        args, kwargs = introspector(self)
-#
-#        return (field_class, args, kwargs)
 
 
 class CTypeForeignKey(ForeignKey):
@@ -173,20 +133,13 @@ class CTypeForeignKey(ForeignKey):
 
     def deconstruct(self):
         name, path, args, kwargs = super(CTypeForeignKey, self).deconstruct()
-        #kwargs.pop('to', None)
+        # kwargs.pop('to', None)
 
         return name, path, args, kwargs
 
     # TODO: factorise
     def get_internal_type(self):
         return "ForeignKey"
-
-#    def south_field_triple(self):
-#        from south.modelsinspector import introspector
-#        field_class = 'django.db.models.fields.related.ForeignKey'
-#        args, kwargs = introspector(self)
-#
-#        return (field_class, args, kwargs)
 
     def formfield(self, **kwargs):
         from ..forms.fields import CTypeChoiceField
@@ -200,8 +153,8 @@ class CTypeForeignKey(ForeignKey):
 
 class EntityCTypeForeignKey(CTypeForeignKey):
     # TODO: assert that it is a CremeEntity instance ??
-    #def __set__(self, instance, value):
-        #setattr(instance, self.attname, value.id if value else value)
+    # def __set__(self, instance, value):
+    #     setattr(instance, self.attname, value.id if value else value)
 
     def formfield(self, **kwargs):
         from ..forms.fields import EntityCTypeChoiceField
@@ -232,12 +185,11 @@ class CTypeOneToOneField(OneToOneField):
 
     def deconstruct(self):
         name, path, args, kwargs = super(CTypeOneToOneField, self).deconstruct()
-        #kwargs.pop('to', None)
+        # kwargs.pop('to', None)
 
         return name, path, args, kwargs
 
     def get_internal_type(self):
-#        return "ForeignKey"
         return "OneToOneField"
 
     def formfield(self, **kwargs):
@@ -251,7 +203,7 @@ class CTypeOneToOneField(OneToOneField):
 
 
 class BasicAutoField(PositiveIntegerField):
-    """BasicAutoField is a PositiveIntegerField which uses an autoincremented
+    """BasicAutoField is a PositiveIntegerField which uses an auto-incremented
     value when no value is given.
 
     Notice that that the method is really simple, so the limits are :
@@ -267,7 +219,8 @@ class BasicAutoField(PositiveIntegerField):
         setdefault('editable', False)
         setdefault('blank',    True)
 
-        kwargs['default'] = None # Not '1', in order to distinguish a initialised value from a non initialised one.
+        # Not '1', in order to distinguish a initialised value from a non initialised one.
+        kwargs['default'] = None
 
         super(BasicAutoField, self).__init__(*args, **kwargs)
         self.set_tags(viewable=False)
@@ -296,12 +249,6 @@ class BasicAutoField(PositiveIntegerField):
             setattr(model, attname, value)
 
         return value
-
-#    def south_field_triple(self):
-#        from south.modelsinspector import introspector
-#        args, kwargs = introspector(self)
-#
-#        return ("django.db.models.fields.PositiveIntegerField", args, kwargs)
 
 
 # Code copied/modified from django_extensions one:
@@ -346,15 +293,6 @@ class CreationDateTimeField(DateTimeField):
 
     def get_internal_type(self):
         return "DateTimeField"
-
-#    def south_field_triple(self):
-#        """Returns a suitable description of this field for South."""
-#        # We'll just introspect ourselves, since we inherit.
-#        from south.modelsinspector import introspector
-#        field_class = "django.db.models.fields.DateTimeField"
-#        args, kwargs = introspector(self)
-#
-#        return (field_class, args, kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super(CreationDateTimeField, self).deconstruct()

@@ -29,7 +29,7 @@ from ..constants import DEFAULT_VAT
 class Vat(CremeModel):
     value      = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
     is_default = BooleanField(_(u'Is default?'), default=False)
-    is_custom  = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+    is_custom  = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
         return unicode(self.value)

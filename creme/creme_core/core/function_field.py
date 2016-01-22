@@ -60,11 +60,11 @@ class FunctionField(object):
     this model : it has a verbose name and can be used by HeaderFilter to build
     a column (like regular fields).
     """
-    name         = "" #name of the attr if the related model class
-    verbose_name = "" #verbose name (used by HeaderFilter)
-    has_filter   = False #see EntityCell.has_a_filter
-    is_hidden    = False #see EntityCell.is_hidden
-    choices      = None #Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
+    name         = ""  # Name of the attr if the related model class
+    verbose_name = ""  # Verbose name (used by HeaderFilter)
+    has_filter   = False  # See EntityCell.has_a_filter
+    is_hidden    = False  # See EntityCell.is_hidden
+    choices      = None  # Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
     result_type  = FunctionFieldResult
 
     @classmethod
@@ -73,15 +73,14 @@ class FunctionField(object):
 
     def __call__(self, entity):
         """"@return An instance of FunctionField object
-        (so you can call for_html()/for_csv() on the result)."""
-#        return FunctionFieldResult(getattr(entity, self.name)())
+        (so you can call for_html()/for_csv() on the result).
+        """
         return self.result_type(getattr(entity, self.name)())
 
     @classmethod
     def populate_entities(cls, entities):
         """Optimisation used for listviews ; see HeaderFilter"""
         pass
-
 
 
 class FunctionFieldResultsList(FunctionFieldResult):

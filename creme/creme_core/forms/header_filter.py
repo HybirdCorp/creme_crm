@@ -23,11 +23,11 @@ from json import dumps as json_dump
 
 from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
-from django.forms.utils import flatatt # ErrorList
+from django.forms.utils import flatatt
 from django.forms.widgets import Widget
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _ #, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -46,7 +46,7 @@ _FFIELD_PREFIX = EntityCellFunctionField.type_id + '-'
 _RTYPE_PREFIX  = EntityCellRelation.type_id + '-'
 
 
-#TODO: move to a separated file ??
+# TODO: move to a separated file ??
 class EntityCellsWidget(Widget):
     def __init__(self, user=None, model=None, model_fields=(), model_subfields=None, custom_fields=(),
                  function_fields=(), relation_types=(), *args, **kwargs
@@ -80,7 +80,7 @@ class EntityCellsWidget(Widget):
                         for field_id, field_vname in self.function_fields
                     )
 
-        #missing CustomFields and Relationships
+        # Missing CustomFields and Relationships
 
         for entity in EntityCredentials.filter(user, self.model.objects.order_by('-modified'))[:2]:
             dump = {}
@@ -156,8 +156,8 @@ class EntityCellsField(Field):
         return EntityCellRelation(self._get_rtype(name[len(_RTYPE_PREFIX):]))
 
     def _choices_4_customfields(self, ct, builders):
-        self._custom_fields = CustomField.objects.filter(content_type=ct) #cache
-        self.widget.custom_fields = cfields_choices = [] #TODO: sort ?
+        self._custom_fields = CustomField.objects.filter(content_type=ct)  # Cache
+        self.widget.custom_fields = cfields_choices = []  # TODO: sort ?
 
         for cf in self._custom_fields:
             field_id = _CFIELD_PREFIX + str(cf.id)
@@ -165,14 +165,14 @@ class EntityCellsField(Field):
             builders[field_id] = EntityCellsField._build_4_customfield
 
     def _choices_4_functionfields(self, ct, builders):
-        self.widget.function_fields = ffields_choices = [] #TODO: sort ?
+        self.widget.function_fields = ffields_choices = []  # TODO: sort ?
 
         for f in ct.model_class().function_fields:
             field_id = _FFIELD_PREFIX + f.name
             ffields_choices.append((field_id, f.verbose_name))
             builders[field_id] = EntityCellsField._build_4_functionfield
 
-    def _regular_fields_enum(self, model): #this separated method make overloading easier (see reports)
+    def _regular_fields_enum(self, model):  # This separated method make overloading easier (see reports)
 #        return ModelFieldEnumerator(model, deep=1, only_leafs=False).filter(viewable=True)
 
         # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
@@ -214,18 +214,18 @@ class EntityCellsField(Field):
         # TODO: remove subfields with len() == 1 (done in template for now)
         widget = self.widget
         widget.model_fields = rfields_choices = []
-        widget.model_subfields = subfields_choices = defaultdict(list) #TODO: sort too ??
+        widget.model_subfields = subfields_choices = defaultdict(list)  # TODO: sort too ??
 
         for fields_info in self._regular_fields_enum(ct.model_class()):
             choices = rfields_choices if len(fields_info) == 1 else \
-                      subfields_choices[_RFIELD_PREFIX + fields_info[0].name] #FK, M2M
+                      subfields_choices[_RFIELD_PREFIX + fields_info[0].name]  # FK, M2M
 
             field_id = _RFIELD_PREFIX + '__'.join(field.name for field in fields_info)
             choices.append((field_id, unicode(fields_info[-1].verbose_name)))
             builders[field_id] = EntityCellsField._build_4_regularfield
 
         sort_key = collator.sort_key
-        sort_choice = lambda k: sort_key(k[1]) #TODO: in utils ?
+        sort_choice = lambda k: sort_key(k[1])  # TODO: in utils ?
         rfields_choices.sort(key=sort_choice)
 
         for subfield_choices in subfields_choices.itervalues():
@@ -234,7 +234,7 @@ class EntityCellsField(Field):
     def _choices_4_relationtypes(self, ct, builders):
         # Cache
         self._relation_types = RelationType.get_compatible_ones(ct, include_internals=True) \
-                                           .order_by('predicate') #TODO: unicode collation
+                                           .order_by('predicate')  # TODO: unicode collation
         # TODO: sort ? smart categories ('all', 'contacts') ?
         self.widget.relation_types = rtypes_choices = []
 
@@ -256,8 +256,7 @@ class EntityCellsField(Field):
             self._model_fields = self._model_subfields = self._custom_fields \
                                = self._function_fields = self._relation_types \
                                = ()
-            self.widget.model = None #TODO: test..
-            #self.widget.model_fields = () TODO: etc... (widget.reset() ??)
+            self.widget.model = None  # TODO: test..
         else:
             self.widget.model = ct.model_class()
 
@@ -295,7 +294,7 @@ class EntityCellsField(Field):
     def user(self, user):
         self._user = self.widget.user = user
 
-    #TODO: to_python() + validate() instead ??
+    # TODO: to_python() + validate() instead ??
     def clean(self, value):
         assert self._content_type
         cells = []
@@ -318,7 +317,7 @@ class EntityCellsField(Field):
         return cells
 
 
-#TODO: create and edit form ????
+# TODO: create and edit form ????
 class HeaderFilterForm(CremeModelForm):
     cells = EntityCellsField(label=_(u'Columns'))
 
@@ -363,7 +362,6 @@ class HeaderFilterForm(CremeModelForm):
                 owner = cdata.get('user')
 
                 if not owner:
-                    #self.errors['user'] = ErrorList([ugettext(u'A private view of list must be assigned to a user/team.')])
                     self.add_error('user', _(u'A private view of list must be assigned to a user/team.'))
                 else:
                     req_user = self.user
@@ -371,7 +369,6 @@ class HeaderFilterForm(CremeModelForm):
                     if not req_user.is_staff:
                         if owner.is_team:
                             if req_user.id not in owner.teammates:
-                                #self.errors['user'] = ErrorList([ugettext(u'A private view of list must belong to you (or one of your teams).')])
                                 self.add_error('user', _(u'A private view of list must belong to you (or one of your teams).'))
                         elif owner != req_user:
                             self.add_error('user', _(u'A private view of list must belong to you (or one of your teams).'))

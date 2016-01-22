@@ -12,7 +12,7 @@ try:
     from django.utils.timezone import localtime
     from django.utils.translation import ugettext as _, pgettext
 
-    from ..base import CremeTestCase # skipIfNotInstalled
+    from ..base import CremeTestCase
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_DISCOUNT_UNIT
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation,
@@ -24,10 +24,6 @@ try:
     from creme.creme_core.gui.field_printers import field_printers_registry
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.models import CremeEntity, SetCredentials, Language
-
-    #from creme.media_managers.models import Image, MediaCategory
-
-    #from creme.persons.models import Contact, Organisation, Position
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -36,19 +32,13 @@ class GuiTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-#        cls.populate('creme_core', 'creme_config')
         cls.populate('creme_core')
 
     def test_last_viewed_items(self):
-#        settings.MAX_LAST_ITEMS = MAX_LAST_ITEMS = 5
         settings.MAX_LAST_ITEMS = 5
         user = self.login()
 
         class FakeRequest(object):
-#            def __init__(self):
-#                sessions = Session.objects.all()
-#                assert 1 == len(sessions)
-#                self.session = sessions[0].get_decoded()
             def __init__(this):
                 user_id = str(user.id)
                 sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
@@ -58,8 +48,6 @@ class GuiTestCase(CremeTestCase):
                 this.session = sessions[0]
 
         def get_items():
-            #with self.assertNoException():
-                #return FakeRequest().session['last_viewed_items']
             return LastViewedItem.get_all(FakeRequest())
 
         self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
@@ -71,11 +59,9 @@ class GuiTestCase(CremeTestCase):
         contact04 = create_contact(first_name='Griffith', last_name='Femto')
 
         self.assertGET200(contact01.get_absolute_url())
-        #self.assertEqual(1, len(LastViewedItem.get_all(FakeRequest())))
         items = get_items()
         self.assertEqual(1, len(items))
         self.assertEqual(contact01.pk, items[0].pk)
-        #self.assertEqual(MAX_LAST_ITEMS, items.maxlen)
 
         self.assertGET200(contact02.get_absolute_url())
         self.assertGET200(contact03.get_absolute_url())
@@ -96,7 +82,6 @@ class GuiTestCase(CremeTestCase):
 
         self.assertGET200(contact02.get_absolute_url())
         self.assertEqual([contact02.pk, contact04.pk, contact03.pk, contact01.pk],
-                         #[i.pk for i in get_items()]
                          [i.pk for i in get_items()]
                         )
 
@@ -107,7 +92,6 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual([contact02.pk, contact04.pk, contact01.pk],
                          [i.pk for i in items]
                         )
-        #self.assertEqual(MAX_LAST_ITEMS, items.maxlen)
 
         contact04.trash()
         self.assertGET200(Contact.get_lv_absolute_url())
@@ -156,9 +140,9 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(u'<em>%s</em>' % pgettext('persons-is_user', 'None'),
                          get_html_val(casca, 'is_user', user)
                         )
-        self.assertEqual('', get_csv_val(casca,  'is_user', user)) #null_label not used in csv backend
+        self.assertEqual('', get_csv_val(casca, 'is_user', user))  # Null_label not used in CSV backend
 
-#NB: temporarily tested in media_managers
+# NB: temporarily tested in media_managers
 #        self.assertEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
 #                                casca.image.get_image_url(),
 #                                casca.image.get_entity_summary(user),
@@ -194,13 +178,6 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('', get_html_val(judo, 'image__description', user))
         self.assertEqual('', get_html_val(judo, 'image__categories',  user))
 
-        ##todo: move this in login()
-        #user.username = 'kirika'
-        #user.first_name = 'Kirika'
-        #user.last_name = 'Yumura'
-        ##user.save()
-        #self.assertNotEqual(unicode(user), user.username)
-
         self.assertEqual(unicode(user), get_html_val(casca, 'image__user', user))           #depth = 2
         self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user)) #depth = 3
 
@@ -208,22 +185,6 @@ class GuiTestCase(CremeTestCase):
         "ManyToMany (simple model)"
         user = self.login()
 
-#        create_cat = MediaCategory.objects.create
-#        cat1 = create_cat(name='Photo of contact')
-#        cat2 = create_cat(name='Photo of product')
-#
-#        img = Image.objects.create(user=user, name='Img#1', description='Pretty picture')
-#        img.categories = [cat1, cat2]
-#
-#        get_html_val = field_printers_registry.get_html_field_value
-#        result = '<ul><li>%s</li><li>%s</li></ul>' % (cat1.name, cat2.name)
-#        self.assertEqual(result, get_html_val(img, 'categories', user))
-#        self.assertEqual(result, get_html_val(img, 'categories__name', user))
-#
-#        get_csv_val = field_printers_registry.get_csv_field_value
-#        result = '%s/%s' % (cat1.name, cat2.name)
-#        self.assertEqual(result, get_csv_val(img, 'categories', user))
-#        self.assertEqual(result, get_csv_val(img, 'categories__name', user))
         create_lang = Language.objects.create
         lang1 = create_lang(name='Klingon')
         lang2 = create_lang(name='Namek')
@@ -248,12 +209,8 @@ class GuiTestCase(CremeTestCase):
                          get_csv_val(goku, 'languages__name', user)
                         )
 
-#    @skipIfNotInstalled('creme.emails')
     def test_field_printers03(self):
         "ManyToMany (CremeEntity)"
-#        from creme.emails.models import EmailCampaign, MailingList
-
-#        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'emails'])
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes = [ContentType.objects.get_for_model(EmailCampaign)]
         SetCredentials.objects.create(role=self.role,
@@ -312,7 +269,6 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers04(self):
         "Credentials"
-#        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'persons', 'media_managers'])
         user = self.login(is_superuser=False, allowed_apps=['creme_core'])
         self.role.exportable_ctypes = [ContentType.objects.get_for_model(Contact)]
         SetCredentials.objects.create(role=self.role,
@@ -335,10 +291,6 @@ class GuiTestCase(CremeTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-#        self.assertEqual(u'<a onclick="creme.dialogs.image(\'%s\').open();">%s</a>' % (judo_face.get_image_url(), 
-#                                                                                       judo_face.get_entity_summary(user)),
-#                         get_html_val(judo, 'image', user)
-#                        )
         self.assertEqual(u'<a href="%s">%s</a>' % (judo_face.get_absolute_url(), judo_face),
                          get_html_val(judo, 'image', user)
                         )
@@ -360,23 +312,6 @@ class GuiTestCase(CremeTestCase):
         "Boolean Field"
         user = self.login()
 
-#        create_orga = partial(Organisation.objects.create, user=user)
-#        orga1 = create_orga(name='God hand', subject_to_vat=False)
-#        orga2 = create_orga(name='Hawk',     subject_to_vat=True)
-#
-#        get_html_val = field_printers_registry.get_html_field_value
-#        #self.assertEqual(u'<input type="checkbox" value="False" disabled/>' + _('No'),
-#        self.assertEqual(u'<input type="checkbox" disabled/>' + _('No'),
-#                         get_html_val(orga1, 'subject_to_vat', user)
-#                        )
-#        #self.assertEqual(u'<input type="checkbox" value="True" checked disabled/>' + _('Yes'),
-#        self.assertEqual(u'<input type="checkbox" checked disabled/>' + _('Yes'),
-#                         get_html_val(orga2, 'subject_to_vat', user)
-#                        )
-#
-#        get_csv_val  = field_printers_registry.get_csv_field_value
-#        self.assertEqual(_('No'),  get_csv_val(orga1, 'subject_to_vat', user))
-#        self.assertEqual(_('Yes'), get_csv_val(orga2, 'subject_to_vat', user))
         create_contact = partial(Contact.objects.create, user=user)
         casca = create_contact(first_name='Casca', last_name='Mylove', is_a_nerd=False)
         judo  = create_contact(first_name='Judo',  last_name='Doe',    is_a_nerd=True)

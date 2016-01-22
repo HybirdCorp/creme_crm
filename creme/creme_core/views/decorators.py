@@ -36,6 +36,7 @@ def POST_only(view):
 
     return POST_view
 
+
 def require_model_fields(model, *field_names):
     def _decorator(view):
         @wraps(view)

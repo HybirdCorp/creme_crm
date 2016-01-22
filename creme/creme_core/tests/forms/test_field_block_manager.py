@@ -5,7 +5,6 @@ try:
 
     from ..fake_forms import FakeContactForm
     from ..base import CremeTestCase
-#    from creme.creme_core.forms.base import FieldBlockManager
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -87,7 +86,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
 
         class TestFakeContactForm(FakeContactForm):
             class Meta(FakeContactForm.Meta):
-                exclude = ('mobile', ) # <===
+                exclude = ('mobile', )  # <===
 
             blocks = FakeContactForm.blocks.new((block_id, block_vname,
                                                  # 'mobile' is excluded

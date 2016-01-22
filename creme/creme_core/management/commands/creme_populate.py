@@ -27,8 +27,6 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models.signals import pre_save
-# from django.utils import translation
-# from django.conf import settings
 
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.collections import OrderedSet
@@ -93,10 +91,11 @@ class Command(BaseCommand):
             self.models.add(sender)
 
     def handle(self, *app_names, **options):
-        # translation.activate(settings.LANGUAGE_CODE)
-
         verbosity = int(options.get('verbosity'))
-        all_apps = OrderedSet(creme_app.name for creme_app in creme_registry.iter_apps())  # eg: 'persons', 'creme_core'...
+
+        # eg: 'persons', 'creme_core'...
+        all_apps = OrderedSet(creme_app.name for creme_app in creme_registry.iter_apps())
+
         apps_2_populate = all_apps if not app_names else \
                           [_checked_app_label(app, all_apps) for app in app_names]
 

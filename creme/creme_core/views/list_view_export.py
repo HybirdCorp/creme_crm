@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,17 +24,18 @@ from django.db.models import Q
 from django.http import Http404
 from django.utils.encoding import smart_str
 
-from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.gui.listview import ListViewState
-from creme.creme_core.models import EntityFilter, EntityCredentials, HeaderFilter
-from creme.creme_core.registry import export_backend_registry
-from creme.creme_core.utils import get_ct_or_404
-from creme.creme_core.utils.chunktools import iter_as_slices
+from ..auth.decorators import login_required
+from ..gui.listview import ListViewState
+from ..models import EntityFilter, EntityCredentials, HeaderFilter
+from ..registry import export_backend_registry
+from ..utils import get_ct_or_404
+from ..utils.chunktools import iter_as_slices
 
 
 logger = logging.getLogger(__name__)
 
-#TODO: stream response ??
+
+# TODO: stream response ??
 @login_required
 def dl_listview(request, ct_id, doc_type, header_only=False):
     ct    = get_ct_or_404(ct_id)
@@ -52,12 +53,11 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
 
     # TODO: factorise (with list_view()) ?? in a ListViewState's method ???
     hf = HeaderFilter.objects.get(pk=current_lvs.header_filter_id)
-#    cells = hf.cells
     cells = hf.filtered_cells
 
     writer = backend()
     writerow = writer.writerow
-    writerow([smart_str(cell.title) for cell in cells])  # doesn't accept generator expression... ;(
+    writerow([smart_str(cell.title) for cell in cells])  # Doesn't accept generator expression... ;(
 
     if not header_only:
         current_lvs.handle_research(request, cells)
@@ -98,6 +98,7 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
     writer.save(ct.model)
 
     return writer.response
+
 
 @login_required
 def dl_listview_header(request, ct_id, doc_type):

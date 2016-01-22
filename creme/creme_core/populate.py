@@ -19,7 +19,7 @@
 ################################################################################
 
 from decimal import Decimal
-#import logging
+# import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -33,7 +33,7 @@ from .models import (RelationType, CremePropertyType, SettingValue, Currency, La
 from .setting_keys import block_opening_key, block_showempty_key, currency_symbol_key
 from .utils import create_if_needed
 
-#logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -84,8 +84,6 @@ class Populator(BasePopulator):
             create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
             create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
 
-            #BlockPortalLocation.create_empty_config() #default portal
-            #BlockPortalLocation.create_empty_config('creme_core') #home
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT)
             BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT)
             BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT)

@@ -25,11 +25,12 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _
 
 
-#alias in order the user to only import this module (& not the django one)
+# Alias in order the user to only import this module (& not the django one)
 login_required = original_decorators.login_required
 
-#TODO: raise our own exception in order to set a better message ?
+# TODO: raise our own exception in order to set a better message ?
 permission_required = partial(original_decorators.permission_required, raise_exception=True)
+
 
 def _check_superuser(user):
     if user.is_superuser:

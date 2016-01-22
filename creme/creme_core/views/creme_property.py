@@ -21,10 +21,9 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
-#from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _, ungettext
 
-#TODO: move them to creme_core ?
+# TODO: move them to creme_core ?
 from creme.creme_config.forms.creme_property_type import CremePropertyTypeAddForm, CremePropertyTypeEditForm
 
 from ..auth.decorators import login_required, permission_required
@@ -32,17 +31,20 @@ from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
 from ..gui.block import QuerysetBlock, Block
 from ..models import CremeEntity, CremePropertyType
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
-from .blocks import _get_depblock_ids, build_context # TODO: make _get_depblock_ids public ??
+from .blocks import _get_depblock_ids, build_context  # TODO: make _get_depblock_ids public ??
 from .generic import inner_popup, add_to_entity as generic_add_to_entity
 
-#TODO: Factorise with views in creme_config
+# TODO: Factorise with views in creme_config
 
+
+# TODO: Factorise with add_relations_bulk and bulk_update?
 @login_required
-def add_properties_bulk(request, ct_id):#TODO: Factorise with add_relations_bulk and bulk_update?
+def add_properties_bulk(request, ct_id):
     user     = request.user
     model    = get_ct_or_404(ct_id).model_class()
-    #entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
-    entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or request.GET.getlist('ids'))
+    entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or
+                                             request.GET.getlist('ids')
+                              )
 
     CremeEntity.populate_real_entities(entities)
 
@@ -76,6 +78,7 @@ def add_properties_bulk(request, ct_id):#TODO: Factorise with add_relations_bulk
                        delegate_reload=True,
                       )
 
+
 @login_required
 def add_to_entity(request, entity_id):
     return generic_add_to_entity(request, entity_id, AddPropertiesForm,
@@ -83,11 +86,12 @@ def add_to_entity(request, entity_id):
                                  submit_label=_('Add the properties'),
                                 )
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def add_type(request):
-    #NB Does not work because it is not a ModelForm
-    #return add_entity(request, CremePropertyTypeAddForm)
+    # NB: does not work because it is not a ModelForm
+    # return add_entity(request, CremePropertyTypeAddForm)
 
     if request.method == 'POST':
         POST = request.POST
@@ -99,7 +103,7 @@ def add_type(request):
             return redirect(ptype)
 
         cancel_url = POST.get('cancel_url')
-    else: #GET
+    else:  # GET
         form = CremePropertyTypeAddForm(user=request.user)
         cancel_url = request.META.get('HTTP_REFERER')
 
@@ -110,6 +114,7 @@ def add_type(request):
                    'cancel_url':   cancel_url,
                   }
                  )
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -129,7 +134,7 @@ def edit_type(request, ptype_id):
             return redirect(ptype)
 
         cancel_url = POST.get('cancel_url')
-    else: #GET
+    else:  # GET
         form = CremePropertyTypeEditForm(ptype, user=request.user)
         cancel_url = request.META.get('HTTP_REFERER')
 
@@ -140,6 +145,7 @@ def edit_type(request, ptype_id):
                    'cancel_url': cancel_url,
                   }
                  )
+
 
 @login_required
 def delete_from_type(request):
@@ -155,6 +161,7 @@ def delete_from_type(request):
         return HttpResponse(content_type='text/javascript')
 
     return redirect(ptype)
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -228,7 +235,8 @@ class TaggedEntitiesBlock(QuerysetBlock):
                     model.objects.filter(properties__type=ptype),
                     update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
                     ptype_id=ptype.id,
-                    ctype=ctype, #if the model is inserted in the context, the template call it and create an instance...
+                    ctype=ctype,  # If the model is inserted in the context,
+                                  #  the template call it and create an instance...
                     short_title=verbose_name,
                 )
 
@@ -285,6 +293,7 @@ def type_detailview(request, ptype_id):
                   }
                  )
 
+
 @login_required
 @jsonify
 def reload_block(request, ptype_id, block_id):
@@ -292,8 +301,6 @@ def reload_block(request, ptype_id, block_id):
     block_renders = []
     ctypes = ptype.subject_ctypes.all()
 
-#    context = RequestContext(request)
-#    context['object'] = ptype
     context = build_context(request, object=ptype)
 
     for b_id in _get_depblock_ids(request, block_id):

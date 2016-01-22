@@ -24,6 +24,7 @@ from django.utils.translation import ugettext as _
 
 register = template.Library()
 
+
 @register.filter(name="timedelta_pprint")
 def timedelta_pprint(timedelta_):
     days = timedelta_.days

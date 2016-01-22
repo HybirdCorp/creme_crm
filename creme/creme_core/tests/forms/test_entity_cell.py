@@ -9,8 +9,6 @@ try:
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, CustomField
-
-    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -68,7 +66,11 @@ class EntityCellsFieldTestCase(FieldTestCase):
         funcfield = Contact.function_fields.get('get_pretty_properties')
 
         field = EntityCellsField(content_type=self.ct_contact)
-        cells = field.clean('relation-%s,regular_field-last_name,function_field-%s,custom_field-%s,regular_field-first_name' % (
+        cells = field.clean('relation-%s,'
+                            'regular_field-last_name,'
+                            'function_field-%s,'
+                            'custom_field-%s,'
+                            'regular_field-first_name' % (
                                     loves.id, funcfield.name, customfield.id,
                                 )
                            )

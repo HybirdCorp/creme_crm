@@ -34,7 +34,8 @@ def validate_editable_entities(entities, user):
 
     return entities
 
-#TODO: factorise ??
+
+# TODO: factorise ??
 def validate_linkable_entities(entities, user):
     has_perm = user.has_perm_to_link
     unlinkable = entities2unicode((e for e in entities if not has_perm(e)), user)
@@ -44,6 +45,7 @@ def validate_linkable_entities(entities, user):
 
     return entities
 
+
 def validate_linkable_entity(entity, user):
     try:
         user.has_perm_to_link_or_die(entity)
@@ -51,6 +53,7 @@ def validate_linkable_entity(entity, user):
         raise ValidationError(unicode(e))
 
     return entity
+
 
 def validate_linkable_model(model, user, owner):
     if not user.has_perm_to_link(model, owner=owner):

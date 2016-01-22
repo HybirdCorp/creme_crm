@@ -133,11 +133,11 @@ class DatePeriodTestCase(CremeTestCase):
                         )
         self.assertRRuleEqual(rrule_every_month, every_month.as_rrule())
 
-        #TODO
-        ##self.assertEqual(create_dt(year=2014, month=10, day=27, hour=18, minute=22),
-        #self.assertEqual(create_dt(year=2014, month=10, day=27, hour=17, minute=22),
-                         #now_value + get('months', 4).as_timedelta()
-                        #)
+        # TODO
+        # #self.assertEqual(create_dt(year=2014, month=10, day=27, hour=18, minute=22),
+        # self.assertEqual(create_dt(year=2014, month=10, day=27, hour=17, minute=22),
+        #                  now_value + get('months', 4).as_timedelta()
+        #                 )
 
     def test_weeks(self):
         get = date_period_registry.get_period

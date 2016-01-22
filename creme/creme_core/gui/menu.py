@@ -24,14 +24,14 @@ from django.utils.encoding import smart_str, smart_unicode
 
 from ..registry import creme_registry
 
-#TODO: merge the 2 menu api (idea: use tags ?)
-#TODO: refactor code.....
+# TODO: merge the 2 menu api (idea: use tags ?)
+# TODO: refactor code.....
 
 
 logger = logging.getLogger(__name__)
 
 
-######################### 1rst Menu API #########################################
+# ####################### 1rst Menu API ########################################
 
 class MenuItem(object):
     __slots__ = ('url', 'name', 'perm')
@@ -88,10 +88,10 @@ class CremeMenu(object):
     def get_item_name(self, item_url):
         for app_item in self._app_items.itervalues():
             for item in app_item:
-                if smart_unicode(item.url) == smart_unicode(item_url): #TODO: smartunicode useful ???
+                if smart_unicode(item.url) == smart_unicode(item_url):  # TODO: smart_unicode useful ???
                     return item.name
 
-        return '' #TODO: None ? exception ??
+        return ''  # TODO: None ? exception ??
 
     def register_app(self, app_name, app_url, name=None, force_order=None):
         """@param force_order Order of the item in the menu ; None if the verbose_name is use as key."""
@@ -108,9 +108,9 @@ class CremeMenu(object):
 creme_menu = CremeMenu()
 
 
-######################### 2nd Menu API #########################################
+# ######################## 2nd Menu API ########################################
 
-#NB: use for customers who don't want the regular per app menu.
+# NB: use for customers who don't want the regular per app menu.
 
 class FolderMenu(object):
     def __init__(self, folder_name, folder_url, order, folder_menu_name=None):

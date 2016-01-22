@@ -19,7 +19,6 @@
 ################################################################################
 
 from datetime import datetime
-#from optparse import make_option, OptionParser
 from os import listdir, makedirs
 from os.path import join, exists, isdir
 
@@ -40,26 +39,12 @@ class Command(BaseCommand):
            'translation file with the messages containing one of these terms.\n' \
            'The purpose is to overload some terms for a specific instance of your project.'
     args = 'term1 term2 ... termN'
-#    option_list = BaseCommand.option_list + (
-#                     make_option('-l', '--language', action='store', dest='language',
-#                                 default='en', help='Search terms in LANGUAGE files. '
-#                                                    '[default: %default]'
-#                                ),
-#                    )
 
     def add_arguments(self, parser):
         parser.add_argument('-l', '--language',
                             action='store', dest='language', default='en',
                             help='Search terms in LANGUAGE files. [default: %(default)s]',
                            )
-
-#    def create_parser(self, prog_name, subcommand):
-#        return OptionParser(prog=prog_name,
-#                            usage=self.usage(subcommand),
-#                            version=self.get_version(),
-#                            option_list=self.option_list,
-#                            conflict_handler='resolve',
-#                           )
 
     def handle(self, *args, **options):
         if not args:
@@ -136,7 +121,7 @@ class Command(BaseCommand):
 
                             # TODO: manage context (key=msgid + context ?)
                             if existing_entry is not None:
-                                if existing_entry.obsolete: #entry has not been updated yet
+                                if existing_entry.obsolete:  # Entry has not been updated yet
                                     existing_entry.obsolete = False
                                     existing_entry.occurrences = entry.occurrences
                                 else:
