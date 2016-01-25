@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -112,12 +112,12 @@ class CremeEntity(CremeAbstractEntity):
         return unicode(self) if user.has_perm_to_view(self) else \
                ugettext(u'Entity #%s (not viewable)') % self.id
 
-    @staticmethod
-    def get_real_entity_by_id(pk):
-        warnings.warn("CremeEntity.get_real_entity_by_id() method is deprecated (because it is probably useless).",
-                      DeprecationWarning
-                     )
-        return CremeEntity.objects.get(pk=pk).get_real_entity()
+    # @staticmethod
+    # def get_real_entity_by_id(pk):
+    #     warnings.warn("CremeEntity.get_real_entity_by_id() method is deprecated (because it is probably useless).",
+    #                   DeprecationWarning
+    #                  )
+    #     return CremeEntity.objects.get(pk=pk).get_real_entity()
 
     def get_real_entity(self):
         return self._get_real_entity(CremeEntity)

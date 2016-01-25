@@ -1782,7 +1782,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_unknown_efilter01(self):
         "EntityFilter does not exist"
         self.assertFieldValidationError(FilteredEntityTypeField, 'invalidefilter',
-                                        FilteredEntityTypeField().clean,
+                                        FilteredEntityTypeField(user=self.user).clean,
                                         self.format_str % (self.ct_contact.id, 'idonotexist')
                                        )
 
@@ -1790,7 +1790,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
         "Content type does not correspond to EntityFilter"
         efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
         self.assertFieldValidationError(FilteredEntityTypeField, 'invalidefilter',
-                                        FilteredEntityTypeField().clean,
+                                        FilteredEntityTypeField(user=self.user).clean,
                                         self.format_str % (self.ct_contact.id, efilter.id)
                                        )
 
@@ -1861,14 +1861,14 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                          field.clean(self.format_str % (ct.id, efilter.id))
                         )
 
-    def test_clean_with_filter03(self):
-        "Private invisible filter -> no user (deprecated)"
-        efilter = EntityFilter.create('test-filter01', 'John', Contact, is_custom=True,
-                                      user=self.other_user, is_private=True,
-                                     )
-        field = FilteredEntityTypeField()
-        # field.user = user # <====
-        ct = self.ct_contact
-        self.assertEqual((ct, efilter),
-                         field.clean(self.format_str % (ct.id, efilter.id))
-                        )
+    # def test_clean_with_filter03(self):
+    #     "Private invisible filter -> no user (deprecated)"
+    #     efilter = EntityFilter.create('test-filter01', 'John', Contact, is_custom=True,
+    #                                   user=self.other_user, is_private=True,
+    #                                  )
+    #     field = FilteredEntityTypeField()
+    #     # field.user = user # <====
+    #     ct = self.ct_contact
+    #     self.assertEqual((ct, efilter),
+    #                      field.clean(self.format_str % (ct.id, efilter.id))
+    #                     )

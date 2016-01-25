@@ -115,11 +115,11 @@ class _CremeTestCase(object):
     def populate(cls, *args):
         PopulateCommand().execute(*args, verbosity=0)
 
-    @staticmethod
-    def autodiscover():
-        warnings.warn("_CremeTestCase.autodiscover() method is deprecated.",
-                      DeprecationWarning
-                     )
+    # @staticmethod
+    # def autodiscover():
+    #     warnings.warn("_CremeTestCase.autodiscover() method is deprecated.",
+    #                   DeprecationWarning
+    #                  )
 
     def assertDatetimesAlmostEqual(self, dt1, dt2, seconds=10):
         delta = max(dt1, dt2) - min(dt1, dt2)
@@ -208,55 +208,55 @@ class _CremeTestCase(object):
 
             self.fail(msg)
 
-    def assertFormSetError(self, response, form, index, fieldname, expected_errors=None):
-        """Warning : this method has not the same behaviour than assertFormError()
-        It checks both error and no error tests.
-        """
-        warnings.warn("_CremeTestCase.assertFormSetError() method is deprecated; use assertFormsetError() instead",
-                      DeprecationWarning
-                     )
-
-        self.assertIn(form, response.context)
-        fieldname = fieldname or '__all__'
-
-        self.assertIsInstance(response.context[form], BaseFormSet, "context field '%s' is not a FormSet")
-        self.assertGreaterEqual(index, 0)
-
-        all_errors = response.context[form].errors
-
-        if not all_errors:
-            if expected_errors:
-                self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
-                                fieldname, form, index, expected_errors
-                            )
-                         )
-            return
-
-        self.assertLess(index, len(all_errors))
-
-        errors = all_errors[index]
-        has_field_error = fieldname in errors.keys()
-
-        if not has_field_error and not expected_errors:
-            return
-
-        if not has_field_error and expected_errors:
-            self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
-                            fieldname, form, index, expected_errors
-                        )
-                     )
-
-        if has_field_error and not expected_errors:
-            self.fail("The field '%s' on formset '%s' number %d contains errors:%s, expected none" % (
-                            fieldname, form, index, errors[fieldname]
-                        )
-                     )
-
-        self.assertItemsEqual(expected_errors, errors[fieldname],
-                              "The field '%s' on formset '%s' number %d errors are:%s, expected:%s" % (
-                                    fieldname, form, index, errors[fieldname], expected_errors
-                                )
-                             )
+    # def assertFormSetError(self, response, form, index, fieldname, expected_errors=None):
+    #     """Warning : this method has not the same behaviour than assertFormError()
+    #     It checks both error and no error tests.
+    #     """
+    #     warnings.warn("_CremeTestCase.assertFormSetError() method is deprecated; use assertFormsetError() instead",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     self.assertIn(form, response.context)
+    #     fieldname = fieldname or '__all__'
+    #
+    #     self.assertIsInstance(response.context[form], BaseFormSet, "context field '%s' is not a FormSet")
+    #     self.assertGreaterEqual(index, 0)
+    #
+    #     all_errors = response.context[form].errors
+    #
+    #     if not all_errors:
+    #         if expected_errors:
+    #             self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
+    #                             fieldname, form, index, expected_errors
+    #                         )
+    #                      )
+    #         return
+    #
+    #     self.assertLess(index, len(all_errors))
+    #
+    #     errors = all_errors[index]
+    #     has_field_error = fieldname in errors.keys()
+    #
+    #     if not has_field_error and not expected_errors:
+    #         return
+    #
+    #     if not has_field_error and expected_errors:
+    #         self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
+    #                         fieldname, form, index, expected_errors
+    #                     )
+    #                  )
+    #
+    #     if has_field_error and not expected_errors:
+    #         self.fail("The field '%s' on formset '%s' number %d contains errors:%s, expected none" % (
+    #                         fieldname, form, index, errors[fieldname]
+    #                     )
+    #                  )
+    #
+    #     self.assertItemsEqual(expected_errors, errors[fieldname],
+    #                           "The field '%s' on formset '%s' number %d errors are:%s, expected:%s" % (
+    #                                 fieldname, form, index, errors[fieldname], expected_errors
+    #                             )
+    #                          )
 
     # TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
@@ -406,14 +406,14 @@ class _CremeTestCase(object):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
 
-    def create_image(self, ident=1, user=None):
-        warnings.warn("_CremeTestCase.create_image() method is deprecated; "
-                      "use creme.media_managers.tests.create_image() instead",
-                      DeprecationWarning
-                     )
-
-        from creme.media_managers.tests import create_image
-        return create_image(user or self.user, ident)
+    # def create_image(self, ident=1, user=None):
+    #     warnings.warn("_CremeTestCase.create_image() method is deprecated; "
+    #                   "use creme.media_managers.tests.create_image() instead",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     from creme.media_managers.tests import create_image
+    #     return create_image(user or self.user, ident)
 
     def get_object_or_fail(self, model, **kwargs):
         try:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from functools import partial
 from itertools import chain
-import warnings
+# import warnings
 
 from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist, DateField
 
@@ -99,11 +99,11 @@ def is_date_field(field):
     return isinstance(field, DateField)
 
 
-def get_date_fields(model, exclude_func=lambda f: False):
-    warnings.warn("get_date_fields() function is deprecated (because it is probably useless).",
-                  DeprecationWarning
-                 )
-    return [field for field in model._meta.fields if is_date_field(field) and not exclude_func(field)]
+# def get_date_fields(model, exclude_func=lambda f: False):
+#     warnings.warn("get_date_fields() function is deprecated (because it is probably useless).",
+#                   DeprecationWarning
+#                  )
+#     return [field for field in model._meta.fields if is_date_field(field) and not exclude_func(field)]
 
 
 # ModelFieldEnumerator -------------------------------------------------------

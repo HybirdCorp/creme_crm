@@ -103,14 +103,7 @@ creme.utils.showDialog = function(text, options, div_id) {
     }*/
 }
 
-//creme.utils.bindShowHideTbody = function(root) {
-//    console.warn('this functions is deprecated. creme.blocks.bindEvents do the same work.');
-//    $('.table_detail_view', root).find('.collapser').each(function() {
-//        creme.blocks.bindTableToggle($(this));
-//    });
-//}
-
-// TODO : only used by menu, so refactor it when horizontal menu will replace old one. 
+// TODO : only used by menu, so refactor it when horizontal menu will replace old one.
 creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factorise (see ajaxDelete()) ??
     creme.dialogs.confirm(gettext("Are you sure ?"))
                  .onOk(function() {
@@ -359,52 +352,6 @@ creme.utils.innerPopupNReload = function(url, reload_url) {
         }
     });
 }
-
-//creme.utils.handleResearch = function(target_node_id, from) {
-//    console.warn('creme.utils.handleResearch() functions is deprecated. Use creme.utils.decorateSearchResult() instead.');
-//
-//    var research = $('[name=research]', from).val();
-//
-//    $.ajax({
-//        url: '/creme_core/search',
-//        type: 'POST',
-//        data: {
-//                ct_id:    $('[name=ct_id]', from).val(),
-//                research: research
-//        },
-//        dataType: 'html',
-//        success: function(data, status, req) {
-//            var root = $('#' + target_node_id);
-//            root.html(data);
-//            creme.blocks.bindEvents(root); //initialize block (or pager and co do not work)
-//
-//            //highlight the word that we are searching
-//            research = research.toLowerCase();
-////             $('div.result').find("td, td *")
-//            root.find('.search_result')
-//                .contents()
-//                .filter(function() {
-//                        if (this.nodeType != Node.TEXT_NODE) return false;
-//                        return this.textContent.toLowerCase().indexOf(research) >= 0;
-//                    })
-//                .wrap($('<mark/>'));
-//
-//            // we update the title ; this is done on client side because pagination is done in the template rendering
-//            // and we want to avoid making the count() queries twice.
-//            var total = 0;
-//            root.find('[search-count]').each(function() {
-//                total += parseInt(this.getAttribute('search-count'));
-//            });
-//            root.find('#search_results_title')
-//                .text(ngettext('Search results: %d entity', 'Search results: %d entities', total).format(total));
-//        },
-//        error: function(req, status, errorThrown) {
-//        },
-//        complete: function() {
-//            document.title = gettext("Search results…");
-//        }
-//    });
-//}
 
 creme.utils.decorateSearchResult = function(research) {
     var research = research.toLowerCase();

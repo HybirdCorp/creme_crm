@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -218,17 +218,16 @@ class JSONField(CharField):
                                       code='doesnotexist',
                                      )
 
-    # DEPRECATED
-    def _create_widget(self):
-        raise NotImplementedError
-
-    def _build_widget(self):
-        warnings.warn("JSONField._build_widget() is deprecated ; "
-                      "set a 'widget' class attribute in your field instead.",
-                      DeprecationWarning
-                     )
-        self.widget = self._create_widget()
-        self.widget.from_python = lambda v: self.from_python(v)
+    # def _create_widget(self):
+    #     raise NotImplementedError
+    #
+    # def _build_widget(self):
+    #     warnings.warn("JSONField._build_widget() is deprecated ; "
+    #                   "set a 'widget' class attribute in your field instead.",
+    #                   DeprecationWarning
+    #                  )
+    #     self.widget = self._create_widget()
+    #     self.widget.from_python = lambda v: self.from_python(v)
 
     def _value_from_unjsonfied(self, data):
         "Build the field value from deserialized data."
@@ -412,10 +411,10 @@ class MultiGenericEntityField(GenericEntityField):
             # Compatibility with older format.
             if data and isinstance(entry.get('ctype'), dict):
                 ctype_choice = clean_value(entry, 'ctype', dict, required=False)
-                ctype_pk  = clean_value(ctype_choice, 'id', int, required=False)
+                ctype_pk = clean_value(ctype_choice, 'id', int, required=False)
             else:
                 warnings.warn('MultiGenericEntityField: old format "ctype": id entry is deprecated.')
-                ctype_pk  = clean_value(entry, 'ctype', int, required=False)
+                ctype_pk = clean_value(entry, 'ctype', int, required=False)
 
             if not ctype_pk:
                 continue
@@ -513,7 +512,7 @@ class RelationEntityField(JSONField):
         clean_value = self.clean_value
         rtype_pk = clean_value(data, 'rtype',  str)
 
-        ctype_pk  = clean_value(data, 'ctype',  int, required=False)
+        ctype_pk = clean_value(data, 'ctype',  int, required=False)
         if not ctype_pk:
             return self._return_none_or_raise(self.required, 'ctyperequired')
 
@@ -877,13 +876,13 @@ class FilteredEntityTypeField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, ctypes=creme_entity_content_types, empty_label=None, *args, **kwargs):
+    def __init__(self, ctypes=creme_entity_content_types, empty_label=None, user=None, *args, **kwargs):
         """Constructor.
         @param ctypes Allowed types.
                         - A callable which returns an iterable of ContentType IDs / instances.
                         - Sequence of ContentType IDs / instances.
         """
-        self.user = None
+        self.user = user
         super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
         self._empty_label = empty_label
         self.ctypes = ctypes
@@ -947,15 +946,16 @@ class FilteredEntityTypeField(JSONField):
             efilter = None
         else:
             try:
-                if self.user:
-                    efilter = EntityFilter.get_for_user(self.user, ct) \
-                                          .get(pk=efilter_pk)
-                else:
-                    warnings.warn("FilteredEntityTypeField.clean(): 'user' attribute has not been set (so privacy cannot be checked)",
-                                  DeprecationWarning
-                                 )
-
-                    efilter = EntityFilter.objects.get(entity_type=ct, pk=efilter_pk)
+                # if self.user:
+                #     efilter = EntityFilter.get_for_user(self.user, ct) \
+                #                           .get(pk=efilter_pk)
+                # else:
+                #     warnings.warn("FilteredEntityTypeField.clean(): 'user' attribute has not been set (so privacy cannot be checked)",
+                #                   DeprecationWarning
+                #                  )
+                #
+                #     efilter = EntityFilter.objects.get(entity_type=ct, pk=efilter_pk)
+                efilter = EntityFilter.get_for_user(self.user, ct).get(pk=efilter_pk)
             except EntityFilter.DoesNotExist:
                 raise ValidationError(self.error_messages['invalidefilter'],
                                       code='invalidefilter',
