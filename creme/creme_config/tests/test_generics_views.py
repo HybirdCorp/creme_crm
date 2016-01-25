@@ -4,7 +4,6 @@ try:
     from json import dumps as json_dump, loads as json_load
 
     from django.apps import apps
-#    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.gui.block import SimpleBlock, _BlockRegistry
@@ -12,10 +11,6 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeCivility as Civility,
             FakeSector as Sector, FakePosition as Position)
-
-#    from creme.persons.models import Civility
-
-#    from creme.billing.models import InvoiceStatus
 
     from ..blocks import generic_models_block
     from ..registry import _ConfigRegistry, NotRegisteredInConfig
@@ -67,8 +62,8 @@ class GenericModelConfigTestCase(CremeTestCase):
             model_conf = app_conf.get_model_conf(model=Sector)
         self.assertIsSubclass(model_conf.model_form, SectorForm)
 
-        with self.assertNoException():
-            model_conf = app_conf.get_model_conf(ContentType.objects.get_for_model(Sector).id)
+        # with self.assertNoException():
+        #     model_conf = app_conf.get_model_conf(ContentType.objects.get_for_model(Sector).id)
 
         self.assertEqual('sector', model_conf.name_in_url)
 
@@ -170,19 +165,14 @@ class GenericModelConfigTestCase(CremeTestCase):
 
         self.assertGET404('/creme_config/unexistingapp/portal/')
 
-#        if 'creme.persons' in settings.INSTALLED_APPS:
         if apps.is_installed('creme.persons'):
             self.assertGET200('/creme_config/persons/portal/')
             self.assertGET200('/creme_config/persons/civility/portal/')
             self.assertGET404('/creme_config/persons/unexistingmodel/portal/')
 
-        #if 'creme.billing' in settings.INSTALLED_APPS:
-            #self.assertGET200('/creme_config/billing/invoice_status/portal/')
-
     def test_add01(self):
         count = Civility.objects.count()
 
-#        url = '/creme_config/persons/civility/add/'
         url = '/creme_config/creme_core/fake_civility/add/'
         self.assertGET200(url)
 
@@ -194,22 +184,6 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(shortcut, civility.shortcut)
 
     def test_add02(self):
-#        count = InvoiceStatus.objects.count()
-#
-#        url = '/creme_config/billing/invoice_status/add/'
-#        self.assertGET200(url)
-#
-#        name = 'Okidoki'
-#        self.assertNoFormError(self.client.post(url, data={'name': name}))
-#        self.assertEqual(count + 1, InvoiceStatus.objects.count())
-#
-#        status = self.get_object_or_fail(InvoiceStatus, name=name, is_custom=True)
-#        self.assertEqual(count + 1, status.order) #order is set to max
-#
-#        name = 'Youkaidi'
-#        self.client.post(url, data={'name': name})
-#        status = self.get_object_or_fail(InvoiceStatus, name=name)
-#        self.assertEqual(count + 2, status.order) #order is set to max
         count = Sector.objects.count()
 
         url = '/creme_config/creme_core/fake_sector/add/'
@@ -220,15 +194,15 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(count + 1, Sector.objects.count())
 
         sector = self.get_object_or_fail(Sector, title=title, is_custom=True)
-        self.assertEqual(count + 1, sector.order) #order is set to max
+        self.assertEqual(count + 1, sector.order)  # order is set to max
 
         title = 'Music & movie'
         self.client.post(url, data={'title': title})
         sector = self.get_object_or_fail(Sector, title=title)
-        self.assertEqual(count + 2, sector.order) #order is set to max
+        self.assertEqual(count + 2, sector.order)  # order is set to max
 
     def assertWidgetResponse(self, response, instance):
-        #TODO: json.dumps
+        # TODO: json.dumps
         self.assertEqual(u'<json>%s</json>' % json_dump({
                             'added': [[instance.id, unicode(instance)]], 
                             'value': instance.id
@@ -239,7 +213,6 @@ class GenericModelConfigTestCase(CremeTestCase):
     def test_add01_from_widget(self):
         count = Civility.objects.count()
 
-#        url = '/creme_config/persons/civility/add_widget/'
         url = '/creme_config/creme_core/fake_civility/add_widget/'
         self.assertGET200(url)
 
@@ -254,25 +227,6 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertWidgetResponse(response, civility)
 
     def test_add02_from_widget(self):
-#        count = InvoiceStatus.objects.count()
-#
-#        url = '/creme_config/billing/invoice_status/add_widget/'
-#        self.assertGET200(url)
-#
-#        name = 'Okidoki'
-#        response = self.client.post(url, data={'name': name})
-#        self.assertNoFormError(response)
-#        self.assertEqual(count + 1, InvoiceStatus.objects.count())
-#
-#        status = self.get_object_or_fail(InvoiceStatus, name=name, is_custom=True)
-#        self.assertEqual(count + 1, status.order) #order is set to max
-#        self.assertWidgetResponse(response, status)
-#
-#        name = 'Youkaidi'
-#        response = self.client.post(url, data={'name': name})
-#        status = self.get_object_or_fail(InvoiceStatus, name=name)
-#        self.assertEqual(count + 2, status.order) #order is set to max
-#        self.assertWidgetResponse(response, status)
         count = Sector.objects.count()
 
         url = '/creme_config/creme_core/fake_sector/add_widget/'
@@ -284,13 +238,13 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(count + 1, Sector.objects.count())
 
         sector = self.get_object_or_fail(Sector, title=title, is_custom=True)
-        self.assertEqual(count + 1, sector.order) #order is set to max
+        self.assertEqual(count + 1, sector.order)  # order is set to max
         self.assertWidgetResponse(response, sector)
 
         title = 'Music & movie'
         response = self.client.post(url, data={'title': title})
         sector = self.get_object_or_fail(Sector, title=title)
-        self.assertEqual(count + 2, sector.order) #order is set to max
+        self.assertEqual(count + 2, sector.order)  # order is set to max
         self.assertWidgetResponse(response, sector)
 
     def test_edit01(self):
@@ -298,7 +252,6 @@ class GenericModelConfigTestCase(CremeTestCase):
         shortcut = 'H.'
         civ = Civility.objects.create(title=title, shortcut=shortcut)
 
-#        url = '/creme_config/persons/civility/edit/%s' % civ.id
         url = '/creme_config/creme_core/fake_civility/edit/%s' % civ.id
         self.assertGET200(url)
 
@@ -315,18 +268,6 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_edit02(self):
         "Order not changed"
-#        count = InvoiceStatus.objects.count()
-#        status = InvoiceStatus.objects.create(name='okidoki',  order=count + 1)
-#
-#        url = '/creme_config/billing/invoice_status/edit/%s' % status.id
-#        self.assertGET200(url)
-#
-#        name = status.name.title()
-#        self.assertNoFormError(self.client.post(url, data={'name': name}))
-#
-#        new_status = self.refresh(status)
-#        self.assertEqual(name,         new_status.name)
-#        self.assertEqual(status.order, new_status.order)
         count = Sector.objects.count()
         sector = Sector.objects.create(title='music', order=count + 1)
 
@@ -342,7 +283,6 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_delete01(self):
         civ = Civility.objects.create(title='Herr')
-#        url = '/creme_config/persons/civility/delete'
         url = '/creme_config/creme_core/fake_civility/delete'
         data = {'id': civ.pk}
         self.assertGET404(url, data=data)
@@ -351,9 +291,6 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_delete02(self):
         "Not custom instance"
-#        status = InvoiceStatus.objects.create(name='Okidoki', is_custom=False)
-#        self.assertPOST404('/creme_config/billing/invoice_status/delete', data={'id': status.pk})
-#        self.assertStillExists(status)
         sector = Sector.objects.create(title='Music', is_custom=False)
         self.assertPOST404('/creme_config/creme_core/fake_sector/delete',
                            data={'id': sector.pk},

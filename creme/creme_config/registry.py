@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,19 +21,18 @@
 import logging
 import warnings
 
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import FieldDoesNotExist, Max
+# from django.contrib.contenttypes.models import ContentType
+from django.db.models import FieldDoesNotExist  # Max
 from django.forms.models import modelform_factory
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.block import block_registry
-from creme.creme_core.models.fields import BasicAutoField
+# from creme.creme_core.models.fields import BasicAutoField
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.imports import find_n_import
 
 from creme.creme_config.utils import generate_portal_url
-#from creme.creme_config.models import SettingKey
 
 
 logger = logging.getLogger(__name__)
@@ -49,13 +48,13 @@ class ModelConfig(object):
         self.name_in_url = name_in_url
         self._form_class = form_class
 
-    @staticmethod
-    def _manage_order(form):
-        instance = form.instance
-
-        if not instance.pk:
-            aggr = instance.__class__.objects.aggregate(Max('order'))
-            instance.order = (aggr['order__max'] or 0) + 1
+    # @staticmethod
+    # def _manage_order(form):
+    #     instance = form.instance
+    #
+    #     if not instance.pk:
+    #         aggr = instance.__class__.objects.aggregate(Max('order'))
+    #         instance.order = (aggr['order__max'] or 0) + 1
 
     @property
     def model_form(self):
@@ -72,18 +71,17 @@ class ModelConfig(object):
 
             self._form_class = form_class = modelform_factory(model, form=CremeModelForm, exclude=exclude)
 
-            try:
-                order_field = get_field('order')
-            except FieldDoesNotExist:
-                pass
-            else:
-                #form_class.add_post_clean_callback(self._manage_order)
-                if not isinstance(order_field, BasicAutoField):
-                    warnings.warn("creme_config.registry: 'order' field should be a "
-                                  "BasicAutoField if you want to keep the auto-order feature.",
-                                  DeprecationWarning
-                                 )
-                    form_class.add_post_clean_callback(self._manage_order)
+            # try:
+            #     order_field = get_field('order')
+            # except FieldDoesNotExist:
+            #     pass
+            # else:
+            #     if not isinstance(order_field, BasicAutoField):
+            #         warnings.warn("creme_config.registry: 'order' field should be a "
+            #                       "BasicAutoField if you want to keep the auto-order feature.",
+            #                       DeprecationWarning
+            #                      )
+            #         form_class.add_post_clean_callback(self._manage_order)
 
         return self._form_class
 
@@ -92,7 +90,7 @@ class ModelConfig(object):
         return self.model._meta.verbose_name
 
 
-#__slots__ ???
+# TODO: __slots__ ???
 class AppConfigRegistry(object):
     def __init__(self, name, verbose_name):
         self.name = name
@@ -106,8 +104,6 @@ class AppConfigRegistry(object):
         return generate_portal_url(self.name)
 
     def register_model(self, model, model_name_in_url, form_class=None):
-#        ct_id = ContentType.objects.get_for_model(model).id
-#        self._models[ct_id] = ModelConfig(model, model_name_in_url, form_class)
         # NB: the key is the model & not the ContentType.id, because these IDs
         #     are not always consistent with the test-models.
         if model not in self._excluded_models:
@@ -115,21 +111,20 @@ class AppConfigRegistry(object):
 
         return self
 
-    def get_model_conf(self, ct_id=None, model=None):
-#        model_conf = self._models.get(ct_id)
-        if model is None:
-            assert ct_id is not None
-            warnings.warn("AppConfigRegistry.get_model_conf(): 'ct_id' argument "
-                          "is deprecated ; use the 'model' argument instead.",
-                          DeprecationWarning
-                         )
-
-            model = ContentType.objects.get_for_id(ct_id).model_class()
+    # def get_model_conf(self, ct_id=None, model=None):
+    def get_model_conf(self, model):
+        # if model is None:
+        #     assert ct_id is not None
+        #     warnings.warn("AppConfigRegistry.get_model_conf(): 'ct_id' argument "
+        #                   "is deprecated ; use the 'model' argument instead.",
+        #                   DeprecationWarning
+        #                  )
+        #
+        #     model = ContentType.objects.get_for_id(ct_id).model_class()
 
         model_conf = self._models.get(model)
 
         if model_conf is None:
-#            raise NotRegisteredInConfig("No model registered with this id: %s" % ct_id)
             raise NotRegisteredInConfig('Model %s is not registered' % model)
 
         return model_conf
@@ -144,7 +139,7 @@ class AppConfigRegistry(object):
         self._models.pop(model, None)
         self._excluded_models.add(model)
 
-    #@property TODO: + return a iterator
+    # @property TODO: + return a iterator
     def blocks(self):
         return self._blocks
 
