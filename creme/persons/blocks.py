@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,36 +41,28 @@ Organisation = get_organisation_model()
 Activity = get_activity_model()
 
 
-# DEPRECATED
-# TODO: remove template file too
-class ContactBlock(SimpleBlock):
-    template_name = 'persons/templatetags/block_contact.html'
+# class ContactBlock(SimpleBlock):
+#     template_name = 'persons/templatetags/block_contact.html'
 
 
-# DEPRECATED
-# TODO: remove template file too
-class ContactCoordinatesBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('persons', 'contact_coordinates')
-    dependencies  = (Contact,)
-    verbose_name  = _(u'Coordinates of a contact')
-    template_name = 'persons/templatetags/block_contact_coordinates.html'
-    target_ctypes = (Contact,)
+# class ContactCoordinatesBlock(SimpleBlock):
+#     id_           = SimpleBlock.generate_id('persons', 'contact_coordinates')
+#     dependencies  = (Contact,)
+#     verbose_name  = _(u'Coordinates of a contact')
+#     template_name = 'persons/templatetags/block_contact_coordinates.html'
+#     target_ctypes = (Contact,)
 
 
-# DEPRECATED
-# TODO: remove template file too
-class OrganisationBlock(SimpleBlock):
-    template_name = 'persons/templatetags/block_organisation.html'
+# class OrganisationBlock(SimpleBlock):
+#     template_name = 'persons/templatetags/block_organisation.html'
 
 
-# DEPRECATED
-# TODO: remove template file too
-class OrgaCoordinatesBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('persons', 'orga_coordinates')
-    dependencies  = (Organisation,)
-    verbose_name  = _(u'Coordinates of an organisation')
-    template_name = 'persons/templatetags/block_orga_coordinates.html'
-    target_ctypes = (Organisation,)
+# class OrgaCoordinatesBlock(SimpleBlock):
+#     id_           = SimpleBlock.generate_id('persons', 'orga_coordinates')
+#     dependencies  = (Organisation,)
+#     verbose_name  = _(u'Coordinates of an organisation')
+#     template_name = 'persons/templatetags/block_orga_coordinates.html'
+#     target_ctypes = (Organisation,)
 
 
 class ManagersBlock(QuerysetBlock):
@@ -281,8 +273,8 @@ class OtherAddressBlock(QuerysetBlock):
                            )
 
 
-contact_coord_block   = ContactCoordinatesBlock()
-orga_coord_block      = OrgaCoordinatesBlock()
+# contact_coord_block   = ContactCoordinatesBlock()
+# orga_coord_block      = OrgaCoordinatesBlock()
 address_block         = AddressBlock()
 other_address_block   = OtherAddressBlock()
 managers_block        = ManagersBlock()
