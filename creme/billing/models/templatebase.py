@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,9 @@
 
 from datetime import timedelta
 import logging
-import warnings
+# import warnings
 
-from django.core.exceptions import ObjectDoesNotExist
+# from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models import PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
@@ -47,10 +47,10 @@ class _VerboseStatusField(FunctionField):
 
 class AbstractTemplateBase(Base):
     ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
-    status_id = PositiveIntegerField(editable=False).set_tags(viewable=False) #TODO: avoid deletion of status
+    status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)  # TODO: avoid deletion of status
 
     function_fields = Base.function_fields.new(_VerboseStatusField())
-    #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
+    # XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
     creation_label = pgettext_lazy('billing', u'Add a template')
 
     _verbose_status_cache = None
@@ -79,17 +79,17 @@ class AbstractTemplateBase(Base):
     def get_lv_absolute_url():
         return reverse('billing__list_templates')
 
-    def get_generator(self):
-        warnings.warn('TemplateBase.get_generator() method is deprecated; '
-                      'use RecurrentGenerator.objects.get(template=obj) instead',
-                      DeprecationWarning
-                     )
-
-        from creme.recurrents.models import RecurrentGenerator
-        try:
-            return RecurrentGenerator.objects.get(template=self)
-        except ObjectDoesNotExist:
-            return None
+    # def get_generator(self):
+    #     warnings.warn('TemplateBase.get_generator() method is deprecated; '
+    #                   'use RecurrentGenerator.objects.get(template=obj) instead',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     from creme.recurrents.models import RecurrentGenerator
+    #     try:
+    #         return RecurrentGenerator.objects.get(template=self)
+    #     except ObjectDoesNotExist:
+    #         return None
 
     def get_verbose_status(self):
         vstatus = self._verbose_status_cache
@@ -108,7 +108,7 @@ class AbstractTemplateBase(Base):
         return vstatus.name
 
     @property
-    def verbose_status(self): # TODO: deprecate ??
+    def verbose_status(self):  # TODO: deprecate ??
         return self.get_verbose_status()
 
     def create_entity(self):
