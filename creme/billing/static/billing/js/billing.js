@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2016  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -457,20 +457,20 @@ creme.billing.generateInvoiceNumber = function(url) {
                       .start();
 }
 
-creme.billing.linkToDocument = function(url, organisations) {
-    console.warn('This functions is deprecated.');
-    if (Object.isEmpty(organisations))
-        return;
-
-    if (organisations.length === 1) {
-        creme.dialogs.form(url + organisations[0].value, {reloadOnSuccess: true}).open({width:'80%'});
-        return;
-    }
-
-    creme.dialogs.choice(gettext('Who is the source, managed by Creme, for your billing document ?'),
-                         {choices:organisations, title: gettext('Billing')})
-                 .onOk(function(event, orga_id) {
-                     creme.dialogs.form(url + orga_id, {reloadOnSuccess: true}).open({width:'80%'});
-                  })
-                 .open();
-}
+//creme.billing.linkToDocument = function(url, organisations) {
+//    console.warn('This functions is deprecated.');
+//    if (Object.isEmpty(organisations))
+//        return;
+//
+//    if (organisations.length === 1) {
+//        creme.dialogs.form(url + organisations[0].value, {reloadOnSuccess: true}).open({width:'80%'});
+//        return;
+//    }
+//
+//    creme.dialogs.choice(gettext('Who is the source, managed by Creme, for your billing document ?'),
+//                         {choices:organisations, title: gettext('Billing')})
+//                 .onOk(function(event, orga_id) {
+//                     creme.dialogs.form(url + orga_id, {reloadOnSuccess: true}).open({width:'80%'});
+//                  })
+//                 .open();
+//}
