@@ -586,7 +586,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/selectorlist.js',
                     'creme_core/js/widgets/entityselector.js',
                     'creme_core/js/widgets/pselect.js',
-                    'creme_core/js/widgets/adaptivewidget.js', # NB : deprecated widget. will be removed in 1.7
+                    # 'creme_core/js/widgets/adaptivewidget.js',
                     'creme_core/js/widgets/actionlist.js',
                     'creme_core/js/widgets/plotdata.js',
                     'creme_core/js/widgets/plot.js',

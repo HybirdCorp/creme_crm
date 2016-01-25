@@ -1,8 +1,7 @@
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
+{% with url=object.get_create_absolute_url %}
 {% if url %}
     {% if can_add %}
-        {# <a class="menu_button" href="{{path}}/add"> #}
         <a class="menu_button" href="{{url}}">
             {% trans "Add" as img_title %}<img src="{% creme_media_url 'images/add_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
             {{object.creation_label}}
@@ -14,3 +13,4 @@
         </span>
     {% endif %}
 {% endif %}
+{% endwith %}

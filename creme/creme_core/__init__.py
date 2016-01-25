@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 
-def autodiscover():
-    """Auto-discover in INSTALLED_APPS the creme_core_register.py files. DEPRECATED"""
-    warnings.warn("creme_core.autodiscover() function is deprecated.",
-                  DeprecationWarning
-                 )
+# def autodiscover():
+#     """Auto-discover in INSTALLED_APPS the creme_core_register.py files. DEPRECATED"""
+#     warnings.warn("creme_core.autodiscover() function is deprecated.",
+#                   DeprecationWarning
+#                  )
 
 
 # Model Fields Hooking ---------------------------------------------------------

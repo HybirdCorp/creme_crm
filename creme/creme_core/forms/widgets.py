@@ -1115,32 +1115,30 @@ class ListEditionWidget(Widget):
                ]
 
 
-# TODO: Deprecated widget. will be removed in 1.7.
-# TODO: Think to remove javascript file creme_core/js/widgets/adaptivewidget.js
-class AdaptiveWidget(Select):
-    def __init__(self, ct_id, object_id="", attrs=None, choices=()):
-        super(AdaptiveWidget, self).__init__(attrs, choices)
-        self.ct_id = ct_id
-        self.object_id = object_id
-        self.url = "/creme_core/entity/get_widget/%s" % ct_id
-        warnings.warn("AdaptiveWidget is deprecated and will be removed in 1.7",
-                      DeprecationWarning
-                     )
-
-    def render(self, name, value, attrs=None, choices=()):
-        attrs = self.build_attrs(attrs, name=name)
-        context = widget_render_context('ui-creme-adaptive-widget', attrs,
-                                        url=self.url,
-                                        object_id=self.object_id,
-                                        style=attrs.pop('style', ''),
-                                       )
-        context['input'] = super(AdaptiveWidget, self).render(name, value, attrs, choices)
-
-        return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" '
-                               'url="%(url)s" object_id="%(object_id)s">'
-                            '%(input)s'
-                         '</span>' % context
-                        )
+# class AdaptiveWidget(Select):
+#     def __init__(self, ct_id, object_id="", attrs=None, choices=()):
+#         super(AdaptiveWidget, self).__init__(attrs, choices)
+#         self.ct_id = ct_id
+#         self.object_id = object_id
+#         self.url = "/creme_core/entity/get_widget/%s" % ct_id
+#         warnings.warn("AdaptiveWidget is deprecated and will be removed in 1.7",
+#                       DeprecationWarning
+#                      )
+#
+#     def render(self, name, value, attrs=None, choices=()):
+#         attrs = self.build_attrs(attrs, name=name)
+#         context = widget_render_context('ui-creme-adaptive-widget', attrs,
+#                                         url=self.url,
+#                                         object_id=self.object_id,
+#                                         style=attrs.pop('style', ''),
+#                                        )
+#         context['input'] = super(AdaptiveWidget, self).render(name, value, attrs, choices)
+#
+#         return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" '
+#                                'url="%(url)s" object_id="%(object_id)s">'
+#                             '%(input)s'
+#                          '</span>' % context
+#                         )
 
 
 class DatePeriodWidget(MultiWidget):

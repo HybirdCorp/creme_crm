@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.template import Library
@@ -32,21 +32,22 @@ from ..utils.media import get_creme_media_url
 register = Library()
 
 
+# TODO: takes_context=False ??
 @register.inclusion_tag('creme_core/templatetags/widgets/add_button.html', takes_context=True)
 def get_add_button(context, entity, user):
-    url = entity.get_create_absolute_url()
-
-    if not url:
-        path = context.get('path')
-
-        if path:
-            warnings.warn("get_add_button(): 'path' in context is deprecated ; "
-                          "set a method get_create_absolute_url() in you model instead.",
-                          DeprecationWarning
-                         )
-            url = '%s/add' % path
-
-    context['url'] = url  # TODO: in template ({% with ... %}) when 'path' is not supported anymore.
+    # url = entity.get_create_absolute_url()
+    #
+    # if not url:
+    #     path = context.get('path')
+    #
+    #     if path:
+    #         warnings.warn("get_add_button(): 'path' in context is deprecated ; "
+    #                       "set a method get_create_absolute_url() in you model instead.",
+    #                       DeprecationWarning
+    #                      )
+    #         url = '%s/add' % path
+    #
+    # context['url'] = url
     context['can_add'] = user.has_perm_to_create(entity)
 
     return context

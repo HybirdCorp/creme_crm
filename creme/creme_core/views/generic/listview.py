@@ -236,8 +236,6 @@ def list_view(request, model, *args, **kwargs):
     return render(request, template_name, template_dict)
 
 
-# TODO: remove the file 'creme_core/frags/list_view_popup.html'
-# TODO: remove the file 'creme_core/generics/list_entities_popup.html'
 def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
     """@param kwargs See list_view_content()"""
     ct = get_ct_or_404(ct_id)

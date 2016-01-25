@@ -113,10 +113,10 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual(Image._meta.get_field('user'),    sub_fi[0])
         self.assertEqual(get_user_model()._meta.get_field('username'), sub_fi[1])
 
-    def test_get_date_fields(self):
-        datefields = meta.get_date_fields(CremeEntity())
-        self.assertEqual(2, len(datefields))
-        self.assertEqual({'created', 'modified'}, {f.name for f in datefields})
+    # def test_get_date_fields(self):
+    #     datefields = meta.get_date_fields(CremeEntity())
+    #     self.assertEqual(2, len(datefields))
+    #     self.assertEqual({'created', 'modified'}, {f.name for f in datefields})
 
     def test_is_date_field(self):
         entity = CremeEntity()

@@ -12,7 +12,7 @@ try:
             FakeOrganisation as Organisation, FakePosition as Position,
             FakeActivity as Activity, FakeActivityType as ActivityType)
     from creme.creme_core.models import CremePropertyType
-    from creme.creme_core.utils.queries import get_first_or_None, QSerializer
+    from creme.creme_core.utils.queries import QSerializer  # get_first_or_None
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -31,13 +31,13 @@ class QueriesTestCase(CremeTestCase):
         Civility.objects.all().delete()
         Civility.objects.bulk_create(cls._civ_backup)
 
-    def test_get_first_or_None01(self):
-        CremePropertyType.objects.create(text='Is cute', is_custom=True)
-        self.assertIsInstance(get_first_or_None(CremePropertyType), CremePropertyType)
-
-    def test_get_first_or_None02(self):
-        self.assertFalse(Civility.objects.exists())
-        self.assertIsNone(get_first_or_None(Civility))
+    # def test_get_first_or_None01(self):
+    #     CremePropertyType.objects.create(text='Is cute', is_custom=True)
+    #     self.assertIsInstance(get_first_or_None(CremePropertyType), CremePropertyType)
+    #
+    # def test_get_first_or_None02(self):
+    #     self.assertFalse(Civility.objects.exists())
+    #     self.assertIsNone(get_first_or_None(Civility))
 
     def _assertQEqual(self, model, q1, q2):
         self.assertEqual(list(model.objects.filter(q1)),

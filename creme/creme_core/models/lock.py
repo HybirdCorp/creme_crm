@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.db.models import Model, CharField
 from django.db.transaction import atomic
@@ -76,18 +76,18 @@ class Mutex(Model):
         super(Mutex, self).save(force_insert=True, *args, **kwargs)
 
 
-def mutexify(func, lock_name):
-    warnings.warn("mutexify decorator is deprecated; use mutex_autolock instead", DeprecationWarning)
-
-    def _aux(*args, **kwargs):
-        try:
-            lock = Mutex.get_n_lock(lock_name)
-        except MutexLockedException:
-            print 'A process is already running'
-        else:
-            func(*args, **kwargs)
-        finally:
-            Mutex.graceful_release(lock_name)
+# def mutexify(func, lock_name):
+#     warnings.warn("mutexify decorator is deprecated; use mutex_autolock instead", DeprecationWarning)
+#
+#     def _aux(*args, **kwargs):
+#         try:
+#             lock = Mutex.get_n_lock(lock_name)
+#         except MutexLockedException:
+#             print 'A process is already running'
+#         else:
+#             func(*args, **kwargs)
+#         finally:
+#             Mutex.graceful_release(lock_name)
 
 
 def mutex_autolock(lock_name):
