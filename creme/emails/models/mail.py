@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -27,13 +27,10 @@ from django.db import IntegrityError
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField,
         CharField, TextField, DateTimeField, ForeignKey, ManyToManyField)
 from django.db.transaction import atomic
-#from django.db import transaction, IntegrityError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import UnsafeHTMLField
-
-#from creme.documents.models import Document
 
 from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS
 from ..utils import generate_id, EMailSender
@@ -67,29 +64,25 @@ class _Email(CremeModel):
     def __unicode__(self):
         return u"Mail<from: %s> <to: %s> <sent: %s> <id: %s>" % (self.sender, self.recipient, self.sending_date, self.id)
 
-    def get_status_str(self):
-        warnings.warn("_Email.get_status_str() method is deprecated ; use get_status_display() instead.",
-                      DeprecationWarning
-                     )
-        return MAIL_STATUS[self.status]
+    # def get_status_str(self):
+    #     warnings.warn("_Email.get_status_str() method is deprecated ; use get_status_display() instead.",
+    #                   DeprecationWarning
+    #                  )
+    #     return MAIL_STATUS[self.status]
 
-    def get_body(self):
-        warnings.warn("_Email.get_body() method is deprecated.", DeprecationWarning)
+    # def get_body(self):
+    #     warnings.warn("_Email.get_body() method is deprecated.", DeprecationWarning)
+    #
+    #     return self.body
 
-        return self.body
 
-
-
-#class EntityEmail(_Email, CremeEntity):
 class AbstractEntityEmail(_Email, CremeEntity):
     identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH,
                             null=False, blank=False, editable=False,
                             default=generate_id,  # TODO: lambda for this
                            )
-    # body_html   = TextField(_(u'Body (HTML)'))
     body_html   = UnsafeHTMLField(_(u'Body (HTML)'))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
-#    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
 
     creation_label = _('Add an email')
@@ -101,25 +94,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
         verbose_name_plural = _(u'Emails')
         ordering = ('-sending_date',)
 
-#    @transaction.commit_manually
-#    def genid_n_save(self):
-#        #BEWARE: manage manually
-#        while True:
-#            sid = transaction.savepoint()
-#
-#            try:
-#                self.identifier = generate_id()
-#                self.save(force_insert=True)
-#            except IntegrityError:  #a mail with this id already exists
-#                logger.debug('Mail id already exists: %s', self.identifier)
-#                self.pk = None
-#
-#                transaction.savepoint_rollback(sid)
-#            else:
-#                transaction.savepoint_commit(sid)
-#                break
-#
-#        transaction.commit()
     def genid_n_save(self):
         while True:  # TODO: xrange(10000) to avoid infinite loop ??
             self.identifier = generate_id()
@@ -137,25 +111,19 @@ class AbstractEntityEmail(_Email, CremeEntity):
         return ugettext('EMail <from: %(from)s> <to: %(to)s> <status: %(status)s>') % {
                                 'from':   self.sender,
                                 'to':     self.recipient,
-#                                'status': self.get_status_str(),
                                 'status': self.get_status_display(),
                             }
 
     def get_absolute_url(self):
-#        return u"/emails/mail/%s" % self.pk
         return reverse('emails__view_email', args=(self.pk,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/emails/mails"
         return reverse('emails__list_emails')
 
     # TODO: in a manager ?
-    #@staticmethod
-    #def create_n_send_mail(sender, recipient, subject, user, body, body_html=u"", signature=None, attachments=None):
     @classmethod
     def create_n_send_mail(cls, sender, recipient, subject, user, body, body_html=u"", signature=None, attachments=None):
-        #email = EntityEmail(sender=sender,
         email = cls(sender=sender,
                             recipient=recipient,
                             subject=subject,
@@ -176,18 +144,18 @@ class AbstractEntityEmail(_Email, CremeEntity):
     def _pre_save_clone(self, source):
         self.genid_n_save()
 
-    def get_body(self):
-        warnings.warn("AbstractEntityEmail.get_body() method is deprecated.",
-                      DeprecationWarning
-                     )
-
-        from django.template.defaultfilters import removetags
-        from django.utils.safestring import mark_safe
-
-        if self.body_html:
-            return mark_safe(removetags(self.body_html, 'script'))
-        else:
-            return mark_safe(removetags(self.body.replace('\n', '</br>'), 'script'))
+    # def get_body(self):
+    #     warnings.warn("AbstractEntityEmail.get_body() method is deprecated.",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     from django.template.defaultfilters import removetags
+    #     from django.utils.safestring import mark_safe
+    #
+    #     if self.body_html:
+    #         return mark_safe(removetags(self.body_html, 'script'))
+    #     else:
+    #         return mark_safe(removetags(self.body.replace('\n', '</br>'), 'script'))
 
     def send(self):
         sender = EntityEmailSender(body=self.body,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,10 @@
 import logging
 from pickle import loads
 from time import sleep
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.core.mail import send_mail, get_connection
-#from django.db import transaction, IntegrityError
 from django.db import IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
         EmailField, CharField, TextField, ManyToManyField, SET_NULL)
@@ -35,12 +34,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
-#from creme.documents.models import Document
-
 from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 from ..utils import generate_id, EMailSender, ImageFromHTMLError
 from .mail import _Email, ID_LENGTH
-#from .campaign import EmailCampaign
 from .signature import EmailSignature
 
 
@@ -70,7 +66,6 @@ SENDING_STATES = {
 
 class EmailSending(CremeModel):
     sender        = EmailField(_(u"Sender address"), max_length=100)
-#    campaign      = ForeignKey(EmailCampaign,
     campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL,
                                verbose_name=pgettext_lazy('emails', u'Related campaign'),
                                related_name='sendings_set', editable=False,
@@ -92,7 +87,6 @@ class EmailSending(CremeModel):
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'),
                              blank=True, null=True, editable=False, on_delete=SET_NULL,
                             )
-#    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'), editable=False)
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
                                   verbose_name=_(u'Attachments'), editable=False,
                                  )
@@ -114,24 +108,24 @@ class EmailSending(CremeModel):
     def get_unsent_mails_count(self):
         return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]).count()
 
-    def get_state_str(self):
-        warnings.warn("EmailSending.get_state_str() method is deprecated ; use get_state_display() instead.",
-                      DeprecationWarning
-                     )
+    # def get_state_str(self):
+    #     warnings.warn("EmailSending.get_state_str() method is deprecated ; use get_state_display() instead.",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return SENDING_STATES[self.state]
 
-        return SENDING_STATES[self.state]
-
-    def get_type_str(self):
-        warnings.warn("EmailSending.get_type_str() method is deprecated ; use get_type_display() instead.",
-                      DeprecationWarning
-                     )
-
-        return SENDING_TYPES[self.type]
+    # def get_type_str(self):
+    #     warnings.warn("EmailSending.get_type_str() method is deprecated ; use get_type_display() instead.",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return SENDING_TYPES[self.type]
 
     def get_absolute_url(self):
         return self.campaign.get_absolute_url()
 
-    def get_related_entity(self): # For generic views
+    def get_related_entity(self):  # For generic views
         return self.campaign
 
     def send_mails(self):
@@ -175,7 +169,7 @@ class EmailSending(CremeModel):
                 logger.debug('Sending: waiting timeout')
 
                 mails_count = 0
-                sleep(SLEEP_TIME) # Avoiding the mail to be classed as spam
+                sleep(SLEEP_TIME)  # Avoiding the mail to be classed as spam
 
         if not one_mail_sent:
             return SENDING_STATE_ERROR
@@ -207,21 +201,21 @@ class LightWeightEmail(_Email):
             logger.debug('Error in LightWeightEmail._render_body(): %s', e)
             return ""
 
-    def get_body(self):
-        warnings.warn("LightWeightEmail.get_body() method is deprecated ; use 'rendered_body' instead",
-                      DeprecationWarning
-                     )
+    # def get_body(self):
+    #     warnings.warn("LightWeightEmail.get_body() method is deprecated ; use 'rendered_body' instead",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     # return self._render_body(self.sending.body)
+    #     return self.rendered_body
 
-        # return self._render_body(self.sending.body)
-        return self.rendered_body
-
-    def get_body_html(self):
-        warnings.warn("LightWeightEmail.get_body_html() method is deprecated ; use 'rendered_body_html' instead",
-                      DeprecationWarning
-                     )
-
-        # return self._render_body(self.sending.body_html)
-        return self.rendered_body_html
+    # def get_body_html(self):
+    #     warnings.warn("LightWeightEmail.get_body_html() method is deprecated ; use 'rendered_body_html' instead",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     # return self._render_body(self.sending.body_html)
+    #     return self.rendered_body_html
 
     @property
     def rendered_body(self):
@@ -234,26 +228,6 @@ class LightWeightEmail(_Email):
     def get_related_entity(self):  # For generic views
         return self.sending.campaign
 
-    # TODO: factorise
-#    @transaction.commit_manually
-#    def genid_n_save(self):
-#        #BEWARE: manage manually
-#        while True:
-#            sid = transaction.savepoint()
-#
-#            try:
-#                self.id = generate_id()
-#                self.save(force_insert=True)
-#            except IntegrityError:  #a mail with this id already exists
-#                logger.debug('Mail id already exists: %s', self.id)
-#                self.pk = None
-#
-#                transaction.savepoint_rollback(sid)
-#            else:
-#                transaction.savepoint_commit(sid)
-#                break
-#
-#        transaction.commit()
     def genid_n_save(self):
         while True:
             self.id = generate_id()
