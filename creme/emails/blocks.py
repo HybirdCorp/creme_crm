@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,27 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.exceptions import PermissionDenied
-#from django.template.context import RequestContext
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import Relation  # CremeEntity
 from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
-#from creme.creme_core.utils import jsonify
+from creme.creme_core.models import Relation
 
 from creme.documents import get_document_model
-#from creme.documents.models import Document
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from creme.crudity.blocks import CrudityQuerysetBlock
 
 from . import (get_emailcampaign_model, get_entityemail_model,
         get_emailtemplate_model, get_mailinglist_model)
 from . import constants
-#from .models import *
 from .models import EmailSignature, EmailRecipient, EmailSending, LightWeightEmail
 
 
@@ -51,10 +46,8 @@ EntityEmail   = get_entityemail_model()
 MailingList   = get_mailinglist_model()
 
 
-# DEPRECATED
-# TODO: remove template file too
-class EntityEmailBlock(SimpleBlock):
-    template_name = 'emails/templatetags/block_mail.html'
+# class EntityEmailBlock(SimpleBlock):
+#     template_name = 'emails/templatetags/block_mail.html'
 
 
 class _HTMLBodyBlock(SimpleBlock):
@@ -75,10 +68,10 @@ class TemplateHTMLBodyBlock(_HTMLBodyBlock):
 
 
 class _RelatedEntitesBlock(QuerysetBlock):
-    #id_           = 'SET ME'
-    #dependencies  = 'SET ME'
-    #verbose_name  = 'SET ME'
-    #template_name = 'SET ME'
+    # id_           = 'SET ME'
+    # dependencies  = 'SET ME'
+    # verbose_name  = 'SET ME'
+    # template_name = 'SET ME'
 
     def _get_queryset(self, entity): # OVERLOAD ME
         raise NotImplementedError
@@ -104,7 +97,7 @@ class MailingListsBlock(_RelatedEntitesBlock):
     template_name = 'emails/templatetags/block_mailing_lists.html'
     target_ctypes = (EmailCampaign,)
 
-    def _get_queryset(self, entity): #entity=campaign
+    def _get_queryset(self, entity):  # entity=campaign
         return entity.mailing_lists.all()
 
 
@@ -130,7 +123,7 @@ class ContactsBlock(_RelatedEntitesBlock):
     template_name = 'emails/templatetags/block_contacts.html'
     target_ctypes = (MailingList,)
 
-    def _get_queryset(self, entity): #entity=mailing_list
+    def _get_queryset(self, entity):  # entity=mailing_list
         return entity.contacts.select_related('civility')
 
     def _update_context(self, context):
@@ -146,7 +139,7 @@ class OrganisationsBlock(_RelatedEntitesBlock):
     template_name = 'emails/templatetags/block_organisations.html'
     target_ctypes = (MailingList,)
 
-    def _get_queryset(self, entity): #entity=mailing_list
+    def _get_queryset(self, entity):  # entity=mailing_list
         return entity.organisations.all()
 
     def _update_context(self, context):
@@ -161,7 +154,7 @@ class ChildListsBlock(_RelatedEntitesBlock):
     template_name = 'emails/templatetags/block_child_lists.html'
     target_ctypes = (MailingList,)
 
-    def _get_queryset(self, entity): #entity=mailing_list
+    def _get_queryset(self, entity):  # entity=mailing_list
         return entity.children.all()
 
 
@@ -172,7 +165,7 @@ class ParentListsBlock(_RelatedEntitesBlock):
     template_name = 'emails/templatetags/block_parent_lists.html'
     target_ctypes = (MailingList,)
 
-    def _get_queryset(self, entity): #entity=mailing_list
+    def _get_queryset(self, entity):  # entity=mailing_list
         return entity.parents_set.all()
 
 
@@ -183,7 +176,7 @@ class AttachmentsBlock(_RelatedEntitesBlock):
     template_name = 'emails/templatetags/block_attachments.html'
     target_ctypes = (EmailTemplate,)
 
-    def _get_queryset(self, entity): #entity=mailtemplate
+    def _get_queryset(self, entity):  # entity=mailtemplate
         return entity.attachments.all()
 
 
@@ -278,11 +271,6 @@ class _SynchronizationMailsBlock(CrudityQuerysetBlock):
     dependencies  = (EntityEmail,)
     order_by      = '-reception_date'
     configurable  = False
-
-#    @jsonify
-#    def detailview_ajax(self, request):
-#        context = RequestContext(request)
-#        return [(self.id_, self.detailview_display(context))]
 
 
 class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):

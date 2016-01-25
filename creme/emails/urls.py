@@ -45,7 +45,7 @@ urlpatterns = [
     # Mails history blocks
     url(r'^mails_history/(?P<mail_id>\w+)$',          mail.view_lightweight_mail),
     url(r'^mail/get_body/(?P<mail_id>\w+)$',          mail.get_lightweight_mail_body),
-    url(r'^mail/get_entity_body/(?P<entity_id>\d+)$', mail.get_entity_mail_body),
+    # url(r'^mail/get_entity_body/(?P<entity_id>\d+)$', mail.get_entity_mail_body),
     url(r'^mail/resend$',                             mail.resend_mails),
     url(r'^mail/spam$',                               mail.spam),
     url(r'^mail/validated$',                          mail.validated),

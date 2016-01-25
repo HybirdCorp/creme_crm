@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import Template, Context
-#from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -43,7 +42,7 @@ from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM,
         DEFAULT_HFILTER_EMAIL)
 from ..forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
 from ..forms.template import TEMPLATES_VARS
-from ..models import LightWeightEmail  # EntityEmail
+from ..models import LightWeightEmail
 
 
 EntityEmail = get_entityemail_model()
@@ -144,7 +143,6 @@ def waiting(request):
 @jsonify
 @permission_required('emails')
 def reload_sync_blocks(request):
-#    ctx = RequestContext(request)
     ctx = blocks_views.build_context(request)
 
     return [(mail_waiting_sync_block.id_, mail_waiting_sync_block.detailview_display(ctx)),
@@ -165,12 +163,8 @@ def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html
 def abstract_popupview(request, mail_id,
                        template='emails/view_entity_mail_popup.html'
                       ):
-#    return generic.view_real_entity(request, mail_id, path='/emails/mail',
-#                                    template=template,
-#                                   )
     return generic.view_entity(request, mail_id, EntityEmail,
                                template=template,
-                               # path='/emails/mail',
                               )
 
 
@@ -285,19 +279,19 @@ def resend_mails(request):  # TODO: unit test
     return {}
 
 
-# @login_required
-# @permission_required('emails')
-def get_entity_mail_body(request, entity_id):
-    """Used to show an html document in an iframe """
-    warnings.warn("The view emails.get_entity_mail_body is deprecated ; "
-                  "use the core view get_sanitized_html instead.",
-                  DeprecationWarning
-                 )
-
-    # email = get_object_or_404(EntityEmail, pk=entity_id)
-    # request.user.has_perm_to_view_or_die(email)
-    # return HttpResponse(email.get_body())
-
-    from creme.creme_core.views.entity import get_sanitized_html_field
-
-    return get_sanitized_html_field(request, entity_id, 'body_html')
+# # @login_required
+# # @permission_required('emails')
+# def get_entity_mail_body(request, entity_id):
+#     """Used to show an html document in an iframe """
+#     warnings.warn("The view emails.get_entity_mail_body is deprecated ; "
+#                   "use the core view get_sanitized_html instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     # email = get_object_or_404(EntityEmail, pk=entity_id)
+#     # request.user.has_perm_to_view_or_die(email)
+#     # return HttpResponse(email.get_body())
+#
+#     from creme.creme_core.views.entity import get_sanitized_html_field
+#
+#     return get_sanitized_html_field(request, entity_id, 'body_html')

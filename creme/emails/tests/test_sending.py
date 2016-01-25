@@ -298,15 +298,15 @@ class SendingsTestCase(_EmailsTestCase):
         with self.assertNoException():
             mail = sending.mails_set.all()[0]
 
-        self.assertEqual('Your first name is: %s !' % first_name, mail.get_body())
+        # self.assertEqual('Your first name is: %s !' % first_name, mail.get_body())
         self.assertEqual('Your first name is: %s !' % first_name, mail.rendered_body)
 
         html = '<p>Your last name is: %s !</p>' % last_name
-        self.assertEqual(html, mail.get_body_html())
+        # self.assertEqual(html, mail.get_body_html())
         self.assertEqual(html, mail.rendered_body_html)
         self.assertEqual(html, self.client.get('/emails/mail/get_body/%s' % mail.id).content)
 
-        #test delete sending ---------------------------------------------------
+        # test delete sending --------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)
         self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': sending.pk})
         self.assertDoesNotExist(sending)
