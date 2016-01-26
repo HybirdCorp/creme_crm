@@ -144,7 +144,12 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         target.css('visibility', 'hidden');
         element.append(target);
 
-        var image = this._rasterImage(target.jqplot(data, options), function() {
+        if (Object.isEmpty(data)) {
+            creme.object.invoke(cb, element);
+            return;
+        }
+
+        return this._rasterImage(target.jqplot(data, options), function(image) {
             target.remove();
             element.append($('<div>').addClass('jqplot-target')
                                      .append($(image)).css('margin', '0')
@@ -174,6 +179,11 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     {
         var self = this;
 
+        if (Object.isEmpty(data)) {
+            creme.object.invoke(cb, element);
+            return;
+        }
+
         element.append(target);
 
         self._plot = target.jqplot(data, options);
@@ -193,7 +203,6 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
 //        }
 
         self._bindPlotHandlers(self._plot, options);
-
         creme.object.invoke(cb, element);
     },
 
@@ -379,7 +388,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         var self = this;
         var plot_info = this._plot_info;
 
-        if (creme.object.isempty(source)) {
+        if (Object.isEmpty(source)) {
             plot_info = {options: {}, data: []};
             return;
         }
