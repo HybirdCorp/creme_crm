@@ -30,7 +30,7 @@
  */
 (function($) {
     $.jqplot.eventListenerHooks.push(['jqplotMouseMove', handleMove]);
-    
+    $.jqplot.eventListenerHooks.push(['jqplotMouseLeave', handleLeave]);
     /**
      * Class: $.jqplot.Highlighter
      * Plugin which will highlight data points when they are moused over.
@@ -395,7 +395,19 @@
         elem = null;
         
     }
-    
+
+    function handleLeave(ev, gridpos, datapos, neighbor, plot) {
+        var hl = plot.plugins.highlighter;
+
+        if (hl.show) {
+            if (hl.fadeTooltip) {
+                hl._tooltipElem.fadeOut(hl.tooltipFadeSpeed);
+            } else {
+                hl._tooltipElem.hide();
+            }
+        }
+    }
+
     function handleMove(ev, gridpos, datapos, neighbor, plot) {
         var hl = plot.plugins.highlighter;
         var c = plot.plugins.cursor;
