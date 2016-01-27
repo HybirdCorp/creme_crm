@@ -21,6 +21,8 @@
 
 # TODO : add limitation to overflow. if the separator doesn't exist in many following chunks,
 #        the overflow string will contains all of them and may cause memory limitation problems.
+# TODO: should work better with separator with length > 1
+#       eg: if sep == '\r\n', there are remaining '\n' in results.
 def iter_splitchunks(chunks, sep, filter):
     """ Iterator through chunks as split single stream.
 
