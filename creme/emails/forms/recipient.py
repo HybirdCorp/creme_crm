@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,31 @@ from creme.creme_core.forms.fields import MultiEmailField
 from creme.creme_core.utils import chunktools
 
 from ..models import EmailRecipient
+
+
+# TODO: move to creme_core.utils ?
+def _detect_end_line(uploaded_file):
+    """Returns the end of line sequence (Unix/Windows/Mac ar handled).
+    @param uploaded_file: instance with a method chunks() which yields strings
+                          (like Django's UploadedFile)
+    """
+    split_end = False  # '\r' at the end of a chunk, '\n' at the start of the next one.
+
+    for chunk in uploaded_file.chunks():
+        if split_end:
+            return '\r\n' if chunk.startswith('\n') else '\r'
+
+        if '\r\n' in chunk:
+            return '\r\n'
+
+        idx = chunk.find('\r')
+        if idx != -1:
+            if idx < len(chunk) - 1:
+                return '\r'
+
+            split_end = True
+
+    return '\n'  # TODO: 'default' argument ?
 
 
 class MailingListAddRecipientsForm(CremeForm):
@@ -61,14 +86,13 @@ class MailingListAddCSVForm(CremeForm):
     blocks = FieldBlockManager(('general', _(u'CSV file'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-    #def __init__(self, instance, *args, **kwargs):
         super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
         self.ml = entity
-        #self.ml = instance
 
     @staticmethod
     def filter_mail_chunk(value):
-        result = smart_unicode(value)
+        # result = smart_unicode(value)
+        result = smart_unicode(value.strip())
 
         try:
             validate_email(result)
@@ -77,12 +101,16 @@ class MailingListAddCSVForm(CremeForm):
 
         return result
 
-    def save(self): #factorise with MailingListAddRecipientsForm.save() ??
+    def save(self):  # TODO: factorise with MailingListAddRecipientsForm.save() ??
         ml      = self.ml
         create  = EmailRecipient.objects.create
         filter_ = EmailRecipient.objects.filter
 
-        addresses = chunktools.iter_splitchunks(self.cleaned_data['recipients'].chunks(), '\n', self.filter_mail_chunk)
+        uploaded_file = self.cleaned_data['recipients']
+        addresses = chunktools.iter_splitchunks(uploaded_file.chunks(),
+                                                sep=_detect_end_line(uploaded_file),
+                                                filter=self.filter_mail_chunk,
+                                               )
 
         for recipients in chunktools.iter_as_chunk(addresses, 256):
             recipients = frozenset(recipients)

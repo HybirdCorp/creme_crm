@@ -108,6 +108,37 @@ class MailingListsTestCase(_EmailsTestCase):
                           )
         self.assertEqual([mlist02], list(campaign.mailing_lists.all()))
 
+    def test_detect_end_line(self):
+        from creme.emails.forms.recipient import _detect_end_line
+
+        class FakeUploadedFile:
+            def __init__(self, chunks):
+                self._chunks = chunks
+
+            def chunks(self):
+                for chunk in self._chunks:
+                    yield chunk
+
+        def detect(chunks):
+            return _detect_end_line(FakeUploadedFile(chunks))
+
+        self.assertEqual('\n', detect([]))
+        self.assertEqual('\n', detect(['abcde']))
+
+        self.assertEqual('\n',   detect(['abcde\nefgij']))
+        self.assertEqual('\r',   detect(['abcde\refgij']))
+        self.assertEqual('\r\n', detect(['abcde\r\nefgij']))
+
+        self.assertEqual('\n',   detect(['abcdeefgij', 'ih\nklmonp']))
+        self.assertEqual('\r',   detect(['abcdeefgij', 'ih\rklmonp']))
+        self.assertEqual('\r\n', detect(['abcdeefgij', 'ih\r\nklmonp']))
+
+        self.assertEqual('\r',   detect(['abcdeefgij\r', 'ih\rklmonp']))
+        self.assertEqual('\r\n', detect(['abcdeefgij\r', '\nklmonp']))
+
+        self.assertEqual('\r', detect(['abcdeefgij\r', 'klmo\nnp']))
+        self.assertEqual('\r', detect(['abcdeefgij\r', 'klmonp']))
+
     def test_recipients01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         self.assertFalse(mlist.emailrecipient_set.exists())
@@ -132,21 +163,35 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual(len(recipients) - 1, len(addresses))
         self.assertNotIn(recipient.address, addresses)
 
-    def test_recipients02(self):
-        "From CSV file"
+    def _aux_test_add_recipients_csv(self, end='\n'):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         url = '/emails/mailing_list/%s/recipient/add_csv' % mlist.id
         self.assertGET200(url)
 
-        recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
+        # TODO: it seems django validator does manages address with unicode chars:
+        #       is it a problem
+        # recipients = ['spike.spiegel@bebop.com', u'jet.bläck@bebop.com']
+        recipients = ['spike.spiegel@bebop.com', u'jet.black@bebop.com']
 
-        csvfile = StringIO('\n'.join(recipients))
-        csvfile.name = 'recipients.csv' #Django uses this
+        csvfile = StringIO(end.join(recipients) + ' ')
+        csvfile.name = 'recipients.csv'  # Django uses this
 
         self.assertNoFormError(self.client.post(url, data={'recipients': csvfile}))
         self.assertEqual(set(recipients), {r.address for r in mlist.emailrecipient_set.all()})
 
         csvfile.close()
+
+    def test_recipients02(self):
+        "From CSV file (Unix EOF)"
+        self._aux_test_add_recipients_csv(end=u'\n')
+
+    def test_recipients03(self):
+        "From CSV file (Windows EOF)"
+        self._aux_test_add_recipients_csv(end=u'\r\n')
+
+    def test_recipients04(self):
+        "From CSV file (old Mac EOF)"
+        self._aux_test_add_recipients_csv(end=u'\r')
 
     @skipIfCustomContact
     def test_ml_contacts01(self):
