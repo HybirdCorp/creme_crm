@@ -17,7 +17,7 @@
 *******************************************************************************/
 
 
-creme.color = creme.color || {}
+creme.color = creme.color || {};
 
 creme.color.HEXtoRGB = function(hex) {//Extracted from gccolor-1.0.3 plugin
     var hex = parseInt(((hex.indexOf('#') > -1) ? hex.substring(1) : hex), 16);

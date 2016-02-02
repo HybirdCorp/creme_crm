@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.entity_cell = creme.entity_cell || {}
+creme.entity_cell = creme.entity_cell || {};
 
 creme.entity_cell.EntityCellsWidget = function(div_id, samples) {
     var div = this.div = $('#' + div_id);
@@ -236,7 +236,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //         var header_filters = this.header_filters = div.find('.preview_table_header .filterable_header');
 
         div.find('.selector_list .selector[data-column]').each(function (i, e) {
-            var el = $ (e);
+            var el = $(e);
             var links = el.find('.sub_selector_toggle');
 
             var textSource = links.length ? links : el;
@@ -421,7 +421,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
             this.placeUnderlay(underlay, lastItemOfLine);
 
             // underlay opening: sliding in animation
-            underlay.children().css ('opacity', 1);
+            underlay.children().css('opacity', 1);
             underlay.find('.underlay-content').css('opacity', 0);
             underlay.css('max-height', 0).css('opacity', 1);
 

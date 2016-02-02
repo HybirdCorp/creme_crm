@@ -49,7 +49,7 @@ $(document).ajaxSend(function(event, xhr, settings) {
 //So, with false if a param is used more than once "[]" is appended to the param name
 jQuery.ajaxSettings.traditional = true;
 
-creme.ajax = {}
+creme.ajax = {};
 
 creme.ajax.submit = function(form, data, options) {//Tip: If data === true => data are taken from the form
         var $form = $(form);
