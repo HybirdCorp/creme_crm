@@ -80,12 +80,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                     )
 
         # TODO: we need a helper ReportGraph.create() ??
-        return  ReportGraph.objects.create(user=self.user, report=report,
-                                           name=u"Sum of current year invoices total without taxes / month",
-                                           abscissa=abscissa,
-                                           ordinate=ordinate,
-                                           type=RGT_MONTH, is_count=False,
-                                          )
+        return ReportGraph.objects.create(user=self.user, report=report,
+                                          name=u"Sum of current year invoices total without taxes / month",
+                                          abscissa=abscissa,
+                                          ordinate=ordinate,
+                                          type=RGT_MONTH, is_count=False,
+                                         )
 
     def test_listview_URL_builder(self):
         builder = ListViewURLBuilder(Contact)
@@ -217,7 +217,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', None,
                              _(u"If you don't choose an ordinate field (or none available) "
-                                "you have to check 'Make a count instead of aggregate ?'"
+                               u"you have to check 'Make a count instead of aggregate ?'"
                               )
                             )
 
@@ -295,13 +295,15 @@ class ReportGraphTestCase(BaseReportsTestCase):
         gtype = RGT_RELATION
 
         def post(abscissa):
-            return self.client.post(url, data={'user': self.user.pk,
-                    'name':               name,
-                    'abscissa_field':     abscissa,
-                    'abscissa_group_by':  gtype,
-                    'is_count':           True,
-                    'chart':             'barchart',
-                   })
+            return self.client.post(url,
+                                    data={'user':              self.user.pk,
+                                          'name':              name,
+                                          'abscissa_field':    abscissa,
+                                          'abscissa_group_by': gtype,
+                                          'is_count':          True,
+                                          'chart':             'barchart',
+                                         },
+                                   )
 
         fname = 'staff_size'
         response = post(fname)
@@ -2313,3 +2315,28 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertGET(400, build_url(rgraph, 'days'))
         self.assertGET(400, build_url(rgraph, 'is_count'))
         self.assertGET(400, build_url(rgraph, 'chart'))
+
+    def test_clone_report(self):
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name='capital per month of creation',
+                                            abscissa='created',
+                                            ordinate='capital__sum',
+                                            type=RGT_MONTH, is_count=False,
+                                            chart='barchart',
+                                           )
+
+        cloned_report = report.clone()
+
+        rgrahes = ReportGraph.objects.filter(report=cloned_report)
+        self.assertEqual(1, len(rgrahes))
+
+        cloned_rgraph = rgrahes[0]
+        self.assertNotEqual(rgraph.id, cloned_rgraph.id)
+        self.assertEqual(rgraph.name,     cloned_rgraph.name)
+        self.assertEqual(rgraph.abscissa, cloned_rgraph.abscissa)
+        self.assertEqual(rgraph.ordinate, cloned_rgraph.ordinate)
+        self.assertEqual(rgraph.type,     cloned_rgraph.type)
+        self.assertEqual(rgraph.days,     cloned_rgraph.days)
+        self.assertEqual(rgraph.is_count, cloned_rgraph.is_count)
+        self.assertEqual(rgraph.chart,    cloned_rgraph.chart)
