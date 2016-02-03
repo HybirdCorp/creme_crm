@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -156,8 +156,13 @@ class AbstractReport(CremeEntity):
     def get_children_fields_flat(self):
         return chain.from_iterable(f.get_children_fields_flat() for f in self.filtered_columns)
 
-    def _post_save_clone(self, source):  # TODO: test
+    def _post_save_clone(self, source):
+        for rfield in source.fields.all():
+            rfield.clone(report=self)
+
+        # TODO: use signal for this ?
         for graph in source.reportgraph_set.all():
+            # TODO: avoid multiple save()
             new_graph = graph.clone()
             new_graph.report = self
             new_graph.save()
@@ -224,6 +229,19 @@ class Field(CremeModel):
 
         if sub_report:
             sub_report._build_columns(self.selected)
+
+    def clone(self, report=None):
+        fields_kv = {}
+
+        for field in self._meta.fields:
+            if field.get_tag('clonable'):
+                fname = field.name
+                fields_kv[fname] = getattr(self, fname)
+
+        if report is not None:
+            fields_kv['report'] = report
+
+        return Field.objects.create(**fields_kv)
 
     @property
     def hand(self):
