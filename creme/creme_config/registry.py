@@ -19,7 +19,8 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
+import re
 
 # from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist  # Max
@@ -43,7 +44,12 @@ class NotRegisteredInConfig(Exception):
 
 
 class ModelConfig(object):
+    _SHORT_NAME_RE = re.compile(r'^\w+$')
+
     def __init__(self, model, name_in_url, form_class=None):
+        if not self._SHORT_NAME_RE.match(name_in_url):
+            raise ValueError('The argument "name_in_url" should only contain alphanumeric characters or _')
+
         self.model = model
         self.name_in_url = name_in_url
         self._form_class = form_class

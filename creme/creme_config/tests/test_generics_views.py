@@ -67,6 +67,9 @@ class GenericModelConfigTestCase(CremeTestCase):
 
         self.assertEqual('sector', model_conf.name_in_url)
 
+        with self.assertRaises(ValueError):
+            registry.register((Position, 'my-position'))  # Invalid char '-'
+
     def test_registry_unregister_model01(self):
         "Unregister after the registration"
         registry = _ConfigRegistry()
