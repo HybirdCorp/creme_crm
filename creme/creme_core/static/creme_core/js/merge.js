@@ -32,3 +32,51 @@ creme.merge.selectOtherEntityNRedirect = function(model_id) {
 
     return action.start();
 }
+
+creme.merge.initializeMergeForm = function(form) {
+    var getter = function(input) {
+        if (input.is('input[type="checkbox"]')) {
+            return input.prop('checked');
+        } else if (input.is('input, select, textarea')) {
+            return input.val();
+        } else if (input.is('.ui-creme-widget')) {
+            return input.creme().widget().val();
+        }
+    }
+
+    var setter = function(input, value) {
+        if (input.is('input[type="checkbox"]')) {
+            input.prop('checked', value);
+        } else if (input.is('input, select, textarea')) {
+            input.val(value);
+        } else if (input.is('.ui-creme-widget')) {
+            input.creme().widget().val(value);
+        }
+    }
+
+    var copyTo = function(source, dest) {
+        setter(dest, getter(source));
+    }
+
+    form.each(function() {
+        var button_html = '<input type="button" />';
+        var li_html = '<li class="li_merge_button"></li>';
+
+        $(this).find('.merge_entity_field').each(function() {
+            var $result_li = $('.li_merge_result', this);
+            var name = $(this).attr('name');
+
+            var $merged = $('[name="' + name + '_merged"]', this);
+            var $source_A = $('[name="' + name + '_1"]', this);
+            var $source_B = $('[name="' + name + '_2"]', this);
+
+            // jquery 1.9x migration : avoid attr('value') for inputs. 
+            $result_li.before($(li_html).append($(button_html).val('>').click(function() {
+                copyTo($source_A, $merged);
+            })));
+            $result_li.after($(li_html).append($(button_html).val('<').click(function() {
+                copyTo($source_B, $merged);
+            })));
+        });
+    });
+}

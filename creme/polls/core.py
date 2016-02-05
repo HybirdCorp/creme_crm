@@ -23,11 +23,13 @@ from datetime import date
 from json import loads as jsonloads, dumps as jsondumps
 
 from django.core.exceptions import ValidationError
-from django.forms.fields import Field, IntegerField, CharField, TypedChoiceField, MultipleChoiceField
+from django.forms.fields import (Field, IntegerField, CharField, TypedChoiceField,
+                                 MultipleChoiceField, DateField
+                                )
 from django.forms.widgets import RadioSelect, Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.forms.fields import CremeDateField, ChoiceOrCharField
+from creme.creme_core.forms.fields import ChoiceOrCharField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.utils.dates import date_2_dict
 
@@ -244,7 +246,7 @@ class DatePollLineType(PollLineType):
         return date(**answer)
 
     def _formfield(self, initial):
-        return CremeDateField(initial=date(**initial) if initial is not None else None)
+        return DateField(initial=date(**initial) if initial is not None else None)
 
     def get_stats(self, raw_answer):
         return None

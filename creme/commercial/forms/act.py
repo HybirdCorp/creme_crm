@@ -24,7 +24,7 @@ from django.forms import ModelChoiceField, IntegerField, CharField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm
-from creme.creme_core.forms.fields import CremeDateTimeField, FilteredEntityTypeField
+from creme.creme_core.forms.fields import FilteredEntityTypeField
 from creme.creme_core.forms.widgets import Label
 
 from .. import get_act_model, get_pattern_model
@@ -35,8 +35,8 @@ ActObjectivePattern = get_pattern_model()
 
 
 class ActForm(CremeEntityForm):
-    start    = CremeDateTimeField(label=_(u"Start"))
-    due_date = CremeDateTimeField(label=_(u"Due date"))
+#     start    = CremeDateTimeField(label=_(u"Start"))
+#     due_date = CremeDateTimeField(label=_(u"Due date"))
 
     class Meta(CremeEntityForm.Meta):
         model = get_act_model()

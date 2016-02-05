@@ -23,7 +23,7 @@ from django.forms import CharField, ModelChoiceField
 from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.forms import CreatorEntityField, CremeDateTimeField
+from creme.creme_core.forms import CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import RelationType, Relation
@@ -39,7 +39,7 @@ Organisation = get_organisation_model()
 
 
 class ContactForm(_BasePersonForm):
-    birthday = CremeDateTimeField(label=_('Birthday'), required=False)  # TODO: hook django to use our widget directly.
+#     birthday = CremeDateTimeField(label=_('Birthday'), required=False)
     image    = CreatorEntityField(label=_('Image'), required=False, model=Image)
 
     blocks = _BasePersonForm.blocks.new(

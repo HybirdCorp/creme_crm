@@ -45,10 +45,10 @@ from .widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidg
 
 # TODO : should remove this list and use some hooks in model fields or in bulk registry to retrieve bulk widgets
 _BULK_FIELD_WIDGETS = {
-    models.DateField:                 CalendarWidget(),
-    models.DateTimeField:             DateTimeWidget(),
-    fields.CreationDateTimeField:     DateTimeWidget(),
-    fields.ModificationDateTimeField: DateTimeWidget(),
+#     models.DateField:                 CalendarWidget(),
+#     models.DateTimeField:             DateTimeWidget(),
+#     fields.CreationDateTimeField:     DateTimeWidget(),
+#     fields.ModificationDateTimeField: DateTimeWidget(),
 }
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')

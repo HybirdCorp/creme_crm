@@ -21,7 +21,7 @@
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm, CremeDateTimeField, GenericEntityField
+from creme.creme_core.forms import CremeEntityForm, GenericEntityField
 from creme.creme_core.forms.validators import validate_linkable_entity
 from creme.creme_core.signals import form_post_save
 
@@ -36,9 +36,9 @@ Contact = get_contact_model()
 
 
 class OpportunityEditForm(CremeEntityForm):
-    expected_closing_date = CremeDateTimeField(label=_(u'Expected closing date'), required=False)
-    closing_date          = CremeDateTimeField(label=_(u'Actual closing date'), required=False)
-    first_action_date     = CremeDateTimeField(label=_(u'Date of the first action'), required=False)
+#     expected_closing_date = CremeDateTimeField(label=_(u'Expected closing date'), required=False)
+#     closing_date          = CremeDateTimeField(label=_(u'Actual closing date'), required=False)
+#     first_action_date     = CremeDateTimeField(label=_(u'Date of the first action'), required=False)
     target                = GenericEntityField(label=_(u"Target organisation / contact"),
                                                models=[Organisation, Contact]
                                               )

@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CreatorEntityField, CremeDateTimeField
+from creme.creme_core.forms import CreatorEntityField
 
 from creme.media_managers.models import Image
 
@@ -30,7 +30,7 @@ from .base import _BasePersonForm
 
 # TODO: these 2 fields should be generated automatically...
 class OrganisationForm(_BasePersonForm):
-    creation_date = CremeDateTimeField(label=_(u"Creation date"), required=False)
+#     creation_date = CremeDateTimeField(label=_(u"Creation date"), required=False)
     image         = CreatorEntityField(label=_(u"Logo"), required=False, model=Image)
 
     class Meta(_BasePersonForm.Meta):

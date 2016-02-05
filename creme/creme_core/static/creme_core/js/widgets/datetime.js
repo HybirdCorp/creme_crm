@@ -18,35 +18,75 @@
 
 creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
     options: {
-        format:'dd-mm-yy'
+        format:'dd-mm-yy',
+        readonly: false,
+        disabled: false
     },
 
     _create: function(element, options, cb, sync)
     {
+        this._disabled = creme.object.isTrue(options.disabled) && element.is('[disabled]');
+        this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
+
         var self = this;
-        var parent = element.parent()
-        var today = $('<button>').attr('name', 'today').html(gettext('Today'))
-                                 .attr('type', 'button')
-                                 .bind('click', function(e) {
-                                                     element.datepicker('setDate', new Date());
-                                                     element.change();
-                                                     return false;
-                                                });
+        var parent = element.parent();
 
         var list = $('<ul/>').addClass('ui-layout hbox').append($('<li/>').append(element));
 
         parent.append(list);
 
-        element.datepicker({dateFormat: options.format,
-                            showOn: "button",
-                            buttonText: gettext('Calendar'),
-                            buttonImage: creme_media_url('images/icon_calendar.gif'),
-                            buttonImageOnly: true });
+        this._datepicker = element.datepicker({dateFormat: options.format,
+                                               showOn: "button",
+                                               buttonText: gettext('Calendar'),
+                                               buttonImage: creme_media_url('images/icon_calendar.gif'),
+                                               buttonImageOnly: true });
 
         list.append($('<li/>').append($('<span/>').addClass('ui-creme-datepicker-trigger')
                                                   .append($('img.ui-datepicker-trigger', parent))))
-            .append($('<li/>').append(today));
+
+        this._buttons = this._initHelperButtons();
+        this._buttons.forEach(function(button) {
+            list.append($('<li/>').append(button));
+        });
+
+        this._updateDisabledState(this._disabled);
 
         element.addClass('widget-ready');
+    },
+
+    _updateDisabledState: function(element, disabled)
+    {
+        var state = disabled || this._readonly;
+        this._datepicker.datepicker('option', 'disabled', state);
+        this._buttons.forEach(function(button) {
+            button.prop('disabled', state);
+        });
+    },
+
+    _appendHelperButton: function(buttons, name, label, getter)
+    {
+        var datepicker = this._datepicker;
+        var button = $('<button>').attr('name', name)
+                                  .attr('type', 'button')
+                                  .html(gettext(label));
+
+        button.click(function(e) {
+            e.preventDefault();
+            datepicker.datepicker('setDate', getter(datepicker.datepicker('getDate')));
+        });
+
+        buttons.push(button);
+        return button;
+    },
+
+    _initHelperButtons: function()
+    {
+        var buttons = [];
+        this._appendHelperButton(buttons, 'today', 'Today', function(current) {return new Date();});
+        return buttons;
+    },
+
+    val: function(element, value) {
+        return element.val(value);
     }
 });

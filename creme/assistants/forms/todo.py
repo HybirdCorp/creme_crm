@@ -24,14 +24,15 @@ from django.forms import TypedChoiceField
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _ # ugettext
 
-from creme.creme_core.forms import CremeModelWithUserForm, CremeDateTimeField
+from creme.creme_core.forms import CremeModelWithUserForm
+from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.utils.dates import make_aware_dt
 
 from ..models import ToDo
 
 
 class ToDoForm(CremeModelWithUserForm):
-    deadline      = CremeDateTimeField(label=_(u'Deadline'), required=False)
+#     deadline      = CremeDateTimeField(label=_(u'Deadline'), required=False)
     deadline_hour = TypedChoiceField(label=_(u'Deadline hour'), coerce=int,
                                      choices=[(i, '%ih' % i) for i in xrange(0, 24)],
                                      required=False, empty_value=None, initial=8,
@@ -40,6 +41,7 @@ class ToDoForm(CremeModelWithUserForm):
 
     class Meta(CremeModelWithUserForm.Meta):
         model = ToDo
+        widgets = {'deadline': CalendarWidget}
 
     def __init__(self, entity, *args, **kwargs):
         super(ToDoForm, self).__init__(*args, **kwargs)

@@ -23,7 +23,7 @@ import logging
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import (CremeEntityForm, CremeDateField,
+from creme.creme_core.forms import (CremeEntityForm,
         GenericEntityField, CreatorEntityField)
 from creme.creme_core.forms.validators import validate_linkable_entity
 from creme.creme_core.models import Relation
@@ -59,8 +59,8 @@ class BaseEditForm(CremeEntityForm):
                                 models=[get_organisation_model(), get_contact_model()],
                                )
 
-    issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
-    expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)
+#    issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
+#    expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)
 
     class Meta(CremeEntityForm.Meta):
         labels = {
