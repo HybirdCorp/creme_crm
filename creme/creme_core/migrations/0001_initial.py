@@ -148,7 +148,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('name',),
                 'verbose_name': 'Currency',
-                'verbose_name_plural': 'Currency',
+                'verbose_name_plural': 'Currencies',
             },
             bases=(models.Model,),
         ),
