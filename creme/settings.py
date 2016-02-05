@@ -243,7 +243,8 @@ INSTALLED_DJANGO_APPS = (
     #'django.contrib.admin',
 
     # EXTERNAL APPS
-    'mediagenerator',  # It manages js/css/images
+    # 'mediagenerator',  # It manages js/css/images
+    'creme.creme_core.apps.MediaGeneratorConfig',  # It manages js/css/images
 )
 
 INSTALLED_CREME_APPS = (
@@ -463,7 +464,7 @@ CREME_CORE_CSS = ('main.css',
                     'persons/css/persons.css',
                  )
 
-CREME_OPT_CSS = ( # OPTIONAL APPS
+CREME_OPT_CSS = (  # OPTIONAL APPS
                  ('creme.billing',     'billing/css/billing.css'),
                  ('creme.commercial',  'commercial/css/commercial.css'),
                  ('creme.crudity',     'crudity/css/crudity.css'),
@@ -954,26 +955,27 @@ except ImportError:
 
 _LOCALE_OVERLOAD = join(CREME_ROOT, 'locale_overload', 'locale')
 
-LOCALE_PATHS = [join(CREME_ROOT, "locale")]
+LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
 if exists(_LOCALE_OVERLOAD):
     LOCALE_PATHS.append(_LOCALE_OVERLOAD)
-LOCALE_PATHS.extend(join(CREME_ROOT, app.rsplit('.')[-1], "locale") for app in INSTALLED_CREME_APPS)
+# LOCALE_PATHS.extend(join(CREME_ROOT, app.rsplit('.')[-1], "locale") for app in INSTALLED_CREME_APPS)
 
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
 
 # MEDIA GENERATOR [FINAL SETTINGS]----------------------------------------------
-MEDIA_BUNDLES = (
-                 CREME_I18N_JS,
-                 CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_CREME_APPS)
-                )
-if FORCE_JS_TESTVIEW:
-    MEDIA_BUNDLES += (TEST_CREME_CORE_JS,)
 
-MEDIA_BUNDLES += CREME_OPT_MEDIA_BUNDLES
-
-CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_CREME_APPS)
-MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) + tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
-                        for theme_dir, theme_vb_name in THEMES
-                       )
-
+# NB: done in MediaGeneratorConfig now
+# MEDIA_BUNDLES = (
+#                  CREME_I18N_JS,
+#                  CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_CREME_APPS)
+#                 )
+# if FORCE_JS_TESTVIEW:
+#     MEDIA_BUNDLES += (TEST_CREME_CORE_JS,)
+#
+# MEDIA_BUNDLES += CREME_OPT_MEDIA_BUNDLES
+#
+# CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_CREME_APPS)
+# MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) + tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
+#                         for theme_dir, theme_vb_name in THEMES
+#                        )

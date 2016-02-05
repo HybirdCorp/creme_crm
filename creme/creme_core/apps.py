@@ -37,6 +37,39 @@ from .registry import creme_registry
 logger = logging.getLogger(__name__)
 
 
+# TODO: remove when MediaGenerator is not used
+class MediaGeneratorConfig(AppConfig):
+    name = 'mediagenerator'
+    verbose_name = 'Media generator'  # _(u'Media generator')
+
+    def ready(self):
+        self._build_MEDIA_BUNDLES()
+
+    def _build_MEDIA_BUNDLES(self):
+        from django.conf import settings
+
+        is_installed = apps.is_installed
+        MEDIA_BUNDLES = (settings.CREME_I18N_JS,
+                         settings.CREME_CORE_JS + tuple(js for app, js in settings.CREME_OPT_JS if is_installed(app))
+                        )
+
+        if settings.FORCE_JS_TESTVIEW:
+            MEDIA_BUNDLES += (settings.TEST_CREME_CORE_JS,)
+
+        MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
+
+        CREME_CSS = settings.CREME_CORE_CSS + tuple(css for app, css in settings.CREME_OPT_CSS if is_installed(app))
+        MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) +
+                               tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file
+                                        for css_file in CREME_CSS[1:]
+                                    )
+                                for theme_dir, theme_vb_name in settings.THEMES
+                              )
+
+        settings.CREME_CSS = CREME_CSS  # For compatibility (should not be useful)
+        settings.MEDIA_BUNDLES = MEDIA_BUNDLES
+
+
 class CremeAppConfig(AppConfig):
     dependencies = ()  # Overload ; eg: ['creme.persons']
 
