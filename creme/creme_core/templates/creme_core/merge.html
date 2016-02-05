@@ -7,39 +7,7 @@
     {% comment %}TODO: move to a js file + init widgets automatically{% endcomment %}
     <script type='text/javascript'>
         $(document).ready(function() {
-            function copyToMerged(button, src_class) {
-                var $parent = $(button).parents('.merge_entity_field').first();
-
-                //NB: sadly the val() method does not work with checkbox - it always returns 'on')*
-                //    so we manage checkbox separately....
-                //TODO: uncomment this line (and remve the others) when the bug has been fixed in jquery
-                //$parent.find('.merge_result').val($parent.find(src_class).val());
-
-                $dest = $parent.find('.merge_result');
-                $src  = $parent.find(src_class);
-
-                if ($dest.is('input[type="checkbox"]')) {
-                    // jquery 1.9x migration : attr() is no longer used for properties.
-                    $dest.prop('checked', $src.is(':checked'));
-                } else {
-                    $dest.val($src.val());
-                }
-            }
-
-            function copy1ToMerged() { copyToMerged(this, '.merge_entity1');}
-            function copy2ToMerged() { copyToMerged(this, '.merge_entity2');}
-
-            $('form').each(function() {
-                var button_html = '<input type="button" />';
-                var li_html = '<li class="li_merge_button"></li>';
-
-                $(this).find('li.li_merge_result').each(function() {
-                    var $result_li = $(this);
-                    // jquery 1.9x migration : avoid attr('value') for inputs. 
-                    $result_li.before($(li_html).append($(button_html).val('>').click(copy1ToMerged)));
-                    $result_li.after($(li_html).append($(button_html).val('<').click(copy2ToMerged)));
-                });
-            });
+            creme.merge.initializeMergeForm($('form'));
         });
     </script>
 

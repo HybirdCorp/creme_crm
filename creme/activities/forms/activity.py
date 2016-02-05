@@ -23,17 +23,17 @@ from functools import partial
 import logging
 
 from django.contrib.auth import get_user_model
-from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
+from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField, DateField
 from django.forms.fields import ChoiceField # DateTimeField
 from django.forms.utils import ValidationError # ErrorList
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.fields import (CremeDateTimeField, CremeTimeField,
+from creme.creme_core.forms.fields import (CremeTimeField,
         MultiCreatorEntityField, MultiGenericEntityField)
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, CalendarWidget
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.utils.dates import make_aware_dt
 
@@ -60,11 +60,11 @@ Activity = get_activity_model()
 class _ActivityForm(CremeEntityForm):
     type_selector = ActivityTypeField(label=_(u'Type'), types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO))
 
-    start      = CremeDateTimeField(label=_(u'Start'), required=False)
+#     start      = CremeDateTimeField(label=_(u'Start'), required=False)
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
-    end        = CremeDateTimeField(label=_(u'End'), required=False,
-                                    help_text=_(u'Default duration of the type will be used if you leave blank.'),
-                                   )
+#     end        = CremeDateTimeField(label=_(u'End'), required=False,
+#                                     help_text=_(u'Default duration of the type will be used if you leave blank.'),
+#                                    )
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
     error_messages = {
@@ -77,6 +77,8 @@ class _ActivityForm(CremeEntityForm):
         model = Activity
         #exclude = CremeEntityForm.Meta.exclude + ('sub_type',)
         exclude = CremeEntityForm.Meta.exclude + ('type', 'sub_type')
+        widgets = {'start': CalendarWidget, 'end': CalendarWidget}
+        help_texts = {'end': _(u'Default duration of the type will be used if you leave blank.')}
 
     def __init__(self, *args, **kwargs):
         super(_ActivityForm, self).__init__(*args, **kwargs)
@@ -277,7 +279,7 @@ class ActivityCreateForm(_ActivityCreateForm):
     subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
     linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
 
-    alert_day            = CremeDateTimeField(label=_(u'Alert day'), required=False)
+    alert_day            = DateField(label=_(u'Alert day'), required=False)
     alert_start_time     = CremeTimeField(label=_(u"Alert time"), required=False)
     alert_trigger_number = IntegerField(label=_(u'Value'), required=False,
                                         help_text=_(u'Your alert will be raised X units (X = Value) before the start of the activity'),
@@ -418,9 +420,11 @@ class ActivityCreateForm(_ActivityCreateForm):
         if specific_date_alert:
             start_time = get('alert_start_time')
             self._create_alert(activity,
-                               specific_date_alert.replace(hour=start_time.hour,
-                                                           minute=start_time.minute,
-                                                          )
+                               datetime.combine(specific_date_alert,
+                                                time(hour=start_time.hour,
+                                                     minute=start_time.minute,
+                                                    )
+                                               )
                               )
 
         amount = get('alert_trigger_number')

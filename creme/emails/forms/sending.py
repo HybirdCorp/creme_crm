@@ -23,13 +23,14 @@ from datetime import datetime, time
 import logging
 from pickle import dumps
 
-from django.forms import IntegerField, EmailField # TypedChoiceField
+from django.forms import IntegerField, EmailField, DateTimeField
 from django.forms.utils import ValidationError # ErrorList
 from django.template.base import Template, VariableNode
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _ # ugettext
 
-from creme.creme_core.forms import CremeModelForm, CreatorEntityField, CremeDateTimeField
+from creme.creme_core.forms import CremeModelForm, CreatorEntityField
+from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.models import SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
@@ -47,8 +48,8 @@ class SendingCreateForm(CremeModelForm):
 #    type         = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
 #    template     = CreatorEntityField(label=_(u'Email template'), model=EmailTemplate)
     template     = CreatorEntityField(label=_(u'Email template'), model=get_emailtemplate_model())
-    sending_date = CremeDateTimeField(label=_(u"Sending date"), required=False,
-                                      help_text=_(u"Required only of the sending is deferred."))
+    sending_date = DateTimeField(label=_(u"Sending date"), required=False, widget=CalendarWidget,
+                                 help_text=_(u"Required only of the sending is deferred."))
     hour         = IntegerField(label=_("Sending hour"), required=False, min_value=0, max_value=23)
     minute       = IntegerField(label=_("Sending minute"), required=False, min_value=0, max_value=59)
 

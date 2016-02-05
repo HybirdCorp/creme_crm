@@ -136,6 +136,7 @@ class CremeCoreConfig(CremeAppConfig):
 
         checks.register(Tags.settings)(check_uninstalled_apps)  # Crashes in migrate mode.
         self.hook_fk_formfield()
+        self.hook_datetime_widget()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('creme_core', _(u'Core'), '/')
@@ -185,3 +186,11 @@ class CremeCoreConfig(CremeAppConfig):
             return original_fk_formfield(self, **defaults)
 
         ForeignKey.formfield = new_fk_formfield
+
+    def hook_datetime_widget(self):
+        from django.forms.fields import DateField, DateTimeField, TimeField
+        from creme.creme_core.forms.widgets import CalendarWidget, DateTimeWidget, TimeWidget
+
+        DateField.widget = CalendarWidget
+        DateTimeField.widget = DateTimeWidget
+        TimeField.widget = TimeWidget

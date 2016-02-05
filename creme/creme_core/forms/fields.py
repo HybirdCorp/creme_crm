@@ -1071,13 +1071,31 @@ class AjaxModelChoiceField(ModelChoiceField):
 class CremeTimeField(TimeField):
     widget = core_widgets.TimeWidget
 
+    def __init__(self, *args, **kwargs):
+        super(CremeTimeField, self).__init__(*args, **kwargs)
+        warnings.warn("CremeTimeField is deprecated ; use django TimeField instead or nothing at all.",
+                      DeprecationWarning
+                     )
+
 
 class CremeDateField(DateField):
     widget = core_widgets.CalendarWidget
 
+    def __init__(self, *args, **kwargs):
+        super(CremeDateField, self).__init__(*args, **kwargs)
+        warnings.warn("CremeDateField is deprecated ; use django DateField instead or nothing at all.",
+                      DeprecationWarning
+                     )
+
 
 class CremeDateTimeField(DateTimeField):
     widget = core_widgets.CalendarWidget
+
+    def __init__(self, *args, **kwargs):
+        super(CremeDateTimeField, self).__init__(*args, **kwargs)
+        warnings.warn("CremeDateTimeField is deprecated ; use django DateTimeField instead or nothing at all.",
+                      DeprecationWarning
+                     )
 
 
 class MultiEmailField(Field):

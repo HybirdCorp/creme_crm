@@ -20,22 +20,25 @@
 
 from datetime import datetime, time
 
+from django.forms.fields import TimeField
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CremeModelWithUserForm, CremeDateTimeField, CremeTimeField
+from creme.creme_core.forms import CremeModelWithUserForm
+from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.utils.dates import make_aware_dt
 
 from ..models import Alert
 
 
-#TODO: alright, we need a real date time widget that this shit !
+# TODO: alright, we need a real date time widget that this shit !
 class AlertForm(CremeModelWithUserForm):
-    trigger_date = CremeDateTimeField(label=_(u'Trigger date'))
-    trigger_time = CremeTimeField(label=_(u'Hour'), required=False)
+#     trigger_date = CremeDateTimeField(label=_(u'Trigger date'))
+    trigger_time = TimeField(label=_(u'Hour'), required=False)
 
     class Meta(CremeModelWithUserForm.Meta):
         model = Alert
+        widgets = {'trigger_date': CalendarWidget}
 
     def __init__(self, entity, *args, **kwargs):
         super(AlertForm, self).__init__(*args, **kwargs)
@@ -54,9 +57,9 @@ class AlertForm(CremeModelWithUserForm):
         cleaned_data = super(AlertForm, self).clean()
 
         if not self._errors:
-            #trigger_date = cleaned_data.get('trigger_date')
-            #trigger_time = cleaned_data.get('trigger_time') or time()
-            #cleaned_data['trigger_date'] = trigger_date.replace(hour=trigger_time.hour, minute=trigger_time.minute)
+#             trigger_date = cleaned_data.get('trigger_date')
+#             trigger_time = cleaned_data.get('trigger_time') or time()
+#             cleaned_data['trigger_date'] = trigger_date.replace(hour=trigger_time.hour, minute=trigger_time.minute)
 
             trigger_time = cleaned_data.get('trigger_time')
             if trigger_time:

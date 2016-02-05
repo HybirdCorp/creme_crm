@@ -814,7 +814,8 @@ class CalendarWidget(TextInput):
         return mark_safe(u"""<div>%(help_text)s</div>%(input)s""" % {
                                   'help_text': self.default_help_text,
                                   'input': widget_render_input(TextInput.render, self, name, value, context,
-                                                               format=dateformat),
+                                                               format=dateformat,
+                                                               readonly=attrs.get('readonly', False)),
                               })
 
 
