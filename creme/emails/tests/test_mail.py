@@ -33,24 +33,14 @@ except Exception as e:
 
 @skipIfCustomEntityEmail
 class EntityEmailTestCase(_EmailsTestCase):
-    clean_files_in_teardown = True #see CremeTestCase
+    clean_files_in_teardown = True  # see CremeTestCase
 
     def login(self, is_superuser=True):
-        user = super(EntityEmailTestCase, self).login(is_superuser,
-                                               allowed_apps=['persons', 'emails'],
-                                               creatable_models=[Contact, Organisation, EntityEmail],
-                                              )
+        return super(EntityEmailTestCase, self).login(is_superuser,
+                                                      allowed_apps=['persons', 'emails'],
+                                                      creatable_models=[Contact, Organisation, EntityEmail],
+                                                     )
 
-        #user = self.user
-        ###self.user_contact = Contact.objects.create(user=user, is_user=user,
-                                                   ###first_name='Re-l',
-                                                   ###last_name='Mayer',
-                                                   ###email='re-l.mayer@rpd.rmd',
-                                                  ###)
-        ##self.user_contact = self.get_object_or_fail(Contact, is_user=user)
-        #self.user_contact = user.linked_contact
-
-        return user
 
     def _build_send_url(self, entity):
         return '/emails/mail/add/%s' % entity.id
@@ -73,7 +63,6 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertEqual([contact.id], c_recipients.initial)
 
-        #sender = self.user_contact.email
         sender = user.linked_contact.email
         body = 'Freeze !'
         body_html = '<p>Freeze !</p>'
@@ -95,7 +84,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(body_html,        email.body_html)
         self.assertEqual(MAIL_STATUS_SENT, email.status)
 
-        #self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=self.user_contact)
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=user.linked_contact)
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact)
 
@@ -210,7 +198,6 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         response = self.assertPOST200(self._build_send_url(contact01),
                                       data={'user':         user.id,
-                                            #'sender':       self.user_contact.email,
                                             'sender':       user.linked_contact.email,
                                             'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
                                             'o_recipients': '[%d,%d]' % (orga01.id, orga02.id),
@@ -269,7 +256,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                  )
         create_sc(value=(EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                          EntityCredentials.DELETE | EntityCredentials.UNLINK
-                        ), #no LINK
+                        ),  # Not LINK
                   set_type=SetCredentials.ESET_ALL
                  )
 
@@ -293,7 +280,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         def post(contact):
             return self.client.post(self._build_send_url(contact),
                                     data={'user':         user.id,
-                                          #'sender':       self.user_contact.email,
                                           'sender':       user.linked_contact.email,
                                           'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
                                           'o_recipients': '[%d,%d]' % (orga01.id, orga02.id),
@@ -357,7 +343,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertPOST200(url,
                                       data={'user':         user.id,
                                             'sender':       user.linked_contact.email,
-                                            'c_recipients': '[%d]' % c.id, # should not be used
+                                            'c_recipients': '[%d]' % c.id,  # Should not be used
                                             'subject':      'Under arrest',
                                             'body':         'Freeze !',
                                             'body_html':    '<p>Freeze !</p>',
@@ -391,7 +377,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertPOST200(url,
                                       data={'user':         user.id,
                                             'sender':       user.linked_contact.email,
-                                            'o_recipients': '[%d]' % orga.id, # should not be used
+                                            'o_recipients': '[%d]' % orga.id,  # Should not be used
                                             'subject':      'Under arrest',
                                             'body':         'Freeze !',
                                             'body_html':    '<p>Freeze !</p>',
@@ -417,7 +403,6 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         response = self.assertPOST200(self._build_send_url(contact01),
                                       data={'user':         user.id,
-                                            #'sender':       self.user_contact.email,
                                             'sender':       user.linked_contact.email,
                                             'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
                                             'o_recipients': '[%d,%d]' % (orga01.id, orga02.id),
@@ -480,11 +465,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(body_format % (contact.first_name, contact.last_name),      ini_get('body'))
         self.assertEqual(body_html_format % (contact.first_name, contact.last_name), ini_get('body_html'))
         self.assertEqual(signature.id, ini_get('signature'))
-        #self.assertEqual(attachments,  ini_get('attachments')) #TODO
+        # self.assertEqual(attachments,  ini_get('attachments')) #TODO
 
         response = self.client.post(url, data={'step':         2,
                                                'user':         user.id,
-                                               #'sender':       self.user_contact.email,
                                                'sender':       user.linked_contact.email,
                                                'c_recipients': '[%d]' % contact.id,
                                                'subject':      subject,
@@ -498,7 +482,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     @skipIfCustomEmailTemplate
     @skipIfCustomContact
-    def test_create_from_template02(self): #TODO: test better (credentials....)
+    def test_create_from_template02(self):  # TODO: test better (credentials....)
         user = self.login()
         body = 'Hi , nice to meet you !'
 
@@ -519,7 +503,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertPOST200(self._build_send_from_template_url(contact),
                                       data={'step':         2,
                                             'user':         user.id,
-                                            #'sender':       self.user_contact.email,
                                             'sender':       user.linked_contact.email,
                                             'c_recipients': '[%d]' % contact.id,
                                             'subject':      template.subject,
@@ -689,6 +672,15 @@ class EntityEmailTestCase(_EmailsTestCase):
         self._create_email(MAIL_STATUS_SENT)
         EmailsSendCommand().execute(verbosity=0)
 
+        self.assertFalse(mail.outbox)
+
+    def test_command04(self):
+        "Email is in the trash"
+        self.login()
+        email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        email.trash()
+
+        EmailsSendCommand().execute(verbosity=0)
         self.assertFalse(mail.outbox)
 
     # TODO: test other views

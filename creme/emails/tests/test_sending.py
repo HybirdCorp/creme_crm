@@ -335,10 +335,10 @@ class SendingsTestCase(_EmailsTestCase):
 
         sender = 'vicious@reddragons.mrs'
         response = self.client.post(self._build_add_url(camp),
-                                    data = {'sender':   sender,
-                                            'type':     SENDING_TYPE_IMMEDIATE,
-                                            'template': template.id,
-                                           }
+                                    data={'sender':   sender,
+                                          'type':     SENDING_TYPE_IMMEDIATE,
+                                          'template': template.id,
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertFalse(django_mail.outbox)
@@ -467,3 +467,32 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertGET(400, build_url(sending, 'sender'))
         self.assertGET(400, build_url(sending, 'type'))
         self.assertGET(400, build_url(sending, 'sending_date'))
+
+    @skipIfCustomContact
+    def test_command(self):
+        "Deleted campaign"
+        user = self.login()
+        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
+        mlist    = MailingList.objects.create(user=user, name='ml01')
+        contact  = Contact.objects.create(user=user, email='spike.spiegel@bebop.com',
+                                          first_name='Spike', last_name='Spiegel',
+                                         )
+
+        camp.mailing_lists.add(mlist)
+        mlist.contacts.add(contact)
+
+        sender = 'vicious@reddragons.mrs'
+        response = self.client.post(self._build_add_url(camp),
+                                    data={'sender':   sender,
+                                          'type':     SENDING_TYPE_IMMEDIATE,
+                                          'template': template.id,
+                                         },
+                                   )
+        self.assertNoFormError(response)
+        self.assertFalse(django_mail.outbox)
+
+        camp.trash()
+
+        EmailsSendCommand().execute(verbosity=0)
+        self.assertFalse(django_mail.outbox)

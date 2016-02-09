@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,14 @@
 ################################################################################
 
 from django.core.management.base import BaseCommand
-#from django.conf import settings
+# from django.conf import settings
 from django.utils.timezone import now
 
 
 LOCK_NAME = "sending_emails"
 
-#NB: python manage.py emails_send
+# NB: python manage.py emails_send
+
 
 class Command(BaseCommand):
     help = "Send all unsent mails that have to be."
@@ -33,15 +34,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from creme.creme_core.models.lock import Mutex, MutexLockedException
         from creme.emails.models import EmailSending
-        from creme.emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SENDING_STATE_INPROGRESS # SENDING_STATE_PLANNED
+        from creme.emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SENDING_STATE_INPROGRESS
 
         try:
-            lock = Mutex.get_n_lock(LOCK_NAME)
+            Mutex.get_n_lock(LOCK_NAME)
         except MutexLockedException:
             self.stderr.write('A process is already running')
         else:
-            #for sending in EmailSending.objects.filter(state=SENDING_STATE_PLANNED):
-            for sending in EmailSending.objects.exclude(state=SENDING_STATE_DONE):
+            for sending in EmailSending.objects.exclude(state=SENDING_STATE_DONE) \
+                                               .exclude(campaign__is_deleted=True):
                 if SENDING_TYPE_IMMEDIATE == sending.type or sending.sending_date <= now():
                     sending.state = SENDING_STATE_INPROGRESS
                     sending.save()
@@ -52,7 +53,7 @@ class Command(BaseCommand):
 
                     status = sending.send_mails()
 
-                    #TODO: move in send_mails() ???
+                    # TODO: move in send_mails() ???
                     sending.state = status or SENDING_STATE_DONE
                     sending.save()
 
