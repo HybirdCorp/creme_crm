@@ -24,14 +24,13 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField, DateField
-from django.forms.fields import ChoiceField # DateTimeField
+from django.forms.fields import ChoiceField, TimeField
 from django.forms.utils import ValidationError # ErrorList
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.fields import (CremeTimeField,
-        MultiCreatorEntityField, MultiGenericEntityField)
+from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, CalendarWidget
 from creme.creme_core.models import RelationType, Relation
@@ -61,11 +60,11 @@ class _ActivityForm(CremeEntityForm):
     type_selector = ActivityTypeField(label=_(u'Type'), types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO))
 
 #     start      = CremeDateTimeField(label=_(u'Start'), required=False)
-    start_time = CremeTimeField(label=_(u'Start time'), required=False)
+    start_time = TimeField(label=_(u'Start time'), required=False)
 #     end        = CremeDateTimeField(label=_(u'End'), required=False,
 #                                     help_text=_(u'Default duration of the type will be used if you leave blank.'),
 #                                    )
-    end_time   = CremeTimeField(label=_(u'End time'), required=False)
+    end_time   = TimeField(label=_(u'End time'), required=False)
 
     error_messages = {
         'floating_cannot_busy': _(u"A floating on the day activity can't busy its participants"),
@@ -280,7 +279,7 @@ class ActivityCreateForm(_ActivityCreateForm):
     linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
 
     alert_day            = DateField(label=_(u'Alert day'), required=False)
-    alert_start_time     = CremeTimeField(label=_(u"Alert time"), required=False)
+    alert_start_time     = TimeField(label=_(u"Alert time"), required=False)
     alert_trigger_number = IntegerField(label=_(u'Value'), required=False,
                                         help_text=_(u'Your alert will be raised X units (X = Value) before the start of the activity'),
                                        )
