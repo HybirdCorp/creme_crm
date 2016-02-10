@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -94,6 +94,6 @@ class CommercialConfig(CremeAppConfig):
         reg_item(reverse('commercial__create_salesman'), _(u'Add a salesman'), cperm(get_contact_model()))
 
     def register_setting_key(self, setting_key_registry):
-        from .setting_keys import notification_key, orga_approaches_key
+        from .setting_keys import orga_approaches_key  # notification_key
 
-        setting_key_registry.register(notification_key, orga_approaches_key)
+        setting_key_registry.register(orga_approaches_key)  # notification_key

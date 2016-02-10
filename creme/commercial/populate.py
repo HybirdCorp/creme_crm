@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 import logging
 
 from django.apps import apps
+from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import (relations_block, properties_block,
@@ -28,13 +29,15 @@ from creme.creme_core.blocks import (relations_block, properties_block,
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, CremePropertyType, SettingValue,
-        BlockDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter)
+        Job, BlockDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter)
 from creme.creme_core.utils import create_if_needed
+from creme.creme_core.utils.date_period import date_period_registry
 
 from creme.persons import get_contact_model, get_organisation_model
 
 from . import get_act_model, get_pattern_model, get_strategy_model
 from . import blocks, buttons, constants, setting_keys
+from .creme_jobs import com_approaches_emails_send_type
 from .models import MarketSegment, ActType
 
 
@@ -98,9 +101,16 @@ class Populator(BasePopulator):
 
 
         create_svalue = SettingValue.create_if_needed
-        create_svalue(key=setting_keys.notification_key,    user=None, value=True)
+        # create_svalue(key=setting_keys.notification_key,    user=None, value=True)
         create_svalue(key=setting_keys.orga_approaches_key, user=None, value=True)
 
+
+        Job.objects.get_or_create(type_id=com_approaches_emails_send_type.id,
+                                  defaults={'language':    settings.LANGUAGE_CODE,
+                                            'periodicity': date_period_registry.get_period('days', 1),
+                                            'status':      Job.STATUS_OK,
+                                           }
+                                 )
 
         if not already_populated:
             ButtonMenuItem.create_if_needed(pk='commercial-complete_goal_button',
