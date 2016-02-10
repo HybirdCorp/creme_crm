@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import SettingValue
+from django.conf import settings
 
+from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import SettingValue, Job
+from creme.creme_core.utils.date_period import date_period_registry
+
+from .creme_jobs import activesync_type
 from .setting_keys import mapi_server_url_key, mapi_domain_key, mapi_server_ssl_key
 
 
@@ -29,3 +33,10 @@ class Populator(BasePopulator):
         SettingValue.create_if_needed(key=mapi_server_url_key, user=None, value='')
         SettingValue.create_if_needed(key=mapi_domain_key,     user=None, value='')
         SettingValue.create_if_needed(key=mapi_server_ssl_key, user=None, value=False)
+
+        Job.objects.get_or_create(type_id=activesync_type.id,
+                                  defaults={'language':    settings.LANGUAGE_CODE,
+                                            'periodicity': date_period_registry.get_period('minutes', 30),
+                                            'status':      Job.STATUS_OK,
+                                           }
+                                 )

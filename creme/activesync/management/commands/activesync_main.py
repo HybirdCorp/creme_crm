@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,14 +24,19 @@ import sys
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from creme.activesync.sync import Synchronization
 from creme.activesync.errors import CremeActiveSyncError
+from creme.activesync.sync import Synchronization
 
 
 USER_ID = 'user_id'
 ALL_USERS = 'all_users'
 
+
 class Command(BaseCommand):
+    help = """Synchronise data with the ActiveSync server.
+Use it only for debugging purpose, because the synchronization work should be done by the Job system (see creme_jobs.py)
+"""
+
 #    option_list = BaseCommand.option_list + (
 #        make_option("-u", "--user_id", action="store",      dest=USER_ID,   help="Synchronised the user with the given id"),
 #        make_option("-a", "--all",     action="store_true", dest=ALL_USERS, help="Synchronise all users (incompatible with --user_id option)", default=False),
