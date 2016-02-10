@@ -14,7 +14,7 @@ try:
     from creme.creme_core.tests.base import CremeTransactionTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
-            SetCredentials, Currency, Vat) # CremeProperty
+            SetCredentials, Currency, Vat)  # CremeProperty
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER

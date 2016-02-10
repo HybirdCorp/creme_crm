@@ -335,8 +335,10 @@ class Base(CremeEntity):
         self._copy_properties(template)
 
     def save(self, *args, **kwargs):
-        self.invalidate_cache()
+        if self.pk:
+            self.invalidate_cache()
 
-        self.total_vat    = self._get_total_with_tax()
-        self.total_no_vat = self._get_total()
+            self.total_vat    = self._get_total_with_tax()
+            self.total_no_vat = self._get_total()
+
         return super(Base, self).save(*args, **kwargs)

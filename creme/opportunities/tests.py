@@ -35,7 +35,7 @@ try:
 
     if apps.is_installed('creme.billing'):
         from creme.billing import (get_invoice_model, get_quote_model,
-                get_sales_order_model, get_service_line_model)
+                get_sales_order_model, get_service_line_model, quote_model_is_custom)
         from creme.billing.models import QuoteStatus  # Quote, SalesOrder, Invoice, ServiceLine
         from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
@@ -972,6 +972,35 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         Relation.objects.filter(type__in=(constants.REL_SUB_CURRENT_DOC, constants.REL_OBJ_CURRENT_DOC)).delete()
 
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
+
+    @skipIfNotInstalled('creme.billing')
+    # @skipIfCustomOrganisation
+    def test_current_quote_6(self):
+        "Avoid queries when the billing instance has just been created"
+        if quote_model_is_custom():
+            return
+
+        user = self.login()
+
+        from django.db import DEFAULT_DB_ALIAS, connections
+        from django.test.utils import CaptureQueriesContext
+
+        context = CaptureQueriesContext(connections[DEFAULT_DB_ALIAS])
+
+        status = QuoteStatus.objects.all()[0]
+
+        with context:
+            quote = Quote.objects.create(user=user,
+                                         name='My Quote',
+                                         status=status,
+                                        )
+
+        self.assertTrue(quote.pk)
+
+        key_id = constants.SETTING_USE_CURRENT_QUOTE
+
+        for query_info in context.captured_queries:
+            self.assertNotIn(key_id, query_info['sql'])
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales01(self):

@@ -190,3 +190,28 @@ class QuoteTestCase(_BillingTestCase):
         self.assertEqual(cloned,      billing_address.owner)
         self.assertEqual(b_addr.name, billing_address.name)
         self.assertEqual(b_addr.city, billing_address.city)
+
+    def test_num_queries(self):
+        "Avoid the queries about line sa creation (because these queries can be really slow with a lot of entities)"
+        from django.db import DEFAULT_DB_ALIAS, connections
+        from django.test.utils import CaptureQueriesContext
+
+        # NB: we do not use assertNumQueries, because external signal handlers can add their owns queries
+        context = CaptureQueriesContext(connections[DEFAULT_DB_ALIAS])
+
+        status = QuoteStatus.objects.all()[0]
+
+        with context:
+            quote = Quote.objects.create(user=self.user,
+                                         name='My Quote',
+                                         status=status,
+                                        )
+
+        self.assertTrue(quote.pk)
+        self.assertEqual(0, quote.total_no_vat)
+        self.assertEqual(0, quote.total_vat)
+
+        for query_info in context.captured_queries:
+            query = query_info['sql']
+            self.assertNotIn('billing_productline', query)
+            self.assertNotIn('billing_serviceline', query)
