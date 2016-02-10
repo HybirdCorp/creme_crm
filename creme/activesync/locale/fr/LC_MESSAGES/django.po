@@ -1,14 +1,13 @@
 # FR LOCALISATION OF 'ACTIVESYNC' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activesync 1.6\n"
+"Project-Id-Version: Creme Activesync 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-06 23:07+0200\n"
+"POT-Creation-Date: 2016-01-13 11:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,12 +15,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:28 apps.py:37 templates/activesync/frags/ajax/main_sync.html:6
+#: apps.py:28 apps.py:39 templates/activesync/frags/ajax/main_sync.html:6
 #: templates/activesync/main_sync.html:4
 msgid "Mobile synchronization"
 msgstr "Synchronisation mobile"
 
-#: apps.py:50
+#: apps.py:52
 msgid "Contact synchronisation"
 msgstr "Synchronisation de contact"
 
@@ -149,6 +148,24 @@ msgstr ""
 #, python-format
 msgid "Deleting %s on the server"
 msgstr "Effacement de %s sur le serveur"
+
+#: creme_jobs.py:33
+msgid "ActiveSync synchronisation"
+msgstr "Synchronisation ActiveSync"
+
+#: creme_jobs.py:42
+#, python-format
+msgid "An error occurred for the user «%s»"
+msgstr "Une erreur s'est produite pour l'utilisateur «%s»"
+
+#: creme_jobs.py:43
+#, python-format
+msgid "Original error: %s"
+msgstr "Erreur originale : %s"
+
+#: creme_jobs.py:48
+msgid "Synchronise data with the ActiveSync server"
+msgstr "Synchronise les données avec le serveur ActiveSync"
 
 #: errors.py:43
 msgid "Wrong username and/or password"
@@ -354,20 +371,20 @@ msgstr "Dans Crème"
 msgid "On server"
 msgstr "Sur le serveur"
 
-#: models/active_sync.py:111
+#: models/active_sync.py:112
 msgid "Last sync"
 msgstr "Dernière synchronisation"
 
-#: models/active_sync.py:131 models/active_sync.py:187
+#: models/active_sync.py:132 models/active_sync.py:188
 #: templates/activesync/templatetags/block_user_synchronization_history.html:14
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/active_sync.py:189
+#: models/active_sync.py:190
 msgid "Entity changes"
 msgstr "Changements sur la fiche"
 
-#: models/active_sync.py:249
+#: models/active_sync.py:250
 msgid "This entity doesn't exist anymore"
 msgstr "Cette fiche n'existe plus"
 
@@ -539,11 +556,6 @@ msgstr ""
 "(login), la synchronisation sera remise à zéro. Vous ne perdrez pas vos "
 "contacts synchronisés mais ils seront de nouveau ajoutés sur votre 'nouveau' "
 "compte à la prochaine synchronisation."
-
-# Already in creme_core
-#: views/user_settings.py:48
-msgid "Save the modifications"
-msgstr ""
 
 #~ msgid "NB"
 #~ msgstr "N.B."

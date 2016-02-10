@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models.relation import Relation
+    from creme.creme_core.models import Relation, Job
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons import get_contact_model, get_organisation_model
@@ -15,6 +15,7 @@ try:
     from creme.activities.constants import ACTIVITYTYPE_MEETING
     from creme.activities.tests.base import skipIfCustomActivity
 
+    from ..creme_jobs import activesync_type
     from ..models import UserSynchronizationHistory, CremeExchangeMapping
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -28,10 +29,15 @@ class ActiveSyncModelsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons', 'activities')
+        cls.populate('creme_core', 'persons', 'activities', 'activesync')
 
     def setUp(self):
         self.login()
+
+    def test_populate(self):
+        job = self.get_object_or_fail(Job, type_id=activesync_type.id)
+        self.assertIsNone(job.user)
+        self.assertEqual({'type': 'minutes', 'value': 30}, job.periodicity.as_dict())
 
     @skipIfCustomContact
     def test_mapping_update_contact01(self):
