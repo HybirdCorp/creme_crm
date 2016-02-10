@@ -6,6 +6,7 @@ try:
 
     from django.conf import settings
     from django.core import mail
+    from django.core.mail.backends.locmem import EmailBackend
     from django.core.urlresolvers import reverse
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -14,7 +15,7 @@ try:
     from creme.creme_core.tests.fake_models import FakeOrganisation
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (CremeEntity, Relation, CremeProperty,
-            BlockPortalLocation, SettingValue)
+            BlockPortalLocation, SettingValue, Job, JobResult)
     from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
 
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
@@ -30,9 +31,10 @@ try:
     from creme.opportunities.tests import skipIfCustomOpportunity
 
     from ..blocks import approaches_block
-    from ..constants import (DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
-            IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED)
-    from ..management.commands.com_approaches_emails_send import Command as EmailsSendCommand
+    from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
+        # IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED
+    # from ..management.commands.com_approaches_emails_send import Command as EmailsSendCommand
+    from ..creme_jobs import com_approaches_emails_send_type
     from ..models import CommercialApproach
     from .base import Organisation, Contact, Activity, Opportunity
 except Exception as e:
@@ -44,9 +46,14 @@ class CommercialApproachTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'activities', 'opportunities', 'commercial', 'persons')
+        cls.original_send_messages = EmailBackend.send_messages
 
     def setUp(self):
         self.login()
+
+    def tearDown(self):
+        super(CommercialApproachTestCase, self).tearDown()
+        EmailBackend.send_messages = self.original_send_messages
 
     def _build_entity_field(self, entity):
         return '[{"ctype": {"id": "%s"}, "entity":"%s"}]' % (entity.entity_type_id, entity.id)
@@ -309,7 +316,13 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertContains(response, ' id="%s"' % approaches_block.id_)
 
     def _send_mails(self):
-        EmailsSendCommand().execute(verbosity=0)
+        # EmailsSendCommand().execute(verbosity=0)
+        job = self.get_object_or_fail(Job, type_id=com_approaches_emails_send_type.id)
+        self.assertIsNone(job.user)
+
+        com_approaches_emails_send_type.execute(job)
+
+        return job
 
     def _build_orgas(self):
         user = self.user
@@ -324,7 +337,7 @@ class CommercialApproachTestCase(CremeTestCase):
         return mngd_orga, customer
 
     @skipIfCustomOrganisation
-    def test_command01(self):
+    def test_job01(self):
         "Customer has no CommercialApproach"
         self._send_mails()
         self.assertFalse(mail.outbox)
@@ -354,7 +367,7 @@ class CommercialApproachTestCase(CremeTestCase):
                         )
 
     @skipIfCustomOrganisation
-    def test_command02(self):
+    def test_job02(self):
         "A commapp is linked to the customer"
         mngd_orga, customer = self._build_orgas()
 
@@ -367,7 +380,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertFalse(mail.outbox)
 
     @skipIfCustomOrganisation
-    def test_command03(self):
+    def test_job03(self):
         "The linked Commapp is to old"
         mngd_orga, customer = self._build_orgas()
 
@@ -384,7 +397,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
-    def test_command04(self):
+    def test_job04(self):
         "A commapp is linked to a manager"
         mngd_orga, customer = self._build_orgas()
 
@@ -404,7 +417,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
-    def test_command05(self):
+    def test_job05(self):
         "A commapp is linked to a employee"
         mngd_orga, customer = self._build_orgas()
 
@@ -424,7 +437,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
-    def test_command06(self):
+    def test_job06(self):
         "A commapp is linked to an Opportunity"
         mngd_orga, customer = self._build_orgas()
 
@@ -442,8 +455,8 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertFalse(mail.outbox)
 
     @skipIfCustomOrganisation
-    def test_command07(self):
-        "Ignore the managed orga that are customer of another managed orga"
+    def test_job07(self):
+        "Ignore the managed orga that are customer of another managed organisation"
         mngd_orga, customer = self._build_orgas()
 
         CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME,
@@ -454,13 +467,40 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertFalse(mail.outbox)
 
     @skipIfCustomOrganisation
-    def test_command08(self):
-        "DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW setting"
-        sv = self.get_object_or_fail(SettingValue, key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED)
-        sv.value = False
-        sv.save()
-
+    def test_job08(self):
+        "Sending error"
         self._build_orgas()
 
-        self._send_mails()
+        self.send_messages_called = False
+        err_msg = 'Sent error'
+
+        def send_messages(this, messages):
+            self.send_messages_called = True
+            raise Exception(err_msg)
+
+        EmailBackend.send_messages = send_messages
+
+        job = self._send_mails()
         self.assertFalse(mail.outbox)
+
+        jresults = JobResult.objects.filter(job=job)
+        self.assertEqual(1, len(jresults))
+
+        jresult = jresults[0]
+        self.assertEqual([_(u'An error has occurred while sending emails'),
+                          _(u'Original error: %s') % err_msg,
+                         ],
+                         jresult.messages
+                        )
+
+    # @skipIfCustomOrganisation
+    # def test_job09(self):
+    #     "IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED setting"
+    #     sv = self.get_object_or_fail(SettingValue, key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED)
+    #     sv.value = False
+    #     sv.save()
+    #
+    #     self._build_orgas()
+    #
+    #     self._send_mails()
+    #     self.assertFalse(mail.outbox)
