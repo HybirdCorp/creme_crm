@@ -12,17 +12,16 @@ try:
             CremePropertyType, CremeProperty)
 
     from creme.documents import get_document_model
-    # from creme.documents.models import Document
     from creme.documents.tests.base import skipIfCustomDocument
 
-    from creme.persons.models import Civility  # Contact Organisation
+    from creme.persons.models import Civility
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity, Contact, Organisation, Activity
     from ..forms.lv_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
             MultiColumnsParticipantsExtractor, SplittedColumnParticipantsExtractor,
             SubjectsExtractor)
-    from ..models import Calendar  # Activity
+    from ..models import Calendar
     from ..constants import (ACTIVITYTYPE_TASK, NARROW, FLOATING, FLOATING_TIME,
             REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT,
             ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK)
@@ -58,7 +57,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         # CSVImportBaseTestCaseMixin.setUpClass()
 
     def test_import01(self):
-        self.login()
+        user = self.login()
 
         url = self._build_import_url(Activity)
         self.assertGET200(url)
@@ -82,10 +81,10 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
-        response = self.client.post(url,
+        response = self.client.post(url, follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
-                                              user=self.user.id,
+                                              user=user.id,
                                               start_colselect=2,
                                               end_colselect=3,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
@@ -97,10 +96,13 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
+        # with self.assertNoException():
+        #     form = response.context['form']
+        job = self._execute_job(response)
 
-        self.assertEqual(len(lines), form.imported_objects_count)
+        # self.assertEqual(len(lines), form.imported_objects_count)
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
 
         act1 = self.get_object_or_fail(Activity, title=title1)
         self.assertEqual(ACTIVITYTYPE_TASK, act1.type_id)
@@ -164,12 +166,19 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                         )
         self.assertEqual(NARROW, act7.floating_type)
 
-        errors = list(form.import_errors)
-        self.assertEqual(1, len(errors), [e for e in errors])
+        # errors = list(form.import_errors)
+        # self.assertEqual(1, len(errors), [e for e in errors])
+        jr_errors = [r for r in results if r.messages]
+        self.assertEqual(1, len(jr_errors))
 
-        error = errors[0]
-        self.assertEqual(act3, error.instance)
-        self.assertEqual(_('End time is before start time'), error.message)
+        # error = errors[0]
+        # self.assertEqual(act3, error.instance)
+        # self.assertEqual(_('End time is before start time'), error.message)
+        jr_error = jr_errors[0]
+        self.assertEqual([_('End time is before start time')],
+                         jr_error.messages
+                        )
+        self.assertEqual(act3, jr_error.entity.get_real_entity())
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -178,8 +187,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         search on first_name/last_name.
         Dynamic subjects without creation.
         """
-        self.login()
-        user = self.user
+        user = self.login()
         user_contact = user.linked_contact
 
         other_user = self.other_user
@@ -233,7 +241,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                              _(u'If you participate, you have to choose one of your calendars.')
                             )
 
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(data,
                                               participants_first_name_colselect=100,  # Invalid choice
                                              )
@@ -241,13 +249,14 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertFormError(response, 'form', 'participants', 'Invalid index')
 
         # ---------
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(data, my_calendar=my_calendar.pk)
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
+        # with self.assertNoException():
+        #     form = response.context['form']
+        job = self._execute_job(response)
 
         act1 = self.get_object_or_fail(Activity, title=title1)
         self.assertEqual(ACTIVITYTYPE_MEETING, act1.type_id)
@@ -274,26 +283,34 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         act3 = self.get_object_or_fail(Activity, title=title3)
         self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists()) #not created
 
-        self.assertEqual(len(lines), form.imported_objects_count)
+        # self.assertEqual(len(lines), form.imported_objects_count)
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
 
-        errors = list(form.import_errors)
-        self.assertEqual(1, len(errors), [e for e in errors])
+        # errors = list(form.import_errors)
+        # self.assertEqual(1, len(errors), [e for e in errors])
+        jr_errors = [r for r in results if r.messages]
+        self.assertEqual(1, len(jr_errors))
 
-        error = errors[0]
-        self.assertEqual(act3, error.instance)
-        self.assertEqual(_(u'The participant «%s» is unfoundable') % unfoundable,
-                         error.message
-                        )
+        # error = errors[0]
+        # self.assertEqual(act3, error.instance)
+        # self.assertEqual(_(u'The participant «%s» is unfoundable') % unfoundable,
+        #                  error.message
+        #                 )
+        jr_error = jr_errors[0]
+        self.assertEqual([_(u'The participant «%s» is unfoundable') % unfoundable,],
+                         jr_error.messages
+                         )
+        self.assertEqual(act3, jr_error.entity.get_real_entity())
 
         # ---------
         act4 = self.get_object_or_fail(Activity, title=title4)
-        self.assertRelationCount(1, act4, REL_OBJ_PART_2_ACTIVITY, user_contact) #not 2
+        self.assertRelationCount(1, act4, REL_OBJ_PART_2_ACTIVITY, user_contact)  # Not 2
 
     @skipIfCustomContact
     def test_import03(self):
         "Dynamic participants with cell splitting & pattern '$last_name $first_name'."
-        self.login()
-        user = self.user
+        user = self.login()
 
         other_user = self.other_user
         other_contact = other_user.linked_contact
@@ -335,7 +352,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                 ]
 
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -350,6 +367,8 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                              )
                                    )
         self.assertNoFormError(response)
+
+        job = self._execute_job(response)
 
         # ---------
         act1 = self.get_object_or_fail(Activity, title=title1)
@@ -377,22 +396,33 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
 
         self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists())
 
-        with self.assertNoException():
-            form = response.context['form']
+        # with self.assertNoException():
+        #     form = response.context['form']
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
 
-        errors = list(form.import_errors)
-        self.assertEqual(2, len(errors))
+        # errors = list(form.import_errors)
+        # self.assertEqual(2, len(errors))
+        jr_errors = [r for r in results if r.messages]
+        self.assertEqual(1, len(jr_errors))
 
-        error = errors[0]
-        self.assertEqual(act4, error.instance)
+        # error = errors[0]
+        # self.assertEqual(act4, error.instance)
+        # err_fmt = _(u'The participant «%s» is unfoundable')
+        # self.assertEqual(err_fmt % ('%s %s' % (unfoundable, unfoundable)),
+        #                  error.message
+        #                 )
+        #
+        # error = errors[1]
+        # self.assertEqual(act4, error.instance)
+        # self.assertEqual(err_fmt % unfoundable2, error.message)
+        jr_error = jr_errors[0]
         err_fmt = _(u'The participant «%s» is unfoundable')
-        self.assertEqual(err_fmt % ('%s %s' % (unfoundable, unfoundable)),
-                         error.message
+        self.assertEqual([err_fmt % ('%s %s' % (unfoundable, unfoundable)),
+                          err_fmt % unfoundable2
+                         ],
+                         jr_error.messages
                         )
-
-        error = errors[1]
-        self.assertEqual(act4, error.instance)
-        self.assertEqual(err_fmt % unfoundable2, error.message)
 
         # ---------
         act5 = self.get_object_or_fail(Activity, title=title5)
@@ -402,8 +432,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
     @skipIfCustomContact
     def test_import04(self):
         "Another cell splitting type: pattern '$civility $first_name $last_name'."
-        self.login()
-        user = self.user
+        user = self.login()
 
         miss = self.get_object_or_fail(Civility, pk=2)
         aoi = Contact.objects.create(user=user, first_name='Aoi', last_name='Kunieda', civility=miss)
@@ -430,8 +459,10 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertFormError(response, 'form', 'participants', 'Invalid pattern')
 
         # ----------
-        response = self.client.post(url, data=data)
+        response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
+
+        self._execute_job(response)
 
         act1 = self.get_object_or_fail(Activity, title=title1)
         self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, aoi)
@@ -448,7 +479,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         orga = Organisation.objects.create(user=self.user, name=last_name)  # Should not be used as subject
 
         doc = self._build_csv_doc([(title, first_name, last_name)])
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -462,16 +493,17 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertFalse([unicode(e) for e in form.import_errors])
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # self.assertFalse([unicode(e) for e in form.import_errors])
+        job = self._execute_job(response)
+        self._assertNoResultError(self._get_job_results(job))
 
         task = self.get_object_or_fail(Activity, title=title)
         aoi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, task, REL_OBJ_PART_2_ACTIVITY, aoi)
         self.assertRelationCount(0, task, REL_OBJ_ACTIVITY_SUBJECT, orga)
-
 
     @skipIfCustomContact
     def test_import06(self):
@@ -489,7 +521,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
                                   ]
                                  )
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -504,10 +536,12 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertFalse([unicode(e) for e in form.import_errors])
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # self.assertFalse([unicode(e) for e in form.import_errors])
+        job = self._execute_job(response)
+        self._assertNoResultError(self._get_job_results(job))
 
         task = self.get_object_or_fail(Activity, title=title)
         self.assertRelationCount(1, task, REL_OBJ_PART_2_ACTIVITY, aoi)
@@ -529,7 +563,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         first_name = 'Aoi'
         last_name = 'Kunieda'
         doc = self._build_csv_doc([(title, first_name, last_name)])
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=self.user.id,
@@ -543,21 +577,22 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
+        self._execute_job(response)
         self.get_object_or_fail(Activity, title=title)
         self.assertFalse(Contact.objects.filter(first_name=first_name, last_name=last_name))
 
     def test_import08(self):
         "Property creation (regular post creation handler should be called)"
-        self.login()
+        user = self.login()
 
         ptype = CremePropertyType.create(str_pk='test-prop_imported', text='Has been imported')
 
         title = 'Task#1'
         doc = self._build_csv_doc([(title, 'Aoi', 'Kunieda')])
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
-                                              user=self.user.id,
+                                              user=user.id,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
                                               property_types=[ptype.id],
@@ -565,6 +600,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
+        self._execute_job(response)
         act = self.get_object_or_fail(Activity, title=title)
         self.get_object_or_fail(CremeProperty, type=ptype, creme_entity=act.id)
 
@@ -598,7 +634,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    (title6, u'%s/%s' % (aoi, clan1.name)),
                                   ]
                                  )
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -609,6 +645,8 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                              )
                                    )
         self.assertNoFormError(response)
+
+        job = self._execute_job(response)
 
         task1 = self.get_object_or_fail(Activity, title=title1)
         self.assertRelationCount(1, task1, REL_OBJ_ACTIVITY_SUBJECT, aoi)
@@ -633,55 +671,88 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertRelationCount(1, task6, REL_OBJ_ACTIVITY_SUBJECT, clan1)
         self.assertRelationCount(1, task6, REL_OBJ_ACTIVITY_SUBJECT, clan2)
 
-        with self.assertNoException():
-            form = response.context['form']
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # errors = list(form.import_errors)
+        # self.assertEqual(4, len(errors))
+        job = self._execute_job(response)
+        results = self._get_job_results(job)
+        jr_errors = [r for r in results if r.messages]
+        self.assertEqual(4, len(jr_errors))
 
-        errors = list(form.import_errors)
-        self.assertEqual(4, len(errors))
-
-        error = errors[0]
-        self.assertEqual(task3, error.instance)
-        self.assertEqual(_(u'The subject «%s» is unfoundable') % name,
-                         error.message
+        # error = errors[0]
+        # self.assertEqual(task3, error.instance)
+        # self.assertEqual(_(u'The subject «%s» is unfoundable') % name,
+        #                  error.message
+        #                 )
+        jr_error = jr_errors[0]
+        self.assertEqual(task3, jr_error.entity.get_real_entity())
+        self.assertEqual([_(u'The subject «%s» is unfoundable') % name],
+                         jr_error.messages
                         )
 
-        error = errors[1]
-        self.assertEqual(task4, error.instance)
+        # error = errors[1]
+        # self.assertEqual(task4, error.instance)
         err_fmt = _(u'Several «%(type)s» were found for the search «%(search)s»')
-        self.assertEqual(err_fmt % {'type':   _('Organisations'),
-                                    'search': clan1.name,
-                                   },
-                         error.message
+        # self.assertEqual(err_fmt % {'type':   _('Organisations'),
+        #                             'search': clan1.name,
+        #                            },
+        #                  error.message
+        #                 )
+        jr_error = jr_errors[1]
+        self.assertEqual(task4, jr_error.entity.get_real_entity())
+        self.assertEqual([err_fmt % {'type':   _('Organisations'),
+                                     'search': clan1.name,
+                                    },
+                         ],
+                         jr_error.messages
                         )
 
-        error = errors[2]
-        self.assertEqual(task5, error.instance)
-        self.assertEqual(err_fmt % {'type':   _('Contacts'),
-                                    'search': furyo1.last_name,
-                                   },
-                         error.message
+        # error = errors[2]
+        # self.assertEqual(task5, error.instance)
+        # self.assertEqual(err_fmt % {'type':   _('Contacts'),
+        #                             'search': furyo1.last_name,
+        #                            },
+        #                  error.message
+        #                 )
+        jr_error = jr_errors[2]
+        self.assertEqual(task5, jr_error.entity.get_real_entity())
+        self.assertEqual([err_fmt % {'type':   _('Contacts'),
+                                     'search': furyo1.last_name,
+                                    },
+                         ],
+                         jr_error.messages
                         )
 
-        error = errors[3]
-        self.assertEqual(task6, error.instance)
-        self.assertEqual(err_fmt % {'type':   _('Organisations'),
-                                    'search': clan1.name,
-                                   },
-                         error.message
+        # error = errors[3]
+        # self.assertEqual(task6, error.instance)
+        # self.assertEqual(err_fmt % {'type':   _('Organisations'),
+        #                             'search': clan1.name,
+        #                            },
+        #                  error.message
+        #                 )
+        jr_error = jr_errors[3]
+        self.assertEqual(task6, jr_error.entity.get_real_entity())
+        self.assertEqual([err_fmt % {'type':   _('Organisations'),
+                                     'search': clan1.name,
+                                    },
+                         ],
+                         jr_error.messages
                         )
 
     def test_import_subjects02(self):
         "Subject: creation."
-        self.login()
+        user = self.login()
 
         title = 'My task'
         name = 'Ishiyama'
 
         doc = self._build_csv_doc([(title, u' %s '  % name)])
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
-                                              user=self.user.id,
+                                              user=user.id,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
                                               subjects_colselect=2,
@@ -690,6 +761,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
+        self._execute_job(response)
         task = self.get_object_or_fail(Activity, title=title)
         orga = self.get_object_or_fail(Organisation, name=name)
         self.assertRelationCount(1, task, REL_OBJ_ACTIVITY_SUBJECT, orga)
@@ -707,7 +779,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         title = 'Task#1'
         name = 'Ishiyama'
         doc = self._build_csv_doc([(title, u' %s '  % name)])
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=self.user.id,
@@ -719,6 +791,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
+        self._execute_job(response)
         self.get_object_or_fail(Activity, title=title)
         self.assertFalse(Organisation.objects.filter(name__icontains=name))
 
@@ -741,7 +814,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         orga2 = create_orga(user=self.other_user, name=name)
 
         doc = self._build_csv_doc([(title, name)])
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=self.user.id,
@@ -752,10 +825,12 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertEqual(0, len(form.import_errors))
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # self.assertEqual(0, len(form.import_errors))
+        job = self._execute_job(response)
+        self._assertNoResultError(self._get_job_results(job))
 
         task = self.get_object_or_fail(Activity, title=title)
         self.assertRelationCount(1, task, REL_OBJ_ACTIVITY_SUBJECT, orga1)
@@ -790,7 +865,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                 ]
 
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(Activity),
+        response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -811,6 +886,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                                    )
         self.assertNoFormError(response)
 
+        self._execute_job(response)
         act1 = self.refresh(act1)
         self.assertEqual(place, act1.place)
 

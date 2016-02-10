@@ -9,7 +9,8 @@ try:
 
     from ..base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials
+    from creme.creme_core.creme_jobs.mass_import import mass_import_type
+    from creme.creme_core.models import SetCredentials, MassImportJobResult
 
     from creme.documents.models import Document, Folder, FolderCategory
 except Exception as e:
@@ -58,6 +59,11 @@ class ViewsTestCase(CremeTestCase):
 
 class CSVImportBaseTestCaseMixin(object):
     clean_files_in_teardown = True  # See CremeTestCase
+
+    def _assertNoResultError(self, results):
+        for r in results:
+            if r.messages:
+                self.fail('Import error: %s' % r.messages)
 
     def _build_file(self, content, extension=None):
         tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')
@@ -110,3 +116,16 @@ class CSVImportBaseTestCaseMixin(object):
     def _build_import_url(self, model):
         ct = ContentType.objects.get_for_model(model)
         return '/creme_core/list_view/import/%s?list_url=%s' % (ct.id, model.get_lv_absolute_url())
+
+    def _get_job(self, response):
+        with self.assertNoException():
+            return response.context['job']
+
+    def _get_job_results(self, job):
+        return MassImportJobResult.objects.filter(job=job)
+
+    def _execute_job(self, response):
+        job = self._get_job(response)
+        mass_import_type.execute(job)
+
+        return job

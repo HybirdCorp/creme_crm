@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
+
 from collections import defaultdict
 from functools import partial
-from future_builtins import filter
 from itertools import chain
 import logging
 

@@ -41,6 +41,33 @@ MIGRATION_MODULES = {
     'auth': 'creme.creme_core.migrations_auth', # XXX: should be removed in Creme 1.7 ...
 }
 
+# JOBS #########################################################################
+# Maximum number of jobs each user can have at the same time. When this number
+# is reached for a user, he must terminate one of his jobs in order to create a
+# new one (ie: generally he'll wait that one of his existing jobs to be
+# finished before he terminate it, of course).
+# It allows you to avoid that a user, for example, create a lots of CSV imports
+# & does not understand why they do not start immediately (see MAX_USER_JOBS).
+MAX_JOBS_PER_USER = 1
+
+# Maximum of jobs which can run at the same time. When this number is reached,
+# a new created job will have to wait that a running jobs is finished).
+# It allows you to limit the number of processes which are running.
+# Notice that system jobs (sending mails, retrieving mails...) count is not
+# limited (because they are created at installation, so their number &
+# periodicity can be precisely managed).
+MAX_USER_JOBS = 2
+
+# 'security' period for pseudo-periodic jobs : they will be run at least with
+# this periodicity, even if they do not receive a new request (in order to reduce
+# the effects of an hypothetical redis problem).
+PSEUDO_PERIOD = 1  # In hours
+
+# URL with the pattern: redis://[:password]@host:port/db
+# (password is optional; port & db are integers)
+JOBMANAGER_BROKER = 'redis://@localhost:6379/0'
+
+
 # AUTHENTICATION ###############################################################
 
 AUTHENTICATION_BACKENDS = ('creme.creme_core.auth.backend.EntityBackend',)
@@ -524,7 +551,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
                     'creme_core/js/lib/generators-0.1.js',
 
-                    #'creme_core/js/datejs/date-en-US.js', # TODO improve
+                    # 'creme_core/js/datejs/date-en-US.js', # TODO improve
                     'creme_core/js/datejs/date-fr-FR.js',
 
                     'creme_core/js/lib/jquery.navIt.0.0.6.js',
@@ -536,6 +563,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/ajax.js',
                     'creme_core/js/menu.js',
                     'creme_core/js/blocks.js',
+                    'creme_core/js/jobs.js',
 
                     'creme_core/js/widgets/base.js',
 

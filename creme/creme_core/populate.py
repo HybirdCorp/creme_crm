@@ -27,8 +27,9 @@ from django.utils.translation import ugettext as _
 
 from . import constants
 from .blocks import properties_block, relations_block, customfields_block, history_block
+from .creme_jobs import reminder_type
 from .management.commands.creme_populate import BasePopulator
-from .models import (RelationType, CremePropertyType, SettingValue, Currency, Language, Vat,
+from .models import (RelationType, CremePropertyType, SettingValue, Currency, Language, Vat, Job,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, ButtonMenuItem)
 from .setting_keys import block_opening_key, block_showempty_key, currency_symbol_key
 from .utils import create_if_needed
@@ -77,6 +78,12 @@ class Populator(BasePopulator):
         SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
 
         create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
+
+        Job.objects.get_or_create(type_id=reminder_type.id,
+                                  defaults={'language': settings.LANGUAGE_CODE,
+                                            'status':   Job.STATUS_OK,
+                                           },
+                                 )
 
         if not already_populated:
             create_if_needed(Currency, {'pk': 2}, name=_(u'United States dollar'), local_symbol=_(u'$'), international_symbol=_(u'USD'))

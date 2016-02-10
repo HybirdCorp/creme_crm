@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -180,12 +180,14 @@ class CremeCoreConfig(CremeAppConfig):
         reg_app('my_page', '/my_page', _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
 
     def register_blocks(self, block_registry):
-        from .blocks import (relations_block, properties_block, customfields_block,
-                history_block, trash_block)
+        # from .blocks import (relations_block, properties_block, customfields_block,
+        #         history_block, trash_block)
+        from .blocks import block_list
 
-        block_registry.register(relations_block, properties_block, customfields_block,
-                                history_block, trash_block,
-                               )
+        # block_registry.register(relations_block, properties_block, customfields_block,
+        #                         history_block, trash_block,
+        #                        )
+        block_registry.register(*block_list)
 
     def register_buttons(self, button_registry):
         from .buttons import merge_entities_button

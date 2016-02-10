@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,26 +20,25 @@
 
 from collections import OrderedDict
 from functools import partial
-import logging
+# import logging
 
-from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError
 from django.forms import ModelChoiceField
 from django.forms.fields import CallableChoiceIterator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from ..core.batch_process import batch_operator_manager, BatchAction
+from ..creme_jobs.batch_process import batch_process_type
 from ..gui import bulk_update_registry
-from ..models import CremeEntity, EntityFilter, EntityCredentials
-from ..utils.chunktools import iter_as_slices
-from ..utils.collections import LimitedList
+from ..models import CremeEntity, EntityFilter, Job
 from ..utils.unicode_collation import collator
-from .base import CremeForm
+from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class BatchActionsWidget(SelectorList):
@@ -182,86 +181,114 @@ class BatchActionsField(JSONField):
         return actions
 
 
-class BatchProcessForm(CremeForm):
+# class BatchProcessForm(CremeForm):
+class BatchProcessForm(CremeModelForm):
     filter  = ModelChoiceField(label=_(u'Filter'), queryset=EntityFilter.objects.none(),
                                empty_label=_(u'All'), required=False,
                               )
     actions = BatchActionsField(label=_(u'Actions'))
 
-    _modified_objects_count = 0
-    _read_objects_count = 0
+    # _modified_objects_count = 0
+    # _read_objects_count = 0
+
+    class Meta:
+        model = Job
+        exclude = ('reference_run', 'periodicity')
 
     def __init__(self, *args, **kwargs):
         super(BatchProcessForm, self).__init__(*args, **kwargs)
-        ct = self.initial['content_type']
+        self.ct = ct = self.initial['content_type']
+
         fields = self.fields
         fields['filter'].queryset = EntityFilter.get_for_user(self.user, ct)
         fields['actions'].model = self._entity_type = ct.model_class()
 
-        self.process_errors = LimitedList(50)
+        # self.process_errors = LimitedList(50)
 
-    def _humanize_validation_error(self, ve):
-        meta = self._entity_type._meta
+    # def _humanize_validation_error(self, ve):
+    #     meta = self._entity_type._meta
+    #
+    #     try:
+    #         # TODO: NON_FIELD_ERRORS need to be unit tested...
+    #         humanized = [unicode(errors) if field == NON_FIELD_ERRORS else
+    #                      u'%s => %s' % (meta.get_field(field).verbose_name, u', '.join(errors))
+    #                          for field, errors in ve.message_dict.iteritems()
+    #                     ]
+    #     except Exception as e:
+    #         logger.debug('BatchProcessForm._humanize_validation_error: %s', e)
+    #         humanized = [unicode(ve)]
+    #
+    #     return humanized
+    #
+    # @property
+    # def entity_type(self):
+    #     return self._entity_type
+    #
+    # @property
+    # def modified_objects_count(self):
+    #     return self._modified_objects_count
+    #
+    # @property
+    # def read_objects_count(self):
+    #     return self._read_objects_count
+    #
+    # def save(self, *args, **kwargs):
+    #     cdata = self.cleaned_data
+    #     entities = self._entity_type.objects.all()
+    #     process_errors = self.process_errors
+    #     efilter = cdata.get('filter')
+    #
+    #     if efilter:
+    #         entities = efilter.filter(entities)
+    #
+    #     entities = EntityCredentials.filter(self.user, entities, EntityCredentials.CHANGE)
+    #     actions = cdata['actions']
+    #     mod_count = read_count = 0
+    #
+    #     for entities_slice in iter_as_slices(entities, 1024):
+    #         for entity in entities_slice:
+    #             read_count += 1
+    #             changed = False
+    #
+    #             # We snapshot the unicode representation here, because the
+    #             # actions could modify the field used to build it.
+    #             entity_repr = unicode(entity)
+    #
+    #             for action in actions:
+    #                 if action(entity):
+    #                     changed = True
+    #
+    #             if changed:
+    #                 try:
+    #                     entity.full_clean()
+    #                 except ValidationError as e:
+    #                     process_errors.append((unicode(entity_repr), self._humanize_validation_error(e)))
+    #                 else:
+    #                     entity.save()
+    #                     mod_count += 1
+    #
+    #     self._read_objects_count = read_count
+    #     self._modified_objects_count = mod_count
 
-        try:
-            # TODO: NON_FIELD_ERRORS need to be unit tested...
-            humanized = [unicode(errors) if field == NON_FIELD_ERRORS else
-                         u'%s => %s' % (meta.get_field(field).verbose_name, u', '.join(errors))
-                             for field, errors in ve.message_dict.iteritems()
-                        ]
-        except Exception as e:
-            logger.debug('BatchProcessForm._humanize_validation_error: %s', e)
-            humanized = [unicode(ve)]
-
-        return humanized
-
-    @property
-    def entity_type(self):
-        return self._entity_type
-
-    @property
-    def modified_objects_count(self):
-        return self._modified_objects_count
-
-    @property
-    def read_objects_count(self):
-        return self._read_objects_count
-
-    # TODO: move to a job when job engine is done
     def save(self, *args, **kwargs):
+        instance = self.instance
         cdata = self.cleaned_data
-        entities = self._entity_type.objects.all()
-        process_errors = self.process_errors
+        job_data = {
+            'ctype':    self.ct.id,
+            'actions':  [{'field_name':    a._field_name,
+                          'operator_name': a._operator.id,
+                          'value':         a._value,
+                         } for a in cdata['actions']
+                        ],
+            }
+
         efilter = cdata.get('filter')
-
         if efilter:
-            entities = efilter.filter(entities)
+            job_data['efilter'] = efilter.id
 
-        entities = EntityCredentials.filter(self.user, entities, EntityCredentials.CHANGE)
-        actions = cdata['actions']
-        mod_count = read_count = 0
+        instance.type = batch_process_type
+        instance.user = self.user
+        instance.data = job_data
 
-        for entities_slice in iter_as_slices(entities, 1024):
-            for entity in entities_slice:
-                read_count += 1
-                changed = False
+        return super(BatchProcessForm, self).save(*args, **kwargs)
 
-                # We snapshot the unicode representation here, because the
-                # actions could modify the field used to build it.
-                entity_repr = unicode(entity)
-
-                for action in actions:
-                    if action(entity):
-                        changed = True
-
-                if changed:
-                    try:
-                        entity.full_clean()
-                    except ValidationError as e:
-                        process_errors.append((unicode(entity_repr), self._humanize_validation_error(e)))
-                    else:
-                        entity.save()
-                        mod_count += 1
-
-        self._read_objects_count = read_count
-        self._modified_objects_count = mod_count

@@ -30,6 +30,8 @@ from .reminder import DateReminder
 from .history import HistoryLine, HistoryConfigItem
 from .search import SearchConfigItem
 
+from .job import Job, JobResult, EntityJobResult, MassImportJobResult
+
 from .version import Version
 
 

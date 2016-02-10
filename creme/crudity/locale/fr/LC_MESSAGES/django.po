@@ -1,15 +1,14 @@
 # FR LOCALISATION OF 'CRUDITY' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -e py -e html -e xml
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Crudity 1.6\n"
+"Project-Id-Version: Creme Creme-Crudity 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-15 17:39+0200\n"
+"POT-Creation-Date: 2016-02-09 13:04+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -49,6 +48,17 @@ msgstr "Actions en attente"
 #: builders/infopath.py:386 inputs/email.py:66
 msgid "Create"
 msgstr "Créer"
+
+#: creme_jobs.py:39
+msgid "Synchronize externals data sent to Creme"
+msgstr "Synchroniser les données externes envoyées à Creme"
+
+#: creme_jobs.py:53
+#, python-format
+msgid "There is %s change"
+msgid_plural "There are %s changes"
+msgstr[0] "Il y a %s changement"
+msgstr[1] "Il y a %s changements"
 
 #: inputs/email.py:54
 msgid "Email - Raw"

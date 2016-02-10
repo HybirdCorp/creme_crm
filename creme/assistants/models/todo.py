@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTime
 class ToDo(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
     is_ok         = BooleanField(_("Done ?"), editable=False, default=False)
-    reminded      = BooleanField(_(u'Notification sent'), editable=False, default=False) # Needed by creme_core.core.reminder
+    reminded      = BooleanField(_(u'Notification sent'), editable=False, default=False)  # Needed by creme_core.core.reminder
     description   = TextField(_(u'Description'), blank=True, null=True)
     creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
@@ -69,8 +69,12 @@ class ToDo(CremeModel):
     def get_todos_for_ctypes(ct_ids, user):
         return ToDo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
 
-    def get_related_entity(self): # For generic views
+    def get_related_entity(self):  # For generic views
         return self.creme_entity
+
+    @property
+    def to_be_reminded(self):
+        return self.deadline and not self.is_ok and not self.reminded
 
 
 class _GetTodos(FunctionField):

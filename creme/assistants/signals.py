@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_save
 from django.dispatch.dispatcher import receiver
 
 from creme.creme_core.models import CremeEntity
@@ -35,9 +35,19 @@ def dispose_instances(sender, instance, **kwargs):
     for model in MODELS:
         model.objects.filter(entity_id=instance.id).delete()
 
+
 @receiver(pre_merge_related)
 def handle_merge(sender, other_entity, **kwargs):
     for model in MODELS:
         for instance in model.objects.filter(entity_id=other_entity.id):
             instance.creme_entity = sender
             instance.save()
+
+
+@receiver(post_save, sender=Alert)
+@receiver(post_save, sender=ToDo)
+def _refresh_alert_reminder_job(sender, instance, **kwargs):
+    from creme.creme_core.creme_jobs import reminder_type
+
+    if instance.to_be_reminded:
+        reminder_type.refresh_job()

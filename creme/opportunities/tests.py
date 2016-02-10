@@ -13,7 +13,7 @@ try:
     from django.core.urlresolvers import reverse
     from django.db.models import Max
     from django.utils.formats import number_format
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, ungettext
 
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
@@ -1128,7 +1128,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                )
                               )
 
-        response = self.client.post(url,
+        response = self.client.post(url, follow=True,
                                     data=dict(self.lvimport_data,
                                               document=doc.id,
                                               user=user.id,
@@ -1151,12 +1151,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertFalse(list(form.import_errors))
-        self.assertEqual(len(lines), form.imported_objects_count)
-        self.assertEqual(len(lines), form.lines_count)
+        job = self._execute_job(response)
+        self._assertNoResultError(self._get_job_results(job))
 
         self.assertEqual(count + len(lines), Opportunity.objects.count())
 
@@ -1209,6 +1205,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         lines = [('Opp01', sp1_name, '1000', '2000', target1.name, '')]
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Opportunity),
+                                    follow=True,
                                     data=dict(self.lvimport_data,
                                               document=doc.id,
                                               user=user.id,
@@ -1231,15 +1228,26 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                      )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertEqual(2, len(form.import_errors)) #2 errors: retrieving of SalesPhase failed, creation of Opportunity failed
-        self.assertEqual(0, form.imported_objects_count)
-        self.assertEqual(len(lines), form.lines_count)
+        job = self._execute_job(response)
 
         self.assertEqual(count, Opportunity.objects.count())
         self.assertFalse(SalesPhase.objects.filter(name=sp1_name).count())
+
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
+
+        result = results[0]
+        self.assertIsNone(result.entity)
+        # 2 errors: retrieving of SalesPhase failed, creation of Opportunity failed
+        self.assertEqual(2, len(result.messages))
+
+        vname= _('Opportunity')
+        self.assertEqual([_(u'No «%s» has been created.') % vname,
+                          _(u'No «%s» has been updated.') % vname,
+                          ungettext('%s line in the file.', '%s lines in the file.', 1) % 1,
+                         ],
+                         job.stats
+                        )
 
     def test_csv_import03(self):
         "SalesPhase is required"
@@ -1289,6 +1297,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                 ]
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Opportunity),
+                                    follow=True,
                                     data=dict(self.lvimport_data,
                                               document=doc.id,
                                               user=user.id,
@@ -1310,19 +1319,19 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        errors = list(form.import_errors)
-        self.assertEqual(4, len(errors)) #4 errors: retrieving of Organisation/Contact failed, creation of Opportunities failed
-        self.assertIn(_('Organisation'), errors[0].message)
-        self.assertIn(_('Contact'),      errors[2].message)
-
-        self.assertEqual(0, form.imported_objects_count)
+        self._execute_job(response)
 
         self.assertEqual(count, Opportunity.objects.count())
         self.assertFalse(Organisation.objects.filter(name=orga_name))
         self.assertFalse(Contact.objects.filter(last_name=contact_name))
+
+        # TODO
+        # errors = list(form.import_errors)
+        # self.assertEqual(4, len(errors)) #4 errors: retrieving of Organisation/Contact failed, creation of Opportunities failed
+        # self.assertIn(_('Organisation'), errors[0].message)
+        # self.assertIn(_('Contact'),      errors[2].message)
+
+        # self.assertEqual(0, form.imported_objects_count)
 
     def test_csv_import05(self):
         "Creation credentials for Organisation & SalesPhase are forbidden."
@@ -1339,7 +1348,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_ALL,
                                      )
-        #TODO: factorise
+        # TODO: factorise
         emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
         doc = self._build_csv_doc([('Opp01', '1000', '2000', 'Acme', 'New phase')])
         url = self._build_import_url(Opportunity)
@@ -1374,11 +1383,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         role.admin_4_apps = ['opportunities']
         role.save()
-        response = self.client.post(url, data=data)
+        response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
 
         role.creatable_ctypes.add(ContentType.objects.get_for_model(Organisation))
-        response = self.client.post(url, data=dict(data, target_persons_organisation_create=True))
+        response = self.client.post(url, follow=True,
+                                    data=dict(data, target_persons_organisation_create=True),
+                                   )
         self.assertNoFormError(response)
 
     @skipIfCustomOrganisation
@@ -1402,6 +1413,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                   ]
                                  )
         response = self.client.post(self._build_import_url(Opportunity),
+                                    follow=True,
                                     data=dict(self.lvimport_data,
                                               document=doc.id,
                                               user=user.id,
@@ -1424,6 +1436,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                      )
         self.assertNoFormError(response)
 
+        job = self._execute_job(response)
         self.assertEqual(count + 1, Opportunity.objects.count())
 
         with self.assertNoException():
@@ -1431,9 +1444,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual(target2, opp2.target)
 
-        with self.assertNoException():
-            form = response.context['form']
-        self.assertFalse(list(form.import_errors))
+        # with self.assertNoException():
+        #     form = response.context['form']
+        # self.assertFalse(list(form.import_errors))
+        self._assertNoResultError(self._get_job_results(job))
 
         opp1 = self.refresh(opp1)
         self.assertEqual(target2, opp1.target)

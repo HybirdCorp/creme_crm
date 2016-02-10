@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,17 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
 from ..core.batch_process import batch_operator_manager
 from ..forms.batch_process import BatchProcessForm
+from ..models import Job
 from ..gui.listview import ListViewState
 from ..utils import get_ct_or_404, jsonify
 
 
+# TODO: remove 'creme_core/batch_process_report.html'
 @login_required
 def batch_process(request, ct_id):
     ct = get_ct_or_404(ct_id)
@@ -37,19 +41,23 @@ def batch_process(request, ct_id):
     if not user.has_perm(ct.app_label):  # TODO: factorise
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
+    if Job.objects.filter(user=user).count() >= settings.MAX_JOBS_PER_USER:
+        return HttpResponseRedirect('/creme_core/job/all')
+
     if request.method == 'POST':
         POST = request.POST
         # TODO: make 'content_type' a real arg ?
-        bp_form = BatchProcessForm(user=user, data=request.POST, initial={'content_type': ct})
+        bp_form = BatchProcessForm(user=user, data=POST, initial={'content_type': ct})
 
         if bp_form.is_valid():
-            bp_form.save()
-
-            return render(request, 'creme_core/batch_process_report.html',
-                          {'form':     bp_form,
-                           'back_url': request.GET.get('list_url', '/'),
-                          }
-                         )
+            # bp_form.save()
+            #
+            # return render(request, 'creme_core/batch_process_report.html',
+            #               {'form':     bp_form,
+            #                'back_url': request.GET.get('list_url', '/'),
+            #               }
+            #              )
+            return redirect(bp_form.save())
 
         cancel_url = POST.get('cancel_url')
     else:
@@ -75,6 +83,7 @@ def batch_process(request, ct_id):
                    'cancel_url':    cancel_url,
                   }
                  )
+
 
 
 @login_required

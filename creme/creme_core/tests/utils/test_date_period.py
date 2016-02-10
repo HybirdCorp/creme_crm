@@ -6,7 +6,8 @@ try:
     from django.utils.translation import ugettext as _, ungettext
 
     from ..base import CremeTestCase
-    from creme.creme_core.utils.date_period import date_period_registry, MonthsPeriod
+    from creme.creme_core.utils.date_period import (date_period_registry, MonthsPeriod,
+                MinutesPeriod, HoursPeriod)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -173,3 +174,22 @@ class DatePeriodTestCase(CremeTestCase):
         choices = list(date_period_registry.choices())
         self.assertGreaterEqual(len(choices), 6)
         self.assertEqual(('minutes', _('Minute(s)')), choices[0])
+
+    def test_eq(self):
+        self.assertNotEqual(MinutesPeriod(value=1), HoursPeriod(value=2))
+        self.assertEqual(MinutesPeriod(value=1), MinutesPeriod(value=1))
+        self.assertEqual(MinutesPeriod(value=60), HoursPeriod(value=1))
+
+        self.assertNotEqual(MinutesPeriod(value=60), None)
+
+        with self.assertNoException():
+            r = bool(MinutesPeriod(value=60) == None)
+        self.assertFalse(r)
+
+        with self.assertNoException():
+            r = bool(MinutesPeriod(value=60) != HoursPeriod(value=1))
+        self.assertFalse(r)
+
+        with self.assertNoException():
+            r = bool(None == MinutesPeriod(value=1))
+        self.assertFalse(r)

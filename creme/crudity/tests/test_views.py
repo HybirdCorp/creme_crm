@@ -3,14 +3,18 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.test.utils import override_settings
+    from django.utils.translation import ungettext
 
-    # from creme.persons.models import Contact
+    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.models import Job, JobResult
+
     from creme.persons.tests.base import skipIfCustomContact
 
     from ..backends.models import CrudityBackend
+    from ..creme_jobs import crudity_synchronize_type
     from ..fetchers.base import CrudityFetcher
     from ..inputs.base import CrudityInput
-    from ..management.commands.crudity_synchronize import Command as SyncCommand
+    # from ..management.commands.crudity_synchronize import Command as SyncCommand
     from ..models import WaitingAction, History
     from ..registry import FetcherInterface, crudity_registry
     from .base import CrudityTestCase, ContactFakeBackend, FakeFetcher, FakeInput, Contact
@@ -208,7 +212,31 @@ class CrudityViewsTestCase(CrudityTestCase):
 
     @skipIfCustomContact
     def test_actions_fetch03(self):
-        self._aux_test_actions_fetch(lambda: SyncCommand().execute(verbosity=0))
+        # self._aux_test_actions_fetch(lambda: SyncCommand().execute(verbosity=0))
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
+        job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        self.assertIsNone(job.user)
+        self.assertEqual(0, job.reference_run.minute)
+        self.assertEqual(0, job.reference_run.second)
+
+        self.assertEqual([], queue.started_jobs)
+        self.assertEqual([], queue.refreshed_jobs)
+
+        self._aux_test_actions_fetch(lambda: crudity_synchronize_type.execute(job))
+
+        self.assertGET200(job.get_absolute_url())
+
+        jresults = JobResult.objects.filter(job=job)
+        self.assertEqual(1, len(jresults))
+        self.assertEqual([ungettext('There is %s change', 'There are %s changes', 1) % 1],
+                         jresults[0].messages
+                        )
+
+        self.assertEqual([], queue.started_jobs)
+        self.assertEqual([], queue.refreshed_jobs)
 
     #def test_actions_delete(self): TODO
     #def test_actions_reload(self): TODO

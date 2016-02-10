@@ -51,7 +51,7 @@
             - Invoice's total can now be negative.
             - The blocks for entity information are now built with the CustomBlock feature.
             - The model TemplateBase has now a 'Status' FunctionField.
-            - When a related biling document is created, the source Organisation in not chosen in a separated innerpopup window anymore.
+            - When a related billing document is created, the source Organisation in not chosen in a separated innerpopup window anymore.
         * Activities :
             - The participants can now be created directly in the forms.
             - The max length of the field Activity.place is now 500 (it was 100).

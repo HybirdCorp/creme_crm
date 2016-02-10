@@ -1495,6 +1495,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -1504,13 +1505,15 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
+        # with self.assertNoException():
+        #     form = response.context['form']
+        job = self._execute_job(response)
 
         lines_count = len(lines)
-        self.assertFalse(list(form.import_errors))
-        self.assertEqual(lines_count, form.imported_objects_count)
-        self.assertEqual(lines_count, form.lines_count)
+        # self.assertFalse(list(form.import_errors))
+        # self.assertEqual(lines_count, form.imported_objects_count)
+        # self.assertEqual(lines_count, form.lines_count)
+        self._assertNoResultError(self._get_job_results(job))
 
         self.assertEqual(count + lines_count, Contact.objects.count())
 
@@ -1535,6 +1538,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         doc = self._build_csv_doc(lines)
         response = self.client.post(
                         self._build_import_url(Contact),
+                        follow=True,
                         data=dict(self.lv_import_data,
                                   document=doc.id, has_header=True,
                                   user=user.id,
@@ -1545,13 +1549,16 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
- 
+        # with self.assertNoException():
+        #     form = response.context['form']
+        job = self._execute_job(response)
+
         lines_count = len(lines) - 1  # '-1' for header
-        self.assertEqual(0, len(form.import_errors))
-        self.assertEqual(lines_count, form.imported_objects_count)
-        self.assertEqual(lines_count, form.lines_count)
+        # self.assertEqual(0, len(form.import_errors))
+        # self.assertEqual(lines_count, form.imported_objects_count)
+        # self.assertEqual(lines_count, form.lines_count)
+        jresults = self._get_job_results(job)
+        self.assertEqual(lines_count, len(jresults)) # '-1' for header
         self.assertEqual(contact_count + lines_count, Contact.objects.count())
 
         rei = self.get_object_or_fail(Contact, last_name=lines[1][1], first_name=lines[1][0])
@@ -1587,16 +1594,19 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         email = 'contact@bebop.mrs'
         doc = self._build_csv_doc([(first_name, last_name, address_val1, address_val2, email)])
         response = self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data,
-                                                document=doc.id,
-                                                user=user.id,
-                                                key_fields=['first_name', 'last_name'],
-                                                email_colselect=5,
-                                                billaddr_address_colselect=3,
-                                                shipaddr_address_colselect=4,
+                                              document=doc.id,
+                                              user=user.id,
+                                              key_fields=['first_name', 'last_name'],
+                                              email_colselect=5,
+                                              billaddr_address_colselect=3,
+                                              shipaddr_address_colselect=4,
                                             )
                                     )
         self.assertNoFormError(response)
+
+        self._execute_job(response)
 
         rei = self.refresh(rei)
         self.assertEqual(email, rei.email)

@@ -4,7 +4,7 @@ try:
     from functools import partial
 
     from django.core.urlresolvers import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, ungettext
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -849,6 +849,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Organisation),
+                                    follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -858,10 +859,23 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # self.assertEqual(len(lines), form.imported_objects_count)
+        job = self._execute_job(response)
+        self.assertEqual([_(u'Import «%(type)s» from %(doc)s') % {
+                                'type': _('Organisation'),
+                                'doc':  doc,
+                            }
+                         ],
+                         job.description
+                        )
 
-        self.assertEqual(len(lines), form.imported_objects_count)
+        results = self._get_job_results(job)
+        lines_count = len(lines)
+        self.assertEqual(lines_count, len(results))
+        self._assertNoResultError(results)
 
         billing_address = self.get_object_or_fail(Organisation, name=name1).billing_address
         self.assertIsNotNone(billing_address)
@@ -872,6 +886,20 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNotNone(shipping_address)
         self.assertEqual(_('Shipping address'), shipping_address.name)
         self.assertEqual(city2,                 shipping_address.city)
+
+        self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
+                                    u'%(counter)s «%(type)s» have been created.',
+                                    lines_count
+                                   ) % {'counter': lines_count,
+                                        'type':    _('Organisations'),
+                                       },
+                          ungettext('%s line in the file.',
+                                    '%s lines in the file.',
+                                    lines_count
+                                   ) % lines_count,
+                         ],
+                         job.stats
+                        )
 
     @skipIfCustomAddress
     def test_csv_import02(self):
@@ -900,6 +928,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         email = 'contact@bebop.mrs'
         doc = self._build_csv_doc([(name, address_val1, address_val2, email)])
         response = self.client.post(self._build_import_url(Organisation),
+                                    follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -910,6 +939,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                              )
                                    )
         self.assertNoFormError(response)
+
+        self._execute_job(response)
 
         bebop = self.refresh(bebop)
         self.assertEqual(email, bebop.email)
@@ -936,7 +967,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         city = 'Tokyo'
         po_box = 'ABC123'
         doc = self._build_csv_doc([(name, city, po_box)])
-        response = self.client.post(self._build_import_url(Organisation),
+        response = self.client.post(self._build_import_url(Organisation), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -947,7 +978,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
+        self._execute_job(response)
         billing_address = self.get_object_or_fail(Organisation, name=name).billing_address
+
         self.assertIsNotNone(billing_address)
         self.assertEqual(city, billing_address.city)
         self.assertFalse(billing_address.po_box)
@@ -962,7 +995,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         name = 'Nerv'
         doc = self._build_csv_doc([(name, 'Tokyo', 'ABC123')])
-        response = self.client.post(self._build_import_url(Organisation),
+        response = self.client.post(self._build_import_url(Organisation), follow=True,
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
@@ -973,10 +1006,13 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
+        job = self._execute_job(response)
+
         orga = self.get_object_or_fail(Organisation, name=name)
         self.assertIsNone(orga.billing_address)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertFalse(list(form.import_errors))
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # self.assertFalse(list(form.import_errors))
+        self._assertNoResultError(self._get_job_results(job))

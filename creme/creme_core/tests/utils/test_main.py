@@ -16,7 +16,7 @@ try:
         safe_unicode, safe_unicode_error, int_2_roman, ellipsis, ellipsis_multi)
     from creme.creme_core.utils.dates import (get_dt_from_str, get_date_from_str,
         get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict,
-        get_dt_from_json_str, dt_to_json_str)
+        get_dt_from_json_str, dt_to_json_str, round_hour)
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -385,6 +385,12 @@ class DatesTestCase(CremeTestCase):
 
         check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
         check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
+
+    def test_round_datetime(self):
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2013, month=7, day=25, hour=12, minute=0, second=0, microsecond=0),
+                         round_hour(create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45, microsecond=516))
+                        )
 
 
 class UnicodeCollationTestCase(CremeTestCase):

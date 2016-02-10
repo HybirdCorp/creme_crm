@@ -40,25 +40,55 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
-from creme.creme_core.forms.base import _CUSTOM_NAME
-from creme.creme_core.gui.list_view_import import import_form_registry
-from creme.creme_core.models import (CremePropertyType, CremeProperty,
-        RelationType, Relation, CremeEntity, EntityCredentials, FieldsConfig,
-        CustomField, CustomFieldValue, CustomFieldEnumValue)
-from creme.creme_core.registry import import_backend_registry
-from creme.creme_core.utils.collections import LimitedList
-
 from creme.documents import get_document_model
 
+from ..gui.list_view_import import import_form_registry
+from ..models import (CremePropertyType, CremeProperty,
+        RelationType, Relation, CremeEntity, EntityCredentials, FieldsConfig,
+        CustomField, CustomFieldValue, CustomFieldEnumValue, MassImportJobResult)
+from ..registry import import_backend_registry
 from ..utils.meta import ModelFieldEnumerator
-from .base import CremeForm, CremeModelForm, FieldBlockManager
+# from ..utils.collections import LimitedList
+from .base import CremeForm, CremeModelForm, FieldBlockManager, _CUSTOM_NAME
 from .fields import MultiRelationEntityField, CreatorEntityField
-from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 from .validators import validate_linkable_entities
+from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 
 
 logger = logging.getLogger(__name__)
 Document = get_document_model()
+
+
+def get_backend(filedata):
+    filename = filedata.name
+    pathname, extension = splitext(filename)
+    backend = import_backend_registry.get_backend(extension.replace('.', ''))
+
+    error_msg = ugettext("Error reading document, unsupported file type: %(file)s.") % {
+                                    'file': filename,
+                        } if backend is None else None
+
+    return backend, error_msg
+
+
+def get_header(filedata, has_header):
+    backend, error_msg = get_backend(filedata)
+
+    if error_msg:
+        raise ValidationError(error_msg)
+
+    header = None
+
+    if has_header:
+        try:
+            filedata.open()
+            header = backend(filedata).next()
+        except Exception as e:
+            raise ValidationError(ugettext("Error reading document: %(error)s.") % {'error': e})
+        finally:
+            filedata.close()
+
+    return header
 
 
 class UploadForm(CremeForm):
@@ -72,11 +102,11 @@ class UploadForm(CremeForm):
                                          )
                              )
 
-    error_messages = {
-        'forbidden_read': _(u'You have not the credentials to read this document.'),
-        'invalid_doctype': _("Error reading document, unsupported file type: %(file)s."),
-        'read_error': _("Error reading document: %(error)s."),
-    }
+    # error_messages = {
+    #     'forbidden_read': _(u'You have not the credentials to read this document.'),
+    #     'invalid_doctype': _("Error reading document, unsupported file type: %(file)s."),
+    #     'read_error': _("Error reading document: %(error)s."),
+    # }
 
     def __init__(self, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
@@ -84,10 +114,8 @@ class UploadForm(CremeForm):
         document = self.fields['document']
         document.user = self.user
         document.help_text = mark_safe(u"<ul>%s</ul>" %
-                                        u''.join("<li>%s: %s</li>" % (
-                                                        unicode(be.verbose_name),
-                                                        unicode(be.help_text),
-                                                    ) for be in import_backend_registry.iterbackends()
+                                        u''.join(u"<li>%s: %s</li>" % (be.verbose_name, be.help_text)
+                                                    for be in import_backend_registry.iterbackends()
                                                 )
                                       )
 
@@ -96,37 +124,12 @@ class UploadForm(CremeForm):
         return self._header
 
     def clean(self):
-        cleaned_data = super(UploadForm, self).clean()
+        cdata = super(UploadForm, self).clean()
 
         if not self._errors:
-            document = cleaned_data['document']
-            filedata = document.filedata
-            filename = filedata.name
+            self._header = get_header(cdata['document'].filedata, cdata['has_header'])
 
-            if not self.user.has_perm_to_view(document):
-                raise ValidationError(self.error_messages['forbidden_read'],
-                                      code='forbidden_read',
-                                     )
-
-            pathname, extension = splitext(filename)
-            backend = import_backend_registry.get_backend(extension.replace('.', ''))
-            if backend is None:
-                raise ValidationError(ugettext("Error reading document, unsupported file type: %(file)s."),
-                                      params={'file': filename}, code='invalid_doctype',
-                                     )
-
-            if cleaned_data['has_header']:
-                try:
-                    filedata.open()
-                    self._header = backend(filedata).next()
-                except Exception as e:
-                    raise ValidationError(self.error_messages['read_error'],
-                                          params={'error': e}, code='read_error',
-                                         )
-                finally:
-                    filedata.close()
-
-        return cleaned_data
+        return cdata
 
 
 # Extractors (and related field/widget) for regular model's fields--------------
@@ -153,7 +156,7 @@ class Extractor(object):
         value = None
         err_msg = None
 
-        if self._column_index: # 0 -> not in csv
+        if self._column_index:  # 0 -> not in csv
             value = line[self._column_index - 1]
 
             if self._subfield_search and value:
@@ -864,6 +867,7 @@ class CustomFieldExtractor(object):
         return self._value_castor(value), err_msg
 
 
+
 # TODO: make a BaseExtractorWidget ??
 class CustomFieldExtractorWidget(ExtractorWidget):
     def render(self, name, value, attrs=None, choices=()):
@@ -911,6 +915,7 @@ class CustomFieldExtractorWidget(ExtractorWidget):
                 'can_create':      get('%s_create' % name, False),
                 'default_value':   self.default_value_widget.value_from_datadict(data, files, '%s_defval' % name),
                }
+
 
 
 # TODO: factorise
@@ -975,20 +980,20 @@ class CustomfieldExtractorField(Field):
 # ------------------------------------------------------------------------------
 
 
-class LVImportError(object):
-    __slots__ = ('line', 'message', 'instance')
-
-    def __init__(self, line, message, instance=None):
-        self.line = line
-        self.message = message
-        self.instance = instance
-
-    def __repr__(self):
-        from django.utils.encoding import smart_str
-
-        return 'LVImportError(line=%s, message=%s, instance=%s)' % (
-                    self.line, smart_str(self.message), self.instance,
-                )
+# class LVImportError(object):
+#     __slots__ = ('line', 'message', 'instance')
+#
+#     def __init__(self, line, message, instance=None):
+#         self.line = line
+#         self.message = message
+#         self.instance = instance
+#
+#     def __repr__(self):
+#         from django.utils.encoding import smart_str
+#
+#         return 'LVImportError(line=%s, message=%s, instance=%s)' % (
+#                     self.line, smart_str(self.message), self.instance,
+#                 )
 
 
 # TODO: merge with ImportForm4CremeEntity ? (no model that is not an entity is imported with csv...)
@@ -1021,10 +1026,11 @@ class ImportForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ImportForm, self).__init__(*args, **kwargs)
-        self.import_errors = LimitedList(50)  # Contains LVImportErrors
-        self.imported_objects_count = 0  # TODO: properties ??
-        self.updated_objects_count = 0
-        self.lines_count = 0
+        # self.import_errors = LimitedList(50)  # Contains LVImportErrors
+        # self.imported_objects_count = 0  # todo: properties ??
+        # self.updated_objects_count = 0
+        # self.lines_count = 0
+        self.import_errors = []
 
         get_fconf = FieldsConfig.LocalCache().get_4_model
         # TODO: exclude not extractor fields ?
@@ -1036,8 +1042,11 @@ class ImportForm(CremeModelForm):
                 .choices()
 
     def append_error(self, line, err_msg, instance=None):
+        # TODO: API breaking => only err_msg !!!!
         if err_msg:
-            self.import_errors.append(LVImportError(line, err_msg, instance))
+            # self.import_errors.append(LVImportError(line, err_msg, instance))
+            self.import_errors.append(unicode(err_msg))
+            # self.import_errors.append(err_msg) #TODO ?
 
     # NB: hack to bypass the model validation (see form_factory() comment)
     def _post_clean(self):
@@ -1066,10 +1075,12 @@ class ImportForm(CremeModelForm):
     def _pre_instance_save(self, instance, line): # overload me
         pass
 
-    def save(self):
+    # def save(self):
+    # TODO: dump line in order to fix errors later
+    def process(self, job):
         model_class = self._meta.model
         get_cleaned = self.cleaned_data.get
-        append_error = self.append_error
+        # append_error = self.append_error
 
         exclude = frozenset(self._meta.exclude or ())
         regular_fields   = []  # Contains tuples (field_name, cleaned_field_value)
@@ -1089,21 +1100,31 @@ class ImportForm(CremeModelForm):
             good_fields.append((fname, cleaned))
 
         filedata = self.cleaned_data['document'].filedata
-        pathname, extension = splitext(filedata.name)
-        file_extension = extension.replace('.', '')
+        # pathname, extension = splitext(filedata.name)
+        # file_extension = extension.replace('.', '')
+
+        backend, error_msg = get_backend(filedata)
+
+        if error_msg:
+            raise self.Error(error_msg)
 
         filedata.open()
-        backend = import_backend_registry.get_backend(file_extension)
-        if backend is None:
-            verbose_error = "Error reading document, unsupported file type: %s." % file_extension
-            append_error(filedata.name, verbose_error)
-            filedata.close()
-            return
+        # backend = import_backend_registry.get_backend(file_extension)
+        # if backend is None:
+        #     verbose_error = "Error reading document, unsupported file type: %s." % file_extension
+        #     append_error(filedata.name, verbose_error)
+        #     filedata.close()
+        #     return
 
         lines = backend(filedata)
         if get_cleaned('has_header'):
             lines.next()
 
+        # Resuming
+        for i in xrange(MassImportJobResult.objects.filter(job=job).count()):
+            lines.next()
+
+        append_error = self.append_error
         key_fields = frozenset(get_cleaned('key_fields'))
         i = 0
 
@@ -1136,9 +1157,9 @@ class ImportForm(CremeModelForm):
                         updated = True
                     except model_class.MultipleObjectsReturned:
                         append_error(line,
-                                     _('Several entities corresponding to the search have been found. '
-                                       'So a new entity have been created to avoid errors.'
-                                      ),
+                                     ugettext('Several entities corresponding to the search have been found. '
+                                              'So a new entity have been created to avoid errors.'
+                                             ),
                                      instance
                                     )
                     except model_class.DoesNotExist:
@@ -1160,10 +1181,10 @@ class ImportForm(CremeModelForm):
                 instance.full_clean()
                 instance.save()
 
-                if updated:
-                    self.updated_objects_count += 1
-                else:
-                    self.imported_objects_count += 1
+                # if updated:
+                #     self.updated_objects_count += 1
+                # else:
+                #     self.imported_objects_count += 1
 
                 self._post_instance_creation(instance, line, updated)
 
@@ -1175,7 +1196,8 @@ class ImportForm(CremeModelForm):
                         setattr(instance, m2m.name, extr_value)
                         append_error(line, err_msg, instance)
             except Exception as e:
-                logger.exception('Exception in CSV importing')
+                # logger.exception('Exception in CSV importing')
+                logger.exception('Exception in Mass importing')
 
                 try:
                     for messages in e.message_dict.itervalues():
@@ -1184,7 +1206,16 @@ class ImportForm(CremeModelForm):
                 except:
                     append_error(line, str(e), instance)
 
-        self.lines_count = i
+            kwargs = {}
+            if instance.pk:
+                kwargs['entity'] = instance
+
+            if self.import_errors:
+                kwargs['messages'] = self.import_errors
+
+            MassImportJobResult.objects.create(job=job, line=line, updated=updated, **kwargs)
+
+            self.import_errors[:] = ()
 
         filedata.close()
 

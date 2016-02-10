@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import time
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from django.utils import formats
 from django.utils.dateparse import parse_datetime
@@ -35,7 +35,7 @@ def date_2_dict(d):
 
 
 def get_dt_to_iso8601_str(dt):  # TODO: rename, it is not true ISO 8601 !!!!
-    """Converts the datetime into a string in iso8601 format without any separators.
+    """Converts the datetime into a string in iso8601 format without any separator.
     >>> get_dt_to_iso8601_str(datetime.datetime(2011, 4, 27, 10, 9, 54))
     '20110427T100954Z'
     """
@@ -81,6 +81,7 @@ def get_dt_from_str(dt_str):
             break
 
 
+
 def get_date_from_str(date_str):
     "Returns a date from filled formats in settings, or None."
     for fmt in formats.get_format('DATE_INPUT_FORMATS'):
@@ -92,5 +93,10 @@ def get_date_from_str(date_str):
             break
 
 
+
 def make_aware_dt(dt):
     return make_aware(dt, get_current_timezone())
+
+
+def round_hour(dt):
+    return dt - timedelta(minutes=dt.minute, seconds=dt.second, microseconds=dt.microsecond)

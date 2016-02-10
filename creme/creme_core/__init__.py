@@ -53,6 +53,7 @@ ForeignKey.set_null_label = _set_null_label
 
 # ------------------------------------------------------------------------------
 
+
 def get_concrete_model(model_setting):
     """Returns the concrete model that is active in this project corresponding
     to the setting value.

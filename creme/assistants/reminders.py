@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import timedelta #datetime
+from datetime import timedelta
 
 from django.conf import settings
 from django.db.models import Q
@@ -32,9 +32,15 @@ from .constants import MIN_HOUR_4_TODO_REMINDER
 from .models import Alert, ToDo
 
 
+TODO_REMINDER_DAYS_BEFORE = 1  # TODO: in settings.py ? SettingValue ?
+
+
 class ReminderAlert(Reminder):
     id    = Reminder.generate_id('assistants', 'alert')
     model = Alert
+
+    def _get_delta(self):
+        return timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
 
     def generate_email_subject(self, object):
         return _(u'Reminder concerning a Creme CRM alert related to %s') % object.creme_entity
@@ -51,14 +57,28 @@ class ReminderAlert(Reminder):
                 }
 
     def get_Q_filter(self):
-        delta = timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
-        dt_now = now().replace(microsecond=0, second=0)
-        return Q(trigger_date__lte=dt_now + delta, is_validated=False)
+        # delta = timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
+        # dt_now = now().replace(microsecond=0, second=0)
+        # return Q(trigger_date__lte=dt_now + delta, is_validated=False)
+        return Q(trigger_date__lte=now() + self._get_delta(), is_validated=False)
+
+    def next_wakeup(self, now_value):
+        alert = Alert.objects.filter(is_validated=False, reminded=False) \
+                             .order_by('trigger_date') \
+                             .first()
+
+        return alert.trigger_date - self._get_delta() if alert is not None else None
 
 
 class ReminderTodo(Reminder):
     id    = Reminder.generate_id('assistants', 'todo')
     model = ToDo
+
+    def _get_delta(self):
+        return timedelta(days=TODO_REMINDER_DAYS_BEFORE)
+
+    def _get_min_hour(self):
+        return SettingValue.objects.get(key_id=MIN_HOUR_4_TODO_REMINDER).value
 
     def generate_email_subject(self, object):
         return _(u'Reminder concerning a Creme CRM todo related to %s') % object.creme_entity
@@ -75,11 +95,32 @@ class ReminderTodo(Reminder):
                 }
 
     def get_Q_filter(self):
-        dt_now = now().replace(microsecond=0, second=0)
-        return Q(deadline__lte=dt_now + timedelta(days=1), is_ok=False)
+        # TODO: exclude Todos related to deleted entities ??
+        # dt_now = now().replace(microsecond=0, second=0)
+        # return Q(deadline__lte=dt_now + timedelta(days=1), is_ok=False)
+        return Q(deadline__lte=now() + self._get_delta(), is_ok=False)
 
     def ok_for_continue(self):
-        return localtime(now()).hour >= SettingValue.objects.get(key_id=MIN_HOUR_4_TODO_REMINDER).value
+        # return localtime(now()).hour >= SettingValue.objects.get(key_id=MIN_HOUR_4_TODO_REMINDER).value
+        return localtime(now()).hour >= self._get_min_hour()
+
+    def next_wakeup(self, now_value):
+        wakeup = None
+        todo = ToDo.objects.filter(is_ok=False, reminded=False, deadline__isnull=False) \
+                           .order_by('deadline') \
+                           .first()
+
+        if todo is not None:
+            wakeup = localtime(todo.deadline) - self._get_delta()
+            min_hour = self._get_min_hour()
+
+            if wakeup.hour < min_hour:
+                if wakeup < now_value:
+                    wakeup = localtime(now_value)
+
+                wakeup = wakeup.replace(hour=min_hour)
+
+        return wakeup
 
 
 reminder_alert = ReminderAlert()

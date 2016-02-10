@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import timedelta #datetime
+    from datetime import timedelta, datetime
     from functools import partial
     from json import loads as load_json
 
@@ -10,20 +10,22 @@ try:
     from django.core.mail.backends.locmem import EmailBackend
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.test.utils import override_settings
     from django.utils.timezone import now, localtime
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.management.commands.reminder import Command as ReminderCommand
-    from creme.creme_core.models import CremeEntity, DateReminder, SettingValue, HistoryLine
+    from creme.creme_core.blocks import job_errors_block
+    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    # from creme.creme_core.management.commands.reminder import Command as ReminderCommand
+    from creme.creme_core.models import (CremeEntity, DateReminder,
+            SettingValue, HistoryLine, JobResult)
     from creme.creme_core.models.history import (TYPE_AUX_CREATION,
             TYPE_AUX_EDITION, TYPE_AUX_DELETION)
     from creme.creme_core.tests.fake_models import FakeContact as Contact
 
-    #from creme.persons.models import Contact
-
     from ..constants import MIN_HOUR_4_TODO_REMINDER
     from ..blocks import todos_block
-    from ..models import ToDo
+    from ..models import ToDo, Alert
     from .base import AssistantsTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -78,6 +80,9 @@ class TodoTestCase(AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(ToDo.objects.exists())
 
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
         entity = self.entity
         response = self.assertGET200(self._build_add_url(entity))
 
@@ -97,10 +102,15 @@ class TodoTestCase(AssistantsTestCase):
         self.assertIsNone(todo.deadline)
         self.assertIs(todo.reminded, False)
 
+        self.assertEqual([], queue.refreshed_jobs)  # Because there is no deadline
+
         self.assertEqual(title, unicode(todo))
 
     def test_create02(self):
         "Dealine"
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
         url = self._build_add_url(self.entity)
         title = 'my Todo'
         data = {'user':        self.user.pk,
@@ -119,6 +129,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(self.create_datetime(year=2013, month=6, day=7, hour=9),
                          todo.deadline
                         )
+
+        self.assertEqual([self.get_reminder_job()], queue.refreshed_jobs)
 
     def test_edit01(self):
         title       = 'Title'
@@ -328,7 +340,11 @@ class TodoTestCase(AssistantsTestCase):
         sv.value = localtime(now_value).hour
         sv.save()
 
-        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+        # reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+        DateReminder.objects.all().delete()
+
+        job = self.get_reminder_job()
+        self.assertIsNone(job.type.next_wakeup(job, now_value))
 
         create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=self.user)
         todo1 = create_todo(title='Todo#1', deadline=now_value)
@@ -336,9 +352,14 @@ class TodoTestCase(AssistantsTestCase):
         create_todo(title='Todo#3')
         todo4 = create_todo(title='Todo#4', deadline=now_value, is_ok=True)
 
-        ReminderCommand().execute(verbosity=0)
+        # ReminderCommand().execute(verbosity=0)
+        self.assertLess(job.type.next_wakeup(job, now_value), now())
 
-        reminders = DateReminder.objects.exclude(id__in=reminder_ids)
+        self.execute_job(job)
+        self.assertIsNone(job.user)
+
+        # reminders = DateReminder.objects.exclude(id__in=reminder_ids)
+        reminders = DateReminder.objects.all()
         self.assertEqual(1, len(reminders))
 
         reminder = reminders[0]
@@ -356,6 +377,11 @@ class TodoTestCase(AssistantsTestCase):
                          message.subject
                         )
         self.assertIn(todo1.title, message.body)
+
+        self.assertFalse(JobResult.objects.filter(job=job))
+
+        response = self.assertGET200(job.get_absolute_url())
+        self.assertContains(response, ' id="%s"' % job_errors_block.id_)
 
     def test_reminder02(self):
         "Minimum hour (SettingValue) is in the future"
@@ -376,7 +402,15 @@ class TodoTestCase(AssistantsTestCase):
                             title='Todo#1', deadline=now_value,
                            )
 
-        ReminderCommand().execute(verbosity=0)
+        # ReminderCommand().execute(verbosity=0)
+        job = self.get_reminder_job()
+        wakeup = job.type.next_wakeup(job, now_value)
+        self.assertIsInstance(wakeup, datetime)
+        self.assertDatetimesAlmostEqual(localtime(now()).replace(hour=next_hour),
+                                        wakeup
+                                       )
+
+        self.execute_job(job)
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
 
     def test_reminder03(self):
@@ -389,22 +423,134 @@ class TodoTestCase(AssistantsTestCase):
 
         reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
 
-        ToDo.objects.create(title='Todo#1', deadline=now_value,
-                            creme_entity=self.entity, user=self.user,
-                           )
+        # ToDo.objects.create(title='Todo#1', deadline=now_value,
+        #                     creme_entity=self.entity, user=self.user,
+        #                    )
+
+        def create_todo(title):
+            ToDo.objects.create(title=title, deadline=now_value,
+                                creme_entity=self.entity, user=self.user,
+                               )
+
+        create_todo('Todo#1')
 
         self.send_messages_called = False
+        err_msg = 'Sent error'
 
         def send_messages(this, messages):
             self.send_messages_called = True
-            raise Exception('Sent error')
+            raise Exception(err_msg)
 
         EmailBackend.send_messages = send_messages
 
-        ReminderCommand().execute(verbosity=0)
+        # ReminderCommand().execute(verbosity=0)
+        job = self.execute_job()
 
         self.assertTrue(self.send_messages_called)
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
+
+        jresults = JobResult.objects.filter(job=job)
+        self.assertEqual(1, len(jresults))
+
+        jresult = jresults[0]
+        # self.assertIsNone(jresult.entity)
+        self.assertEqual([_(u'An error occurred while sending emails related to «%s»')
+                            % ToDo._meta.verbose_name,
+                          _(u'Original error: %s') % err_msg,
+                         ],
+                         jresult.messages
+                        )
+
+        EmailBackend.send_messages = self.original_send_messages
+
+        create_todo('Todo#2')
+        job = self.execute_job()
+        self.assertEqual(1, len(mail.outbox))
+        self.assertEqual(2, DateReminder.objects.exclude(id__in=reminder_ids).count())
+        self.assertFalse(JobResult.objects.filter(job=job))
+
+    def test_next_wakeup01(self):
+        "Next wake is one day later + minimum hour"
+        now_value = now()
+
+        next_hour = localtime(now_value).hour + 1
+        if next_hour > 23:
+            print('Skip the test TodoTestCase.test_next_wakeup01 because it is too late.')
+            return
+
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv.value = next_hour
+        sv.save()
+
+        def create_todo(title, deadline, **kwargs):
+            ToDo.objects.create(creme_entity=self.entity, user=self.user,
+                                title=title, deadline=deadline, **kwargs
+                               )
+
+        create_todo('Todo#2', now_value, is_ok=True)
+        create_todo('Todo#4', now_value, reminded=True)
+        create_todo('Todo#6', now_value + timedelta(days=3))
+        create_todo('Todo#1', now_value + timedelta(days=2))  # <==== this one should be used
+        create_todo('Todo#3', now_value, is_ok=True)
+        create_todo('Todo#5', now_value, reminded=True)
+        create_todo('Todo#7', now_value + timedelta(days=4))
+
+        job = self.get_reminder_job()
+
+        self.assertEqual((localtime(now_value) + timedelta(days=1)).replace(hour=next_hour),
+                         job.type.next_wakeup(job, now_value)
+                        )
+
+    def test_next_wakeup02(self):
+        "Next wake is one day later (but minimum hour has passed)"
+        now_value = now()
+
+        previous_hour = localtime(now_value).hour - 1
+        if previous_hour < 0:
+            print('Skip the test TodoTestCase.test_reminder02 because it is too early.')
+            return
+
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv.value = previous_hour
+        sv.save()
+
+        ToDo.objects.create(creme_entity=self.entity, user=self.user,
+                            title='Todo#1',
+                            deadline=now_value + timedelta(days=2),
+                           )
+
+        job = self.get_reminder_job()
+        self.assertEqual(now_value + timedelta(days=1), job.type.next_wakeup(job, now_value))
+
+    @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
+    def test_next_wakeup03(self):
+        "ToDos + Alerts => minimum wake up"
+        now_value = now()
+
+        # TODO: factorise
+        previous_hour = localtime(now_value).hour - 1
+        if previous_hour < 0:
+            print('Skip the test TodoTestCase.test_reminder02 because it is too early.')
+            return
+
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv.value = previous_hour
+        sv.save()
+
+        ToDo.objects.create(creme_entity=self.entity, user=self.user, title='Todo#1',
+                            deadline=now_value + timedelta(days=2),
+                           )
+        alert = Alert.objects.create(creme_entity=self.entity, user=self.user, title='Alert#1',
+                                     trigger_date=now_value + timedelta(days=3),
+                                    )
+
+        job = self.get_reminder_job()
+        self.assertEqual(now_value + timedelta(days=1), job.type.next_wakeup(job, now_value))
+
+        alert.trigger_date = now_value + timedelta(minutes=50)
+        alert.save()
+
+        self.assertEqual(now_value + timedelta(minutes=20), job.type.next_wakeup(job, now_value))
 
     def _get_hlines(self):
         return list(HistoryLine.objects.order_by('id'))
@@ -442,7 +588,6 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(akane.id,         hline.entity.id)
         self.assertEqual(TYPE_AUX_EDITION, hline.type)
 
-#        vmodifs = hline.verbose_modifications
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(2, len(vmodifs))
 
@@ -471,7 +616,6 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(akane.id,          hline.entity.id)
         self.assertEqual(TYPE_AUX_DELETION, hline.type)
 
-#        vmodifs = hline.verbose_modifications
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 

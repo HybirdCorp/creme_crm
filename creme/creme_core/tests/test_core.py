@@ -2,20 +2,29 @@
 
 try:
     from functools import partial
+    from datetime import timedelta
+    from time import sleep
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.db import models
+    from django.test.utils import override_settings
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.core.function_field import FunctionField, FunctionFieldsManager
+    from creme.creme_core.core.job import JobManager
     from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
-    from creme.creme_core.models import RelationType, CustomField, CustomFieldEnumValue
+    from creme.creme_core.core.function_field import FunctionField, FunctionFieldsManager
+    from creme.creme_core.core.reminder import Reminder, reminder_registry
+    from creme.creme_core.creme_jobs import reminder_type
+    from creme.creme_core.models import RelationType, CustomField, CustomFieldEnumValue, Job
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeDocument as Document)
+    from creme.creme_core.utils.dates import round_hour
+    from creme.creme_core.utils.date_period import HoursPeriod
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -462,3 +471,89 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(name, cell.value)
 
         self.assertIsNone(EntityCellFunctionField.build(Contact, func_field_name='invalid'))
+
+
+class JobManagerTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core')
+
+    def setUp(self):
+        super(JobManagerTestCase, self).setUp()
+        self.reminders = []
+
+    def tearDown(self):
+        super(JobManagerTestCase, self).tearDown()
+
+        for reminder in self.reminders:
+            reminder_registry.unregister(reminder)
+
+    def _register_reminder(self, reminder):
+        reminder_registry.register(reminder)
+        self.reminders.append(reminder)
+
+    def _get_nows(self):
+        now_value = now()
+        rounded_hour = round_hour(now_value)
+
+        if rounded_hour == now_value:
+            sleep(1)
+            now_value = now()
+
+        return now_value, rounded_hour
+
+    @override_settings(PSEUDO_PERIOD=1)
+    def test_next_wake_up01(self):
+        "PSEUDO_PERIODIC job"
+        now_value, rounded_hour = self._get_nows()
+        job = Job.objects.get(type_id=reminder_type.id)
+
+        self.assertEqual(rounded_hour, job.reference_run)
+        self.assertEqual(HoursPeriod(value=1),
+                         job.real_periodicity
+                        )
+
+        mngr = JobManager()
+        next_wakeup = mngr._next_wakeup
+
+        next_hour = rounded_hour + timedelta(hours=1)
+        self.assertEqual(next_hour, next_wakeup(job, now_value))
+
+        job.reference_run = rounded_hour - timedelta(hours=1)  # should not be used because "rounded_hour" is given
+        self.assertEqual(next_hour, next_wakeup(job, now_value, reference_run=rounded_hour))
+
+    @override_settings(PSEUDO_PERIOD=1)
+    def test_next_wake_up02(self):
+        "PSEUDO_PERIODIC job + reminder return a wake up date before the new security period"
+        now_value, rounded_hour = self._get_nows()
+        job = Job.objects.get(type_id=reminder_type.id)
+
+        wake_up = rounded_hour + timedelta(minutes=20)
+
+        class TestReminder(Reminder):
+            id = Reminder.generate_id('creme_core', 'test_jobmanager_1')
+
+            def next_wakeup(self, now_value):
+                return wake_up
+
+        self._register_reminder(TestReminder())
+        self.assertEqual(wake_up, JobManager()._next_wakeup(job, now_value))
+
+    @override_settings(PSEUDO_PERIOD=1)
+    def test_next_wake_up03(self):
+        "PSEUDO_PERIODIC job + reminder return a wake up date after the new security period"
+        now_value, rounded_hour = self._get_nows()
+        job = Job.objects.get(type_id=reminder_type.id)
+
+        class TestReminder(Reminder):
+            id = Reminder.generate_id('creme_core', 'test_jobmanager_2')
+
+            def next_wakeup(self, now_value):
+                return rounded_hour + timedelta(minutes=70)
+
+        self._register_reminder(TestReminder())
+
+        self.assertEqual(rounded_hour + timedelta(hours=1),
+                         JobManager()._next_wakeup(job, now_value)
+                        )
