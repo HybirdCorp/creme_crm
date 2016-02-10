@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,8 +60,8 @@ if apps.is_installed('creme.billing'):
     # Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
     # If one day it does we will only have to add senders to the signal
     @receiver(post_save, sender=Quote)
-    def _handle_current_quote_change(sender, instance, **kwargs):
-        if use_current_quote():
+    def _handle_current_quote_change(sender, instance, created, **kwargs):
+        if not created and use_current_quote():
             relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
 
             if relations:  # TODO: useless
