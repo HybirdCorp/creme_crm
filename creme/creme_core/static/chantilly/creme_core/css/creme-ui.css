@@ -628,3 +628,19 @@ span.ui-creme-datepicker-trigger {
 select[readonly] {
     color: gray;
 }
+
+/*----------------------------------*/
+.ui-creme-dselect[readonly] {
+    color: gray;
+}
+
+/* Jobs */
+
+img.progress {
+    display: block;
+}
+
+span.ack-errors {
+    display: block;
+    background-color: #f08080;
+}

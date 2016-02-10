@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,8 +25,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from .gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
-from .models import CremeEntity, Relation, CremeProperty
+from .creme_jobs.base import JobType
+from .gui.block import Block, SimpleBlock, QuerysetBlock, BlocksManager, list4url
+from .models import (CremeEntity, Relation, CremeProperty, Job, JobResult,
+        MassImportJobResult, EntityJobResult)
 from .models.history import HistoryLine, TYPE_SYM_RELATION, TYPE_SYM_REL_DEL
 
 
@@ -190,7 +192,7 @@ class TrashBlock(QuerysetBlock):
     order_by      = '-modified'
     verbose_name  = _(u'Trash')
     template_name = 'creme_core/templatetags/block_trash.html'
-    page_size     = 25
+    page_size     = 50
     permission    = None  # NB: the template uses credentials
     configurable  = False  # TODO: allows on home page ?
 
@@ -204,8 +206,127 @@ class TrashBlock(QuerysetBlock):
         return self._render(btc)
 
 
+class JobBlock(Block):
+    id_           = Block.generate_id('creme_core', 'job')
+    dependencies  = (Job,)
+    verbose_name  = 'Job'
+    template_name = 'creme_core/templatetags/block_job.html'
+    configurable  = False
+
+    def detailview_display(self, context):
+        job = context['job']
+
+        return self._render(self.get_block_template_context(
+                    context, job=job,
+                    update_url='/creme_core/job/%s/reload/%s' % (job.id, self.id_),
+                    JOB_OK=Job.STATUS_OK,
+                    JOB_ERROR=Job.STATUS_ERROR,
+                    JOB_WAIT=Job.STATUS_WAIT,
+                    PERIODIC=JobType.PERIODIC,
+                    NOT_PERIODIC=JobType.NOT_PERIODIC,
+                ))
+
+
+class JobResultsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'job_results')
+    dependencies  = (JobResult,)
+    order_by      = 'id'
+    verbose_name  = 'Job results'
+    template_name = 'creme_core/templatetags/block_job_results.html'
+    configurable  = False
+    page_size     = 50
+
+    def _build_queryset(self, job):
+        return self.dependencies[0].objects.filter(job=job)
+
+    def _extra_context(self, job):
+        return {}
+
+    def detailview_display(self, context):
+        job = context['job']
+
+        return self._render(self.get_block_template_context(
+                    context, self._build_queryset(job),
+                    # self.dependencies[0].objects.filter(job=job, raw_messages__isnull=False),
+                    update_url='/creme_core/job/%s/reload/%s' % (job.id, self.id_),
+                    **self._extra_context(job)
+                ))
+
+
+class JobErrorsBlock(JobResultsBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'job_errors')
+    verbose_name  = 'Job errors'
+    template_name = 'creme_core/templatetags/block_job_errors.html'
+
+    def _build_queryset(self, job):
+        return super(JobErrorsBlock, self)._build_queryset(job).filter(raw_messages__isnull=False)
+
+    def _extra_context(self, job):
+        return {'JOB_ERROR': Job.STATUS_ERROR}
+
+
+class EntityJobErrorsBlock(JobErrorsBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'entity_job_errors')
+    dependencies  = (EntityJobResult,)
+    verbose_name  = 'Entity job errors'
+    template_name = 'creme_core/templatetags/block_entity_job_errors.html'
+
+
+class MassImportJobErrorsBlock(JobErrorsBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'mass_import_job_errors')
+    dependencies  = (MassImportJobResult,)
+    verbose_name  = 'Mass import job errors'
+    template_name = 'creme_core/templatetags/block_massimport_job_errors.html'
+
+
+class JobsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'jobs')
+    dependencies  = (Job,)
+    # order_by      = '-created'
+    verbose_name  = 'Jobs'
+    template_name = 'creme_core/templatetags/block_jobs.html'
+    configurable  = False
+    page_size     = 50
+    permission    = None
+
+    def detailview_display(self, context):
+        user = context['user']
+        jobs = Job.objects.all()
+
+        if not user.is_superuser:
+            jobs = jobs.filter(user=user)
+
+        return self._render(self.get_block_template_context(
+                    context, jobs,
+                    update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # TODO: computed twice when user is not superuser...
+                    user_jobs_count=Job.objects.filter(user=user).count(),
+                    MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
+                    JOB_WAIT=Job.STATUS_WAIT,
+                    PERIODIC=JobType.PERIODIC,
+                    NOT_PERIODIC=JobType.NOT_PERIODIC,
+                ))
+
+
 properties_block   = PropertiesBlock()
 relations_block    = RelationsBlock()
 customfields_block = CustomFieldsBlock()
 history_block      = HistoryBlock()
 trash_block        = TrashBlock()
+job_block          = JobBlock()
+
+# Not registered (never get by the registry, used in specific views only)
+job_results_block           = JobResultsBlock()
+job_errors_block            = JobErrorsBlock()
+entity_job_errors_block     = EntityJobErrorsBlock()
+massimport_job_errors_block = MassImportJobErrorsBlock()
+
+block_list = (
+        properties_block,
+        relations_block,
+        customfields_block,
+        history_block,
+        trash_block,
+        job_block,
+        JobsBlock(),
+    )

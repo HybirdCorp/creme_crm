@@ -18,31 +18,40 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404
-from django.shortcuts import render
+from django.conf import settings
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
+from ..creme_jobs import mass_import_type
 from ..forms.list_view_import import UploadForm, form_factory
 from ..gui.list_view_import import import_form_registry
+from ..models import Job
 from ..utils import get_ct_or_404, get_from_POST_or_404
 
 # django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)
 
 
+# TODO: remove creme_core/importing_report.html
 @login_required
 def import_listview(request, ct_id):
     ct = get_ct_or_404(ct_id)
-    user = request.user
-    submit_label = _('Save the entities')
 
     try:
         import_form_registry.get(ct)
     except import_form_registry.UnregisteredCTypeException as e:
         raise Http404(e)
 
+    user = request.user
+
+    if Job.objects.filter(user=user).count() >= settings.MAX_JOBS_PER_USER:
+        return HttpResponseRedirect('/creme_core/job/all')
+
     user.has_perm_to_create_or_die(ct.model_class())
+
+    submit_label = _('Save the entities')
 
     if request.method == 'POST':
         POST = request.POST
@@ -71,12 +80,21 @@ def import_listview(request, ct_id):
             form = ImportForm(user=user, data=POST)
 
             if form.is_valid():
-                form.save()
-                return render(request, 'creme_core/importing_report.html',
-                              {'form':     form,
-                               'back_url': request.GET['list_url'],
-                              }
-                             )
+                # form.save()
+                # return render(request, 'creme_core/importing_report.html',
+                #               {'form':     form,
+                #                'back_url': request.GET['list_url'],
+                #               }
+                #              )
+
+                # TODO: remove request.GET['list_url'] ??
+                job = Job.objects.create(user=user,
+                                         type=mass_import_type,
+                                         data={'ctype': ct.id,
+                                               'POST':  POST.urlencode(),
+                                              }
+                                        )
+                return redirect(job)
 
         cancel_url = POST.get('cancel_url')
     else:

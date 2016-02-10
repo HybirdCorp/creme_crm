@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,10 +36,10 @@ class Alert(CremeModel):
     title               = CharField(max_length=200)
     description         = TextField(_(u'Description'), blank=True, null=True)
     is_validated        = BooleanField(_('Validated'), editable=False, default=False)
-    reminded            = BooleanField(_(u'Notification sent'), editable=False, default=False) #need by creme_core.core.reminder
+    reminded            = BooleanField(_(u'Notification sent'), editable=False, default=False)  # Need by creme_core.core.reminder
     trigger_date        = DateTimeField(_(u"Trigger date"))
 
-    #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
+    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="alert_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -69,8 +69,12 @@ class Alert(CremeModel):
     def get_alerts_for_ctypes(ct_ids, user):
         return Alert.objects.filter(entity_content_type__in=ct_ids, user=user, is_validated=False).select_related('user')
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.creme_entity
+
+    @property
+    def to_be_reminded(self):
+        return not self.is_validated and not self.reminded
 
 
 class _GetAlerts(FunctionField):

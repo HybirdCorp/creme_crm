@@ -39,6 +39,17 @@ class DatePeriod(object):
     def __unicode__(self):
         return unicode(self.verbose_name)
 
+    def __eq__(self, other_dp):
+        try:
+            other_td = other_dp.as_timedelta()
+        except:
+            return False
+
+        return self.as_timedelta() == other_td
+
+    def __ne__(self, other_dp):
+        return not self == other_dp
+
     def as_timedelta(self):
         raise NotImplementedError
 

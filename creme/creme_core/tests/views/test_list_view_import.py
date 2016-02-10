@@ -3,16 +3,22 @@
 try:
     from decimal import Decimal
     from functools import partial
+    import json
 
     from django.contrib.contenttypes.models import ContentType
-    from django.utils.translation import ugettext as _
+    from django.utils.timezone import now
+    from django.utils.translation import ugettext as _, ungettext
+    from django.test.utils import override_settings
 
     from .base import ViewsTestCase, CSVImportBaseTestCaseMixin, skipIfNoXLSLib
     from ..fake_models import (FakeContact as Contact, FakeEmailCampaign,
             FakeOrganisation as Organisation, FakeAddress as Address,
             FakePosition as Position, FakeSector as Sector)
+    from creme.creme_core.blocks import massimport_job_errors_block, job_errors_block
+    from creme.creme_core.creme_jobs.mass_import import mass_import_type
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
-            RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue)
+            RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue,
+            Job, MassImportJobResult)
     from creme.creme_core.utils import update_model_instance
 
     from creme.documents.models import Document
@@ -62,6 +68,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
         cls.populate('creme_core')
+        Job.objects.all().delete()
 
         cls.ct = ContentType.objects.get_for_model(Contact)
 
@@ -101,27 +108,99 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertIn('value="1"', unicode(form['step']))
 
-        response = self.client.post(url, data=dict(self.lv_import_data,
-                                                   document=doc.id,
-                                                   user=user.id,
-                                                  ),
+        response = self.client.post(url, follow=True,
+                                    data=dict(self.lv_import_data,
+                                              document=doc.id,
+                                              user=user.id,
+                                             ),
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
+        # with self.assertNoException():
+        #     form = response.context['form']
+        jobs = Job.objects.all()
+        self.assertEqual(1, len(jobs))
+
+        job = jobs[0]
+        self.assertEqual(self.user, job.user)
+        # self.assertLess((now() - job.created).seconds, 1)
+        self.assertIsNone(job.last_run)
+        self.assertIsInstance(job.data, dict)
+        self.assertEqual(Job.STATUS_WAIT, job.status)
+        self.assertIsNone(job.error)
+        self.assertFalse(self._get_job_results(job))
+
+        # Properties
+        self.assertIs(mass_import_type, job.type)
+        self.assertEqual([_(u'Import «%(type)s» from %(doc)s') % {
+                                'type': 'Test Contact',
+                                'doc':  doc,
+                            }
+                         ],
+                         job.description
+                        )  # TODO: description of columns ????
+
+        self.assertRedirects(response, job.get_absolute_url())
+        self.assertContains(response, ' id="%s"' % massimport_job_errors_block.id_)
+
+        mass_import_type.execute(job)
 
         lines_count = len(lines)
-        self.assertFalse(list(form.import_errors))
-        self.assertEqual(lines_count, form.imported_objects_count)
-        self.assertEqual(lines_count, form.lines_count)
-
+        # self.assertFalse(list(form.import_errors))
+        # self.assertEqual(lines_count, form.imported_objects_count)
+        # self.assertEqual(lines_count, form.lines_count)
         self.assertEqual(count + lines_count, Contact.objects.count())
+        self.assertDatetimesAlmostEqual(now(), job.last_run)
 
+        # self.assertEqual(count + lines_count, Contact.objects.count())
+
+        contacts = []
         for first_name, last_name in lines:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
             self.assertEqual(user, contact.user)
             self.assertIsNone(contact.address)
+
+            contacts.append(contact)
+
+        job = self.refresh(job)
+        self.assertEqual(Job.STATUS_OK, job.status)
+        self.assertIsNone(job.error)
+        results = self._get_job_results(job)
+        self.assertEqual(2, len(results))
+        self.assertEqual(set(contacts), {r.entity.get_real_entity() for r in results})
+        self._assertNoResultError(results)
+        self.assertIs(results[0].updated, False)
+
+        self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
+                                    u'%(counter)s «%(type)s» have been created.',
+                                   lines_count
+                                  ) % { 'counter': lines_count,
+                                        'type':    'Test Contacts',
+                                      },
+                          ungettext('%s line in the file.', '%s lines in the file.',
+                                    lines_count,
+                                   ) % lines_count,
+                         ],
+                         job.stats
+                        )
+
+        # Reload block -----------
+        url_fmt = '/creme_core/job/%s/reload/%s'
+        block_id = massimport_job_errors_block.id_
+        response = self.assertGET200(url_fmt % (job.id, block_id))
+        with self.assertNoException():
+            result = json.loads(response.content)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+
+        result = result[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+        self.assertEqual(block_id, result[0])
+        self.assertIn(' id="%s"' % block_id, result[1])
+
+        self.assertGET404(url_fmt % (job.id, job_errors_block.id_))
 
     def _test_import02(self, builder):
         "Use header, default value, model search and create, properties, fixed and dynamic relations"
@@ -168,7 +247,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         default_descr = 'A cute pilot'
         response = self.client.post(
-                          url,
+                          url, follow=True,
                           data=dict(self.lv_import_data,
                                     document=doc.id, has_header=True,
                                     user=self.user.id,
@@ -197,13 +276,14 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                     )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
+        # with self.assertNoException():
+        #     form = response.context['form']
+        job = self._execute_job(response)
 
         lines_count = len(lines) - 1  # '-1' for header
-        self.assertEqual(lines_count, len(form.import_errors))  # Sector not found
-        self.assertEqual(lines_count, form.imported_objects_count)
-        self.assertEqual(lines_count, form.lines_count)
+        # self.assertEqual(lines_count, len(form.import_errors))  # Sector not found
+        # self.assertEqual(lines_count, form.imported_objects_count)
+        # self.assertEqual(lines_count, form.lines_count)
         self.assertEqual(contact_count + lines_count, Contact.objects.count())
 
         positions = Position.objects.exclude(id__in=position_ids)
@@ -222,10 +302,29 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             self.assertRelationCount(1, contact, loves.id, shinji)
             self.assertRelationCount(1, contact, employed.id, nerv)
 
+        self.assertFalse(Contact.objects.filter(last_name=lines[0][1]))  # Header must not be used
+
         rei = Contact.objects.get(first_name=lines[1][0])
         address = rei.address
         self.assertIsInstance(address, Address)
         self.assertEqual(city, address.city)
+
+        results = self._get_job_results(job)
+        self.assertEqual(lines_count, len(results))
+        self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
+                                    u'%(counter)s «%(type)s» have been created.',
+                                    lines_count
+                                  ) % {
+                              'counter': lines_count,
+                              'type':    'Test Contacts',
+                          },
+                          ungettext('%s line in the file.', '%s lines in the file.',
+                                    lines_count,
+                                   ) % lines_count,
+                         ],
+                         job.stats
+                        )
+        self.assertTrue(all(r.messages for r in results))  # Sector not found
 
     def _test_import03(self, builder):
         "Create entities to link with them"
@@ -239,7 +338,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                        ('persons-object_employed_by',  'employs')
                                       )[0]
         doc = builder([('Ayanami', 'Rei', orga_name)])
-        response = self.client.post(self._build_import_url(Contact),
+        response = self.client.post(self._build_import_url(Contact), follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               user=self.user.id,
 
@@ -249,11 +348,11 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        form = response.context['form']
-        self.assertEqual(0, len(form.import_errors))  # Sector not found
-        self.assertEqual(1, form.imported_objects_count)
+        # form = response.context['form']
+        # self.assertEqual(0, len(form.import_errors))  # Sector not found
+        # self.assertEqual(1, form.imported_objects_count)
+        job = self._execute_job(response)
 
-        #contacts = Contact.objects.all()
         contacts = Contact.objects.exclude(id__in=contact_ids)
         self.assertEqual(1, len(contacts))
 
@@ -264,6 +363,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         employer = relations[0].object_entity.get_real_entity()
         self.assertIsInstance(employer, Organisation)
         self.assertEqual(orga_name, employer.name)
+
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
+        self.assertFalse(results[0].messages)
 
     def test_not_registered(self):
         self.login()
@@ -309,18 +412,24 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
         self.assertIn('value="1"', unicode(response.context['form']['step']))
 
-        response = self.client.post(url, data=dict(self.lv_import_data, document=doc.id,
-                                                   has_header=True,
-                                                   user=user.id,
-                                                  ),
+        response = self.client.post(url, follow=True,
+                                    data=dict(self.lv_import_data, document=doc.id,
+                                              has_header=True,
+                                              user=user.id,
+                                             ),
                                    )
         self.assertNoFormError(response)
-        self.assertEqual([], list(response.context['form'].import_errors))
+        # self.assertEqual([], list(response.context['form'].import_errors))
 
+        job = self._execute_job(response)
         self.assertEqual(len(lines) - 1, Contact.objects.exclude(id__in=contact_ids).count())
 
         for first_name, last_name in lines[1:]:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+
+        results = self._get_job_results(job)
+        self.assertEqual(2, len(results))
+        self._assertNoResultError(results)
 
     def _get_cf_values(self, cf, entity):
         return self.get_object_or_fail(cf.get_value_class(), custom_field=cf, entity=entity)
@@ -332,7 +441,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_int = create_cf(name='Size (cm)',   field_type=CustomField.INT)
         cf_dec = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)
-        cf_str = create_cf(name='Nickname', field_type=CustomField.STR)
+        cf_str = create_cf(name='Nickname',    field_type=CustomField.STR)
 
         lines = [('First name', 'Last name', 'Size', 'Weight'),
                  (u'Unchô',      u'Kan-u',   '180',    '55'),
@@ -351,6 +460,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=user.id,
@@ -362,6 +472,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                              ),
                                    )
         self.assertNoFormError(response)
+
+        job = self._execute_job(response)
         self.assertEqual(len(lines) - 2,  # 2 = 1 header + 1 update
                          Contact.objects.exclude(id__in=contact_ids).count()
                         )
@@ -387,13 +499,25 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(cf_int.get_value_class().objects.filter(entity=ryomou))
         self.assertEqual(Decimal('48'), get_cf_values(cf_dec, ryomou).value)
 
-        errors = list(response.context['form'].import_errors)
-        self.assertEqual(1, len(errors))
+        # errors = list(response.context['form'].import_errors)
+        # self.assertEqual(1, len(errors))
+        #
+        # error = errors[0]
+        # self.assertEqual(list(lines[4]), error.line)
+        # self.assertEqual(_('Enter a whole number.'), unicode(error.message))
+        # self.assertEqual(ryomou, error.instance)
+        results = self._get_job_results(job)
+        self.assertEqual(4, len(results))
 
-        error = errors[0]
-        self.assertEqual(list(lines[4]), error.line)
-        self.assertEqual(_('Enter a whole number.'), unicode(error.message))
-        self.assertEqual(ryomou, error.instance)
+        jr_errors = [r for r in results if r.messages]
+        self.assertEqual(1, len(jr_errors))
+
+        jr_error = jr_errors[0]
+        self.assertEqual(list(lines[4]), jr_error.line)
+        self.assertEqual([_('Enter a whole number.')],  # TODO: add the field verbose name !!
+                         jr_error.messages
+                        )
+        self.assertEqual(ryomou, jr_error.entity.get_real_entity())
 
     def test_csv_import_customfields02(self): 
         "CustomField.ENUM/MULTI_ENUM (no creation of choice)"
@@ -422,6 +546,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=user.id,
@@ -432,6 +557,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                              ),
                                    )
         self.assertNoFormError(response)
+
+        job = self._execute_job(response)
         self.assertEqual(len(lines) - 1,  # 1 header
                          Contact.objects.exclude(id__in=contact_ids).count()
                         )
@@ -448,21 +575,40 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(cf_enum.get_value_class().objects.filter(entity=kanu))
         self.assertEqual([spear], list(get_cf_values(cf_menum, kanu).value.all()))
 
-        errors = list(response.context['form'].import_errors)
-        self.assertEqual(1, len(errors))
+        # errors = list(response.context['form'].import_errors)
+        # self.assertEqual(1, len(errors))
+        #
+        # error = errors[0]
+        # self.assertEqual(list(lines[2]), error.line)
+        # self.assertEqual(_(u'Error while extracting value: tried to retrieve '
+        #                    u'the choice "%(value)s" (column %(column)s). '
+        #                    u'Raw error: [%(raw_error)s]') % {
+        #                         'raw_error': 'CustomFieldEnumValue matching query does not exist.',
+        #                         'column':    3,
+        #                         'value':     'strangulation',
+        #                     },
+        #                  unicode(error.message)
+        #                 )
+        # self.assertEqual(kanu, error.instance)
+        results = self._get_job_results(job)
+        self.assertEqual(2, len(results))
 
-        error = errors[0]
-        self.assertEqual(list(lines[2]), error.line)
-        self.assertEqual(_(u'Error while extracting value: tried to retrieve '
-                           u'the choice "%(value)s" (column %(column)s). '
-                           u'Raw error: [%(raw_error)s]') % {
+        jr_errors = [r for r in results if r.messages]
+        self.assertEqual(1, len(jr_errors))
+
+        jr_error = jr_errors[0]
+        self.assertEqual(list(lines[2]), jr_error.line)
+        self.assertEqual([_(u'Error while extracting value: tried to retrieve '
+                            'the choice "%(value)s" (column %(column)s). '
+                            'Raw error: [%(raw_error)s]') % {
                                 'raw_error': 'CustomFieldEnumValue matching query does not exist.',
                                 'column':    3,
                                 'value':     'strangulation',
-                            },
-                         unicode(error.message)
+                            }
+                         ],
+                         jr_error.messages
                         )
-        self.assertEqual(kanu, error.instance)
+        self.assertEqual(kanu, jr_error.entity.get_real_entity())
 
     def test_csv_import_customfields03(self): 
         "CustomField.ENUM (creation of choice if not found)"
@@ -485,6 +631,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=user.id,
@@ -497,6 +644,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                              ),
                                    )
         self.assertNoFormError(response)
+
+        job = self._execute_job(response)
         self.assertEqual(len(lines) - 1,  # 1 header
                          Contact.objects.exclude(id__in=contact_ids).count()
                         )
@@ -522,7 +671,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual(2, CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count())  # Not '' choice
 
-        self.assertEqual(0, len(response.context['form'].import_errors))
+        # self.assertEqual(0, len(response.context['form'].import_errors))
+        self._assertNoResultError(self._get_job_results(job))
 
     def test_csv_import_customfields04(self):
         "CustomField.ENUM/MULTI_ENUM: creation credentials"
@@ -546,6 +696,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         def post():
             return self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=self.user.id,
@@ -572,6 +723,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         response = post()
         self.assertNoFormError(response)
+
+        self._execute_job(response)
         self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_enum,
                                 value='strangulation',
                                )
@@ -601,6 +754,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         def post(defint):
             return self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=user.id,
@@ -624,6 +778,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         response = post('180')
         self.assertNoFormError(response)
+
+        self._execute_job(response)
         self.assertEqual(len(lines) - 1,
                          Contact.objects.exclude(id__in=contact_ids).count()
                         )
@@ -688,11 +844,23 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertFormError(response, 'form', 'name', _('This field is required.'))
 
+    @override_settings(MAX_JOBS_PER_USER=1)
+    def test_import_error04(self):
+        "Max jobs"
+        user = self.login()
+        Job.objects.create(user=user,
+                           type_id=mass_import_type.id,
+                           language='en',
+                          )
+
+        response = self.assertGET200(self._build_import_url(Contact), follow=True)
+        self.assertRedirects(response, '/creme_core/job/all')
+
     def test_credentials01(self):
         "Creation credentials for imported model"
         user = self.login(is_superuser=False, allowed_apps=['creme_core'],
-                   creatable_models=[Organisation],  # Not Contact
-                  )
+                          creatable_models=[Organisation],  # Not Contact
+                         )
         self.assertFalse(user.has_perm_to_create(Contact))
         self.assertGET403(self._build_import_url(Contact))
 
@@ -790,6 +958,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                   ]
                                  )
         response = self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               user=user.id,
                                               key_fields=['first_name', 'last_name'],
@@ -804,14 +973,15 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                              ),
                                    )
         self.assertNoFormError(response)
+        job = self._execute_job(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertEqual(0, len(form.import_errors))
-        self.assertEqual(2, form.lines_count)
-        self.assertEqual(1, form.imported_objects_count)
-        self.assertEqual(1, form.updated_objects_count)
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # self.assertEqual(0, len(form.import_errors))
+        # self.assertEqual(2, form.lines_count)
+        # self.assertEqual(1, form.imported_objects_count)
+        # self.assertEqual(1, form.updated_objects_count)
 
         self.assertEqual(count + 1, Contact.objects.count())
 
@@ -826,6 +996,30 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertIsNone(self.refresh(rei2).phone)
         self.get_object_or_fail(Contact, **asuka_info)
+
+        asuka = self.get_object_or_fail(Contact, **asuka_info)
+        jresult = self.get_object_or_fail(MassImportJobResult, job=job, entity=asuka)
+        self.assertFalse(jresult.updated)
+
+        jresult = self.get_object_or_fail(MassImportJobResult, job=job, entity=rei)
+        self.assertTrue(jresult.updated)
+
+        self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
+                                    u'%(counter)s «%(type)s» have been created.',
+                                    1
+                                   ) % {'counter': 1,
+                                        'type':    'Test Contact',
+                                       },
+                          ungettext(u'%(counter)s «%(type)s» has been updated.',
+                                    u'%(counter)s «%(type)s» have been updated.',
+                                    1
+                                   ) % {'counter': 1,
+                                        'type':    'Test Contact',
+                                       },
+                          ungettext('%s line in the file.', '%s lines in the file.', 2) % 2,
+                         ],
+                         job.stats
+                        )
 
     def test_import_with_update02(self):
         "Several existing entities found"
@@ -844,6 +1038,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_csv_doc([(last_name, first_name)])
         response = self.client.post(self._build_import_url(Contact),
+                                    follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               user=user.id,
                                               key_fields=['last_name'],
@@ -853,27 +1048,43 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertEqual(1, form.lines_count)
-        self.assertEqual(1, form.imported_objects_count)
-        self.assertEqual(0, form.updated_objects_count)
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # self.assertEqual(1, form.lines_count)
+        # self.assertEqual(1, form.imported_objects_count)
+        # self.assertEqual(0, form.updated_objects_count)
+        job = self._execute_job(response)
 
         self.assertEqual(count + 1, Contact.objects.count())
         rei = self.get_object_or_fail(Contact, last_name=last_name, first_name=first_name)
 
-        errors = form.import_errors
-        self.assertEqual(1, len(errors))
+        # errors = form.import_errors
+        # self.assertEqual(1, len(errors))
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
 
-        error = iter(errors).next()
-        self.assertEqual([last_name, first_name], error.line)
-        self.assertEqual(_('Several entities corresponding to the search have been found. '
-                           'So a new entity have been created to avoid errors.'
-                          ),
-                         unicode(error.message)
+        # error = iter(errors).next()
+        # self.assertEqual([last_name, first_name], error.line)
+        # self.assertEqual(_('Several entities corresponding to the search have been found. '
+        #                    'So a new entity have been created to avoid errors.'
+        #                   ),
+        #                  unicode(error.message)
+        #                 )
+        # self.assertEqual(rei, error.instance)
+        jr_errors = [r for r in results if r.messages]
+        self.assertEqual(1, len(jr_errors))
+
+        jr_error = jr_errors[0]
+        self.assertEqual([last_name, first_name], jr_error.line)
+        self.assertEqual([_('Several entities corresponding to the search have been found. '
+                            'So a new entity have been created to avoid errors.'
+                           )
+                         ],
+                         jr_error.messages
                         )
-        self.assertEqual(rei, error.instance)
+
+        self.assertEqual(rei, jr_error.entity.get_real_entity())
 
     def test_import_with_update03(self):
         "Ignore trashed entities"
@@ -888,7 +1099,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         count = Contact.objects.count()
 
         doc = self._build_csv_doc([(last_name, first_name)])
-        response = self.client.post(self._build_import_url(Contact),
+        response = self.client.post(self._build_import_url(Contact), follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               user=user.id,
                                               key_fields=['last_name'],
@@ -898,15 +1109,19 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertEqual(1, form.lines_count)
-        self.assertEqual(1, form.imported_objects_count)
-        self.assertEqual(0, form.updated_objects_count)
+        # with self.assertNoException():
+        #     form = response.context['form']
+        #
+        # self.assertEqual(1, form.lines_count)
+        # self.assertEqual(1, form.imported_objects_count)
+        # self.assertEqual(0, form.updated_objects_count)
+        job = self._execute_job(response)
 
         self.assertEqual(count + 1, Contact.objects.count())
         self.get_object_or_fail(Contact, last_name=last_name, first_name=first_name)
+
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
 
     # def test_import_with_updateXX(self): TODO: test search on FK ? exclude them ??
 
@@ -938,7 +1153,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertIn('last_name', fields)
         self.assertNotIn(hidden_fname, fields)
 
-        response = self.client.post(url,
+        response = self.client.post(url, follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
                                               user=user.id,
                                               key_fields=['first_name', 'last_name'],
@@ -948,8 +1163,34 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
+        self._execute_job(response)
         rei = self.get_object_or_fail(Contact, last_name=rei_info['last_name'],
                                       first_name=rei_info['first_name'],
                                      )
         self.assertEqual(rei_info['email'], rei.email)
         self.assertIsNone(getattr(rei, hidden_fname))
+
+    def test_resume(self):
+        user = self.login()
+        lines = [("Rei",   "Ayanami"),
+                 ("Asuka", "Langley"),
+                ]
+
+        rei_line = lines[0]
+        rei = Contact.objects.create(user=user, first_name=rei_line[0], last_name=rei_line[1])
+
+        count = Contact.objects.count()
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Contact), follow=True,
+                                    data=dict(self.lv_import_data, document=doc.id, user=user.id),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self._get_job(response)
+        MassImportJobResult.objects.create(job=job, entity=rei)  # We simulate an interrupted job
+
+        mass_import_type.execute(job)
+        self.assertEqual(count + 1, Contact.objects.count())
+
+        asuka_line = lines[1]
+        self.get_object_or_fail(Contact, first_name=asuka_line[0], last_name=asuka_line[1])

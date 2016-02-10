@@ -5,9 +5,9 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact as Contact
+    from creme.creme_core.creme_jobs import reminder_type
+    from creme.creme_core.models import Job
     from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
-
-    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -54,6 +54,15 @@ class AssistantsTestCase(CremeTestCase):
             contact01 = self.refresh(contact01)
 
         assertor(contact01)
+
+    def get_reminder_job(self):
+        return self.get_object_or_fail(Job, type_id=reminder_type.id)
+
+    def execute_job(self, job=None):
+        job = self.get_reminder_job()
+        reminder_type.execute(job)
+
+        return job
 
         hlines = list(HistoryLine.objects.order_by('id'))
         self.assertEqual(old_count + 1, len(hlines))  # No edition for 'entity_id'

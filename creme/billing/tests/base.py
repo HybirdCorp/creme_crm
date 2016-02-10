@@ -337,7 +337,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                                      )
         self.assertFormError(response, 'form', 'source', _(u'This field is required.'))
 
-        response = self.client.post(url,
+        response = self.client.post(url, follow=True,
                                     data=dict(data,
                                               source_persons_organisation_colselect=4,
                                               source_persons_organisation_create=True,
@@ -348,6 +348,8 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                                              )
                                    )
         self.assertNoFormError(response)
+
+        self._execute_job(response)
         self.assertEqual(count + len(lines), model.objects.count())
 
         billing_docs = []
@@ -452,48 +454,49 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
 
         number = 'B0001'
         doc = self._build_csv_doc([(bdoc.name, number, source2.name, target2.name)])
-        response = self.client.post(self._build_import_url(model),
-                                    data = {'step':     1,
-                                            'document': doc.id,
+        response = self.client.post(self._build_import_url(model), follow=True,
+                                    data={'step':     1,
+                                          'document': doc.id,
 
-                                            'user': user.id,
-                                            'key_fields': ['name'],
+                                          'user': user.id,
+                                          'key_fields': ['name'],
 
-                                            'name_colselect':   1,
-                                            'number_colselect': 2,
+                                          'name_colselect':   1,
+                                          'number_colselect': 2,
 
-                                            'issuing_date_colselect':    0,
-                                            'expiration_date_colselect': 0,
+                                          'issuing_date_colselect':    0,
+                                          'expiration_date_colselect': 0,
 
-                                            'status_colselect': 0,
-                                            'status_defval':    def_status.pk,
+                                          'status_colselect': 0,
+                                          'status_defval':    def_status.pk,
 
-                                            'discount_colselect': 0,
-                                            'discount_defval':    '0',
+                                          'discount_colselect': 0,
+                                          'discount_defval':    '0',
 
-                                            'currency_colselect': 0,
-                                            'currency_defval':    Currency.objects.all()[0].pk,
+                                          'currency_colselect': 0,
+                                          'currency_defval':    Currency.objects.all()[0].pk,
 
-                                            'acceptation_date_colselect': 0,
+                                          'acceptation_date_colselect': 0,
 
-                                            'comment_colselect':         0,
-                                            'additional_info_colselect': 0,
-                                            'payment_terms_colselect':   0,
-                                            'payment_type_colselect':    0,
+                                          'comment_colselect':         0,
+                                          'additional_info_colselect': 0,
+                                          'payment_terms_colselect':   0,
+                                          'payment_type_colselect':    0,
 
-                                            'source_persons_organisation_colselect': 3,
-                                            'source_persons_organisation_create':    True,
-                                            'target_persons_organisation_colselect': 4,
-                                            'target_persons_organisation_create':    True,
-                                            'target_persons_contact_colselect':      0,
-                                            # 'target_persons_contact_create':         True,
+                                          'source_persons_organisation_colselect': 3,
+                                          'source_persons_organisation_create':    True,
+                                          'target_persons_organisation_colselect': 4,
+                                          'target_persons_organisation_create':    True,
+                                          'target_persons_contact_colselect':      0,
+                                          # 'target_persons_contact_create':         True,
 
-                                            'override_billing_addr':  'on' if override_billing_addr else '',
-                                            'override_shipping_addr': 'on' if override_shipping_addr else '',
-                                           }
+                                          'override_billing_addr':  'on' if override_billing_addr else '',
+                                          'override_shipping_addr': 'on' if override_shipping_addr else '',
+                                         }
                                    )
         self.assertNoFormError(response)
 
+        self._execute_job(response)
         bdoc = self.refresh(bdoc)
         self.assertEqual(number, bdoc.number)
 

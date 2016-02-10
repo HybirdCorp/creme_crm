@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import timedelta #datetime
+    from datetime import timedelta, datetime
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
@@ -10,7 +10,8 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.management.commands.reminder import Command as ReminderCommand
+    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    # from creme.creme_core.management.commands.reminder import Command as ReminderCommand
     from creme.creme_core.models import CremeEntity, DateReminder
 
     from ..models import Alert
@@ -39,6 +40,9 @@ class AlertTestCase(AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(Alert.objects.exists())
 
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
         entity = self.entity
         self.assertGET200(self._build_add_url(entity))
 
@@ -52,12 +56,13 @@ class AlertTestCase(AssistantsTestCase):
 
         self.assertEqual(entity.id,             alert.entity_id)
         self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
-        #self.assertEqual(datetime(year=2010, month=9, day=29), alert.trigger_date)
         self.assertEqual(self.create_datetime(year=2010, month=9, day=29),
                          alert.trigger_date
                         )
 
         self.assertEqual(title, unicode(alert))
+
+        self.assertEqual([self.get_reminder_job()], queue.refreshed_jobs)
 
     def test_create02(self):
         "Errors"
@@ -78,7 +83,6 @@ class AlertTestCase(AssistantsTestCase):
         description = 'Description'
         alert = self._create_alert(title, description, '2010-9-29')
 
-        #url = '/assistants/alert/edit/%s/' % alert.id
         url = alert.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -97,7 +101,7 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(title,       alert.title)
         self.assertEqual(description, alert.description)
 
-        #don't care about seconds
+        # Don't care about seconds
         #self.assertEqual(datetime(year=2011, month=10, day=30, hour=15, minute=12), alert.trigger_date)
         self.assertEqual(self.create_datetime(year=2011, month=10, day=30, hour=15, minute=12),
                          alert.trigger_date
@@ -189,8 +193,13 @@ class AlertTestCase(AssistantsTestCase):
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
     def test_reminder(self):
-        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
         now_value = now()
+
+        job = self.get_reminder_job()
+        self.assertIsNone(job.user)
+        self.assertIsNone(job.type.next_wakeup(job, now_value))
+
+        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
 
         create_alert = partial(Alert.objects.create, creme_entity=self.entity,
                                user=self.user, trigger_date=now_value,
@@ -199,10 +208,13 @@ class AlertTestCase(AssistantsTestCase):
         alert2 = create_alert(title='Alert#2', trigger_date=now_value + timedelta(minutes=70))
         create_alert(title='Alert#3', is_validated=True)
 
-        def remind():
-            ReminderCommand().execute(verbosity=0)
+        self.assertLess(job.type.next_wakeup(job, now_value), now())
 
-        remind()
+        # def remind():
+        #     ReminderCommand().execute(verbosity=0)
+        #
+        # remind()
+        self.execute_job(job)
         reminders = DateReminder.objects.exclude(id__in=reminder_ids)
         self.assertEqual(1, len(reminders))
 
@@ -222,7 +234,30 @@ class AlertTestCase(AssistantsTestCase):
                         )
         self.assertIn(alert1.title, message.body)
 
-        #Reminders are not recreated if they already exist
-        remind()
+        # Reminders are not recreated if they already exist
+        # remind()
+        self.execute_job(job)
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids + [reminder.id]))
         self.assertEqual(1, len(mail.outbox))
+
+    @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
+    def test_next_wakeup(self):
+        now_value = now()
+
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
+                               user=self.user, trigger_date=now_value,
+                              )
+        create_alert(title='Alert#2', is_validated=True)
+        create_alert(title='Alert#4', reminded=True)
+        create_alert(title='Alert#6', trigger_date=now_value + timedelta(minutes=60))
+        create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))  # <== only this one should be used
+        create_alert(title='Alert#7', trigger_date=now_value + timedelta(minutes=70))
+        create_alert(title='Alert#3', is_validated=True)
+        create_alert(title='Alert#5', reminded=True)
+
+        job = self.get_reminder_job()
+        wakeup = job.type.next_wakeup(job, now_value)
+        self.assertIsInstance(wakeup, datetime)
+        self.assertDatetimesAlmostEqual(now_value + timedelta(minutes=20),
+                                        wakeup
+                                       )

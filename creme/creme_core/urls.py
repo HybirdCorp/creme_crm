@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 
 from .views import (batch_process, blocks, creme_property, enumerable, entity,
-        entity_filter, file_handling, header_filter, index, list_view_export,
+        entity_filter, file_handling, header_filter, index, job, list_view_export,
         list_view_import, quick_forms, relation, search, testjs,
        )
 from .views.generic import listview
@@ -98,6 +98,17 @@ enumerable_patterns = [
     url(r'^userfilter/json$',              enumerable.json_list_userfilter),
 ]
 
+job_patterns = [
+    url(r'^all$',                                              job.listview),
+    url(r'^info$',                                             job.get_info),
+    url(r'^(?P<job_id>\d+)$',                                  job.detailview),
+    url(r'^(?P<job_id>\d+)/edit$',                             job.edit),
+    url(r'^(?P<job_id>\d+)/delete$',                           job.delete),
+    url(r'^(?P<job_id>\d+)/enable$',                           job.enable),
+    url(r'^(?P<job_id>\d+)/disable$',                          job.enable, {'enabled': False}),
+    url(r'^(?P<job_id>\d+)/reload/(?P<block_id>[\w\-\|]+)$',   job.reload_block),
+]
+
 creme_core_patterns = [
     url(r'^entity/',        include(entity_patterns)),
     url(r'^relation/',      include(relation_patterns)),
@@ -106,6 +117,7 @@ creme_core_patterns = [
     url(r'^entity_filter/', include(entity_filter_patterns)),
     url(r'^header_filter/', include(headerfilter_patterns)),
     url(r'^enumerable/',    include(enumerable_patterns)),
+    url(r'^job/',           include(job_patterns)),
 
     url(r'^list_view/popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$',                     listview.list_view_popup_from_widget),
     url(r'^list_view/import/(?P<ct_id>\d+)$',                                 list_view_import.import_listview),

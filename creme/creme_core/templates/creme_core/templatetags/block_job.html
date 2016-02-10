@@ -1,0 +1,120 @@
+{% load i18n creme_core_tags creme_block %}
+
+{% if not request.is_ajax and not job.is_finished %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var first_load_ok = false;
+
+            $('#content').on('block-ready', function(e, block) {
+                if (first_load_ok) return;
+
+                if (block.attr('id') == '{{block_name}}') {
+                    first_load_ok = true;
+                    creme.jobs.checkJobManager('{{block_name}}', true);
+                }
+            });
+        });
+    </script>
+{% endif %}
+
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=2 %}
+        {# TODO: change icon ? icon by job type ? #}
+        <th class="label">{% get_basic_block_header _('Job') 'info_48.png' _('Information') %}</th>
+        <th class="actions">
+            <div class="buttons">
+                {% if job.is_finished and job.user_id %}
+                    <a class="negative" onclick="creme.utils.confirmSubmit(this);">
+                        {% trans "Delete" as label %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{label}}" alt="{{label}}">{{label}}
+                        <form method="POST" action="/creme_core/job/{{job.pk}}/delete" style="display:none;">{% csrf_token %}</form>
+                    </a>
+                {% endif %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable"><!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+        <tr class="header global_error" style="display: none;">
+            <th class="td_error" colspan="2"></th>
+        </tr>
+        <tr class="content">
+            <th class="{% cycle header_color %} th_info">{% trans "Type" %}</th>
+            <td class="{% cycle row_color %} td_info">{{job.type}}</td>
+        </tr>
+        <tr class="content">
+            <th class="{% cycle header_color %} th_info">{% trans "App" %}</th>
+            <td class="{% cycle row_color %} td_info">{{job.type.app.verbose_name}}</td>
+        </tr>
+        {% if job.user %}
+            <tr class="content">
+                <th class="{% cycle header_color %} th_info">{% trans "User" %}</th>
+                <td class="{% cycle row_color %} td_info">{{job.user}}</td>
+            </tr>
+        {% endif %}
+        <tr class="content">
+            <th class="{% cycle header_color %} th_info">{% trans "Description" %}</th>
+            <td class="{% cycle row_color %} td_info">
+                {% with description=job.description %}{% comment %}TODO: factorise{% endcomment %}
+                    {% if description|length > 1 %}
+                        <ul>{% for elt in description %}<li>{{elt}}</li>{% endfor %}</ul>
+                    {% else %}
+                        {{description.0}}
+                    {% endif %}
+                {% endwith %}
+            </td>
+        </tr>
+        {% if job.type.periodic != NOT_PERIODIC %}
+            <tr class="content">
+                <th class="{% cycle header_color %} th_info">{% trans "Periodicity" %}</th>
+                <td class="{% cycle row_color %} td_info">
+                    <ul>
+                        <li>{% trans "Reference run" %}: {{job.reference_run}}</li>
+                        <li>{% trans "Every" %}: {{job.real_periodicity}}</li>
+                    </ul>
+                    {% if job.type.periodic == PERIODIC %}
+                        {% comment %}TODO {% get_line_editor at_url job.get_edit_absolute_url with_perms 1 %}{% endcomment %}
+                        {% get_line_editor at_url '/creme_core/job/{{job.id}}/edit' with_perms 1 %}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endif %}
+        {% if not job.user %}
+            <tr class="content">
+                <th class="{% cycle header_color %} th_info">{% trans "Enabled" %}</th>
+                <td class="{% cycle row_color %} td_info">
+                    {% if job.enabled and user.is_superuser and job.status == JOB_WAIT %}{% trans "Disabling takes effect only after the current execution." %}{% endif %}
+                    <input type="radio" name="enable_{{job.id}}" value="false" {% if not user.is_superuser %}disabled="true"{% endif %} {% if job.enabled %}checked{% else %}onmousedown="creme.blocks.ajaxPOSTQuery('/creme_core/job/{{job.id}}/enable', {blockReloadUrl: {% get_block_reload_uri %}}).start()"{% endif %}>{% trans "Yes" %}
+                    <input type="radio" name="enable_{{job.id}}" value="true"  {% if not user.is_superuser %}disabled="true"{% endif %} {% if not job.enabled %}checked{% else %}onmousedown="creme.blocks.ajaxPOSTQuery('/creme_core/job/{{job.id}}/disable', {blockReloadUrl: {% get_block_reload_uri %}}).start()"{% endif %}>{% trans "No" %}
+                </td>
+            </tr>
+        {% endif %}
+        <tr class="content">
+            <th class="{% cycle header_color %} th_info">{% trans "Last run" %}</th>
+            <td class="{% cycle row_color %} td_info">{{job.last_run|default:_('Not run yet')}}</td>
+        </tr>
+        <tr class="content">
+            <th class="{% cycle header_color %} th_info">{% trans "Status" %}</th>
+            <td class="{% cycle row_color %} td_info" data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
+                {{job.get_status_display}}
+            </td>
+        </tr>
+        {% if job.status == JOB_OK %}
+            <tr class="content">
+                <th class="{% cycle header_color %} th_info">{% trans "Statistics" %}</th>
+                <td class="{% cycle row_color %} td_info">
+                    {% with stats=job.stats %}{% comment %}TODO: factorise{% endcomment %}
+                        {% if stats|length > 1 %}
+                            <ul>{% for stat in stats %}<li>{{stat}}</li>{% endfor %}</ul>
+                        {% else %}
+                            {{stats.0}}
+                        {% endif %}
+                    {% endwith %}
+                </td>
+            </tr>
+        {% elif job.status == JOB_ERROR %}
+            <tr class="content">
+                <th class="{% cycle header_color %} th_info td_error">{% trans "Error" %}</th>
+                <td class="{% cycle row_color %} td_info td_error">{{job.error}}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>

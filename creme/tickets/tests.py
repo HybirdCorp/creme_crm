@@ -441,41 +441,44 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         url = self._build_import_url(Ticket)
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'step':     1,
-                                               'document': doc.id,
-                                               # has_header
+        response = self.client.post(url, follow=True,
+                                    data={'step':     1,
+                                          'document': doc.id,
+                                          # has_header
 
-                                               'user': user.id,
+                                          'user': user.id,
 
-                                               'title_colselect': 1,
+                                          'title_colselect': 1,
 
-                                               'status_colselect': 2,
-                                               'status_subfield':  'name',
-                                               # 'status_create':    True,
-                                               # 'status_defval':    def_status.pk,
+                                          'status_colselect': 2,
+                                          'status_subfield':  'name',
+                                          # 'status_create':    True,
+                                          # 'status_defval':    def_status.pk,
 
-                                               'priority_colselect': 3,
-                                               'priority_subfield':  'name',
-                                               # 'priority_create':    True,
-                                               # 'priority_defval':    def_priority.pk,
+                                          'priority_colselect': 3,
+                                          'priority_subfield':  'name',
+                                          # 'priority_create':    True,
+                                          # 'priority_defval':    def_priority.pk,
 
-                                               'criticity_colselect': 4,
-                                               'criticity_subfield':  'name',
-                                               # 'criticity_create':    True,
-                                               # 'criticity_defval':    def_criticity.pk,
+                                          'criticity_colselect': 4,
+                                          'criticity_subfield':  'name',
+                                          # 'criticity_create':    True,
+                                          # 'criticity_defval':    def_criticity.pk,
 
-                                               'description_colselect': 5,
-                                               # 'description_defval':    def_description,
+                                          'description_colselect': 5,
+                                          # 'description_defval':    def_description,
 
-                                               'solution_colselect': 0,
-                                               # 'solution_defval':  def_solution,
+                                          'solution_colselect': 0,
+                                          # 'solution_defval':  def_solution,
 
-                                               # 'property_types',
-                                               # 'fixed_relations',
-                                               # 'dyn_relations',
-                                              }
+                                          # 'property_types',
+                                          # 'fixed_relations',
+                                          # 'dyn_relations',
+                                        }
                                    )
         self.assertNoFormError(response)
+
+        job = self._execute_job(response)
         self.assertEqual(count + len(lines), Ticket.objects.count())
 
         for i, l in enumerate(lines):
@@ -486,6 +489,10 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
             self.assertEqual(criticities[i],  ticket.criticity)
             self.assertEqual(descriptions[i], ticket.description)
             self.assertEqual('',              ticket.solution)
+
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
+        self._assertNoResultError(results)
 
     @override_settings(TICKETS_COLOR_DELAY=7)
     def test_ticket_color(self):

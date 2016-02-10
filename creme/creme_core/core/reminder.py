@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,9 @@ from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
 from django.db.transaction import atomic
 from django.utils.timezone import now
+from django.utils.translation import ugettext as _
 
-from ..models import DateReminder
+from ..models import DateReminder, JobResult
 
 
 logger = logging.getLogger(__name__)
@@ -58,7 +59,8 @@ class Reminder(object):
     def ok_for_continue (self):
         return True
 
-    def send_mails(self, instance):
+    # def send_mails(self, instance):
+    def send_mails(self, instance, job):
         body    = self.generate_email_body(instance)
         subject = self.generate_email_subject(instance)
 
@@ -70,14 +72,22 @@ class Reminder(object):
         try:
             with get_connection() as connection:
                 connection.send_messages(messages)
-        except Exception:
-            logger.exception('Reminder.send_mails() failed')
+        # except Exception:
+        #     logger.exception('Reminder.send_mails() failed')
+        except Exception as e:
+            JobResult.objects.create(job=job,
+                                     messages=[_(u'An error occurred while sending emails related to «%s»')
+                                                    % self.model._meta.verbose_name,
+                                               _(u'Original error: %s') % e,
+                                              ],
+                                    )
 
             return False
 
         return True  # Means 'OK'
 
-    def execute(self):
+    # def execute(self):
+    def execute(self, job):
         if not self.ok_for_continue():
             return
 
@@ -85,7 +95,8 @@ class Reminder(object):
         dt_now = now().replace(microsecond=0, second=0)
 
         for instance in model.objects.filter(self.get_Q_filter()).exclude(reminded=True):
-            self.send_mails(instance)
+            # self.send_mails(instance)
+            self.send_mails(instance, job)
 
             with atomic():
                 DateReminder.objects.create(date_of_remind=dt_now,
@@ -95,6 +106,17 @@ class Reminder(object):
 
                 instance.reminded = True
                 instance.save()
+
+    def next_wakeup(self, now_value):
+        """Returns the next time when the job manager should wake up in order
+        to send the related e-mails.
+        @param now_value: datetime object representing 'now'.
+        @return None -> the job has not to be woke up.
+                A datetime instance -> the job should be woke up at this time.
+                    If it's in the past, it means the job should be run immediately
+                    (tip: you can simply return now_value).
+        """
+        raise NotImplementedError
 
 
 class ReminderRegistry(object):
@@ -108,11 +130,14 @@ class ReminderRegistry(object):
         reminders = self._reminders
         reminder_id = reminder.id
 
-        if reminders.has_key(reminder_id):
+        if reminder_id in reminders:
             # TODO: exception instead ?
             logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id)
 
         reminders[reminder_id] = reminder
+
+    def unregister(self, reminder):
+        self._reminders.pop(reminder.id, None)
 
     def __iter__(self):
         return self._reminders.iteritems()

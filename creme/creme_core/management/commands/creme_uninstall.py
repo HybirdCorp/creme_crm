@@ -34,7 +34,7 @@ from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.block import Block
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import (CremeEntity, RelationType, CremePropertyType,
-         EntityFilter, HistoryLine, SettingValue,
+         EntityFilter, HistoryLine, SettingValue, Job,
          PreferedMenuItem, ButtonMenuItem,
          BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
          RelationBlockItem, InstanceBlockConfigItem, BlockState)
@@ -144,6 +144,13 @@ def _uninstall_setting_values(sender, **kwargs):
                                    ]
                        )\
                 .delete()
+
+
+@receiver(pre_uninstall_flush)
+@uninstall_handler('Deleting jobs...')
+def _uninstall_jobs(sender, **kwargs):
+    for job in Job.objects.filter(type_id__startswith='%s-' % sender.label):
+        job.delete()
 
 
 @receiver(post_uninstall_flush)

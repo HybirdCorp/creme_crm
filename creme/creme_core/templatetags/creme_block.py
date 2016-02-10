@@ -29,9 +29,10 @@ from django.template.loader import get_template
 from django.utils.translation import ungettext
 
 from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
-from ..models import Relation, BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from ..gui.block import Block, block_registry, BlocksManager
 from ..gui.bulk_update import bulk_update_registry
+from ..models import Relation, BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
+
 
 register = Library()
 
@@ -222,6 +223,7 @@ def _do_line_creator(parser, token, template_path):
                            template_path=template_path,
                           )
 
+
 class LineCreatorNode(TemplateNode):
     def __init__(self, url_var, label_var, perm_var, template_path):
         self.template  = get_template(template_path)
@@ -289,7 +291,7 @@ def do_line_relator(parser, token):
                            ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
                            label_var=TemplateLiteral(compile_filter(label_str), label_str),
                            perm_var=TemplateLiteral(compile_filter(perm_str), perm_str),
-                           is_multiple=is_multiple
+                           is_multiple=is_multiple,
                           )
 
 
