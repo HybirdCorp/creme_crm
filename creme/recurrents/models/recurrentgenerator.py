@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,26 +20,24 @@
 
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, ForeignKey, DateTimeField,
-        BooleanField) #PROTECT
+        BooleanField)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import CTypeForeignKey, DatePeriodField
 
-#from .periodicity import Periodicity
 
-
-#class RecurrentGenerator(CremeEntity):
 class AbstractRecurrentGenerator(CremeEntity):
     name             = CharField(_(u'Name of the generator'), max_length=100, blank=True, null=True)
     description      = TextField(_(u'Description'), blank=True, null=True)
     first_generation = DateTimeField(_(u'Date of the first recurrent generation'))
     last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), null=True, editable=False)
-    #periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'), on_delete=PROTECT)
     periodicity      = DatePeriodField(_(u'Periodicity of the generation'))
     ct               = CTypeForeignKey(verbose_name=_(u'Type of the recurrent resource'), editable=False)
-    template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'), related_name='template_set', editable=False)
-    is_working       = BooleanField(_(u'Active ?'), editable=False, default=True) #TODO: useful ?
+    template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'),
+                                  related_name='template_set', editable=False,
+                                 )
+    is_working       = BooleanField(_(u'Active ?'), editable=False, default=True)  # TODO: useful ?
 
     creation_label = _('Add a generator')
 
@@ -50,11 +48,19 @@ class AbstractRecurrentGenerator(CremeEntity):
         verbose_name_plural = _(u'Recurrent generators')
         ordering = ('name',)
 
+    def __init__(self, *args, **kwargs):
+        super(AbstractRecurrentGenerator, self).__init__(*args, **kwargs)
+        self.__init_refreshing_cache()
+
+    def __init_refreshing_cache(self):
+        self._old_first_generation = self.first_generation
+        self._old_periodicity = self.periodicity
+        # TODO: is_working when it is used
+
     def __unicode__(self):
         return self.name
 
     def get_absolute_url(self):
-#        return "/recurrents/generator/%s" % self.id
         return reverse('recurrents__view_generator', args=(self.id,))
 
     @staticmethod
@@ -62,13 +68,21 @@ class AbstractRecurrentGenerator(CremeEntity):
         return reverse('recurrents__create_generator')
 
     def get_edit_absolute_url(self):
-#        return "/recurrents/generator/edit/%s" % self.id
         return reverse('recurrents__edit_generator', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/recurrents/generators"
         return reverse('recurrents__list_generators')
+
+    def save(self, *args, **kwargs):
+        from ..creme_jobs import recurrents_gendocs_type
+        created = bool(not self.pk)
+        super(AbstractRecurrentGenerator, self).save(*args, **kwargs)
+
+        if created or self._old_first_generation != self.first_generation or \
+           self._old_periodicity != self.periodicity:
+            recurrents_gendocs_type.refresh_job()
+            self.__init_refreshing_cache()
 
 
 class RecurrentGenerator(AbstractRecurrentGenerator):

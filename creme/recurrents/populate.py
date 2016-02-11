@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,15 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import SearchConfigItem, HeaderFilter
+from creme.creme_core.models import SearchConfigItem, HeaderFilter, Job
 
 from . import get_rgenerator_model
 from .constants import DEFAULT_HFILTER_RGENERATOR
-#from .models import RecurrentGenerator
+from .creme_jobs import recurrents_gendocs_type
 
 
 class Populator(BasePopulator):
@@ -42,3 +43,9 @@ class Populator(BasePopulator):
                            )
 
         SearchConfigItem.create_if_needed(RecurrentGenerator, ['name', 'description'])
+
+        Job.objects.get_or_create(type_id=recurrents_gendocs_type.id,
+                                  defaults={'language': settings.LANGUAGE_CODE,
+                                            'status':   Job.STATUS_OK,
+                                           },
+                                 )
