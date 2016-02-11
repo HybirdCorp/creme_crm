@@ -214,7 +214,7 @@ class AlertTestCase(AssistantsTestCase):
         #     ReminderCommand().execute(verbosity=0)
         #
         # remind()
-        self.execute_job(job)
+        self.execute_reminder_job(job)
         reminders = DateReminder.objects.exclude(id__in=reminder_ids)
         self.assertEqual(1, len(reminders))
 
@@ -236,7 +236,7 @@ class AlertTestCase(AssistantsTestCase):
 
         # Reminders are not recreated if they already exist
         # remind()
-        self.execute_job(job)
+        self.execute_reminder_job(job)
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids + [reminder.id]))
         self.assertEqual(1, len(mail.outbox))
 

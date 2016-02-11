@@ -75,6 +75,7 @@ class Reminder(object):
         # except Exception:
         #     logger.exception('Reminder.send_mails() failed')
         except Exception as e:
+            logger.critical('Error while sending reminder emails (%s)', e)
             JobResult.objects.create(job=job,
                                      messages=[_(u'An error occurred while sending emails related to «%s»')
                                                     % self.model._meta.verbose_name,
@@ -91,10 +92,9 @@ class Reminder(object):
         if not self.ok_for_continue():
             return
 
-        model = self.model
         dt_now = now().replace(microsecond=0, second=0)
 
-        for instance in model.objects.filter(self.get_Q_filter()).exclude(reminded=True):
+        for instance in self.model.objects.filter(self.get_Q_filter()).exclude(reminded=True):
             # self.send_mails(instance)
             self.send_mails(instance, job)
 

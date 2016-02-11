@@ -7,17 +7,21 @@ try:
     from django.conf import settings
     from django.contrib.auth import get_user_model
     from django.core import mail
+    from django.core.mail.backends.locmem import EmailBackend
     from django.core.urlresolvers import reverse
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.models import Job, JobResult
     from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.persons.tests.base import skipIfCustomContact
 
     from creme.activities.tests.base import skipIfCustomActivity
 
-    from ..management.commands.usermessages_send import Command as UserMessagesSendCommand
+    # from ..management.commands.usermessages_send import Command as UserMessagesSendCommand
+    from ..creme_jobs import usermessages_send_type
     from ..models import UserMessage, UserMessagePriority
     from ..constants import PRIO_NOT_IMP_PK
     from .base import AssistantsTestCase
@@ -25,7 +29,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-User = get_user_model() # TODO: self.User
+User = get_user_model()  # TODO: self.User
 
 
 class UserMessageTestCase(AssistantsTestCase):
@@ -35,6 +39,11 @@ class UserMessageTestCase(AssistantsTestCase):
     def setUpClass(cls):
         AssistantsTestCase.setUpClass()
         cls.populate('activities', 'assistants')
+        cls.original_send_messages = EmailBackend.send_messages
+
+    def tearDown(self):
+        super(AssistantsTestCase, self).tearDown()
+        EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity=None):
         return '/assistants/message/add/%s/' % entity.id if entity else \
@@ -54,11 +63,17 @@ class UserMessageTestCase(AssistantsTestCase):
                                    )
         self.assertNoFormError(response)
 
+    def _get_usermessages_job(self):
+        return self.get_object_or_fail(Job, type_id=usermessages_send_type.id)
+
     def test_populate(self):
         self.assertEqual(3, UserMessagePriority.objects.count())
 
     def test_create01(self):
         self.assertFalse(UserMessage.objects.exists())
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
 
         entity = self.entity
         self.assertGET200(self._build_add_url(entity))
@@ -91,12 +106,19 @@ class UserMessageTestCase(AssistantsTestCase):
 
         self.assertEqual(title, unicode(message))
 
+        self.assertEqual([self._get_usermessages_job()], queue.refreshed_jobs)
+
     def test_create02(self):
+        now_value = now()
         priority = UserMessagePriority.objects.create(title='Important')
 
         create_user = User.objects.create_user
         user01 = create_user('User01', first_name='User01', last_name='Foo', email='user01@foobar.com')
         user02 = create_user('User02', first_name='User02', last_name='Bar', email='user02@foobar.com')
+
+        job = self._get_usermessages_job()
+        self.assertIsNone(job.user)
+        self.assertIsNone(job.type.next_wakeup(job, now_value))
 
         title = 'TITLE'
         body  = 'BODY'
@@ -106,7 +128,10 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(2, len(messages))
         self.assertEqual({user01, user02}, {msg.recipient for msg in messages})
 
-        UserMessagesSendCommand().execute(verbosity=0)
+        self.assertIs(now_value, job.type.next_wakeup(job, now_value))
+
+        # UserMessagesSendCommand().execute(verbosity=0)
+        usermessages_send_type.execute(job)
 
         messages = mail.outbox
         self.assertEqual(len(messages), 2)
@@ -123,14 +148,17 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertFalse(hasattr(message, 'alternatives'))
         self.assertFalse(message.attachments)
 
+        for user_msg in UserMessage.objects.all():
+            self.assertTrue(user_msg.email_sent)
+
     def test_create03(self):
         "Without related entity"
         self.assertGET200(self._build_add_url())
 
         priority = UserMessagePriority.objects.create(title='Important')
-        user01  = User.objects.create_user('User01', email='user01@foobar.com',
-                                           first_name='User01', last_name='Foo',
-                                          )
+        user01 = User.objects.create_user('User01', email='user01@foobar.com',
+                                          first_name='User01', last_name='Foo',
+                                         )
 
         self._create_usermessage('TITLE', 'BODY', priority, [user01], None)
 
@@ -142,7 +170,8 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertIsNone(message.entity_content_type_id)
         self.assertIsNone(message.creme_entity)
 
-    def test_create04(self): #one team
+    def test_create04(self):
+        "One team"
         create_user = User.objects.create_user
         users       = [create_user('User%s' % i, email='user%s@foobar.com' % i,
                                    first_name='User%s' % i, last_name='Foobar',
@@ -172,7 +201,10 @@ class UserMessageTestCase(AssistantsTestCase):
         team02 = User.objects.create(username='Team02', is_team=True, role=None)
         team02.teammates = users[1:3]
 
-        self._create_usermessage('TITLE', 'BODY', None, [team01, team02, users[0], users[3]], self.entity)
+        self._create_usermessage('TITLE', 'BODY', None,
+                                 [team01, team02, users[0], users[3]],
+                                 self.entity,
+                                )
 
         messages = UserMessage.objects.all()
         self.assertEqual(4, len(messages))
@@ -208,7 +240,6 @@ class UserMessageTestCase(AssistantsTestCase):
     @skipIfCustomActivity
     def test_activity_createview01(self):
         "Test activity form hooking"
-        # from creme.persons.models import Contact
         from creme.persons  import get_contact_model
 
         from creme.activities import get_activity_model
@@ -224,14 +255,10 @@ class UserMessageTestCase(AssistantsTestCase):
         me    = user.linked_contact
         ranma = other_user.linked_contact
 
-        # create_contact = partial(Contact.objects.create, user=user)
         create_contact = partial(get_contact_model().objects.create, user=user)
-        #me    = create_contact(is_user=user,       first_name='Ryoga', last_name='Hibiki')
-        #ranma = create_contact(is_user=other_user, first_name='Ranma', last_name='Saotome')
         genma = create_contact(first_name='Genma', last_name='Saotome')
         akane = create_contact(first_name='Akane', last_name='Tendo')
 
-#        url = '/activities/activity/add'
         url = reverse('activities__create_activity')
         response = self.assertGET200(url)
 
@@ -240,7 +267,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         self.assertIn('informed_users', fields)
 
-        title  = 'Meeting dojo'
+        title = 'Meeting dojo'
         field_format = '[{"ctype": {"id": "%s"}, "entity": "%s"}]'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(url, follow=True,
@@ -261,7 +288,6 @@ class UserMessageTestCase(AssistantsTestCase):
                                    )
         self.assertNoFormError(response)
 
-        # meeting = self.get_object_or_fail(Activity, title=title, type=ACTIVITYTYPE_MEETING)
         meeting = self.get_object_or_fail(get_activity_model(), title=title,
                                           type=ACTIVITYTYPE_MEETING,
                                          )
@@ -276,7 +302,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         message = messages[0]
         self.assertEqual(user, message.sender)
-        #self.assertEqual(user, message.recipient)
+        # self.assertEqual(user, message.recipient)
         self.assertDatetimesAlmostEqual(now(), message.creation_date)
         self.assertEqual(PRIO_NOT_IMP_PK,  message.priority_id)
         self.assertFalse(message.email_sent)
@@ -295,7 +321,6 @@ class UserMessageTestCase(AssistantsTestCase):
     @skipIfNotInstalled('creme.activities')
     def test_activity_createview02(self):
         "Pop-up form is not hooked"
-#        response = self.assertGET200('/activities/activity/add_popup')
         response = self.assertGET200(reverse('activities__create_activity_popup'))
 
         with self.assertNoException():
@@ -341,3 +366,40 @@ class UserMessageTestCase(AssistantsTestCase):
 
         message = self.get_object_or_fail(UserMessage, pk=message.pk)
         self.assertEqual(priority, message.priority)
+
+    def test_job(self):
+        "Error on email sending"
+        priority = UserMessagePriority.objects.create(title='Important')
+        user01 = User.objects.create_user('User01', email='user01@foobar.com',
+                                          first_name='User01', last_name='Foo',
+                                         )
+
+        self._create_usermessage('TITLE', 'BODY', priority, [user01], None)
+
+        self.send_messages_called = False
+        err_msg = 'Sent error'
+
+        def send_messages(this, messages):
+            self.send_messages_called = True
+            raise Exception(err_msg)
+
+        EmailBackend.send_messages = send_messages
+
+        job = self._get_usermessages_job()
+        usermessages_send_type.execute(job)
+
+        self.assertTrue(self.send_messages_called)
+
+        messages = UserMessage.objects.all()
+        self.assertEqual(1, len(messages))
+        self.assertTrue(messages[0].email_sent)
+
+        jresults = JobResult.objects.filter(job=job)
+        self.assertEqual(1, len(jresults))
+
+        jresult = jresults[0]
+        self.assertEqual([_(u'An error occurred while sending emails'),
+                          _(u'Original error: %s') % err_msg,
+                         ],
+                         jresult.messages
+                        )

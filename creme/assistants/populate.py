@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.utils.translation import ugettext as _
+from django.conf import settings
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import SettingValue, BlockDetailviewLocation, BlockPortalLocation
+from creme.creme_core.models import SettingValue, Job, BlockDetailviewLocation, BlockPortalLocation
 from creme.creme_core.utils import create_if_needed
 
 from .blocks import alerts_block, memos_block, todos_block, messages_block
 from .constants import PRIO_IMP_PK, USERMESSAGE_PRIORITIES
+from .creme_jobs import usermessages_send_type
 from .models import UserMessagePriority
 from .setting_keys import todo_reminder_key
 
@@ -39,9 +40,13 @@ class Populator(BasePopulator):
         for pk, title in USERMESSAGE_PRIORITIES.iteritems():
             create_if_needed(UserMessagePriority, {'pk': pk}, title=unicode(title), is_custom=False)
 
-
         SettingValue.create_if_needed(key=todo_reminder_key, user=None, value=9)
 
+        Job.objects.get_or_create(type_id=usermessages_send_type.id,
+                                  defaults={'language': settings.LANGUAGE_CODE,
+                                            'status':   Job.STATUS_OK,
+                                           },
+                                 )
 
         if not already_populated:
             BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT)
