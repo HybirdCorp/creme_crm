@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CONFIG' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-15 11:33+0100\n"
+"POT-Creation-Date: 2016-02-11 09:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1076,7 +1076,7 @@ msgstr "Recherche"
 #: views/search.py:40
 #, python-format
 msgid "New search configuration for «%s»"
-msgstr "Nouvelle configuration de recherche pout «%s»"
+msgstr "Nouvelle configuration de recherche pour «%s»"
 
 #: templates/creme_config/templatetags/block_searchconfig.html:30
 msgid "Search is disabled"
@@ -1301,7 +1301,7 @@ msgstr "Voir et modifier vos réglages Creme"
 #: views/blocks.py:60
 #, python-format
 msgid "New block configuration for «%s»"
-msgstr "Nouvelle configuration de bloc pout «%s»"
+msgstr "Nouvelle configuration de bloc pour «%s»"
 
 #: views/blocks.py:61 views/blocks.py:70 views/blocks.py:139
 #: views/button_menu.py:39 views/custom_fields.py:41 views/fields_config.py:42
