@@ -355,7 +355,7 @@ class TodoTestCase(AssistantsTestCase):
         # ReminderCommand().execute(verbosity=0)
         self.assertLess(job.type.next_wakeup(job, now_value), now())
 
-        self.execute_job(job)
+        self.execute_reminder_job(job)
         self.assertIsNone(job.user)
 
         # reminders = DateReminder.objects.exclude(id__in=reminder_ids)
@@ -410,7 +410,7 @@ class TodoTestCase(AssistantsTestCase):
                                         wakeup
                                        )
 
-        self.execute_job(job)
+        self.execute_reminder_job(job)
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
 
     def test_reminder03(self):
@@ -444,7 +444,7 @@ class TodoTestCase(AssistantsTestCase):
         EmailBackend.send_messages = send_messages
 
         # ReminderCommand().execute(verbosity=0)
-        job = self.execute_job()
+        job = self.execute_reminder_job()
 
         self.assertTrue(self.send_messages_called)
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
@@ -464,7 +464,7 @@ class TodoTestCase(AssistantsTestCase):
         EmailBackend.send_messages = self.original_send_messages
 
         create_todo('Todo#2')
-        job = self.execute_job()
+        job = self.execute_reminder_job()
         self.assertEqual(1, len(mail.outbox))
         self.assertEqual(2, DateReminder.objects.exclude(id__in=reminder_ids).count())
         self.assertFalse(JobResult.objects.filter(job=job))

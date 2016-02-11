@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,28 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.management.base import BaseCommand
-from django.utils import translation
-from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+
+from creme.creme_core.creme_jobs.base import JobType
+
+from .models import UserMessage
 
 
-LOCK_NAME = "sending_usermessages"
+class _UserMessagesSendType(JobType):
+    id           = JobType.generate_id('assistants', 'usermessages_send')
+    verbose_name = _('Send usermessages emails')
+    periodic     = JobType.PSEUDO_PERIODIC
 
-#NB: python manage.py usermessages_send
+    def _execute(self, job):
+        UserMessage.send_mails(job)
 
-class Command(BaseCommand):
-    help = "Send all unsent mails related to user messages that have to be."
+    # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    def next_wakeup(self, job, now_value):
+        if UserMessage.objects.filter(email_sent=False).exists():
+            return now_value
 
-    def handle(self, *args, **options):
-        from creme.creme_core.models.lock import Mutex, MutexLockedException
-        from creme.assistants.models import UserMessage
 
-        try:
-            lock = Mutex.get_n_lock(LOCK_NAME)
-        except MutexLockedException:
-            self.stderr.write('A process is already running')
-        else:
-            translation.activate(settings.LANGUAGE_CODE)
-            UserMessage.send_mails()
-
-            Mutex.graceful_release(LOCK_NAME)
+usermessages_send_type = _UserMessagesSendType()
+jobs = (usermessages_send_type,)
