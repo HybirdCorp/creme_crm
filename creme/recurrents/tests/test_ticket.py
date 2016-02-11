@@ -12,17 +12,18 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.models import HeaderFilter
+    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.models import HeaderFilter, Job
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.utils.date_period import date_period_registry, DatePeriod
 
     from creme.tickets import get_ticket_model, get_tickettemplate_model
-    from creme.tickets.models import Status, Priority, Criticity  # Ticket, TicketTemplate
+    from creme.tickets.models import Status, Priority, Criticity
     from creme.tickets.tests import skipIfCustomTicket, skipIfCustomTicketTemplate
 
     from .base import skipIfCustomGenerator, RecurrentGenerator
-    from ..management.commands.recurrents_gendocs import Command as GenDocsCommand
-    # from ..models import RecurrentGenerator
+    # from ..management.commands.recurrents_gendocs import Command as GenDocsCommand
+    from ..creme_jobs import recurrents_gendocs_type
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -46,6 +47,12 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
     def setUp(self):
         self.login()
+
+    def _get_job(self):
+        return self.get_object_or_fail(Job, type_id=recurrents_gendocs_type.id)
+
+    def _generate_docs(self, job=None):
+        recurrents_gendocs_type.execute(job or self._get_job())
 
     def test_portal(self):
         self.assertGET200('/recurrents/')
@@ -81,9 +88,11 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     @skipIfCustomTicketTemplate
     def test_createview(self):
         user = self.user
-#        url = '/recurrents/generator/add'
         url = reverse('recurrents__create_generator')
         self.assertGET200(url)
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
 
         name = 'Recurrent tickets'
         response = self.client.post(url,
@@ -105,7 +114,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
             count = steps.count
             current = steps.current
 
-        #self.assertTemplateUsed(response, 'recurrents/wizard_generator.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard.html')
         self.assertEqual(2, count)
         self.assertEqual('1', current)
@@ -131,19 +139,16 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         gen = self.get_object_or_fail(RecurrentGenerator, name=name)
         tpl = self.get_object_or_fail(TicketTemplate, title=title)
 
-        self.assertEqual(user,        gen.user)
-        self.assertEqual(self.ct,     gen.ct)
-        #self.assertEqual(periodicity, gen.periodicity)
+        self.assertEqual(user,    gen.user)
+        self.assertEqual(self.ct, gen.ct)
 
         periodicity = gen.periodicity
         self.assertIsInstance(periodicity, DatePeriod)
         self.assertEqual({'type': 'days', 'value': 4}, periodicity.as_dict())
 
-
         self.assertEqual(self.create_datetime(year=2014, month=6, day=11, hour=9),
                          gen.first_generation
                         )
-        #self.assertEqual(gen.last_generation, gen.first_generation)
         self.assertIsNone(gen.last_generation)
         self.assertEqual(tpl, gen.template.get_real_entity())
         self.assertTrue(gen.is_working)
@@ -154,6 +159,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(priority,  tpl.priority)
         self.assertEqual(criticity, tpl.criticity)
         self.assertFalse(tpl.solution)
+
+        self.assertEqual([self._get_job()], queue.refreshed_jobs)
 
     @skipIfNotInstalled('creme.tickets')
     def test_editview01(self):
@@ -170,9 +177,11 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                                 ct=self.ct, template=tpl1,
                                                )
 
-        #url = '/recurrents/generator/edit/%s' % gen.id
         url = gen.get_edit_absolute_url()
         self.assertGET200(url)
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
 
         name = gen.name.upper()
         response = self.client.post(url, follow=True,
@@ -200,6 +209,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(tpl1, gen.template.get_real_entity())
         self.assertEqual({'type': 'months', 'value': 1}, gen.periodicity.as_dict())
 
+        self.assertEqual([self._get_job()], queue.refreshed_jobs)
+
     @skipIfNotInstalled('creme.tickets')
     def test_editview02(self):
         "last_generation has been filled => cannot edit first_generation"
@@ -219,8 +230,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         response = self.client.post(gen.get_edit_absolute_url(), follow=True,
                                     data={'user':             user.id,
                                           'name':             name,
-                                          'first_generation': '12-06-2014 10:00', #should not be used
-                                          #'periodicity':      gen.periodicity_id,
+                                          'first_generation': '12-06-2014 10:00',  # Should not be used
 
                                           'periodicity_0':    'months',
                                           'periodicity_1':    '3',
@@ -238,14 +248,12 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         create_gen = partial(RecurrentGenerator.objects.create, user=self.user,
                              first_generation=now_value,
                              last_generation=now_value,
-                             #periodicity=periodicity,
                              periodicity=self._get_weekly(),
                              ct=self.ct, template=tpl,
                             )
         gen1 = create_gen(name='Gen1')
         gen2 = create_gen(name='Gen2') 
 
-#        response = self.assertGET200('/recurrents/generators')
         response = self.assertGET200(RecurrentGenerator.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -257,12 +265,16 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
-    def test_command01(self):
+    def test_job01(self):
         "first_generation in the past + (no generation yet (ie last_generation is None)"
         self.assertFalse(Ticket.objects.all())
+        now_value = now()
+
+        job = self._get_job()
+        self.assertIsNone(job.user)
+        self.assertIsNone(job.type.next_wakeup(job, now_value))
 
         tpl = self._create_ticket_template()
-        now_value = now()
         start = now_value - timedelta(days=5)
         gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
                                                 periodicity=self._get_weekly(),
@@ -271,7 +283,13 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                                 last_generation=None,
                                                )
 
-        GenDocsCommand().execute(verbosity=0)
+        # GenDocsCommand().execute(verbosity=0)
+        self.assertDatetimesAlmostEqual(now(), job.type.next_wakeup(job, now_value))
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
+        self._generate_docs(job)
 
         new_tickets = Ticket.objects.all()
         self.assertEqual(1, len(new_tickets))
@@ -285,10 +303,12 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         gen = self.refresh(gen)
         self.assertEqual(gen.first_generation, gen.last_generation)
 
+        self.assertEqual([], queue.refreshed_jobs)  # Job which edits generator should not cause REFRESH signal
+
     @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
-    def test_command02(self):
+    def test_job02(self):
         "last_generation is not far enough"
         tpl = self._create_ticket_template()
         now_value = now()
@@ -299,13 +319,19 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                           last_generation=now_value - timedelta(days=6),
                                          )
 
-        GenDocsCommand().execute(verbosity=0)
+        job = self._get_job()
+        wakeup = job.type.next_wakeup(job, now_value)
+        self.assertIsNotNone(wakeup)
+        self.assertDatetimesAlmostEqual(now_value + timedelta(days=1), wakeup)
+
+        # GenDocsCommand().handle(verbosity=0)
+        self._generate_docs(job)
         self.assertFalse(Ticket.objects.all())
 
     @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
-    def test_command03(self):
+    def test_job03(self):
         "last_generation is far enough"
         tpl = self._create_ticket_template()
         now_value = now().replace(microsecond=0)  # MySQL does not record microseconds...
@@ -316,8 +342,75 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                                 last_generation=now_value - timedelta(days=7),
                                                )
 
-        GenDocsCommand().execute(verbosity=0)
+        # GenDocsCommand().handle(verbosity=0)
+        job = self._get_job()
+        self.assertDatetimesAlmostEqual(now(), job.type.next_wakeup(job, now()))
+
+        self._generate_docs(job)
         self.assertEqual(1, Ticket.objects.count())
 
         gen = self.refresh(gen)
         self.assertEqual(now_value, gen.last_generation)
+
+    @skipIfNotInstalled('creme.tickets')
+    @skipIfCustomTicketTemplate
+    def test_next_wakeup(self):
+        "Minimum of the future generations"
+        now_value = now()
+        create_gen = partial(RecurrentGenerator.objects.create, user=self.user,
+                             ct=self.ct, template=self._create_ticket_template(),
+                            )
+        create_gen(name='Gen1', periodicity=self._get_weekly(),
+                   first_generation=now_value - timedelta(days=8),
+                   last_generation=now_value - timedelta(days=1),
+                  )  # In 6 days
+        create_gen(name='Gen2', periodicity=date_period_registry.get_period('days', 1),
+                   first_generation=now_value - timedelta(hours=34),
+                   last_generation=now_value - timedelta(hours=10),
+                  )  # In 14 hours ==> that's the one !
+        create_gen(name='Gen3', periodicity=date_period_registry.get_period('months', 1),
+                   first_generation=now_value - timedelta(weeks=5),
+                   last_generation=now_value - timedelta(weeks=1),
+                  )  # In ~3 weeks
+
+        job = self._get_job()
+        wakeup = job.type.next_wakeup(job, now_value)
+        self.assertIsNotNone(wakeup)
+        self.assertDatetimesAlmostEqual(now_value + timedelta(hours=14), wakeup)
+
+    @skipIfNotInstalled('creme.tickets')
+    def test_refresh_job(self):
+        queue = JobManagerQueue.get_main_queue()
+        job = self._get_job()
+        tpl = self._create_ticket_template()
+        now_value = now()
+        gen = RecurrentGenerator.objects.create(name='Generator',
+                                                user=self.user,
+                                                first_generation=now_value + timedelta(days=2),
+                                                last_generation=None,
+                                                periodicity=date_period_registry.get_period('weeks', 2),
+                                                ct=self.ct, template=tpl,
+                                               )
+
+        queue.clear()
+        gen.name = 'My Generator'
+        gen.save()
+        self.assertEqual([], queue.refreshed_jobs)
+
+        gen.first_generation = now_value + timedelta(hours=3)
+        gen.save()
+        self.assertEqual([job], queue.refreshed_jobs)
+
+        queue.clear()
+        gen.name = 'My Generator again'
+        gen.save()
+        self.assertEqual([], queue.refreshed_jobs)  # The new value of 'first_generation' is cached -> no new refreshing
+
+        gen.periodicity=date_period_registry.get_period('weeks', 1)
+        gen.save()
+        self.assertEqual([job], queue.refreshed_jobs)
+
+        queue.clear()
+        gen.name = 'My Generator again & again'
+        gen.save()
+        self.assertEqual([], queue.refreshed_jobs)  # The new value of 'periodicity' is cached -> no new refreshing
