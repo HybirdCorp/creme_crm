@@ -11,18 +11,19 @@ try:
     from django.utils.timezone import now, make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import SetCredentials, SettingValue
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.models import SetCredentials, SettingValue, Job
 
-    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from .base import (_EmailsTestCase, skipIfCustomEmailCampaign,
             skipIfCustomEmailTemplate, skipIfCustomMailingList,
             Contact, Organisation, EmailCampaign, EmailTemplate, MailingList)
     from ..constants import SETTING_EMAILCAMPAIGN_SENDER, MAIL_STATUS_NOTSENT
-    from ..management.commands.emails_send import Command as EmailsSendCommand
-    from ..models import EmailSending, EmailRecipient, LightWeightEmail  # EmailCampaign EmailTemplate MailingList
+    from ..creme_jobs import campaign_emails_send_type
+    # from ..management.commands.emails_send import Command as EmailsSendCommand
+    from ..models import EmailSending, EmailRecipient, LightWeightEmail
     from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
             SENDING_STATE_DONE, SENDING_STATE_PLANNED)
 except Exception as e:
@@ -39,6 +40,12 @@ class SendingsTestCase(_EmailsTestCase):
 
     def _build_add_url(self, campaign):
         return '/emails/campaign/%s/sending/add' % campaign.id
+
+    def _get_job(self):
+        return self.get_object_or_fail(Job, type_id=campaign_emails_send_type.id)
+
+    def _send_mails(self, job=None):
+        campaign_emails_send_type.execute(job or self._get_job())
 
     def repopulate_email(self):
         SettingValue.objects.filter(key_id=SETTING_EMAILCAMPAIGN_SENDER).delete()
@@ -84,9 +91,9 @@ class SendingsTestCase(_EmailsTestCase):
     def test_sender_setting02(self):
         self.repopulate_email()
         user = self.login(is_superuser=False,
-                   allowed_apps=('emails',),
-                   creatable_models=(EmailSending, EmailCampaign)
-                  )
+                          allowed_apps=('emails',),
+                          creatable_models=(EmailSending, EmailCampaign),
+                         )
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW | EntityCredentials.DELETE |
                                             EntityCredentials.LINK | EntityCredentials.UNLINK |
@@ -316,7 +323,15 @@ class SendingsTestCase(_EmailsTestCase):
     @skipIfCustomOrganisation
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
-        "Command + outbox"
+        "Job + outbox"
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
+        job = self._get_job()
+        now_value = now()
+        self.assertIsNone(job.user)
+        self.assertIsNone(job.type.next_wakeup(job, now_value))
+
         user = self.login()
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
@@ -342,8 +357,13 @@ class SendingsTestCase(_EmailsTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertFalse(django_mail.outbox)
+        self.assertIs(job.type.next_wakeup(job, now_value), now_value)
 
-        EmailsSendCommand().execute(verbosity=0)
+        self.assertEqual([job], queue.refreshed_jobs)
+        queue.clear()
+
+        # EmailsSendCommand().execute(verbosity=0)
+        self._send_mails(job)
 
         with self.assertNoException():
             sending = camp.sendings_set.all()[0]
@@ -367,16 +387,17 @@ class SendingsTestCase(_EmailsTestCase):
                          }
                         )
 
+        self.assertIsNone(job.type.next_wakeup(job, now_value))
+        self.assertEqual([], queue.refreshed_jobs)  # Other save() in job should not send REFRESH signals
+
     def test_create04(self):
         "Test deferred"
         user = self.login()
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
 
-        #now = datetime.now()
-        #sending_date = now.replace(year=now.year + 1)
-        now_dt = now()
-        sending_date = now_dt + timedelta(weeks=1)
+        now_value = now()
+        sending_date = now_value + timedelta(weeks=1)
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {'sender':   'vicious@reddragons.mrs',
                 'type':     SENDING_TYPE_DEFERRED,
@@ -385,10 +406,7 @@ class SendingsTestCase(_EmailsTestCase):
 
         post = partial(self.client.post, self._build_add_url(camp))
         self.assertNoFormError(post(data=dict(data,
-                                              #sending_date=sending_date.strftime('%Y-%m-%d'), #future: OK
-                                              #hour=sending_date.hour,
-                                              #minute=sending_date.minute,
-                                              sending_date=naive_sending_date.strftime('%Y-%m-%d'), #future: OK
+                                              sending_date=naive_sending_date.strftime('%Y-%m-%d'),  # Future: OK
                                               hour=naive_sending_date.hour,
                                               minute=naive_sending_date.minute,
                                              )
@@ -400,19 +418,24 @@ class SendingsTestCase(_EmailsTestCase):
 
         self.assertDatetimesAlmostEqual(sending_date, sending.sending_date, seconds=60)
 
+        job = self._get_job()
+        wakeup = job.type.next_wakeup(job, now_value)
+        self.assertIsNotNone(wakeup)
+        self.assertDatetimesAlmostEqual(sending.sending_date, wakeup)
+
         self.assertFormError(post(data=data), 'form', 'sending_date',
                              _(u"Sending date required for a deferred sending")
                             )
 
         msg = _(u"Sending date must be is the future")
         self.assertFormError(post(data=dict(data,
-                                            sending_date=(now_dt - timedelta(days=1)).strftime('%Y-%m-%d')
+                                            sending_date=(now_value - timedelta(days=1)).strftime('%Y-%m-%d')
                                            )
                                  ),
                              'form', 'sending_date', msg,
                             )
         self.assertFormError(post(data=dict(data,
-                                            sending_date=now_dt.strftime('%Y-%m-%d'),
+                                            sending_date=now_value.strftime('%Y-%m-%d'),
                                            )
                                  ),
                              'form', 'sending_date', msg,
@@ -425,7 +448,7 @@ class SendingsTestCase(_EmailsTestCase):
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
 
         now_dt = now()
-        sending_date = now_dt + timedelta(hours=1) # Today if we run the test before 23h...
+        sending_date = now_dt + timedelta(hours=1)  # Today if we run the test before 23h...
 
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {'sender':   'vicious@reddragons.mrs',
@@ -468,10 +491,43 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertGET(400, build_url(sending, 'type'))
         self.assertGET(400, build_url(sending, 'sending_date'))
 
+    def test_next_wakeup01(self):
+        "Several deferred sendings"
+        user = self.login()
+        job = self._get_job()
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+
+        now_value = now()
+        create_sending = partial(EmailSending.objects.create, campaign=camp,
+                                 type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+                                )
+        create_sending(sending_date=now_value + timedelta(weeks=2))
+        sending1 = create_sending(sending_date=now_value + timedelta(weeks=1))
+        create_sending(sending_date=now_value + timedelta(weeks=3))
+
+        wakeup = job.type.next_wakeup(job, now_value)
+        self.assertIsNotNone(wakeup)
+        self.assertDatetimesAlmostEqual(sending1.sending_date, wakeup)
+
+    def test_next_wakeup02(self):
+        "A deferred sending with passed sending_date"
+        self.login()
+        job = self._get_job()
+        camp = EmailCampaign.objects.create(user=self.user, name='camp01')
+        now_value = now()
+
+        EmailSending.objects.create(campaign=camp,
+                                    type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+                                    sending_date=now_value - timedelta(hours=1),
+                                   )
+
+        self.assertLess(job.type.next_wakeup(job, now_value), now_value)
+
     @skipIfCustomContact
-    def test_command(self):
+    def test_job(self):
         "Deleted campaign"
         user = self.login()
+        job = self._get_job()
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
         mlist    = MailingList.objects.create(user=user, name='ml01')
@@ -493,6 +549,42 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFalse(django_mail.outbox)
 
         camp.trash()
+        self.assertIsNone(job.type.next_wakeup(job, now()))
 
-        EmailsSendCommand().execute(verbosity=0)
+        # EmailsSendCommand().execute(verbosity=0)
+        self._send_mails(job)
         self.assertFalse(django_mail.outbox)
+
+    def test_refresh_job01(self):
+        "Restore campaign with sending which has to be sent"
+        self.login()
+        job = self._get_job()
+        camp = EmailCampaign.objects.create(user=self.user, name='camp01', is_deleted=True)
+
+        EmailSending.objects.create(campaign=camp,
+                                    type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+                                    sending_date=now() - timedelta(hours=1),
+                                   )
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
+        camp.restore()
+        self.assertFalse(self.refresh(camp).is_deleted)
+        self.assertEqual([job], queue.refreshed_jobs)
+
+    def test_refresh_job02(self):
+        "Restore campaign with sending which does not have to be sent"
+        self.login()
+        camp = EmailCampaign.objects.create(user=self.user, name='camp01', is_deleted=True)
+
+        EmailSending.objects.create(campaign=camp,
+                                    type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_DONE,
+                                    sending_date=now() - timedelta(hours=1),
+                                   )
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
+        camp.restore()
+        self.assertEqual([], queue.refreshed_jobs)

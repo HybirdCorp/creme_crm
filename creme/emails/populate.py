@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
@@ -31,17 +31,17 @@ from creme.creme_core.blocks import (properties_block, relations_block,
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
         BlockDetailviewLocation, BlockPortalLocation, CustomBlockConfigItem,
-        ButtonMenuItem, HeaderFilter)
+        ButtonMenuItem, HeaderFilter, Job)
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Organisation, Contact
 
 from . import (get_emailcampaign_model, get_entityemail_model,
         get_emailtemplate_model, get_mailinglist_model)
-#from .models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
 from . import blocks, constants
 from .buttons import entityemail_link_button
+from .creme_jobs import entity_emails_send_type, campaign_emails_send_type
 from .setting_keys import emailcampaign_sender
+
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +101,18 @@ class Populator(BasePopulator):
         create_searchconf(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])
         create_searchconf(EmailTemplate, ['name', 'subject', 'body', 'attachments__title'])
         create_searchconf(EntityEmail,   ['sender', 'recipient', 'subject'])
+
+        create_job = Job.objects.get_or_create
+        create_job(type_id=entity_emails_send_type.id,
+                   defaults={'language': settings.LANGUAGE_CODE,
+                             'status':   Job.STATUS_OK,
+                            }
+                  )
+        create_job(type_id=campaign_emails_send_type.id,
+                   defaults={'language': settings.LANGUAGE_CODE,
+                             'status':   Job.STATUS_OK,
+                            }
+                  )
 
         if not already_populated:
             get_ct = ContentType.objects.get_for_model

@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import UnsafeHTMLField
 
-from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS
+from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR, MAIL_STATUS
 from ..utils import generate_id, EMailSender
 from .signature import EmailSignature
 
@@ -62,7 +62,9 @@ class _Email(CremeModel):
         app_label = "emails"
 
     def __unicode__(self):
-        return u"Mail<from: %s> <to: %s> <sent: %s> <id: %s>" % (self.sender, self.recipient, self.sending_date, self.id)
+        return u"Mail<from: %s> <to: %s> <sent: %s> <id: %s>" % (
+                    self.sender, self.recipient, self.sending_date, self.id,
+                )
 
     # def get_status_str(self):
     #     warnings.warn("_Email.get_status_str() method is deprecated ; use get_status_display() instead.",
@@ -156,6 +158,17 @@ class AbstractEntityEmail(_Email, CremeEntity):
     #         return mark_safe(removetags(self.body_html, 'script'))
     #     else:
     #         return mark_safe(removetags(self.body.replace('\n', '</br>'), 'script'))
+
+    def restore(self):
+        CremeEntity.restore(self)
+
+        # TODO: in a signal handler instead ?
+        #       (we need a restore signal, or an official "backup" feature -- see HistoryLine)
+        if self.status in (MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR):
+            # TODO: regroup the 'refresh' message, to avoid flooding the job manager
+            from ..creme_jobs import entity_emails_send_type
+
+            entity_emails_send_type.refresh_job()
 
     def send(self):
         sender = EntityEmailSender(body=self.body,

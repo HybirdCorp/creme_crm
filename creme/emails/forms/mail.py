@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,25 +25,21 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.forms.fields import EmailField, BooleanField, IntegerField, CharField
 from django.forms.widgets import HiddenInput
-#from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-
-from creme.creme_core.models import Relation, FieldsConfig
 from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
-from creme.creme_core.forms.widgets import Label #TinyMCEEditor
+from creme.creme_core.forms.widgets import Label  # TinyMCEEditor
+from creme.creme_core.models import Relation, FieldsConfig
 
 from creme.documents import get_document_model
-#from creme.documents.models import Document
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from .. import get_entityemail_model, get_emailtemplate_model
-from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
-#from ..models import EntityEmail, EmailTemplate
+from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, MAIL_STATUS_SENDINGERROR
+from ..creme_jobs import entity_emails_send_type
 from ..forms.utils import validate_images_in_html
 
 
@@ -81,7 +77,7 @@ class EntityEmailForm(CremeEntityForm):
 
     class Meta:
         model  = EntityEmail
-        fields = ('sender', 'subject', 'body', 'body_html', 'signature')#, 'attachments')
+        fields = ('sender', 'subject', 'body', 'body_html', 'signature') # 'attachments'
 
     def __init__(self, entity, *args, **kwargs):
         super(EntityEmailForm, self).__init__(*args, **kwargs)
@@ -97,7 +93,6 @@ class EntityEmailForm(CremeEntityForm):
             else:
                 field.help_text = msg % entity
 
-        #self.user_contact = contact = Contact.objects.get(is_user=self.user)
         self.user_contact = contact = self.user.linked_contact
 
         if contact.email:
@@ -109,7 +104,7 @@ class EntityEmailForm(CremeEntityForm):
                         label=self.fields[name].label,
                         required=False, widget=Label,
                         initial=ugettext(u'Beware: the field «Email address» is hidden ;'
-                                        ' please contact your administrator.'
+                                          ' please contact your administrator.'
                                         ),
                     )
 
@@ -135,10 +130,7 @@ class EntityEmailForm(CremeEntityForm):
 
         if bad_entities:
             msg_format = ugettext(u'The email address for %s is invalid')
-#            self.errors[field_name] = ErrorList([msg_format % entity.allowed_unicode(user)
-#                                                     for entity in bad_entities
-#                                                ]
-#                                               )
+
             for entity in bad_entities:
                 self.add_error(field_name, msg_format % entity.allowed_unicode(user))
 
@@ -178,17 +170,35 @@ class EntityEmailForm(CremeEntityForm):
         attachments = get_data('attachments')
         user        = get_data('user')
 
+        # TODO use "sending_error = False" + "nonlocal sending_error" in python3
+        sending_errors = []
+
+        def create_n_send_mail(recipient_address):
+            email = EntityEmail.create_n_send_mail(sender=sender, recipient=recipient_address,
+                                                   subject=subject, user=user,
+                                                   body=body, body_html=body_html,
+                                                   signature=signature, attachments=attachments,
+                                                  )
+
+            if email.status == MAIL_STATUS_SENDINGERROR:
+                sending_errors.append(True)
+
+            return email
+
         if get_data('send_me'):
-            EntityEmail.create_n_send_mail(sender, sender, subject, user, body, body_html, signature, attachments)
+            create_n_send_mail(sender)
 
         user_contact = self.user_contact
         create_relation = Relation.objects.create
 
         for recipient in chain(cdata['c_recipients'], cdata['o_recipients']):
-            email = EntityEmail.create_n_send_mail(sender, recipient.email, subject, user, body, body_html, signature, attachments)
+            email = create_n_send_mail(recipient.email)
 
             create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=user_contact, user=user)
             create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,    user=user)
+
+        if sending_errors:
+            entity_emails_send_type.refresh_job()
 
 
 class TemplateSelectionForm(CremeForm):

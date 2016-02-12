@@ -30,7 +30,7 @@ from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerFie
         EmailField, CharField, TextField, ManyToManyField, SET_NULL)
 from django.db.transaction import atomic
 from django.template import Template, Context
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, activate
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy  # activate
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
@@ -132,7 +132,7 @@ class EmailSending(CremeModel):
         try:
             sender = LightWeightEmailSender(sending=self)
         except ImageFromHTMLError as e:
-            activate(settings.LANGUAGE_CODE)
+            # activate(settings.LANGUAGE_CODE)
             send_mail(ugettext('[CremeCRM] Campaign email sending error.'),
                       ugettext("Emails in the sending of the campaign «%(campaign)s» on %(date)s weren't sent "
                                "because the image «%(image)s» is no longer available in the template.") % {
