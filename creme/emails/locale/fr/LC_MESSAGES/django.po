@@ -1,21 +1,21 @@
 # FR LOCALISATION OF 'EMAILS' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Emails 1.6\n"
+"Project-Id-Version: Creme Emails 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-17 18:44+0100\n"
+"POT-Creation-Date: 2016-02-12 11:52+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 apps.py:44 models/mail.py:101
+#: apps.py:28 apps.py:44 models/mail.py:96
 #: templates/emails/frags/ajax/synchronize.html:5
 #: templates/emails/portal.html:5
 #: templates/emails/templatetags/block_lw_mails_history.html:5
@@ -49,58 +49,57 @@ msgstr "Liste des e-mails"
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des e-mails externes"
 
-#: blocks.py:61 templates/emails/templatetags/block_html_body.html:4
+#: blocks.py:54 templates/emails/templatetags/block_html_body.html:4
 msgid "HTML body"
 msgstr "Corps HTML"
 
-#: blocks.py:103 forms/campaign.py:50 models/mailing_list.py:47
+#: blocks.py:96 forms/campaign.py:50 models/mailing_list.py:47
 #: templates/emails/templatetags/block_mailing_lists.html:6
 msgid "Mailing lists"
 msgstr "Listes de diffusion d'e-mails"
 
-#: blocks.py:114
+#: blocks.py:107
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: blocks.py:129 forms/mailing_list.py:50 forms/mailing_list.py:113
+#: blocks.py:122 forms/mailing_list.py:50 forms/mailing_list.py:113
 #: models/mailing_list.py:37
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
-#: blocks.py:145 forms/mailing_list.py:67 forms/mailing_list.py:122
+#: blocks.py:138 forms/mailing_list.py:67 forms/mailing_list.py:122
 #: models/mailing_list.py:39
 msgid "Organisations recipients"
 msgstr "Sociétés destinataires"
 
-#: blocks.py:160 models/mailing_list.py:35
+#: blocks.py:153 models/mailing_list.py:35
 msgid "Child mailing lists"
 msgstr "Listes de diffusion filles"
 
-#: blocks.py:171
+#: blocks.py:164
 msgid "Parent mailing lists"
 msgstr "Listes de diffusion parentes"
 
-#: blocks.py:182 forms/mail.py:69 forms/template.py:53 forms/template.py:96
-#: forms/template.py:98 models/mail.py:93 models/sending.py:97
-#: models/template.py:43 templates/emails/templatetags/block_mail.html:46
-#: templates/emails/view_email.html:62
+#: blocks.py:175 forms/mail.py:65 forms/template.py:53 forms/template.py:96
+#: forms/template.py:98 models/mail.py:88 models/sending.py:91
+#: models/template.py:43 templates/emails/view_email.html:63
 #: templates/emails/view_entity_mail_popup.html:55
 msgid "Attachments"
 msgstr "Fichiers attachés"
 
-#: blocks.py:194 templates/emails/templatetags/block_sendings.html:6
+#: blocks.py:187 templates/emails/templatetags/block_sendings.html:6
 msgid "Sendings"
 msgstr "Envois"
 
-#: blocks.py:228
+#: blocks.py:221
 msgid "Emails history"
 msgstr "Historique des e-mails"
 
-#: blocks.py:266
+#: blocks.py:259
 msgid "Campaigns emails history"
 msgstr "Historique des e-mails des campagnes"
 
-#: blocks.py:338 models/signature.py:42
+#: blocks.py:326 models/signature.py:42
 msgid "Email signatures"
 msgstr "Signatures d'e-mail"
 
@@ -135,6 +134,14 @@ msgstr "Synchronisé - Marqué comme SPAM"
 msgid "Synchronized - Untreated"
 msgstr "Synchronisé - Non traité"
 
+#: creme_jobs/campaign_emails_send.py:34
+msgid "Send emails from campaigns"
+msgstr "Envoyer les e-mails des campagnes"
+
+#: creme_jobs/entity_emails_send.py:37
+msgid "Send entity emails"
+msgstr "Envoyer les fiches e-mail"
+
 #: crudity_register.py:76
 #, python-format
 msgid "%(username)s's files received by email"
@@ -150,7 +157,7 @@ msgstr "Reçu avec l'e-mail %s"
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
 
-#: forms/campaign.py:35 models/campaign.py:36
+#: forms/campaign.py:35 models/campaign.py:33
 msgid "Related mailing lists"
 msgstr "Listes de diffusion associées"
 
@@ -158,55 +165,54 @@ msgstr "Listes de diffusion associées"
 msgid "Lists"
 msgstr "Listes"
 
-#: forms/mail.py:62 models/mail.py:56
-#: templates/emails/templatetags/block_mail.html:30
+#: forms/mail.py:58 models/mail.py:53
 #: templates/emails/templatetags/block_mails_history.html:21
 #: templates/emails/view_email.html:26
 #: templates/emails/view_entity_mail_popup.html:39
 msgid "Sender"
 msgstr "Émetteur"
 
-#: forms/mail.py:64 forms/mailing_list.py:48
+#: forms/mail.py:60 forms/mailing_list.py:48
 #: templates/emails/templatetags/block_contacts.html:5
 msgid "Contacts"
 msgstr "Contacts"
 
-#: forms/mail.py:65 forms/mailing_list.py:65
+#: forms/mail.py:61 forms/mailing_list.py:65
 #: templates/emails/templatetags/block_organisations.html:5
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: forms/mail.py:70
+#: forms/mail.py:66
 msgid "Send me a copy of this mail"
 msgstr "Envoyez moi une copie de cet e-mail"
 
-#: forms/mail.py:73
+#: forms/mail.py:69
 msgid "Select at least a Contact or an Organisation"
 msgstr "Sélectionnez au moins un Contact ou une Société"
 
-#: forms/mail.py:77
+#: forms/mail.py:73
 msgid "Who"
 msgstr "Qui"
 
-#: forms/mail.py:78
+#: forms/mail.py:74
 msgid "What"
 msgstr "Quoi"
 
-#: forms/mail.py:79
+#: forms/mail.py:75
 msgid "With"
 msgstr "Avec"
 
-#: forms/mail.py:91
+#: forms/mail.py:87
 #, python-format
 msgid "Beware: the contact «%s» has no email address!"
 msgstr "Attention : le contact «%s» n'a pas d'adresse e-mail !"
 
-#: forms/mail.py:92
+#: forms/mail.py:88
 #, python-format
 msgid "Beware: the organisation «%s» has no email address!"
 msgstr "Attention : la société «%s» n'a pas d'adresse e-mail !"
 
-#: forms/mail.py:111
+#: forms/mail.py:106
 msgid ""
 "Beware: the field «Email address» is hidden ; please contact your "
 "administrator."
@@ -214,12 +220,12 @@ msgstr ""
 "Attention : le champ «Adresse email» est caché ; veuillez contacter votre "
 "administrateur."
 
-#: forms/mail.py:137
+#: forms/mail.py:132
 #, python-format
 msgid "The email address for %s is invalid"
 msgstr "L'adresse e-mail pour %s est invalide"
 
-#: forms/mail.py:196
+#: forms/mail.py:206
 msgctxt "emails"
 msgid "Template"
 msgstr "Patron d'e-mail"
@@ -252,16 +258,16 @@ msgstr "Liste déjà dans les filles"
 msgid "Child mailing list"
 msgstr "Liste de diffusion fille"
 
-#: forms/recipient.py:34 forms/recipient.py:36 forms/recipient.py:55
+#: forms/recipient.py:59 forms/recipient.py:61 forms/recipient.py:80
 #: models/recipient.py:39
 msgid "Recipients"
 msgstr "Destinataires"
 
-#: forms/recipient.py:34
+#: forms/recipient.py:59
 msgid "Write a valid e-mail address per line."
 msgstr "Mettez une adresse e-mail par ligne."
 
-#: forms/recipient.py:56
+#: forms/recipient.py:81
 msgid ""
 "A file containing one e-mail address per line (eg:creme@crm.com without "
 "quotation marks)."
@@ -269,39 +275,39 @@ msgstr ""
 "Un fichier contenant une adresse e-mail par ligne (ex:creme@crm.com sans "
 "guillemets)."
 
-#: forms/recipient.py:61
+#: forms/recipient.py:86
 msgid "CSV file"
 msgstr "Fichier CSV"
 
-#: forms/sending.py:46 models/sending.py:72
+#: forms/sending.py:46 models/sending.py:68
 msgid "Sender address"
 msgstr "Adresse e-mail de l'expéditeur"
 
-#: forms/sending.py:49 models/template.py:50
+#: forms/sending.py:47 models/template.py:50
 msgid "Email template"
 msgstr "Patron d'e-mail"
 
-#: forms/sending.py:50 forms/sending.py:59 models/mail.py:60
+#: forms/sending.py:48 forms/sending.py:57 models/mail.py:57
 #: templates/emails/templatetags/block_lw_mails_history.html:11
 #: templates/emails/templatetags/block_mails_history.html:25
 #: templates/emails/templatetags/block_sendings.html:16
-#: templates/emails/view_email.html:54
+#: templates/emails/view_email.html:55
 msgid "Sending date"
 msgstr "Date d'envoi"
 
-#: forms/sending.py:51
+#: forms/sending.py:49
 msgid "Required only of the sending is deferred."
 msgstr "Obligatoire si l'envoi est différé seulement."
 
-#: forms/sending.py:52
+#: forms/sending.py:50
 msgid "Sending hour"
 msgstr "Heure d'envoi"
 
-#: forms/sending.py:53
+#: forms/sending.py:51
 msgid "Sending minute"
 msgstr "Minute d'envoi"
 
-#: forms/sending.py:56
+#: forms/sending.py:54
 msgid ""
 "You are not allowed to modify the sender address, please contact your "
 "administrator."
@@ -309,7 +315,7 @@ msgstr ""
 "Vous n'êtes pas autorisé à modifier l'adresse de l'expéditeur, veuillez "
 "contacter votre administrateur."
 
-#: forms/sending.py:88
+#: forms/sending.py:85
 msgid ""
 "No sender email address has been configured, please contact your "
 "administrator."
@@ -317,15 +323,15 @@ msgstr ""
 "Aucune adresse email d'expéditeur n'a été configurée, veuillez contacter "
 "votre administrateur."
 
-#: forms/sending.py:90
+#: forms/sending.py:87
 msgid "Only an administrator can modify the sender address."
 msgstr "Seul un administrateur peut modifier l'adresse de l'expéditeur."
 
-#: forms/sending.py:110
+#: forms/sending.py:107
 msgid "Sending date required for a deferred sending"
 msgstr "Date d'envoi obligatoire pour un envoi différé"
 
-#: forms/sending.py:124
+#: forms/sending.py:118
 msgid "Sending date must be is the future"
 msgstr "La date d'envoi doit être dans le futur"
 
@@ -343,15 +349,15 @@ msgstr "Images incorporées aux e-mails (et non pas en pièce jointe)."
 msgid "You can use variables: %s"
 msgstr "Vous pouvez utiliser des variables: %s"
 
-#: forms/template.py:51 models/mail.py:59 models/sending.py:90
+#: forms/template.py:51 models/mail.py:56 models/sending.py:85
 #: models/signature.py:33 models/template.py:38
 #: templates/emails/templatetags/block_signatures.html:16
 #: templates/emails/view_email.html:46
 msgid "Body"
 msgstr "Corps"
 
-#: forms/template.py:52 models/mail.py:90 models/sending.py:91
-#: models/template.py:40 templates/emails/view_email.html:50
+#: forms/template.py:52 models/mail.py:86 models/sending.py:86
+#: models/template.py:40 templates/emails/view_email.html:51
 msgid "Body (HTML)"
 msgstr "Corps (HTML)"
 
@@ -365,32 +371,30 @@ msgstr "Les variables suivantes sont invalides: %(vars)s"
 msgid "The image «%s» no longer exists or isn't valid."
 msgstr "L'image «%s» n'existe pas ou plus."
 
-#: models/campaign.py:34
+#: models/campaign.py:32
 msgid "Name of the campaign"
 msgstr "Nom de la campagne"
 
-#: models/campaign.py:38
+#: models/campaign.py:35
 msgid "Add an emailing campaign"
 msgstr "Ajouter une campagne d'envois"
 
-#: models/campaign.py:43
+#: models/campaign.py:40
 msgid "Emailing campaign"
 msgstr "Campagne d'envois d'e-mails"
 
-#: models/campaign.py:44
+#: models/campaign.py:41
 msgid "Emailing campaigns"
 msgstr "Campagnes d'envois d'e-mails"
 
-#: models/mail.py:48 templates/emails/templatetags/block_mail.html:22
-#: templates/emails/view_email.html:38
+#: models/mail.py:45 templates/emails/view_email.html:38
 #: templates/emails/view_entity_mail_popup.html:31
 msgid "Number of reads"
 msgstr "Nombre de lecture(s)"
 
-#: models/mail.py:51
+#: models/mail.py:48
 #: templates/emails/templatetags/_block_synchronization.html:13
 #: templates/emails/templatetags/block_lw_mails_history.html:13
-#: templates/emails/templatetags/block_mail.html:26
 #: templates/emails/templatetags/block_mails.html:13
 #: templates/emails/templatetags/block_mails_history.html:24
 #: templates/emails/view_email.html:30
@@ -398,8 +402,7 @@ msgstr "Nombre de lecture(s)"
 msgid "Status"
 msgstr "Statut"
 
-#: models/mail.py:57 models/recipient.py:38
-#: templates/emails/templatetags/block_mail.html:34
+#: models/mail.py:54 models/recipient.py:38
 #: templates/emails/templatetags/block_mails.html:12
 #: templates/emails/templatetags/block_mails_history.html:22
 #: templates/emails/view_email.html:22
@@ -407,40 +410,38 @@ msgstr "Statut"
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: models/mail.py:58 models/sending.py:89 models/template.py:37
+#: models/mail.py:55 models/sending.py:84 models/template.py:37
 #: templates/emails/templatetags/_block_synchronization.html:16
 #: templates/emails/templatetags/block_lw_mails_history.html:12
-#: templates/emails/templatetags/block_mail.html:38
 #: templates/emails/templatetags/block_mails_history.html:23
 #: templates/emails/view_email.html:42
 #: templates/emails/view_entity_mail_popup.html:47
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/mail.py:61 templates/emails/templatetags/block_mail.html:42
-#: templates/emails/view_entity_mail_popup.html:51
+#: models/mail.py:58 templates/emails/view_entity_mail_popup.html:51
 msgid "Reception date"
 msgstr "Date de réception"
 
-#: models/mail.py:85 models/sending.py:190
+#: models/mail.py:82 models/sending.py:184
 msgid "Email ID"
 msgstr "Identifiant de l'e-mail"
 
-#: models/mail.py:91 models/sending.py:92 models/template.py:41
+#: models/mail.py:87 models/sending.py:87 models/template.py:41
 #: templates/emails/templatetags/block_signatures.html:5
-#: templates/emails/view_email.html:58
+#: templates/emails/view_email.html:59
 msgid "Signature"
 msgstr "Signature"
 
-#: models/mail.py:95
+#: models/mail.py:90
 msgid "Add an email"
 msgstr "Ajouter un e-mail"
 
-#: models/mail.py:100
+#: models/mail.py:95
 msgid "Email"
 msgstr "E-mail"
 
-#: models/mail.py:137
+#: models/mail.py:113
 #, python-format
 msgid "EMail <from: %(from)s> <to: %(to)s> <status: %(status)s>"
 msgstr "E-Mail <de: %(from)s> <à: %(to)s> <statut: %(status)s>"
@@ -465,68 +466,68 @@ msgstr "Liste de diffusion associée"
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/sending.py:54
+#: models/sending.py:50
 msgid "Immediate"
 msgstr "Immédiat"
 
-#: models/sending.py:55
+#: models/sending.py:51
 msgctxt "emails-sending"
 msgid "Deferred"
 msgstr "Différé"
 
-#: models/sending.py:64
+#: models/sending.py:60
 msgctxt "emails-sending"
 msgid "Done"
 msgstr "Effectué"
 
-#: models/sending.py:65
+#: models/sending.py:61
 msgid "In progress"
 msgstr "En cours"
 
-#: models/sending.py:66
+#: models/sending.py:62
 msgctxt "emails-sending"
 msgid "Planned"
 msgstr "Prévu"
 
-#: models/sending.py:67
+#: models/sending.py:63
 msgid "Error during sending"
 msgstr "Erreur pendant l'envoi."
 
-#: models/sending.py:75
+#: models/sending.py:70
 msgctxt "emails"
 msgid "Related campaign"
 msgstr "Campagne associée"
 
-#: models/sending.py:78
+#: models/sending.py:73
 msgid "Sending type"
 msgstr "Type d'envoi"
 
-#: models/sending.py:82
+#: models/sending.py:77
 msgid "Sending date of emails"
 msgstr "Date d'envoi des e-mails"
 
-#: models/sending.py:83
+#: models/sending.py:78
 msgid "Sending state"
 msgstr "État de l'envoi"
 
-#: models/sending.py:102
+#: models/sending.py:96
 msgid "Email campaign sending"
 msgstr "Envoi de campagne d'e-mails"
 
-#: models/sending.py:103
+#: models/sending.py:97
 msgid "Email campaign sendings"
 msgstr "Envois de campagne d'e-mails"
 
-#: models/sending.py:106
+#: models/sending.py:100
 #, python-format
 msgid "Sending of «%(campaign)s» on %(date)s"
 msgstr "Envoi de «%(campaign)s» du %(date)s"
 
-#: models/sending.py:142
+#: models/sending.py:136
 msgid "[CremeCRM] Campaign email sending error."
 msgstr "[CremeCRM] Erreur d'envoi de campagne d'e-mail."
 
-#: models/sending.py:143
+#: models/sending.py:137
 #, python-format
 msgid ""
 "Emails in the sending of the campaign «%(campaign)s» on %(date)s weren't "
@@ -536,15 +537,15 @@ msgstr ""
 "n'ont pas été envoyés car l'image «%(image)s» n'est plus disponible dans le "
 "patron d'e-mail."
 
-#: models/sending.py:191 templates/emails/view_email.html:34
+#: models/sending.py:185 templates/emails/view_email.html:34
 msgid "Related sending"
 msgstr "Envoi associé"
 
-#: models/sending.py:198
+#: models/sending.py:192
 msgid "Email of campaign"
 msgstr "E-mail de campagne"
 
-#: models/sending.py:199
+#: models/sending.py:193
 msgid "Emails of campaign"
 msgstr "E-mails  de campagne"
 
@@ -554,8 +555,7 @@ msgstr "E-mails  de campagne"
 msgid "Name"
 msgstr "Nom"
 
-#: models/signature.py:32 templates/emails/templatetags/block_mail.html:18
-#: templates/emails/view_entity_mail_popup.html:27
+#: models/signature.py:32 templates/emails/view_entity_mail_popup.html:27
 msgid "User"
 msgstr "Utilisateur"
 
@@ -611,11 +611,11 @@ msgstr "Vue de Patron d'e-mail"
 msgid "Email view"
 msgstr "Vue d'E-mail"
 
-#: populate.py:111
+#: populate.py:123
 msgid "Email information"
 msgstr "Informations sur l'e-mail"
 
-#: populate.py:125
+#: populate.py:137
 msgid "Email template information"
 msgstr "Informations sur le patron d'e-mail"
 
@@ -766,7 +766,6 @@ msgid "No contact recipient for the moment"
 msgstr "Aucun contact destinataire pour le moment"
 
 #: templates/emails/templatetags/block_html_body.html:4
-#: templates/emails/templatetags/block_mail.html:8
 msgid "Information"
 msgstr "Informations"
 
@@ -806,16 +805,6 @@ msgstr "Détails"
 #: templates/emails/templatetags/block_lw_mails_history.html:30
 msgid "No campaign email in the history for the moment"
 msgstr "Aucun e-mail de campagne dans l'historique pour le moment"
-
-#: templates/emails/templatetags/block_mail.html:7
-#, python-format
-msgid "Informations %s"
-msgstr "Informations %s"
-
-#: templates/emails/templatetags/block_mail.html:50
-#: templates/emails/view_entity_mail_popup.html:75
-msgid "Email body"
-msgstr "Corps de l'e-mail"
 
 #: templates/emails/templatetags/block_mailing_lists.html:6
 #, python-format
@@ -1066,6 +1055,10 @@ msgstr "Fiche complète"
 msgid "Email body (HTML)"
 msgstr "Corps de l'e-mail (HTML)"
 
+#: templates/emails/view_entity_mail_popup.html:75
+msgid "Email body"
+msgstr "Corps de l'e-mail"
+
 #: views/campaign.py:42
 msgid "Save the emailing campaign"
 msgstr "Enregistrer la campagne"
@@ -1079,33 +1072,33 @@ msgstr "Nouvelles listes de diffusion pour «%s»"
 msgid "Link the mailing lists"
 msgstr "Lier les listes de diffusion"
 
-#: views/mail.py:69
+#: views/mail.py:77
 msgid "Details of the mail"
 msgstr "Détails de l'e-mail"
 
-#: views/mail.py:100
+#: views/mail.py:108
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: views/mail.py:112
+#: views/mail.py:120
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/mail.py:169
+#: views/mail.py:172
 #, python-format
 msgid "Sending an email to «%s»"
 msgstr "Envoi d'un e-mail à «%s»"
 
-#: views/mail.py:170 views/mail.py:210
+#: views/mail.py:173 views/mail.py:213
 msgid "Send the email"
 msgstr "Envoyer l'e-mail"
 
-#: views/mail.py:189
+#: views/mail.py:192
 msgid "Next step"
 msgstr "Étape suivante"
 
-#: views/mail.py:223
+#: views/mail.py:226
 #, python-format
 msgid "Sending an email to «%(entity)s» (step %(step)s/2)"
 msgstr "Envoi d'un e-mail à «%(entity)s» (étape %(step)s/2)"
@@ -1171,18 +1164,21 @@ msgstr "Enregistrer la signature"
 msgid "You can not delete this signature (not yours)"
 msgstr "Vous n'êtes pas autorisé à supprimer cette signature (pas la vôtre)"
 
-#: views/template.py:46
+#: views/template.py:42
 msgid "Save the template"
 msgstr "Enregistrer le patron d'e-mail"
 
-#: views/template.py:73
+#: views/template.py:93
 #, python-format
 msgid "New attachments for «%s»"
 msgstr "Nouveaux fichiers joints pour «%s»"
 
-#: views/template.py:75
+#: views/template.py:95
 msgid "Save the attachments"
 msgstr "Enregistrer les fichiers joints"
+
+#~ msgid "Informations %s"
+#~ msgstr "Informations %s"
 
 #~ msgid "Following mailing lists are already related to this campaign: %s"
 #~ msgstr "La(es) liste(s) suivante(s) est déja présente dans la campagne: %s"

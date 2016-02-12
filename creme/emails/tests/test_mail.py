@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from datetime import timedelta
     from functools import partial
     from os.path import basename
     from tempfile import NamedTemporaryFile
 
     from django.conf import settings
     from django.core import mail
+    from django.core.mail.backends.locmem import EmailBackend
     from django.core.urlresolvers import reverse
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig
+    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig, Job
     from creme.creme_core.forms.widgets import Label
 
-    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from creme.documents.models import FolderCategory  # Document, Folder
+    from creme.documents.models import FolderCategory
 
     from .base import (_EmailsTestCase, skipIfCustomEntityEmail, skipIfCustomEmailTemplate,
             Contact, Organisation, Document, Folder, EntityEmail, EmailTemplate)
@@ -25,8 +28,9 @@ try:
             MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SYNCHRONIZED,
             MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING,
             REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
-    from ..management.commands.entity_emails_send import Command as EmailsSendCommand
-    from ..models import EmailSignature  # EntityEmail EmailTemplate
+    from ..creme_jobs import entity_emails_send_type
+    # from ..management.commands.entity_emails_send import Command as EmailsSendCommand
+    from ..models import EmailSignature
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -35,12 +39,24 @@ except Exception as e:
 class EntityEmailTestCase(_EmailsTestCase):
     clean_files_in_teardown = True  # see CremeTestCase
 
-    def login(self, is_superuser=True):
-        return super(EntityEmailTestCase, self).login(is_superuser,
-                                                      allowed_apps=['persons', 'emails'],
-                                                      creatable_models=[Contact, Organisation, EntityEmail],
-                                                     )
+    @classmethod
+    def setUpClass(cls):
+        _EmailsTestCase.setUpClass()
+        cls.original_send_messages = EmailBackend.send_messages
 
+    def tearDown(self):
+        super(EntityEmailTestCase, self).tearDown()
+        EmailBackend.send_messages = self.original_send_messages
+
+    def login(self, is_superuser=True, is_staff=False,
+              allowed_apps=('persons', 'emails'),
+              creatable_models=(Contact, Organisation, EntityEmail),
+              *args, **kwargs):
+        return super(EntityEmailTestCase, self).login(is_superuser=is_superuser,
+                                                      allowed_apps=allowed_apps,
+                                                      creatable_models=creatable_models,
+                                                      *args, **kwargs
+                                                     )
 
     def _build_send_url(self, entity):
         return '/emails/mail/add/%s' % entity.id
@@ -48,9 +64,18 @@ class EntityEmailTestCase(_EmailsTestCase):
     def _build_send_from_template_url(self, entity):
         return '/emails/mail/add_from_template/%s' % entity.id
 
+    def _get_job(self):
+        return self.get_object_or_fail(Job, type_id=entity_emails_send_type.id)
+
+    def _send_mails(self, job=None):
+        entity_emails_send_type.execute(job or self._get_job())
+
     @skipIfCustomContact
     def test_createview01(self):
         user = self.login()
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
 
         recipient = 'vincent.law@immigrates.rmd'
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law', email=recipient)
@@ -101,6 +126,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual([(body_html, 'text/html')], message.alternatives)
         self.assertFalse(message.attachments)
 
+        self.assertEqual([], queue.refreshed_jobs)
+
     @skipIfCustomOrganisation
     def test_createview02(self):
         "Attachments"
@@ -127,7 +154,6 @@ class EntityEmailTestCase(_EmailsTestCase):
             tmpfile.flush()
             tmpfile.file.seek(0)
 
-#            response = self.client.post('/documents/document/add', follow=True,
             response = self.client.post(reverse('documents__create_document'), follow=True,
                                         data={'user':        user.id,
                                               'title':       title,
@@ -186,15 +212,15 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Vincent', last_name='Law',
-                                   email='vincent.law@immigrates', #invalid
+                                   email='vincent.law@immigrates',  # Invalid
                                   )
         contact02 = create_contact(first_name='Pino', last_name='AutoReiv',
                                    email='pino@autoreivs.rmd', #ok
                                   )
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orga01 = create_orga(name='Venus gate', email='contact/venusgate.jp') #invalid 
-        orga02 = create_orga(name='Nerv',       email='contact@nerv.jp') #ok
+        orga01 = create_orga(name='Venus gate', email='contact/venusgate.jp')  # Invalid
+        orga02 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
 
         response = self.assertPOST200(self._build_send_url(contact01),
                                       data={'user':         user.id,
@@ -388,6 +414,44 @@ class EntityEmailTestCase(_EmailsTestCase):
                             )
 
     @skipIfCustomContact
+    def test_createview10(self):
+        "Mail sending error"
+        user = self.login()
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
+        self.send_messages_called = False
+
+        def send_messages(this, messages):
+            self.send_messages_called = True
+            raise Exception('Sent error')
+
+        EmailBackend.send_messages = send_messages
+
+        recipient = 'vincent.law@immigrates.rmd'
+        contact = Contact.objects.create(user=user, first_name='Vincent',
+                                         last_name='Law', email=recipient,
+                                        )
+
+        sender = user.linked_contact.email
+        response = self.client.post(self._build_send_url(contact),
+                                    data={'user':         user.id,
+                                          'sender':       sender,
+                                          'c_recipients': '[%d]' % contact.id,
+                                          'subject':      'Under arrest',
+                                          'body':         'Freeze !',
+                                          'body_html':    '<p>Freeze !</p>',
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
+        self.assertEqual(MAIL_STATUS_SENDINGERROR, email.status)
+
+        self.assertEqual([self._get_job()], queue.refreshed_jobs)
+
+    @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_createview_empty_email(self):
         "Empty email address"
@@ -399,7 +463,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Venus gate', email='')
-        orga02 = create_orga(name='Nerv',       email='contact@nerv.jp') #ok
+        orga02 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
 
         response = self.assertPOST200(self._build_send_url(contact01),
                                       data={'user':         user.id,
@@ -552,7 +616,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
         self._create_emails()
 
-#        response = self.assertGET200('/emails/mails')
         response = self.assertGET200(reverse('emails__list_emails'))
 
         with self.assertNoException():
@@ -613,7 +676,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
         email = self._create_email()
         url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
-        self.assertGET409(url_fmt % (email.id, 'sender'))  # not an UnsafeHTMLField
+        self.assertGET409(url_fmt % (email.id, 'sender'))  # Not an UnsafeHTMLField
 
         response = self.assertGET200(url_fmt % (email.id, 'body_html'))
         self.assertEqual('', response.content)
@@ -641,11 +704,19 @@ class EntityEmailTestCase(_EmailsTestCase):
                         )
         # TODO: improve sanitization test (other tags, css...)
 
-    def test_command01(self):
+    def test_job01(self):
         self.login()
-        email = self._create_email(MAIL_STATUS_NOTSENT)
+        now_value = now()
 
-        EmailsSendCommand().execute(verbosity=0)
+        job = self._get_job()
+        self.assertIsNone(job.user)
+        self.assertIsNone(job.type.next_wakeup(job, now_value))
+
+        email = self._create_email(MAIL_STATUS_NOTSENT)
+        self.assertIs(job.type.next_wakeup(job, now_value), now_value)
+
+        # EmailsSendCommand().execute(verbosity=0)
+        self._send_mails(job)
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))
@@ -654,11 +725,22 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(email.subject, message.subject)
         self.assertEqual(email.body,    message.body)
 
-    def test_command02(self):
+    def test_job02(self):
+        from ..creme_jobs.entity_emails_send import ENTITY_EMAILS_RETRY
+
         self.login()
         email = self._create_email(MAIL_STATUS_SENDINGERROR)
 
-        EmailsSendCommand().execute(verbosity=0)
+        job = self._get_job()
+        now_value = now()
+        wakeup = job.type.next_wakeup(job, now_value)
+        self.assertIsNotNone(wakeup)
+        self.assertDatetimesAlmostEqual(now_value + timedelta(minutes=ENTITY_EMAILS_RETRY),
+                                        wakeup
+                                       )
+
+        # EmailsSendCommand().execute(verbosity=0)
+        self._send_mails(job)
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))
@@ -667,20 +749,57 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(email.subject, message.subject)
         self.assertEqual(email.body,    message.body)
 
-    def test_command03(self):
+    def test_job03(self):
         self.login()
         self._create_email(MAIL_STATUS_SENT)
-        EmailsSendCommand().execute(verbosity=0)
+        # EmailsSendCommand().execute(verbosity=0)
+        self._send_mails()
 
         self.assertFalse(mail.outbox)
 
-    def test_command04(self):
+    def test_job04(self):
         "Email is in the trash"
         self.login()
         email = self._create_email(MAIL_STATUS_SENDINGERROR)
         email.trash()
 
-        EmailsSendCommand().execute(verbosity=0)
+        job = self._get_job()
+        self.assertIsNone(job.type.next_wakeup(job, now()))
+
+        # EmailsSendCommand().execute(verbosity=0)
+        self._send_mails(job)
         self.assertFalse(mail.outbox)
+
+    def test_refresh_job01(self):
+        "Mail is restored + have to be send => refresh the job"
+        self.login()
+        job = self._get_job()
+
+        email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        email.trash()
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
+        email.restore()
+        self.assertFalse(self.refresh(email).is_deleted)
+        self.assertEqual([job], queue.refreshed_jobs)
+
+    def test_refresh_job02(self):
+        "Mail is restored + do not have to be send => do not refresh the job"
+        self.login()
+
+        email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        email.status = MAIL_STATUS_SENT
+        email.is_deleted = True
+        email.save()
+
+        email = self.refresh(email)
+
+        queue = JobManagerQueue.get_main_queue()
+        queue.clear()
+
+        email.restore()
+        self.assertEqual([], queue.refreshed_jobs)
 
     # TODO: test other views

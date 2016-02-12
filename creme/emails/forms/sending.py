@@ -24,7 +24,7 @@ import logging
 from pickle import dumps
 
 from django.forms import IntegerField, EmailField, DateTimeField
-from django.forms.utils import ValidationError # ErrorList
+from django.forms.utils import ValidationError
 from django.template.base import Template, VariableNode
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _ # ugettext
@@ -35,8 +35,7 @@ from creme.creme_core.models import SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
-from ..constants import SETTING_EMAILCAMPAIGN_SENDER # MAIL_STATUS_NOTSENT
-#from ..models import EmailTemplate
+from ..constants import SETTING_EMAILCAMPAIGN_SENDER  # MAIL_STATUS_NOTSENT
 from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPE_DEFERRED # SENDING_TYPES SENDING_STATE_PLANNED
 
 
@@ -45,8 +44,6 @@ logger = logging.getLogger(__name__)
 
 class SendingCreateForm(CremeModelForm):
     sender       = EmailField(label=_(u"Sender address"))
-#    type         = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
-#    template     = CreatorEntityField(label=_(u'Email template'), model=EmailTemplate)
     template     = CreatorEntityField(label=_(u'Email template'), model=get_emailtemplate_model())
     sending_date = DateTimeField(label=_(u"Sending date"), required=False, widget=CalendarWidget,
                                  help_text=_(u"Required only of the sending is deferred."))
@@ -61,7 +58,6 @@ class SendingCreateForm(CremeModelForm):
 
     class Meta:
         model   = EmailSending
-        #exclude = ('campaign', 'state', 'subject', 'body', 'body_html', 'signature', 'attachments') #'fields' instead
         exclude = ()
 
     def __init__(self, entity, *args, **kwargs):
@@ -110,9 +106,6 @@ class SendingCreateForm(CremeModelForm):
             if sending_date is None:
                 self.add_error('sending_date', _(u"Sending date required for a deferred sending"))
             else:
-#                sending_date = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
-#                                                    minute=int(cleaned_data.get('minute') or 0),
-#                                                   )
                 get_data = cleaned_data.get
                 sending_date = make_aware_dt(datetime.combine(sending_date,
                                                               time(hour=int(get_data('hour') or 0),
@@ -130,7 +123,7 @@ class SendingCreateForm(CremeModelForm):
 
         return cleaned_data
 
-    def _get_variables(self, body): # TODO: move in Emailtemplate ??
+    def _get_variables(self, body):  # TODO: move in Emailtemplate ??
         return (varnode.filter_expression.var.var
                     for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode)
                )
@@ -166,8 +159,6 @@ class SendingCreateForm(CremeModelForm):
 
         for address, recipient_entity in instance.campaign.all_recipients():
             mail = LightWeightEmail(sending=instance,
-#                                    reads=0,
-#                                    status=MAIL_STATUS_NOTSENT,
                                     sender=instance.sender,
                                     recipient=address,
                                     sending_date=instance.sending_date,
@@ -180,7 +171,9 @@ class SendingCreateForm(CremeModelForm):
                 for varname in varlist:
                     val = getattr(recipient_entity, varname, None)
                     if val:
-                        context[varname] = val.encode('utf-8') # TODO: unicode(val).encode('utf-8') ? if val is an fk it doesn't have attribute encode...(civility)
+                        # TODO: unicode(val).encode('utf-8') ?
+                        #       (if val is an fk it doesn't have attribute encode...(civility))
+                        context[varname] = val.encode('utf-8')
 
                 if context:
                     mail.body = dumps(context)
