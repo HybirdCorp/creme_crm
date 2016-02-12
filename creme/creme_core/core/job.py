@@ -23,8 +23,6 @@ from __future__ import print_function
 from collections import deque
 from heapq import heappush, heappop, heapify
 import logging
-import subprocess
-from sys import executable as PYTHON_BIN
 from uuid import uuid1
 
 from django.conf import settings
@@ -37,6 +35,7 @@ from ..creme_jobs.base import JobType
 from ..global_info import set_global_info
 from ..models import Job
 from ..utils.imports import find_n_import
+from ..utils.system import python_subprocess, enable_exit_handler
 
 
 logger = logging.getLogger(__name__)
@@ -347,17 +346,21 @@ class JobManager(object):
     def _start_job(self, job):
         logger.info('JobManager: start %s', repr(job))
 
-        prog = 'import django; ' \
-               'django.setup(); ' \
-               'from creme.creme_core.core.job import job_type_registry; ' \
-               'job_type_registry(%s)' % job.id
-        self._procs[job.id] = subprocess.Popen([PYTHON_BIN, '-c', prog])
+        self._procs[job.id] = python_subprocess('import django; '
+                                                'django.setup(); '
+                                                'from creme.creme_core.core.job import job_type_registry; '
+                                                'job_type_registry(%s)' % job.id
+                                               )
 
     def _end_job(self, job):
         logger.info('JobManager: end %s', repr(job))
         proc = self._procs.pop(job.id, None)
         if proc is not None:
             proc.wait()  # TODO: use return code ??
+
+    def _handle_kill(self, *args):
+        logger.info('Job manager stops: %d running job(s)', len(self._procs))
+        exit()
 
     def start(self, verbose=True):
         logger.info('Job manager starts')
@@ -393,6 +396,8 @@ class JobManager(object):
                                 ' (pseudo-)periodic -> job is ignored.', repr(job)
                                )
 
+        enable_exit_handler(self._handle_kill)
+
         if verbose:
             if system_jobs:
                 print('System jobs:')
@@ -410,6 +415,8 @@ class JobManager(object):
                     print(u' - %s (user=%s)' % (job, job.user))
             else:
                 print('No user job at the moment.')
+
+            print('\nQuit the server with CTRL-BREAK.')
 
         MAX_USER_JOBS = self._max_user_jobs
 
