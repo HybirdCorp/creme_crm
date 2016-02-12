@@ -134,8 +134,8 @@ class EmailSending(CremeModel):
         except ImageFromHTMLError as e:
             # activate(settings.LANGUAGE_CODE)
             send_mail(ugettext('[CremeCRM] Campaign email sending error.'),
-                      ugettext("Emails in the sending of the campaign «%(campaign)s» on %(date)s weren't sent "
-                               "because the image «%(image)s» is no longer available in the template.") % {
+                      ugettext(u"Emails in the sending of the campaign «%(campaign)s» on %(date)s weren't sent "
+                               u"because the image «%(image)s» is no longer available in the template.") % {
                             'campaign': self.campaign,
                             'date':     self.sending_date,
                             'image':    e.filename,
