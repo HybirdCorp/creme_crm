@@ -429,6 +429,10 @@
     padding: 0;
 }
 
+.list_view tbody .lv-cell-action .forbidden {
+    visibility: hidden;
+}
+
 .list_view .left_align.lv-cell-content {
     text-align: left;
     margin-left: 0px;
