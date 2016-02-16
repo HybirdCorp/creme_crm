@@ -87,7 +87,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         }
     ],
 
-    _init_: function (map_container)
+    _init_: function ()
     {
         this.defaultZoomValue = 12;
         this.defaultLat = 48;
@@ -99,24 +99,54 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         this.geocoder = new google.maps.Geocoder();
         this.marker_manager = new creme.geolocation.GoogleMapMarkerManager(this);
         this.shape_manager = new creme.geolocation.GoogleMapShapeRegistry(this);
+    },
 
-        var mapStyleIds = this.MAPSTYLES.map(function(style) {return style.id})
-                                        .concat(google.maps.MapTypeId.SATELLITE);
+    enableMap: function(container, styles)
+    {
+        if (this.isMapEnabled()) {
+            return this;
+        }
 
-        var map = this.map = new google.maps.Map(map_container, {
-                                                     zoom: this.defaultZoomValue,
-                                                     mapTypeControlOptions: {
-                                                         mapTypeIds: mapStyleIds
-                                                     }
-                                                 });
+        var styles = styles || this.MAPSTYLES.slice();
+        var styleIds = styles.map(function(style) {return style.id})
+                             .concat(google.maps.MapTypeId.SATELLITE);
 
-        this.MAPSTYLES.forEach(function(style) {
+        var map = this.map = new google.maps.Map(container, {
+            zoom: this.defaultZoomValue,
+            mapTypeControlOptions: {
+                mapTypeIds: styleIds
+            }
+        });
+
+        styles.forEach(function(style) {
             map.mapTypes.set(style.id, new google.maps.StyledMapType(style.style, {name: style.label}));
         });
 
-        map.setMapTypeId(mapStyleIds[0]);
+        map.setMapTypeId(styleIds[0]);
 
+        this.mapContainer = container;
+
+        this.resize();
         this.adjustMap();
+        return this;
+    },
+
+    disableMap: function()
+    {
+        if (!this.isMapEnabled()) {
+            return this;
+        }
+
+        delete this.map;
+
+        this.mapContainer.empty();
+        this.mapContainer = undefined;
+
+        return this;
+    },
+
+    isMapEnabled: function() {
+        return Object.isNone(this.map) === false;
     },
 
     on: function(event, listener, decorator) {
@@ -136,6 +166,10 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 
     adjustMap: function()
     {
+        if (!this.isMapEnabled()) {
+            return this;
+        }
+
         var n_markers = this.marker_manager.count(true);
 
         if (n_markers == 0) {
@@ -151,6 +185,8 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                 this.map.fitBounds(boundbox);
             }
         }
+
+        return this;
     },
 
     _isPartialMatch: function(results)
@@ -212,6 +248,8 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                 }
             }
         });
+
+        return this;
     },
 
     saveLocation: function (marker, options, geocoded, status)
@@ -231,11 +269,13 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                               self._events.trigger('save-location', [options.address, marker, status])
                           })
                   .post();
+
+        return this;
     },
 
     findLocation: function (address, options)
     {
-        this.geocode({
+        return this.geocode({
             address:   address,
             draggable: options.draggable,
             data:      {address: address.content},
@@ -254,6 +294,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 
     resize: function() {
         google.maps.event.trigger(this.map, 'resize');
+        return this;
     }
 });
 
