@@ -11,7 +11,7 @@
 {% block entity_buttons %}
     {% comment %}{% if path %}{% endcomment %}
         {% get_edit_button object user %}
-        {% if object.is_deleted %}&nbsp;{% get_restore_button object user %}</li>{% endif %}
+        {% if object.is_deleted %}&nbsp;{% get_restore_button object user %}{% endif %}
         &nbsp;
         {% block delete_button %}{% get_delete_button object user %}{% endblock %}
     {% comment %}{% endif %}{% endcomment %}
