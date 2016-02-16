@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-09 12:33+0100\n"
+"POT-Creation-Date: 2016-02-16 12:33+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2001,6 +2001,44 @@ msgid "%(counter)s entity has been successfully modified."
 msgid_plural "%(counter)s entities have been successfully modified."
 msgstr[0] "%(counter)s fiche a été modifiée avec succès."
 msgstr[1] "%(counter)s fiches ont été modifiées avec succès."
+
+#: view/entity.py:302
+#, c-format
+msgid "%%s %s has been selected."
+msgstr "%%s %s a été sélectionné."
+
+#: view/entity.py:302
+#, c-format
+msgid "%%s %s have been selected."
+msgstr "%%s %s ont été sélectionnés."
+
+#: view/entity.py:268
+#, python-format
+msgid "%(success)s of %(initial)s %(model)s has been successfully modified."
+msgid_plural "%(success)s of %(initial)s %(model)s have been successfully modified."
+msgstr[0] "%(success)s %(model)s sur %(initial)s a été modifié avec succès."
+msgstr[1] "%(success)s %(model)s sur %(initial)s ont été modifiés avec succès."
+
+#: view/entity.py:273
+#, python-format
+msgid "%(success)s %(model)s has been successfully modified."
+msgid_plural "%(success)s %(model)s have been successfully modified."
+msgstr[0] "%(success)s %(model)s a été modifié avec succès."
+msgstr[1] "%(success)s %(model)s ont été modifiés avec succès."
+
+#: view/entity.py:273
+#, python-format
+msgid "%(unallowed)s was not editable."
+msgid_plural "%(unallowed)s were not editable."
+msgstr[0] "%(unallowed)s n'est pas modifiable."
+msgstr[1] "%(unallowed)s ne sont pas modifiables."
+
+#: view/entity.py:273
+#, python-format
+msgid "%(invalid)s has returned an error."
+msgid_plural "%(invalid)s have returned an error."
+msgstr[0] "%(invalid)s a retourné une erreur."
+msgstr[1] "%(invalid)s ont retourné une erreur."
 
 #: templates/creme_core/batch_process_report.html:29
 #: templates/creme_core/frags/bulk_process_report.html:18

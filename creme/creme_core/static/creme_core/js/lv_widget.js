@@ -132,7 +132,9 @@ creme.lv_widget.editSelectedLines = function(list, url) {
         return;
     }
 
-    var dialog = creme.dialogs.form(url.format(selection.join(',')), {});
+    var dialog = creme.dialogs.form(url, {
+                                       submitData: {entities: selection}
+                                    });
 
     dialog.onFormSuccess(function(event, data) {
               list.list_view('reload');
@@ -147,6 +149,15 @@ creme.lv_widget.editSelectedLines = function(list, url) {
           .onClose(function() {
               if (this._bulk_edit_done) {
                   list.list_view('reload');
+              }
+           })
+          .on('frame-update', function(event, frame) {
+              var summary = $('.bulk-selection-summary', frame.delegate());
+
+              if (summary.length) {
+                  var count = selection.length;
+                  var content = ngettext(summary.attr('data-msg'), summary.attr('data-msg-plural'), count);
+                  summary.text(content.format(selection.length));
               }
           })
           .open({width:800});

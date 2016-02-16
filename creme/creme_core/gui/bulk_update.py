@@ -256,11 +256,11 @@ class _BulkUpdateRegistry(object):
             subfield = substatus.get_field(subfield_name)
             form = substatus.get_form(subfield_name, default)
 
-            return partial(form, field=subfield, parent_field=field) if form else None
+            return partial(form, model=model, field=subfield, parent_field=field) if form else None
 
         field = status.get_field(field_basename)
         form = status.get_form(field_basename, default)
-        return partial(form, field=field) if form else None
+        return partial(form, model=model, field=field) if form else None
 
     def is_updatable(self, model, field_name, exclude_unique=True):
         try:
