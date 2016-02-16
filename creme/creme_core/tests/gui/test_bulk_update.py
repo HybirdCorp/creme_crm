@@ -425,13 +425,13 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         contact = Contact.objects.create(first_name='A', last_name='B', user=user)
 
-        form = BulkDefaultEditForm(civility_field, user, [contact])
+        form = BulkDefaultEditForm(Contact, civility_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
         self.assertQuerysetSQLEqual(Civility.objects.all(), form.fields['field_value'].queryset)
 
         civility_field.limit_choices_to = {'title': _('Mister')}
 
-        form = BulkDefaultEditForm(civility_field, user, [contact])
+        form = BulkDefaultEditForm(Contact, civility_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
         self.assertQuerysetSQLEqual(Civility.objects.filter(title=_('Mister')),
                                     form.fields['field_value'].queryset
@@ -439,7 +439,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         civility_field.limit_choices_to = ~Q(**{'title': _('Mister')})
 
-        form = BulkDefaultEditForm(civility_field, user, [contact])
+        form = BulkDefaultEditForm(Contact, civility_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
         self.assertQuerysetSQLEqual(Civility.objects.exclude(title=_('Mister')),
                                     form.fields['field_value'].queryset
@@ -447,7 +447,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         civility_field.limit_choices_to = lambda: {'title': _('Miss')}
 
-        form = BulkDefaultEditForm(civility_field, user, [contact])
+        form = BulkDefaultEditForm(Contact, civility_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
         self.assertQuerysetSQLEqual(Civility.objects.filter(title=_('Miss')),
                                     form.fields['field_value'].queryset
@@ -464,20 +464,20 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         contact = Contact.objects.create(first_name='A', last_name='B', user=user)
 
-        form = BulkDefaultEditForm(image_field, user, [contact])
+        form = BulkDefaultEditForm(Contact, image_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
         self.assertIsNone(form.fields['field_value'].q_filter)
 
         image_field.limit_choices_to = {'name': 'A'}
 
-        form = BulkDefaultEditForm(image_field, user, [contact])
+        form = BulkDefaultEditForm(Contact, image_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
         self.assertDictEqual({'name': 'A'}, form.fields['field_value'].q_filter)
 
         image_field.limit_choices_to = ~Q(**{'name': 'B'})
 
         with self.assertRaises(ValueError) as err:
-            BulkDefaultEditForm(image_field, user, [contact])
+            BulkDefaultEditForm(Contact, image_field, user, [contact])
 
         self.assertEqual(str(err.exception),
                          'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.'
@@ -486,7 +486,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         today = datetime.today()
         image_field.limit_choices_to = lambda: {'created__lte': today}
 
-        form = BulkDefaultEditForm(image_field, user, [contact])
+        form = BulkDefaultEditForm(Contact, image_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
         self.assertDictEqual({'created__lte': today}, form.fields['field_value'].q_filter)
 
@@ -501,7 +501,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         image = Image.objects.create(name='A', user=user)
 
-        form = BulkDefaultEditForm(categories_field, user, [image])
+        form = BulkDefaultEditForm(Image, categories_field, user, [image])
         self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
         self.assertQuerysetSQLEqual(ImageCategory.objects.all(),
                                     form.fields['field_value'].queryset
@@ -509,7 +509,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         categories_field.limit_choices_to = {'name': 'A'}
 
-        form = BulkDefaultEditForm(categories_field, user, [image])
+        form = BulkDefaultEditForm(Image, categories_field, user, [image])
         self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
         self.assertQuerysetSQLEqual(ImageCategory.objects.filter(name='A'),
                                     form.fields['field_value'].queryset
@@ -517,7 +517,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         categories_field.limit_choices_to = ~Q(**{'name': 'A'})
 
-        form = BulkDefaultEditForm(categories_field, user, [image])
+        form = BulkDefaultEditForm(Image, categories_field, user, [image])
         self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
         self.assertQuerysetSQLEqual(ImageCategory.objects.exclude(name='A'),
                                     form.fields['field_value'].queryset
@@ -525,7 +525,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         categories_field.limit_choices_to = lambda: {'name': 'B'}
 
-        form = BulkDefaultEditForm(categories_field, user, [image])
+        form = BulkDefaultEditForm(Image, categories_field, user, [image])
         self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
         self.assertQuerysetSQLEqual(ImageCategory.objects.filter(name='B'),
                                     form.fields['field_value'].queryset
@@ -542,27 +542,27 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         campaign = EmailCampaign.objects.create(name='A', user=user)
 
-        form = BulkDefaultEditForm(mailing_lists_field, user, [campaign])
+        form = BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
         self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
         self.assertIsNone(form.fields['field_value'].q_filter)
 
         mailing_lists_field.limit_choices_to = {'name': 'A'}
 
-        form = BulkDefaultEditForm(mailing_lists_field, user, [campaign])
+        form = BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
         self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
         self.assertDictEqual({'name': 'A'}, form.fields['field_value'].q_filter)
 
         mailing_lists_field.limit_choices_to = ~Q(**{'name': 'A'})
 
         with self.assertRaises(ValueError) as err:
-            BulkDefaultEditForm(mailing_lists_field, user, [campaign])
+            BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
 
         self.assertEqual(str(err.exception), 'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
 
         today = datetime.today()
         mailing_lists_field.limit_choices_to = lambda: {'created__lte': today}
 
-        form = BulkDefaultEditForm(mailing_lists_field, user, [campaign])
+        form = BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
         self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
         self.assertDictEqual({'created__lte': today}, form.fields['field_value'].q_filter)
 

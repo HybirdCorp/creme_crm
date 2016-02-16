@@ -63,23 +63,21 @@ class BulkFieldSelectWidget(Select):
 
 
 class BulkForm(CremeForm):
-    def __init__(self, field, user, entities, is_bulk, parent_field=None, **kwargs):
+    def __init__(self, model, field, user, entities, is_bulk, parent_field=None, **kwargs):
         super(BulkForm, self).__init__(user, **kwargs)
-        is_subfield = parent_field is not None
-
         self.is_bulk = is_bulk
-        self.is_subfield = is_subfield
-        self.is_custom = isinstance(field, CustomField)
+        self.is_subfield = is_subfield = parent_field is not None
+        self.is_custom = is_custom = isinstance(field, CustomField)
 
-        self.field_name = field.name if not self.is_custom else 'customfield-%d' % field.pk
+        self.field_name = field.name if not is_custom else _CUSTOMFIELD_FORMAT % field.pk
+        self.model = model
         self.model_field = field
         self.model_parent_field = parent_field
         self.entities = entities
 
         if is_bulk:
-            choices_model = parent_field.model if is_subfield else entities[0].__class__
-            choices = self._bulk_model_choices(choices_model, entities)
-            initial = self._bulk_url(choices_model,
+            choices = self._bulk_model_choices(model, entities)
+            initial = self._bulk_url(model,
                                      parent_field.name + '__' + self.field_name if is_subfield else self.field_name,
                                      entities,
                                     )
@@ -92,9 +90,8 @@ class BulkForm(CremeForm):
                                                         )
 
     def _bulk_url(self, model, fieldname, entities):
-        return '/creme_core/entity/edit/bulk/%s/%s/field/%s' % (
+        return '/creme_core/entity/update/bulk/%s/field/%s' % (
                     ContentType.objects.get_for_model(model).pk,
-                    ','.join(str(e.pk) for e in entities),
                     fieldname,
                 )
 
@@ -261,8 +258,8 @@ class BulkForm(CremeForm):
 
 
 class BulkDefaultEditForm(BulkForm):
-    def __init__(self, field, user, entities, is_bulk=False, **kwargs):
-        super(BulkDefaultEditForm, self).__init__(field, user, entities, is_bulk, **kwargs)
+    def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
+        super(BulkDefaultEditForm, self).__init__(model, field, user, entities, is_bulk, **kwargs)
 
         instance = entities[0] if not is_bulk else None
         form_field = self._bulk_formfield(user, instance)
@@ -308,7 +305,7 @@ class BulkDefaultEditForm(BulkForm):
         entities = self.bulk_cleaned_entities
         field_value = self.cleaned_data['field_value']
 
-        if self.is_custom:
+        if self.is_custom and entities:
             CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)
         else:
             for entity in entities:

@@ -12,6 +12,7 @@
 
 {% with form.bulk_invalid_entities as errors %}
     {% if errors %}
+        <div class="help_box">{{summary|linebreaksbr}}</div>
         {% with count=errors|length %}
             <table class="table_detail_view ui-corner-all with-header">
                 {% get_block_header colspan=2 %}
@@ -48,6 +49,6 @@
             </table>
         {% endwith %}
     {% else %}
-        <p>{% trans "No error when processing." %}</p>
+        <p>{{summary|linebreaksbr}}</p>
     {% endif %}
 {% endwith %}

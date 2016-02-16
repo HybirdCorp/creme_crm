@@ -186,8 +186,8 @@ class BulkEditTypeForm(BulkDefaultEditForm):
         'immutable_indispo': _('The type of an indisponibility cannot be changed.'),
     }
 
-    def __init__(self, field, user, entities, is_bulk=False, **kwargs):
-        super(BulkEditTypeForm, self).__init__(field, user, entities, is_bulk=is_bulk, **kwargs)
+    def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
+        super(BulkEditTypeForm, self).__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
         self.fields['field_value'] = type_selector = \
                     ActivityTypeField(label=_(u'Type'),
                                       types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),

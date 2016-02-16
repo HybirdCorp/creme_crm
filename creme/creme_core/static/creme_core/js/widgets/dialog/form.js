@@ -24,7 +24,8 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         var self = this;
         var options = $.extend({
                 autoFocus: true,
-                submitOnKey: 13
+                submitOnKey: 13,
+                submitData: {}
             }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
@@ -90,7 +91,10 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             return this;
         }
 
-        this.frame().submit('', {}, form, this._submitListeners);
+        var data = this.options.submitData || {};
+        data = Object.isFunc(data) ? data(this) : data;
+
+        this.frame().submit('', {data: data}, form, this._submitListeners);
         return this;
     },
 
@@ -135,7 +139,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     _onSubmitKey: function(e) {
         if (e.keyCode === this.options.submitOnKey && $(e.target).is(':not(textarea)')) {
             e.preventDefault();
-            this.submit();
+            this.submit($(e.target), e);
         }
     },
 

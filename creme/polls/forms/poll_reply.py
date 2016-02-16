@@ -247,8 +247,8 @@ class PollReplyFillForm(CremeForm):
 
 
 class InnerEditPersonForm(BulkDefaultEditForm):
-    def __init__(self, field, user=None, entities=(), is_bulk=False, **kwargs):
-        super(InnerEditPersonForm, self).__init__(field, user, entities, is_bulk, **kwargs)
+    def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
+        super(InnerEditPersonForm, self).__init__(model, field, user, entities, is_bulk, **kwargs)
         person_field = GenericEntityField(label=_(u'Person who filled'),
                                           required=False,
                                           models=[Organisation, Contact],

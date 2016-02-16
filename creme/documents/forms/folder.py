@@ -82,8 +82,8 @@ class ChildFolderForm(_FolderForm):
 
 
 class ParentFolderBulkForm(BulkDefaultEditForm):
-    def __init__(self, field, user, entities, is_bulk=False, **kwargs):
-        super(ParentFolderBulkForm, self).__init__(field, user, entities, is_bulk=is_bulk, **kwargs)
+    def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
+        super(ParentFolderBulkForm, self).__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
 
         if len(entities) == 1:
             # TODO: like above -> remove direct children too ??

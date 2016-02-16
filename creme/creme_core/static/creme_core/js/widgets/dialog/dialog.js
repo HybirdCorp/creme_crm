@@ -131,8 +131,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         if (!Object.isEmpty(options.url)) {
-            var data = Object.isFunc(options.data) ? options.data(this) : options.data || {};
-            this.fetch(options.url, {}, data);
+            this.fetch(options.url);
         } else if (!Object.isEmpty(options.html)) {
             this.fill(options.html);
         }
@@ -153,6 +152,13 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         delegate.width(body.width() - (delegate.position().left + (body.outerWidth() - body.width())));
         this._events.trigger('resize', [delegate.width(), delegate.height()], this);
+    },
+
+    _frameFetchData: function(data)
+    {
+        var options = this.options;
+        var fetchData = Object.isFunc(options.data) ? options.data.bind(this)(options, data) : options.data || {};
+        return $.extend({}, fetchData, data);
     },
 
     _frameActionLinkButtons: function(options)
@@ -324,7 +330,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     fetch: function(url, options, data, listeners) {
-        this._frame.fetch(url, options, data, listeners);
+        this._frame.fetch(url, options, this._frameFetchData(data), listeners);
         return this;
     },
 

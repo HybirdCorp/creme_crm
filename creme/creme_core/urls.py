@@ -23,6 +23,7 @@ entity_patterns = [
     url(r'^get_info_fields/(?P<ct_id>\d+)/json$',                          entity.get_info_fields),
     url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)$',            entity.inner_edit_field),
     url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)(/field/(?P<field_name>[\w-]+))?$', entity.bulk_edit_field),
+    url(r'^update/bulk/(?P<ct_id>\d+)(/field/(?P<field_name>[\w-]+))?$',                    entity.bulk_update_field),
     url(r'^clone',                                                         entity.clone),
     url(r'^merge/select_other/(?P<entity1_id>\d+)$',                       entity.select_entity_for_merge),
     url(r'^merge/(?P<entity1_id>\d+),(?P<entity2_id>\d+)$',                entity.merge),
