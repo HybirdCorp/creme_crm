@@ -32,14 +32,20 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
         var self = this;
 
         this._block = block;
-        var controller = this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
         this._addresses = addresses;
+
+        var controller = this._controller = new creme.geolocation.GoogleMapController();
+        var container = $('.block-geoaddress-canvas', block);
+
+        if (container.length) {
+            controller.enableMap(container.get(0));
+        }
 
         $('.block-geoaddress-item .block-geoaddress-reset', block).click(this._onRefreshLocation.bind(this));
 
         addresses.forEach(this._geocodeAddress.bind(this));
 
-        this._controller.on('save-location', function(event, address, marker, status) {
+        controller.on('save-location', function(event, address, marker, status) {
             self._showPosition(address.id, marker);
             self._showStatus(address.id, status);
 
@@ -52,7 +58,7 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
                                                                  .change(this._onToggleLocation.bind(this));
 
         block.bind('creme-table-collapse', function(e, status) {
-            if (status.action == 'show') {
+            if (status.action === 'show') {
                 controller.resize();
                 controller.adjustMap();
             }
@@ -146,10 +152,15 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
 creme.geolocation.AddressesBlock = creme.component.Component.sub({
     _init_: function(block)
     {
-        var controller = this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
+        var controller = this._controller = new creme.geolocation.GoogleMapController();
         var filterSelector = this._filterSelector = $('.block-geoaddress-filter', block);
+        var container = $('.block-geoaddress-canvas', block);
 
         filterSelector.change(this._onFilterChange.bind(this));
+
+        if (container.length) {
+            controller.enableMap(container.get(0));
+        }
 
         this._updateFilter(filterSelector.val());
 
@@ -234,9 +245,16 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
 creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
     _init_: function(block, radius)
     {
-        var controller = this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
+
+        var controller = this._controller = new creme.geolocation.GoogleMapController();
         this._radius = radius;
         this._block = block;
+
+        var container = $('.block-geoaddress-canvas', block);
+
+        if (container.length) {
+            controller.enableMap(container.get(0));
+        }
 
         this._sourceSelector = $('.block-geoaddress-source', block).change(this._onChange.bind(this));
         this._filterSelector = $('.block-geoaddress-filter', block).change(this._onChange.bind(this));
@@ -271,32 +289,58 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
                   .get();
     },
 
-    _updateNeighbours: function(source, addresses)
+    _clearNeighbours: function()
     {
         var controller = this._controller;
-        var sourceMarker = controller.marker_manager.get(source.id);
-
         controller.marker_manager.hideAll();
-
-        if (!sourceMarker)
-        {
-            if (controller.isAddressLocated(source))
-            {
-                sourceMarker = controller.marker_manager.Marker({
-                                                             address: source,
-                                                             draggable: false,
-                                                             icon: {
-                                                                 path: google.maps.SymbolPath.CIRCLE,
-                                                                 scale: 5
-                                                             },
-                                                         });
-            }
-        } else {
-            sourceMarker.setVisible(true);
-        }
 
         if (controller.shape_manager.get('NeighbourhoodCircle')) {
             controller.shape_manager.unregister('NeighbourhoodCircle');
+        }
+    },
+
+    _updateMarker: function(address, options)
+    {
+        if (Object.isNone(address)) {
+            return;
+        }
+
+        var controller = this._controller;
+        var marker = controller.marker_manager.get(address.id);
+
+        if (controller.isAddressLocated(address))
+        {
+            if (marker) {
+                marker.setPosition(new google.maps.LatLng(address.latitude, address.longitude));
+            } else {
+                var options = $.extend({
+                                    address: address,
+                                    draggable: false
+                                }, options || {});
+
+                marker = controller.marker_manager.Marker(options);
+            }
+
+            marker.setVisible(true);
+        }
+
+        return marker;
+    },
+
+    _updateNeighbours: function(source, addresses)
+    {
+        this._clearNeighbours();
+
+        var controller = this._controller;
+        var sourceMarker = this._updateMarker(source, {
+                                                  icon: {
+                                                      path: google.maps.SymbolPath.CIRCLE,
+                                                      scale: 5
+                                                  }
+                                              });
+
+        if (!sourceMarker) {
+            return this;
         }
 
         controller.shape_manager.register('NeighbourhoodCircle',
@@ -313,24 +357,10 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
 
         this._showCount(addresses.length);
 
+        var addressMarker = this._updateMarker.bind(this);
+
         addresses.forEach(function(address) {
-            var marker = controller.marker_manager.get(address.id);
-
-            if (!marker) {
-                if (controller.isAddressLocated(address)) {
-                    marker = controller.marker_manager.Marker({
-                                                                address:   address,
-                                                                draggable: false,
-                                                                redirect:  address.url
-                                                              });
-                }
-            } else {
-                if (controller.isAddressLocated(address)) {
-                    marker.setPosition(new google.maps.LatLng(address.latitude, address.longitude))
-                }
-
-                marker.setVisible(true);
-            }
+            addressMarker(address, {redirect: address.url});
         });
 
         controller.shape_manager.adjustMap('NeighbourhoodCircle');
@@ -351,7 +381,7 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
     },
 
     _onChange: function(event) {
-        this._queryNeighbours(this._sourceSelector.val(), this._filterSelector.val())
+        this._queryNeighbours(this._sourceSelector.val(), this._filterSelector.val());
     },
 
     _showCount: function(count)

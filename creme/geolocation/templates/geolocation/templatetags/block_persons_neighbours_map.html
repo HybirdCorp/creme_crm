@@ -15,6 +15,7 @@
     {% end_get_block_header %}
 
     <tbody class="collapsable">
+        {% if ref_addresses %}
         <tr class="content">
             <td class="block-geoaddress-header">
                 <span class="block-geoaddress-counter">{% trans "None of" %}</span>&nbsp;
@@ -44,5 +45,10 @@
         <tr class="content">
             <td class="block-geoaddress-canvas"></td>
         </tr>
+        {% else %}
+        <tr class="content empty">
+            <td class="block_line_dark">{% trans 'No address defined for now' %}</td>
+        </tr>
+        {% endif %}
     </tbody>
 </table>

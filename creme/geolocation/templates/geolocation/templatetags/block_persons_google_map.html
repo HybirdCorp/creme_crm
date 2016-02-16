@@ -10,6 +10,7 @@
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
+        {% if addresses %}
         <tr class="content">
             <td class="block-geoaddress-header">
                 <div class="block-geoaddress-items">
@@ -38,8 +39,6 @@
                             </span>
                         </div>
                     </div>
-                {% empty %}
-                    {% trans 'No address defined for now' %}
                 {% endfor %}
                 </div>
             </td>
@@ -47,5 +46,10 @@
         <tr class="content">
             <td class="block-geoaddress-canvas"></td>
         </tr>
+        {% else %}
+        <tr class="content empty">
+            <td class="block_line_dark">{% trans 'No address defined for now' %}</td>
+        </tr>
+        {% endif %}
     </tbody>
 </table>
