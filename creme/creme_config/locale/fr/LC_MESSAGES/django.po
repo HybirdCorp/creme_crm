@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-11 09:38+0100\n"
+"POT-Creation-Date: 2016-02-22 15:20+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -46,7 +46,7 @@ msgstr "Gestion des blocs"
 
 #: apps.py:51 templates/creme_config/portal.html:35
 #: templates/creme_config/portal.html:37
-msgid "Default prefered menu settings"
+msgid "Default preferred menu settings"
 msgstr "Gestion du menu rapide par défaut"
 
 #: apps.py:52 templates/creme_config/portal.html:42
@@ -1164,17 +1164,17 @@ msgstr "Aucune équipe pour le moment"
 
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:5
 #, python-format
-msgid "My %s Prefered menu"
+msgid "My %s Preferred menu"
 msgstr "Mes %s menu préféré"
 
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:5
 #, python-format
-msgid "My %s Prefered menus"
+msgid "My %s Preferred menus"
 msgstr "Mes %s menus préférés"
 
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:11
-#: views/prefered_menu.py:60
-msgid "Edit my prefered menus"
+#: views/prefered_menu.py:65
+msgid "Edit my preferred menus"
 msgstr "Modifier mes menus préférés"
 
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:20
@@ -1182,7 +1182,7 @@ msgid "Order"
 msgstr "Ordre"
 
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:30
-msgid "You have no prefered menu for the moment"
+msgid "You have no preferred menu for the moment"
 msgstr "Vous n'avez aucun menu préféré pour le moment"
 
 #: templates/creme_config/templatetags/block_user_roles.html:6
@@ -1348,7 +1348,7 @@ msgstr "Modifier la configuration de portail pour «%s»"
 # Already in creme_core
 #: views/blocks.py:175 views/blocks.py:195 views/blocks.py:244
 #: views/button_menu.py:72 views/creme_property_type.py:61
-#: views/prefered_menu.py:61 views/relation_type.py:73
+#: views/prefered_menu.py:66 views/relation_type.py:73
 msgid "Save the modifications"
 msgstr ""
 
@@ -1407,6 +1407,10 @@ msgstr "Nouvelle valeur : %s"
 #, python-format
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut pas être effacé à cause de ses dépendances."
+
+#: views/prefered_menu.py:45
+msgid "Edit the default preferred menu"
+msgstr "Modifier le menu rapide par défaut"
 
 #: views/relation_type.py:42 views/relation_type.py:50
 msgid "Save the type"
@@ -1564,7 +1568,7 @@ msgstr "Supprimer le rôle"
 #~ msgid "Default credentials"
 #~ msgstr "Droits par défaut"
 
-#~ msgid "My prefered menus"
+#~ msgid "My preferred menus"
 #~ msgstr "Mes menus préférés"
 
 #~ msgid "Blocks configuration"

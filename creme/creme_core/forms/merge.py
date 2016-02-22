@@ -139,7 +139,7 @@ class MergeEntitiesBaseForm(CremeForm):
         entity1_initial = build_initial(entity1)
         entity2_initial = build_initial(entity2)
 
-        # The older entity is prefered
+        # The older entity is preferred
         initial_index = 0 if entity1.modified <= entity2.modified else 1
 
         for name, field in fields.iteritems():
@@ -147,7 +147,7 @@ class MergeEntitiesBaseForm(CremeForm):
                 field.initial = (unicode(entity1), unicode(entity2), _('Merged entity'))
             else:
                 initial = [entity1_initial[name], entity2_initial[name]]
-                # We try to initialize with prefered one, but we use the other if it is empty.
+                # We try to initialize with preferred one, but we use the other if it is empty.
                 initial.append(initial[initial_index] or initial[1 - initial_index])
                 field.set_merge_initial(initial)
 

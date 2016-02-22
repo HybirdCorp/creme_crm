@@ -624,7 +624,7 @@ class UserRolesBlock(_ConfigAdminBlock):
 class UserPreferedMenusBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'user_prefered_menus')
     dependencies  = (PreferedMenuItem,)
-    verbose_name  = u'My prefered menus'
+    verbose_name  = u'My preferred menus'
     template_name = 'creme_config/templatetags/block_user_prefered_menus.html'
     configurable  = False
     order_by      = 'order'

@@ -1,6 +1,6 @@
 {% load i18n %}
 <div id="preferred_menu">
-    <strong>{% trans "Prefered menu:" %} </strong>
+    <strong>{% trans "Preferred menu:" %} </strong>
     {% for item in items %}
         <a class="item" href="{{item.url}}">{{item.translated_label}}</a> &nbsp; &nbsp;
     {% endfor %}

@@ -32,9 +32,9 @@
             <tr class="content">
                 <td class="{% cycle row_color %}">{% has_perm_to admin 'creme_core' as admin_perm %}
                     {% if admin_perm %}
-                        <a href="/creme_config/prefered_menu/edit/">{% trans "Default prefered menu settings" %}</a>
+                        <a href="/creme_config/prefered_menu/edit/">{% trans "Default preferred menu settings" %}</a>
                     {% else %}
-                        <span class="forbidden">{% trans "Default prefered menu settings" %}</a>
+                        <span class="forbidden">{% trans "Default preferred menu settings" %}</a>
                     {% endif %}
                 </td>
             </tr>

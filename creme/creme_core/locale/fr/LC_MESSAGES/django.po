@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-16 12:33+0100\n"
+"POT-Creation-Date: 2016-02-22 19:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2808,7 +2808,7 @@ msgid "Delete custom view"
 msgstr "Supprimer vue personnalisée"
 
 #: templates/creme_core/templatetags/prefered_menu.html:3
-msgid "Prefered menu:"
+msgid "Preferred menu:"
 msgstr "Menus rapides:"
 
 #: templates/creme_core/templatetags/quickforms_panel.html:4
