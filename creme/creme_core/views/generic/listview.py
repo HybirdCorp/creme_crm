@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,9 +56,11 @@ def _clean_value(value, converter, default=None):
 
 
 def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter, header_filter):
+    filtered = False
     queryset = model.objects.filter(is_deleted=False)
 
     if entity_filter:
+        filtered = True
         queryset = entity_filter.filter(queryset)
 
     if extra_q:
@@ -66,22 +68,43 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
             queryset = queryset.filter(extra_q)
         except Exception:
             logger.exception('Error when build the search queryset. Invalid q_filter.')
+        else:
+            filtered = True
 
-    list_view_state.extra_q = extra_q
+    list_view_state.extra_q = extra_q   # TODO: only if valid ?
+
     # TODO: method in ListViewState that returns the improved queryset
+    lv_state_q = list_view_state.get_q_with_research(model, header_filter.cells)
     try:
-        queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.cells))
+        queryset = queryset.filter(lv_state_q)
     except Exception:
         logger.exception('Error when build the search queryset.')
+    else:
+        if lv_state_q:
+            filtered = True
 
-    queryset = EntityCredentials.filter(request.user, queryset).distinct()
+    user = request.user
+    queryset = EntityCredentials.filter(user, queryset).distinct()
     queryset = list_view_state.sort_query(queryset)
 
-    return queryset
+    # If the query does not use the real entities' specific fields to filter,
+    # we perform a query on CremeEntity & so we avoid a JOIN.
+    count = queryset.count() if filtered else \
+            EntityCredentials.filter(user,
+                                     CremeEntity.objects.filter(
+                                         is_deleted=False,
+                                         entity_type=ContentType.objects.get_for_model(model),
+                                        )
+                                    ).count()
+
+    # return queryset
+    return queryset, count
 
 
-def _build_entities_page(request, list_view_state, queryset, size):
+# def _build_entities_page(request, list_view_state, queryset, size):
+def _build_entities_page(request, list_view_state, queryset, size, count):
     paginator = Paginator(queryset, size)
+    paginator._count = count
 
     try:
         page = int(request.POST.get('page'))
@@ -182,8 +205,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
 
     json_q_filter, extra_filter = _build_extrafilter(request, extra_q)
 
-    entities = _build_entity_queryset(request, model, current_lvs, extra_filter, efilter, hf)
-    entities = _build_entities_page(request, current_lvs, entities, rows)
+    entities, count = _build_entity_queryset(request, model, current_lvs, extra_filter, efilter, hf)
+    entities_page = _build_entities_page(request, current_lvs, entities, rows, count)
 
     current_lvs.register_in_session(request)
 
@@ -193,7 +216,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'sub_title':          '',
         'header_filters':     header_filters,
         'entity_filters':     entity_filters,
-        'entities':           entities,
+        'entities':           entities_page,
         'list_view_state':    current_lvs,
         'content_type':       ct,
         'content_type_id':    ct.id,
@@ -218,7 +241,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         post_process(template_dict, request)
 
     # Optimisation time !!
-    hf.populate_entities(entities.object_list)
+    hf.populate_entities(entities_page.object_list)
 
     return template, template_dict
 

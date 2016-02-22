@@ -4,6 +4,7 @@ try:
     from datetime import date, timedelta
     from functools import partial
 
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
 
@@ -24,6 +25,7 @@ try:
     from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.models.entity_filter import EntityFilterList
     from creme.creme_core.utils import safe_unicode
+    from creme.creme_core.utils.profiling import CaptureQueriesContext
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -158,6 +160,8 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertIn(cfield.name, content)
         self.assertIn(str(cfield_value), content)
+
+        self.assertEqual(2, orgas_page.paginator.count)
 
     def test_content02(self):
         "FieldsConfig"
@@ -539,6 +543,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,  content)
         self.assertIn(dragons.name,  content)
 
+        self.assertEqual(2, response.context['entities'].paginator.count)
+
     def test_qfilter_GET(self):
         user = self.login()
 
@@ -553,8 +559,10 @@ class ListViewTestCase(ViewsTestCase):
 
         content = self._get_lv_content(response)
         self.assertIn(bebop.name, content)
-        self.assertNotIn(redtail.name,  content)
-        self.assertNotIn(dragons.name,  content)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+        self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_qfilter_POST(self):
         user = self.login()
@@ -570,8 +578,10 @@ class ListViewTestCase(ViewsTestCase):
 
         content = self._get_lv_content(response)
         self.assertIn(bebop.name, content)
-        self.assertNotIn(redtail.name,  content)
-        self.assertNotIn(dragons.name,  content)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+        self.assertEqual(1, response.context['entities'].paginator.count)
 
     def test_qfilter_invalid_json(self):
         user = self.login()
@@ -588,8 +598,8 @@ class ListViewTestCase(ViewsTestCase):
 
         content = self._get_lv_content(response)
         self.assertIn(bebop.name, content)
-        self.assertIn(redtail.name,  content)
-        self.assertIn(dragons.name,  content)
+        self.assertIn(redtail.name, content)
+        self.assertIn(dragons.name, content)
 
     def test_qfilter_invalid_Q(self):
         user = self.login()
@@ -606,8 +616,8 @@ class ListViewTestCase(ViewsTestCase):
 
         content = self._get_lv_content(response)
         self.assertIn(bebop.name, content)
-        self.assertIn(redtail.name,  content)
-        self.assertIn(dragons.name,  content)
+        self.assertIn(redtail.name, content)
+        self.assertIn(dragons.name, content)
 
     def test_search_regularfields01(self):
         user = self.login()
@@ -634,6 +644,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
         self.assertIn(dragons.name,      content)
+        self.assertEqual(2, response.context['entities'].paginator.count)
 
         response = self.assertPOST200(url, data=build_data('', '88'))
         content = self._get_lv_content(response)
@@ -649,12 +660,48 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        response = self.assertPOST200(url, data=build_data(search=0))
+        context = CaptureQueriesContext()
+
+        with context:
+            response = self.assertPOST200(url, data=build_data(search=0))
+
         content = self._get_lv_content(response)
         self.assertIn(bebop.name,     content)
         self.assertIn(swordfish.name, content)
         self.assertIn(redtail.name,   content)
         self.assertIn(dragons.name,   content)
+        self.assertEqual(4, response.context['entities'].paginator.count)
+
+        optimized_count = 0
+
+        db_engine = settings.DATABASES['default']['ENGINE']
+        if db_engine == 'django.db.backends.mysql':
+            fast_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE ' \
+                       '(`creme_core_cremeentity`.`is_deleted` = 0 AND ' \
+                       '`creme_core_cremeentity`.`entity_type_id` = %s)' % self.ctype.id
+            slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT `creme_core_cremeentity`.`id`'
+        elif db_engine == 'django.db.backends.sqlite3':
+            fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" ' \
+                            'WHERE ("creme_core_cremeentity"."is_deleted" = %s AND ' \
+                            '"creme_core_cremeentity"."entity_type_id" = %s)'
+            slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
+        elif db_engine == 'django.db.backends.postgresql_psycopg2':
+            fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE ' \
+                       '("creme_core_cremeentity"."is_deleted" = false AND ' \
+                       '"creme_core_cremeentity"."entity_type_id" = %s)' % self.ctype.id
+            slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
+        else:
+            self.fail('This DBRMS is not managed by this test case.')
+
+        for q_info in context.captured_queries:
+            sql = q_info['sql']
+
+            if fast_sql in sql:
+                optimized_count += 1
+
+            self.assertNotIn(slow_sql, sql)
+
+        self.assertEqual(1, optimized_count, context.captured_queries)
 
     def test_search_regularfields02(self):
         user = self.login()
