@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,12 @@ def edit(request):
     else:
         form = PreferedMenuForm(user2edit=None, user=request.user)
 
-    return render(request, 'creme_core/generics/blockform/edit.html', {'form': form})
+    return render(request, 'creme_core/generics/blockform/edit.html',
+                  {'form': form,
+                   'title': _(u'Edit the default preferred menu'),
+                  }
+                 )
+
 
 # TODO: improve generic.add_model_with_popup ????
 @login_required # No special permission needed
@@ -57,7 +62,7 @@ def edit_mine(request):
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Edit my prefered menus'),
+                        'title': _(u'Edit my preferred menus'),
                         'submit_label': _('Save the modifications'),
                        },
                        is_valid=form.is_valid(),

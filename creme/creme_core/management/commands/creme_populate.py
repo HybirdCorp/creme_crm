@@ -133,7 +133,7 @@ class Command(BaseCommand):
             total_missing_deps |= apps_2_populate
 
         if total_missing_deps and verbosity >= 1:
-            self.stdout.write('Additionnal dependencies will be populated: %s' %
+            self.stdout.write('Additional dependencies will be populated: %s' %
                                 ', '.join(total_missing_deps),
                               self.style.NOTICE
                              )
