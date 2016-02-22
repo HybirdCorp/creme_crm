@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 from json import dumps as json_dump
+import logging
 
 from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
@@ -40,6 +41,7 @@ from ..utils.unicode_collation import collator
 from .base import CremeModelForm
 
 
+logger = logging.getLogger(__name__)
 _RFIELD_PREFIX = EntityCellRegularField.type_id + '-'
 _CFIELD_PREFIX = EntityCellCustomField.type_id + '-'
 _FFIELD_PREFIX = EntityCellFunctionField.type_id + '-'
@@ -88,7 +90,8 @@ class EntityCellsWidget(Widget):
             for field_id, cell in cells:
                 try:
                     value = unicode(cell.render_html(entity, user))
-                except Exception:
+                except Exception as e:
+                    logger.critical('EntityCellsWidget._build_samples(): %s', e)
                     value = ''
 
                 dump[field_id] = value
