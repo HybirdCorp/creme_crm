@@ -28,6 +28,7 @@ except ImportError:
 
 from functools import partial
 from random import choice, random
+import re
 
 from faker.config import AVAILABLE_LOCALES
 
@@ -74,6 +75,7 @@ class ProgressBar(object):
             self._stdout.write(self._char * length_diff,
                                ending='' if new_length != length else '\n'
                               )
+            self._stdout.flush()
 
         self._current_length = new_length
 
@@ -227,6 +229,38 @@ class OptimizeMySQLContext(BaseOptimizeContext):
         # else: # TODO: manage other engine
 
 
+class OptimizePGSQLContext(BaseOptimizeContext):
+    def __enter__(self):
+        cursor = self.cursor
+
+        # synchronous_commit -------
+        cursor.execute('SHOW synchronous_commit;')
+
+        if cursor.fetchall()[0][0] == 'on':
+            sql_cmd = 'SET synchronous_commit=off;'
+
+            if self.verbosity:
+                self.stdout.write('Temporary optimization : %s' % sql_cmd)
+
+            cursor.execute(sql_cmd)
+
+        # wal_writer_delay -------
+        cursor.execute('SHOW wal_writer_delay;')
+        delay = cursor.fetchall()[0][0]
+        match = re.match(r'^(?P<value>\d+)(?P<unit>(ms|s)+)$', delay)
+
+        if match is None:
+            print('DEBUG: invalid delay "%s" ?!' % delay)
+        else:
+            data = match.groupdict()
+            value = int(data['value'])
+            if data['unit'] == 's':
+                value *= 1000
+
+            if value < 1000:
+                print('HINT: you could try the following optimisation: "ALTER SYSTEM SET wal_writer_delay=1000;"')
+
+
 # Command ----------------------------------------------------------------------
 
 class Command(BaseCommand):
@@ -240,7 +274,8 @@ class Command(BaseCommand):
 
     SQL_OPTIMISERS = {
         'django.db.backends.mysql': OptimizeMySQLContext,
-        # TODO: other DBRMS
+        'django.db.backends.postgresql_psycopg2': OptimizePGSQLContext,
+        # TODO: other DBRMS ?
     }
 
     def add_arguments(self, parser):
