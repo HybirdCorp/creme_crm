@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 14:40+0200\n"
+"POT-Creation-Date: 2016-02-29 14:49+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -41,7 +41,7 @@ msgstr "Services liés"
 #: blocks.py:122
 #: templates/opportunities/templatetags/block_responsibles.html:6
 msgid "Responsibles"
-msgstr "Chargés d'affaire'"
+msgstr "Chargés d'affaire"
 
 #: blocks.py:134
 msgid "Opportunities which target the organisation / contact"
