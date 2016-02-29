@@ -317,12 +317,12 @@ class EntityFilter(Model):  # CremeModel ???
 
             if invalid_filter_names:
                 # All user can see this filter, so all user should have the permission
-                # to see the subfilters too ; so they have to be public (is_private=False)
+                # to see the sub-filters too ; so they have to be public (is_private=False)
                 raise EntityFilter.PrivacyError(
                             ungettext(u'Your filter must be private in order to use this private sub-filter: %s',
-                                     u'Your filter must be private in order to use these private sub-filters: %s',
-                                     len(invalid_filter_names)
-                                    ) % u', '.join(invalid_filter_names)
+                                      u'Your filter must be private in order to use these private sub-filters: %s',
+                                      len(invalid_filter_names)
+                                     ) % u', '.join(invalid_filter_names)
                         )
 
     def check_privacy(self, conditions, is_private, owner):
@@ -335,8 +335,8 @@ class EntityFilter(Model):  # CremeModel ???
                is_private=False, conditions=(),
               ):
         """Creation helper ; useful for populate.py scripts.
-        @param user Can be None (ie: 'All users'), a User instance, or the string
-                    'admin', which means 'the first admin user'.
+        @param user: Can be None (ie: 'All users'), a User instance, or the string
+                     'admin', which means 'the first admin user'.
         """
         forbidden = {'[', ']', '#', '?'} #'&'
 
@@ -447,9 +447,22 @@ class EntityFilter(Model):  # CremeModel ???
 
         super(EntityFilter, self).delete(*args, **kwargs)
 
+    @property
+    def entities_are_distinct(self):
+        return all(cond.entities_are_distinct() for cond in self.get_conditions())
+        # TODO ?
+        # conds = self.get_conditions()
+        # return all(cond.entities_are_distinct(conds) for cond in conds)
+
     def filter(self, qs, user=None):
-        # Distinct is useful with condition on m2m that can retrieve several times the same Entity
-        return qs.filter(self.get_q(user)).distinct()
+        # # Distinct is useful with condition on m2m that can retrieve several times the same Entity
+        # return qs.filter(self.get_q(user)).distinct()
+        qs = qs.filter(self.get_q(user))
+
+        if not self.entities_are_distinct:
+            qs = qs.distinct()
+
+        return qs
 
     def _get_subfilter_conditions(self):
         sfc = self._subfilter_conditions_cache
@@ -1033,6 +1046,26 @@ class EntityFilterCondition(Model):
     @staticmethod
     def encode_value(value):
         return jsondumps(value)
+
+    def _get_distinct_regularfield(self):
+    # def _get_distinct_regularfield(self, all_conditions): TODO ?
+        field_info = FieldInfo(self.filter.entity_type.model_class(), self.name)
+
+        return not isinstance(field_info[0], ManyToManyField)
+
+    # TODO: build ConditionHandler class => regroup/delete _GET_Q_FUNCS,
+    #                                        _GET_DISTINCT_FUNCS,
+    #                                        _get_q_*() etc...
+    _GET_DISTINCT_FUNCS = {
+            EFC_FIELD: _get_distinct_regularfield,
+        }
+
+    def entities_are_distinct(self):
+    # def entities_are_distinct(self, all_conditions): TODO ?
+        func = EntityFilterCondition._GET_DISTINCT_FUNCS.get(self.type)
+
+        return func(self) if func is not None else True
+        # return func(self, all_conditions) if func is not None else True TODO: ??
 
     @property
     def error(self):  # TODO: map of validators

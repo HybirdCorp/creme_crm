@@ -66,11 +66,28 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.contact_ct = ContentType.objects.get_for_model(Contact)
 
-    def assertExpectedFiltered(self, efilter, model, ids, case_insensitive=False):
+    def assertExpectedFiltered(self, efilter, model, ids, case_insensitive=False, use_distinct=False):
         msg = '(NB: maybe you have case sensitive problems with your DB configuration).' if case_insensitive else ''
-        filtered = list(efilter.filter(model.objects.exclude(id__in=self._excluded_ids)))
+
+        from creme.creme_core.utils.profiling import CaptureQueriesContext
+        context = CaptureQueriesContext()
+
+        with context:
+            filtered = list(efilter.filter(model.objects.exclude(id__in=self._excluded_ids)))
+
         self.assertEqual(len(ids), len(filtered), str(filtered) + msg)
         self.assertEqual(set(ids), {c.id for c in filtered})
+
+        if use_distinct:
+            for query_info in context.captured_queries:
+                if 'DISTINCT' in query_info['sql']:
+                    break
+            else:
+                self.fail('No DISTINCT found')
+
+        else:
+            for query_info in context.captured_queries:
+                self.assertNotIn('DISTINCT', query_info['sql'])
 
     def _get_ikari_case_sensitive(self):
         ikaris = Contact.objects.filter(last_name__exact="Ikari")
@@ -128,6 +145,8 @@ class EntityFiltersTestCase(CremeTestCase):
                          condition.decoded_value
                         )
 
+        self.assertTrue(efilter.entities_are_distinct)
+
     def test_create02(self):
         "A owner, custom filter"
         pk = 'test-filter_nerv'
@@ -146,6 +165,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertTrue(efilter.is_private)
 
         self.assertFalse(efilter.conditions.all())
+        self.assertTrue(efilter.entities_are_distinct)
 
     def test_create03(self):
         "'admin' owner"
@@ -318,7 +338,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         user = self.user
         name = 'Misato my love'
-        efilter = EntityFilter.create('test-filter', name, Contact, 
+        efilter = EntityFilter.create('test-filter', name, Contact,
                                       is_custom=True, user=user, use_or=False,
                                       conditions=[EntityFilterCondition.build_4_field(
                                                         model=Contact,
@@ -344,7 +364,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(count, EntityFilter.objects.count())
 
         with self.assertRaises(ValueError):
-            EntityFilter.create('test-filter', name, Contact, 
+            EntityFilter.create('test-filter', name, Contact,
                                 user=user, use_or=False, is_custom=False,  # <==== cannot become custom False
                                 conditions=[EntityFilterCondition.build_4_field(
                                                     model=Contact,
@@ -588,7 +608,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                      )
 
         self.assertEqual(1, efilter.conditions.count())
-        self.assertExpectedFiltered(self.refresh(efilter), Contact, 
+        self.assertExpectedFiltered(self.refresh(efilter), Contact,
                                     self._list_contact_ids('mireille', exclude=True)
                                    )
 
@@ -870,6 +890,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                               name='civility', values=[self.civ_mister.id]  # TODO: "self.mister" ??
                                              )
                                ])
+        self.assertTrue(efilter.entities_are_distinct)
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('spike', 'jet'))
 
         efilter = EntityFilter.create('test-filter02', 'Not Misses', Contact, is_custom=True)
@@ -890,18 +911,20 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('spike', 'jet'))
 
     def test_filter_m2m(self):
-        l1 = Language.objects.create(name='Japanese', code='JP')
-        l2 = Language.objects.create(name='German',   code='G')
-        l3 = Language.objects.create(name='Engrish',  code='EN')
+        create_language = Language.objects.create
+        l1 = create_language(name='Japanese', code='JP')
+        l2 = create_language(name='German',   code='G')
+        l3 = create_language(name='Engrish',  code='EN')
 
         contacts = self.contacts
         jet   = contacts['jet'];   jet.languages   = [l1, l3]
         rei   = contacts['rei'];   rei.languages   = [l1]
         asuka = contacts['asuka']; asuka.languages = [l1, l2, l3]
 
-        self.assertEqual(3, Contact.objects.filter(languages__code='JP').count())
-        self.assertEqual(4, Contact.objects.filter(languages__name__contains='an').count())  # BEWARE: duplicates !!
-        self.assertEqual(3, Contact.objects.filter(languages__name__contains='an').distinct().count())
+        filter_contacts = Contact.objects.filter
+        self.assertEqual(3, filter_contacts(languages__code='JP').count())
+        self.assertEqual(4, filter_contacts(languages__name__contains='an').count())  # BEWARE: duplicates !!
+        self.assertEqual(3, filter_contacts(languages__name__contains='an').distinct().count())
 
         efilter = EntityFilter.create('test-filter01', 'JP', Contact, is_custom=True)
         build_4_field = EntityFilterCondition.build_4_field
@@ -910,7 +933,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                               name='languages__code', values=['JP'],
                                              )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id])
+        self.assertFalse(efilter.entities_are_distinct)
+        self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id], use_distinct=True)
 
         efilter = EntityFilter.create('test-filter02', 'lang contains "an"', Contact, is_custom=True)
         efilter.set_conditions([build_4_field(model=Contact,
@@ -918,7 +942,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                               name='languages__name', values=['an'],
                                              )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id])
+        self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id], use_distinct=True)
 
     def test_problematic_validation_fields(self):
         efilter = EntityFilter.create('test-filter01', 'Mist..', Organisation, is_custom=True)

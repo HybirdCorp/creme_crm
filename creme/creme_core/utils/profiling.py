@@ -25,6 +25,7 @@
 
 from __future__ import print_function
 
+from django.conf import settings
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.test.utils import CaptureQueriesContext as DjangoCaptureQueriesContext
 from django.utils.decorators import ContextDecorator
@@ -35,6 +36,24 @@ class CaptureQueriesContext(DjangoCaptureQueriesContext):
         super(CaptureQueriesContext, self).__init__(connection if connection is not None else
                                                     connections[DEFAULT_DB_ALIAS]
                                                    )
+        self._captured_sql = None
+
+    @property
+    def captured_sql(self):
+        if self._captured_sql is None:
+            db_engine = settings.DATABASES['default']['ENGINE']
+
+            if db_engine == 'django.db.backends.sqlite3':
+                prefix_len = len("QUERY = u'")
+                query_improver = lambda q: q[prefix_len:]
+            else:
+                query_improver = lambda q: q
+
+            self._captured_sql = [query_improver(query_info['sql'])
+                                    for query_info in self.captured_queries
+                                 ]
+
+        return self._captured_sql
 
 
 class QueriesPrinter(CaptureQueriesContext, ContextDecorator):

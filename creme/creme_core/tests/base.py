@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from os import remove as delete_file, listdir, makedirs
 from os import path as os_path
 from unittest import skipIf
+from unittest.util import safe_repr
 import warnings
 
 from django.test import TestCase, TransactionTestCase
@@ -121,6 +122,21 @@ class _CremeTestCase(object):
     #                   DeprecationWarning
     #                  )
 
+    def assertCountOccurrences(self, member, container, count, msg=None):
+        """Like self.assertEqual(count, container.count(member),
+        but with a nicer default message.
+        """
+        occ_count = container.count(member)
+
+        if occ_count != count:
+            std_msg = '%(member)s found %(occ)s time(s) in %(container)s (%(exp)s expected)' % {
+                            'member':    safe_repr(member),
+                            'container': safe_repr(container),
+                            'occ': occ_count,
+                            'exp': count,
+            }
+            self.fail(self._formatMessage(msg, std_msg))
+
     def assertDatetimesAlmostEqual(self, dt1, dt2, seconds=10):
         delta = max(dt1, dt2) - min(dt1, dt2)
 
@@ -184,14 +200,17 @@ class _CremeTestCase(object):
     def assertPOST409(self, *args, **kwargs):
         return self.assertPOST(409, *args, **kwargs)
 
-    def assertNoException(self, function=None, *args, **kwargs):
-        if function is None:
-            return _AssertNoExceptionContext(self)
+    def assertFound(self, x, string, msg=None):
+        idx = string.find(x)
 
-        try:
-            function(*args, **kwargs)
-        except Exception as e:
-            raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
+        if idx == -1:
+            std_msg = '%(sub)s not found in %(string)s' % {
+                            'sub':    safe_repr(x),
+                            'string': safe_repr(string),
+            }
+            self.fail(self._formatMessage(msg, std_msg))
+
+        return idx
 
     def assertIndex(self, elt, sequence):
         try:
@@ -207,6 +226,15 @@ class _CremeTestCase(object):
                 msg = '{0} is not a subclass of {1} [list of parent classes {2}'.format(cls, parent_cls, cls.__mro__)
 
             self.fail(msg)
+
+    def assertNoException(self, function=None, *args, **kwargs):
+        if function is None:
+            return _AssertNoExceptionContext(self)
+
+        try:
+            function(*args, **kwargs)
+        except Exception as e:
+            raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
 
     # def assertFormSetError(self, response, form, index, fieldname, expected_errors=None):
     #     """Warning : this method has not the same behaviour than assertFormError()
