@@ -57,6 +57,7 @@ def _clean_value(value, converter, default=None):
 
 def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter, header_filter):
     filtered = False
+    use_distinct = False
     queryset = model.objects.filter(is_deleted=False)
 
     if entity_filter:
@@ -70,6 +71,7 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
             logger.exception('Error when build the search queryset. Invalid q_filter.')
         else:
             filtered = True
+            use_distinct = True
 
     list_view_state.extra_q = extra_q   # TODO: only if valid ?
 
@@ -82,10 +84,15 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
     else:
         if lv_state_q:
             filtered = True
+            use_distinct = True
 
     user = request.user
-    queryset = EntityCredentials.filter(user, queryset).distinct()
+    # queryset = EntityCredentials.filter(user, queryset).distinct()
+    queryset = EntityCredentials.filter(user, queryset)
     queryset = list_view_state.sort_query(queryset)
+
+    if use_distinct:
+        queryset = queryset.distinct()
 
     # If the query does not use the real entities' specific fields to filter,
     # we perform a query on CremeEntity & so we avoid a JOIN.
@@ -122,18 +129,18 @@ def _build_entities_page(request, list_view_state, queryset, size, count):
 
 def _build_extrafilter(request, extra_filter=None):
     json_q_filter = request.GET.get('q_filter')
-    q_filter = _clean_value(json_q_filter, json_load, {})
+    q_filter_as_dict = _clean_value(json_q_filter, json_load, {})
 
-    if not q_filter:
+    if not q_filter_as_dict:
         json_q_filter = request.POST.get('q_filter', '{}')
-        q_filter = _clean_value(json_q_filter, json_load, {})
+        q_filter_as_dict = _clean_value(json_q_filter, json_load, {})
 
-    filter = get_q_from_dict(q_filter)
+    q_filter = get_q_from_dict(q_filter_as_dict)
 
     if extra_filter is not None:
-        filter &= extra_filter
+        q_filter &= extra_filter
 
-    return json_q_filter, filter
+    return json_q_filter, q_filter
 
 
 def _select_entityfilter(request, entity_filters, default_filter):

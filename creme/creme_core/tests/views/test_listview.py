@@ -3,6 +3,7 @@
 try:
     from datetime import date, timedelta
     from functools import partial
+    import re
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -57,11 +58,29 @@ class ListViewTestCase(ViewsTestCase):
         super(ListViewTestCase, self).tearDown()
         Address._meta.ordering = self._address_ordering
 
-    def assertFound(self, x, string):  # TODO: in CremeTestCase ??
-        idx = string.find(x)
-        self.assertNotEqual(-1, idx, '"%s" not found' % x)
+    def _assertNoDistinct(self, captured_sql):
+        entities_q_re = re.compile(r'^SELECT (?P<distinct>DISTINCT )?(.)creme_core_cremeentity(.)\.(.)id(.)')
 
-        return idx
+        count_q_found = False
+        entities_q_found = False
+
+        for sql in captured_sql:
+            if sql.startswith('SELECT COUNT(*)'):
+                self.assertNotIn('DISTINCT', sql)
+                count_q_found = True
+
+            match = entities_q_re.match(sql)
+            if match is not None:
+                self.assertFalse(match.groupdict().get('distinct'))
+                entities_q_found = True
+
+        joined_sql = '\n'.join(captured_sql)
+        self.assertTrue(count_q_found,
+                        'Not COUNT query found in %s' % joined_sql
+                       )
+        self.assertTrue(entities_q_found,
+                        'Not query (which retrieve entities) found in %s' % joined_sql
+                       )
 
     def _get_lv_content(self, response):  # TODO: slice end too
         content = response.content
@@ -152,7 +171,7 @@ class ListViewTestCase(ViewsTestCase):
         content = safe_unicode(content)
 
         self.assertIn(rtype.predicate, content)
-        self.assertIn(unicode(spike), content)
+        self.assertCountOccurrences(unicode(spike), content, count=1)
         self.assertNotIn(faye.last_name, content)
 
         self.assertIn(u'<ul><li>%s</li></ul>' % ptype1.text, content)
@@ -536,14 +555,19 @@ class ListViewTestCase(ViewsTestCase):
                                                  ],
                                      )
 
-        response = self.assertPOST200(self.url, data={'filter': efilter.id})
+        context = CaptureQueriesContext()
+
+        with context:
+            response = self.assertPOST200(self.url, data={'filter': efilter.id})
 
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name, content)
-        self.assertIn(redtail.name,  content)
-        self.assertIn(dragons.name,  content)
+        self.assertCountOccurrences(redtail.name, content, count=1)
+        self.assertCountOccurrences(dragons.name, content, count=1)
 
         self.assertEqual(2, response.context['entities'].paginator.count)
+
+        self._assertNoDistinct(context.captured_sql)
 
     def test_qfilter_GET(self):
         user = self.login()
@@ -555,14 +579,23 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"}'})
+        context = CaptureQueriesContext()
+
+        with context:
+            response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"}'})
 
         content = self._get_lv_content(response)
-        self.assertIn(bebop.name, content)
+        self.assertCountOccurrences('value="{&quot;name&quot;:&quot;%s&quot;}"' % bebop.name,
+                                    content, count=1
+                                   )
+        self.assertCountOccurrences(bebop.name, content, count=2)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
         self.assertEqual(1, response.context['entities'].paginator.count)
+
+        # TODO
+        # self._assertNoDistinct(context.captured_sql)
 
     def test_qfilter_POST(self):
         user = self.login()
@@ -577,7 +610,10 @@ class ListViewTestCase(ViewsTestCase):
         response = self.assertPOST200(self.url, data={'q_filter': '{"name":"Bebop"}'})
 
         content = self._get_lv_content(response)
-        self.assertIn(bebop.name, content)
+        self.assertCountOccurrences('value="{&quot;name&quot;:&quot;%s&quot;}"' % bebop.name,
+                                    content, count=1
+                                   )
+        self.assertCountOccurrences(bebop.name, content, count=2)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
@@ -642,8 +678,8 @@ class ListViewTestCase(ViewsTestCase):
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,     content)
         self.assertNotIn(swordfish.name, content)
-        self.assertIn(redtail.name,      content)
-        self.assertIn(dragons.name,      content)
+        self.assertCountOccurrences(redtail.name, content, count=1)
+        self.assertCountOccurrences(dragons.name, content, count=1)
         self.assertEqual(2, response.context['entities'].paginator.count)
 
         response = self.assertPOST200(url, data=build_data('', '88'))
@@ -674,6 +710,7 @@ class ListViewTestCase(ViewsTestCase):
 
         optimized_count = 0
 
+        # TODO: use regex to reduce code ?
         db_engine = settings.DATABASES['default']['ENGINE']
         if db_engine == 'django.db.backends.mysql':
             fast_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE ' \
@@ -691,11 +728,9 @@ class ListViewTestCase(ViewsTestCase):
                        '"creme_core_cremeentity"."entity_type_id" = %s)' % self.ctype.id
             slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
         else:
-            self.fail('This DBRMS is not managed by this test case.')
+            self.fail('This RDBMS is not managed by this test case.')
 
-        for q_info in context.captured_queries:
-            sql = q_info['sql']
-
+        for sql in context.captured_sql:
             if fast_sql in sql:
                 optimized_count += 1
 
@@ -720,11 +755,18 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(nerv,     orgas_set)
         self.assertIn(seele,    orgas_set)
 
-        response = self.assertPOST200(url, data=dict(data, **{'regular_field-subject_to_vat': '0'}))
+        # -------------------------------
+        context = CaptureQueriesContext()
+        with context:
+            response = self.assertPOST200(url, data=dict(data, **{'regular_field-subject_to_vat': '0'}))
+
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,    orgas_set)
         self.assertNotIn(nerv,  orgas_set)
         self.assertNotIn(seele, orgas_set)
+
+        # TODO
+        # self._assertNoDistinct(context.captured_sql)
 
     def test_search_regularfields03(self):
         "ForeignKey (NULL or not)"
@@ -895,7 +937,7 @@ class ListViewTestCase(ViewsTestCase):
         data = {'_search': 1}
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-civility': mister.id}))
         content = self._get_lv_content(response)
-        self.assertIn(spike.last_name,   content)
+        self.assertCountOccurrences(spike.last_name, content, count=1)
         self.assertNotIn(faye.last_name, content)
         self.assertNotIn(ed.last_name,   content)
 
@@ -1027,8 +1069,8 @@ class ListViewTestCase(ViewsTestCase):
         hf.save()
 
         create_mlist = partial(MailingList.objects.create, user=user)
-        ml1 = create_mlist(name='Bebop')
-        ml2 = create_mlist(name='Mafia')
+        ml1 = create_mlist(name='Bebop staff')
+        ml2 = create_mlist(name='Mafia staff')
 
         create_camp = partial(EmailCampaign.objects.create, user=user)
         camp1 = create_camp(name='Ships')
@@ -1048,14 +1090,17 @@ class ListViewTestCase(ViewsTestCase):
             return self._get_lv_content(response)
 
         content = search('Bebo')
-        self.assertIn(camp1.name,    content)
-        self.assertIn(camp2.name,    content)
+        self.assertCountOccurrences(camp1.name, content, count=1)
+        self.assertCountOccurrences(camp2.name, content, count=1)
         self.assertNotIn(camp3.name, content)
 
         content = search('afia')
-        self.assertIn(camp1.name,    content)
+        self.assertCountOccurrences(camp1.name, content, count=1)
         self.assertNotIn(camp2.name, content)
         self.assertNotIn(camp3.name, content)
+
+        content = search('staff')
+        self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2 !!
 
     def test_search_m2mfields02(self):
         "M2M to basic model"
