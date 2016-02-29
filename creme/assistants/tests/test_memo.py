@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from datetime import timedelta
+
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
 
@@ -93,9 +95,9 @@ will be truncate by unicode() method"""
         self.assertIsNotNone(funf)
         self.assertEqual(u'<ul></ul>', funf(self.entity).for_html())
 
-    def _oldify_memo(self, memo, years_delta=1):
+    def _oldify_memo(self, memo):
         cdate = memo.creation_date
-        memo.creation_date = cdate.replace(year=cdate.year - years_delta)
+        memo.creation_date = cdate - timedelta(days=1)
         memo.save()
 
     def test_function_field02(self):

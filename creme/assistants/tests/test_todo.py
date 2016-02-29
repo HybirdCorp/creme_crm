@@ -265,9 +265,9 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(2, len(page.object_list))
         self.assertEqual(set(todos), set(page.object_list))
 
-    def _oldify_todo(self, todo, years_delta=1):
+    def _oldify_todo(self, todo):
         cdate = todo.creation_date
-        todo.creation_date = cdate.replace(year=cdate.year - years_delta)
+        todo.creation_date = cdate - timedelta(days=1)
         todo.save()
 
     def test_function_field01(self):
