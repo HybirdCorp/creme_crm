@@ -77,6 +77,9 @@ class CremeEntity(CremeAbstractEntity):
         app_label = 'creme_core'
         # ordering = ('id',) # order by id on a FK can cause a crashes
         ordering = ('header_filter_search_field',)
+        index_together = [
+            ['entity_type', 'is_deleted'],  # Optimise the basic COUNT in listviews
+        ]
 
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)
