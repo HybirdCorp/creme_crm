@@ -23,6 +23,9 @@ except Exception as e:
 
 @skipIfCustomStrategy
 class StrategyTestCase(CommercialBaseTestCase):
+    def _build_link_segment_url(self, strategy):
+        return '/commercial/strategy/%s/link/segment/' % strategy.id
+
     def _build_edit_segmentdesc_url(self, strategy, segment_desc):
         return '/commercial/strategy/%s/segment/edit/%s/' % (strategy.id, segment_desc.id)
 
@@ -179,7 +182,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         strategy02 = create_strategy(name='Strat#2')
         self.assertFalse(0, strategy02.segment_info.exists())
 
-        url = '/commercial/strategy/%s/link/segment/' % strategy02.id
+        url = self._build_link_segment_url(strategy02)
         self.assertGET200(url)
 
         product = 'Description about product'
@@ -259,6 +262,31 @@ class StrategyTestCase(CommercialBaseTestCase):
         segment = segment_desc.segment
         self.assertEqual(name, segment.name)
         self.assertIn(name,    segment.property_type.text)
+
+    def test_segment_edit03(self):
+        "Segment with no property type"
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment = MarketSegment.objects.filter(property_type=None)[0]
+        response = self.client.post(self._build_link_segment_url(strategy),
+                                    data={'segment': segment.id},
+                                   )
+        self.assertNoFormError(response)
+
+        seginfo = strategy.segment_info.all()
+        self.assertEqual(1, len(seginfo))
+
+        segment_desc = seginfo[0]
+        self.assertEqual(segment,  segment_desc.segment)
+        self.assertFalse(segment_desc.product)
+
+        product = 'Description about product'
+        response = self.client.post(self._build_edit_segmentdesc_url(strategy, segment_desc),
+                                    data={'name':    segment.name,
+                                          'product': product,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(product, self.refresh(segment_desc).product)
 
     def test_asset_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
