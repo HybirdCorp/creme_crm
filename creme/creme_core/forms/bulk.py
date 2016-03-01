@@ -23,7 +23,6 @@ import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.db.models.fields.related import ForeignKey, RelatedField, ManyToManyField
 from django.db.models.query_utils import Q
 from django.forms.fields import ChoiceField
@@ -35,12 +34,12 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from ..gui.bulk_update import bulk_update_registry
-from ..models import fields, CremeEntity
+from ..models import CremeEntity
 from ..models.custom_field import CustomField, CustomFieldValue
 
 from .base import CremeForm
 from .fields import CreatorEntityField, MultiCreatorEntityField
-from .widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget
+from .widgets import UnorderedMultipleChoiceWidget
 
 
 # TODO : should remove this list and use some hooks in model fields or in bulk registry to retrieve bulk widgets
@@ -66,7 +65,7 @@ class BulkForm(CremeForm):
     def __init__(self, model, field, user, entities, is_bulk, parent_field=None, **kwargs):
         super(BulkForm, self).__init__(user, **kwargs)
         self.is_bulk = is_bulk
-        self.is_subfield = is_subfield = parent_field is not None
+        self.is_subfield = parent_field is not None
         self.is_custom = is_custom = isinstance(field, CustomField)
 
         self.field_name = field.name if not is_custom else _CUSTOMFIELD_FORMAT % field.pk
@@ -74,13 +73,26 @@ class BulkForm(CremeForm):
         self.model_field = field
         self.model_parent_field = parent_field
         self.entities = entities
+        self.bulk_url = '/creme_core/entity/update/bulk/%(ct)s/field/%(field)s'
 
-        if is_bulk:
+    @property
+    def bulk_url(self):
+        return self._bulk_url_format
+
+    @bulk_url.setter
+    def bulk_url(self, url):
+        self._bulk_url_format = url
+
+        model = self.model
+        entities = self.entities
+
+        if self.is_bulk:
             choices = self._bulk_model_choices(model, entities)
-            initial = self._bulk_url(model,
-                                     parent_field.name + '__' + self.field_name if is_subfield else self.field_name,
-                                     entities,
-                                    )
+            fieldname = self.parent_field.name + '__' + self.field_name if self.is_subfield else self.field_name
+            initial = self._bulk_field_url(model,
+                                           fieldname,
+                                           entities,
+                                          )
 
             self.fields['_bulk_fieldname'] = ChoiceField(choices=choices,
                                                          label=_(u"Field to update"),
@@ -89,11 +101,12 @@ class BulkForm(CremeForm):
                                                          required=False,
                                                         )
 
-    def _bulk_url(self, model, fieldname, entities):
-        return '/creme_core/entity/update/bulk/%s/field/%s' % (
-                    ContentType.objects.get_for_model(model).pk,
-                    fieldname,
-                )
+    def _bulk_field_url(self, model, fieldname, entities):
+        return self.bulk_url % {
+                    'ct': ContentType.objects.get_for_model(model).pk,
+                    'field': fieldname,
+                    'entities': ','.join(str(e.pk) for e in entities)
+               }
 
     def _bulk_formfield(self, user, instance=None):
         if self.is_custom:
@@ -105,7 +118,7 @@ class BulkForm(CremeForm):
         regular_fields = bulk_update_registry.regular_fields(model, expand=True)
         custom_fields = bulk_update_registry.custom_fields(model)
 
-        url = self._bulk_url(model, '%s', entities)
+        url = self._bulk_field_url(model, '%s', entities)
 
         choices = []
         sub_choices = []
@@ -256,6 +269,23 @@ class BulkForm(CremeForm):
 
         return {NON_FIELD_ERRORS: messages}
 
+    def _bulk_clean(self, values):
+        # In bulk mode get all entities, only the first one elsewhere
+        entities = self.entities if self.is_bulk else self.entities[:1]
+
+        # Skip model clean step for customfields
+        if self.is_custom:
+            self.bulk_cleaned_entities = entities
+            self.bulk_invalid_entities = []
+            return
+
+        # Update attribute <field_name> of each instance of entity and filter valid ones.
+        self.bulk_cleaned_entities, self.bulk_invalid_entities = self._bulk_clean_entities(entities, values)
+
+        if not self.is_bulk and self.bulk_invalid_entities:
+            entity, error = self.bulk_invalid_entities[0]
+            raise ValidationError(self._bulk_error_messages(entity, error))
+
 
 class BulkDefaultEditForm(BulkForm):
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
@@ -276,28 +306,12 @@ class BulkDefaultEditForm(BulkForm):
         return field_value
 
     def clean(self):
-        if self.errors:
-            return self.cleaned_data
-
         cleaned_data = super(BulkDefaultEditForm, self).clean()
 
-        # In bulk mode get all entities, only the first one elsewhere
-        entities = self.entities if self.is_bulk else self.entities[:1]
-
-        # Skip model clean step for customfields
-        if self.is_custom:
-            self.bulk_cleaned_entities = entities
-            self.bulk_invalid_entities = []
+        if self.errors:
             return cleaned_data
 
-        values = {self.field_name: cleaned_data.get('field_value')}
-
-        # Update attribute <field_name> of each instance of entity and filter valid ones.
-        self.bulk_cleaned_entities, self.bulk_invalid_entities = self._bulk_clean_entities(entities, values)
-
-        if not self.is_bulk and self.bulk_invalid_entities:
-            entity, error = self.bulk_invalid_entities[0]
-            raise ValidationError(self._bulk_error_messages(entity, error))
+        self._bulk_clean({self.field_name: cleaned_data.get('field_value')})
 
         return cleaned_data
 

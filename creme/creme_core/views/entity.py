@@ -314,15 +314,6 @@ def bulk_update_field(request, ct_id, field_name):
                       )
 
 
-# TODO : this class only exist for compatibility with old bulk edition view.
-class LegacyBulkDefaultEditForm(BulkDefaultEditForm):
-    def _bulk_url(self, model, fieldname, entities):
-        return '/creme_core/entity/edit/bulk/%s/%s/field/%s' % (
-                    ContentType.objects.get_for_model(model).pk,
-                    ','.join(str(e.pk) for e in entities),
-                    fieldname,
-               )
-
 @login_required
 def bulk_edit_field(request, ct_id, id, field_name):
     warnings.warn("/creme_core/entity/edit/bulk/{{ct}}/{{ids...}}/field/{{fieldname}} is now deprecated."
@@ -331,6 +322,7 @@ def bulk_edit_field(request, ct_id, id, field_name):
     user   = request.user
     model  = get_ct_or_404(ct_id).model_class()
     entities = get_list_or_404(model, pk__in=id.split(','))
+    edit_url = '/creme_core/entity/edit/bulk/%(ct)s/%(entities)s/field/%(field)s'
 
     filtered = [e for e in entities if _bulk_has_perm(e, user)]
 
@@ -341,10 +333,11 @@ def bulk_edit_field(request, ct_id, id, field_name):
         field_name = bulk_update_registry.get_default_field(model).name
 
     try:
-        form_class = bulk_update_registry.get_form(model, field_name, LegacyBulkDefaultEditForm)
+        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
 
         if request.method == 'POST':
             form = form_class(entities=filtered, user=user, data=request.POST, is_bulk=True)
+            form.bulk_url = edit_url
 
             if form.is_valid():
                 form.save()
@@ -355,6 +348,8 @@ def bulk_edit_field(request, ct_id, id, field_name):
                              )
         else:
             form = form_class(entities=filtered, user=user, is_bulk=True)
+            form.bulk_url = edit_url
+
     except (FieldDoesNotExist, FieldNotAllowed):
         return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited') % field_name)
 

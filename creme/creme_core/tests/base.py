@@ -515,6 +515,14 @@ class _CremeTestCase(object):
 
         return url
 
+    def build_bulkupdate_url(self, model, fieldname=None):
+        ct = ContentType.objects.get_for_model(model)
+        url = '/creme_core/entity/update/bulk/%s' % ct.id
+
+        if fieldname:
+            url += '/field/%s' % fieldname
+
+        return url
 
 class CremeTestCase(_CremeTestCase, TestCase):
     @classmethod
