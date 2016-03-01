@@ -50,10 +50,21 @@ class ProductInnerEditCategory(BulkForm):
 
         self.fields['sub_category'] = sub_category
 
-    def save(self, *args, **kwargs):
-        sub_category = self.cleaned_data['sub_category']
+    def clean(self):
+        cleaned_data = super(ProductInnerEditCategory, self).clean()
 
+        if self.errors:
+            return cleaned_data
+
+        sub_category = cleaned_data['sub_category']
+
+        self._bulk_clean({'category': sub_category.category,
+                          'sub_category': sub_category
+                         }
+                        )
+
+        return cleaned_data
+
+    def save(self, *args, **kwargs):
         for entity in self.entities:
-            entity.category = sub_category.category
-            entity.sub_category = sub_category
             entity.save()

@@ -701,12 +701,20 @@ class BulkEditTestCase(_BulkEditTestCase):
         cls.contact_bulk_status = bulk_update_registry.status(Contact)
 
     def setUp(self):
-        self._contact_innerforms = bulk_update_registry.status(Contact)._innerforms
+        super(BulkEditTestCase, self).setUp()
+        contact_status = bulk_update_registry.status(Contact)
+
+        self._contact_innerforms = contact_status._innerforms
         bulk_update_registry.status(Contact)._innerforms = {}
+
+        self._contact_excludes = contact_status.excludes
+        bulk_update_registry.status(Contact).excludes = set()
 
     def tearDown(self):
         super(BulkEditTestCase, self).tearDown()
-        bulk_update_registry.status(Contact)._innerforms = self._contact_innerforms
+        contact_status = bulk_update_registry.status(Contact)
+        contact_status._innerforms = self._contact_innerforms
+        contact_status.excludes = self._contact_excludes
 
     def _build_contact_url(self, field_name, *contact_ids):
         url = '/creme_core/entity/edit/bulk/%(ct)s/%(id)s/field/%(field)s'
@@ -1168,12 +1176,20 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         cls.contact_bulk_status = bulk_update_registry.status(Contact)
 
     def setUp(self):
-        self._contact_innerforms = bulk_update_registry.status(Contact)._innerforms
+        super(BulkUpdateTestCase, self).setUp()
+        contact_status = bulk_update_registry.status(Contact)
+
+        self._contact_innerforms = contact_status._innerforms
         bulk_update_registry.status(Contact)._innerforms = {}
+
+        self._contact_excludes = contact_status.excludes
+        bulk_update_registry.status(Contact).excludes = set()
 
     def tearDown(self):
         super(BulkUpdateTestCase, self).tearDown()
-        bulk_update_registry.status(Contact)._innerforms = self._contact_innerforms
+        contact_status = bulk_update_registry.status(Contact)
+        contact_status._innerforms = self._contact_innerforms
+        contact_status.excludes = self._contact_excludes
 
     def _build_update_url(self, field_name):
         url = '/creme_core/entity/update/bulk/%(ct)s/field/%(field)s'
