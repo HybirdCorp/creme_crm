@@ -18,54 +18,61 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import map
 
-# TODO : add limitation to overflow. if the separator doesn't exist in many following chunks,
-#        the overflow string will contains all of them and may cause memory limitation problems.
-# TODO: should work better with separator with length > 1
-#       eg: if sep == '\r\n', there are remaining '\n' in results.
-def iter_splitchunks(chunks, sep, filter):
+#def iter_splitchunks(chunks, sep, filter):
+def iter_splitchunks(chunks, sep, parser=None, limit=None):
     """ Iterator through chunks as split single stream.
 
     @param chunks: iterator of list of strings
     @param sep: split separator
-    @param filter: function that returns a parsed result from each entry.
-                    if returns None, False or empty string, the entry will be ignored)     
+    @param parser: function that returns a parsed result from each entry.
+                   if returns None, False or empty string, the entry will be ignored
+    @param limit: single line length limit. throw a ValueError if reached.
     """
     overflow = ''
 
     for chunk in chunks:
-        idx = 0
-        next_idx = chunk.find(sep) # find first separator
+        lines = (overflow + chunk).split(sep)
+        overflow = lines[-1]
 
-        # print 'chunk:"' + chunk.replace('\n', '\\n') + '"'
+        if limit is not None and len(lines[0]) > limit:
+            raise ValueError('line length is over %d characters' % limit)
 
-        # If next separator in chunk, split it !
-        while next_idx != -1:
-            # call given filter function on substring between current and next separators 
-            next_val = filter(overflow + chunk[idx:next_idx])
+        entries = map(parser, lines[:-1]) if parser is not None else lines[:-1]
 
-            # print '    next:', next_idx, 'index:', idx, 'overflow:"' + overflow + '" val:"' + overflow + chunk[idx:next_idx] + '"', 'chunk:"' + chunk[next_idx+1:].replace('\n', '\\n') + '"'
+        for entry in entries:
+            if entry:
+                yield entry
 
-            # Reset overflow
-            overflow = ''
+    last = parser(overflow) if parser is not None else overflow
 
-            # If filter return a non empty string, return it
-            if next_val:
-                yield next_val
+    if last:
+        yield last
 
-            # Shift current index and find the next one
-            idx = next_idx + 1
-            next_idx = chunk.find(sep, idx)
 
-        # If no separator (index = 0) append the entire chunk to overflow ;
-        # else overflow is the remaining string after last separator
-        overflow = overflow + chunk if idx == 0 else chunk[idx:]
+def iter_splitlinechunks(chunks, parser=None, limit=None):
+    overflow = ''
+    endline = '\r\n'
 
-    # This line handle case of last entry without separator at end of chunks
-    next_val = filter(overflow) if overflow else ''
+    for chunk in chunks:
+        lines = (overflow + chunk).splitlines(True)
+        overflow = lines[-1]
 
-    if next_val:
-        yield next_val
+        if limit is not None and len(lines[0].rstrip(endline)) > limit:
+            raise ValueError('line length is over %d characters' % limit)
+
+        entries = [l.rstrip(endline) for l in lines[:-1]]
+        entries = map(parser, entries) if parser is not None else entries
+
+        for line in entries:
+            if line:
+                yield line
+
+    last = parser(overflow) if parser is not None else overflow
+
+    if last:
+        yield last
 
 
 def iter_as_chunk(iterable, step):
