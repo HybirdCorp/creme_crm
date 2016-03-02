@@ -40,6 +40,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         this._backend = options.backend;
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
         this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
+        this._multiple = creme.object.isTrue(options.multiple) && element.is('[multiple]');
         this._url = new creme.utils.Template(options.url);
         this._filter = new creme.utils.Template(options.filter);
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
@@ -105,8 +106,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     _updateDisabledState: function(element)
     {
         var active_option_count = $('option:not(:disabled)', element).length;
-        var disabled = !this._enabled || active_option_count < 1;
-        var readonly = active_option_count < 2 || this._readonly;
+        var is_empty = active_option_count < 1;
+        var is_single = active_option_count < 2;
+
+        var disabled = !this._enabled || is_empty;
+        var readonly = (is_single && !this._multiple) || this._readonly;
 
         element.prop('disabled', disabled);
         element.toggleAttr('readonly', readonly);

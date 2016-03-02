@@ -41,6 +41,10 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         element.addClass('widget-ready');
     },
 
+    _destroy: function(element) {
+        this._removeSelector(element);
+    },
+
     _init_models: function(element)
     {
         var models = this._models = [];
@@ -70,9 +74,13 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     {
         if (this._selector !== undefined)
         {
-            this._selector.element.unbind('change paste', this._selector_onchange_cb);
-            this._selector.element.remove();
-            this._selector.destroy();
+            var selector = this._selector;
+            var element = selector.element;
+
+            element.unbind('change paste', this._selector_onchange_cb);
+            selector.destroy();
+            element.remove();
+
             this._selector = undefined;
             this._selectorModel = undefined;
         }
