@@ -92,6 +92,13 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         creme.object.invoke(cb, element);
     },
 
+    _destroy: function(element)
+    {
+        this.selectors(element).each(function() {
+            $(this).creme().destroy();
+        });
+    },
+
     _selectorValues: function(element)
     {
         var data = {}
