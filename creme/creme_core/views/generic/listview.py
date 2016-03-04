@@ -21,6 +21,7 @@
 from json import loads as json_load
 import logging
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import Http404
@@ -89,7 +90,7 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
     user = request.user
     # queryset = EntityCredentials.filter(user, queryset).distinct()
     queryset = EntityCredentials.filter(user, queryset)
-    queryset = list_view_state.sort_query(queryset)
+    # queryset = list_view_state.sort_query(queryset)
 
     if use_distinct:
         queryset = queryset.distinct()
@@ -105,7 +106,7 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
                                     ).count()
 
     # return queryset
-    return queryset, count
+    return list_view_state.sort_query(queryset, fast_mode=count>=settings.FAST_QUERY_MODE_THESHOLD), count
 
 
 # def _build_entities_page(request, list_view_state, queryset, size):

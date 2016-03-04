@@ -41,6 +41,10 @@ MIGRATION_MODULES = {
     'auth': 'creme.creme_core.migrations_auth', # XXX: should be removed in Creme 1.7 ...
 }
 
+# When this number of Entities is reached (in a list-view for example), Creme
+# switch to a fast-mode, where SQL queries should be faster.
+FAST_QUERY_MODE_THESHOLD = 100000
+
 # JOBS #########################################################################
 # Maximum number of jobs each user can have at the same time. When this number
 # is reached for a user, he must terminate one of his jobs in order to create a

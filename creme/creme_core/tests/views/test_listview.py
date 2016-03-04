@@ -7,6 +7,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.test.utils import override_settings
     from django.utils.timezone import now
 
     from .base import ViewsTestCase
@@ -242,13 +243,13 @@ class ListViewTestCase(ViewsTestCase):
     #         self.fail('ORM bug has been fixed ?! => reactivate FK on CremeEntity sorting')
 
     def assertListViewContentOrder(self, response, key, entries):
-            content = safe_unicode(self._get_lv_content(response))
-            lines = [(self.assertFound(unicode(getattr(e, key)), content), e)
-                        for e in entries
-                    ]
-            self.assertListEqual(list(entries),
-                                 [line[1] for line in sorted(lines, key=lambda e: e[0])]
-                                )
+        content = safe_unicode(self._get_lv_content(response))
+        lines = [(self.assertFound(unicode(getattr(e, key)), content), e)
+                    for e in entries
+                ]
+        self.assertListEqual(list(entries),
+                             [line[1] for line in sorted(lines, key=lambda e: e[0])]
+                            )
 
     def test_order02(self):
         "Sort by ForeignKey"
@@ -321,7 +322,7 @@ class ListViewTestCase(ViewsTestCase):
         post('regular_field-civility__title', True, spike, faye)
 
     def test_order03(self):
-        "Unsortable fields: ManyToMany, FunctionFields"
+        "Un-sortable fields: ManyToMany, FunctionFields"
         user = self.login()
 
         # Bug on ORM with M2M happens only if there is at least one entity
@@ -351,7 +352,7 @@ class ListViewTestCase(ViewsTestCase):
         act1 = create_act(title='Act#1', start=now())
         act2 = create_act(title='Act#2', start=act1.start + timedelta(hours=1))
 
-        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakeactivity') # see fake populate
+        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakeactivity')  # See fake populate
 
         response = self.assertPOST200(Activity.get_lv_absolute_url(), {'hfilter': hf.pk})
         content = self._get_lv_content(response)
@@ -534,6 +535,64 @@ class ListViewTestCase(ViewsTestCase):
 
         entries = Organisation.objects.order_by('name')
         self.assertListViewContentOrder(response, 'name', entries)
+
+    def _aux_test_ordering_fastmode(self):
+        user = self.login()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        create_contact(first_name='Spike',  last_name='Spiegel')
+        create_contact(first_name='Faye',   last_name='Valentine')
+        create_contact(first_name='Edward', last_name='Wong')
+
+        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        cell1 = build_cell(name='birthday')
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view',
+                                 model=Contact,
+                                 cells_desc=[cell1,
+                                             build_cell(name='last_name'),
+                                             build_cell(name='first_name'),
+                                            ],
+                                  )
+
+        context = CaptureQueriesContext()
+
+        with context:
+            self.assertPOST200(Contact.get_lv_absolute_url(),
+                               data={'hfilter': hf.pk,
+                                     'sort_field': cell1.key,
+                                     'sort_order': '',
+                                    }
+                               )
+
+        main_sql_match = re.compile('SELECT .creme_core_cremeentity.\..id., .*'
+                                    '.creme_core_fakecontact.\..last_name., .*'
+                                    'WHERE .creme_core_cremeentity.\..is_deleted. = '
+                                   ).match
+        main_sql = [sql for sql in context.captured_sql if main_sql_match(sql)]
+
+        if not main_sql:
+            self.fail('No main Listview query in:\n%s' % '\n'.join(context.captured_sql))
+        elif len(main_sql) >= 2:
+            self.fail('There should be one SQL query: %s' % main_sql)
+
+        return main_sql[0]
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=100000)
+    def test_ordering_fastmode_01(self):
+        "Fast mode=OFF"
+        sql = self._aux_test_ordering_fastmode()
+        self.assertRegexpMatches(sql,
+                                 'ORDER BY '
+                                 '.creme_core_fakecontact.\..birthday. ASC, '
+                                 '.creme_core_fakecontact.\..last_name. ASC, '
+                                 '.creme_core_fakecontact.\..first_name. ASC LIMIT'
+                                )
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=2)
+    def test_ordering_fastmode_02(self):
+        "Fast mode=ON"
+        sql = self._aux_test_ordering_fastmode()
+        self.assertRegexpMatches(sql, 'ORDER BY .creme_core_fakecontact.\..birthday. ASC LIMIT')
 
     def test_efilter01(self):
         user = self.login()
