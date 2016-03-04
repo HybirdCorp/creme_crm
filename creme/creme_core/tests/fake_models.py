@@ -397,7 +397,7 @@ else:
         class Meta:
             app_label = 'creme_core'
             verbose_name = u'Test Activity'
-            verbose_name_plural = u'test Activities'
+            verbose_name_plural = u'Test Activities'
             ordering = ('-start',)
 
         def __unicode__(self):
@@ -479,7 +479,8 @@ else:
             app_label = 'creme_core'
             verbose_name = u'Test Invoice'
             verbose_name_plural = u'Test Invoices'
-            ordering = ('name',) 
+            # ordering = ('name',)
+            ordering = ('name', '-expiration_date')
 
         def __unicode__(self):
             return self.name

@@ -81,10 +81,10 @@ class _CremeTestCase(object):
         self.password = password = 'test'
 
         superuser = CremeUser(username='kirika', email='kirika@noir.jp',
-                         first_name='Kirika', last_name='Yumura',
-                         is_superuser=True or is_staff,
-                         is_staff=is_staff,
-                        )
+                              first_name='Kirika', last_name='Yumura',
+                              is_superuser=True or is_staff,
+                              is_staff=is_staff,
+                             )
         superuser.set_password(password)
         superuser.save()
 
