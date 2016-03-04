@@ -105,7 +105,12 @@ class ListViewStateTestCase(CremeTestCase):
         qs = Organisation.objects.all()
         re = 'ORDER BY .creme_core_fakeorganisation.\..name. ASC$'
         self.assertRegexpMatches(self._get_sql(qs), re)
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)), re)
+
+        sql = self._get_sql(lvs.sort_query(qs))
+        self.assertRegexpMatches(sql, re)
+
+        self.assertEqual(sql, self._get_sql(lvs.sort_query(qs, fast_mode=False)))
+        self.assertEqual(sql, self._get_sql(lvs.sort_query(qs, fast_mode=True)))
 
         # DESC -------------------
         lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='-')
@@ -135,10 +140,15 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual('', lvs.sort_order)
         self.assertEqual([field_name2, field_name1], lvs._ordering)
 
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(Organisation.objects.all())),
+        qs = Organisation.objects.all()
+        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
                                  '.creme_core_fakeorganisation.\..email. ASC, '
                                  '.creme_core_fakeorganisation.\..name. ASC$',
+                                )
+        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs, fast_mode=True)),
+                                 'ORDER BY '
+                                 '.creme_core_fakeorganisation.\..email. ASC$',
                                 )
 
     def test_sort_oneorder_03(self):

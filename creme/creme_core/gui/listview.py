@@ -71,6 +71,7 @@ class ListViewState(object):
             "Returns the _OrderedField instance corresponding to the same field but with reversed order."
             return self.__class__(self.field_name if self.order else '-' + self.field_name)
 
+    # TODO: 'model' mandatory + remove 'model' argument in methods ? (need smarter (de)serialization)
     def __init__(self, **kwargs):
         get_arg = kwargs.get
         self.entity_filter_id = get_arg('filter')
@@ -379,9 +380,14 @@ class ListViewState(object):
         self.sort_field = cell_key
         self.sort_order = sort_order
 
-    def sort_query(self, queryset):
+    def sort_query(self, queryset, fast_mode=False):
         "Beware: you should have called set_sort() before"
-        return queryset.order_by(*self._ordering)
+        ordering = self._ordering
+        if fast_mode:
+            # TODO: use indexes of the model (so we need model => see __init__)
+            ordering = ordering[:1]
+
+        return queryset.order_by(*ordering)
 
 
 # -----------------------------------------------------------------------------
