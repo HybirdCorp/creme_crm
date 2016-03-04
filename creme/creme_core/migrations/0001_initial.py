@@ -599,7 +599,7 @@ class Migration(migrations.Migration):
                 options={
                     'ordering': ('-start',),
                     'verbose_name': 'Test Activity',
-                    'verbose_name_plural': 'test Activities',
+                    'verbose_name_plural': 'Test Activities',
                 },
                 bases=('creme_core.cremeentity',),
             ),
@@ -817,7 +817,8 @@ class Migration(migrations.Migration):
                     ('total_no_vat', creme.creme_core.models.fields.MoneyField(decimal_places=2, default=0, editable=False, max_digits=14, blank=True, null=True, verbose_name='Total without VAT')),
                 ],
                 options={
-                    'ordering': ('name',),
+                    # 'ordering': ('name',),
+                    'ordering': ('name', '-expiration_date'),
                     'verbose_name': 'Test Invoice',
                     'verbose_name_plural': 'Test Invoices',
                 },

@@ -64,7 +64,7 @@ See the creme/settings.py and set your parameters (or put them in a new file cal
 When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
 run the following commands in the root directory:
 
-If you are upgrading from Creme 1.5:
+If you are upgrading from Creme 1.6:
     >> python manage.py migrate --fake-initial
 else (ie: new installation):
     >> python manage.py migrate
@@ -73,7 +73,7 @@ else (ie: new installation):
 [Do not worry about 'URL not found' messages]
 >> python manage.py creme_populate
 
-And if you are upgrading from Creme 1.5:
+And if you are upgrading from Creme 1.6:
  - Clean all existing sessions, for example like this:
     >> python manage.py shell
     > from django.contrib.sessions.models import Session

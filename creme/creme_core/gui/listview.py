@@ -65,7 +65,6 @@ class ListViewState(object):
         self.url = get_arg('url')
         self.research = ()
         self.extra_q = None
-        #self._ordering = set()
         self._ordering = []
 
     def __repr__(self):
@@ -253,7 +252,7 @@ class ListViewState(object):
         return query
 
     def _get_regular_sortfield(self, cell):
-        # Compatiblity
+        # Compatibility
         if cell.filter_string.endswith('__header_filter_search_field__icontains'):
             return cell.value + '__header_filter_search_field'
 
@@ -308,10 +307,10 @@ class ListViewState(object):
         sort_field = self._get_sortfield(cells, field_name)
         sort_order = order if order == '-' else ''
 
-        # extra field that is used to internally create the final query the
+        # extra field that is used to internally create the final query ; the
         # sort order is toggled by comparing sorting field and column name
         # (if it's the same '' <-> '-'), so we can not merge this extra field
-        # in sort_field, or the toggling we never happen
+        # in sort_field, or the toggling will never happen
         # (cell.name == sort_field # ==> cell.name != sort_field +'XXX')
 
         ordering = list(model._meta.ordering)
