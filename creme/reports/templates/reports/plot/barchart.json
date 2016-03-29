@@ -50,8 +50,10 @@
                 "serieIndex": 0,
                 "entryIndex": 1,
                 "maxTicksCount": 20,
-                "minTickInterval": 1
+                "minTickInterval": 1,
+                "min": 0.0
             },
+            "min": 0.0,
             "pad": 1.0,
             "tickRenderer": "jqplot.CanvasAxisTickRenderer",
             "tickOptions": {

@@ -158,8 +158,8 @@ creme.widget.PlotProcessors.register('numberTicks', function(series, options) {
 
     entries.sort(function(a, b) {return a - b;});
 
-    var max = entries[entries.length - 1];
-    var min = entries[0];
+    var max = Object.isNone(options.max) ? entries[entries.length - 1] : options.max;
+    var min = Object.isNone(options.min) ? entries[0] : options.min;
     var range = max > min ? Math.abs(max - min) : Math.abs(max); // handle case of empty range.
 
     // Try to get as many ticks as different values under the maxTicksCount and find a default interval.
