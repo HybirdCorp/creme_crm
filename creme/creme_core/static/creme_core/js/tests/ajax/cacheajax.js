@@ -211,7 +211,7 @@ test('CacheBackend.get (create entry, async)', function() {
 
     setTimeout(function() {
         equal(false, entry.waiting);
-        deepEqual({data: 'this is a test message 1', textStatus: undefined}, entry.response);
+        deepEqual({data: 'this is a test message 1', textStatus: 'ok'}, entry.response);
         equal(0, entry.events.listeners('complete').length);
         deepEqual({responseText: 'this is a test message 1', status: 200}, response);
         start();
@@ -270,7 +270,7 @@ test('CacheBackend.get (create entry, async, waiting queue)', function() {
 
     setTimeout(function() {
         equal(false, entry.waiting);
-        deepEqual({data: 'this is a test message 1', textStatus: undefined}, entry.response);
+        deepEqual({data: 'this is a test message 1', textStatus: 'ok'}, entry.response);
         equal(0, entry.events.listeners('complete').length);
         deepEqual({responseText: 'this is a test message 1', status: 200}, response1);
         deepEqual({responseText: 'this is a test message 1', status: 200}, response2);

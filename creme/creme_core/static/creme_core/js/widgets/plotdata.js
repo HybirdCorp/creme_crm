@@ -46,7 +46,7 @@ creme.widget.PlotProcessors = new creme.widget.PlotProcessorRegistry();
 $.extend(creme.widget.PlotProcessors, {
     preprocessOptions: function(options, data)
     {
-        for(key in options)
+        for(var key in options)
         {
             var entry = options[key];
 

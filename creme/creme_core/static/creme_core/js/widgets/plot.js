@@ -230,7 +230,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
 
     _parseJQPlotOptions: function(data)
     {
-        for(key in data)
+        for(var key in data)
         {
             var value = data[key];
 

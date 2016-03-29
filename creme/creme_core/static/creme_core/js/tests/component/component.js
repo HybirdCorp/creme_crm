@@ -23,7 +23,7 @@ MockComponentA = creme.component.Component.sub({
 MockComponentAB = MockComponentA.sub({
    _init_: function(a, b) {
        MockComponentAB.__super__._init_.apply(this, arguments);
-       this._b = b || 0;;
+       this._b = b || 0;
    },
 
    get: function() {

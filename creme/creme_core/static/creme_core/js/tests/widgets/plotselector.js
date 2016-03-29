@@ -164,7 +164,7 @@ test('creme.widget.PlotSelector.create (no graph, no data)', function() {
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(widget.plotOptions(), []);
     equal(widget.plotOption('bar'), undefined);
@@ -183,7 +183,7 @@ test('creme.widget.PlotSelector.create (graphs, no data)', function() {
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(widget.plotOptions().map(function(item) {return [item[0], item[1].replace(/\r\n/g, '')]}),
               [['bar', $.toJSON(PLOTSELECTOR_BARGRAPH_SCRIPT)],
@@ -207,7 +207,7 @@ test('creme.widget.PlotSelector.create (graphs, name, no data)', function() {
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
@@ -223,7 +223,7 @@ test('creme.widget.PlotSelector.create (graphs, template name, no initial, no da
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(plot_widget.plotOptions(), {});
     deepEqual(plot_widget.plotData(), []);
@@ -243,7 +243,7 @@ test('creme.widget.PlotSelector.create (graphs, template name, initial, no data)
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
@@ -283,7 +283,7 @@ test('creme.widget.PlotSelector.create (graphs, name, template data url, no init
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
@@ -324,7 +324,7 @@ test('creme.widget.PlotSelector.reload (graphs, name, template data url)', funct
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
@@ -349,7 +349,7 @@ test('creme.widget.PlotSelector.reload (graphs, name, template data url)', funct
 
     widget.reload({id: 'unknown'});
 
-    assertInvalidPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertEmptyPlot(this, $('.ui-creme-jqueryplot', element));
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
     deepEqual(plot_widget.plotData(), []);
 });
@@ -368,7 +368,7 @@ test('creme.widget.PlotSelector.reload (graphs, template name, template data url
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(plot_widget.plotOptions(), {});
     deepEqual(plot_widget.plotData(), []);
@@ -412,7 +412,7 @@ test('creme.widget.PlotSelector.reset (graphs, template name, template data url)
 
     assertReady(element);
     assertReady($('.ui-creme-jqueryplot', element));
-    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'Error: No data specified');
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'null');
 
     deepEqual(plot_widget.plotOptions(), {});
     deepEqual(plot_widget.plotData(), []);

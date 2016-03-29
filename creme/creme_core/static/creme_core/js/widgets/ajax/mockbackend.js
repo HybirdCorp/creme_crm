@@ -66,7 +66,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
                                                                                                     response.responseText,
                                                                                                     response.xhr));
 
-        return creme.object.invoke(on_success, response.responseText);
+        return creme.object.invoke(on_success, response.responseText, response.statusText, response);
     },
 
     get:function(url, data, on_success, on_error, options)
@@ -90,8 +90,16 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         return this.send(action, form, this.POST, on_success, on_error, options);
     },
 
-    response: function(status, data) {
-        return new creme.ajax.XHR({responseText: data, status: status});
+    response: function(status, data, header) {
+        var header = $.extend({
+            'content-type': 'text/html'
+        }, header || {});
+
+        return new creme.ajax.XHR({responseText: data,
+                                   status: status,
+                                   statusText: status !== 200 ? creme.ajax.LOCALIZED_ERROR_MESSAGES[status] : 'ok',
+                                   getResponseHeader: function(name) {return header[name.toLowerCase()];}
+                                  });
     },
 
     resetMockCounts: function() {

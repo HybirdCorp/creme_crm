@@ -1,7 +1,7 @@
 module("creme.utils.converters.js", {
     setup: function() {
         this.str2int = function(data) {
-            res = parseInt(data);
+            var res = parseInt(data);
 
             if (isNaN(res))
                 throw '"' + data + '" <' + typeof data + '> is not a number';
@@ -9,7 +9,7 @@ module("creme.utils.converters.js", {
             return res;
         };
         this.str2float = function(data) {
-            res = parseFloat(data);
+            var res = parseFloat(data);
 
             if (isNaN(res))
                 throw '"' + data + '" <' + typeof data + '> is not a number';
