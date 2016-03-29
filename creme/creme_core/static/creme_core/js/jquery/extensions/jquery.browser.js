@@ -26,8 +26,8 @@
     };
 
     // Don't clobber any existing jQuery.browser in case it's different
-    matched = uaMatch( navigator.userAgent );
-    browser = {};
+    var matched = uaMatch( navigator.userAgent );
+    var browser = {};
 
     if ( matched.browser ) {
         browser[ matched.browser ] = true;
@@ -50,7 +50,7 @@
     }
 
     $.matchIEVersion = function() {
-        pattern = '';
+        var pattern = '';
 
         for(var i = 0; i < arguments.length; ++i) {
             var version =  arguments[i] + '\.[\\d]+';

@@ -150,7 +150,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
 
     _reloadSelectors: function(element, data)
     {
-        for(name in data) {
+        for(var name in data) {
             this._reloadDependencies(element, name, data[name]);
         }
     },

@@ -190,9 +190,9 @@ creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options)
         url:      url,
         data:     data !== undefined ? data : '',
         dataType: "json",
-        success: function(data, textStatus) {
+        success: function(data, textStatus, xhr) {
             if (Object.isFunc(success_cb)) {
-                success_cb(data, textStatus);
+                success_cb(data, textStatus, xhr);
             }
         },
         error: function(req, textStatus, errorThrown) {

@@ -42,7 +42,7 @@
         var keys = [];
         var key;
 
-        for (key in obj) {
+        for (var key in obj) {
             if (all || obj.hasOwnProperty(key)) {
                 keys.push(key);
             }
@@ -52,9 +52,9 @@
     });
 
     appendStatic('values', function(obj, all) {
-        values = [];
+        var values = [];
 
-        for (key in obj) {
+        for (var key in obj) {
             if (all || obj.hasOwnProperty(key)) {
                 values.push(obj[key]);
             }
@@ -64,9 +64,9 @@
     });
 
     appendStatic('entries', function(obj, all) {
-        entries = [];
+        var entries = [];
 
-        for(key in obj) {
+        for(var key in obj) {
             if (all || obj.hasOwnProperty(key)) {
                 entries.push([key, obj[key]]);
             }
@@ -121,7 +121,7 @@
         var filter = Object.isFunc(options.filter) ? options.filter : function() {return true}
         var parameters = Object.isFunc(options.arguments) ? function(args) {return options.arguments(Array.copy(args));} : Array.copy;
 
-        for(key in delegate)
+        for(var key in delegate)
         {
             var value = delegate[key];
 

@@ -256,8 +256,8 @@ creme.model.SelectionController = creme.component.Component.sub({
         if (has_updates)
         {
             indices.forEach(function(range) {
-                update_start = range[0];
-                update_end = range[1];
+                var update_start = range[0];
+                var update_end = range[1];
 
                 model._fireUpdate(items.slice(update_start, update_end + 1),
                                   update_start, update_end,

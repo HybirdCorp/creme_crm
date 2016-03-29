@@ -71,6 +71,8 @@ creme.object = {
 
     build_callback: function(script, parameters)
     {
+        return creme.utils.lambda(script, parameters);
+        /*
         if (typeof script === 'function')
             return script;
 
@@ -82,6 +84,7 @@ creme.object = {
         } catch(e) {
             throw Error('Invalid callback script : ' + e);
         }
+        */
     },
 
     deferred_start: function(element, name, func, delay)
@@ -284,9 +287,9 @@ $.extend(creme.widget, {
         var res = new String(template);
 
         if (typeof values !== 'function')
-            getter = function(key) {return values[key];}
+            var getter = function(key) {return values[key];}
         else
-            getter = values;
+            var getter = values;
 
         for(var i = 0; i < entries.length; i++)
         {

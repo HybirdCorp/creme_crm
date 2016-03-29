@@ -311,6 +311,8 @@ test('creme.widget.Toggle.toggle (callback script)', function() {
 
     widget.collapse();
     equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, false);
+
+    delete window['LAST_CREME_WIDGET_TOGGLE_STATE'];
 });
 
 test('creme.widget.Toggle.trigger (single target, click)', function() {

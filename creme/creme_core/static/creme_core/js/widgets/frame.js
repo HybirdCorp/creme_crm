@@ -33,7 +33,7 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         var frame = this._frame = new creme.dialog.Frame({backend: options.backend});
 
         frame.on('update', function(event, data, type) {
-                  element.trigger('update', [data, statusText]);
+                  element.trigger('update', [data, type]);
               })
              .on('fetch-fail submit-fail', function(event, data, error) {
                   element.trigger('fetch-fail' === event ? 'reloadError' : 'submitError', [data, error]);

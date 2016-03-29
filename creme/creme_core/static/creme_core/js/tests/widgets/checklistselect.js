@@ -7,7 +7,7 @@ function mock_checklistselect_create(options, noauto, nodelegate) {
     if (!nodelegate)
         select.append($('<select class="ui-creme-input" multiple/>'));
 
-    for(key in options) {
+    for(var key in options) {
         select.attr(key, options[key]);
     }
 

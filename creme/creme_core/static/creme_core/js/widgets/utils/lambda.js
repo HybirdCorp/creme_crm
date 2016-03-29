@@ -68,12 +68,17 @@ creme.utils.Lambda = creme.component.Component.sub({
             throw Error('empty lambda script');
 
         var parameters = Array.isArray(parameters) ? parameters.join(',') : (parameters || '');
+        var uuid = $.uidGen({prefix: '__lambda_', mode:'random'});
 
-        var script = 'cb = function(' + parameters + ') {';
+        var script = 'creme.utils["' + uuid + '"] = function(' + parameters + ') {';
         script += callable.indexOf('return') != -1 ? callable : 'return ' + callable + ';';
         script += '};';
 
-        this._lambda = eval(script);
+        eval(script);
+
+        this._lambda = creme.utils[uuid];
+        delete creme.utils[uuid];
+
         return this;
     },
 

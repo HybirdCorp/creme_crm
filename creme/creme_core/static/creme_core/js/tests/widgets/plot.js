@@ -162,6 +162,15 @@ function assertPlot(context, element)
     equal(context.plotError, null, 'no error');
 }
 
+function assertEmptyPlot(context, element)
+{
+    equal(typeof element.creme().widget().plot(), 'object', 'plot element');
+    equal($('.jqplot-target', element).length, 0, 'jqplot-target count');
+
+    deepEqual(context.plotSuccess, element.creme().widget().plot(), 'success');
+    equal(context.plotError, null, 'no error');
+}
+
 function assertInvalidPlot(context, element, error)
 {
     equal(typeof element.creme().widget().plot(), 'object');
@@ -181,7 +190,7 @@ test('creme.widget.Plot.create (empty)', function() {
 
     creme.widget.create(element);
     assertReady(element);
-    assertNoPlot(this, element, 'Error: No data specified');
+    assertNoPlot(this, element, 'null');
 });
 
 test('creme.widget.Plot.create (invalid)', function() {
@@ -214,17 +223,19 @@ test('creme.widget.Plot.draw (empty)', function() {
     var widget = creme.widget.create(element);
 
     assertReady(element);
-    assertNoPlot(this, element, 'Error: No data specified');
+    assertNoPlot(this, element, 'null');
 
     this.resetMockEvents();
     stop(1);
 
-    widget.draw(MOCK_PLOT_CONTENT_JSON_EMPTY_DATA, undefined, function() {
+    widget.draw(MOCK_PLOT_CONTENT_JSON_EMPTY_DATA, function() {
+        start();
+    }, function() {
         start();
     });
 
     assertReady(element);
-    assertNoPlot(this, element, 'Error: No data specified');
+    assertNoPlot(this, element, 'null');
 });
 
 test('creme.widget.Plot.draw (valid)', function() {

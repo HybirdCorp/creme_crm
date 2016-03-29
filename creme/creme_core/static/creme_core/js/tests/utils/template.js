@@ -82,7 +82,7 @@ test('creme.utils.Template (render, dict)', function() {
 });
 
 test('creme.utils.Template (render, array)', function() {
-    data = [12, 13, 14];
+    var data = [12, 13, 14];
 
     var template = new creme.utils.Template('this is a template', data);
 
@@ -216,8 +216,7 @@ test('creme.utils.templatize (string)', function() {
 
 test('creme.utils.templatize (template, context)', function() {
     var source = new creme.utils.Template('template ${tag}');
-
-    template = creme.utils.templatize(source);
+    var template = creme.utils.templatize(source);
 
     equal('template ${tag}', template.pattern());
     equal(undefined, template.parameters());
