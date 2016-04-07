@@ -103,7 +103,7 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual([field_name1], lvs._ordering)
 
         qs = Organisation.objects.all()
-        re = 'ORDER BY .creme_core_fakeorganisation.\..name. ASC$'
+        re = 'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
         self.assertRegexpMatches(self._get_sql(qs), re)
 
         sql = self._get_sql(lvs.sort_query(qs))
@@ -120,7 +120,7 @@ class ListViewStateTestCase(CremeTestCase):
 
         qs = Organisation.objects.all()
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY .creme_core_fakeorganisation.\..name. DESC$'
+                                 'ORDER BY .creme_core_fakeorganisation.\..name. DESC( NULLS LAST)?$'
                                 )
 
     def test_sort_oneorder_02(self):
@@ -143,12 +143,12 @@ class ListViewStateTestCase(CremeTestCase):
         qs = Organisation.objects.all()
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakeorganisation.\..email. ASC, '
-                                 '.creme_core_fakeorganisation.\..name. ASC$',
+                                 '.creme_core_fakeorganisation.\..email. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$',
                                 )
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs, fast_mode=True)),
                                  'ORDER BY '
-                                 '.creme_core_fakeorganisation.\..email. ASC$',
+                                 '.creme_core_fakeorganisation.\..email. ASC( NULLS FIRST)?$',
                                 )
 
     def test_sort_oneorder_03(self):
@@ -224,8 +224,8 @@ class ListViewStateTestCase(CremeTestCase):
 
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(Document.objects.all())),
                                  'ORDER BY '
-                                 'T4\..header_filter_search_field. ASC, '
-                                 '.creme_core_fakedocument.\..title. ASC$'
+                                 'T4\..header_filter_search_field. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakedocument.\..title. ASC( NULLS FIRST)?$'
                                 )
 
     def test_sort_oneorder_07(self):
@@ -249,8 +249,8 @@ class ListViewStateTestCase(CremeTestCase):
 
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(Organisation.objects.all())),
                                  'ORDER BY '
-                                 '.creme_core_fakesector.\..order. ASC, '
-                                 '.creme_core_fakeorganisation.\..name. ASC$'
+                                 '.creme_core_fakesector.\..order. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
                                 )
 
     def test_sort_oneorder_08(self):
@@ -269,7 +269,7 @@ class ListViewStateTestCase(CremeTestCase):
 
         qs = Organisation.objects.all()
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY .creme_core_fakeorganisation.\..phone. ASC$',
+                                 'ORDER BY .creme_core_fakeorganisation.\..phone. ASC( NULLS FIRST)?$',
                                 )
 
         # Initial
@@ -301,13 +301,13 @@ class ListViewStateTestCase(CremeTestCase):
         qs = Contact.objects.all()
         self.assertRegexpMatches(self._get_sql(qs),
                                  'ORDER BY '
-                                 '.creme_core_fakecontact.\..last_name. ASC, '
-                                 '.creme_core_fakecontact.\..first_name. ASC$',
+                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?$',
                                 )
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakecontact.\..first_name. ASC, '
-                                 '.creme_core_fakecontact.\..last_name. ASC$',
+                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?$',
                                 )
 
         # DESC -----------------------------
@@ -318,8 +318,8 @@ class ListViewStateTestCase(CremeTestCase):
 
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakecontact.\..first_name. DESC, '
-                                 '.creme_core_fakecontact.\..last_name. DESC$',
+                                 '.creme_core_fakecontact.\..first_name. DESC( NULLS LAST)?, '
+                                 '.creme_core_fakecontact.\..last_name. DESC( NULLS LAST)?$',
                                 )
 
     def test_sort_twoorders_02(self):
@@ -344,9 +344,9 @@ class ListViewStateTestCase(CremeTestCase):
         qs = Contact.objects.all()
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakecontact.\..phone. ASC, '
-                                 '.creme_core_fakecontact.\..last_name. ASC, '
-                                 '.creme_core_fakecontact.\..first_name. ASC$',
+                                 '.creme_core_fakecontact.\..phone. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?$',
                                 )
 
         # DESC ------------------
@@ -357,9 +357,9 @@ class ListViewStateTestCase(CremeTestCase):
 
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakecontact.\..phone. DESC, '
-                                 '.creme_core_fakecontact.\..last_name. ASC, '
-                                 '.creme_core_fakecontact.\..first_name. ASC$',
+                                 '.creme_core_fakecontact.\..phone. DESC( NULLS LAST)?, '
+                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?$',
                                 )
 
     def test_sort_twoorders_03(self):
@@ -414,10 +414,10 @@ class ListViewStateTestCase(CremeTestCase):
         qs = Contact.objects.all()
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakecontact.\..last_name. ASC$',
+                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?$',
                                  # TODO: if there is an index (last_name, first_name)
-                                 # '.creme_core_fakecontact.\..last_name. ASC, '
-                                 # '.creme_core_fakecontact.\..first_name. ASC$',
+                                 # '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
+                                 # '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?$',
                                 )
 
     def test_sort_descorder_01(self):
@@ -440,10 +440,10 @@ class ListViewStateTestCase(CremeTestCase):
 
         qs = Activity.objects.all()
         self.assertRegexpMatches(self._get_sql(qs),
-                                 'ORDER BY .creme_core_fakeactivity.\..start. DESC$'
+                                 'ORDER BY .creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
                                 )
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY .creme_core_fakeactivity.\..start. ASC$'
+                                 'ORDER BY .creme_core_fakeactivity.\..start. ASC( NULLS FIRST)?$'
                                 )
 
         # DESC ------------
@@ -453,7 +453,7 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual(['-' + field_name1], lvs._ordering)
 
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY .creme_core_fakeactivity.\..start. DESC$'
+                                 'ORDER BY .creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
                                 )
 
     def test_sort_descorder_02(self):
@@ -474,7 +474,7 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual(['-' + field_name1], lvs._ordering)
 
         qs = Activity.objects.all()
-        re = 'ORDER BY .creme_core_fakeactivity.\..start. DESC$'
+        re = 'ORDER BY .creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
         self.assertRegexpMatches(self._get_sql(qs), re)
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)), re)
 
@@ -498,8 +498,8 @@ class ListViewStateTestCase(CremeTestCase):
         qs = Activity.objects.all()
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakeactivity.\..title. ASC, '
-                                 '.creme_core_fakeactivity.\..start. DESC$'
+                                 '.creme_core_fakeactivity.\..title. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
                                 )
 
         # DESC ------------------------------
@@ -510,8 +510,8 @@ class ListViewStateTestCase(CremeTestCase):
 
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakeactivity.\..title. DESC, '
-                                 '.creme_core_fakeactivity.\..start. DESC$'
+                                 '.creme_core_fakeactivity.\..title. DESC( NULLS LAST)?, '
+                                 '.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
                                 )
 
     def test_sort_twoordersdesc_01(self):
@@ -534,8 +534,8 @@ class ListViewStateTestCase(CremeTestCase):
 
         qs = Invoice.objects.all()
         re = 'ORDER BY ' \
-             '.creme_core_fakeinvoice.\..name. ASC, ' \
-             '.creme_core_fakeinvoice.\..expiration_date. DESC$'
+             '.creme_core_fakeinvoice.\..name. ASC( NULLS FIRST)?, ' \
+             '.creme_core_fakeinvoice.\..expiration_date. DESC( NULLS LAST)?$'
         self.assertRegexpMatches(self._get_sql(qs), re)
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)), re)
 
@@ -547,8 +547,8 @@ class ListViewStateTestCase(CremeTestCase):
 
         self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
                                  'ORDER BY '
-                                 '.creme_core_fakeinvoice.\..name. DESC, '
-                                 '.creme_core_fakeinvoice.\..expiration_date. ASC$'
+                                 '.creme_core_fakeinvoice.\..name. DESC( NULLS LAST)?, '
+                                 '.creme_core_fakeinvoice.\..expiration_date. ASC( NULLS FIRST)?$'
                                 )
 
     # TODO: test handle_research() + get_q_with_research()

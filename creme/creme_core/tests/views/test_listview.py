@@ -583,16 +583,16 @@ class ListViewTestCase(ViewsTestCase):
         sql = self._aux_test_ordering_fastmode()
         self.assertRegexpMatches(sql,
                                  'ORDER BY '
-                                 '.creme_core_fakecontact.\..birthday. ASC, '
-                                 '.creme_core_fakecontact.\..last_name. ASC, '
-                                 '.creme_core_fakecontact.\..first_name. ASC LIMIT'
+                                 '.creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)? LIMIT'
                                 )
 
     @override_settings(FAST_QUERY_MODE_THESHOLD=2)
     def test_ordering_fastmode_02(self):
         "Fast mode=ON"
         sql = self._aux_test_ordering_fastmode()
-        self.assertRegexpMatches(sql, 'ORDER BY .creme_core_fakecontact.\..birthday. ASC LIMIT')
+        self.assertRegexpMatches(sql, 'ORDER BY .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)? LIMIT')
 
     def test_efilter01(self):
         user = self.login()
