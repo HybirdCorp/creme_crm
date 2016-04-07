@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-22 19:00+0100\n"
+"POT-Creation-Date: 2016-04-05 19:33+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -85,7 +85,7 @@ msgstr "Propriétés"
 msgid "Relationships"
 msgstr "Relations"
 
-#: blocks.py:81 forms/bulk.py:128 models/custom_field.py:61
+#: blocks.py:81 forms/bulk.py:138 models/custom_field.py:61
 #: templates/creme_core/entity_cells_widget.html:60
 #: templates/creme_core/templatetags/block_customfields.html:7
 msgid "Custom fields"
@@ -145,7 +145,7 @@ msgid "Remove the end (N characters)"
 msgstr "Enlever la fin (N caractères)"
 
 #: core/batch_process.py:92 forms/widgets.py:448 forms/widgets.py:491
-#: forms/widgets.py:577 models/base.py:43
+#: forms/widgets.py:577 models/base.py:44
 #: templates/creme_core/generics/form/add.html:4
 #: templates/creme_core/generics/form/add.html:7
 #: templates/creme_core/templatetags/widgets/add_button.html:6
@@ -187,7 +187,7 @@ msgstr "%(field)s => %(operator)s"
 msgid "Actions"
 msgstr "Actions"
 
-#: core/job.py:95
+#: core/job.py:94
 msgid ""
 "The job manager does not respond.\n"
 "Please contact your administrator."
@@ -195,7 +195,7 @@ msgstr ""
 "Le gestionnaire de job ne répond pas.\n"
 "Veuillez contacter votre administrateur."
 
-#: core/job.py:101
+#: core/job.py:100
 #, python-format
 msgid ""
 "There is a connection error with the job manager.\n"
@@ -208,16 +208,16 @@ msgstr ""
 "[Erreur originale depuis «%(queue)s»:\n"
 "%(message)s]"
 
-#: core/job.py:223
+#: core/job.py:222
 msgid "Redis queue"
 msgstr "Queue Redis"
 
-#: core/reminder.py:79
+#: core/reminder.py:80
 #, python-format
 msgid "An error occurred while sending emails related to «%s»"
 msgstr "Une erreur s'est produite pendant l'envoi des e-mails relatifs à «%s»"
 
-#: core/reminder.py:81
+#: core/reminder.py:82
 #, python-format
 msgid "Original error: %s"
 msgstr "Erreur originale : %s"
@@ -306,7 +306,7 @@ msgstr "Exécuter tous les mémentos"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:262 forms/list_view_import.py:1224 models/base.py:112
+#: forms/base.py:262 forms/list_view_import.py:1224 models/base.py:115
 #: models/entity_filter.py:112 models/header_filter.py:72
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
@@ -345,16 +345,16 @@ msgstr "Filtre"
 msgid "All"
 msgstr "Tout"
 
-#: forms/bulk.py:88
+#: forms/bulk.py:98
 msgid "Field to update"
 msgstr "Champ à mettre à jour"
 
-#: forms/bulk.py:225
+#: forms/bulk.py:235
 #, python-format
 msgid "The field %s is empty"
 msgstr "Le champ %s est vide"
 
-#: forms/bulk.py:277
+#: forms/bulk.py:304
 msgid "You can't view this value, so you can't set it."
 msgstr ""
 "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
@@ -531,7 +531,7 @@ msgstr ""
 "Un filtre privé peut seulement être utilisé par son propriétaire (ou les "
 "coéquipiers si le propriétaire est une équipe)"
 
-#: forms/entity_filter.py:1246 forms/header_filter.py:339
+#: forms/entity_filter.py:1246 forms/header_filter.py:342
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
@@ -631,22 +631,22 @@ msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
 
-#: forms/header_filter.py:137 forms/list_view_import.py:297
+#: forms/header_filter.py:140 forms/list_view_import.py:297
 #: forms/list_view_import.py:544
 msgid "Enter a valid value."
 msgstr "Saisissez une valeur valide."
 
-#: forms/header_filter.py:322 forms/header_filter.py:324
+#: forms/header_filter.py:325 forms/header_filter.py:327
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/header_filter.py:329
+#: forms/header_filter.py:332
 msgid "All users can see the view, but only the owner can edit or delete it"
 msgstr ""
 "Cette vue sera visible par tous les utilisateurs, mais seul le propriétaire "
 "pourra la modifier ou la supprimer"
 
-#: forms/header_filter.py:330
+#: forms/header_filter.py:333
 msgid ""
 "A private view of list can only be used by its owner (or the teammates if "
 "the owner is a team)"
@@ -654,11 +654,11 @@ msgstr ""
 "Une vue de liste privée peut seulement être utilisée par son propriétaire "
 "(ou les coéquipiers si le propriétaire est une équipe)"
 
-#: forms/header_filter.py:365
+#: forms/header_filter.py:368
 msgid "A private view of list must be assigned to a user/team."
 msgstr "Une vue de liste privée doit être attribuée à un utilisateur/équipe."
 
-#: forms/header_filter.py:372 forms/header_filter.py:374
+#: forms/header_filter.py:375 forms/header_filter.py:377
 msgid "A private view of list must belong to you (or one of your teams)."
 msgstr ""
 "Une vue de liste privée doit vous être attribuée (ou à une des vos équipe)."
@@ -1045,14 +1045,14 @@ msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 #: gui/field_printers.py:101 models/custom_field.py:271
 #: templates/creme_core/templatetags/block_job.html:87
 #: templates/creme_core/templatetags/block_jobs.html:76
-#: templatetags/creme_listview.py:79 utils/__init__.py:275
+#: templatetags/creme_listview.py:93 utils/__init__.py:275
 msgid "Yes"
 msgstr "Oui"
 
 #: gui/field_printers.py:101 models/custom_field.py:271
 #: templates/creme_core/templatetags/block_job.html:88
 #: templates/creme_core/templatetags/block_jobs.html:77
-#: templatetags/creme_listview.py:83 utils/__init__.py:278
+#: templatetags/creme_listview.py:97 utils/__init__.py:278
 msgid "No"
 msgstr "Non"
 
@@ -1106,7 +1106,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:222 models/entity.py:265
+#: models/auth.py:222 models/entity.py:268
 #: templates/creme_core/templatetags/block_job.html:28
 #: templates/creme_core/templatetags/block_relations.html:13
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
@@ -1230,7 +1230,7 @@ msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer : %s"
 
-#: models/auth.py:560 views/entity.py:454
+#: models/auth.py:560 views/entity.py:540
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
@@ -1260,11 +1260,11 @@ msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/base.py:104
+#: models/base.py:107
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:105
+#: models/base.py:108
 msgid "Last modification"
 msgstr "Dernière modification"
 
@@ -1386,12 +1386,12 @@ msgstr "Liste de choix multiples"
 msgid "Add an entity"
 msgstr "Ajouter une fiche"
 
-#: models/entity.py:113 views/entity.py:67
+#: models/entity.py:116 views/entity.py:69
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:258 templates/creme_core/generics/blockform/edit.html:9
+#: models/entity.py:261 templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/form/edit.html:8
 #: templates/creme_core/generics/form/edit.html:13
 #: templates/creme_core/templatetags/widgets/block_field_editor.html:4
@@ -1400,7 +1400,7 @@ msgstr "Fiche #%s (non visible)"
 msgid "Edit"
 msgstr "Modifier"
 
-#: models/entity.py:272
+#: models/entity.py:275
 msgid "See"
 msgstr "Voir"
 
@@ -1430,9 +1430,9 @@ msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:192 models/header_filter.py:143
-#: views/batch_process.py:42 views/batch_process.py:95 views/entity.py:167
+#: views/batch_process.py:42 views/batch_process.py:95 views/entity.py:169
 #: views/entity_filter.py:55 views/entity_filter.py:156
-#: views/generic/listview.py:244 views/header_filter.py:47
+#: views/generic/listview.py:321 views/header_filter.py:47
 #: views/header_filter.py:130
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
@@ -1542,91 +1542,91 @@ msgstr ""
 "Vous ne pouvez pas supprimer ce filtre, car il est utilisé comme sous-filtre "
 "par : %s"
 
-#: models/entity_filter.py:802
+#: models/entity_filter.py:815
 msgid "Equals"
 msgstr "Est égal à"
 
-#: models/entity_filter.py:804
+#: models/entity_filter.py:817
 msgid "Equals (case insensitive)"
 msgstr "Est égal à (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:806
+#: models/entity_filter.py:819
 msgid "Does not equal"
 msgstr "N'est pas égal à"
 
-#: models/entity_filter.py:808
+#: models/entity_filter.py:821
 msgid "Does not equal (case insensitive)"
 msgstr "N'est pas égal à (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:810
+#: models/entity_filter.py:823
 msgid "Contains"
 msgstr "Contient"
 
-#: models/entity_filter.py:811
+#: models/entity_filter.py:824
 msgid "Contains (case insensitive)"
 msgstr "Contient (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:812
+#: models/entity_filter.py:825
 msgid "Does not contain"
 msgstr "Ne contient pas"
 
-#: models/entity_filter.py:813
+#: models/entity_filter.py:826
 msgid "Does not contain (case insensitive)"
 msgstr "Ne contient pas (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:814
+#: models/entity_filter.py:827
 msgid ">"
 msgstr ">"
 
-#: models/entity_filter.py:815
+#: models/entity_filter.py:828
 msgid ">="
 msgstr ">="
 
-#: models/entity_filter.py:816
+#: models/entity_filter.py:829
 msgid "<"
 msgstr "<"
 
-#: models/entity_filter.py:817
+#: models/entity_filter.py:830
 msgid "<="
 msgstr "<="
 
-#: models/entity_filter.py:818
+#: models/entity_filter.py:831
 msgid "Starts with"
 msgstr "Commence par"
 
-#: models/entity_filter.py:819
+#: models/entity_filter.py:832
 msgid "Starts with (case insensitive)"
 msgstr "Commence par (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:820
+#: models/entity_filter.py:833
 msgid "Does not start with"
 msgstr "Ne commence pas par"
 
-#: models/entity_filter.py:821
+#: models/entity_filter.py:834
 msgid "Does not start with (case insensitive)"
 msgstr "Ne commence pas par (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:822
+#: models/entity_filter.py:835
 msgid "Ends with"
 msgstr "Se termine par"
 
-#: models/entity_filter.py:823
+#: models/entity_filter.py:836
 msgid "Ends with (case insensitive)"
 msgstr "Se termine par (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:824
+#: models/entity_filter.py:837
 msgid "Does not end with"
 msgstr "Ne se termine pas par"
 
-#: models/entity_filter.py:825
+#: models/entity_filter.py:838
 msgid "Does not end with (case insensitive)"
 msgstr "Ne se termine pas par (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:826 utils/date_range.py:278
+#: models/entity_filter.py:839 utils/date_range.py:278
 msgid "Is empty"
 msgstr "Est vide"
 
-#: models/entity_filter.py:827
+#: models/entity_filter.py:840
 msgid "Range"
 msgstr "Intervalle"
 
@@ -2002,46 +2002,8 @@ msgid_plural "%(counter)s entities have been successfully modified."
 msgstr[0] "%(counter)s fiche a été modifiée avec succès."
 msgstr[1] "%(counter)s fiches ont été modifiées avec succès."
 
-#: view/entity.py:302
-#, c-format
-msgid "%%s %s has been selected."
-msgstr "%%s %s a été sélectionné."
-
-#: view/entity.py:302
-#, c-format
-msgid "%%s %s have been selected."
-msgstr "%%s %s ont été sélectionnés."
-
-#: view/entity.py:268
-#, python-format
-msgid "%(success)s of %(initial)s %(model)s has been successfully modified."
-msgid_plural "%(success)s of %(initial)s %(model)s have been successfully modified."
-msgstr[0] "%(success)s %(model)s sur %(initial)s a été modifié avec succès."
-msgstr[1] "%(success)s %(model)s sur %(initial)s ont été modifiés avec succès."
-
-#: view/entity.py:273
-#, python-format
-msgid "%(success)s %(model)s has been successfully modified."
-msgid_plural "%(success)s %(model)s have been successfully modified."
-msgstr[0] "%(success)s %(model)s a été modifié avec succès."
-msgstr[1] "%(success)s %(model)s ont été modifiés avec succès."
-
-#: view/entity.py:273
-#, python-format
-msgid "%(unallowed)s was not editable."
-msgid_plural "%(unallowed)s were not editable."
-msgstr[0] "%(unallowed)s n'est pas modifiable."
-msgstr[1] "%(unallowed)s ne sont pas modifiables."
-
-#: view/entity.py:273
-#, python-format
-msgid "%(invalid)s has returned an error."
-msgid_plural "%(invalid)s have returned an error."
-msgstr[0] "%(invalid)s a retourné une erreur."
-msgstr[1] "%(invalid)s ont retourné une erreur."
-
 #: templates/creme_core/batch_process_report.html:29
-#: templates/creme_core/frags/bulk_process_report.html:18
+#: templates/creme_core/frags/bulk_process_report.html:19
 #: templates/creme_core/importing_report.html:34
 #: templates/creme_core/templatetags/block_entity_job_errors.html:8
 #: templates/creme_core/templatetags/block_job_errors.html:8
@@ -2050,7 +2012,7 @@ msgid "%s Error"
 msgstr "%s Erreur"
 
 #: templates/creme_core/batch_process_report.html:29
-#: templates/creme_core/frags/bulk_process_report.html:18
+#: templates/creme_core/frags/bulk_process_report.html:19
 #: templates/creme_core/importing_report.html:34
 #: templates/creme_core/templatetags/block_entity_job_errors.html:8
 #: templates/creme_core/templatetags/block_job_errors.html:8
@@ -2059,26 +2021,25 @@ msgid "%s Errors"
 msgstr "%s Erreurs"
 
 #: templates/creme_core/batch_process_report.html:34
-#: templates/creme_core/frags/bulk_process_report.html:23
+#: templates/creme_core/frags/bulk_process_report.html:24
 #: templates/creme_core/templatetags/block_entity_job_errors.html:13
 #: templates/creme_core/templatetags/block_massimport_job_errors.html:14
 msgid "Entity"
 msgstr "Fiche"
 
 #: templates/creme_core/batch_process_report.html:35
-#: templates/creme_core/frags/bulk_process_report.html:24
+#: templates/creme_core/frags/bulk_process_report.html:25
 #: templates/creme_core/importing_report.html:40
 msgid "Induced error"
 msgstr "Erreur provoquée"
 
 #: templates/creme_core/batch_process_report.html:54
-#: templates/creme_core/frags/bulk_process_report.html:43
+#: templates/creme_core/frags/bulk_process_report.html:44
 #: templates/creme_core/importing_report.html:59
 msgid "Other errors have been omitted."
 msgstr "Les autres erreurs ont été omises."
 
 #: templates/creme_core/batch_process_report.html:62
-#: templates/creme_core/frags/bulk_process_report.html:51
 msgid "No error when processing."
 msgstr "Aucune erreur lors du traitement."
 
@@ -2102,7 +2063,7 @@ msgid "You can not perform this action because of business constraints."
 msgstr ""
 "Vous ne pouvez pas effectuer cette action à cause de contraintes métier."
 
-#: templates/creme_core/detailview.html:33
+#: templates/creme_core/detailview.html:35
 msgid "deleted"
 msgstr "supprimé"
 
@@ -2212,24 +2173,7 @@ msgstr "Trier par %(col_title)s"
 msgid "No entity exists / matches your search"
 msgstr "Aucun élément n'existe / ne correspond à votre recherche"
 
-#: templates/creme_core/frags/list_view_content.html:146
-#, python-format
-msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
-msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
-
-#: templates/creme_core/frags/list_view_content.html:153
-msgid "Page"
-msgstr "Page"
-
-#: templates/creme_core/frags/list_view_content.html:153
-msgid "'Enter' to submit"
-msgstr "Touche 'Entrée' pour valider"
-
-#: templates/creme_core/frags/list_view_content.html:153
-msgid "on"
-msgstr "sur"
-
-#: templates/creme_core/frags/list_view_content.html:160
+#: templates/creme_core/frags/list_view_content.html:147
 msgid "Nb / Page"
 msgstr "Nb / Page"
 
@@ -2292,7 +2236,7 @@ msgstr "Modifier «%(object)s»"
 msgid "Save the modifications"
 msgstr "Enregistrer les modifications"
 
-#: templates/creme_core/generics/blockform/edit.html:16 views/entity.py:231
+#: templates/creme_core/generics/blockform/edit.html:16 views/entity.py:233
 #: views/generic/edit.py:126
 #, python-format
 msgid "Edit «%s»"
@@ -2411,13 +2355,13 @@ msgstr "Aucune erreur lors de l'import."
 msgid "List of jobs"
 msgstr "Liste des jobs"
 
-#: templates/creme_core/jobs.html:13
+#: templates/creme_core/jobs.html:5
 msgid "Disabling a job takes effect only after its current execution."
 msgstr ""
 "La désactivation d'un job ne prendra seulement effet qu'après son exécution "
 "courante."
 
-#: templates/creme_core/merge.html:4 views/entity.py:358
+#: templates/creme_core/merge.html:4 views/entity.py:444
 msgid "Merge"
 msgstr "Fusionner"
 
@@ -2566,7 +2510,7 @@ msgstr "Vous devez supprimer votre job pour pouvoir en créer un nouveau"
 msgid "You must delete one of your jobs in order to create a new one."
 msgstr "Vous devez supprimer un de vos jobs pour pouvoir en créer un nouveau"
 
-#: templates/creme_core/templatetags/block_jobs.html:94
+#: templates/creme_core/templatetags/block_jobs.html:92
 msgid "No job for the moment"
 msgstr "Aucun job pour le moment"
 
@@ -2771,7 +2715,8 @@ msgid "Multiple relationship adding"
 msgstr "Ajout de relation multiple"
 
 #: templates/creme_core/templatetags/listview_columns_header.html:64
-#: views/entity.py:262 views/entity.py:272
+#: views/entity.py:295 views/entity.py:309 views/entity.py:346
+#: views/entity.py:358
 msgid "Multiple update"
 msgstr "Modification multiple"
 
@@ -2807,6 +2752,52 @@ msgstr "Modifier la vue personnalisée"
 msgid "Delete custom view"
 msgstr "Supprimer vue personnalisée"
 
+#: templates/creme_core/templatetags/listview_paginator_fast.html:3
+#, python-format
+msgid "%(entities_count)s recording"
+msgid_plural "%(entities_count)s recordings"
+msgstr[0] "%(entities_count)s enregistrement"
+msgstr[1] "%(entities_count)s enregistrements"
+
+#: templates/creme_core/templatetags/listview_paginator_fast.html:7
+#: templates/creme_core/templatetags/listview_paginator_slow.html:6
+msgid "First page"
+msgstr "Première page"
+
+#: templates/creme_core/templatetags/listview_paginator_fast.html:8
+#: templates/creme_core/templatetags/listview_paginator_slow.html:7
+#: templates/creme_core/templatetags/widgets/block_footer.html:37
+msgid "Previous page"
+msgstr "Page précédente"
+
+#: templates/creme_core/templatetags/listview_paginator_fast.html:11
+#: templates/creme_core/templatetags/listview_paginator_slow.html:13
+#: templates/creme_core/templatetags/widgets/block_footer.html:99
+msgid "Next page"
+msgstr "Page suivante"
+
+#: templates/creme_core/templatetags/listview_paginator_slow.html:3
+#, python-format
+msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
+msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
+
+#: templates/creme_core/templatetags/listview_paginator_slow.html:10
+msgid "Page"
+msgstr "Page"
+
+#: templates/creme_core/templatetags/listview_paginator_slow.html:10
+msgid "'Enter' to submit"
+msgstr "Touche 'Entrée' pour valider"
+
+#: templates/creme_core/templatetags/listview_paginator_slow.html:10
+msgid "on"
+msgstr "sur"
+
+#: templates/creme_core/templatetags/listview_paginator_slow.html:14
+#| msgid "Last name"
+msgid "Last page"
+msgstr "Dernière page"
+
 #: templates/creme_core/templatetags/prefered_menu.html:3
 msgid "Preferred menu:"
 msgstr "Menus rapides:"
@@ -2829,10 +2820,6 @@ msgstr "Montrer/Cacher les champs vides"
 #: templates/creme_core/templatetags/widgets/edit_button.html:10
 msgid "Can't edit"
 msgstr "Modification interdite"
-
-#: templates/creme_core/templatetags/widgets/block_footer.html:37
-msgid "Previous page"
-msgstr "Page précédente"
 
 #: templates/creme_core/templatetags/widgets/block_footer.html:46
 #: templates/creme_core/templatetags/widgets/block_footer.html:52
@@ -2859,10 +2846,6 @@ msgstr "Aller à la page %(num_pages)s"
 #: templates/creme_core/templatetags/widgets/block_footer.html:77
 msgid "To page 1"
 msgstr "Aller à la page 1"
-
-#: templates/creme_core/templatetags/widgets/block_footer.html:99
-msgid "Next page"
-msgstr "Page suivante"
 
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:8
 #: templates/creme_core/templatetags/widgets/delete_button.html:18
@@ -2983,7 +2966,7 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
-#: templatetags/creme_listview.py:135 templatetags/creme_listview.py:163
+#: templatetags/creme_listview.py:149 templatetags/creme_listview.py:177
 msgid "* is empty *"
 msgstr "* est vide *"
 
@@ -3131,42 +3114,81 @@ msgstr "Enregistrer le type de propriété"
 msgid "%(count)s %(model)s"
 msgstr "%(count)s %(model)s"
 
-#: views/entity.py:119
+#: views/entity.py:121
 #, python-format
 msgid "%s [CREATION]"
 msgstr "%s [CRÉATION]"
 
-#: views/entity.py:135
+#: views/entity.py:137
 msgid "This model does not use the generic clone view."
 msgstr "Ce modèle n'utilise pas la vue de clonage générique."
 
-#: views/entity.py:189
+#: views/entity.py:191
 msgid "This field is hidden."
 msgstr "Ce champ est caché."
 
-#: views/entity.py:199
+#: views/entity.py:201
 msgid "No entity corresponding to your search was found."
 msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
-#: views/entity.py:214
+#: views/entity.py:216
 msgid "You are not allowed to edit this entity"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
 
-#: views/entity.py:227 views/entity.py:268
+#: views/entity.py:229 views/entity.py:250 views/entity.py:354
 #, python-format
 msgid "The field \"%s\" doesn't exist or cannot be edited"
 msgstr "Le champ \"%s\" n'existe pas ou ne peut être modifié."
 
-#: views/entity.py:247
+#: views/entity.py:258 views/entity.py:330
 msgid "You are not allowed to edit these entities"
 msgstr "Vous n'êtes pas autorisé à modifier ces fiches"
 
-#: views/entity.py:347
+#: views/entity.py:277
+#, python-format
+msgid "%(success)s %(model)s has been successfully modified."
+msgid_plural "%(success)s %(model)s have been successfully modified."
+msgstr[0] "%(success)s %(model)s a été modifié avec succès."
+msgstr[1] "%(success)s %(model)s ont été modifiés avec succès."
+
+#: views/entity.py:282
+#, python-format
+msgid "%(success)s of %(initial)s %(model)s has been successfully modified."
+msgid_plural ""
+"%(success)s of %(initial)s %(model)s have been successfully modified."
+msgstr[0] "%(success)s %(model)s sur %(initial)s a été modifié avec succès."
+msgstr[1] "%(success)s %(model)s sur %(initial)s ont été modifiés avec succès."
+
+#: views/entity.py:288
+#, python-format
+msgid "%(unallowed)s was not editable."
+msgid_plural "%(unallowed)s were not editable."
+msgstr[0] "%(unallowed)s n'est pas modifiable."
+msgstr[1] "%(unallowed)s ne sont pas modifiables."
+
+#: views/entity.py:291
+#, python-format
+msgid "%(invalid)s has returned an error."
+msgid_plural "%(invalid)s have returned an error."
+msgstr[0] "%(invalid)s a retourné une erreur."
+msgstr[1] "%(invalid)s ont retourné une erreur."
+
+#: views/entity.py:303
+#, python-format
+msgid "%%s %s has been selected."
+msgstr "%%s %s a été sélectionné."
+
+#: views/entity.py:304
+#, python-format
+msgid "%%s %s have been selected."
+msgstr "%%s %s ont été sélectionnés."
+
+#: views/entity.py:433
 #, python-format
 msgid "Merge <%(entity1)s> with <%(entity2)s>"
 msgstr "Fusionner <%(entity1)s> avec <%(entity2)s>"
 
-#: views/entity.py:351
+#: views/entity.py:437
 msgid ""
 "You are going to merge two entities into a new one.\n"
 "Choose which information you want the old entities give to the new entity.\n"
@@ -3180,51 +3202,51 @@ msgstr ""
 "des vieilles fiches seront automatiquement disponibles dans la nouvelle "
 "fiche fusionnée."
 
-#: views/entity.py:396 views/entity.py:480 views/entity_filter.py:119
+#: views/entity.py:482 views/entity.py:566 views/entity_filter.py:119
 #, python-format
 msgid "\"%s\" can not be deleted because of its dependencies."
 msgstr "\"%s\" ne peut être supprimé à cause de ses dépendances."
 
-#: views/entity.py:401 views/entity.py:487
+#: views/entity.py:487 views/entity.py:573
 #, python-format
 msgid "\"%(entity)s\" deletion caused an unexpected error [%(error)s]."
 msgstr ""
 "La suppression de \"%(entity)s\" a provoqué une erreur inattendue "
 "[%(error)s]."
 
-#: views/entity.py:415 views/entity.py:524 views/relation.py:287
+#: views/entity.py:501 views/entity.py:610 views/relation.py:287
 #: views/relation.py:406
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/entity.py:418
+#: views/entity.py:504
 msgid "The following entities cannot be deleted"
 msgstr "Les entités suivantes ne peuvent être effacées"
 
-#: views/entity.py:431
+#: views/entity.py:517
 msgid "This model does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:447
+#: views/entity.py:533
 #, python-format
 msgid "%s does not use the generic deletion view."
 msgstr "%s n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:457 views/entity.py:462
+#: views/entity.py:543 views/entity.py:548
 #, python-format
 msgid "%s : <b>Permission denied</b>"
 msgstr "%s : <b>Permission refusée</b>"
 
-#: views/entity.py:474
+#: views/entity.py:560
 #, python-format
 msgid "\"%s\" can not be deleted."
 msgstr "\"%s\" ne peut être supprimé."
 
-#: views/entity.py:503
+#: views/entity.py:589
 msgid "No selected entities"
 msgstr "Aucune fiche séléctionnée"
 
-#: views/entity.py:513 views/relation.py:374
+#: views/entity.py:599 views/relation.py:374
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s fiche(s) n'existe(nt) pas ou plus"
@@ -3257,12 +3279,12 @@ msgstr "Enregistrer la fiche"
 msgid "You can not edit this model"
 msgstr "Vous ne pouvez pas modifier ce modèle"
 
-#: views/generic/listview.py:192
+#: views/generic/listview.py:268
 #, python-format
 msgid "List of %s"
 msgstr "Liste des %s"
 
-#: views/generic/listview.py:233 views/generic/listview.py:269
+#: views/generic/listview.py:310 views/generic/listview.py:346
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 

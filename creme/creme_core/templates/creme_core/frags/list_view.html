@@ -1,6 +1,5 @@
 {% block extrahead %}{% endblock %}
 <form action="" method="POST" name="list_view_form" class="ui-creme-widget widget-auto" widget="ui-creme-listview"
       {% if whoami %}whoami="{{whoami}}"{% endif %} {% if not o2m %}multiple{% endif %}>
-{% comment %}{% include "creme_core/frags/list_view_content.html" %}{% endcomment %}
     {% include content_template %}
 </form>

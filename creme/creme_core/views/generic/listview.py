@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import loads as json_load
+from json import loads as json_load, dumps as json_dump
 import logging
 
 from django.conf import settings
@@ -30,6 +30,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellActions
+from creme.creme_core.core.paginator import FlowPaginator, LastPage
 from creme.creme_core.gui.listview import ListViewState
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import EntityFilterList
@@ -106,24 +107,60 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
                                     ).count()
 
     # return queryset
-    return list_view_state.sort_query(queryset, fast_mode=count>=settings.FAST_QUERY_MODE_THESHOLD), count
+    return queryset, count
 
 
 # def _build_entities_page(request, list_view_state, queryset, size):
-def _build_entities_page(request, list_view_state, queryset, size, count):
-    paginator = Paginator(queryset, size)
-    paginator._count = count
+#     paginator = Paginator(queryset, size)
+#
+#     try:
+#         page = int(request.POST.get('page'))
+#         list_view_state.page = page
+#     except (ValueError, TypeError):
+#         page = list_view_state.page or 1
+#
+#     try:
+#         entities_page = paginator.page(page)
+#     except (EmptyPage, InvalidPage):
+#         entities_page = paginator.page(paginator.num_pages)
+#
+#     return entities_page
+def _build_entities_page(request, list_view_state, queryset, size, count, ordering, fast_mode=False):
+    if not fast_mode:
+        paginator = Paginator(queryset, size)
+        paginator._count = count
 
-    try:
-        page = int(request.POST.get('page'))
-        list_view_state.page = page
-    except (ValueError, TypeError):
-        page = list_view_state.page or 1
+        try:
+            page = int(request.POST['page'])
+        except (KeyError, ValueError, TypeError):
+            page = list_view_state.page or 1
 
-    try:
-        entities_page = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        entities_page = paginator.page(paginator.num_pages)
+        try:
+            entities_page = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            entities_page = paginator.page(paginator.num_pages)
+
+        list_view_state.page = entities_page.number
+    else:
+        paginator = FlowPaginator(queryset=queryset, key=ordering[0], per_page=size, count=count)
+        page_str = request.POST.get('page') or str(list_view_state.page)
+
+        try:
+            page_info = json_load(page_str)
+        except ValueError:
+            page_info = None
+        else:
+            if not isinstance(page_info, dict):
+                page_info = None
+
+        try:
+            entities_page = paginator.page(page_info)
+        except LastPage:
+            entities_page = paginator.last_page()
+        except InvalidPage:
+            entities_page = paginator.page()
+
+        list_view_state.page = json_dump(entities_page.info())
 
     return entities_page
 
@@ -171,10 +208,17 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     if current_lvs is None:
         current_lvs = ListViewState.build_from_request(request)  # TODO: move to ListViewState.get_state() ???
 
+    PAGE_SIZES = settings.PAGE_SIZES
+
     try:
-        current_lvs.rows = rows = int(POST_get('rows'))
+        rows = int(POST_get('rows'))
     except (ValueError, TypeError):
-        rows = current_lvs.rows or 25
+        rows = current_lvs.rows or PAGE_SIZES[settings.DEFAULT_PAGE_SIZE_IDX]
+    else:
+        if rows not in PAGE_SIZES:
+            rows = PAGE_SIZES[settings.DEFAULT_PAGE_SIZE_IDX]
+
+        current_lvs.rows = rows
 
     try:
         # TODO: rename '_search' attribute & POST param
@@ -202,10 +246,10 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         cells.insert(0, EntityCellActions())
 
     current_lvs.handle_research(request, cells)
-    current_lvs.set_sort(model, cells,
-                         POST_get('sort_field', current_lvs.sort_field),
-                         POST_get('sort_order', current_lvs.sort_order),
-                        )
+    # current_lvs.set_sort(model, cells,
+    #                      POST_get('sort_field', current_lvs.sort_field),
+    #                      POST_get('sort_order', current_lvs.sort_order),
+    #                     )
 
     entity_filters = EntityFilterList(ct, request.user)
     efilter = _select_entityfilter(request, entity_filters, current_lvs.entity_filter_id)
@@ -214,7 +258,17 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     json_q_filter, extra_filter = _build_extrafilter(request, extra_q)
 
     entities, count = _build_entity_queryset(request, model, current_lvs, extra_filter, efilter, hf)
-    entities_page = _build_entities_page(request, current_lvs, entities, rows, count)
+    fast_mode = (count >= settings.FAST_QUERY_MODE_THESHOLD)
+    ordering = current_lvs.set_sort(model, cells,
+                                    cell_key=POST_get('sort_field', current_lvs.sort_field),
+                                    order=POST_get('sort_order', current_lvs.sort_order),
+                                    fast_mode=fast_mode,
+                                   )
+
+    # entities_page = _build_entities_page(request, current_lvs, entities, rows, count)
+    entities_page = _build_entities_page(request, current_lvs, entities.order_by(*ordering),
+                                         size=rows, count=count, ordering=ordering, fast_mode=fast_mode,
+                                        )
 
     current_lvs.register_in_session(request)
 
@@ -230,6 +284,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'content_type_id':    ct.id,
         'search':             search,
         'content_template':   content_template,
+        'page_sizes':         PAGE_SIZES,
         'o2m':                o2m,
         'add_url':            model.get_create_absolute_url(),
         'extra_bt_templates': None,  # TODO: () instead ???,

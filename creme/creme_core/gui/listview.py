@@ -26,7 +26,7 @@ from itertools import chain
 import logging
 
 from django.db.models import Q, DateField, ForeignKey, ManyToManyField
-from django.db.models.fields.related import RelatedField
+# from django.db.models.fields.related import RelatedField
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 
@@ -85,7 +85,7 @@ class ListViewState(object):
         self.url = get_arg('url')
         self.research = ()
         self.extra_q = None
-        self._ordering = []
+        # self._ordering = []
 
     def __repr__(self):
         return u'<ListViewState(efilter_id=%s, hfilter_id=%s, page=%s,' \
@@ -279,17 +279,24 @@ class ListViewState(object):
             return cell.value + '__header_filter_search_field'
 
         # Related field without subfield
-        if isinstance(cell.field_info[0], RelatedField) and len(cell.field_info) == 1:
-            subfield_model = cell.field_info[0].rel.to
+        last_field = cell.field_info[-1]
+        # if isinstance(cell.field_info[0], RelatedField) and len(cell.field_info) == 1:
+        #     subfield_model = cell.field_info[0].rel.to
+        if last_field.is_relation:
+            subfield_model = last_field.rel.to
             subfield_ordering = subfield_model._meta.ordering
 
-            if not subfield_ordering:
+            if subfield_ordering:
+                attname = subfield_ordering[0]
+            else:
                 logger.critical('ListViewState: related field model %s should have Meta.ordering set'
-                                ' (use pk as fallback)', subfield_model,
+                                ' (use "pk" as fallback)', subfield_model,
                                )
-                return cell.value + '__pk'
+                # return cell.value + '__pk'
+                attname = subfield_model._meta.pk.attname
 
-            return cell.value + '__' + subfield_ordering[0]
+            # return cell.value + '__' + subfield_ordering[0]
+            return '%s__%s' % (cell.value, attname)
 
         return cell.value
 
@@ -342,7 +349,7 @@ class ListViewState(object):
     #       - template_tags_creme_listview.get_listview_columns_header
     #       - EntityCell builders
 #    def set_sort(self, model, cells, field_name, order):
-    def set_sort(self, model, cells, cell_key, order):
+    def set_sort(self, model, cells, cell_key, order, fast_mode=False):
         "@param order string '' or '-'(reverse order)."
         cells_dict = {c.key: c for c in cells if c.sortable}
         OField = self._OrderedField
@@ -376,19 +383,20 @@ class ListViewState(object):
         else:
             cell_key, sort_order = self._get_default_sort(model, ordering)
 
-        self._ordering = ordering
+        # self._ordering = ordering
         self.sort_field = cell_key
         self.sort_order = sort_order
 
-    def sort_query(self, queryset, fast_mode=False):
-        "Beware: you should have called set_sort() before"
-        ordering = self._ordering
-        if fast_mode:
-            # TODO: use indexes of the model (so we need model => see __init__)
-            ordering = ordering[:1]
+        # NB: we order by 'id' in order to be sure that successive queries give consistent contents.
+        # (if you order by 'name' & there are some duplicated names, the order by directive
+        # can be respected, but the order of the duplicates in the queries results be different --
+        # so the paginated contents are not consistent).
+        # TODO: use indexes of the model (with 'id' field => DESC on 'id" if needed)
+        return ordering[:1] + ['id'] if fast_mode else ordering + ['id']
 
-        return queryset.order_by(*ordering)
-
+    # def sort_query(self, queryset):
+    #     "Beware: you should have called set_sort() before"
+    #     return queryset.order_by(*self._ordering)
 
 # -----------------------------------------------------------------------------
 

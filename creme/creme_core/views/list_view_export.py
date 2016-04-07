@@ -61,7 +61,11 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
 
     if not header_only:
         current_lvs.handle_research(request, cells)
-        current_lvs.set_sort(model, cells, current_lvs.sort_field, current_lvs.sort_order)
+        # current_lvs.set_sort(model, cells, current_lvs.sort_field, current_lvs.sort_order)
+        ordering = current_lvs.set_sort(model, cells,
+                                        current_lvs.sort_field,
+                                        current_lvs.sort_order,
+                                       )
 
         entities = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None)) \
                                 .distinct()
@@ -76,7 +80,8 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
 
         entities = entities.filter(current_lvs.get_q_with_research(model, cells))
         entities = EntityCredentials.filter(user, entities)
-        entities = current_lvs.sort_query(entities)
+        # entities = current_lvs.sort_query(entities)
+        entities.order_by(*ordering)
 
         for entities_slice in iter_as_slices(entities, 256):
             hf.populate_entities(entities_slice)  # Optimisation time !!!
