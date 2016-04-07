@@ -39,7 +39,7 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual('', lvs._extra_sort_field)
         self.assertEqual((), lvs.research)
         self.assertIsNone(lvs.extra_q)
-        self.assertEqual([], lvs._ordering)
+        # self.assertEqual([], lvs._ordering)
 
     def _build_request(self):
         url = self.url
@@ -84,6 +84,23 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual(self.url, lvs.url)
         self._assertLVSEmpty(lvs)
 
+    def test_order_sql(self):
+        self.assertEqual(('name',), Organisation._meta.ordering)
+
+        self.assertRegexpMatches(self._get_sql(Organisation.objects.all()),
+                                 'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
+                                )
+
+        # Check that order by 'id' does not use cremeentity.id, but fakeorganisation.cremeentity_ptr_id
+        self.assertRegexpMatches(self._get_sql(Organisation.objects.order_by('id')),
+                                 'ORDER BY .creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                                )
+        self.assertRegexpMatches(self._get_sql(Organisation.objects.order_by('name', 'id')),
+                                 'ORDER BY '
+                                 '.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?\, '
+                                 '.creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                                )
+
     def test_sort_oneorder_01(self):
         "Ordering: natural ordering key"
         field_name1 = 'name'
@@ -97,31 +114,21 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState(url=Organisation.get_lv_absolute_url())
         key = cells[1].key
-        lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name1], lvs._ordering)
-
-        qs = Organisation.objects.all()
-        re = 'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
-        self.assertRegexpMatches(self._get_sql(qs), re)
-
-        sql = self._get_sql(lvs.sort_query(qs))
-        self.assertRegexpMatches(sql, re)
-
-        self.assertEqual(sql, self._get_sql(lvs.sort_query(qs, fast_mode=False)))
-        self.assertEqual(sql, self._get_sql(lvs.sort_query(qs, fast_mode=True)))
+        self.assertEqual([field_name1, 'id'],
+                         lvs.set_sort(model=Organisation, cells=cells,
+                                      cell_key=key, order='', fast_mode=True,
+                                     )
+                        )
 
         # DESC -------------------
-        lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='-')
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='-')
+        self.assertEqual(['-' + field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('-', lvs.sort_order)
-        self.assertEqual(['-' + field_name1], lvs._ordering)
-
-        qs = Organisation.objects.all()
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY .creme_core_fakeorganisation.\..name. DESC( NULLS LAST)?$'
-                                )
 
     def test_sort_oneorder_02(self):
         "Ordering: add a not natural ordering key"
@@ -135,21 +142,10 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[0].key
-        lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name2, field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name2, field_name1], lvs._ordering)
-
-        qs = Organisation.objects.all()
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakeorganisation.\..email. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$',
-                                )
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs, fast_mode=True)),
-                                 'ORDER BY '
-                                 '.creme_core_fakeorganisation.\..email. ASC( NULLS FIRST)?$',
-                                )
 
     def test_sort_oneorder_03(self):
         "set_sort(): empty cell name"
@@ -160,10 +156,10 @@ class ListViewStateTestCase(CremeTestCase):
                 ]
 
         lvs = ListViewState(url=Organisation.get_lv_absolute_url())
-        lvs.set_sort(model=Organisation, cells=cells, cell_key=None, order=None)
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key=None, order=None)
         self.assertEqual(cells[1].key, lvs.sort_field)  # Fallback on natural model ordering
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name1], lvs._ordering)
+        self.assertEqual([field_name1, 'id'], ordering)
 
     def test_sort_oneorder_04(self):
         "set_sort(): invalid cell name"
@@ -174,10 +170,10 @@ class ListViewStateTestCase(CremeTestCase):
                 ]
 
         lvs = ListViewState()
-        lvs.set_sort(model=Organisation, cells=cells, cell_key='invalid', order='')
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key='invalid', order='')
         self.assertEqual(cells[0].key, lvs.sort_field) # Fallback on natural model ordering
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name1], lvs._ordering)
+        self.assertEqual([field_name1, 'id'], ordering)
 
     def test_sort_oneorder_05(self):
         "set_sort(): cell name is not displayed"
@@ -189,20 +185,20 @@ class ListViewStateTestCase(CremeTestCase):
                 ]
 
         lvs = ListViewState()
-        lvs.set_sort(model=Organisation, cells=cells, cell_key='email', order='')
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key='email', order='')
         self.assertEqual(cells[1].key, lvs.sort_field)  # Fallback on natural model ordering
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name1], lvs._ordering)
+        self.assertEqual([field_name1, 'id'], ordering)
 
         # Natural ordering not displayed ---------------
         cells = [build_cell(name=field_name2),
                  build_cell(name='sector'),
                 ]
 
-        lvs.set_sort(model=Organisation, cells=cells, cell_key='email', order='')
-        self.assertIsNone(lvs.sort_field) # TODO: Fallback on first column ?
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key='email', order='')
+        self.assertIsNone(lvs.sort_field)  # TODO: Fallback on first column ?
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([], lvs._ordering)
+        self.assertEqual(['id'], ordering)
 
     def test_sort_oneorder_06(self):
         "Ordering: add a not natural ordering key (FK to CremeEntity)"
@@ -217,16 +213,12 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[1].key
-        lvs.set_sort(model=Document, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Document, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name2 + '__header_filter_search_field', field_name1, 'id'],
+                         ordering
+                        )
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name2 + '__header_filter_search_field', field_name1], lvs._ordering)
-
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(Document.objects.all())),
-                                 'ORDER BY '
-                                 'T4\..header_filter_search_field. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakedocument.\..title. ASC( NULLS FIRST)?$'
-                                )
 
     def test_sort_oneorder_07(self):
         "Ordering: add a not natural ordering key (FK to CremeModel)"
@@ -242,16 +234,10 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[1].key
-        lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name2 + '__order', field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name2 + '__order', field_name1], lvs._ordering)
-
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(Organisation.objects.all())),
-                                 'ORDER BY '
-                                 '.creme_core_fakesector.\..order. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
-                                )
 
     def test_sort_oneorder_08(self):
         "set_sort(): natural ordering field not in cells"
@@ -262,23 +248,16 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[0].key
-        lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key=key, order='')
+        self.assertEqual(['phone', 'id'], ordering)
         self.assertEqual(cells[0].key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual(['phone'], lvs._ordering)
-
-        qs = Organisation.objects.all()
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY .creme_core_fakeorganisation.\..phone. ASC( NULLS FIRST)?$',
-                                )
 
         # Initial
-        lvs.set_sort(model=Organisation, cells=cells, cell_key=None, order=None)
+        ordering = lvs.set_sort(model=Organisation, cells=cells, cell_key=None, order=None)
+        self.assertEqual(['id'], ordering)
         self.assertIsNone(lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([], lvs._ordering)
-
-        self.assertNotIn('ORDER BY ', self._get_sql(lvs.sort_query(qs)))
 
     def test_sort_twoorders_01(self):
         "meta.ordering: 2 fields"
@@ -293,34 +272,16 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[0].key
-        lvs.set_sort(model=Contact, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Contact, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name1, field_name2, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name1, field_name2], lvs._ordering)
-
-        qs = Contact.objects.all()
-        self.assertRegexpMatches(self._get_sql(qs),
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?$',
-                                )
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?$',
-                                )
 
         # DESC -----------------------------
-        lvs.set_sort(model=Contact, cells=cells, cell_key=key, order='-')
+        ordering = lvs.set_sort(model=Contact, cells=cells, cell_key=key, order='-')
+        self.assertEqual(['-' + field_name1, '-' + field_name2, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('-', lvs.sort_order)
-        self.assertEqual(['-' + field_name1, '-' + field_name2], lvs._ordering)
-
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..first_name. DESC( NULLS LAST)?, '
-                                 '.creme_core_fakecontact.\..last_name. DESC( NULLS LAST)?$',
-                                )
 
     def test_sort_twoorders_02(self):
         "Add not natural ordering"
@@ -336,31 +297,16 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[2].key
-        lvs.set_sort(model=Contact, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Contact, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name3, field_name2, field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name3, field_name2, field_name1], lvs._ordering)
-
-        qs = Contact.objects.all()
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..phone. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?$',
-                                )
 
         # DESC ------------------
-        lvs.set_sort(model=Contact, cells=cells, cell_key=key, order='-')
+        ordering = lvs.set_sort(model=Contact, cells=cells, cell_key=key, order='-')
+        self.assertEqual(['-' + field_name3, field_name2, field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('-', lvs.sort_order)
-        self.assertEqual(['-' + field_name3, field_name2, field_name1], lvs._ordering)
-
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..phone. DESC( NULLS LAST)?, '
-                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?$',
-                                )
 
     def test_sort_twoorders_03(self):
         "Add invalid order"
@@ -373,10 +319,10 @@ class ListViewStateTestCase(CremeTestCase):
                 ]
 
         lvs = ListViewState()
-        lvs.set_sort(model=Contact, cells=cells, cell_key='invalid', order='')
+        ordering = lvs.set_sort(model=Contact, cells=cells, cell_key='invalid', order='')
         self.assertEqual(cells[1].key, lvs.sort_field)  # Fallback to (first) natural ordering field
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name2, field_name1], lvs._ordering)
+        self.assertEqual([field_name2, field_name1, 'id'], ordering)
 
     def test_sort_twoorders_04(self):
         "set_sort(): natural ordering fields not in cells"
@@ -386,14 +332,10 @@ class ListViewStateTestCase(CremeTestCase):
                 ]
 
         lvs = ListViewState()
-        lvs.set_sort(model=Contact, cells=cells, cell_key=None, order=None)
+        ordering = lvs.set_sort(model=Contact, cells=cells, cell_key=None, order=None)
+        self.assertEqual(['id'], ordering)
         self.assertIsNone(lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([], lvs._ordering)
-
-        self.assertNotIn('ORDER BY ',
-                         self._get_sql(lvs.sort_query(Contact.objects.all()))
-                        )
 
     def test_sort_twoorders_05(self):
         "set_sort(): one natural ordering field not in cells"
@@ -405,20 +347,13 @@ class ListViewStateTestCase(CremeTestCase):
                 ]
 
         lvs = ListViewState()
-        lvs.set_sort(model=Contact, cells=cells, cell_key=None, order=None)
+        ordering = lvs.set_sort(model=Contact, cells=cells, cell_key=None, order=None)
+        # TODO: if there is an index ['last_name', 'first_name', , 'id']
+        self.assertEqual([field_name1, 'id'], ordering)
+
         key = cells[1].key  # First natural order
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name1], lvs._ordering)
-
-        qs = Contact.objects.all()
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?$',
-                                 # TODO: if there is an index (last_name, first_name)
-                                 # '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
-                                 # '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?$',
-                                )
 
     def test_sort_descorder_01(self):
         "Natural ordering is DESC"
@@ -433,28 +368,16 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[0].key
-        lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name1], lvs._ordering)
-
-        qs = Activity.objects.all()
-        self.assertRegexpMatches(self._get_sql(qs),
-                                 'ORDER BY .creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
-                                )
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY .creme_core_fakeactivity.\..start. ASC( NULLS FIRST)?$'
-                                )
 
         # DESC ------------
-        lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='-')
+        ordering = lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='-')
+        self.assertEqual(['-' + field_name1, 'id'], ordering)  # TODO: '-id' when index...
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('-', lvs.sort_order)
-        self.assertEqual(['-' + field_name1], lvs._ordering)
-
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY .creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
-                                )
 
     def test_sort_descorder_02(self):
         "Natural ordering is DESC => Empty GET/POST => DESC"
@@ -468,15 +391,10 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[0].key
-        lvs.set_sort(model=Activity, cells=cells, cell_key=None, order=None)
+        ordering = lvs.set_sort(model=Activity, cells=cells, cell_key=None, order=None)
+        self.assertEqual(['-' + field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('-', lvs.sort_order)
-        self.assertEqual(['-' + field_name1], lvs._ordering)
-
-        qs = Activity.objects.all()
-        re = 'ORDER BY .creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
-        self.assertRegexpMatches(self._get_sql(qs), re)
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)), re)
 
     def test_sort_descorder_03(self):
         "Natural ordering is DESC + another field"
@@ -490,29 +408,21 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[1].key
-        lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name2, '-' + field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name2, '-' + field_name1], lvs._ordering)
-
-        qs = Activity.objects.all()
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakeactivity.\..title. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
-                                )
 
         # DESC ------------------------------
-        lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='-')
+        ordering = lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='-')
+        self.assertEqual(['-' + field_name2, '-' + field_name1, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('-', lvs.sort_order)
-        self.assertEqual(['-' + field_name2, '-' + field_name1], lvs._ordering)
 
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakeactivity.\..title. DESC( NULLS LAST)?, '
-                                 '.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?$'
-                                )
+        # FAST MODE
+        self.assertEqual([field_name2, 'id'],
+                         lvs.set_sort(model=Activity, cells=cells, cell_key=key, order='', fast_mode=True)
+                        )
 
     def test_sort_twoordersdesc_01(self):
         "meta.ordering: 2 fields (one is DESC)"
@@ -527,28 +437,15 @@ class ListViewStateTestCase(CremeTestCase):
 
         lvs = ListViewState()
         key = cells[0].key
-        lvs.set_sort(model=Invoice, cells=cells, cell_key=key, order='')
+        ordering = lvs.set_sort(model=Invoice, cells=cells, cell_key=key, order='')
+        self.assertEqual([field_name1, '-' + field_name2, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('', lvs.sort_order)
-        self.assertEqual([field_name1, '-' + field_name2], lvs._ordering)
-
-        qs = Invoice.objects.all()
-        re = 'ORDER BY ' \
-             '.creme_core_fakeinvoice.\..name. ASC( NULLS FIRST)?, ' \
-             '.creme_core_fakeinvoice.\..expiration_date. DESC( NULLS LAST)?$'
-        self.assertRegexpMatches(self._get_sql(qs), re)
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)), re)
 
         # DESC -----------------------------
-        lvs.set_sort(model=Invoice, cells=cells, cell_key=key, order='-')
+        ordering = lvs.set_sort(model=Invoice, cells=cells, cell_key=key, order='-')
+        self.assertEqual(['-' + field_name1, field_name2, 'id'], ordering)
         self.assertEqual(key, lvs.sort_field)
         self.assertEqual('-', lvs.sort_order)
-        self.assertEqual(['-' + field_name1, field_name2], lvs._ordering)
-
-        self.assertRegexpMatches(self._get_sql(lvs.sort_query(qs)),
-                                 'ORDER BY '
-                                 '.creme_core_fakeinvoice.\..name. DESC( NULLS LAST)?, '
-                                 '.creme_core_fakeinvoice.\..expiration_date. ASC( NULLS FIRST)?$'
-                                )
 
     # TODO: test handle_research() + get_q_with_research()

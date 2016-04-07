@@ -1,0 +1,12 @@
+{% load i18n creme_core_tags %}
+<td class="page_information">
+    {% blocktrans count entities_count=page.paginator.count %}{{entities_count}} recording{% plural %}{{entities_count}} recordings{% endblocktrans %}
+    <input id="user_page" value="{{page.info|jsonify}}" name="page" type="hidden" />
+</td>
+<td class="previous_buttons">
+    <button class="first_page" name="page" value="{{page.first_page_info|jsonify}}" {% if page.has_previous %} onclick="$(this.form).list_view('getSubmit')(this);" title="{% trans 'First page' %}"{% else %}disabled="true"{% endif %} type="button">|<</button>
+    <button class="previous_page" name="page" {% if page.has_previous %}value="{{page.previous_page_info|jsonify}}" onclick="$(this.form).list_view('getSubmit')(this);" title="{% trans 'Previous page' %}"{% else %} disabled="true"{% endif %} type="button"><<</button>
+</td>
+<td class="next_buttons">
+    <button class="next_page" name="page" {% if page.has_next %}value="{{page.next_page_info|jsonify}}" onclick="$(this.form).list_view('getSubmit')(this);" title="{% trans 'Next page' %}"{% else %}disabled="true"{% endif %} type="button">>></button>
+</td>

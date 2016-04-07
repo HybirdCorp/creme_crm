@@ -22,10 +22,12 @@ import logging
 
 from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
 from django.template import Library
+from django.template.loader import get_template
 from django.utils.translation import ugettext as _
 
 from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
         EntityCellFunctionField, EntityCellRelation)
+from ..core.paginator import FlowPaginator
 from ..gui.listview import NULL_FK
 from ..gui.list_view_import import import_form_registry
 from ..models import CustomField
@@ -67,6 +69,18 @@ def get_listview_headerfilters(context):
     context['can_delete'] = hfilter.can_delete(user)[0]
 
     return context
+
+
+DEFAULT_PAGINATOR_TEMPLATE = 'creme_core/templatetags/listview_paginator_slow.html'
+PAGINATOR_TEMPLATES = {
+    FlowPaginator: 'creme_core/templatetags/listview_paginator_fast.html',
+}
+
+
+@register.simple_tag
+def get_listview_pagination(page):
+    return get_template(PAGINATOR_TEMPLATES.get(page.paginator.__class__, DEFAULT_PAGINATOR_TEMPLATE))\
+                       .render({'page': page})
 
 
 # get_listview_columns_header --------------------------------------------------

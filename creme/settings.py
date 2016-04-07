@@ -41,8 +41,10 @@ MIGRATION_MODULES = {
     'auth': 'creme.creme_core.migrations_auth', # XXX: should be removed in Creme 1.7 ...
 }
 
-# When this number of Entities is reached (in a list-view for example), Creme
-# switch to a fast-mode, where SQL queries should be faster.
+# When this number of Entities is reached (in some views), Creme switches to a fast-mode.
+# Currently, this fast-mode involves the following optimisations in list-views:
+# - the main SQL query uses less complex ORDER BY instructions.
+# - the paginator only allows to go to the next & the previous pages (& the main query is faster).
 FAST_QUERY_MODE_THESHOLD = 100000
 
 # JOBS #########################################################################
@@ -175,43 +177,12 @@ ALLOWED_HOSTS = '*'
 
 # SITE: URLs / PATHS / ... [END]################################################
 
-#TEMPLATE_DEBUG = DEBUG
-#
-## List of loaders that know how to import templates from various sources.
-#TEMPLATE_LOADERS = (
-#    ('django.template.loaders.cached.Loader', ( #Don't use cached loader when developping (in your local_settings.py)
-#        'django.template.loaders.filesystem.Loader',
-#        'django.template.loaders.app_directories.Loader',
-#        #'django.template.loaders.eggs.Loader',
-#    )),
-#)
-#
-#TEMPLATE_DIRS = (
-#    join(CREME_ROOT, "templates"),
-#    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-#    # Always use forward slashes, even on Windows.
-#    # Don't forget to use absolute paths, not relative paths.
-#)
-#
-#from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
-#TEMPLATE_CONTEXT_PROCESSORS += (
-#     'django.template.context_processors.request',
-#
-#     'creme.creme_core.context_processors.get_logo_url',
-#     'creme.creme_core.context_processors.get_version',
-#     'creme.creme_core.context_processors.get_django_version',
-#     'creme.creme_core.context_processors.get_today',
-#     'creme.creme_core.context_processors.get_css_theme',
-#     'creme.creme_core.context_processors.get_blocks_manager',
-#     'creme.creme_core.context_processors.get_fields_configs',
-#)
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             join(CREME_ROOT, 'templates'),
         ],
-#        'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
                 # Default processors
@@ -223,7 +194,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
 
-                # Creme additionnal processors
+                # Creme additional processors
                 'django.template.context_processors.request',
 
                 'creme.creme_core.context_processors.get_logo_url',
@@ -235,10 +206,11 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_fields_configs',
             ],
             'loaders': [
-                ('django.template.loaders.cached.Loader', (  # Don't use cached loader when developping (in your local_settings.py)
+                # Don't use cached loader when developing (in your local_settings.py)
+                ('django.template.loaders.cached.Loader', (
                     'django.template.loaders.filesystem.Loader',
                     'django.template.loaders.app_directories.Loader',
-                    #'django.template.loaders.eggs.Loader',
+                    # 'django.template.loaders.eggs.Loader',
                 )),
             ],
             'debug': DEBUG,
@@ -270,11 +242,9 @@ INSTALLED_DJANGO_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
-    #'django.contrib.sites', #remove ??
-    #'django.contrib.admin',
+    # 'django.contrib.sites', #remove ??
 
     # EXTERNAL APPS
-    # 'mediagenerator',  # It manages js/css/images
     'creme.creme_core.apps.MediaGeneratorConfig',  # It manages js/css/images
 )
 
@@ -345,7 +315,7 @@ EMAIL_HOST          = 'localhost'
 EMAIL_HOST_USER     = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS       = False
-#EMAIL_PORT         = 1025 # Default value in django/conf/global_settings.py
+# EMAIL_PORT         = 1025 # Default value in django/conf/global_settings.py
 
 # Tip: _developpement_ SMTP server
 # => python -m smtpd -n -c DebuggingServer localhost:1025
@@ -441,6 +411,10 @@ BLOCK_SIZE = 10  # Lines number in common blocks
 MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar
 
 HIDDEN_VALUE = u"??"  # Used to replace contents which a user is not allowed to see.
+
+# List-view
+PAGE_SIZES = [10, 25, 50, 100, 200]  # Available page sizes  (list of integers)
+DEFAULT_PAGE_SIZE_IDX = 1  # Index (0-based, in PAGE_SIZES) of the default size of pages.
 
 # GUI [END]#####################################################################
 

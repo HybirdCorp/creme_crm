@@ -3,6 +3,8 @@
 try:
     from datetime import date, timedelta
     from functools import partial
+    from json import dumps as json_dump
+    from random import shuffle
     import re
 
     from django.conf import settings
@@ -50,14 +52,14 @@ class ListViewTestCase(ViewsTestCase):
         Civility.objects.all().delete()
         Civility.objects.bulk_create(cls._civ_backup)
 
-    def setUp(self):
-        super(ListViewTestCase, self).setUp()
-        self._address_ordering = Address._meta.ordering
-        Address._meta.ordering = ()
+    # def setUp(self):
+    #     super(ListViewTestCase, self).setUp()
+    #     self._address_ordering = Address._meta.ordering
+    #     Address._meta.ordering = ()
 
-    def tearDown(self):
-        super(ListViewTestCase, self).tearDown()
-        Address._meta.ordering = self._address_ordering
+    # def tearDown(self):
+    #     super(ListViewTestCase, self).tearDown()
+    #     Address._meta.ordering = self._address_ordering
 
     def _assertNoDistinct(self, captured_sql):
         entities_q_re = re.compile(r'^SELECT (?P<distinct>DISTINCT )?(.)creme_core_cremeentity(.)\.(.)id(.)')
@@ -95,6 +97,11 @@ class ListViewTestCase(ViewsTestCase):
             entities_page = response.context['entities']
 
         return set(entities_page.object_list)
+
+    @staticmethod
+    def _get_sql(response):
+        page = response.context['entities']
+        return page.paginator.object_list.query.get_compiler('default').as_sql()[0]
 
     def _build_hf(self, *args):
         cells = [EntityCellRegularField.build(model=Organisation, name='name')]
@@ -342,6 +349,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertPOST200(url, data={'sort_field': 'regular_field-' + fname})
         self.assertPOST200(url, data={'sort_field': 'function_field-' + func_field_name})
 
+    @override_settings(FAST_QUERY_MODE_THESHOLD=100000)
     def test_order04(self):
         "Ordering = '-fieldname'"
         user = self.login()
@@ -364,12 +372,19 @@ class ListViewTestCase(ViewsTestCase):
             lvs = response.context['list_view_state']
             sort_field = lvs.sort_field
             sort_order = lvs.sort_order
-            ordering = lvs._ordering
+            # ordering = lvs._ordering
 
         self.assertEqual('regular_field-start', sort_field)
         self.assertEqual('-',  sort_order)
-        self.assertEqual(['-start'], ordering)
+        # self.assertEqual(['-start'], ordering)
 
+        self.assertRegexpMatches(self._get_sql(response),
+                                 'ORDER BY '
+                                 '.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?\, '
+                                 '.creme_core_fakeactivity.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                                )
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=100000)
     def test_ordering_default(self):
         user = self.login()
         self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
@@ -390,7 +405,14 @@ class ListViewTestCase(ViewsTestCase):
         listview_state = response.context['list_view_state']
         self.assertEqual('regular_field-last_name', listview_state.sort_field)
         self.assertEqual('', listview_state.sort_order)
-        self.assertListEqual(['last_name', 'first_name'], listview_state._ordering)
+        # self.assertListEqual(['last_name', 'first_name'], listview_state._ordering)
+
+        self.assertRegexpMatches(self._get_sql(response),
+                                 'ORDER BY '
+                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?\, '
+                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?\, '
+                                 '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                                )
 
     def test_ordering_merge_column_and_default(self):
         self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
@@ -479,27 +501,35 @@ class ListViewTestCase(ViewsTestCase):
         listview_state = response.context['list_view_state']
         self.assertEqual('regular_field-address', listview_state.sort_field)
         self.assertEqual('', listview_state.sort_order)
-        self.assertListEqual(['address__pk', 'last_name', 'first_name'],
-                             listview_state._ordering
-                            )
+        # self.assertListEqual(['address__pk', 'last_name', 'first_name'],
+        #                      listview_state._ordering
+        #                     )
+        self.assertRegexpMatches(self._get_sql(response),
+                                 'ORDER BY '
+                                 '.creme_core_fakecontact.\..address_id. ASC( NULLS FIRST)?\, '
+                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?\, '
+                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?\, '
+                                 '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                                )
 
-        Address._meta.ordering = ('value',)  # TODO: create another test model instead ??
-
-        response = self.assertPOST200(url, {'hfilter': hf.id,
-                                            'sort_field': 'regular_field-address',
-                                            'sort_order': '',
-                                           }
-                                     )
-
-        entries = Contact.objects.order_by('address__value', 'last_name', 'first_name')
-        self.assertListViewContentOrder(response, 'last_name', entries)
-
-        listview_state = response.context['list_view_state']
-        self.assertEqual('regular_field-address', listview_state.sort_field)
-        self.assertEqual('', listview_state.sort_order)
-        self.assertListEqual(['address__value', 'last_name', 'first_name'],
-                             listview_state._ordering
-                            )
+        # tested in test_list_view_state
+        # Address._meta.ordering = ('value',)  # TODO: create another test model instead ??
+        #
+        # response = self.assertPOST200(url, {'hfilter': hf.id,
+        #                                     'sort_field': 'regular_field-address',
+        #                                     'sort_order': '',
+        #                                    }
+        #                              )
+        #
+        # entries = Contact.objects.order_by('address__value', 'last_name', 'first_name')
+        # self.assertListViewContentOrder(response, 'last_name', entries)
+        #
+        # listview_state = response.context['list_view_state']
+        # self.assertEqual('regular_field-address', listview_state.sort_field)
+        # self.assertEqual('', listview_state.sort_order)
+        # self.assertListEqual(['address__value', 'last_name', 'first_name'],
+        #                      listview_state._ordering
+        #                     )
 
     def test_ordering_customfield_column(self):
         "Custom field ordering is ignored in current implementation"
@@ -585,14 +615,19 @@ class ListViewTestCase(ViewsTestCase):
                                  'ORDER BY '
                                  '.creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?, '
                                  '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)? LIMIT'
+                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
+                                 '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
                                 )
 
     @override_settings(FAST_QUERY_MODE_THESHOLD=2)
     def test_ordering_fastmode_02(self):
         "Fast mode=ON"
         sql = self._aux_test_ordering_fastmode()
-        self.assertRegexpMatches(sql, 'ORDER BY .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)? LIMIT')
+        self.assertRegexpMatches(sql,
+                                 'ORDER BY'
+                                 ' .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?,'
+                                 ' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
+                                )
 
     def test_efilter01(self):
         user = self.login()
@@ -1829,7 +1864,7 @@ class ListViewTestCase(ViewsTestCase):
         func_field = Organisation.function_fields.get('tests-get_fake_todos')
         self._build_hf(EntityCellFunctionField(func_field))
 
-        response = self.assertPOST200(self.url, data={'_search':       1,
+        response = self.assertPOST200(self.url, data={'_search': 1,
                                                       'regular_field-name': '',
                                                       'function_field-%s' % func_field.name: bebop.name,
                                                      }
@@ -1837,3 +1872,459 @@ class ListViewTestCase(ViewsTestCase):
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,     orgas_set)
         self.assertIn(swordfish, orgas_set)
+
+    def _build_orgas(self):
+        count = Organisation.objects.count()
+        expected_count = 13  # 13 = 10 (our page size) + 3
+        self.assertLessEqual(count, expected_count)
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        for i in xrange(expected_count - count):
+            create_orga(name='Mafia #%02i' % i)
+
+        organisations = list(Organisation.objects.all())
+        self.assertEqual(expected_count, len(organisations))
+
+        return organisations
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=100000, PAGE_SIZES=[10, 25, 200], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_pagination_slow01(self):
+        "Paginator with only OFFSET (small number of lines)"
+        self.login()
+        organisations = self._build_orgas()
+        hf = self._build_hf()
+
+        def post(page, rows=10):
+            return self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      'page':    page,
+                                                      'rows':    rows,
+                                                     }
+                                     )
+
+        # Page 1 --------------------
+        response = post(page=1)
+        with self.assertNoException():
+            entities_page = response.context['entities']
+
+        self.assertEqual(10, len(entities_page))
+        self.assertTrue(entities_page.has_next())
+        self.assertFalse(entities_page.has_previous())
+        self.assertEqual(2, entities_page.next_page_number())
+
+        paginator = entities_page.paginator
+        self.assertEqual(10, paginator.per_page)
+        self.assertEqual(13, paginator.count)
+        self.assertEqual(2,  paginator.num_pages)
+
+        entities = list(entities_page.object_list)
+        idx1 = self.assertIndex(organisations[0], entities)
+        self.assertEqual(0, idx1)
+        idx10 = self.assertIndex(organisations[9], entities)
+        self.assertEqual(9, idx10)
+
+        # Page 2 --------------------
+        response = post(page=2)
+        entities_page = response.context['entities']
+
+        self.assertEqual(3, len(entities_page))
+
+        entities = list(entities_page.object_list)
+        idx11 = self.assertIndex(organisations[10], entities)
+        self.assertEqual(0, idx11)
+
+        # Change 'rows' parameter -------------
+        rows = 25
+        response = post(page=1, rows=rows)
+        self.assertEqual(rows, response.context['entities'].paginator.per_page)
+
+        # Check invalid page size
+        response = post(page=1, rows=1000)
+        self.assertEqual(10, response.context['entities'].paginator.per_page)
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=100000, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_pagination_slow02(self):
+        "Page is saved"
+        self.login()
+        organisations = self._build_orgas()
+        hf = self._build_hf()
+
+        def post(page=None):
+            data = {'hfilter': hf.id,
+                    'rows':    10,
+                   }
+
+            if page:
+                data['page'] = page
+
+            return self.assertPOST200(self.url, data=data)
+
+        post(page=1)
+
+        # Go to page 2...
+        response = post(page=2)
+        entities_page = response.context['entities']
+        self.assertEqual(2, entities_page.number)
+        self.assertIndex(organisations[10], list(entities_page.object_list))
+
+        # ... which should be kept in session
+        response = post()
+        entities_page = response.context['entities']
+        self.assertEqual(2, entities_page.number)
+        self.assertIndex(organisations[10], list(entities_page.object_list))
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_pagination_fast01(self):
+        "Paginator with 'keyset' (big number of lines)"
+        self.login()
+        organisations = self._build_orgas()
+        hf = self._build_hf()
+
+        def post(page_info=None):
+            return self.assertPOST200(self.url,
+                                      data={'hfilter': hf.id,
+                                            'page': json_dump(page_info) if page_info else '',
+                                           }
+                                     )
+
+        # Page 1 --------------------
+        response = post()
+        with self.assertNoException():
+            entities_page1 = response.context['entities']
+
+        self.assertEqual(10, len(entities_page1))
+        self.assertTrue(entities_page1.has_next())
+        self.assertFalse(entities_page1.has_previous())
+        self.assertFalse(hasattr(entities_page1, 'next_page_number'))
+        self.assertTrue(hasattr(entities_page1, 'next_page_info'))
+
+        paginator = entities_page1.paginator
+        self.assertEqual(10, paginator.per_page)
+        self.assertEqual(13, paginator.count)
+        self.assertFalse(hasattr(paginator, 'num_pages'))
+
+        entities = list(entities_page1.object_list)
+        idx1 = self.assertIndex(organisations[0], entities)
+        self.assertEqual(0, idx1)
+
+        idx10 = self.assertIndex(organisations[9], entities)
+        self.assertEqual(9, idx10)
+
+        # Page 2 --------------------
+        response = post(entities_page1.next_page_info())
+        entities_page2 = response.context['entities']
+
+        self.assertEqual(3, len(entities_page2))
+
+        entities = list(entities_page2.object_list)
+        idx11 = self.assertIndex(organisations[10], entities)
+        self.assertEqual(0, idx11)
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5)
+    def test_pagination_fast02(self):
+        "ContentType = Contact"
+        user = self.login()
+        rows = 10
+        expected_count = rows + 3
+
+        count = Contact.objects.count()
+        self.assertLessEqual(count, expected_count)
+
+        create_contact = partial(Contact.objects.create, user=user)
+        for i in xrange(expected_count - count):
+            create_contact(first_name='Gally', last_name='Tuned%02i' % i)
+
+        contacts = list(Contact.objects.all())
+        self.assertEqual(expected_count, len(contacts))
+
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                                             (EntityCellRegularField, {'name': 'first_name'}),
+                                            ],
+                                )
+
+        def post(page_info=None):
+            return self.assertPOST200(Contact.get_lv_absolute_url(),
+                                      data={'hfilter': hf.id,
+                                            'page': json_dump(page_info) if page_info else '',
+                                            'rows': rows,
+                                           }
+                                     )
+
+        # Page 1 --------------------
+        response = post()
+        with self.assertNoException():
+            entities_page1 = response.context['entities']
+
+        self.assertEqual(rows, len(entities_page1))
+        self.assertTrue(entities_page1.has_next())
+        self.assertFalse(entities_page1.has_previous())
+        self.assertFalse(hasattr(entities_page1, 'next_page_number'))
+
+        paginator = entities_page1.paginator
+        self.assertEqual(rows, paginator.per_page)
+        self.assertEqual(expected_count, paginator.count)
+        self.assertFalse(hasattr(paginator, 'num_pages'))
+
+        entities = list(entities_page1.object_list)
+        idx1 = self.assertIndex(contacts[0], entities)
+        self.assertEqual(0, idx1)
+
+        idx10 = self.assertIndex(contacts[9], entities)
+        self.assertEqual(9, idx10)
+
+        # Page 2 --------------------
+        response = post(entities_page1.next_page_info())
+        entities_page2 = response.context['entities']
+
+        self.assertEqual(3, len(entities_page2))
+
+        entities = list(entities_page2.object_list)
+        idx11 = self.assertIndex(contacts[10], entities)
+        self.assertEqual(0, idx11)
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5)
+    def test_pagination_fast03(self):
+        "Set an ORDER"
+        user = self.login()
+        rows = 10
+        expected_count = rows + 3
+
+        count = Contact.objects.count()
+        self.assertLessEqual(count, expected_count)
+
+        ids = range(expected_count - count)
+        shuffle(ids)
+
+        create_contact = partial(Contact.objects.create, user=user)
+        for i, id_ in enumerate(ids):
+            # NB: we want the ordering by 'first_name' to be different from the 'last_name' one
+            create_contact(first_name='Gally%02i' % id_, last_name='Tuned%02i' % i)
+
+        ordering_fname = 'first_name'
+        contacts = list(Contact.objects.order_by(ordering_fname))
+        self.assertEqual(expected_count, len(contacts))
+
+        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        cell2 = build_cell(name=ordering_fname)
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+                                 cells_desc=[build_cell(name='last_name'), cell2],
+                                 )
+
+        def post(page_info=None):
+            return self.assertPOST200(Contact.get_lv_absolute_url(),
+                                      data={'hfilter': hf.id,
+                                            'sort_field': cell2.key,
+                                            'sort_order': '',  # TODO: '-'
+                                            'page': json_dump(page_info) if page_info else '',
+                                            'rows': rows,
+                                           }
+                                      )
+
+        # Page 1 --------------------
+        response = post()
+        entities_page1 = response.context['entities']
+        entities = list(entities_page1.object_list)
+        idx1 = self.assertIndex(contacts[0], entities)
+        self.assertEqual(0, idx1)
+
+        idx10 = self.assertIndex(contacts[9], entities)
+        self.assertEqual(9, idx10)
+
+        # Page 2 --------------------
+        response = post(entities_page1.next_page_info())
+        entities_page2 = response.context['entities']
+
+        self.assertEqual(3, len(entities_page2))
+
+        entities = list(entities_page2.object_list)
+        idx11 = self.assertIndex(contacts[10], entities)
+        self.assertEqual(0, idx11)
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5)
+    def test_pagination_fast04(self):
+        "Field key duplicates => use OFFSET too"
+        user = self.login()
+        rows = 10
+        expected_count = rows + 3
+
+        count = Contact.objects.count()
+        self.assertLessEqual(count, expected_count)
+
+        create_contact = partial(Contact.objects.create, user=user)
+        for i in xrange(expected_count - count):
+            # NB: same last_name
+            create_contact(first_name='Gally', last_name='Tuned', phone='11 22 33 #%02i' % i)
+
+        contacts = list(Contact.objects.order_by('last_name', 'id'))  # TODO: add 'first_name' when index is OK
+        self.assertEqual(expected_count, len(contacts))
+
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                                             (EntityCellRegularField, {'name': 'first_name'}),
+                                            ],
+                                )
+
+        def post(page_info=None):
+            return self.assertPOST200(Contact.get_lv_absolute_url(),
+                                      data={'hfilter': hf.id,
+                                            'page': json_dump(page_info) if page_info else '',
+                                            'rows': rows,
+                                           }
+                                     )
+
+        # Page 1 --------------------
+        response = post()
+        entities_page1 = response.context['entities']
+        idx10 = self.assertIndex(contacts[9], list(entities_page1.object_list))
+        self.assertEqual(9, idx10)
+
+        # Page 2 --------------------
+        response = post(entities_page1.next_page_info())
+        entities_page2 = response.context['entities']
+
+        self.assertEqual(3, len(entities_page2))
+
+        idx11 = self.assertIndex(contacts[10], list(entities_page2.object_list))
+        self.assertEqual(0, idx11)
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[5, 10])
+    def test_pagination_fast05(self):
+        "Errors => page 1"
+        user = self.login()
+        rows = 5
+        expected_count = rows + 3
+
+        count = Contact.objects.count()
+        self.assertLessEqual(count, expected_count)
+
+        create_contact = partial(Contact.objects.create, user=user)
+        for i in xrange(expected_count - count):
+            create_contact(first_name='Gally', last_name='Tuned#%02i' % i)
+
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                                             (EntityCellRegularField, {'name': 'first_name'}),
+                                            ],
+                                )
+
+        def post(page_info=''):
+            response = self.assertPOST200(Contact.get_lv_absolute_url(),
+                                          data={'hfilter': hf.id,
+                                                'page': page_info,
+                                                'rows': rows,
+                                               }
+                                         )
+            return response.context['entities']
+
+        page1 = post()
+        page2_info = page1.next_page_info()
+
+        # Invalid Page => page 1
+        page1_info = dict(page2_info)
+        del page1_info['type']
+
+        page = post(json_dump(page1_info))
+        self.assertFalse(page.has_previous())
+
+        # Invalid JSON => page 1
+        invalid_json = json_dump(page2_info)[:-1]
+        page = post(invalid_json)
+        self.assertFalse(page.has_previous())
+
+        # FirstPage => page 1
+        page1a_info = page1.paginator.page(page2_info).previous_page_info()
+        page = post(json_dump(page1a_info))
+        self.assertFalse(page.has_previous())
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[5, 10])
+    def test_pagination_fast06(self):
+        "LastPage => last page"
+        user = self.login()
+        rows = 5
+        expected_count = 2 * rows + 3
+
+        count = Contact.objects.count()
+        self.assertLessEqual(count, expected_count)
+
+        create_contact = partial(Contact.objects.create, user=user)
+        for i in xrange(expected_count - count):
+            create_contact(first_name='Gally', last_name='Tuned#%02i' % i)
+
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                                             (EntityCellRegularField, {'name': 'first_name'}),
+                                            ],
+                                )
+
+        def post(page_info=''):
+            response = self.assertPOST200(Contact.get_lv_absolute_url(),
+                                          data={'hfilter': hf.id,
+                                                'page': page_info,
+                                                'rows': rows,
+                                               }
+                                         )
+            return response.context['entities']
+
+        page1 = post()
+        paginator = page1.paginator
+        self.assertEqual(rows, paginator.per_page)
+
+        page2 = paginator.page(page1.next_page_info())
+        page3_info = page2.next_page_info()
+
+        # We delete the content of the 2nd page
+        for c in Contact.objects.reverse()[:4]:
+            c.delete()
+
+        last_page = post(json_dump(page3_info))
+        self.assertTrue(last_page.has_previous())
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_pagination_fast07(self):
+        "Page is saved"
+        self.login()
+        organisations = self._build_orgas()
+        hf = self._build_hf()
+        url = Organisation.get_lv_absolute_url()
+
+        def post(page_info=''):
+            data = {'hfilter': hf.id,
+                    'page': page_info,
+                    'rows': 10,
+                   }
+
+            response = self.assertPOST200(url, data=data)
+            return response.context['entities']
+
+        page1 = post()
+
+        # Go to page 2...
+        page2 = post(json_dump(page1.next_page_info()))
+        self.assertIndex(organisations[10], page2.object_list)
+
+        # ... which should be kept in session
+        page2a = post()
+        self.assertIndex(organisations[10], page2a.object_list)
+
+    @override_settings(FAST_QUERY_MODE_THESHOLD=14, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_pagination_fast08(self):
+        "Change paginator class slow => fast (so saved page info are not compatible)"
+        user =  self.login()
+        self._build_orgas()
+        hf = self._build_hf()
+        url = Organisation.get_lv_absolute_url()
+
+        def post():
+            response = self.assertPOST200(url,
+                                          data={'hfilter': hf.id,
+                                                'rows': 10,
+                                               }
+                                         )
+            return response.context['entities']
+
+        page1_slow = post()
+        self.assertTrue(hasattr(page1_slow, 'number'))  # Means slow mode
+
+        Organisation.objects.create(user=user, name='Zalem')  # We exceed the threshold
+        page1_fast = post()
+        self.assertTrue(hasattr(page1_fast, 'next_page_info'))  # Means fast mode

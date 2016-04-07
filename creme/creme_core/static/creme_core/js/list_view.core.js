@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2016  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@
 
 (function($) {
     $.fn.list_view = function(options) {
-
         var isMethodCall = (typeof options == 'string'),
             args = Array.prototype.slice.call(arguments, 1);
 
@@ -40,8 +39,8 @@
             o2m               : false,
             entity_separator  : ',',
             serializer        : 'input[name][type!="submit"], select[name]',
-            submitHandler     : null,//Use handleSubmit in it to easy list view's management
-            kd_submitHandler  : null,//Same as submitHandler but for key down events,
+            submitHandler     : null, // Use handleSubmit in it to easy list view's management
+            kd_submitHandler  : null, // Same as submitHandler but for key down events,
             reload_url        : null
         };
 
@@ -53,15 +52,14 @@
                              "setReloadUrl", "getReloadUrl", "isLoading"];
 
         if (isMethodCall && $.inArray(options, publicMethods) > -1) {
-                var instance = $.data(this[0], 'list_view');
-                return (instance ? instance[options].apply(instance, args)
-                        : undefined);
+            var instance = $.data(this[0], 'list_view');
+            return (instance ? instance[options].apply(instance, args)
+                             : undefined);
         }
 
         return this.each(function() {
-
-            // constructor
-            if(!isMethodCall) {
+            // Constructor
+            if (!isMethodCall) {
                 var opts = $.extend($.fn.list_view.defaults, options);
                 var selected_ids = [];
                 var self = $(this);
@@ -75,28 +73,17 @@
                 me.kd_submitHandler = ($.isFunction(opts.kd_submitHandler)) ? opts.kd_submitHandler : false;
                 me.is_loading = false;
 
-                /*me.user_page          = opts.user_page;
-                me.selected_rows      = opts.selected_rows;
-                me.selectable_class   = opts.selectable_class;
-                me.selected_class     = opts.selected_class;
-                me.id_container       = opts.id_container;
-                me.checkbox_selector  = opts.checkbox_selector;
-                me.all_boxes_selector = opts.all_boxes_selector;
-                me.o2m                = opts.o2m;
-                me.entity_separator   = opts.entity_separator;
-                me.serializer         = opts.serializer;*/
-
                 /***************** Getters & Setters *****************/
                 this.getSelectedEntities = function() {
                     return $(opts.selected_rows, self).val();
                 }
 
                 this.getSelectedEntitiesAsArray = function() {
-                    return ($(opts.selected_rows, self).val()!=="") ? $(opts.selected_rows, self).val().split(opts.entity_separator) : [];
+                    return ($(opts.selected_rows, self).val() !== "") ? $(opts.selected_rows, self).val().split(opts.entity_separator) : [];
                 }
 
                 this.countEntities = function() {
-                    return ($(opts.selected_rows, self).val()!=="") ? $(opts.selected_rows, self).val().split(opts.entity_separator).length : 0;
+                    return ($(opts.selected_rows, self).val() !== "") ? $(opts.selected_rows, self).val().split(opts.entity_separator).length : 0;
                 }
 
                 this.option = function(key, value){
@@ -109,21 +96,21 @@
                 }
 
                 this.setSubmit = function(fn) {
-                    if($.isFunction(fn)) me.submitHandler = fn;
+                    if ($.isFunction(fn)) me.submitHandler = fn;
                 }
 
                 this.setKdSubmit = function(fn) {
-                    if($.isFunction(fn)) me.kd_submitHandler = fn;
+                    if ($.isFunction(fn)) me.kd_submitHandler = fn;
                 }
 
                 this.getSubmit = function() {
-                    if(me.submitHandler) return me.submitHandler;
-                    return function(){};//Null handler
+                    if (me.submitHandler) return me.submitHandler;
+                    return function() {}; // Null handler
                 }
 
                 this.getKdSubmit = function() {
-                    if(me.kd_submitHandler) return me.kd_submitHandler;
-                    return function(){};//Null handler
+                    if (me.kd_submitHandler) return me.kd_submitHandler;
+                    return function() {}; // Null handler
                 }
 
                 this.setReloadUrl = function(url) {
@@ -140,17 +127,15 @@
 
                 /***************** Helpers ****************************/
                 this.reload = function(is_ajax) {
-
-                    var url = this.reload_url || creme.utils.appendInUrl(window.location.href,'?ajax='+(is_ajax || true));
+                    var url = this.reload_url || creme.utils.appendInUrl(window.location.href, '?ajax=' + (is_ajax || true));
 
                     var submit_opts = {
                         'action': url,
-                        'success':function(data, status){
+                        'success':function(data, status) {
                             self.empty().html(data);
                         }
                     };
 
-//                    self.list_view('handleSubmit', null, submit_opts, null);
                     this.handleSubmit(null, submit_opts, null);
                 }
 
@@ -159,7 +144,7 @@
                 }
 
                 this.ensureSelection = function() {
-                    if(!this.hasSelection()) {
+                    if (!this.hasSelection()) {
                         creme.dialogs.warning(gettext("Please select at least one entity."));
                         return false;
                     }
@@ -208,30 +193,33 @@
                 /***************** Row selection part *****************/
                 this.enableRowSelection = function() {
                     self.on ('click', '.' + opts.selectable_class,
-//                    self.find('.'+opts.selectable_class).bind('click',
                         function(e) {
                             var $target = $(e.target);
 
-                            // ignore clicks on links, they should not select the row
+                            // Ignore clicks on links, they should not select the row
                             var isClickFromLink = $target.is('a') || $target.parents('a').first().length == 1;
                             if (isClickFromLink) {
                                 return;
                             }
 
                             var entity_id = $(this).find(opts.id_container).val();
-                            var entity_id_index = $.inArray(entity_id, selected_ids);//selected_ids.indexOf(entity_id);
+                            var entity_id_index = $.inArray(entity_id, selected_ids); //selected_ids.indexOf(entity_id);
 
-                            if(!$(this).hasClass(opts.selected_class)) {
-                                if(entity_id_index === -1) {
-                                    if(opts.o2m){
+                            if (!$(this).hasClass(opts.selected_class)) {
+                                if (entity_id_index === -1) {
+                                    if (opts.o2m) {
                                         selected_ids = [];
                                         self.find('.'+opts.selected_class).removeClass(opts.selected_class);
                                     }
                                     selected_ids.push(entity_id);
                                     $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
                                 }
-                                if(!$(this).hasClass(opts.selected_class))$(this).addClass(opts.selected_class);
-                                if(!opts.o2m) {
+
+                                if (!$(this).hasClass(opts.selected_class)) {
+                                    $(this).addClass(opts.selected_class);
+                                }
+
+                                if (!opts.o2m) {
                                     $(this).find(opts.checkbox_selector).check();
                                 }
                                 $(this).trigger('row-selection-changed', {selected: true});
@@ -257,7 +245,6 @@
                     $(opts.selected_rows, self).val('');
                     $(opts.selected_rows, self).trigger('row-selection-changed', {selected: false});
 
-                    // upgrade to Jquery 1.9x : "checked" is a property and attr() method should not be used.
                     self.find('.' + opts.selectable_class + ' .choices input[type="checkbox"],' +
                               opts.all_boxes_selector)
                         .prop('checked', false);
@@ -266,20 +253,25 @@
 
                 /***************** Check all boxes part *****************/
                 this.enableCheckAllBoxes = function() {
-//                    self.find(opts.all_boxes_selector).live('click',
                     self.find(opts.all_boxes_selector)
                     .bind('click',
                         function(e) {
-                            var entities = self.find('.'+opts.selectable_class);
-                            if($(this).is(':checked')) {
+                            var entities = self.find('.' + opts.selectable_class);
+
+                            if ($(this).is(':checked')) {
                                 entities.each(function() {
                                     var entity_id = $(this).find(opts.id_container).val();
-                                    var entity_id_index = $.inArray(entity_id, selected_ids);//selected_ids.indexOf(entity_id);
-                                    if(entity_id_index === -1) {
+                                    var entity_id_index = $.inArray(entity_id, selected_ids); //selected_ids.indexOf(entity_id);
+
+                                    if (entity_id_index === -1) {
                                         selected_ids.push(entity_id);
                                     }
-                                    if(!$(this).hasClass(opts.selected_class))$(this).addClass(opts.selected_class);
-                                    if(!opts.o2m) {
+
+                                    if (!$(this).hasClass(opts.selected_class)) {
+                                        $(this).addClass(opts.selected_class);
+                                    }
+
+                                    if (!opts.o2m) {
                                         $(this).find(opts.checkbox_selector).check();
                                     }
                                     $(this).trigger('row-selection-changed', {selected: true});
@@ -287,8 +279,11 @@
                                 $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
                             } else {
                                 entities.each(function() {
-                                    if($(this).hasClass(opts.selected_class))$(this).removeClass(opts.selected_class);
-                                    if(!opts.o2m){
+                                    if ($(this).hasClass(opts.selected_class)) {
+                                        $(this).removeClass(opts.selected_class);
+                                    }
+
+                                    if (!opts.o2m) {
                                         $(this).find(opts.checkbox_selector).uncheck();
                                     }
                                     $(this).trigger('row-selection-changed', {selected: false});
@@ -304,47 +299,38 @@
 
                 /***************** Submit part *****************/
 
-                //Remove this part in ajax lv for handling multi-page selection,
-                //if that you want implement the "coloration" selection on submit
+                // Remove this part in ajax lv for handling multi-page selection,
+                // if that you want implement the "coloration" selection on submit
                 this.flushSelected = function() {
                     $(opts.selected_rows, self).val('');
                     selected_ids = [];
                 }
 
                 this.disableEvents = function() {
-//                    self.find('.'+opts.selectable_class).die('click');
-//                    if(!opts.o2m) self.find(opts.all_boxes_selector).die('click');
-//                    self.find('.'+opts.selectable_class).unbind('click');
                     self.off('click', '.' + opts.selectable_class);
-                    if(!opts.o2m) self.find(opts.all_boxes_selector).unbind('click');
+                    if (!opts.o2m) self.find(opts.all_boxes_selector).unbind('click');
                 }
 
                 this.enableEvents = function() {
                     this.enableRowSelection();
                     this.enableFilters();
                     this.enableActions();
-                    if(!opts.o2m) this.enableCheckAllBoxes();
+                    if (!opts.o2m) this.enableCheckAllBoxes();
                 }
-
-//                this.serializeMe = function (){
-//                    var data = {};
-//                    self.find(opts.serializer).each(function(){
-//                       var $node = $(this);
-//                       data[$node.attr('name')] = $node.val();
-//                    });
-//                    return data;
-//                }
 
                 this.serializeMe = function () {
                     var data = {};
+
                     self.find(opts.serializer).each(function() {
                        var $node = $(this);
-                       if(typeof(data[$node.attr('name')]) == "undefined") {
+
+                       if (typeof(data[$node.attr('name')]) == "undefined") {
                            data[$node.attr('name')] = [$node.val()];
-                       } else if(data[$node.attr('name')].length > 0) {
+                       } else if (data[$node.attr('name')].length > 0) {
                            data[$node.attr('name')].push($node.val());
                        }
                     });
+
                     return data;
                 }
 
@@ -354,41 +340,39 @@
                     }
 
                     var data = this.serializeMe();
-                    if(typeof(extra_data)!="undefined") {
+                    if (typeof(extra_data) != "undefined") {
                         data = $.extend(data, extra_data);
                     }
 
                     var $target = $(target);
-//                    data[$target.attr('name')] = $target.val();
 
-                    if(typeof(data[$target.attr('name')]) == "undefined"){
+                    if (typeof(data[$target.attr('name')]) == "undefined") {
                         data[$target.attr('name')] = [$target.val()];
-                    }
-                    else if(data[$target.attr('name')].length > 0){
+                    } else if (data[$target.attr('name')].length > 0) {
                         var target_value = $target.val();
-                        if($.inArray(target_value, data[$target.attr('name')]) == -1)
+                        if ($.inArray(target_value, data[$target.attr('name')]) == -1)
                             data[$target.attr('name')].push(target_value);
                     }
 
-                    if(typeof(data['page']) == "undefined") {
+                    if (typeof(data['page']) == "undefined") {
                         data['page'] = $(opts.user_page, self);
                     }
 
                     this.disableEvents();
                     me.is_loading = true;
 
-                    //We get a previous beforeComplete user callback if exists
+                    // We get a previous beforeComplete user callback if exists
                     var previousCallback = null;
-                    if(typeof(options) !== "undefined" && typeof(options['beforeComplete']) == "function") {
+                    if (typeof(options) !== "undefined" && typeof(options['beforeComplete']) == "function") {
                         previousCallback = options['beforeComplete'];
                     }
 
                     options['beforeComplete'] = function(request, status) {
-                        //Calling our beforeComplete callback
+                        // Calling our beforeComplete callback
                         me.is_loading = false;
                         self.list_view('enableEvents');
-                        //Then user callback
-                        if(previousCallback) previousCallback(request, status);
+                        // Then user callback
+                        if (previousCallback) previousCallback(request, status);
                     }
 
                     creme.ajax.submit(form, data, options);
@@ -402,7 +386,7 @@
 
                 this.init();
             } else {
-                if($.isFunction(this[options])) this[options].apply(this, args);
+                if ($.isFunction(this[options])) this[options].apply(this, args);
             }
         });
     };//$.fn.list_view
