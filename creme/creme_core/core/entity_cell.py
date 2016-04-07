@@ -177,28 +177,41 @@ class EntityCellRegularField(EntityCell):
         sortable = True
         pattern = "%s__icontains"
 
-        if isinstance(field, (ForeignKey, ManyToManyField)):  # TODO: hasattr(field, 'rel') ?  django1.8 field API ?
-            if len(field_info) == 1:
-                pattern = "%s"  # TODO: factorise
-            else:
-                field = field_info[1]  # The sub-field is considered as the main field
-
-                if isinstance(field, (ForeignKey, ManyToManyField)):
-                    pattern = '%s'  # TODO '%s__exact' ?
-
-            if isinstance(field, ManyToManyField):
+        # if isinstance(field, (ForeignKey, ManyToManyField)):
+        #     if len(field_info) == 1:
+        #         pattern = "%s"  # todo: factorise
+        #     else:
+        #         field = field_info[1]  # The sub-field is considered as the main field
+        #
+        #         if isinstance(field, (ForeignKey, ManyToManyField)):
+        #             pattern = '%s'  # todo: '%s__exact' ?
+        #
+        #     if isinstance(field, ManyToManyField):
+        #         sortable = False
+        if len(field_info) > 1:
+            if field.many_to_many:
                 sortable = False
 
-        if isinstance(field, (DateField, DateTimeField)):
+            # TODO: forbids depth > 2  ?
+            field = field_info[-1]  # The sub-field is considered as the main field
+
+        # if isinstance(field, (DateField, DateTimeField)):
+        if isinstance(field, DateField):
             pattern = "%s__range"  # TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
             pattern = "%s__creme-boolean"
         elif isinstance(field, DatePeriodField):
             has_a_filter = False
             sortable = False
-        elif isinstance(field, (ForeignKey, ManyToManyField)) and \
-             issubclass(field.rel.to, CremeEntity):
-            pattern = '%s__header_filter_search_field__icontains'
+        # elif isinstance(field, (ForeignKey, ManyToManyField)) and \
+        #      issubclass(field.rel.to, CremeEntity):
+        #     pattern = '%s__header_filter_search_field__icontains'
+        # TODO: what about one_to_many & one_to_one ?
+        elif field.is_relation and field.related_model:
+            pattern = '%s__header_filter_search_field__icontains' \
+                      if issubclass(field.rel.to, CremeEntity) else '%s'  # TODO '%s__exact' ?
+            if field.many_to_many:
+                sortable = False
 
         super(EntityCellRegularField, self).__init__(value=name,
                                                      title=field_info.verbose_name,
@@ -274,7 +287,7 @@ class EntityCellCustomField(EntityCell):
                                                     title=customfield.name,
                                                     has_a_filter=True,
                                                     editable=False,  # TODO: make it editable
-                                                    sortable=False,  # TODO: make it sortable
+                                                    sortable=False,  # TODO: make it sortable ?
                                                     is_hidden=False,
                                                     filter_string=pattern % customfield.get_value_class().get_related_name(),
                                                    )
