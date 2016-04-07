@@ -20,20 +20,23 @@
 
 from functools import partial
 from itertools import chain
-# import warnings
+import warnings
 
-from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist, DateField
+from django.db.models import FieldDoesNotExist, DateField  # ForeignKey, ManyToManyField
 
 from .unicode_collation import collator
 
 
-# TODO; used only in activesync
-# TODO: manage better M2M values
+# TODO: used only in activesync
 def get_instance_field_info(obj, field_name):
     """ For a field_name 'att1__att2__att3', it searches and returns the tuple
     (class of obj.att1.att2.get_field('att3'), obj.att1.att2.att3)
     @return : (field_class, field_value)
     """
+    warnings.warn("get_instance_field_info() function is deprecated ; use FieldInfo.value_from() instead.",
+                  DeprecationWarning
+                 )
+
     subfield_names = field_name.split('__')
 
     try:
@@ -41,22 +44,26 @@ def get_instance_field_info(obj, field_name):
             obj = getattr(obj, subfield_name)  # Can be None if a M2M has no related value
 
         subfield_name = subfield_names[-1]
-        field_class = obj._meta.get_field(subfield_name).__class__
+        # field_class = obj._meta.get_field(subfield_name).__class__
+        field = obj._meta.get_field(subfield_name)
         field_value = getattr(obj, subfield_name)
 
-        if issubclass(field_class, ManyToManyField):
+        # if issubclass(field_class, ManyToManyField):
+        if field.many_to_many:
             field_value = field_value.all()
 
-        return field_class, field_value
+        # return field_class, field_value
+        return field.__class__, field_value
     except (AttributeError, FieldDoesNotExist):
         return None, ''
 
 
 class FieldInfo(object):
-    __slots__ = ('__fields', )
+    __slots__ = ('_model', '__fields')
 
     def __init__(self, model, field_name):
         "@throws FieldDoesNotExist"
+        self._model = model
         self.__fields = fields = []
         subfield_names = field_name.split('__')
 
@@ -78,6 +85,7 @@ class FieldInfo(object):
         if isinstance(idx, slice):
             # We avoid the call to __init__ and its introspection work
             fi = FieldInfo.__new__(FieldInfo)
+            fi._model = self._model
             fi.__fields = self.__fields[idx]
 
             return fi
@@ -93,6 +101,27 @@ class FieldInfo(object):
     @property
     def verbose_name(self):
         return u' - '.join(unicode(field.verbose_name) for field in self.__fields)
+
+    # TODO: probably does not work with several ManyToManyFields in the fields chain
+    def value_from(self, instance):
+        if not isinstance(instance, self._model):
+            raise ValueError('"%s" is not an instance of %s' % (instance, self._model))
+
+        result = instance
+
+        for subfield in self:
+            if result is None:
+                break
+
+            if isinstance(result, list):
+                result = [getattr(elt, subfield.name) for elt in result]
+            else:
+                result = getattr(result, subfield.name)
+
+                if subfield.many_to_many:
+                    result = list(result.all())
+
+        return result
 
 
 def is_date_field(field):
@@ -165,7 +194,8 @@ class ModelFieldEnumerator(object):
             if all(ffilter(field, depth) for ffilter in ffilters):
                 field_info = parents_fields + (field,)
 
-                if isinstance(field, (ForeignKey, ManyToManyField)):
+                # if isinstance(field, (ForeignKey, ManyToManyField)):
+                if field.is_relation:  # TODO: and field.related_model ? not auto_created ?
                     if rem_depth:
                         if include_fk:
                             fields_info.append(field_info)
@@ -192,7 +222,9 @@ class ModelFieldEnumerator(object):
         return self
 
     def exclude(self, function=None, **kwargs):
-        """See ModelFieldEnumerator.filter()"""
+        """Exclude some fiels from the sequence.
+        @see ModelFieldEnumerator.filter()
+        """
         self._ffilters.append(_ExcludeModelFieldQuery(function, **kwargs))
         return self
 
