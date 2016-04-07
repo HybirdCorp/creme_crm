@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,7 @@ class Command(BaseCommand):
             self.stderr.write('The required "polib" library seems not installed ; aborting.')
             return
 
-        verbosity = int(options.get('verbosity'))
+        verbosity = options.get('verbosity')
 
         if verbosity >= 2:
             self.stdout.write('OK "polib" library is installed.')

@@ -25,7 +25,7 @@ class Command(BaseCommand):
     args = ''
 
     def handle(self, *args, **options):
-        verbosity = int(options.get('verbosity'))
+        verbosity = options.get('verbosity')
 
         from creme.creme_core.core.job import JobManager
         JobManager().start(verbose=bool(verbosity))

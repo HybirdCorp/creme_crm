@@ -56,7 +56,7 @@ class Command(BaseCommand):
             self.stderr.write('The required "polib" library seems not installed ; aborting.')
             return
 
-        verbosity = int(options.get('verbosity'))
+        verbosity = options.get('verbosity')
 
         if verbosity >= 2:
             self.stdout.write('OK "polib" library is installed.')
