@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-# import warnings
+import warnings
 import traceback
 import sys
 from json import dumps as json_dump
@@ -344,6 +344,9 @@ def ellipsis_multi(strings, length):
 
 
 def is_testenvironment(request):
+    warnings.warn("is_testenvironment() function is deprecated ; use settings.TESTS_ON instead",
+                  DeprecationWarning
+                 )
     return request.META.get('SERVER_NAME') == 'testserver'
 
 

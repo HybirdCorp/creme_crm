@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ from ..gui import block_registry
 from ..gui.block import PaginatedBlock
 from ..gui.field_printers import (print_image, print_urlfield, print_datetime,
         print_date, print_duration, print_foreignkey, print_many2many)
-from ..utils import is_testenvironment
+# from ..utils import is_testenvironment
 from ..utils.media import get_current_theme, creme_media_themed_url as media_url
 
 from ..models import CremeProperty
@@ -129,8 +129,10 @@ class DummyListBlock(PaginatedBlock):
 dummy_list_block = DummyListBlock()
 
 
-def js_testview_or_404(request, message, error):
-    if is_testenvironment(request) or not settings.FORCE_JS_TESTVIEW:
+# def js_testview_or_404(request, message, error):
+def js_testview_or_404(message, error):
+    # if is_testenvironment(request) or not settings.FORCE_JS_TESTVIEW:
+    if settings.TESTS_ON or not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)
 
     logger.warn(message)
@@ -169,7 +171,8 @@ def js_testview_context(request, viewname):
 
 
 def test_http_response(request):
-    if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
+    # if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
+    if not settings.TESTS_ON and not settings.FORCE_JS_TESTVIEW:
         raise Http404('This is view is only reachable during javascript or server unittests')
 
     logger.warn("Beware : If you are not running unittest this view shouldn't be reachable."
@@ -206,18 +209,22 @@ def test_http_response(request):
 
 @login_required
 def test_js(request):
-    js_testview_or_404(request, 
-                       "Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.",
-                       'This is view is only reachable during javascript unittests')
+    js_testview_or_404(  # request,
+                       "Beware: if you are not running unittest this view shouldn't be reachable. "
+                       "Check your server configuration.",
+                       "This is view is only reachable during javascript unittests."
+                      )
 
     return render(request, 'creme_core/test_js.html')
 
 
 @login_required
 def test_widget(request, widget):
-    js_testview_or_404(request, 
-                       "Beware : If you are not in testing javascript widgets this view shouldn't be reachable. Check your server configuration.",
-                       'This is view is only reachable during javascript debug')
+    js_testview_or_404(  # request,
+                       "Beware: if you are not in testing javascript widgets this view shouldn't be reachable. "
+                       "Check your server configuration.",
+                       "This is view is only reachable during javascript debug."
+                      )
 
     context = js_testview_context(request, widget)
     theme = context['THEME_NAME']
