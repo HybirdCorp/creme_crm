@@ -340,6 +340,7 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=Contact, name='languages__name')
         self.assertIs(cell.has_a_filter, True)
         self.assertEqual('languages__name__icontains', cell.filter_string)
+        self.assertIs(cell.sortable, False)
 
     def test_build_4_field_errors(self):
         build = partial(EntityCellRegularField.build, model=Contact)
