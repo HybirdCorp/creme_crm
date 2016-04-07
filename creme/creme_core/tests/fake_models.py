@@ -41,7 +41,7 @@ else:
                                      )
         category  = models.ForeignKey(FakeFolderCategory, verbose_name=_(u'Category'),
                                       blank=True, null=True, on_delete=models.SET_NULL,
-                                      #related_name='folder_category_set',
+                                      # related_name='folder_category_set',
                                      )
 
 #        allowed_related = CremeEntity.allowed_related | {'document'}
@@ -122,8 +122,7 @@ else:
                                       )
         categories  = models.ManyToManyField(FakeImageCategory,
                                              verbose_name=_(u'Categories'),
-                                             related_name='+',
-                                             blank=True, #null=True,
+                                             related_name='+', blank=True,
                                             )
         exif_date   = models.DateField(_(u"Exif date"), blank=True, null=True)\
                             .set_tags(optional=True)
@@ -183,8 +182,8 @@ else:
 
     class FakeSector(CremeModel):
         title     = models.CharField(_(u'Title'), max_length=100)
-        is_custom = models.BooleanField(default=True).set_tags(viewable=False) #used by creme_config
-        order     = BasicAutoField(_('Order')) #used by creme_config
+        is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+        order     = BasicAutoField(_('Order'))  # Used by creme_config
 
         def __unicode__(self):
             return self.title
@@ -226,48 +225,46 @@ else:
 
 
     class FakeContact(CremeEntity):
-        civility        = models.ForeignKey(FakeCivility, verbose_name=_(u'Civility'),
-                                            blank=True, null=True, on_delete=models.SET_NULL,
-                                           )
-        last_name       = models.CharField(_(u'Last name'), max_length=100)
-        first_name      = models.CharField(_(u'First name'), max_length=100,
-                                           blank=True, null=True,
-                                          ).set_tags(optional=True)
-        is_a_nerd       = models.BooleanField(_(u'Is a Nerd'), default=False)
-        description     = models.TextField(_(u'Description'), blank=True, null=True)\
-                                .set_tags(optional=True)
-        phone           = PhoneField(_(u'Phone number'), max_length=100,
-                                     blank=True, null=True,
-                                    ).set_tags(optional=True)
-        mobile          = PhoneField(_(u'Mobile'), max_length=100,
-                                     blank=True, null=True,
-                                    ).set_tags(optional=True)
-        position        = models.ForeignKey(FakePosition, verbose_name=_(u'Position'),
-                                            blank=True, null=True, on_delete=models.SET_NULL,
-                                           ).set_tags(optional=True)
-        sector          = models.ForeignKey(FakeSector, verbose_name=_(u'Line of business'),
-                                            blank=True, null=True, on_delete=models.SET_NULL,
-                                           ).set_tags(optional=True)
-        email           = models.EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
-        url_site        = models.URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
-        languages       = models.ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
-                                                 blank=True, #null=True,
-                                                )
-        address         = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
-                                            blank=True, null=True,  editable=False,
-                                            related_name='+',
-                                           ).set_tags(enumerable=False) #clonable=False useless
-        is_user         = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
-                                            blank=True, null=True, editable=False,
-                                            related_name='+',
-                                            on_delete=models.SET_NULL,
-                                           ).set_tags(clonable=False, enumerable=False)\
-                                            .set_null_label(pgettext_lazy('persons-is_user', u'None'))
-        birthday        = models.DateField(_(u"Birthday"), blank=True, null=True)\
-                                .set_tags(optional=True)
-        image           = models.ForeignKey(FakeImage, verbose_name=_(u'Photograph'),
-                                            blank=True, null=True, on_delete=models.SET_NULL,
-                                           ).set_tags(optional=True)
+        civility    = models.ForeignKey(FakeCivility, verbose_name=_(u'Civility'),
+                                        blank=True, null=True, on_delete=models.SET_NULL,
+                                       )
+        last_name   = models.CharField(_(u'Last name'), max_length=100)
+        first_name  = models.CharField(_(u'First name'), max_length=100,
+                                       blank=True, null=True,
+                                      ).set_tags(optional=True)
+        is_a_nerd   = models.BooleanField(_(u'Is a Nerd'), default=False)
+        description = models.TextField(_(u'Description'), blank=True, null=True)\
+                            .set_tags(optional=True)
+        phone       = PhoneField(_(u'Phone number'), max_length=100,
+                                 blank=True, null=True,
+                                ).set_tags(optional=True)
+        mobile      = PhoneField(_(u'Mobile'), max_length=100,
+                                 blank=True, null=True,
+                                ).set_tags(optional=True)
+        position    = models.ForeignKey(FakePosition, verbose_name=_(u'Position'),
+                                        blank=True, null=True, on_delete=models.SET_NULL,
+                                       ).set_tags(optional=True)
+        sector      = models.ForeignKey(FakeSector, verbose_name=_(u'Line of business'),
+                                        blank=True, null=True, on_delete=models.SET_NULL,
+                                       ).set_tags(optional=True)
+        email       = models.EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
+        url_site    = models.URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
+        languages   = models.ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True)
+        address     = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
+                                        blank=True, null=True,  editable=False,
+                                        related_name='+',
+                                       ).set_tags(enumerable=False)  # clonable=False useless
+        is_user     = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
+                                        blank=True, null=True, editable=False,
+                                        related_name='+',
+                                        on_delete=models.SET_NULL,
+                                       ).set_tags(clonable=False, enumerable=False)\
+                                        .set_null_label(pgettext_lazy('persons-is_user', u'None'))
+        birthday    = models.DateField(_(u'Birthday'), blank=True, null=True)\
+                            .set_tags(optional=True)
+        image       = models.ForeignKey(FakeImage, verbose_name=_(u'Photograph'),
+                                        blank=True, null=True, on_delete=models.SET_NULL,
+                                       ).set_tags(optional=True)
 
 #        creation_label = _('Add a contact')
 

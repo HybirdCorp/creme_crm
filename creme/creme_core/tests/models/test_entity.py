@@ -12,8 +12,8 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeCivility as Civility,
+    from ..fake_models import (FakeContact as Contact, FakeOrganisation as Organisation,
+            FakeCivility as Civility, FakeSector as Sector,
             FakeImage as Image, FakeImageCategory as MediaCategory, FakeFileComponent)
     from creme.creme_core.models import (CremeEntity, CremePropertyType, CremeProperty,
             RelationType, Relation, Language, CustomField, CustomFieldEnumValue,
@@ -43,6 +43,46 @@ class EntityTestCase(CremeTestCase):
         now_value = now()
         self.assertDatetimesAlmostEqual(now_value, entity.created)
         self.assertDatetimesAlmostEqual(now_value, entity.modified)
+
+    def test_manager01(self):
+        "Ordering NULL values as 'low'"
+        # NB: we should not use NULL & '' values at the same time, because they are
+        # separated by the ordering, but they are equal for the users.
+        create_contact = partial(Contact.objects.create, user=self.user)
+        c1 = create_contact(first_name='Naruto',  last_name='Uzumaki', email='n.uzumaki@konoha.jp')
+        c2 = create_contact(first_name='Sasuke',  last_name='Uchiwa')
+        c3 = create_contact(first_name='Sakura',  last_name='Haruno', email='')
+        c4 = create_contact(first_name='Kakashi', last_name='Hatake', email='k.hatake@konoha.jp')
+
+        qs = Contact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
+        expected = [c2, c3, c4, c1]
+        self.assertEqual(expected,
+                         list(qs.order_by('email', 'last_name'))
+                        )
+        self.assertEqual(list(reversed(expected)),
+                         list(qs.order_by('-email', 'last_name'))
+                        )
+
+    def test_manager02(self):
+        "Ordering NULL values as 'low' (FK)"
+        create_sector = Sector.objects.create
+        s1 = create_sector(title='Hatake')
+        s2 = create_sector(title='Uzumaki')
+
+        create_contact = partial(Contact.objects.create, user=self.user)
+        c1 = create_contact(first_name='Naruto',  last_name='Uzumaki', sector=s2)
+        c2 = create_contact(first_name='Sasuke',  last_name='Uchiwa')
+        c3 = create_contact(first_name='Sakura',  last_name='Haruno')
+        c4 = create_contact(first_name='Kakashi', last_name='Hatake', sector=s1)
+
+        qs = Contact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
+        expected = [c3, c2, c4, c1]
+        self.assertEqual(expected,
+                         list(qs.order_by('sector', 'last_name'))
+                        )
+        self.assertEqual(list(reversed(expected)),
+                         list(qs.order_by('-sector', '-last_name'))
+                        )
 
     def test_property01(self):  # TODO: create a test case for CremeProperty ???
         text = 'TEXT'
@@ -207,12 +247,12 @@ class EntityTestCase(CremeTestCase):
         m_enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum1')
         m_enum2 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum2')
 
-        orga = Organisation.objects.create(name=u"Konoha", user=self.user)
+        orga = Organisation.objects.create(name='Konoha', user=self.user)
 
         CustomFieldInteger.objects.create(custom_field=cf_int, entity=orga, value=50)
-        CustomFieldFloat.objects.create(custom_field=cf_float, entity=orga, value=Decimal("10.5"))
+        CustomFieldFloat.objects.create(custom_field=cf_float, entity=orga, value=Decimal('10.5'))
         CustomFieldBoolean.objects.create(custom_field=cf_bool, entity=orga, value=True)
-        CustomFieldString.objects.create(custom_field=cf_str, entity=orga, value="kunai")
+        CustomFieldString.objects.create(custom_field=cf_str, entity=orga, value='kunai')
         CustomFieldDateTime.objects.create(custom_field=cf_date, entity=orga, value=now())
         CustomFieldEnum.objects.create(custom_field=cf_enum, entity=orga, value=enum1)
         CustomFieldMultiEnum(custom_field=cf_multi_enum, entity=orga).set_value_n_save([m_enum1, m_enum2])
@@ -237,7 +277,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone04(self):
         "ManyToMany"
-        image1 = Image.objects.create(user=self.user, name='Konoha by nigth')
+        image1 = Image.objects.create(user=self.user, name='Konoha by night')
         image1.categories = categories = list(MediaCategory.objects.all())
         self.assertTrue(categories)
 
@@ -368,7 +408,7 @@ class EntityTestCase(CremeTestCase):
         field_B = create_field(name='B', field_type=CustomField.INT)
         field_C = create_field(name='C', field_type=CustomField.INT)
 
-        orga = Organisation.objects.create(name=u"Konoha", user=self.user)
+        orga = Organisation.objects.create(name='Konoha', user=self.user)
 
         create_cf = CustomFieldInteger.objects.create
         value_A = create_cf(custom_field=field_A, entity=orga, value=50)

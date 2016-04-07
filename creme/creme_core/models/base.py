@@ -24,7 +24,7 @@ import logging
 import os
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model, CharField, BooleanField, FileField, Manager
+from django.db.models import Model, CharField, BooleanField, FileField  # Manager
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
@@ -32,6 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from ..core.function_field import FunctionFieldsManager
 from .fields import (CreationDateTimeField, ModificationDateTimeField,
          CremeUserForeignKey, CTypeForeignKey)
+from .manager import LowNullsQuerySet
 
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,8 @@ class CremeModel(Model):
     creation_label = _('Add')
     # TODO : do a complete refactor for _CremeModel.selection_label
     # selection_label = _('Select')
+
+    # TODO ? objects = LowNullsQuerySet.as_manager()
 
     class Meta:
         abstract = True
@@ -112,7 +115,8 @@ class CremeAbstractEntity(CremeModel):
     user       = CremeUserForeignKey(verbose_name=_('Owner user'))
 
     # objects = CremeEntityManager()
-    objects = Manager()
+    # objects = Manager()
+    objects = LowNullsQuerySet.as_manager()
 
     _real_entity = None
 
