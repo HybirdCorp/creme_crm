@@ -749,6 +749,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name, content)
         self.assertIn(dragons.name, content)
 
+    @override_settings(FAST_QUERY_MODE_THESHOLD=1000000, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=1)
     def test_search_regularfields01(self):
         user = self.login()
 
@@ -2019,7 +2020,7 @@ class ListViewTestCase(ViewsTestCase):
         idx11 = self.assertIndex(organisations[10], entities)
         self.assertEqual(0, idx11)
 
-    @override_settings(FAST_QUERY_MODE_THESHOLD=5)
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[10, 50], DEFAULT_PAGE_SIZE_IDX=0)
     def test_pagination_fast02(self):
         "ContentType = Contact"
         user = self.login()
@@ -2082,7 +2083,7 @@ class ListViewTestCase(ViewsTestCase):
         idx11 = self.assertIndex(contacts[10], entities)
         self.assertEqual(0, idx11)
 
-    @override_settings(FAST_QUERY_MODE_THESHOLD=5)
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=1)
     def test_pagination_fast03(self):
         "Set an ORDER"
         user = self.login()
@@ -2140,7 +2141,7 @@ class ListViewTestCase(ViewsTestCase):
         idx11 = self.assertIndex(contacts[10], entities)
         self.assertEqual(0, idx11)
 
-    @override_settings(FAST_QUERY_MODE_THESHOLD=5)
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_pagination_fast04(self):
         "Field key duplicates => use OFFSET too"
         user = self.login()
@@ -2279,7 +2280,7 @@ class ListViewTestCase(ViewsTestCase):
         last_page = post(json_dump(page3_info))
         self.assertTrue(last_page.has_previous())
 
-    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    @override_settings(FAST_QUERY_MODE_THESHOLD=5, PAGE_SIZES=[10])
     def test_pagination_fast07(self):
         "Page is saved"
         self.login()
@@ -2306,7 +2307,7 @@ class ListViewTestCase(ViewsTestCase):
         page2a = post()
         self.assertIndex(organisations[10], page2a.object_list)
 
-    @override_settings(FAST_QUERY_MODE_THESHOLD=14, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    @override_settings(FAST_QUERY_MODE_THESHOLD=14, PAGE_SIZES=[10])
     def test_pagination_fast08(self):
         "Change paginator class slow => fast (so saved page info are not compatible)"
         user =  self.login()

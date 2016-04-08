@@ -7,6 +7,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.test.utils import override_settings
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.timezone import localtime
@@ -404,3 +405,93 @@ class CSVExportViewsTestCase(ViewsTestCase):
         lines = {force_unicode(line) for line in response.content.splitlines()}
         self.assertIn(u'"Bebop","%s"' % _(u'Percent'), lines)
         self.assertIn(u'"Swordfish","%s"' % _(u'Amount'), lines)
+
+    def _get_lv_content(self, response):  # NB: copied from ListViewTestCase
+        content = response.content
+        start_idx = content.find('<table id="list"')
+        self.assertNotEqual(-1, start_idx)
+
+        return content[start_idx:]
+
+    @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_quick_search(self):
+        user = self.login()
+
+        HeaderFilter.create(pk='test-hf_contact', name='Contact view',
+                            model=Contact,
+                            cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
+                                        (EntityCellRegularField, {'name': 'last_name'}),
+                                        (EntityCellRegularField, {'name': 'first_name'}),
+                                       ],
+                           )
+
+        create_contact = partial(Contact.objects.create, user=user)
+        spike = create_contact(first_name='Spike', last_name='Spiegel',   phone='123233')
+        jet   = create_contact(first_name='Jet',   last_name='Black',     phone='123455')
+        faye  = create_contact(first_name='Faye',  last_name='Valentine', phone='678678')
+
+        # Set the current list view state, with the quick search
+        lv_url = Contact.get_lv_absolute_url()
+        response = self.assertPOST200(lv_url,
+                                      data={'_search': 1,
+                                            'regular_field-phone': '123',
+                                           }
+                                     )
+        content = self._get_lv_content(response)
+        self.assertFound(spike.last_name, content)
+        self.assertFound(jet.last_name, content)
+        self.assertNotIn(faye.last_name, content)
+
+        # ----------------------
+        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+
+        it = (force_unicode(line) for line in response.content.splitlines())
+        it.next()  # Header
+        self.assertEqual(it.next(), u'"123455","Black","Jet"')
+        self.assertEqual(it.next(), u'"123233","Spiegel","Spike"')
+
+        with self.assertRaises(StopIteration):
+            it.next()
+
+    def test_distinct(self):
+        user = self.login()
+
+        create_camp = partial(EmailCampaign.objects.create, user=user)
+        camp1 = create_camp(name='Camp#1')
+        camp2 = create_camp(name='Camp#2')
+        camp3 = create_camp(name='Camp#3')
+
+        create_ml = partial(MailingList.objects.create, user=user)
+
+        ml1 = create_ml(name='Bebop staff')
+        ml2 = create_ml(name='Mafia staff')
+
+        camp1.mailing_lists = [ml1, ml2]
+        camp2.mailing_lists = [ml1]
+
+        HeaderFilter.create(pk='test_hf', name='Campaign view', model=EmailCampaign,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        (EntityCellRegularField, {'name': 'mailing_lists'}),
+                                       ],
+                           )
+
+        # Set the current list view state, with the quick search
+        lv_url = EmailCampaign.get_lv_absolute_url()
+        response = self.assertPOST200(lv_url,
+                                      data={'_search': 1,
+                                            'regular_field-mailing_lists': 'staff',
+                                           }
+                                     )
+        content = self._get_lv_content(response)
+        self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2
+        self.assertCountOccurrences(camp2.name, content, count=1)
+        self.assertNotIn(camp3.name, content)
+
+        # ------
+        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(EmailCampaign)),
+                                     data={'list_url': lv_url}
+                                    )
+        result = [force_unicode(line) for line in response.content.splitlines()]
+        self.assertEqual(3, len(result))
+        self.assertEqual(result[1], '"Camp#1","Bebop staff/Mafia staff"')
+        self.assertEqual(result[2], '"Camp#2","Bebop staff"')
