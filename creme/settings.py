@@ -85,8 +85,8 @@ AUTH_USER_MODEL = 'creme_core.CremeUser'
 USE_TZ = True
 
 LANGUAGES = (
-  ('en', 'English'), #_('English')
-  ('fr', 'French'),  #_('French')
+  ('en', 'English'),
+  ('fr', 'French'),
 )
 
 # If you set this to False, Django will make some optimizations so as not
@@ -159,12 +159,6 @@ MEDIA_ROOT = join(CREME_ROOT, "media")
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = 'http://127.0.0.1:8000/site_media/'
-
-## URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-## trailing slash.
-## Examples: "http://foo.com/media/", "/media/".
-#ADMIN_MEDIA_PREFIX = '/media/'
-# TODO STATIC_URL ??
 
 # Make this unique, and don't share it with anybody.
 # Use 'python manage.py build_secret_key' to generate it.

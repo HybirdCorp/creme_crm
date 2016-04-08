@@ -258,6 +258,20 @@ class FlowPaginator(object):
                         next_item=next_item, first_page=first_page,
                        )
 
+    def pages(self):
+        page = self.page()
+
+        while True:
+            yield page
+
+            if not page.has_next():
+                break
+
+            try:
+                page = self.page(page.next_page_info())
+            except LastPage:
+                break
+
 
 class FlowPage(collections.Sequence):
     def __init__(self, object_list, paginator, forward, key, key_field_info, attr_name,

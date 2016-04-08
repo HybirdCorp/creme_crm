@@ -1518,3 +1518,47 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         with self.assertRaises(FirstPage):
             paginator.page(page2.previous_page_info())
+
+    def test_pages01(self):
+        self._build_contacts()
+
+        key = 'last_name'
+        qs = Contact.objects.order_by(key, 'id')
+        contacts = list(qs)
+
+        paginator = FlowPaginator(qs, key=key, per_page=3, count=len(contacts))
+        it = paginator.pages()
+
+        page1 = next(it)
+        self.assertTrue(hasattr(page1, 'next_page_info'))
+        self.assertEqual(contacts[:3], list(page1.object_list))
+
+        page2 = next(it)
+        self.assertEqual(contacts[3:6], list(page2.object_list))
+
+        page3 = next(it)
+        self.assertEqual(contacts[6:], list(page3.object_list))
+        self.assertFalse(page3.has_next())
+
+        with self.assertRaises(StopIteration):
+            next(it)
+
+    def test_pages02(self):
+        "Some elements are deleted"
+        self._build_contacts()
+
+        key = 'last_name'
+        qs = Contact.objects.order_by(key, 'id')
+        contacts = list(qs)
+
+        paginator = FlowPaginator(qs, key=key, per_page=3, count=len(contacts))
+        it = paginator.pages()
+
+        next(it)  # Page 1 - contacts[:3]
+        next(it)  # Page 2 - contacts[3:6]
+
+        for contact in contacts[6:]:
+            contact.delete()
+
+        with self.assertRaises(StopIteration):
+            next(it)
