@@ -120,10 +120,11 @@ creme_core_patterns = [
     url(r'^enumerable/',    include(enumerable_patterns)),
     url(r'^job/',           include(job_patterns)),
 
-    url(r'^list_view/popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$',                     listview.list_view_popup_from_widget),
-    url(r'^list_view/import/(?P<ct_id>\d+)$',                                 list_view_import.import_listview),
-    url(r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',          list_view_export.dl_listview),
-    url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',   list_view_export.dl_listview_header),
+    url(r'^list_view/popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$',                   listview.list_view_popup_from_widget),
+    url(r'^list_view/import/(?P<ct_id>\d+)$',                               list_view_import.import_listview),
+    url(r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',        list_view_export.dl_listview),
+    # url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',   list_view_export.dl_listview_header),
+    url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$', list_view_export.dl_listview, {'header_only': True}),
 
     # TODO: change url (remove 'list_view'...)??
     url(r'^list_view/batch_process/(?P<ct_id>\d+)$',                          batch_process.batch_process),
