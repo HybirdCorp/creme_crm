@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -73,7 +73,9 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
     user.has_perm_to_change_or_die(entity)
 
     if request.method == 'POST':
-        edit_form = form_class(entity=entity, user=user, data=request.POST, instance=auxiliary)
+        edit_form = form_class(entity=entity, user=user, data=request.POST,
+                               files=request.FILES or None, instance=auxiliary,
+                              )
 
         if edit_form.is_valid():
             edit_form.save()
