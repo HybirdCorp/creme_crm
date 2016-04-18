@@ -126,6 +126,6 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
     return writer.response
 
 
-@login_required
-def dl_listview_header(request, ct_id, doc_type):
-    return dl_listview(request, ct_id, doc_type, header_only=True)
+# @login_required
+# def dl_listview_header(request, ct_id, doc_type):
+#     return dl_listview(request, ct_id, doc_type, header_only=True)
