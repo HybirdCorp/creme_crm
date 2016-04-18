@@ -19,8 +19,8 @@ try:
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity, Contact, Organisation, Activity
     from ..forms.lv_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
-            MultiColumnsParticipantsExtractor, SplittedColumnParticipantsExtractor,
-            SubjectsExtractor)
+                                   MultiColumnsParticipantsExtractor, SplitColumnParticipantsExtractor,
+                                   SubjectsExtractor)
     from ..models import Calendar
     from ..constants import (ACTIVITYTYPE_TASK, NARROW, FLOATING, FLOATING_TIME,
             REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT,
@@ -1085,7 +1085,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         "SplittedColumnParticipantsExtractor"
         self.login()
         user = self.user
-        ext = SplittedColumnParticipantsExtractor(1, '#', _pattern_FL)
+        ext = SplitColumnParticipantsExtractor(1, '#', _pattern_FL)
 
         create_contact = partial(Contact.objects.create, user=user, last_name='Kunieda')
         searched = 'Aoi Kunieda'
@@ -1137,7 +1137,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         aoi = create_contact(user=user, first_name='Aoi')
         create_contact(user=self.other_user, first_name=u'Ittôsai')
 
-        ext = SplittedColumnParticipantsExtractor(1, '#', _pattern_FL)
+        ext = SplitColumnParticipantsExtractor(1, '#', _pattern_FL)
         contacts, err_msg = ext.extract_value(['Kunieda'], user)
         self.assertEqual([aoi], contacts)
         self.assertFalse(err_msg)
@@ -1148,7 +1148,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.login()
         user = self.user
 
-        ext = SplittedColumnParticipantsExtractor(1, '#', _pattern_CFL, create_if_unfound=True)
+        ext = SplitColumnParticipantsExtractor(1, '#', _pattern_CFL, create_if_unfound=True)
 
         first_name = 'Aoi'
         last_name = 'Kunieda'
