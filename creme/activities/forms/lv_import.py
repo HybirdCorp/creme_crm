@@ -219,9 +219,9 @@ class MultiColumnsParticipantsExtractor(RelatedExtractor):
         return self._search_n_create_contacts(user, None, first_name, last_name)
 
 
-class SplittedColumnParticipantsExtractor(RelatedExtractor):
+class SplitColumnParticipantsExtractor(RelatedExtractor):
     def __init__(self, column_index, separator, pattern_func, create_if_unfound=False):
-        super(SplittedColumnParticipantsExtractor, self).__init__(create_if_unfound)
+        super(SplitColumnParticipantsExtractor, self).__init__(create_if_unfound)
         self._column_index  = column_index - 1
         self._separator = separator
         self._pattern_func = pattern_func
@@ -408,9 +408,9 @@ class ParticipantsExtractorField(Field):
             if not pattern_func:
                 raise ValidationError('Invalid pattern')
 
-            return SplittedColumnParticipantsExtractor(index, value['separator'],
-                                                       pattern_func, create_if_unfound,
-                                                      )
+            return SplitColumnParticipantsExtractor(index, value['separator'],
+                                                    pattern_func, create_if_unfound,
+                                                    )
         else:
             raise ValidationError('Invalid mode')
 
