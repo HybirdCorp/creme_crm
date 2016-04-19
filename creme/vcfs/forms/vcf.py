@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,6 @@ from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import RelationType, Relation, FieldsConfig
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
-
 
 from creme.media_managers.models import Image
 
@@ -416,21 +415,30 @@ class VcfImportForm(CremeModelWithUserForm):
 
     def _create_contact(self, cleaned_data):
         get_data = cleaned_data.get
+
         return Contact.objects.create(user=cleaned_data['user'],
                                       civility=cleaned_data['civility'],
                                       first_name=cleaned_data['first_name'],
                                       last_name=cleaned_data['last_name'],
                                       position=get_data('position'),
-                                      **{fname: get_data(fname) for fname in self.contact_details}
+                                      # NB: we do not use cleaned_data.get() in order to not overload
+                                      #     default fields values
+                                      **{fname: cleaned_data[fname]
+                                            for fname in self.contact_details
+                                                if fname in cleaned_data
+                                        }
                                      )
 
     def _create_address(self, cleaned_data, owner, data_prefix):
-        get_data = cleaned_data.get
-        address = Address(owner=owner,
-                          **{model_fname: get_data(data_prefix + form_fname)
-                                 for form_fname, model_fname in self.address_mapping
-                            }
-                         )
+        # NB: we do not use cleaned_data.get() in order to not overload default fields values
+        kwargs = {}
+        for form_fname, model_fname in self.address_mapping:
+            try:
+                kwargs[model_fname] = cleaned_data[data_prefix + form_fname]
+            except KeyError:
+                pass
+
+        address = Address(owner=owner, **kwargs)
 
         if address:
             address.save()
@@ -511,11 +519,15 @@ class VcfImportForm(CremeModelWithUserForm):
 
                 save_orga = True
             else:
-                organisation = Organisation.objects.create(user=user,
-                                                           **{fname: get_data('work_' + fname)
-                                                                for fname in self.orga_fields
-                                                             }
-                                                          )
+                # NB: we do not use cleaned_data.get() in order to not overload default fields values
+                orga_kwargs = {}
+                for fname in self.orga_fields:
+                    try:
+                        orga_kwargs[fname] = cleaned_data['work_' + fname]
+                    except KeyError:
+                        pass
+
+                organisation = Organisation.objects.create(user=user, **orga_kwargs)
 
                 orga_addr = self._create_address(cleaned_data, owner=organisation,
                                                  data_prefix=addr_prefix,
