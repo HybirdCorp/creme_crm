@@ -236,14 +236,20 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             # <xsd:element name="is_actived" type="xsd:boolean"/>
             'is_actived': {'name': 'is_actived', 'type': 'xsd:boolean'},
 
-            # <xsd:element name="first_name" type="xsd:string"/>
-            'first_name': {'name': 'first_name', 'type': 'xsd:string'},
+            # TODO: check if my:requiredString accepts empty strings
+            # # <xsd:element name="first_name" type="xsd:string"/>
+            # 'first_name': {'name': 'first_name', 'type': 'xsd:string'},
+            # <xsd:element name="first_name" type="my:requiredString"/>
+            'first_name': {'name': 'first_name', 'type': 'my:requiredString'},
 
             # <xsd:element name="last_name" type="xsd:requiredString"/>
             'last_name': {'name': 'last_name', 'type': 'my:requiredString'},
 
-            # <xsd:element name="email" type="xsd:string"/>
-            'email': {'name': 'email', 'type': 'xsd:string'},
+            # TODO: check if my:requiredString accepts empty strings
+            # # <xsd:element name="email" type="xsd:string"/>
+            # 'email': {'name': 'email', 'type': 'xsd:string'},
+            # <xsd:element name="email" type="my:requiredString"/>
+            'email': {'name': 'email', 'type': 'my:requiredString'},
 
             # <xsd:element name="description">
             #   <xsd:complexType mixed="true">
@@ -261,7 +267,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             # <xsd:element name="created" type="xsd:dateTime"/>
             'created': {'name': 'created', 'type': 'xsd:dateTime'},
 
-            'url_site':       {'name': 'url_site', 'type': 'xsd:anyURI'},
+            # TODO: check if my:requiredAnyURI accepts empty strings
+            # 'url_site':       {'name': 'url_site', 'type': 'xsd:anyURI'},
+            'url_site':       {'name': 'url_site', 'type': 'my:requiredAnyURI'},
+
             'image':          {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
             'language':       {'name': 'language'},
             'language_value': {'name': 'language_value', 'type': 'xsd:integer', 'nillable': 'true'},
@@ -277,7 +286,16 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             self.assertEqual(set(xsd_element_attrs.keys()), set(element_node.keys()))
 
             for attr in element_node.keys():
-                self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
+                # self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
+                # TODO: factorise
+                expected = xsd_element_attrs[attr]
+                value = element_node.get(attr)
+
+                if expected != value:
+                    self.fail('Value of attribute "%s" in node "%s" is wrong: expected "%s", got "%s".' % (
+                                    attr, name, expected, value,
+                                )
+                             )
 
     @skipIfCustomDocument
     def test_myschema_xsd02(self):

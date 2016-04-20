@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
-from creme.creme_core.forms.widgets import Label  # TinyMCEEditor
+from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation, FieldsConfig
 
 from creme.documents import get_document_model
@@ -55,15 +55,15 @@ class EntityEmailForm(CremeEntityForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
     """
-    sender       = EmailField(label=_(u'Sender'))
+    sender = EmailField(label=_(u'Sender'))
 
-    c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False, 'email__gt': ''})
-    o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False, 'email__gt': ''})
+    # c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False, 'email__gt': ''})
+    # o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False, 'email__gt': ''})
+    c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__gt': ''})
+    o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''})
 
-#    body_html    = CharField(label=_(u'Body'), widget=TinyMCEEditor())
-
-    attachments  = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
-    send_me      = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
+    attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
+    send_me     = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
 
     error_messages = {
         'no_person': _(u'Select at least a Contact or an Organisation'),
@@ -84,7 +84,8 @@ class EntityEmailForm(CremeEntityForm):
         self.entity = entity
 
         if isinstance(entity, (Contact, Organisation)):
-            fn, msg = ('c_recipients', _(u'Beware: the contact «%s» has no email address!')) if isinstance(entity, Contact) else \
+            fn, msg = ('c_recipients', _(u'Beware: the contact «%s» has no email address!')) \
+                      if isinstance(entity, Contact) else \
                       ('o_recipients', _(u'Beware: the organisation «%s» has no email address!'))
             field = self.fields[fn]
 

@@ -1405,7 +1405,8 @@ ORG:Corporate\nEND:VCARD"""
         c = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone,
                                     mobile=mobile, fax=fax, url_site=url_site,
                                    )
-        self.assertIsNone(c.email)
+        # self.assertIsNone(c.email)
+        self.assertEqual('', c.email)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -1494,7 +1495,7 @@ ORG:Corporate\nEND:VCARD"""
 
         self.assertEqual(orga_count + 1, Organisation.objects.count())
         orga = self.get_object_or_fail(Organisation, name=work_name, phone=work_phone)
-        self.assertIsNone(orga.email)
+        self.assertEqual('', orga.email)
 
         addr = contact.billing_address
         self.assertIsNotNone(addr)

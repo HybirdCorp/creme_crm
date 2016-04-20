@@ -56,6 +56,28 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             'billaddr_department_colselect': 0,   'shipaddr_department_colselect': 0,
         }
 
+    def test_empty_fields(self):
+        user = self.login()
+
+        with self.assertNoException():
+            orga = Organisation.objects.create(user=user, name='Nerv')
+
+        self.assertEqual('', orga.description)
+
+        self.assertEqual('', orga.phone)
+        self.assertEqual('', orga.fax)
+        self.assertEqual('', orga.email)
+        self.assertEqual('', orga.url_site)
+
+        self.assertEqual('', orga.annual_revenue)
+
+        self.assertEqual('', orga.siren)
+        self.assertEqual('', orga.naf)
+        self.assertEqual('', orga.siret)
+        self.assertEqual('', orga.rcs)
+
+        self.assertEqual('', orga.tvaintra)
+
     def test_staff_size(self):
         count = StaffSize.objects.count()
 

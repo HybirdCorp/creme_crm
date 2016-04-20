@@ -31,20 +31,14 @@ from creme.creme_core.models import CremeModel, FieldsConfig
 
 
 class AbstractAddress(CremeModel):
-    name       = CharField(_(u"Name"), max_length=100, blank=True, null=True)
-    address    = TextField(_(u"Address"), blank=True, null=True)
-    po_box     = CharField(_(u"PO box"), max_length=50, blank=True, null=True)\
-                          .set_tags(optional=True)
-    zipcode    = CharField(_(u"Zip code"), max_length=100, blank=True, null=True)\
-                          .set_tags(optional=True)
-    city       = CharField(_(u"City"), max_length=100, blank=True, null=True)\
-                          .set_tags(optional=True)
-    department = CharField(_(u"Department"), max_length=100, blank=True, null=True)\
-                          .set_tags(optional=True)
-    state      = CharField(_(u"State"), max_length=100, blank=True, null=True)\
-                          .set_tags(optional=True)
-    country    = CharField(_(u"Country"), max_length=40, blank=True, null=True)\
-                          .set_tags(optional=True)
+    name       = CharField(_(u'Name'), max_length=100, blank=True)
+    address    = TextField(_(u'Address'), blank=True)
+    po_box     = CharField(_(u'PO box'), max_length=50, blank=True).set_tags(optional=True)
+    zipcode    = CharField(_(u'Zip code'), max_length=100, blank=True).set_tags(optional=True)
+    city       = CharField(_(u'City'), max_length=100, blank=True).set_tags(optional=True)
+    department = CharField(_(u'Department'), max_length=100, blank=True).set_tags(optional=True)
+    state      = CharField(_(u'State'), max_length=100, blank=True).set_tags(optional=True)
+    country    = CharField(_(u"Country"), max_length=40, blank=True).set_tags(optional=True)
 
     # TODO: use a real ForeignKey to CremeEntity (+ remove signal handlers )
     content_type = ForeignKey(ContentType, related_name="object_set", editable=False)\

@@ -48,7 +48,8 @@ class GeoLocationBaseTestCase(CremeTestCase):
                                          zipcode=zipcode,
                                          city=town,
                                          department=zipcode[:2],
-                                         state=None,
+                                         # state=None,
+                                         state='',
                                          country='',
                                          owner=owner,
                                         )
