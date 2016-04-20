@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,40 +45,44 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractContact(CremeEntity, PersonWithAddressesMixin):
-    civility    = ForeignKey(Civility, verbose_name=_(u'Civility'),
-                             blank=True, null=True, on_delete=SET_NULL,
-                            )
-    last_name   = CharField(_(u'Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
-    first_name  = CharField(_(u'First name'), max_length=100, blank=True, null=True)  # NB: same max_length than CremeUser.first_name
-    description = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
-    skype       = CharField('Skype', max_length=100, blank=True, null=True)\
-                           .set_tags(optional=True)
-    phone       = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)\
-                            .set_tags(optional=True)
-    mobile      = PhoneField(_(u'Mobile'), max_length=100, blank=True, null=True)\
-                            .set_tags(optional=True)
-    fax         = CharField(_(u'Fax'), max_length=100, blank=True, null=True)\
-                           .set_tags(optional=True)
-    position    = ForeignKey(Position, verbose_name=_(u'Position'),
-                             blank=True, null=True, on_delete=SET_NULL,
-                            ).set_tags(optional=True)
-    full_position = CharField(_(u'Detailed position'), max_length=500,
-                              blank=True, null=True,
-                             ).set_tags(optional=True)
-    sector      = ForeignKey(Sector, verbose_name=_(u'Line of business'),
-                             blank=True, null=True, on_delete=SET_NULL,
-                            ).set_tags(optional=True)
-    email       = EmailField(_(u'Email address'), blank=True, null=True).set_tags(optional=True)
-    url_site    = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)\
-                          .set_tags(optional=True)
-    language    = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
-                                  blank=True, editable=False,
-                                 ).set_tags(viewable=False) # TODO: remove this field
-    is_user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
-                          blank=True, null=True, related_name='related_contact',
-                          on_delete=SET_NULL, editable=False
-                         ).set_tags(clonable=False) \
-                          .set_null_label(pgettext_lazy('persons-is_user', u'None'))
+    civility   = ForeignKey(Civility, verbose_name=_(u'Civility'),
+                            blank=True, null=True, on_delete=SET_NULL,
+                           )
+    last_name  = CharField(_(u'Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
+    first_name = CharField(_(u'First name'), max_length=100, blank=True)  # NB: same max_length than CremeUser.first_name
+
+    description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
+
+    skype    = CharField('Skype', max_length=100, blank=True).set_tags(optional=True)
+    phone    = PhoneField(_(u'Phone number'), max_length=100, blank=True)\
+                         .set_tags(optional=True)
+    mobile   = PhoneField(_(u'Mobile'), max_length=100, blank=True).set_tags(optional=True)
+    fax      = CharField(_(u'Fax'), max_length=100, blank=True, null=True)\
+                        .set_tags(optional=True)
+    email    = EmailField(_(u'Email address'), blank=True).set_tags(optional=True)
+    url_site = URLField(_(u'Web Site'), max_length=500, blank=True)\
+                       .set_tags(optional=True)
+
+    position      = ForeignKey(Position, verbose_name=_(u'Position'),
+                               blank=True, null=True, on_delete=SET_NULL,
+                              ).set_tags(optional=True)
+    full_position = CharField(_(u'Detailed position'), max_length=500, blank=True)\
+                             .set_tags(optional=True)
+
+    sector   = ForeignKey(Sector, verbose_name=_(u'Line of business'),
+                          blank=True, null=True, on_delete=SET_NULL,
+                         ).set_tags(optional=True)
+
+    language = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
+                               blank=True, editable=False,
+                              ).set_tags(viewable=False) # TODO: remove this field
+
+    is_user = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
+                         blank=True, null=True, related_name='related_contact',
+                         on_delete=SET_NULL, editable=False
+                        ).set_tags(clonable=False) \
+                         .set_null_label(pgettext_lazy('persons-is_user', u'None'))
+
     birthday = DateField(_(u'Birthday'), blank=True, null=True).set_tags(optional=True)
     image    = ForeignKey(Image, verbose_name=_(u'Photograph'),
                           blank=True, null=True, on_delete=SET_NULL,

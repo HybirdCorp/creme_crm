@@ -269,7 +269,8 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
                                zipcode='13008',
                                city='Marseille',
                                department='13',
-                               state=None,
+                               # state=None,
+                               state='',
                                country='FRANCE',
                                owner=orga,
                               )
@@ -304,7 +305,8 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
                                zipcode='01630',
                                city=u'Péron',
                                department='01',
-                               state=None,
+                               # state=None,
+                               state='',
                                country='FRANCE',
                                owner=orga,
                               )

@@ -26,9 +26,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-# __all__ = ('ContactTestCase',)
-
-
 @skipIfCustomContact
 class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     lv_import_data = {
@@ -75,6 +72,21 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     # TODO: in creme_core ??
     def _build_delete_url(self, entity):
         return '/creme_core/entity/delete/%s' % entity.id
+
+    def test_empty_fields(self):
+        user = self.login()
+
+        with self.assertNoException():
+            contact = Contact.objects.create(user=user, last_name='Spiegel')
+
+        self.assertEqual('', contact.first_name)
+        self.assertEqual('', contact.description)
+        self.assertEqual('', contact.skype)
+        self.assertEqual('', contact.phone)
+        self.assertEqual('', contact.mobile)
+        self.assertEqual('', contact.email)
+        self.assertEqual('', contact.url_site)
+        self.assertEqual('', contact.full_position)
 
     def test_unicode(self):
         first_name = 'Spike'
@@ -300,10 +312,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         email = user.email
         description = 'First contact user'
         response = self.client.post(url, follow=True,
-                                    data={'user':       user.id,
-                                          'last_name':  last_name,
-                                          'first_name': first_name,
-                                          'email':      'useless@dontcare.org',
+                                    data={'user':        user.id,
+                                          'last_name':   last_name,
+                                          'first_name':  first_name,
+                                          'email':       'useless@dontcare.org',
                                           'description': description,
                                          }
                                    )
@@ -340,16 +352,18 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_is_user02(self):
         """Contact.clean() + integrity of User.
-        first_name = NULL (not nullable in User)
-        email = NULL (not nullable in User)
+        # first_name = NULL (not nullable in User)
+        # email = NULL (not nullable in User)
         """
         user = self.login()
         contact = user.linked_contact
         last_name = contact.last_name
         first_name = contact.first_name
 
-        contact.email = None
-        contact.first_name = None
+        # contact.email = None
+        # contact.first_name = None
+        contact.email = ''
+        contact.first_name = ''
         contact.save()
 
         user = self.refresh(user)
@@ -978,7 +992,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertFormsetError(response, 'formset', 0, 'organisation',
-                                [_(u'No linkable Organisation found.')]
+                                _(u'No linkable Organisation found.')
                                )
 
     def test_quickform11(self):
@@ -1006,9 +1020,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertFormsetError(response, 'formset', 0, None,
-                                [_(u'You are not allowed to link with the «%s» of this user.') % 
+                                _(u'You are not allowed to link with the «%s» of this user.') %
                                     _(u'Organisations')
-                                ]
                                )
 
     @skipIfCustomOrganisation
@@ -1098,7 +1111,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'last_name_2':      contact02.last_name,
                                           'last_name_merged': contact01.last_name,
 
-                                           # Billing address
+                                          # Billing address
                                           'billaddr_address_1':      bill_addr01.address,
                                           'billaddr_address_2':      '',
                                           'billaddr_address_merged': bill_addr01.address,
@@ -1225,7 +1238,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'last_name_2':      contact02.last_name,
                                           'last_name_merged': contact01.last_name,
 
-                                           # Billing address
+                                          # Billing address
                                           'billaddr_name_1':      '',
                                           'billaddr_name_2':      '',
                                           'billaddr_name_merged': '',

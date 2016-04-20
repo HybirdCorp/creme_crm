@@ -64,6 +64,21 @@ class AddressTestCase(CremeTestCase):
                          set(Address.info_field_names())
                         )
 
+    def test_empty_fields(self):
+        orga = self.login()
+
+        with self.assertNoException():
+            address = Address.objects.create(owner=orga)
+
+        self.assertEqual('', address.name)
+        self.assertEqual('', address.address)
+        self.assertEqual('', address.po_box)
+        self.assertEqual('', address.zipcode)
+        self.assertEqual('', address.city)
+        self.assertEqual('', address.department)
+        self.assertEqual('', address.state)
+        self.assertEqual('', address.country)
+
     @skipIfCustomOrganisation
     def test_createview(self):
         orga = self.login()

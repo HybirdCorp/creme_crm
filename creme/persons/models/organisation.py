@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,44 +39,44 @@ from .other_models import StaffSize, LegalForm, Sector
 
 
 class AbstractOrganisation(CremeEntity, PersonWithAddressesMixin):
-    name           = CharField(_(u'Name'), max_length=200)
-    phone          = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)\
-                               .set_tags(optional=True)
-    fax            = CharField(_(u'Fax'), max_length=100, blank=True, null=True)\
-                              .set_tags(optional=True)
-    email          = EmailField(_(u'Email address'), blank=True, null=True).set_tags(optional=True)
-    url_site       = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)\
-                             .set_tags(optional=True)
-    sector         = ForeignKey(Sector, verbose_name=_(u'Sector'),
-                                blank=True, null=True, on_delete=SET_NULL,
-                               ).set_tags(optional=True)
+    name = CharField(_(u'Name'), max_length=200)
+
+    description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
+
+    phone    = PhoneField(_(u'Phone number'), max_length=100, blank=True).set_tags(optional=True)
+    fax      = CharField(_(u'Fax'), max_length=100, blank=True).set_tags(optional=True)
+    email    = EmailField(_(u'Email address'), blank=True).set_tags(optional=True)
+    url_site = URLField(_(u'Web Site'), max_length=500, blank=True).set_tags(optional=True)
+
+    sector     = ForeignKey(Sector, verbose_name=_(u'Sector'),
+                            blank=True, null=True, on_delete=SET_NULL,
+                           ).set_tags(optional=True)
+    legal_form = ForeignKey(LegalForm, verbose_name=_(u'Legal form'),
+                            blank=True, null=True, on_delete=SET_NULL,
+                           ).set_tags(optional=True)
+    staff_size = ForeignKey(StaffSize, verbose_name=_(u'Staff size'),
+                            blank=True, null=True, on_delete=SET_NULL,
+                           ).set_tags(optional=True)
+
     capital        = PositiveIntegerField(_(u'Capital'), blank=True, null=True)\
                                          .set_tags(optional=True)
-    siren          = CharField(_(u'SIREN'), max_length=100, blank=True, null=True)\
+    annual_revenue = CharField(_(u'Annual revenue'), max_length=100, blank=True)\
                               .set_tags(optional=True)
-    naf            = CharField(_(u'NAF code'), max_length=100 , blank=True, null=True)\
-                              .set_tags(optional=True)
-    siret          = CharField(_(u'SIRET'), max_length=100, blank=True, null=True)\
-                              .set_tags(optional=True)
-    rcs            = CharField(_(u'RCS/RM'), max_length=100, blank=True, null=True)\
-                              .set_tags(optional=True)
-    tvaintra       = CharField(_(u'VAT number'), max_length=100, blank=True, null=True)\
+
+    siren = CharField(_(u'SIREN'), max_length=100, blank=True).set_tags(optional=True)
+    naf   = CharField(_(u'NAF code'), max_length=100 , blank=True).set_tags(optional=True)
+    siret = CharField(_(u'SIRET'), max_length=100, blank=True).set_tags(optional=True)
+    rcs   = CharField(_(u'RCS/RM'), max_length=100, blank=True).set_tags(optional=True)
+
+    tvaintra       = CharField(_(u'VAT number'), max_length=100, blank=True)\
                               .set_tags(optional=True)
     subject_to_vat = BooleanField(_(u'Subject to VAT'), default=True).set_tags(optional=True)
-    legal_form     = ForeignKey(LegalForm, verbose_name=_(u'Legal form'),
-                                blank=True, null=True, on_delete=SET_NULL,
-                               ).set_tags(optional=True)
-    staff_size     = ForeignKey(StaffSize, verbose_name=_(u'Staff size'),
-                                blank=True, null=True, on_delete=SET_NULL,
-                               ).set_tags(optional=True)
-    annual_revenue = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)\
+
+    creation_date = DateField(_(u'Date of creation of the organisation'),
+                              blank=True, null=True,
+                             ).set_tags(optional=True)
+    image         = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True, on_delete=SET_NULL)\
                               .set_tags(optional=True)
-    description    = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
-    creation_date  = DateField(_(u"Date of creation of the organisation"),
-                               blank=True, null=True,
-                              ).set_tags(optional=True)
-    image          = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True, on_delete=SET_NULL)\
-                               .set_tags(optional=True)
 
     # Needed because we expand it's function fields in other apps (ie. billing)
     # TODO: refactor

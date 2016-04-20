@@ -458,7 +458,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
-        contact01 = create_contact(first_name='Vincent', last_name='Law',email=None)
+        # contact01 = create_contact(first_name='Vincent', last_name='Law',email=None)
+        contact01 = create_contact(first_name='Vincent', last_name='Law', email='')
         contact02 = create_contact(first_name='Pino', last_name='AutoReiv', email='pino@autoreivs.rmd')
 
         create_orga = partial(Organisation.objects.create, user=user)
