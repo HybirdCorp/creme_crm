@@ -381,7 +381,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertRegexpMatches(self._get_sql(response),
                                  'ORDER BY '
                                  '.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?\, '
-                                 '.creme_core_fakeactivity.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                                 '.creme_core_fakeactivity.\..cremeentity_ptr_id. DESC( NULLS LAST)?$'
                                 )
 
     @override_settings(FAST_QUERY_MODE_THESHOLD=100000)
@@ -432,7 +432,8 @@ class ListViewTestCase(ViewsTestCase):
                                  cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
                                              (EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
-                                            ],)
+                                            ],
+                                )
 
         contacts = Contact.objects.filter(pk__in=(spike, faye, ed))
         url = Contact.get_lv_absolute_url()
@@ -486,7 +487,7 @@ class ListViewTestCase(ViewsTestCase):
                                              (EntityCellRegularField, {'name': 'first_name'}),
                                              (EntityCellRegularField, {'name': 'address'}),
                                          ],
-                           )
+                                )
 
         url = Contact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
@@ -495,7 +496,7 @@ class ListViewTestCase(ViewsTestCase):
                                             'sort_order': '',
                                            })
 
-        entries = Contact.objects.order_by('address__pk', 'last_name', 'first_name')
+        entries = Contact.objects.order_by('address_id', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
@@ -2156,7 +2157,7 @@ class ListViewTestCase(ViewsTestCase):
             # NB: same last_name
             create_contact(first_name='Gally', last_name='Tuned', phone='11 22 33 #%02i' % i)
 
-        contacts = list(Contact.objects.order_by('last_name', 'id'))  # TODO: add 'first_name' when index is OK
+        contacts = list(Contact.objects.order_by('last_name', 'first_name', 'cremeentity_ptr_id'))
         self.assertEqual(expected_count, len(contacts))
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,

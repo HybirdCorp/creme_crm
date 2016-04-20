@@ -102,6 +102,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         ordering = ('last_name', 'first_name')
         verbose_name = _(u'Contact')
         verbose_name_plural = _(u'Contacts')
+        index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
     def __unicode__(self):
         civ = self.civility
