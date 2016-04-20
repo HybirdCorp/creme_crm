@@ -36,6 +36,7 @@ from ..models import RelationType, Relation, CustomField
 from ..utils import find_first
 from ..utils.date_range import CustomRange
 from ..utils.dates import get_dt_from_str
+from ..utils.db import get_indexed_ordering
 from ..utils.queries import QSerializer
 
 
@@ -283,20 +284,22 @@ class ListViewState(object):
         # if isinstance(cell.field_info[0], RelatedField) and len(cell.field_info) == 1:
         #     subfield_model = cell.field_info[0].rel.to
         if last_field.is_relation:
+            assert not last_field.many_to_many
+            assert not last_field.one_to_many
+            # TODO: what about 'one_to_one'
+            # NB: many_to_one == ForeignKey
+
             subfield_model = last_field.rel.to
             subfield_ordering = subfield_model._meta.ordering
 
-            if subfield_ordering:
-                attname = subfield_ordering[0]
-            else:
+            if not subfield_ordering:
                 logger.critical('ListViewState: related field model %s should have Meta.ordering set'
                                 ' (use "pk" as fallback)', subfield_model,
                                )
                 # return cell.value + '__pk'
-                attname = subfield_model._meta.pk.attname
+                return cell.value + '_id'
 
-            # return cell.value + '__' + subfield_ordering[0]
-            return '%s__%s' % (cell.value, attname)
+            return '%s__%s' % (cell.value, subfield_ordering[0])
 
         return cell.value
 
@@ -350,7 +353,14 @@ class ListViewState(object):
     #       - EntityCell builders
 #    def set_sort(self, model, cells, field_name, order):
     def set_sort(self, model, cells, cell_key, order, fast_mode=False):
-        "@param order string '' or '-'(reverse order)."
+        """Set the cell-keys which will be used to order the list-view.
+        @param model: CremeEntity subclass.
+        @param: cells: Sequence of EntityCells (columns of the list-view)
+        @param: cell_key: Key of the ordering cell (string).
+        @param order: string '' or '-'(reverse order).
+        @param fast_mode: Boolean (True means "There are lots of entities, use a faster/simpler ordering").
+        @return Tuple of field names, which can be given (with * operator) to QuerySet.order_by().
+        """
         cells_dict = {c.key: c for c in cells if c.sortable}
         OField = self._OrderedField
 
@@ -387,18 +397,33 @@ class ListViewState(object):
         self.sort_field = cell_key
         self.sort_order = sort_order
 
-        # NB: we order by 'id' in order to be sure that successive queries give consistent contents.
-        # (if you order by 'name' & there are some duplicated names, the order by directive
-        # can be respected, but the order of the duplicates in the queries results be different --
-        # so the paginated contents are not consistent).
-        # TODO: use indexes of the model (with 'id' field => DESC on 'id" if needed)
-        return ordering[:1] + ['id'] if fast_mode else ordering + ['id']
+        # NB: we order by 'id' ('cremeentity_ptr_id') in order to be sure that successive queries
+        #     give consistent contents. (if you order by 'name' & there are some duplicated names,
+        #     the order by directive can be respected, but the order of the duplicates in the
+        #     queries results be different -- so the paginated contents are not consistent).
+        last_order = sort_order + 'cremeentity_ptr_id'
+
+        if ordering:
+            ind_ordering = get_indexed_ordering(model, ordering + ['*', last_order])
+            if ind_ordering is not None:
+                return ind_ordering
+
+            if fast_mode:
+                first_order = ordering[0]
+                ind_ordering = get_indexed_ordering(model, [first_order, '*', last_order])
+
+                return (first_order, last_order) if ind_ordering is None else ind_ordering
+
+            return tuple(ordering + [last_order])
+
+        return (last_order, )
 
     # def sort_query(self, queryset):
     #     "Beware: you should have called set_sort() before"
     #     return queryset.order_by(*self._ordering)
 
 # -----------------------------------------------------------------------------
+
 
 class _ModelSmartColumnsRegistry(object):
     __slots__ = ('_cells', '_relationtype')

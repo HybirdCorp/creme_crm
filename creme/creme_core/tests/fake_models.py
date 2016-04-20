@@ -273,6 +273,7 @@ else:
             ordering = ('last_name', 'first_name')
             verbose_name = u'Test Contact'
             verbose_name_plural = u'Test Contacts'
+            index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
         def __unicode__(self):
             return u'%s %s' % (self.first_name, self.last_name)
@@ -355,6 +356,7 @@ else:
             ordering = ('name',)
             verbose_name = u'Test Organisation'
             verbose_name_plural = u'Test Organisations'
+            index_together = ('name', 'cremeentity_ptr')
 
         def __unicode__(self):
             return self.name

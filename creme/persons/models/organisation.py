@@ -90,6 +90,7 @@ class AbstractOrganisation(CremeEntity, PersonWithAddressesMixin):
         ordering = ('name',)
         verbose_name = _(u'Organisation')
         verbose_name_plural = _(u'Organisations')
+        index_together = ('name', 'cremeentity_ptr')
 
     def __unicode__(self):
         return self.name
