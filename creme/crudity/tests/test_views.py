@@ -31,7 +31,7 @@ class CrudityViewsTestCase(CrudityTestCase):
         first_name = 'Haruhi'
         last_name  = 'Suzumiya'
 
-        subject = "test_create_contact"
+        subject = 'test_create_contact'
         wa = WaitingAction()
         wa.ct = ContentType.objects.get_for_model(Contact)
         wa.data = wa.set_data({'first_name': first_name,
@@ -42,16 +42,16 @@ class CrudityViewsTestCase(CrudityTestCase):
         wa.save()
 
         crudity_input = FakeInput()
-        crudity_input.name = "test"
-        crudity_input.method = "create"
+        crudity_input.name = 'test'
+        crudity_input.method = 'create'
 
         fetcher = FetcherInterface([FakeFetcher()])
         fetcher.add_inputs(crudity_input)
 
         backend = ContactFakeBackend({'subject': subject})
         crudity_input.add_backend(backend)
-        crudity_registry.register_fetchers("test", [fetcher])
-        crudity_registry.register_inputs("test", [crudity_input])
+        crudity_registry.register_fetchers('test', [fetcher])
+        crudity_registry.register_inputs('test', [crudity_input])
         crudity_registry.register_backends([backend])
 
         self.assertTrue(crudity_registry.get_configured_backend(subject))
@@ -72,28 +72,21 @@ class CrudityViewsTestCase(CrudityTestCase):
     def test_download_email_template(self):
         subject = 'create_contact'
         url = '/crudity/download_email_template/%s' % subject
-        self.assertGET404(url) #no backend
+        self.assertGET404(url)  # No backend
 
         crudity_input = FakeInput()
-        crudity_input.name = "raw"
-        crudity_input.method = "create"
+        crudity_input.name = 'raw'
+        crudity_input.method = 'create'
 
-        #TODO: clean crudity_registry ??
+        # TODO: clean crudity_registry ??
         fetcher = FetcherInterface([FakeFetcher()])
         fetcher.add_inputs(crudity_input)
 
         backend = ContactFakeBackend({'subject': subject})
         crudity_input.add_backend(backend)
-        crudity_registry.register_fetchers("email", [fetcher])
-        crudity_registry.register_inputs("email", [crudity_input])
+        crudity_registry.register_fetchers('email', [fetcher])
+        crudity_registry.register_inputs('email', [crudity_input])
         crudity_registry.register_backends([backend])
-
-        #self.assertGET404(url) #no contact related to user
-
-        #user = self.user
-        #Contact.objects.create(user=user, is_user=user, first_name='Haruhi',
-                               #last_name ='Suzumiya',
-                              #)
 
         response = self.assertGET200(url)
         self.assertEqual('attachment; filename=CREATE_CONTACT.eml',
@@ -106,9 +99,9 @@ class CrudityViewsTestCase(CrudityTestCase):
     def test_history(self):
         response = self.assertGET200('/crudity/history')
         self.assertTemplateUsed(response, 'crudity/history.html')
-        #TODO: complete
+        # TODO: complete
 
-    #def test_history_reload(self): TODO
+    # def test_history_reload(self): TODO
 
     @override_settings(CRUDITY_BACKENDS=[{'fetcher': 'email',
                                           'input': 'raw',
@@ -129,14 +122,14 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization_spam.html')
 
     @override_settings(CRUDITY_BACKENDS=[{'fetcher':    'swallow',
-                                          "input":      'swallow',
-                                          "method":     'create',
-                                          "model":      'persons.contact',
-                                          "password":    '',
-                                          "limit_froms": (),
-                                          "in_sandbox":  True,
-                                          "body_map" :   {},
-                                          "subject":     'CREATECONTACT',
+                                          'input':      'swallow',
+                                          'method':     'create',
+                                          'model':      'persons.contact',
+                                          'password':    '',
+                                          'limit_froms': (),
+                                          'in_sandbox':  True,
+                                          'body_map' :   {},
+                                          'subject':     'CREATECONTACT',
                                          },
                                         ],
                       )
@@ -173,13 +166,13 @@ class CrudityViewsTestCase(CrudityTestCase):
                 self.assertIsNotNone(backend)
 
                 data = {'user_id': self.user.id}
-                #data = {'user': self.user} TODO
+                # data = {'user': self.user} TODO
 
                 for line in swallow.content.split('\n'):
                     attr, value = line.split('=', 1)
                     data[attr] = value
 
-                created, instance = backend._create_instance_n_history(data, source="Swallow mail")
+                created, instance = backend._create_instance_n_history(data, source='Swallow mail')
                 self.assertTrue(created)
                 self.assertIsInstance(instance, Contact)
                 self.assertEqual(last_name, instance.last_name)
@@ -198,7 +191,7 @@ class CrudityViewsTestCase(CrudityTestCase):
         try:
             result = func()
         finally:
-            #TODO: crappy hack
+            # TODO: crappy hack
             crudity_registry._fetchers = original_fetchers
             crudity_registry._backends = original_backends
 
@@ -238,5 +231,5 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertEqual([], queue.started_jobs)
         self.assertEqual([], queue.refreshed_jobs)
 
-    #def test_actions_delete(self): TODO
-    #def test_actions_reload(self): TODO
+    # def test_actions_delete(self): TODO
+    # def test_actions_reload(self): TODO

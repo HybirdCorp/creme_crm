@@ -10,8 +10,6 @@ try:
     from creme.creme_core.models import CremeEntity
     from creme.creme_core.tests.fake_models import FakeContact as Contact
 
-#    from creme.persons.models import Contact
-
     from ..models import WaitingAction
     from .base import CrudityTestCase
 except Exception as e:
@@ -39,8 +37,8 @@ class WaitingActionTestCase(CrudityTestCase):
 
     def test_can_validate_or_delete01(self):
         "Sandbox for everyone"
-        action = WaitingAction.objects.create(user=None, source="unknown",
-                                              action="create", subject="",
+        action = WaitingAction.objects.create(user=None, source='unknown',
+                                              action='create', subject='',
                                               ct=self.ct_entity,
                                              )
         self.assertTrue(action.can_validate_or_delete(self.user)[0])
@@ -50,8 +48,8 @@ class WaitingActionTestCase(CrudityTestCase):
         "Sandbox by user"
         self._set_sandbox_by_user()
 
-        create_waction = partial(WaitingAction.objects.create, source="unknown",
-                                 action="create", subject="", ct=self.ct_entity,
+        create_waction = partial(WaitingAction.objects.create, source='unknown',
+                                 action='create', subject='', ct=self.ct_entity,
                                 )
         action = create_waction(user=self.user)
         self.assertTrue(action.can_validate_or_delete(self.user)[0])
@@ -65,8 +63,8 @@ class WaitingActionTestCase(CrudityTestCase):
         """If the sandbox was not by user, but now it is all WaitingAction has
         to be assigned to someone.
         """
-        action = WaitingAction.objects.create(source="unknown", action="create",
-                                              subject="", ct=self.ct_entity,
+        action = WaitingAction.objects.create(source='unknown', action='create',
+                                              subject='', ct=self.ct_entity,
                                              )
         self.assertIsNone(action.user)
 
@@ -81,8 +79,8 @@ class WaitingActionTestCase(CrudityTestCase):
         self.assertFalse(action.user.is_staff)
 
     def test_auto_assignation02(self):
-        action = WaitingAction.objects.create(source="unknown", action="create",
-                                              subject="", ct=self.ct_entity,
+        action = WaitingAction.objects.create(source='unknown', action='create',
+                                              subject='', ct=self.ct_entity,
                                              )
         self.assertIsNone(action.user)
 
@@ -96,7 +94,7 @@ class WaitingActionTestCase(CrudityTestCase):
 
     def test_data_property01(self):
         action = WaitingAction(ct=self.ct_contact)
-        expected_data = {u'first_name': u'Mario', u'last_name': u'Bros'}
+        expected_data = {'first_name': 'Mario', 'last_name': 'Bros'}
         action.data = action.set_data(expected_data)
         action.save()
 
@@ -104,9 +102,12 @@ class WaitingActionTestCase(CrudityTestCase):
 
     def test_data_property02(self):
         action = WaitingAction(ct=self.ct_contact)
-        expected_data = {u'first_name': u'Mario', u'last_name': u'Bros',
-                         u"friends": [u"Yoshi", u"Toad"], u"lives": 99,
-                         u"ennemies": {'Bowser': 1, 'Koopa':50}, "epoch": now(),
+        expected_data = {'first_name': 'Mario',
+                         'last_name': 'Bros',
+                         'friends': ['Yoshi', 'Toad'],
+                         'lives': 99,
+                         'enemies': {'Bowser': 1, 'Koopa': 50},
+                         'epoch': now(),
                         }
         action.data = action.set_data(expected_data)
         action.save()

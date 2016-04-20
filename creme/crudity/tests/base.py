@@ -4,13 +4,10 @@ from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.models import SettingValue
 
 from creme.documents import get_document_model, get_folder_model
-# from creme.documents.models import Document
 
 from creme.persons import get_contact_model, get_organisation_model
-# from creme.persons.models import Contact, Organisation
 
 from creme.activities import get_activity_model
-# from creme.activities.models import Activity
 
 from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..backends.models import CrudityBackend
@@ -57,7 +54,6 @@ class CrudityTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'crudity')
-#        cls.autodiscover()
 
     def setUp(self):
         self.login()
