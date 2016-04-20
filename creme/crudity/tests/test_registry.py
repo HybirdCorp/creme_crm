@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    # from creme.persons.models import Contact, Organisation
-
-    # from creme.documents.models import Document
-
     from ..registry import CRUDityRegistry
     from .base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
             OrganisationFakeBackend, DocumentFakeBackend, FakeInput,
@@ -16,15 +12,15 @@ except Exception as e:
 class CrudityRegistryTestCase(CrudityTestCase):
     def setUp(self):
         super(CrudityRegistryTestCase, self).setUp()
-        self.crudity_registry = CRUDityRegistry()#Ensure the registry is empty
+        self.crudity_registry = CRUDityRegistry()  # Ensure the registry is empty
 
     def test_register_fetchers01(self):
         crudity_registry = self.crudity_registry
-        crudity_registry.register_fetchers("test", [FakeFetcher(), FakeFetcher()])
-        crudity_registry.register_fetchers("test2", [FakeFetcher(), FakeFetcher()])
+        crudity_registry.register_fetchers('test', [FakeFetcher(), FakeFetcher()])
+        crudity_registry.register_fetchers('test2', [FakeFetcher(), FakeFetcher()])
 
-        fetcher = crudity_registry.get_fetcher("test")
-        fetcher2 = crudity_registry.get_fetcher("test2")
+        fetcher = crudity_registry.get_fetcher('test')
+        fetcher2 = crudity_registry.get_fetcher('test2')
         self.assertTrue(fetcher)
         self.assertTrue(fetcher2)
         self.assertEqual([fetcher, fetcher2], crudity_registry.get_fetchers())
@@ -40,16 +36,16 @@ class CrudityRegistryTestCase(CrudityTestCase):
         crudity_registry.register_fetchers("test", [FakeFetcher(), FakeFetcher()])
 
         i1 = FakeInput()
-        i1.name = u"1"
-        i1.method = u"create"
+        i1.name = '1'
+        i1.method = 'create'
         i2 = FakeInput()
-        i2.name = u"2"
-        i2.method = u"create"
+        i2.name = '2'
+        i2.method = 'create'
 
-        crudity_registry.register_inputs("test", [i1, i2])
+        crudity_registry.register_inputs('test', [i1, i2])
 
         inputs = []
-        for value in crudity_registry.get_fetcher("test")._inputs.values():
+        for value in crudity_registry.get_fetcher('test')._inputs.values():
             inputs.extend(value.values())
 
         self.assertEqual({i.name for i in inputs}, {i1.name, i2.name})

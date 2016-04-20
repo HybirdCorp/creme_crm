@@ -5,8 +5,6 @@ try:
 
     from creme.creme_core.tests.fake_models import FakeContact as Contact
 
-#    from creme.persons.models import Contact
-
     from ..backends.models import CrudityBackend
     from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
     from ..exceptions import ImproperlyConfiguredBackend
@@ -34,13 +32,13 @@ class BackendsTestCase(CrudityTestCase):
         backend = self._get_backend(Contact)
         self.assertFalse(backend.is_configured)
 
-        backend2 = self._get_backend(Contact, subject="contact", body_map={'user_id': 1})
+        backend2 = self._get_backend(Contact, subject=u'contact', body_map={'user_id': 1})
         self.assertTrue(backend2.is_configured)
 
     def test_check_configuration01(self):
         self.assertRaises(ImproperlyConfiguredBackend, self._get_backend,
-                          Contact, subject="contact",
-                          body_map={'user_id': 1, 'di_resu': 1}
+                          Contact, subject='contact',
+                          body_map={'user_id': 1, 'di_resu': 1},
                          )
 
     def test_is_sandbox_by_user_property01(self):
@@ -60,7 +58,7 @@ class BackendsTestCase(CrudityTestCase):
             self.assertTrue(backend.is_sandbox_by_user)
 
         sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
-        sv.value = "False"
+        sv.value = False
         sv.save()
 
         for backend in backends:
