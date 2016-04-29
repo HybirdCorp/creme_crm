@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,7 +56,7 @@ class CremeModel(Model):
         """
         pass
 
-    def _delete_without_transaction(self):
+    def _delete_without_transaction(self, using=None):
         for m2m_field in self._meta.many_to_many:
             getattr(self, m2m_field.name).clear()
 
@@ -66,9 +66,10 @@ class CremeModel(Model):
             getattr(self, related_m2m_field.get_accessor_name()).clear()
 
         self._pre_delete()
-        super(CremeModel, self).delete()
+        super(CremeModel, self).delete(using=using)
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, using=None):
         file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
                         for field in chain(self._meta.fields, self._meta.many_to_many)
                             if isinstance(field, FileField) and getattr(self, field.name)
@@ -76,7 +77,7 @@ class CremeModel(Model):
 
         try:
             with atomic():
-                self._delete_without_transaction()
+                self._delete_without_transaction(using=using)
         except:
             logger.exception('Error in CremeModel.delete()')
             raise
