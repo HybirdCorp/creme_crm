@@ -29,6 +29,7 @@ from ..forms.list_view_import import UploadForm, form_factory
 from ..gui.list_view_import import import_form_registry
 from ..models import Job
 from ..utils import get_ct_or_404, get_from_POST_or_404
+from .utils import build_cancel_path
 
 # django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)
@@ -100,7 +101,8 @@ def import_listview(request, ct_id):
     else:
         form = UploadForm(user=user, initial={'step': 0})
         submit_label = _('Import this file')
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/generics/blockform/add.html',
                   {'form':         form,

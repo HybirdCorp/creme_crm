@@ -30,6 +30,7 @@ from ..forms.batch_process import BatchProcessForm
 from ..models import Job
 from ..gui.listview import ListViewState
 from ..utils import get_ct_or_404, jsonify
+from .utils import build_cancel_path
 
 
 # TODO: remove 'creme_core/batch_process_report.html'
@@ -75,7 +76,8 @@ def batch_process(request, ct_id):
                                             'filter': efilter_id,
                                            }
                                   )
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/batch_process.html',
                   {'form':          bp_form,
@@ -83,7 +85,6 @@ def batch_process(request, ct_id):
                    'cancel_url':    cancel_url,
                   }
                  )
-
 
 
 @login_required
@@ -94,6 +95,8 @@ def get_ops(request, ct_id, field):
     if not request.user.has_perm(ct.app_label):
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
-    field = ct.model_class()._meta.get_field(field)
+    field_class = ct.model_class()._meta.get_field(field).__class__
 
-    return [(op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(field.__class__)]
+    return [(op_name, unicode(op))
+                for op_name, op in batch_operator_manager.operators(field_class)
+           ]

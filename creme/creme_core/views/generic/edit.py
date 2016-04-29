@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 from .popup import inner_popup
+from ..utils import build_cancel_path
 
 
 def edit_entity(request, object_id, model, edit_form,
@@ -46,7 +47,8 @@ def edit_entity(request, object_id, model, edit_form,
         cancel_url = POST.get('cancel_url')
     else:  # GET
         form = edit_form(user=user, instance=entity)
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, template,
                   {'form': form,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,7 @@ from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
 from creme.creme_core.utils.media import creme_media_themed_url as media_url
 from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
     inner_popup, view_entity, list_view, add_to_entity)
+from creme.creme_core.views.utils import build_cancel_path
 
 from creme.persons import get_contact_model, get_organisation_model
 
@@ -67,7 +68,8 @@ def abstract_add_pollreply(request, form=PollRepliesCreateForm,
         cancel_url = POST.get('cancel_url')
     else:  # GET
         reply_form = form(user=request.user)
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, template,
                   {'form':         reply_form,

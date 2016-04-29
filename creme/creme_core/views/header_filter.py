@@ -30,6 +30,7 @@ from ..gui.listview import ListViewState
 from ..models import HeaderFilter, CremeEntity
 from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify
 from .generic import add_entity
+from .utils import build_cancel_path
 
 
 def _set_current_hf(request, path, hf_instance):
@@ -51,10 +52,13 @@ def add(request, content_type_id, extra_template_dict=None):
     if not issubclass(model, CremeEntity):
         raise ConflictError(u'This model is not a entity model: %s' % model)
 
-    try:
-        callback_url = model.get_lv_absolute_url()
-    except AttributeError:
-        callback_url = '/'
+    callback_url = request.POST.get('cancel_url')
+
+    if not callback_url:
+        try:
+            callback_url = model.get_lv_absolute_url()
+        except AttributeError:
+            callback_url = '/'
 
     ctx = {'submit_label': _('Save the view')}
     if extra_template_dict:
@@ -79,17 +83,19 @@ def edit(request, header_filter_id):
 
     if request.method == 'POST':
         POST = request.POST
+        cancel_url = POST.get('cancel_url')
         hf_form = HeaderFilterForm(user=user, data=POST, instance=hf)
 
         if hf_form.is_valid():
             hf_form.save()
 
-            return HttpResponseRedirect(hf.entity_type.model_class().get_lv_absolute_url())
-
-        cancel_url = POST.get('cancel_url')
+            return HttpResponseRedirect(cancel_url or
+                                        hf.entity_type.model_class().get_lv_absolute_url()
+                                       )
     else:
         hf_form = HeaderFilterForm(user=user, instance=hf)
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/header_filter_form.html',
                   {'form': hf_form,

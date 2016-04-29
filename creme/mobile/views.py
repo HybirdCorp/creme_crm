@@ -281,7 +281,7 @@ def search_person(request):
 
 
 def _get_page_url(request):
-    return request.META.get('HTTP_REFERER', '/mobile/')
+    return request.META.get('HTTP_REFERER', '/mobile/')   # TODO: build_cancel_path() ?
 
 
 @lw_exceptions

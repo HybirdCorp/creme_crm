@@ -87,6 +87,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('created__range', cell.filter_string)
         self.assertIs(cell.is_hidden, False)
 
+        self.assertRedirects(response, '/')
+
     def test_create02(self):
         user = self.login()
 
@@ -156,6 +158,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertIsInstance(cell, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell.value)
 
+        self.assertRedirects(response, Contact.get_lv_absolute_url())
+
     def test_create03(self):
         "Check app credentials"
         self.login(is_superuser=False, allowed_apps=['documents'])
@@ -204,20 +208,22 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_create05(self):
         "A staff user can create a private filter for another user"
         self.login(is_staff=True)
+
         name = 'DefaultHeaderFilter'
+        callback = Organisation.get_lv_absolute_url()
+        response = self.client.post(self._build_add_url(self.contact_ct), follow=True,
+                                    data={'name': name,
+                                          'user': self.other_user.id,
+                                          'is_private': 'on',
+                                          'cells': 'regular_field-first_name',
+                                          'cancel_url': callback,
+                                         },
+                                   )
 
-        def post(owner):
-            return self.assertPOST200(self._build_add_url(self.contact_ct), follow=True,
-                                      data={'name': name,
-                                            'user': owner.id,
-                                            'is_private': 'on',
-                                            'cells': 'regular_field-first_name',
-                                           },
-                                     )
-
-        response = post(self.other_user)
         self.assertNoFormError(response)
         self.get_object_or_fail(HeaderFilter, name=name)
+
+        self.assertRedirects(response, callback)
 
     def test_create06(self):
         "Not an Entity type"
@@ -277,6 +283,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(2,      len(cells))
         self.assertEqual(field1, cells[0].value)
         self.assertEqual(field2, cells[1].value)
+
+        self.assertRedirects(response, Contact.get_lv_absolute_url())
 
     def test_edit02(self):
         "Not custom -> can be still edited"
@@ -368,7 +376,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                             )
 
     def test_edit09(self):
-        "Not custom filter cannot be private"
+        "Not custom filter cannot be private + callback url"
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -377,14 +385,18 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         url = self._build_edit_url(hf)
         self.assertGET200(url)
 
+        callback = Organisation.get_lv_absolute_url()
         response = self.client.post(url, data={'name':       hf.name,
                                                'user':       self.user.id,
                                                'is_private': 'on',  # Should not be used
                                                'cells':      'regular_field-last_name',
+                                               'cancel_url': callback,
                                               }
                                    )
         self.assertNoFormError(response, status=302)
         self.assertFalse(self.refresh(hf).is_private)
+
+        self.assertRedirects(response, callback)
 
     def test_edit10(self):
         "FieldsConfig"
