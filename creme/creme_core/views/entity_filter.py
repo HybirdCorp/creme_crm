@@ -29,11 +29,12 @@ from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
-from ..gui.listview import ListViewState
 from ..forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
+from ..gui.listview import ListViewState
 from ..models import EntityFilter, RelationType, CremeEntity
 from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
 from .generic import add_entity
+from .utils import build_cancel_path
 
 # TODO: factorise with HeaderFilter ??
 
@@ -59,11 +60,14 @@ def add(request, ct_id):
     if not issubclass(model, CremeEntity):
         raise ConflictError(u'This model is not a entity model: %s' % model)
 
-    try:
-        callback_url = model.get_lv_absolute_url()
-    except AttributeError:
-        logger.debug('%s has no get_lv_absolute_url() method ?!' % model)
-        callback_url = '/'
+    callback_url = request.POST.get('cancel_url')
+
+    if not callback_url:
+        try:
+            callback_url = model.get_lv_absolute_url()
+        except AttributeError:
+            logger.debug('%s has no get_lv_absolute_url() method ?!' % model)
+            callback_url = '/'
 
     return add_entity(request, EntityFilterCreateForm, callback_url,
                       template='creme_core/entity_filter_form.html',
@@ -84,17 +88,19 @@ def edit(request, efilter_id):
 
     if request.method == 'POST':
         POST = request.POST
+        cancel_url = POST.get('cancel_url')
         efilter_form = EntityFilterEditForm(user=user, data=POST, instance=efilter)
 
         if efilter_form.is_valid():
             efilter_form.save()
 
-            return HttpResponseRedirect(efilter.entity_type.model_class().get_lv_absolute_url())
-
-        cancel_url = POST.get('cancel_url')
+            return HttpResponseRedirect(cancel_url or
+                                        efilter.entity_type.model_class().get_lv_absolute_url()
+                                       )
     else:
         efilter_form = EntityFilterEditForm(user=user, instance=efilter)
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/entity_filter_form.html',
                   {'form': efilter_form,
@@ -102,6 +108,7 @@ def edit(request, efilter_id):
                    'submit_label': _('Save the modified filter'),
                   }
                  )
+
 
 @login_required
 def delete(request):

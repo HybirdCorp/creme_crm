@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,8 +44,9 @@ from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, js
 from ..utils.chunktools import iter_as_slices
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
-from ..views.decorators import POST_only
-from ..views.generic import inner_popup, list_view_popup_from_widget
+from .decorators import POST_only
+from .generic import inner_popup, list_view_popup_from_widget
+from .utils import build_cancel_path
 
 
 logger = logging.getLogger(__name__)
@@ -426,7 +427,8 @@ def merge(request, entity1_id, entity2_id):
         except MergeEntitiesBaseForm.CanNotMergeError as e:
             raise ConflictError(e)
 
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/merge.html',
                   {'form':   merge_form,

@@ -246,13 +246,14 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(subfilter.id,                        condition.name)
 
     def test_create03(self):
-        "Date sub-field"
+        "Date sub-field + callback_url"
         self.login()
 
         ct = self.ct_contact
         name = 'Filter img'
         field_name = 'image__created'
         daterange_type = 'previous_year'
+        callback_url = Organisation.get_lv_absolute_url()
         response = self.client.post(self._build_add_url(ct), follow=True,
                                     data={'name':                  name,
                                           'use_or':                'False',
@@ -262,6 +263,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                         'start': '',
                                                                         'end': '',
                                                                     },
+                                          'cancel_url': callback_url,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -275,6 +277,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(field_name,                          condition.name)
         self.assertEqual({'name': daterange_type},            condition.decoded_value)
+
+        self.assertRedirects(response, callback_url)
 
     def test_create04(self):
         "Error: no conditions of any type"
@@ -831,8 +835,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
         self.assertEqual(subfilter.id,                        condition.name)
 
+        self.assertRedirects(response, Contact.get_lv_absolute_url())
+
     def test_edit02(self):
-        "Not custom -> edit owner & conditions, but not the name"
+        "Not custom -> edit owner & conditions, but not the name + callback_url"
         user = self.login()
 
         name = 'Filter01'
@@ -851,6 +857,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         field_operator = EntityFilterCondition.IEQUALS
         field_name = 'last_name'
         field_value = 'Ikari'
+        callback_url = Organisation.get_lv_absolute_url()
         response = self.client.post(url, follow=True,
                                     data={'name':               'Filter01 edited',  # Should not be used
                                           'user':               user.id,
@@ -858,8 +865,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'fields_conditions':  self.FIELDS_CONDS_FMT % {
                                                                        'operator': field_operator,
                                                                        'name':     field_name,
-                                                                       'value':    '"' + field_value + '"',
+                                                                       'value':    '"%s"' % field_value,
                                                                    },
+                                          'cancel_url': callback_url,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -876,6 +884,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(EntityFilterCondition.EFC_FIELD,                       condition.type)
         self.assertEqual(field_name,                                            condition.name)
         self.assertEqual({'operator': field_operator, 'values': [field_value]}, condition.decoded_value)
+
+        self.assertRedirects(response, callback_url)
 
     def test_edit03(self):
         "Can not edit Filter that belongs to another user"

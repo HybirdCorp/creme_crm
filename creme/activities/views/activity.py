@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 from datetime import datetime
 from functools import partial
 
-# from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -33,10 +32,10 @@ from creme.creme_core.auth import EntityCredentials
 # from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_from_GET_or_404, jsonify
-from creme.creme_core.views.generic import list_view, inner_popup, edit_entity, view_entity  # view_real_entity
+from creme.creme_core.views.generic import list_view, inner_popup, edit_entity, view_entity
+from creme.creme_core.views.utils import build_cancel_path
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from .. import get_activity_model
 from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING,
@@ -68,7 +67,8 @@ def _add_activity(request, form_class,
         cancel_url = POST.get('cancel_url')
     else:
         form = form_class(activity_type_id=type_id, user=request.user, **form_args)
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, 'activities/add_activity_form.html',
                   {'form':             form,
@@ -79,10 +79,6 @@ def _add_activity(request, form_class,
                   },
                  )
 
-#@login_required
-#@permission_required(('activities', 'activities.add_activity'))
-#def add(request):
-#    return _add_activity(request, ActivityCreateForm)
 
 _TYPES_MAP = {
         "meeting":   ACTIVITYTYPE_MEETING,
@@ -120,7 +116,6 @@ def abstract_add_related_activity(request, entity_id, form=RelatedActivityCreate
 
     request.user.has_perm_to_link_or_die(entity)
 
-#    if isinstance(entity, Contact):
     if isinstance(entity, get_contact_model()):
         rtype_id = REL_SUB_PART_2_ACTIVITY
     else:
@@ -180,47 +175,34 @@ def abstract_edit_activity(request, activity_id, model=Activity, form=ActivityEd
 def abstract_view_activity(request, activity_id,
                            template='activities/view_activity.html',
                           ):
-    return view_entity(request, activity_id, model=Activity, template=template,
-                       # path='/activities/activity',
-                      )
+    return view_entity(request, activity_id, model=Activity, template=template)
 
 
 def abstract_view_activity_popup(request, activity_id,
                                  template='activities/view_activity_popup.html',
                                 ):
-    return view_entity(request, activity_id, model=Activity, template=template,
-                       # path='/activities/activity',
-                      )
+    return view_entity(request, activity_id, model=Activity, template=template)
 
 
 @login_required
-# @permission_required(('activities', 'activities.add_activity'))
 @permission_required(('activities', _CREATION_PERM_STR))
-#def add_fixedtype(request, act_type):
-#    type_id = _TYPES_MAP.get(act_type)
-#
-#    if not type_id:
-#        raise Http404('No activity type matches with: %s' % act_type)
 def add(request, act_type=None):
     return abstract_add_activity(request, act_type)
 
 
 @login_required
-# @permission_required(('activities', 'activities.add_activity'))
 @permission_required(('activities', _CREATION_PERM_STR))
 def add_indisponibility(request):
     return abstract_add_unavailability(request)
 
 
 @login_required
-# @permission_required(('activities', 'activities.add_activity'))
 @permission_required(('activities', _CREATION_PERM_STR))
 def add_related(request, entity_id):
     return abstract_add_related_activity(request, entity_id)
 
 
 @login_required
-# @permission_required(('activities', 'activities.add_activity'))
 @permission_required(('activities', _CREATION_PERM_STR))
 def add_popup(request):
     return abstract_add_activity_popup(request)
@@ -260,9 +242,6 @@ def detailview(request, activity_id):
 @login_required
 @permission_required('activities')
 def popupview(request, activity_id):
-#    return view_real_entity(request, activity_id, '/activities/activity',
-#                            'activities/view_activity_popup.html',
-#                           )
     return abstract_view_activity_popup(request, activity_id)
 
 
@@ -276,9 +255,7 @@ def listview(request, type_id=None):
         kwargs['extra_q'] = Q(type=type_id)
 
     return list_view(request, Activity, hf_pk=DEFAULT_HFILTER_ACTIVITY,
-                     extra_dict={# 'add_url': reverse('activities__create_activity'),
-                                 'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )
-                                },
+                     extra_dict={'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )},
                      **kwargs
                     )
 

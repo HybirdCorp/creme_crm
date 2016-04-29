@@ -161,6 +161,42 @@ class MiscViewsTestCase(ViewsTestCase):
                   )
         self.assertGET200('/tests/organisation/add')
 
+    def test_utils_build_cancel_path(self):
+        from creme.creme_core.views.utils import build_cancel_path
+
+        factory = RequestFactory()
+        path = '/foobar'
+
+        # -------------------------
+        request = factory.get('/')
+        self.assertIsNone(build_cancel_path(request))
+
+        # -------------------------
+        request = factory.get('/')
+        request.META['HTTP_REFERER'] = 'http://testserver' + path
+        self.assertEqual(path, build_cancel_path(request))
+
+        # -------------------------
+        request.META['HTTP_REFERER'] = 'http://otherserver' + path
+        self.assertIsNone(build_cancel_path(request))
+
+        # -------------------------
+        request.META['HTTP_REFERER'] = 'http://testserver:8005' + path
+        self.assertIsNone(build_cancel_path(request))
+
+        # -------------------------
+        request.META['HTTP_REFERER'] = 'http://testserver:80' + path
+        self.assertEqual(path, build_cancel_path(request))
+
+        # -------------------------
+        request.META['HTTP_REFERER'] = 'https://testserver' + path
+        self.assertIsNone(build_cancel_path(request))
+
+        # -------------------------
+        request.get_host = lambda: 'testserver:8005'
+        request.META['HTTP_REFERER'] = 'http://testserver:8005' + path
+        self.assertEqual(path, build_cancel_path(request))
+
 
 class LanguageTestCase(ViewsTestCase):
     @classmethod

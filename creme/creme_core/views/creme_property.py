@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,7 @@ from ..models import CremeEntity, CremePropertyType
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
 from .blocks import _get_depblock_ids, build_context  # TODO: make _get_depblock_ids public ??
 from .generic import inner_popup, add_to_entity as generic_add_to_entity
+from .utils import build_cancel_path
 
 # TODO: Factorise with views in creme_config
 
@@ -105,7 +106,8 @@ def add_type(request):
         cancel_url = POST.get('cancel_url')
     else:  # GET
         form = CremePropertyTypeAddForm(user=request.user)
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/generics/blockform/add.html',
                   {'form':         form,
@@ -136,7 +138,8 @@ def edit_type(request, ptype_id):
         cancel_url = POST.get('cancel_url')
     else:  # GET
         form = CremePropertyTypeEditForm(ptype, user=request.user)
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
                   {'form': form,

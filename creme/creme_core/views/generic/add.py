@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
+from ..utils import build_cancel_path
 from .popup import inner_popup
 
 
@@ -54,7 +55,8 @@ def add_entity(request, form_class, url_redirect='',
         cancel_url = POST.get('cancel_url')
     else:  # GET
         entity_form = form_class(user=request.user, initial=extra_initial)
-        cancel_url = request.META.get('HTTP_REFERER')
+        # cancel_url = request.META.get('HTTP_REFERER')
+        cancel_url = build_cancel_path(request)
 
     template_dict = {'form':  entity_form,
                      'title': form_class._meta.model.creation_label,
