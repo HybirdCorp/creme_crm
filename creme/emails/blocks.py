@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
@@ -28,8 +29,6 @@ from creme.creme_core.models import Relation
 from creme.documents import get_document_model
 
 from creme.persons import get_contact_model, get_organisation_model
-
-from creme.crudity.blocks import CrudityQuerysetBlock
 
 from . import (get_emailcampaign_model, get_entityemail_model,
         get_emailtemplate_model, get_mailinglist_model)
@@ -267,56 +266,6 @@ class LwMailsHistoryBlock(QuerysetBlock):
                                                            ))
 
 
-class _SynchronizationMailsBlock(CrudityQuerysetBlock):
-    dependencies  = (EntityEmail,)
-    order_by      = '-reception_date'
-    configurable  = False
-
-
-class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
-    id_           = QuerysetBlock.generate_id('emails', 'waiting_synchronisation')
-    verbose_name  = u'Incoming Emails to sync'
-    template_name = 'emails/templatetags/block_synchronization.html'
-
-    def detailview_display(self, context):
-        super(WaitingSynchronizationMailsBlock, self).detailview_display(context)
-#        context['MAIL_STATUS'] = MAIL_STATUS
-        context['entityemail_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
-        #context['rtypes'] = ','.join([REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
-        context['rtypes'] = (constants.REL_SUB_MAIL_SENDED,
-                             constants.REL_SUB_MAIL_RECEIVED,
-                             constants.REL_SUB_RELATED_TO,
-                            )
-
-        waiting_mails = EntityEmail.objects.filter(status=constants.MAIL_STATUS_SYNCHRONIZED_WAITING)
-        if self.is_sandbox_by_user:
-            waiting_mails = waiting_mails.filter(user=context['user'])
-
-        return self._render(self.get_block_template_context(context, waiting_mails,
-                                                            update_url='/emails/sync_blocks/reload',
-                                                           ))
-
-
-# TODO: factorise with WaitingSynchronizationMailsBlock ??
-# TODO: credentials ?? (see template too)
-# TODO: is_deleted ?? (idem)
-class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
-    id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
-    verbose_name  = u'Spam emails'
-    template_name = 'emails/templatetags/block_synchronization_spam.html'
-
-    def detailview_display(self, context):
-        super(SpamSynchronizationMailsBlock, self).detailview_display(context)
-#        context['MAIL_STATUS'] = MAIL_STATUS
-        context['entityemail_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
-
-        waiting_mails = EntityEmail.objects.filter(status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM)
-        if self.is_sandbox_by_user:
-            waiting_mails = waiting_mails.filter(user=context['user'])
-
-        return self._render(self.get_block_template_context(context, waiting_mails,
-                                                            update_url='/emails/sync_blocks/reload',
-                                                           ))
 
 
 class SignaturesBlock(QuerysetBlock):
@@ -348,8 +297,6 @@ attachments_block       = AttachmentsBlock()
 sendings_block          = SendingsBlock()
 mails_block             = MailsBlock()
 mails_history_block     = MailsHistoryBlock()
-mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
-mail_spam_sync_block    = SpamSynchronizationMailsBlock()
 signatures_block        = SignaturesBlock()
 
 blocks_list = (
@@ -366,7 +313,66 @@ blocks_list = (
         mails_block,
         mails_history_block,
         LwMailsHistoryBlock(),
+        signatures_block,
+    )
+
+
+if apps.is_installed('creme.crudity'):
+    from creme.crudity.blocks import CrudityQuerysetBlock
+
+    class _SynchronizationMailsBlock(CrudityQuerysetBlock):
+        dependencies = (EntityEmail,)
+        order_by     = '-reception_date'
+        configurable = False
+
+
+    class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
+        id_           = QuerysetBlock.generate_id('emails', 'waiting_synchronisation')
+        verbose_name  = u'Incoming Emails to sync'
+        template_name = 'emails/templatetags/block_synchronization.html'
+
+        def detailview_display(self, context):
+            super(WaitingSynchronizationMailsBlock, self).detailview_display(context)
+            context['entityemail_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
+            context['rtypes'] = (constants.REL_SUB_MAIL_SENDED,
+                                 constants.REL_SUB_MAIL_RECEIVED,
+                                 constants.REL_SUB_RELATED_TO,
+                                )
+
+            waiting_mails = EntityEmail.objects.filter(status=constants.MAIL_STATUS_SYNCHRONIZED_WAITING)
+            if self.is_sandbox_by_user:
+                waiting_mails = waiting_mails.filter(user=context['user'])
+
+            return self._render(self.get_block_template_context(context, waiting_mails,
+                                                                update_url='/emails/sync_blocks/reload',
+                                                               ))
+
+
+    # TODO: factorise with WaitingSynchronizationMailsBlock ??
+    # TODO: credentials ?? (see template too)
+    # TODO: is_deleted ?? (idem)
+    class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
+        id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
+        verbose_name  = u'Spam emails'
+        template_name = 'emails/templatetags/block_synchronization_spam.html'
+
+        def detailview_display(self, context):
+            super(SpamSynchronizationMailsBlock, self).detailview_display(context)
+            context['entityemail_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
+
+            waiting_mails = EntityEmail.objects.filter(status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM)
+            if self.is_sandbox_by_user:
+                waiting_mails = waiting_mails.filter(user=context['user'])
+
+            return self._render(self.get_block_template_context(context, waiting_mails,
+                                                                update_url='/emails/sync_blocks/reload',
+                                                               ))
+
+
+    mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
+    mail_spam_sync_block    = SpamSynchronizationMailsBlock()
+
+    blocks_list += (
         mail_waiting_sync_block,
         mail_spam_sync_block,
-        signatures_block,
     )

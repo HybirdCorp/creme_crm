@@ -26,7 +26,7 @@ from creme.creme_core.apps import CremeAppConfig
 class EmailsConfig(CremeAppConfig):
     name = 'creme.emails'
     verbose_name = _(u'Emails')
-    dependencies = ['creme.persons', 'creme.documents', 'creme.crudity']
+    dependencies = ['creme.persons', 'creme.documents']  # 'creme.crudity'
 
     def all_apps_ready(self):
         from . import (get_emailcampaign_model, get_entityemail_model,
@@ -88,6 +88,7 @@ class EmailsConfig(CremeAppConfig):
         reg_icon(self.EmailTemplate, 'images/email_%(size)s.png')
 
     def register_menu(self, creme_menu):
+        from django.apps import apps
         from django.core.urlresolvers import reverse_lazy as reverse
 
         from creme.creme_core.auth import build_creation_perm as cperm
@@ -104,7 +105,9 @@ class EmailsConfig(CremeAppConfig):
         reg_item(reverse('emails__list_templates'),  _(u'All email templates'), 'emails')
         reg_item(reverse('emails__create_template'), ETemplate.creation_label,  cperm(ETemplate))
         reg_item(reverse('emails__list_emails'),     _(u'All emails'),          'emails')
-        reg_item('/emails/synchronization',          _(u'Synchronization of incoming emails'), 'emails')
+
+        if apps.is_installed('creme.crudity'):
+            reg_item('/emails/synchronization', _(u'Synchronization of incoming emails'), 'emails')
 
     def register_setting_key(self, setting_key_registry):
         from .setting_keys import emailcampaign_sender

@@ -6,6 +6,7 @@ skip_entityemail_tests   = False
 skip_mailinglist_tests   = False
 
 try:
+    from functools import partial
     from unittest import skipIf
 
     from creme.creme_core.tests.base import CremeTestCase
@@ -13,6 +14,7 @@ try:
     from creme.documents import get_document_model, get_folder_model
 
     from creme.persons import get_contact_model, get_organisation_model
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from .. import (emailcampaign_model_is_custom, emailtemplate_model_is_custom,
             entityemail_model_is_custom, mailinglist_model_is_custom,
@@ -60,3 +62,40 @@ class _EmailsTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'emails')
+
+    def _build_create_entitymail_url(self, entity):
+        return '/emails/mail/add/%s' % entity.id
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def _create_emails(self):
+        user = self.user
+
+        create_c = partial(Contact.objects.create, user=user)
+        contacts = [create_c(first_name='Vincent',  last_name='Law', email='vincent.law@immigrates.rmd'),
+                    create_c(first_name='Daedalus', last_name='??',  email='daedalus@research.rmd'),
+                   ]
+
+        create_o = partial(Organisation.objects.create, user=user)
+        orgas = [create_o(name='Venus gate', email='contact@venusgate.jp'),
+                 create_o(name='Nerv',       email='contact@nerv.jp'),
+                ]
+
+        url = self._build_create_entitymail_url(contacts[0])
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'user':         user.id,
+                                               'sender':       're-l.mayer@rpd.rmd',
+                                               'c_recipients': '[%d,%d]' % (contacts[0].id, contacts[1].id),
+                                               'o_recipients': '[%d,%d]' % (orgas[0].id, orgas[1].id),
+                                               'subject':      'Under arrest',
+                                               'body':         'Freeze',
+                                               'body_html':    '<p>Freeze !</p>',
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        emails = EntityEmail.objects.all()
+        self.assertEqual(4, len(emails))
+
+        return emails
