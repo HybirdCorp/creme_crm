@@ -211,11 +211,7 @@ creme.reports.exportReport = function(link, report_id, title) {
                       new creme.reports.PreviewController(report_id).bind(frame.delegate());
                   })
                  .onFormSuccess(function(event, data, statusText, dataType) {
-                       var matches = data.match(/^<div class="in-popup" closing="true" redirect="(.*)">/)
-
-                       if (matches && matches.length > 1) {
-                           creme.utils.goTo(matches[1]);
-                       }
+                      creme.utils.goTo($(data).attr('redirect'));
                   })
                  .open({width:1024});
 }
