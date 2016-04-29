@@ -230,7 +230,7 @@ END:VEVENT
                 sv = SettingValue.objects.get(key_id=SETTING_AUTO_ORGA_SUBJECTS)
             except SettingValue.DoesNotExist:
                 logger.critical('SettingValue with key=%s cannot be found !'
-                                ' ("creme_populate" command has not been runned correctly)',
+                                ' ("creme_populate" command has not been run correctly)',
                                 SETTING_AUTO_ORGA_SUBJECTS
                             )
                 enabled = False

@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PERSONS' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-18 18:33+0200\n"
+"POT-Creation-Date: 2016-04-26 17:40+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -204,7 +204,7 @@ msgstr "Nom"
 
 #: models/address.py:37
 msgid "PO box"
-msgstr "Boite postale"
+msgstr "Boîte postale"
 
 #: models/address.py:39
 msgid "Zip code"
