@@ -63,7 +63,7 @@ class UserMobileSyncConfigBlock(Block):
                         svalue = sv_get(key_id=default_key_id)
                     except SettingValue.DoesNotExist:
                         logger.warn('Activesync.UserMobileSyncConfigBlock: unfoundable SettingValue(key="%s") '
-                                    '- Populate has not been runned ?! (if you are running unit tests you can '
+                                    '- Populate has not been run ?! (if you are running unit tests you can '
                                     'ignore this message' % default_key_id
                                    ) # NB useful for creme_config tests
                     else:

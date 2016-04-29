@@ -68,9 +68,9 @@ class SendingCreateForm(CremeModelForm):
         try:
             sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
         except SettingValue.DoesNotExist:
-            sender_setting = None
+            # sender_setting = None
             logger.critical('SettingValue with key=%s cannot be found !'
-                            ' ("creme_populate" command has not been runned correctly)',
+                            ' ("creme_populate" command has not been run correctly)',
                             SETTING_EMAILCAMPAIGN_SENDER
                         )
             raise

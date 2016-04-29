@@ -36,7 +36,7 @@ class JobType(object):
         - periodic: must be in {NOT_PERIODIC, PSEUDO_PERIODIC, PERIODIC}
 
     NOT_PERIODIC: one shot Job (eg: CSV import). Must be a User Job.
-    PERIODIC: these system Jobs are runned every Job.periodicity.as_timedelta().
+    PERIODIC: these system Jobs are run every Job.periodicity.as_timedelta().
     PSEUDO_PERIODIC: these Jobs have a dynamic 'period' (so it is not really a period).
                      They can compute the next time they should be run.
     """

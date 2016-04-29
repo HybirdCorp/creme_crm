@@ -52,7 +52,7 @@ class Populator(BasePopulator):
         SearchConfigItem.create_if_needed(Graph, ['name'])
 
 
-        if not BlockDetailviewLocation.config_exists(Graph):  # NB: no straightforward way to test that this populate script has not been already runned
+        if not BlockDetailviewLocation.config_exists(Graph):  # NB: no straightforward way to test that this populate script has not been already run
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Graph)
             BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
             BlockDetailviewLocation.create(block_id=root_nodes_block.id_,     order=60,  zone=BlockDetailviewLocation.LEFT,  model=Graph)

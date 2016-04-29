@@ -71,7 +71,7 @@ class Populator(BasePopulator):
         create_searchconf(MessageTemplate, ['name', 'subject', 'body'])
 
 
-        if not BlockDetailviewLocation.config_exists(SMSCampaign): # NB: no straightforward way to test that this populate script has not been already runned
+        if not BlockDetailviewLocation.config_exists(SMSCampaign): # NB: no straightforward way to test that this populate script has not been already run
             create_bdl = BlockDetailviewLocation.create
             BlockDetailviewLocation.create_4_model_block(order=5,     zone=BlockDetailviewLocation.LEFT,  model=SMSCampaign)
             create_bdl(block_id=sendings_block.id_,        order=2,   zone=BlockDetailviewLocation.TOP,   model=SMSCampaign)
