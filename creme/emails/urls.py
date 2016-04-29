@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from django.apps import apps
 from django.conf.urls import url
 
 from . import (emailcampaign_model_is_custom, emailtemplate_model_is_custom,
         entityemail_model_is_custom, mailinglist_model_is_custom)
 from .views import portal, campaign, sending, recipient, mailing_list, template, mail, signature
+
 
 urlpatterns = [
     url(r'^$', portal.portal),
@@ -16,7 +18,7 @@ urlpatterns = [
     # Campaign: sending block
     url(r'^campaign/(?P<campaign_id>\d+)/sending/add$', sending.add),
 
-    # Campaign: sending details block (TODO: remove campaign/ from url ??)
+    # Campaign: sending details block (TODO: remove 'campaign/' from url ??)
     url(r'^campaign/sending/(?P<sending_id>\d+)$',               sending.detailview),
     url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload/$', sending.reload_block_mails),
 
@@ -43,15 +45,9 @@ urlpatterns = [
     url(r'^template/(?P<template_id>\d+)/attachment/delete$', template.delete_attachment),
 
     # Mails history blocks
-    url(r'^mails_history/(?P<mail_id>\w+)$',          mail.view_lightweight_mail),
-    url(r'^mail/get_body/(?P<mail_id>\w+)$',          mail.get_lightweight_mail_body),
-    # url(r'^mail/get_entity_body/(?P<entity_id>\d+)$', mail.get_entity_mail_body),
-    url(r'^mail/resend$',                             mail.resend_mails),
-    url(r'^mail/spam$',                               mail.spam),
-    url(r'^mail/validated$',                          mail.validated),
-    url(r'^mail/waiting$',                            mail.waiting),
-    url(r'^synchronization$',                         mail.synchronisation),
-    url(r'^sync_blocks/reload$',                      mail.reload_sync_blocks),
+    url(r'^mails_history/(?P<mail_id>\w+)$', mail.view_lightweight_mail),
+    url(r'^mail/get_body/(?P<mail_id>\w+)$', mail.get_lightweight_mail_body),
+    url(r'^mail/resend$',                    mail.resend_mails),
 
     # Signature
     url(r'^signature/add$',                        signature.add),
@@ -90,4 +86,16 @@ if not mailinglist_model_is_custom():
         url(r'^mailing_list/add$',                 mailing_list.add,        name='emails__create_mlist'),
         url(r'^mailing_list/edit/(?P<ml_id>\d+)$', mailing_list.edit,       name='emails__edit_mlist'),
         url(r'^mailing_list/(?P<ml_id>\d+)$',      mailing_list.detailview, name='emails__view_mlist'),
+    ]
+
+
+if apps.is_installed('creme.crudity'):
+    from .views import crudity
+
+    urlpatterns += [
+        url(r'^mail/spam$',          crudity.spam),
+        url(r'^mail/validated$',     crudity.validated),
+        url(r'^mail/waiting$',       crudity.waiting),
+        url(r'^synchronization$',    crudity.synchronisation),
+        url(r'^sync_blocks/reload$', crudity.reload_sync_blocks),
     ]

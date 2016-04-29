@@ -25,9 +25,7 @@ try:
     from .base import (_EmailsTestCase, skipIfCustomEntityEmail, skipIfCustomEmailTemplate,
             Contact, Organisation, Document, Folder, EntityEmail, EmailTemplate)
     from ..constants import (MAIL_STATUS_NOTSENT, MAIL_STATUS_SENT,
-            MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SYNCHRONIZED,
-            MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING,
-            REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
+            MAIL_STATUS_SENDINGERROR, REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
     from ..creme_jobs import entity_emails_send_type
     # from ..management.commands.entity_emails_send import Command as EmailsSendCommand
     from ..models import EmailSignature
@@ -58,9 +56,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                                                       *args, **kwargs
                                                      )
 
-    def _build_send_url(self, entity):
-        return '/emails/mail/add/%s' % entity.id
-
     def _build_send_from_template_url(self, entity):
         return '/emails/mail/add_from_template/%s' % entity.id
 
@@ -79,7 +74,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         recipient = 'vincent.law@immigrates.rmd'
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law', email=recipient)
-        url = self._build_send_url(contact)
+        url = self._build_create_entitymail_url(contact)
 
         response = self.assertGET200(url)
 
@@ -135,7 +130,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         recipient = 'contact@venusgate.jp'
         orga = Organisation.objects.create(user=user, name='Venus gate', email=recipient)
-        url = self._build_send_url(orga)
+        url = self._build_create_entitymail_url(orga)
 
         response = self.assertGET200(url)
 
@@ -222,7 +217,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         orga01 = create_orga(name='Venus gate', email='contact/venusgate.jp')  # Invalid
         orga02 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
 
-        response = self.assertPOST200(self._build_send_url(contact01),
+        response = self.assertPOST200(self._build_create_entitymail_url(contact01),
                                       data={'user':         user.id,
                                             'sender':       user.linked_contact.email,
                                             'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
@@ -231,7 +226,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                             'body':         'Freeze !',
                                             'body_html':    '<p>Freeze !</p>',
                                            }
-                                     )
+                                      )
         self.assertFormError(response, 'form', 'c_recipients',
                              _(u"The email address for %s is invalid") % contact01
                             )
@@ -245,7 +240,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         user = self.login()
 
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
-        response = self.assertGET200(self._build_send_url(contact))
+        response = self.assertGET200(self._build_create_entitymail_url(contact))
 
         with self.assertNoException():
             c_recipients = response.context['form'].fields['c_recipients']
@@ -259,7 +254,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Venus gate')
-        response = self.assertGET200(self._build_send_url(orga))
+        response = self.assertGET200(self._build_create_entitymail_url(orga))
 
         with self.assertNoException():
             o_recipients = response.context['form'].fields['o_recipients']
@@ -304,7 +299,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertTrue(user.has_perm_to_link(contact02))
 
         def post(contact):
-            return self.client.post(self._build_send_url(contact),
+            return self.client.post(self._build_create_entitymail_url(contact),
                                     data={'user':         user.id,
                                           'sender':       user.linked_contact.email,
                                           'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
@@ -313,7 +308,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                           'body':         'Freeze !',
                                           'body_html':    '<p>Freeze !</p>',
                                          }
-                                   )
+                                    )
 
         self.assertEqual(403, post(contact01).status_code)
 
@@ -331,7 +326,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         "No recipent"
         user = self.login()
         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
-        response = self.assertPOST200(self._build_send_url(c),
+        response = self.assertPOST200(self._build_create_entitymail_url(c),
                                       data={'user':         user.id,
                                             'sender':       user.linked_contact.email,
                                             'c_recipients': '[]',
@@ -340,7 +335,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                             'body':         'Freeze !',
                                             'body_html':    '<p>Freeze !</p>',
                                            }
-                                     )
+                                      )
         self.assertFormError(response, 'form', None,
                              _(u'Select at least a Contact or an Organisation')
                             )
@@ -355,7 +350,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         c = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
 
-        url = self._build_send_url(c)
+        url = self._build_create_entitymail_url(c)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -389,7 +384,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         orga = Organisation.objects.create(user=user, name='Venus gate')
 
-        url = self._build_send_url(orga)
+        url = self._build_create_entitymail_url(orga)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -435,7 +430,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                         )
 
         sender = user.linked_contact.email
-        response = self.client.post(self._build_send_url(contact),
+        response = self.client.post(self._build_create_entitymail_url(contact),
                                     data={'user':         user.id,
                                           'sender':       sender,
                                           'c_recipients': '[%d]' % contact.id,
@@ -443,7 +438,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                           'body':         'Freeze !',
                                           'body_html':    '<p>Freeze !</p>',
                                          }
-                                   )
+                                    )
         self.assertNoFormError(response)
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
@@ -466,7 +461,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         orga01 = create_orga(name='Venus gate', email='')
         orga02 = create_orga(name='Nerv',       email='contact@nerv.jp')  # Ok
 
-        response = self.assertPOST200(self._build_send_url(contact01),
+        response = self.assertPOST200(self._build_create_entitymail_url(contact01),
                                       data={'user':         user.id,
                                             'sender':       user.linked_contact.email,
                                             'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
@@ -475,7 +470,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                             'body':         'Freeze !',
                                             'body_html':    '<p>Freeze !</p>',
                                            }
-                                     )
+                                      )
         self.assertFormError(response, 'form', 'c_recipients',
                              _(u"This entity doesn't exist.")
                             )
@@ -579,40 +574,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                              _(u"The image «%s» no longer exists or isn't valid.") % image_filename
                             )
 
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def _create_emails(self):
-        user = self.user
-
-        create_c = partial(Contact.objects.create, user=user)
-        contacts = [create_c(first_name='Vincent',  last_name='Law', email='vincent.law@immigrates.rmd'),
-                    create_c(first_name='Daedalus', last_name='??',  email='daedalus@research.rmd'),
-                   ]
-
-        create_o = partial(Organisation.objects.create, user=user)
-        orgas = [create_o(name='Venus gate', email='contact@venusgate.jp'),
-                 create_o(name='Nerv',       email='contact@nerv.jp'),
-                ]
-
-        url = self._build_send_url(contacts[0])
-        self.assertGET200(url)
-
-        response = self.client.post(url, data={'user':         user.id,
-                                               'sender':       're-l.mayer@rpd.rmd',
-                                               'c_recipients': '[%d,%d]' % (contacts[0].id, contacts[1].id),
-                                               'o_recipients': '[%d,%d]' % (orgas[0].id, orgas[1].id),
-                                               'subject':      'Under arrest',
-                                               'body':         'Freeze',
-                                               'body_html':    '<p>Freeze !</p>',
-                                              }
-                                   )
-        self.assertNoFormError(response)
-
-        emails = EntityEmail.objects.all()
-        self.assertEqual(4, len(emails))
-
-        return emails
-
     def test_listview01(self):
         self.login()
         self._create_emails()
@@ -623,43 +584,6 @@ class EntityEmailTestCase(_EmailsTestCase):
             emails = response.context['entities']
 
         self.assertEqual(4, emails.object_list.count())
-
-    def test_spam(self):
-        self.login()
-        emails = self._create_emails()
-
-        self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
-
-        url = '/emails/mail/spam'
-        self.assertPOST200(url)
-        self.assertPOST200(url, data={'ids': [e.id for e in emails]})
-
-        refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
-                         [refresh(e).status for e in emails]
-                        )
-
-    def test_validated(self):
-        self.login()
-        emails = self._create_emails()
-
-        self.assertPOST200('/emails/mail/validated', data={'ids': [e.id for e in emails]})
-
-        refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4,
-                         [refresh(e).status for e in emails]
-                        )
-
-    def test_waiting(self):
-        self.login()
-        emails = self._create_emails()
-
-        self.assertPOST200('/emails/mail/waiting', data={'ids': [e.id for e in emails]})
-
-        refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
-                         [refresh(e).status for e in emails]
-                        )
 
     def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html=''):
         user = self.user

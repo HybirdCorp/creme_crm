@@ -18,9 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import Template, Context
@@ -31,15 +28,10 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import jsonify, get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
-from creme.creme_core.views import generic, blocks as blocks_views
-
-from creme.crudity.views.actions import fetch
+from creme.creme_core.views import generic
 
 from .. import get_entityemail_model
-from ..blocks import mail_waiting_sync_block, mail_spam_sync_block
-from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM,
-        MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING,
-        DEFAULT_HFILTER_EMAIL)
+from ..constants import MAIL_STATUS_SENT, DEFAULT_HFILTER_EMAIL
 from ..forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
 from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail
@@ -84,77 +76,8 @@ def view_lightweight_mail(request, mail_id):
     return render(request, template, ctx_dict)
 
 
-# TODO: credentials (don't forget templates)
-## SYNCHRO PART ##
-@login_required
-@permission_required('emails')
-def synchronisation(request):
-    # TODO: Apply permissions?
-    return fetch(request, template="emails/synchronize.html",
-                 ajax_template="emails/frags/ajax/synchronize.html",
-                 extra_tpl_ctx={
-                        'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
-                    }
-                )
-
-
-def set_emails_status(request, status):
-    user = request.user
-    errors = []
-    has_perm = user.has_perm_to_change
-
-    for email in EntityEmail.objects.filter(id__in=request.POST.getlist('ids')):
-        if not has_perm(email):
-            errors.append(ugettext(u'You are not allowed to edit this entity: %s') %
-                            email.allowed_unicode(user)
-                         )
-        else:
-            email.status = status
-            email.save()
-
-    if errors:
-        message = ",".join(errors)
-        status  = 400
-    else:
-        status = 200
-        message = ugettext(u"Operation successfully completed")
-
-    return HttpResponse(message, content_type="text/javascript", status=status)
-
-
-@login_required
-@permission_required('emails')
-def spam(request):
-    return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_SPAM)
-
-
-@login_required
-@permission_required('emails')
-def validated(request):
-    return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED)
-
-
-@login_required
-@permission_required('emails')
-def waiting(request):
-    return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_WAITING)
-
-
-@jsonify
-@permission_required('emails')
-def reload_sync_blocks(request):
-    ctx = blocks_views.build_context(request)
-
-    return [(mail_waiting_sync_block.id_, mail_waiting_sync_block.detailview_display(ctx)),
-            (mail_spam_sync_block.id_,    mail_spam_sync_block.detailview_display(ctx))
-           ]
-
-## END SYNCHRO PART ##
-
-
 def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html'):
     return generic.view_entity(request, mail_id, EntityEmail,
-                               # path='/emails/mail',
                                template=template,
                                extra_template_dict={'sent_status': MAIL_STATUS_SENT},
                               )
@@ -254,14 +177,12 @@ def listview(request):
 
 
 @login_required
-# @permission_required(('emails', 'emails.add_entityemail'))
 @permission_required(('emails', cperm(EntityEmail)))
 def create_n_send(request, entity_id):
     return abstract_create_n_send(request, entity_id)
 
 
 @login_required
-# @permission_required(('emails', 'emails.add_entityemail'))
 @permission_required(('emails', cperm(EntityEmail)))
 def create_from_template_n_send(request, entity_id):
     return abstract_create_from_template_n_send(request, entity_id)
@@ -277,21 +198,3 @@ def resend_mails(request):  # TODO: unit test
         email.send()
 
     return {}
-
-
-# # @login_required
-# # @permission_required('emails')
-# def get_entity_mail_body(request, entity_id):
-#     """Used to show an html document in an iframe """
-#     warnings.warn("The view emails.get_entity_mail_body is deprecated ; "
-#                   "use the core view get_sanitized_html instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     # email = get_object_or_404(EntityEmail, pk=entity_id)
-#     # request.user.has_perm_to_view_or_die(email)
-#     # return HttpResponse(email.get_body())
-#
-#     from creme.creme_core.views.entity import get_sanitized_html_field
-#
-#     return get_sanitized_html_field(request, entity_id, 'body_html')

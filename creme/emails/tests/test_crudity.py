@@ -7,30 +7,33 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import SettingValue
-    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import skipIfNotInstalled
 
 #    from creme.documents import get_folder_model
 #    from creme.documents.constants import DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME
-    from creme.documents.models import FolderCategory #, Folder
+    from creme.documents.models import FolderCategory
 
     from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
     from creme.crudity.fetchers.pop import PopEmail
     from creme.crudity.models import History
 
-    from ..constants import MAIL_STATUS_SYNCHRONIZED_WAITING
-    from ..crudity_register import EntityEmailBackend
-    # from ..models import EntityEmail
-    from .base import skipIfCustomEntityEmail, EntityEmail
+    from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_WAITING,
+             MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED)
+    from .base import _EmailsTestCase, skipIfCustomEntityEmail, EntityEmail
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+@skipIfNotInstalled('creme.crudity')
 @skipIfCustomEntityEmail
-class EmailsCrudityTestCase(CremeTestCase):
+class EmailsCrudityTestCase(_EmailsTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        _EmailsTestCase.setUpClass()
         cls.populate('documents', 'crudity')
+
+        from ..crudity_register import EntityEmailBackend
+        cls.EntityEmailBackend = EntityEmailBackend
 
     def setUp(self):
         super(EmailsCrudityTestCase, self).setUp()
@@ -46,20 +49,57 @@ class EmailsCrudityTestCase(CremeTestCase):
             cat.save()
 
     cfg = {
-            #"fetcher": "email",
-            #"input": "raw",
-            #"method": "create",
-            #"model": "emails.entityemail",
-            "password": "",
-            "limit_froms": (),
-            "in_sandbox": True,
-            "body_map": {},
-            "subject": u"*",
+            # "fetcher": "email",
+            # "input": "raw",
+            # "method": "create",
+            # "model": "emails.entityemail",
+            'password': '',
+            'limit_froms': (),
+            'in_sandbox': True,
+            'body_map': {},
+            'subject': u'*',
 
             'source':         'emails - raw',
-            'verbose_source': 'Email - Raw', #_(u"Email - Raw"),
-            'verbose_method': 'Create',  #_(u"Create")
+            'verbose_source': 'Email - Raw',
+            'verbose_method': 'Create',
           }
+
+    def test_spam(self):
+        # self.login()
+        emails = self._create_emails()
+
+        self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
+
+        url = '/emails/mail/spam'
+        self.assertPOST200(url)
+        self.assertPOST200(url, data={'ids': [e.id for e in emails]})
+
+        refresh = self.refresh
+        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
+                         [refresh(e).status for e in emails]
+                        )
+
+    def test_validated(self):
+        # self.login()
+        emails = self._create_emails()
+
+        self.assertPOST200('/emails/mail/validated', data={'ids': [e.id for e in emails]})
+
+        refresh = self.refresh
+        self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4,
+                         [refresh(e).status for e in emails]
+                        )
+
+    def test_waiting(self):
+        # self.login()
+        emails = self._create_emails()
+
+        self.assertPOST200('/emails/mail/waiting', data={'ids': [e.id for e in emails]})
+
+        refresh = self.refresh
+        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
+                         [refresh(e).status for e in emails]
+                        )
 
     def test_create01(self):
         "Shared sandbox"
@@ -69,7 +109,7 @@ class EmailsCrudityTestCase(CremeTestCase):
         sv = self.get_object_or_fail(SettingValue, key_id=SETTING_CRUDITY_SANDBOX_BY_USER)
         self.assertEqual(False, sv.value)
 
-        backend = EntityEmailBackend(self.cfg)
+        backend = self.EntityEmailBackend(self.cfg)
         self.assertFalse(backend.is_sandbox_by_user)
 
         email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
@@ -108,7 +148,7 @@ class EmailsCrudityTestCase(CremeTestCase):
         sv.value = True
         sv.save()
 
-        backend = EntityEmailBackend(self.cfg)
+        backend = self.EntityEmailBackend(self.cfg)
         self.assertTrue(backend.is_sandbox_by_user)
 
         email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
