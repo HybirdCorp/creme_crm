@@ -37,13 +37,13 @@ from django.utils.timezone import now
 
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
-from ..global_info import set_global_info
+# from ..global_info import set_global_info
 from ..gui import block_registry
 from ..gui.block import PaginatedBlock
 from ..gui.field_printers import (print_image, print_urlfield, print_datetime,
         print_date, print_duration, print_foreignkey, print_many2many)
 # from ..utils import is_testenvironment
-from ..utils.media import get_current_theme, creme_media_themed_url as media_url
+from ..utils.media import creme_media_themed_url as media_url  # get_current_theme
 
 from ..models import CremeProperty
 
@@ -161,7 +161,8 @@ def js_testview_context(request, viewname):
         'THEME_LIST':      [(theme_id, unicode(theme_vname))
                                 for theme_id, theme_vname in settings.THEMES
                            ],
-        'THEME_NAME':      get('theme', get_current_theme()),
+        # 'THEME_NAME':      get('theme', get_current_theme()),
+        'THEME_NAME':      get('theme') or request.user.theme_info[0],
         'TEST_VIEW_LIST':  test_views,
         'TEST_VIEW':       viewname,
         'TEST_SCREEN':     get('screen', ''),
@@ -186,16 +187,16 @@ def test_http_response(request):
         sleep(delay / 1000.0)
 
     if status == 403:
-        raise PermissionDenied('Operation is not allowed')
+        raise PermissionDenied('Tests: operation is not allowed')
 
     if status == 404:
-        raise Http404('No such result or unknown url')
+        raise Http404('Tests: no such result or unknown url')
 
     if status == 409:
-        raise ConflictError('Conflicting operation')
+        raise ConflictError('Tests: conflicting operation')
 
     if status == 500:
-        raise Exception('Server internal error')
+        raise Exception('Tests: server internal error')
 
     if request.is_ajax():
         return HttpResponse('XML Http Response %d' % status,
@@ -227,15 +228,16 @@ def test_widget(request, widget):
                       )
 
     context = js_testview_context(request, widget)
-    theme = context['THEME_NAME']
-    usertheme = get_current_theme()
+    # theme = context['THEME_NAME']
+    # usertheme = get_current_theme()
 
-    set_global_info(usertheme=theme)
+    # set_global_info(usertheme=theme)
+    request.user.theme = context['THEME_NAME']
 
-    try:
-        if widget:
-            return render(request, 'creme_core/tests/test_' + widget + '.html', context)
+    # try:
+    if widget:
+        return render(request, 'creme_core/tests/test_%s.html' % widget, context)
 
-        return render(request, 'creme_core/tests/test.html', context)
-    finally:
-        set_global_info(usertheme=usertheme)
+    return render(request, 'creme_core/tests/test.html', context)
+    # finally:
+    #     set_global_info(usertheme=usertheme)

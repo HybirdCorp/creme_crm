@@ -3,23 +3,31 @@
 # Based on the official django doc:
 # https://docs.djangoproject.com/en/1.4/topics/i18n/timezones/#selecting-the-current-time-zone
 
+from django.conf import settings
 # NB: do not 'from django.utils.timezone import activate as activate_tz' because it is harder to unit test
 from django.utils import timezone
 
-from creme.creme_config.utils import get_user_timezone_config
+# from creme.creme_config.utils import get_user_timezone_config
 
 
-_TZ_KEY = 'usertimezone'
+# _TZ_KEY = 'usertimezone'
 
 
 class TimezoneMiddleware(object):
     def process_request(self, request):
-        session = request.session
-        tz = session.get(_TZ_KEY)
+        # session = request.session
+        # tz = session.get(_TZ_KEY)
+        #
+        # if not tz and not request.user.is_anonymous():
+        #     value, setting_value = get_user_timezone_config(request.user)
+        #
+        #     if setting_value:
+        #         session[_TZ_KEY] = tz = value
+        # if tz:
+        #     timezone.activate(tz)
 
-        if not tz and not request.user.is_anonymous():
-            value, setting_value = get_user_timezone_config(request.user)
-            if setting_value:
-                session[_TZ_KEY] = tz = value
-        if tz:
+        # NB: AnonymousUser has no 'time_zone' attribute (we need it for the login view)
+        tz = getattr(request.user, 'time_zone', None)
+
+        if tz and tz != settings.TIME_ZONE:
             timezone.activate(tz)

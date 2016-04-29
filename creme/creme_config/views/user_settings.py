@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,49 +25,50 @@ from creme.creme_core.utils import jsonify
 
 from ..forms.user_settings import UserThemeForm, UserTimeZoneForm
 
-#NB: no special permissions needed (user can only view/change its settings)
+# NB: no special permissions needed (user can only view/change its own settings)
+
 
 @login_required
 def view(request):
     user = request.user
 
     return render(request, 'creme_config/user_settings.html',
-                  {#'user':       user,
-                   'theme_form': UserThemeForm(user).as_span(),
-                   'tz_form':    UserTimeZoneForm(user).as_span(),
+                  {  # user
+                   # 'theme_form': UserThemeForm(user).as_span(),
+                   # 'tz_form':    UserTimeZoneForm(user).as_span(),
+                   'theme_form': UserThemeForm(user=user, instance=user).as_span(),
+                   'tz_form':    UserTimeZoneForm(user=user, instance=user).as_span(),
                   }
                  )
 
-#@jsonify
-#@login_required
-#def set_theme(request):
-    #if request.method == 'POST':
-        #theme_form = UserThemeForm(user=request.user, data=request.POST)
 
-        #if theme_form.is_valid():
-            ##theme_form.save()
-            ##del request.session['usertheme']
-            #request.session['usertheme'] = theme_form.save()
-    #else:
-        #theme_form = UserThemeForm(user=request.user)
-
-    #return {'form': theme_form.as_span()}
-
-@jsonify
 @login_required
-def _set_usersetting(request, form_cls, session_key):
+@jsonify
+# def _set_usersetting(request, form_cls, session_key):
+def _set_usersetting(request, form_cls):
+    user = request.user
+
     if request.method == 'POST':
-        form = form_cls(user=request.user, data=request.POST)
+        # form = form_cls(user=request.user, data=request.POST)
+        form = form_cls(instance=user, user=user, data=request.POST)
 
         if form.is_valid():
-            request.session[session_key] = form.save()
+            # request.session[session_key] = form.save()
+            form.save()
+
+            return {}
     else:
-        form = form_cls(user=request.user)
+        # form = form_cls(user=request.user)
+        form = form_cls(instance=user, user=user)
 
     return {'form': form.as_span()}
 
+
 def set_theme(request):
-    return _set_usersetting(request, UserThemeForm, 'usertheme')
+    # return _set_usersetting(request, UserThemeForm, 'usertheme')
+    return _set_usersetting(request, UserThemeForm)
+
 
 def set_timezone(request):
-    return _set_usersetting(request, UserTimeZoneForm, 'usertimezone')
+    # return _set_usersetting(request, UserTimeZoneForm, 'usertimezone')
+    return _set_usersetting(request, UserTimeZoneForm)

@@ -44,8 +44,9 @@ except OSError as e:
 class InfopathFormBuilderTestCase(CrudityTestCase):
     def setUp(self):
         super(InfopathFormBuilderTestCase, self).setUp()
-        self.request = RequestFactory().get('/')  # Url doesn't matter
-        self.request.LANGUAGE_CODE = '1033'  # en
+        self.request = request = RequestFactory().get('/')  # Url doesn't matter
+        request.user = self.user
+        request.LANGUAGE_CODE = '1033'  # en
 
     def _get_builder(self, backend):
         return InfopathFormBuilder(request=self.request, backend=backend)
@@ -738,7 +739,9 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 class InfopathFormFieldTestCase(CrudityTestCase):
     def setUp(self):
         super(InfopathFormFieldTestCase, self).setUp()
-        self.request = RequestFactory().get('/')  # Url doesn't matter
+        # TODO: factorise
+        self.request = request = RequestFactory().get('/')  # Url doesn't matter
+        request.user = self.user
 
     def _get_backend(self, backend_klass, **backend_cfg):
         return backend_klass(config=backend_cfg)

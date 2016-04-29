@@ -21,192 +21,7 @@
     <style type="text/css">
         .fg-menu-container { z-index: 100; }
     </style>
-    {% comment %} COMMENT on 27-01-2014
-    <script type='text/javascript'>
-        $(document).ready(function() {
-           var document_width_onload  = $(document).width();
-           var document_height_onload = $(document).height();
-
-           function activeEventsMenu() {
-                //'fast' transition makes bugs in chrome < 6.1
-                $("#menu_collapse").mouseenter(function(e) {
-                    $("#menu_expanded").show('fast');
-                    $("#menu_collapse").hide('fast');
-                });
-
-                $("#menu_expanded").mouseleave(function(e) {
-                    $("#menu_expanded").hide('fast');
-                    $("#menu_collapse").show('fast');
-                });
-            }
-
-            function desactiveEventsMenu() {
-                $("#menu_collapse").unbind('mouseenter');
-                $("#menu_expanded").unbind('mouseleave');
-            }
-
-            function resizePageElements(menu_width, expanded) {
-                var top = $('#top');
-                var content = $('#content');
-                var footer = $('#footer');
-
-                var margin_left = (expanded) ? menu_width + 5 + 'px' : menu_width;
-
-                top.css('margin-left', margin_left);
-                content.css('margin-left', margin_left);
-                footer.css('margin-left', margin_left);
-
-                var new_width = document_width_onload - menu_width;
-                if(expanded) new_width -=10;
-                top.width(new_width);
-                content.width(new_width);
-                footer.width(new_width);
-            }
-
-            //var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//$('#footer').offset().top;//
-            var logo_container_height = $('#logo_container').outerHeight();
-            //var max_menu_height = content_height - logo_container_height;
-
-            var height = $('#menu_expanded').height();
-
-            $('#menu').menu({
-                content: $('#tree_menu2').html(),
-                flyOut: false,
-                backLink: false,
-                alwaysOpen:true,
-                maxHeight: height,
-                crumbDefaultText : '{% trans "Menu" %}',
-                topLinkText : '{% trans "Back to Top" %}'
-            });
-
-            $('#menu').hide();
-            $('.fg-menu-container')
-                .appendTo('#menu_expanded')
-                .css({'top': logo_container_height, 'bottom':'auto'});
-                //.css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
-
-            $("#menu_expanded").width($('.fg-menu-container').outerWidth());
-
-            //Pin / Fixer le menu
-            var onPin = function() {
-                $(this).attr('src', '{% creme_media_url "images/unpin.png" %}');
-                desactiveEventsMenu();
-                resizePageElements($("#menu_expanded").outerWidth(), true);
-                $.cookie('menu_creme', 'expanded', {expires: 7, path: '/', domain: '', secure: false});
-            };
-
-            //Unpin / Rendre le menu flottant
-            var onUnpin = function() {
-                $(this).attr('src', '{% creme_media_url "images/pin.png" %}');
-                activeEventsMenu();
-                resizePageElements($("#menu_collapse").outerWidth(), false);
-                $.cookie('menu_creme', 'collapse', {expires: 7, path: '/', domain: '', secure: false});
-            };
-
-            // jquery 1.9 migration: toggle(handler, handler, ...) doesn't exist any more.
-            if ($.cookie('menu_creme') == 'expanded') {
-                $('.pinmenu').addClass('expanded')
-                             .attr('src', '{% creme_media_url "images/unpin.png" %}');
-                desactiveEventsMenu();
-                $("#menu_expanded").show(resizePageElements($("#menu_expanded").outerWidth(), true));
-                $("#menu_collapse").hide();
-            } else {
-                $('.pinmenu').attr('src', '{% creme_media_url "images/pin.png" %}');
-                activeEventsMenu();
-                $("#menu_expanded").hide();
-                $("#menu_collapse").show(resizePageElements($("#menu_collapse").outerWidth(), false));
-            }
-
-            $('.pinmenu').on('click', function() {
-                $(this).toggleClass('expanded');
-
-                if ($(this).is('.expanded')) {
-                    onPin();
-                } else {
-                    onUnpin();
-                }
-            });
-      });
-    </script>
-    {% endcomment %}
     {% block extrahead %}{% endblock %}
-    {% comment %} COMMENT on 27-01-2014
-    <script type='text/javascript'>
-      $(document).ready(function() {
-        $("#menu_collapse").css('height', $(document).height());
-        $("#menu_expanded").css('height', $(document).height());
-
-        // jquery 1.9.x upgrade.
-        $('#menu_expanded').on('menu-item-selected', '#active-menuitem a', function(e, menu){
-            e.stopImmediatePropagation();
-            var href = $(this).prop('href');
-            //$.cookie('creme-menu-selected', href);
-            creme.utils.goTo(href);
-        });
-
-        (function bind_scroll() {
-            $(window).scroll(function(){
-                var $menu = $('.fg-menu-container');
-
-                if ($(this).scrollTop() > $('#logo_container').outerHeight()){
-                    $menu.addClass('top_fixed');
-                    $menu.css("left", -$(window).scrollLeft()+"px");
-                }
-                else{
-                    $menu.removeClass('top_fixed');
-                }
-            });
-        })();
-      });
-
-      window.onload = function() {
-        //var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//Is better but detailviews has float div so we have a very small height size
-        /*var content_height = $(document).height();
-        var logo_container_height = $('#logo_container').outerHeight();
-        var max_menu_height = content_height - logo_container_height;
-
-        $('.fg-menu-container').css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
-        $('.fg-menu').css('height', max_menu_height*0.9);
-        allUIMenus[0].setMaxHeight(max_menu_height*0.9);
-        $('#menu_collapse').height(content_height*0.9);*/
-
-        //var previous_selected = $.cookie('creme-menu-selected');
-
-        var logo_container_height = $('#logo_container').outerHeight();//Webkit
-        $('.fg-menu-container').css({'top': logo_container_height});//Webkit
-
-        var previous_selected = window.location.pathname;
-
-        if(previous_selected != null) {
-            var $initial = $('#menu_expanded div.fg-menu-container').find('[href="'+previous_selected+'"]');
-            var $ul = null;
-
-            var li_stack = [];
-            var more = true;
-
-            var $li = $initial.parent('li');
-            li_stack.push($li);
-
-            var max_deep = 30;//I think the depth of the folder will not go more than 30 (which is already huge)
-            var deep = 0;
-
-            while(more && deep <= max_deep) { //Set max deep to avoid max recursion
-                var ul = $li.parent('ul');
-                $li = ul.parent('li');
-                if($li.size() == 0) more = false;
-                else li_stack.push($li);
-                deep++;
-            }
-
-            var now = +new Date;
-
-            for(var i = li_stack.length-1; i > 0; i--) {
-                li_stack[i].find('a:first').click();
-            }
-        }
-      };
-      </script>
-      {% endcomment %}
 </head>
 <body {% block bodyclass %}{% endblock %}>
     {% block side_menu %}
@@ -243,11 +58,9 @@
     {% block top_bar %}
         <div id="top" class="header">
             <div class="widget">
-                {% comment %}{% trans 'Welcome,' %} <strong>{% if user.first_name %}{{user.first_name|escape}}{% else %}{{user.username}}{% endif %}</strong> ({% blocktrans %}Time zone: {{TIME_ZONE}}{% endblocktrans %}) -{% endcomment %}
                 {% blocktrans %}Welcome, <strong>{{user}}</strong> (Time zone: {{TIME_ZONE}}){% endblocktrans %} -
                 {% block userlinks %}
                     <a href="/creme_config/my_settings/">{% trans 'My settings' %}</a> -
-                    {% comment %}<a href="/creme_core/clean/">{% trans 'Log out' %}</a> -{% endcomment %}
                     <a href="/creme_logout/">{% trans 'Log out' %}</a> -
                     <a href="/creme_core/entity/trash">
                         {% trans 'Trash' as trash_label %} <img src="{% creme_media_url 'images/delete_16.png' %}" alt="{{trash_label}}" title="{{trash_label}}" />{{trash_label}}
@@ -259,10 +72,6 @@
                 {% get_search_panel %}
                 {% get_quickforms_panel %}
             </div>
-            {% comment %}<div class="widget last">{# :last-child is buggy so think to add last css class to the last element #}
-                <a href="/"><img src="{% creme_media_url 'images/creme_header_50.png' %}" alt="Crème" border="0" /></a>
-            </div>{% endcomment %}
-            {% comment %}<div class="spacer"></div>{% endcomment %}
         </div>
     {% endblock %}
 

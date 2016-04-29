@@ -7,6 +7,7 @@ try:
 
     from django.conf import settings
     from django.contrib.sessions.models import Session
+    from django.test.utils import override_settings
     from django.utils import timezone as django_tz
     from django.utils.translation import ugettext as _
 
@@ -22,8 +23,8 @@ try:
     from creme.persons.models import Contact, Organisation
 
     from ..blocks import UsersBlock, TeamsBlock, UserPreferedMenusBlock, BlockMypageLocationsBlock
-    from ..constants import USER_THEME_NAME, USER_TIMEZONE
-    from ..utils import get_user_theme
+    # from ..constants import USER_THEME_NAME, USER_TIMEZONE
+    # from ..utils import get_user_theme
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -146,7 +147,6 @@ class UserTestCase(CremeTestCase):
                                           'last_name':    last_name,
                                           'email':        username,
                                           'role':         role.id,
-                                          #'contact':      contact.id,
                                           'organisation': orga.id,
                                           'relation':     REL_SUB_MANAGES,
                                          }
@@ -170,10 +170,9 @@ class UserTestCase(CremeTestCase):
 
         password = 'password'
         response = self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'username':     'deunan',
-                                            'password_1':   password,
-                                            'password_2':   password,
-#                                            'is_superuser': True,
+                                      data={'username':   'deunan',
+                                            'password_1': password,
+                                            'password_2': password,
                                            }
                                       )
 
@@ -201,7 +200,6 @@ class UserTestCase(CremeTestCase):
                                       'first_name':   'Deunan',
                                       'last_name':    'Knut',
                                       'email':        'd.knut@eswat.ol',
-#                                      'is_superuser': False,
                                       'organisation': orga.id,
                                       'relation':     REL_SUB_EMPLOYED_BY,
                                      }
@@ -221,7 +219,6 @@ class UserTestCase(CremeTestCase):
                                     data={'username':     username,
                                           'password_1':   password,
                                           'password_2':   password,
-#                                          'is_superuser': True,
                                           'organisation': orga.id,
                                           'relation':     REL_SUB_MANAGES,
                                          }
@@ -229,29 +226,6 @@ class UserTestCase(CremeTestCase):
         self.assertFormError(response, 'form', 'username',
                              _("This value may contain only letters, numbers and @/./+/-/_ characters.")
                             )
-
-#    @skipIfNotCremeUser
-#    def test_create06(self):
-#        "Common user without role"
-#        user = self.login()
-#
-#        orga = Organisation.objects.create(user=user, name='Olympus')
-#        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-#
-#        username = 'deunan'
-#        password = 'password'
-#        response = self.client.post(self.ADD_URL, follow=True,
-#                                    data={'username':     username,
-#                                          'password_1':   password,
-#                                          'password_2':   password,
-#                                          'is_superuser': False,
-#                                          'organisation': orga.id,
-#                                          'relation':     REL_SUB_MANAGES,
-#                                         }
-#                                   )
-#        self.assertFormError(response, 'form', 'role', 
-#                             _(u"Choose a role or set superuser status to 'True'.")
-#                            )
 
     @skipIfNotCremeUser
     def test_create07(self):
@@ -267,7 +241,6 @@ class UserTestCase(CremeTestCase):
                 'first_name':   'Deunan',
                 'last_name':    'Knut',
                 'email':        'd.knut@eswat.ol',
-#                'is_superuser': True,
                 'organisation': orga.id,
                 'relation':     REL_SUB_EMPLOYED_BY,
                }
@@ -310,7 +283,6 @@ class UserTestCase(CremeTestCase):
                                             'first_name':   user.first_name,
                                             'last_name':    user.last_name,
                                             'email':        'd.knut@eswat.ol',
-#                                            'is_superuser': True,
                                             'organisation': orga.id,
                                             'relation':     REL_SUB_EMPLOYED_BY,
                                            }
@@ -322,36 +294,7 @@ class UserTestCase(CremeTestCase):
                                 }
                             )
 
-#    @skipIfNotCremeUser
-#    def test_create09(self):
-#        self.login()
-#
-#        orga = Organisation.objects.create(user=self.user, name='Olympus')
-#        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-#
-#        username = 'deunan'
-#        password = 'password'
-#        response = self.client.post(self.ADD_URL, follow=True,
-#                                    data={'username':     username,
-#                                          'password_1':   password,
-#                                          'password_2':   password,
-#                                          'first_name':   'Deunan',
-#                                          'last_name':    'Knut',
-#                                          'email':        'd.knut@eswat.ol',
-#                                          'is_superuser': True,
-#                                          'role':         self.role.id, # <==
-#                                          'organisation': orga.id,
-#                                          'relation':     REL_SUB_EMPLOYED_BY,
-#                                         }
-#                                   )
-#        self.assertNoFormError(response)
-#
-#        user = self.get_object_or_fail(User, username=username)
-#        self.assertTrue(user.is_superuser)
-#        self.assertIsNone(user.role)
- 
     @skipIfNotCremeUser
-#    def test_create12(self):
     def test_create09(self):
         "Internal relationships are forbidden."
         user = self.login()
@@ -366,13 +309,12 @@ class UserTestCase(CremeTestCase):
 
         password = 'password'
         response = self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'username':     'deunan', #username,
+                                      data={'username':     'deunan',
                                             'password_1':   password,
                                             'password_2':   password,
                                             'first_name':   'Deunan',
                                             'last_name':    'Knut',
                                             'email':        'd.knut@eswat.ol',
-#                                            'is_superuser': True,
                                             'organisation': orga.id,
                                             'relation':     rtype.id,
                                            }
@@ -422,7 +364,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(role2,      other_user.role)
         self.assertFalse(other_user.is_superuser)
 
-        briareos = self.refresh(briareos) #refresh cache
+        briareos = self.refresh(briareos)  # Refresh cache
         self.assertFalse(other_user.has_perm_to_view(briareos))
 
         # Contact is synced
@@ -430,7 +372,6 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(first_name,  deunan.first_name)
         self.assertEqual(last_name,   deunan.last_name)
         self.assertEqual(email,       deunan.email)
-        #self.assertEqual(description, deunan.description)
 
     @skipIfNotCremeUser
     def test_edit02(self):
@@ -438,11 +379,11 @@ class UserTestCase(CremeTestCase):
         self.login()
 
         user = User.objects.create_user(username='deunan',
-                                             first_name='Deunan',
-                                             last_name='Knut',
-                                             email='d.knut@eswat.ol',
-                                             password='uselesspw',
-                                            )
+                                        first_name='Deunan',
+                                        last_name='Knut',
+                                        email='d.knut@eswat.ol',
+                                        password='uselesspw',
+                                       )
         team  = self._create_team('Teamee', [user])
 
         url = self._build_edit_url(team.id)
@@ -488,19 +429,7 @@ class UserTestCase(CremeTestCase):
         url = self._build_edit_url(other_user.id)
         self.assertGET200(url)
 
-#        response = self.client.post(url, follow=True, data={'is_superuser': ''})
-#        self.assertFormError(response, 'form', 'role',
-#                             _(u"Choose a role or set superuser status to 'True'.")
-#                            )
-
-        response = self.client.post(url, follow=True,
-                                    data={
-#                                          'is_superuser': 'on',
-#                                          'role':         role.id,
-                                           'role': '',
-                                         },
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, follow=True, data={'role': ''}))
 
         other_user = self.refresh(other_user)
         self.assertIsNone(other_user.role)
@@ -607,19 +536,18 @@ class UserTestCase(CremeTestCase):
         url = self.ADD_TEAM_URL
         self.assertGET200(url)
 
-        create_user = User.objects.create_user
+        create_user = partial(User.objects.create_user, password='uselesspw')
         user01 = create_user(username='Shogun',
                              first_name='Choji', last_name='Ochiai',
-                             email='shogun@century.jp', password='uselesspw',
+                             email='shogun@century.jp',
                             )
         user02 = create_user(username='Yukiji',
                              first_name='Yukiji', last_name='Setoguchi',
-                             email='yukiji@century.jp', password='uselesspw',
+                             email='yukiji@century.jp',
                             )
 
-        username   = 'Team-A'
         response = self.client.post(url, follow=True,
-                                    data={'username':  username,
+                                    data={'username':  'Team-A',
                                           'teammates': [user01.id, user02.id],
                                          }
                                    )
@@ -630,9 +558,9 @@ class UserTestCase(CremeTestCase):
 
         team = teams[0]
         self.assertFalse(team.is_superuser)
-        self.assertEqual('',  team.first_name)
-        self.assertEqual('',  team.last_name)
-        self.assertEqual('',  team.email)
+        self.assertEqual('', team.first_name)
+        self.assertEqual('', team.last_name)
+        self.assertEqual('', team.email)
 
         teammates = team.teammates
         self.assertEqual(2, len(teammates))
@@ -677,7 +605,7 @@ class UserTestCase(CremeTestCase):
         def create_user(name, email):
             user = User.objects.create_user(username=name, email=email,
                                             first_name=name, last_name='Endou',
-                                            password='uselesspw'
+                                            password='uselesspw',
                                            )
             user.role = role
             user.save()
@@ -718,7 +646,7 @@ class UserTestCase(CremeTestCase):
         self.assertIn(user03.id, teammates)
         self.assertNotIn(user01.id, teammates)
 
-        #credentials have been updated ?
+        # Credentials have been updated ?
         entity = CremeEntity.objects.get(pk=entity.id)
         self.assertFalse(self.refresh(user01).has_perm_to_view(entity))
         self.assertTrue(self.refresh(user02).has_perm_to_view(entity))
@@ -728,14 +656,14 @@ class UserTestCase(CremeTestCase):
     def test_team_edit02(self):
         self.login_not_as_superuser()
 
-        create_user = User.objects.create_user
+        create_user = partial(User.objects.create_user, password='uselesspw')
         user01 = create_user(username='Shogun',
                              first_name='Choji', last_name='Ochiai',
-                             email='shogun@century.jp', password='uselesspw',
+                             email='shogun@century.jp',
                             )
         user02 = create_user(username='Yukiji',
                              first_name='Yukiji', last_name='Setoguchi',
-                             email='yukiji@century.jp', password='uselesspw',
+                             email='yukiji@century.jp',
                             )
 
         teamname = 'Teamee'
@@ -803,7 +731,7 @@ class UserTestCase(CremeTestCase):
         user = User.objects.create_user(username='Shogun',
                                         first_name='Choji', last_name='Ochiai',
                                         email='shogun@century.jp',
-                                        #password='uselesspw',
+                                        # password='uselesspw',
                                        )
         team = self._create_team('Teamee', [])
 
@@ -879,8 +807,6 @@ class UserTestCase(CremeTestCase):
         user = self.login()
         root = self.get_object_or_fail(User, username='root')
 
-        #self.assertEqual(2, User.objects.filter(is_superuser=True).count())
-        #self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
         superusers = list(User.objects.filter(is_superuser=True))
         self.assertEqual(2, len(superusers))
         self.assertIn(user, superusers)
@@ -892,7 +818,7 @@ class UserTestCase(CremeTestCase):
         self.assertPOST(400, url, {'to_user': user.id})
 
         if 'postgresql' not in settings.DATABASES['default']['ENGINE']:
-            #NB: Postgresql cancels all remaining queries after the error...
+            # NB: PostgreSQL cancels all remaining queries after the error...
             self.assertEqual(2, User.objects.filter(is_superuser=True).count())
 
     @skipIfNotCremeUser
@@ -907,11 +833,11 @@ class UserTestCase(CremeTestCase):
         url = self._build_delete_url(root)
         self.assertGET200(url)
 
-        response = self.assertPOST200(url) #no data
+        response = self.assertPOST200(url)  # No data
         self.assertFormError(response, 'form', 'to_user', _(u'This field is required.'))
         self.assertEqual(count, User.objects.count())
 
-        response = self.assertPOST200(url, {'to_user': root.id}) #cannot move entities to deleted user
+        response = self.assertPOST200(url, {'to_user': root.id})  # Cannot move entities to deleted user
         self.assertFormError(response, 'form', 'to_user',
                              _(u'Select a valid choice. That choice is not one of the available choices.')
                             )
@@ -922,9 +848,9 @@ class UserTestCase(CremeTestCase):
         "Related SettingValues are deleted."
         user = self.login()
 
-        sk = SettingKey(id='unit_test-test_userl_delete06', description="",
+        sk = SettingKey(id='unit_test-test_userl_delete06', description='',
                         app_label='creme_config', type=SettingKey.BOOL,
-                       ) #NB: we do not ne to register it (because the SettingValue's value is not used)
+                       )  # NB: we do not ne to register it (because the SettingValue's value is not used)
         sv = SettingValue.objects.create(key=sk, user=self.other_user, value=True)
 
         self.assertNoFormError(self.client.post(self._build_delete_url(self.other_user),
@@ -958,73 +884,77 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertContains(response, 'id="%s"' % UserPreferedMenusBlock.id_)
         self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
 
+    @override_settings(THEMES=[('icecream',  'Ice cream'),
+                               ('chantilly', 'Chantilly'),
+                              ])
     def test_change_theme01(self):
-        self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME))
+        # self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME))
+        user = self.user
+        self.assertEqual(settings.THEMES[0][0], user.theme)
 
         def change_theme(theme):
             self.assertPOST200('/creme_config/my_settings/set_theme/', data={'theme': theme})
 
-            svalues = SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME)
-            self.assertEqual(1, len(svalues))
-            self.assertEqual(theme, svalues[0].value)
+            # svalues = SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME)
+            # self.assertEqual(1, len(svalues))
+            # self.assertEqual(theme, svalues[0].value)
+            self.assertEqual(theme, self.refresh(user).theme)
 
-        change_theme("chantilly")
-        change_theme("icecream")
+        change_theme('chantilly')
+        change_theme('icecream')
 
-    def test_get_user_theme01(self):
+    # def test_get_user_theme01(self):
+    #     user = self.user
+    #
+    #     class FakeRequest(object):
+    #         def __init__(self):
+    #             self.user = user
+    #             self.session = {}
+    #
+    #     self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
+    #
+    #     self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
+    #     sv = self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
+    #
+    #     sv.value = "unknown theme"
+    #     sv.save()
+    #     self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
+    #
+    # def test_get_user_theme02(self):
+    #     user = self.user
+    #
+    #     class FakeRequest(object):
+    #         def __init__(this):
+    #             user_id = str(user.id)
+    #             sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
+    #                             if d.get('_auth_user_id') == user_id
+    #                        ]
+    #             self.assertEqual(1, len(sessions))
+    #             this.session = sessions[0]
+    #
+    #     def get_theme():
+    #         request = FakeRequest()
+    #
+    #         try:
+    #             theme = request.session['usertheme']
+    #         except Exception:
+    #             theme = None
+    #
+    #         return theme
+    #
+    #     self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
+    #     self.assertIsNone(get_theme())
+    #
+    #     self.client.get('/')
+    #     self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
+    #     self.assertEqual(settings.DEFAULT_THEME, get_theme())
+
+    def test_change_timezone(self):
+        # self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE))
         user = self.user
+        self.assertEqual(settings.TIME_ZONE, user.time_zone)
 
-        class FakeRequest(object):
-            def __init__(self):
-                self.user = user
-                self.session = {}
-
-        self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
-
-        self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
-        sv = self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
-
-        sv.value = "unknown theme"
-        sv.save()
-        self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
-
-    def test_get_user_theme02(self):
-        user = self.user
-
-        class FakeRequest(object):
-#            def __init__(self):
-#                sessions = Session.objects.all()
-#                assert 1 == len(sessions)
-#                self.session = sessions[0].get_decoded()
-            def __init__(this):
-                user_id = str(user.id)
-                sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
-                                if d.get('_auth_user_id') == user_id
-                           ]
-                self.assertEqual(1, len(sessions))
-                this.session = sessions[0]
-
-        def get_theme():
-            request = FakeRequest()
-
-            try:
-                theme = request.session['usertheme']
-            except Exception:
-                theme = None
-
-            return theme
-
-        self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
-        self.assertIsNone(get_theme())
-
-        self.client.get('/')
-        self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
-        self.assertEqual(settings.DEFAULT_THEME, get_theme())
-
-    def test_change_timezone01(self):
-        self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE))
-
-        #TODO: use 'nonlocal' in py3k
+        # TODO: use 'nonlocal' in py3k
         inner = {'called':       False,
                  'activated_tz': None,
                 }
@@ -1059,9 +989,10 @@ class UserSettingsTestCase(CremeTestCase):
         def change_tz(tz):
             self.assertPOST200(url, data={'time_zone': tz})
 
-            svalues = SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE)
-            self.assertEqual(1, len(svalues))
-            self.assertEqual(tz, svalues[0].value)
+            # svalues = SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE)
+            # self.assertEqual(1, len(svalues))
+            # self.assertEqual(tz, svalues[0].value)
+            self.assertEqual(tz, self.refresh(user).time_zone)
 
             self.client.get('/')
             self.assertTrue(inner['called'])

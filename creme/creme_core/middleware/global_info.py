@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,13 +20,13 @@
 
 from ..global_info import set_global_info, clear_global_info
 
-from creme.creme_config.utils import get_user_theme
+# from creme.creme_config.utils import get_user_theme
 
 
 class GlobalInfoMiddleware(object):
     def process_request(self, request):
         set_global_info(user=request.user,
-                        usertheme=get_user_theme(request),
+                        # usertheme=get_user_theme(request),
                         per_request_cache={},
                        )
 

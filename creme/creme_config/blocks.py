@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from future_builtins import filter
 
 from collections import defaultdict
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
@@ -39,8 +40,6 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
 
-#from .models import SettingValue
-
 
 _PAGE_SIZE = 20
 User = get_user_model()
@@ -49,7 +48,7 @@ User = get_user_model()
 class GenericModelsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'model_config')
     dependencies  = (CremeModel,)
-    #order_by      = 'id'
+    # order_by      = 'id'
     page_size     = _PAGE_SIZE
     verbose_name  = u'Model configuration'
     template_name = 'creme_config/templatetags/block_models.html'
@@ -61,7 +60,7 @@ class GenericModelsBlock(QuerysetBlock):
         model = context['model']
 
         try:
-            #self.order_by = model._meta.ordering[0] #TODO: uncomment when the block is not a singleton any more.... (beware if a 'order' field exists - see template)
+            # self.order_by = model._meta.ordering[0] #TODO: uncomment when the block is not a singleton any more.... (beware if a 'order' field exists - see template)
             order_by = model._meta.ordering[0]
         except IndexError:
             order_by = 'id'
@@ -70,7 +69,7 @@ class GenericModelsBlock(QuerysetBlock):
         fields = meta.fields
         many_to_many = meta.many_to_many
 
-        colspan = len(fields) + len(many_to_many) + 2 # "2" is for 'edit' & 'delete' actions
+        colspan = len(fields) + len(many_to_many) + 2  # "2" is for 'edit' & 'delete' actions
         if any(field.name == 'is_custom' for field in fields):
             colspan -= 1
 
@@ -112,8 +111,7 @@ class SettingsBlock(QuerysetBlock):
 
 class _ConfigAdminBlock(QuerysetBlock):
     page_size    = _PAGE_SIZE
-#    permission   = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-    permission   = None # The portals can be viewed by all users => reloading can be done by all uers too.
+    permission   = None  # The portals can be viewed by all users => reloading can be done by all uers too.
     configurable = False
 
 
@@ -188,7 +186,6 @@ class FieldsConfigsBlock(PaginatedBlock):
     page_size     = _PAGE_SIZE
     verbose_name  = u'Fields configuration'
     template_name = 'creme_config/templatetags/block_fields_configs.html'
-#    permission    = 'creme_config.can_admin' # NB: used by the view creme_core.views.blocks.reload_basic
     permission    = None # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
@@ -271,12 +268,23 @@ class UsersBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         users = User.objects.filter(is_team=False)
+
         if not context['user'].is_staff:
             users = users.exclude(is_staff=True)
-        return self._render(self.get_block_template_context(
-                                context, users,
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+
+        btc = self.get_block_template_context(context, users,
+                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                             )
+        page = btc['page']
+        page_users = page.object_list
+        TIME_ZONE = settings.TIME_ZONE
+        btc['display_tz'] = (any(user.time_zone != TIME_ZONE for user in page_users)
+                             # All users are displayed if our page
+                             if page.paginator.count == len(page_users) else
+                             User.objects.exclude(time_zone=TIME_ZONE).exists()
+                            )
+
+        return self._render(btc)
 
 
 class TeamsBlock(_ConfigAdminBlock):
@@ -293,27 +301,16 @@ class TeamsBlock(_ConfigAdminBlock):
                            ))
 
 
-#class BlockDetailviewLocationsBlock(_ConfigAdminBlock):
 class BlockDetailviewLocationsBlock(PaginatedBlock):
-#    id_           = _ConfigAdminBlock.generate_id('creme_config', 'blocks_dv_locations')
     id_           = PaginatedBlock.generate_id('creme_config', 'blocks_dv_locations')
     dependencies  = (BlockDetailviewLocation,)
-    page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
+    page_size     = _PAGE_SIZE - 1  # '-1' because there is always the line for default config on each page
     verbose_name  = u'Blocks locations on detailviews'
     template_name = 'creme_config/templatetags/block_blocklocations.html'
-#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic
+    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic
     configurable  = False
 
     def detailview_display(self, context):
-#        ct_ids = BlockDetailviewLocation.objects.exclude(content_type=None)\
-#                                                .distinct()\
-#                                                .values_list('content_type_id', flat=True)
-#
-#        return self._render(self.get_block_template_context(
-#                                context, ContentType.objects.filter(pk__in=ct_ids), #todo: use get_for_id instead (avoid query) ??
-#                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-#                           ))
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because teh instances are stored in a global cache, so we do
         #     not want to mutate them.
@@ -323,12 +320,11 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
             def __init__(self, ctype):
                 self.ctype = ctype
                 self.default_count = 0
-                self.locations_info = () # List of tuples (role_arg, role_label, block_count)
-                                         # with role_arg == role.id or 'superuser'
+                self.locations_info = ()  # List of tuples (role_arg, role_label, block_count)
+                                          # with role_arg == role.id or 'superuser'
 
         # TODO: factorise with SearchConfigBlock ?
         # TODO: factorise with CustomBlockConfigItemCreateForm , add a method in block_registry ?
-#        ctypes = [_ContentTypeWrapper(ctype) for ctype in creme_entity_content_types()]
         get_ct = ContentType.objects.get_for_model
         is_invalid = block_registry.is_model_invalid
         ctypes = [_ContentTypeWrapper(get_ct(model))
@@ -342,7 +338,7 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
         btc = self.get_block_template_context(
                         context, ctypes,
                         update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                        max_conf_count=UserRole.objects.count() + 1, # NB: '+ 1' is for super-users config.
+                        max_conf_count=UserRole.objects.count() + 1,  # NB: '+ 1' is for super-users config.
                     )
 
         ctypes_wrappers = btc['page'].object_list
@@ -352,7 +348,7 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
 
         for bdl in BlockDetailviewLocation.objects \
                                           .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers]):
-            if bdl.block_id: # do not count the 'place-holder' (empty block IDs which mean "no-block for this zone")
+            if bdl.block_id:  # Do not count the 'place-holder' (empty block IDs which mean "no-block for this zone")
                 role_id = bdl.role_id
                 block_counts[bdl.content_type_id][(role_id, bdl.superuser)] += 1
                 role_ids.add(role_id)
@@ -375,7 +371,7 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
 
                 locations_info.append((role_arg, role_label, block_count))
 
-            locations_info.sort(key=lambda t: sort_key(t[1])) # sort by role label
+            locations_info.sort(key=lambda t: sort_key(t[1]))  # Sort by role label
 
         btc['default_count'] = BlockDetailviewLocation.objects.filter(content_type=None,
                                                                       role=None, superuser=False,
@@ -387,11 +383,10 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
 class BlockPortalLocationsBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('creme_config', 'blocks_portal_locations')
     dependencies  = (BlockPortalLocation,)
-    page_size     = _PAGE_SIZE - 2 #'-1' because there is always the line for default config & home config on each page
+    page_size     = _PAGE_SIZE - 2  # '-1' because there is always the line for default config & home config on each page
     verbose_name  = u'Blocks locations on portals'
     template_name = 'creme_config/templatetags/block_blockportallocations.html'
-#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic()
+    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
@@ -414,16 +409,11 @@ class BlockPortalLocationsBlock(PaginatedBlock):
                            ))
 
 
-#class BlockDefaultMypageLocationsBlock(PaginatedBlock):
 class BlockDefaultMypageLocationsBlock(_ConfigAdminBlock):
-#    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_default_mypage_locations')
     id_           = _ConfigAdminBlock.generate_id('creme_config', 'blocks_default_mypage_locations')
     dependencies  = (BlockMypageLocation,)
-#    page_size     = _PAGE_SIZE
     verbose_name  = u'Default blocks locations on "My page"'
     template_name = 'creme_config/templatetags/block_blockdefmypagelocations.html'
-#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-#    configurable  = False
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
@@ -433,16 +423,11 @@ class BlockDefaultMypageLocationsBlock(_ConfigAdminBlock):
                            ))
 
 
-#class BlockMypageLocationsBlock(PaginatedBlock):
 class BlockMypageLocationsBlock(_ConfigAdminBlock):
-#    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_mypage_locations')
     id_           = _ConfigAdminBlock.generate_id('creme_config', 'blocks_mypage_locations')
     dependencies  = (BlockMypageLocation,)
-#    page_size     = _PAGE_SIZE
     verbose_name  = u'Blocks locations on "My page"'
     template_name = 'creme_config/templatetags/block_blockmypagelocations.html'
-#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-#    configurable  = False
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
@@ -454,7 +439,8 @@ class BlockMypageLocationsBlock(_ConfigAdminBlock):
 
 class RelationBlocksConfigBlock(_ConfigAdminBlock):
     id_           = _ConfigAdminBlock.generate_id('creme_config', 'relation_blocks_config')
-    dependencies  = (RelationBlockItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a RelationBlockItem
+    # BlockDetailviewLocation because they can be deleted if we delete a RelationBlockItem
+    dependencies  = (RelationBlockItem, BlockDetailviewLocation)
     verbose_name  = u'Relation blocks configuration'
     template_name = 'creme_config/templatetags/block_relationblocksconfig.html'
 
@@ -467,7 +453,8 @@ class RelationBlocksConfigBlock(_ConfigAdminBlock):
 
 class InstanceBlocksConfigBlock(_ConfigAdminBlock):
     id_           = _ConfigAdminBlock.generate_id('creme_config', 'instance_blocks_config')
-    dependencies  = (InstanceBlockConfigItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a InstanceBlockConfigItem
+    # BlockDetailviewLocation because they can be deleted if we delete a InstanceBlockConfigItem
+    dependencies  = (InstanceBlockConfigItem, BlockDetailviewLocation)
     verbose_name  = u'Instance blocks configuration'
     template_name = 'creme_config/templatetags/block_instanceblocksconfig.html'
 
@@ -491,15 +478,12 @@ class CustomBlocksConfigBlock(_ConfigAdminBlock):
                            ))
 
 
-#class ButtonMenuBlock(_ConfigAdminBlock):
 class ButtonMenuBlock(Block):
-    #id_           = QuerysetBlock.generate_id('creme_config', 'button_menu')
     id_           = Block.generate_id('creme_config', 'button_menu')
     dependencies  = (ButtonMenuItem,)
     verbose_name  = u'Button menu configuration'
     template_name = 'creme_config/templatetags/block_button_menu.html'
-#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic()
+    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
@@ -526,25 +510,18 @@ class ButtonMenuBlock(Block):
                            ))
 
 
-#class SearchConfigBlock(_ConfigAdminBlock):
 class SearchConfigBlock(PaginatedBlock):
-#    id_           = _ConfigAdminBlock.generate_id('creme_config', 'searchconfig')
     id_           = PaginatedBlock.generate_id('creme_config', 'searchconfig')
     dependencies  = (SearchConfigItem,)
     verbose_name  = u'Search configuration'
     template_name = 'creme_config/templatetags/block_searchconfig.html'
     order_by      = 'content_type'
     # TODO _ConfigAdminBlock => Mixin
-    page_size    = _PAGE_SIZE * 2 # only one block
-#    permission   = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-    permission   = None # NB: used by the view creme_core.views.blocks.reload_basic()
+    page_size    = _PAGE_SIZE * 2  # Only one block
+    permission   = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable = False
 
     def detailview_display(self, context):
-#        return self._render(self.get_block_template_context(
-#                                context, SearchConfigItem.objects.all(),
-#                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-#                           ))
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because teh instances are stored in a global cache, so we do
         #     not want to mutate them.
@@ -562,7 +539,6 @@ class SearchConfigBlock(PaginatedBlock):
         btc = self.get_block_template_context(
                         context, ctypes,
                         update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-#                        max_conf_count=User.objects.exclude(is_team=True).count() + 1, # NB: '+ 1' is for default config
                         max_conf_count=UserRole.objects.count() + 2, # NB: '+ 2' is for default config + super-users config.
                     )
 
@@ -572,7 +548,6 @@ class SearchConfigBlock(PaginatedBlock):
         for sci in SearchConfigItem.objects \
                                    .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers])\
                                    .select_related('role'):
-#                                   .select_related('user'):
             sci_map[sci.content_type_id].append(sci)
 
         superusers_label = ugettext('Superuser')
@@ -580,14 +555,12 @@ class SearchConfigBlock(PaginatedBlock):
         for ctw in ctypes_wrappers:
             ctype = ctw.ctype
             ctw.sc_items = sc_items = sci_map.get(ctype.id) or []
-#            sc_items.sort(key=lambda sci: sort_key(unicode(sci.user) if sci.user else ''))
             sc_items.sort(key=lambda sci: sort_key(unicode(sci.role) if sci.role
                                                    else superusers_label if sci.superuser
                                                    else ''
                                                   )
                          )
 
-#            if not sc_items or sc_items[0].user: # No default config -> we build it
             if not sc_items or not sc_items[0].is_default:  # No default config -> we build it
                 SearchConfigItem.objects.create(content_type=ctype)
 
@@ -628,10 +601,11 @@ class UserPreferedMenusBlock(QuerysetBlock):
     template_name = 'creme_config/templatetags/block_user_prefered_menus.html'
     configurable  = False
     order_by      = 'order'
-    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'
+    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic ;
+                          #     None means 'No special permission required'
 
     def detailview_display(self, context):
-        #NB: credentials OK: user can only view his own settings
+        # NB: credentials OK: user can only view his own settings
         return self._render(self.get_block_template_context(
                                 context,
                                 PreferedMenuItem.objects.filter(user=context['user']),

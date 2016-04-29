@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-05 19:33+0200\n"
+"POT-Creation-Date: 2016-04-12 10:14+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -95,7 +95,7 @@ msgstr "Champs personnalisés"
 msgid "History"
 msgstr "Historique"
 
-#: blocks.py:193 templates/creme_core/base.html:258
+#: blocks.py:193 templates/creme_core/base.html:67
 #: templates/creme_core/trash.html:5 templates/creme_core/trash.html.py:12
 msgid "Trash"
 msgstr "Corbeille"
@@ -1074,39 +1074,39 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
-#: models/auth.py:46 models/block.py:384 models/entity_filter.py:111
+#: models/auth.py:49 models/block.py:384 models/entity_filter.py:111
 #: models/i18n.py:28
 #: templates/creme_core/templatetags/block_specific_relations.html:51
 #: templates/creme_core/templatetags/block_trash.html:22
 msgid "Name"
 msgstr "Nom"
 
-#: models/auth.py:48
+#: models/auth.py:51
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: models/auth.py:49
+#: models/auth.py:52
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: models/auth.py:208
+#: models/auth.py:211
 msgid "all entities"
 msgstr "toutes les fiches"
 
-#: models/auth.py:209
+#: models/auth.py:212
 msgid "user's own entities"
 msgstr "ses propres fiches"
 
-#: models/auth.py:220
+#: models/auth.py:223
 #: templates/creme_core/templatetags/widgets/block_line_viewer.html:5
 msgid "View"
 msgstr "Voir"
 
-#: models/auth.py:221
+#: models/auth.py:224
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:222 models/entity.py:268
+#: models/auth.py:225 models/entity.py:268
 #: templates/creme_core/templatetags/block_job.html:28
 #: templates/creme_core/templatetags/block_relations.html:13
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
@@ -1116,146 +1116,154 @@ msgstr "Modifier"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: models/auth.py:223
+#: models/auth.py:226
 #: templates/creme_core/templatetags/widgets/block_line_linker.html:5
 msgid "Link"
 msgstr "Lier"
 
-#: models/auth.py:224
+#: models/auth.py:227
 #: templates/creme_core/templatetags/block_specific_relations.html:24
 #: templates/creme_core/templatetags/block_specific_relations.html:52
 #: templates/creme_core/templatetags/widgets/block_line_unlinker.html:5
 msgid "Unlink"
 msgstr "Délier"
 
-#: models/auth.py:227
+#: models/auth.py:230
 msgid "Nothing allowed"
 msgstr "Rien d'autorisé"
 
-#: models/auth.py:235
+#: models/auth.py:238
 #, python-format
 msgid "For %(set)s of type “%(type)s”: %(perms)s"
 msgstr "Pour %(set)s du type “%(type)s”: %(perms)s"
 
-#: models/auth.py:237
+#: models/auth.py:240
 #, python-format
 msgid "For %(set)s: %(perms)s"
 msgstr "Pour %(set)s: %(perms)s"
 
-#: models/auth.py:362
+#: models/auth.py:365
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
 # Already in django.auth
-#: models/auth.py:363
+#: models/auth.py:366
 msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
 msgstr ""
 
 # Already in django.auth
-#: models/auth.py:367
+#: models/auth.py:370
 msgid "Enter a valid username."
 msgstr ""
 
-#: models/auth.py:372
+#: models/auth.py:375
 msgid "Last name"
 msgstr "Nom"
 
-#: models/auth.py:373
+#: models/auth.py:376
 msgid "First name"
 msgstr "Prénom"
 
-#: models/auth.py:375
+#: models/auth.py:378
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/auth.py:376
+#: models/auth.py:380
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: models/auth.py:377
+#: models/auth.py:381
 msgid "Is active?"
 msgstr "Est actif ?"
 
-#: models/auth.py:382
+#: models/auth.py:387
 msgid "Is staff?"
 msgstr "Est administrateur ?"
 
-#: models/auth.py:385
+#: models/auth.py:390
 msgid "Is a superuser?"
 msgstr "Est un super-utilisateur ?"
 
-#: models/auth.py:388
+#: models/auth.py:393
 msgid "Role"
 msgstr "Rôle"
 
-#: models/auth.py:391
+#: models/auth.py:397
 msgid "Is a team?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:392
+#: models/auth.py:398
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: models/auth.py:407 models/job.py:82 models/prefered_menu.py:27
+#: models/auth.py:402
+msgid "Time zone"
+msgstr "Fuseau horaire"
+
+#: models/auth.py:405
+msgid "Theme"
+msgstr "Thème"
+
+#: models/auth.py:421 models/job.py:82 models/prefered_menu.py:27
 #: templates/creme_core/templatetags/block_job.html:49
 msgid "User"
 msgstr "Utilisateur"
 
-#: models/auth.py:408
+#: models/auth.py:422
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: models/auth.py:420
+#: models/auth.py:434
 #, python-format
 msgid "%(first_name)s %(last_name)s."
 msgstr "%(first_name)s %(last_name)s."
 
-#: models/auth.py:517
+#: models/auth.py:542
 #, python-format
 msgid "Invalid app \"%s\""
 msgstr "App invalide \"%s\""
 
-#: models/auth.py:519
+#: models/auth.py:544
 #, python-format
 msgid "You are not allowed to configure this app: %s"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: %s"
 
-#: models/auth.py:534
+#: models/auth.py:559
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/auth.py:547
+#: models/auth.py:572
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer : %s"
 
-#: models/auth.py:560 views/entity.py:540
+#: models/auth.py:585 views/entity.py:540
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/auth.py:573
+#: models/auth.py:598
 #, python-format
 msgid "You are not allowed to export: %s"
 msgstr "Vous n'avez pas la permission d'exporter: %s"
 
-#: models/auth.py:601
+#: models/auth.py:626
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/auth.py:604
+#: models/auth.py:629
 #, python-format
 msgid "You are not allowed to link: %s"
 msgstr "Vous n'avez pas la permission de lier: %s"
 
-#: models/auth.py:614
+#: models/auth.py:639
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/auth.py:623
+#: models/auth.py:648
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
@@ -1432,7 +1440,7 @@ msgstr "Ce filtre ne peut être modifié/effacé"
 #: models/entity_filter.py:192 models/header_filter.py:143
 #: views/batch_process.py:42 views/batch_process.py:95 views/entity.py:169
 #: views/entity_filter.py:55 views/entity_filter.py:156
-#: views/generic/listview.py:321 views/header_filter.py:47
+#: views/generic/listview.py:330 views/header_filter.py:47
 #: views/header_filter.py:130
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
@@ -1954,32 +1962,32 @@ msgstr ""
 "Afficher la devise avec son symbole locale (ex: €) ? Sinon le symbole "
 "internationale sera utilisé (ex: EUR)."
 
-#: templates/creme_core/base.html:251
+#: templates/creme_core/base.html:62
 #, python-format
 msgid "Welcome, <strong>%(user)s</strong> (Time zone: %(TIME_ZONE)s)"
 msgstr "Bienvenue, <strong>%(user)s</strong> (Fuseau horaire : %(TIME_ZONE)s)"
 
-#: templates/creme_core/base.html:253
+#: templates/creme_core/base.html:64
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:256
+#: templates/creme_core/base.html:65
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/creme_core/base.html:260
+#: templates/creme_core/base.html:69
 msgid "My jobs"
 msgstr "Mes jobs"
 
-#: templates/creme_core/base.html:310
+#: templates/creme_core/base.html:113
 msgid "About Hybird"
 msgstr "À propos d'Hybird"
 
-#: templates/creme_core/base.html:315
+#: templates/creme_core/base.html:118
 msgid "Menu"
 msgstr "Menu"
 
-#: templates/creme_core/base.html:316
+#: templates/creme_core/base.html:119
 msgid "Back to Top"
 msgstr "Revenir au début"
 
@@ -2794,7 +2802,6 @@ msgid "on"
 msgstr "sur"
 
 #: templates/creme_core/templatetags/listview_paginator_slow.html:14
-#| msgid "Last name"
 msgid "Last page"
 msgstr "Dernière page"
 
@@ -3279,12 +3286,12 @@ msgstr "Enregistrer la fiche"
 msgid "You can not edit this model"
 msgstr "Vous ne pouvez pas modifier ce modèle"
 
-#: views/generic/listview.py:268
+#: views/generic/listview.py:277
 #, python-format
 msgid "List of %s"
 msgstr "Liste des %s"
 
-#: views/generic/listview.py:310 views/generic/listview.py:346
+#: views/generic/listview.py:319 views/generic/listview.py:355
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 

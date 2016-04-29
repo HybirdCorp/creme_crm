@@ -3,9 +3,11 @@
 try:
     from functools import partial
 
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import PermissionDenied
     from django.db.models.deletion import ProtectedError
+    from django.test.utils import override_settings
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
@@ -66,6 +68,31 @@ class CredentialsTestCase(CremeTestCase):
 
     def _build_contact_qs(self):
         return Contact.objects.filter(pk__in=(self.contact1.id, self.contact2.id))
+
+    def test_attributes(self):
+        user = self.user
+        self.assertEqual(_(u"%(first_name)s %(last_name)s.") % {
+                                'first_name': user.first_name,
+                                'last_name':  user.last_name[0],
+                            },
+                         user.get_full_name()
+                        )
+        self.assertEqual(settings.TIME_ZONE,    user.time_zone)
+
+        theme = settings.THEMES[0]
+        self.assertEqual(theme[0], user.theme)
+        self.assertEqual(theme, user.theme_info)
+
+    @override_settings(THEMES=[('this_theme_is_cool', 'Cool one'),
+                               ('yet_another_theme',  'I am cool too, bro'),
+                              ]
+                     )
+    def test_theme_info(self):
+        "The first valid theme is used if the registered theme is not valid"
+        theme = settings.THEMES[0]
+        user = self.user
+        self.assertNotEqual(theme[0], user.theme)
+        self.assertEqual(theme, user.theme_info)
 
     def test_super_user(self):
         user = self.user
