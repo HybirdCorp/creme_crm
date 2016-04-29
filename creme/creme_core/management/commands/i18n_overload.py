@@ -33,7 +33,7 @@ from django.utils.encoding import smart_unicode
 APP_NAME = 'locale_overload'  # TODO: can configure it with command options ??
 
 
-# TODO: factorise with i18n_doublons ?
+# TODO: factorise with i18n_duplicates ?
 class Command(BaseCommand):
     help = 'Find some terms in .po files of your project and create/update a ' \
            'translation file with the messages containing one of these terms.\n' \
