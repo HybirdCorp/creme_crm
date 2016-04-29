@@ -424,9 +424,11 @@ GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
 GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 
 # Available themes. A theme is represented by (theme_dir, theme verbose name)
+# First theme is the default one.
 THEMES = [('icecream',  _('Ice cream')),
           ('chantilly', _('Chantilly')),
          ]
+# DEPRECATED: use THEMES[0](0] instead
 DEFAULT_THEME = 'icecream'  # Other available choice: 'chantilly'
 
 CSS_DEFAULT_LISTVIEW = 'left_align'

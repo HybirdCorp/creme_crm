@@ -17,6 +17,7 @@ from django.utils.timezone import utc, get_current_timezone, make_aware
 from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..global_info import clear_global_info
+from ..utils import print_traceback
 from ..utils.xml_utils import xml_diff, XMLDiffError
 
 
@@ -36,6 +37,8 @@ class _AssertNoExceptionContext(object):
 
     def __exit__(self, exc_type, exc_value, tb):
         if exc_type:
+            print_traceback()
+
             raise self.exception('An exception <%s> occured: %s' % (exc_type.__name__, exc_value))
 
         return True
@@ -234,6 +237,8 @@ class _CremeTestCase(object):
         try:
             function(*args, **kwargs)
         except Exception as e:
+            print_traceback()
+
             raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
 
     # def assertFormSetError(self, response, form, index, fieldname, expected_errors=None):

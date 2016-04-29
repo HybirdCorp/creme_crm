@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from json import dumps as json_dump
 from re import compile as compile_re
 from types import GeneratorType
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
@@ -414,7 +415,8 @@ class HasPermToNode(TemplateNode):
 
 @register.simple_tag(takes_context=True)
 def creme_media_url(context, url):
-    return get_creme_media_url(context.get('THEME_NAME', 'chantilly'), url)
+    # return get_creme_media_url(context.get('THEME_NAME', 'chantilly'), url)
+    return get_creme_media_url(context.get('THEME_NAME') or settings.THEMES[0][0], url)
 
 
 @register.tag(name='include_creme_media')
@@ -435,7 +437,8 @@ class MediaNode(TemplateNode):
     def render(self, context):
         bundle = self.bundle_var.eval(context)
 
-        return _render_include_media(get_current_theme() + bundle, variation={})
+        # return _render_include_media(get_current_theme() + bundle, variation={})
+        return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
 @register.assignment_tag

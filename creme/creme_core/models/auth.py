@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,9 @@ import logging
 from operator import or_ as or_op
 from re import compile as re_compile
 
+import pytz
+
+from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, _user_has_perm
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -359,26 +362,28 @@ class CremeUserManager(BaseUserManager):
 
 
 class CremeUser(AbstractBaseUser):
-    username     = CharField(_('Username'), max_length=30, unique=True,
-                             help_text=_('Required. 30 characters or fewer. '
-                                         'Letters, digits and @/./+/-/_ only.'
-                                        ),
-                             validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
-                                                        _('Enter a valid username.'),
-                                                        'invalid',
-                                                       ),
-                                        ],
-                            )
-    last_name    = CharField(_(u'Last name'), max_length=100, blank=True)
-    first_name   = CharField(_(u'First name'), max_length=100, blank=True)\
-                            .set_tags(viewable=False)  # NB: blank=True for teams
-    email        = EmailField(_('Email address'), blank=True)
-    date_joined  = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
-    is_active    = BooleanField(_('Is active?'), default=True,
-                                # help_text=_('Designates whether this user should be treated as '
-                                #             'active. Unselect this instead of deleting accounts.'
-                                #            ), TODO
-                               ).set_tags(viewable=False)
+    username = CharField(_('Username'), max_length=30, unique=True,
+                         help_text=_('Required. 30 characters or fewer. '
+                                     'Letters, digits and @/./+/-/_ only.'
+                                    ),
+                         validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
+                                                    _('Enter a valid username.'),
+                                                    'invalid',
+                                                   ),
+                                    ],
+                        )
+    last_name  = CharField(_(u'Last name'), max_length=100, blank=True)
+    first_name = CharField(_(u'First name'), max_length=100, blank=True)\
+                          .set_tags(viewable=False)  # NB: blank=True for teams
+    email      = EmailField(_('Email address'), blank=True)
+
+    date_joined = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
+    is_active   = BooleanField(_('Is active?'), default=True,
+                               # help_text=_('Designates whether this user should be treated as '
+                               #             'active. Deselect this instead of deleting accounts.'
+                               #            ), TODO
+                              ).set_tags(viewable=False)
+
     is_staff     = BooleanField(_('Is staff?'), default=False,
                                 # help_text=_('Designates whether the user can log into this admin site.'), TODO
                                ).set_tags(viewable=False)
@@ -388,10 +393,19 @@ class CremeUser(AbstractBaseUser):
     role         = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True,
                               on_delete=PROTECT,
                              ).set_tags(viewable=False)
-    is_team      = BooleanField(verbose_name=_(u'Is a team?'), default=False).set_tags(viewable=False)
+
+    is_team       = BooleanField(verbose_name=_(u'Is a team?'), default=False).set_tags(viewable=False)
     teammates_set = ManyToManyField('self', verbose_name=_(u'Teammates'),
                                     symmetrical=False, related_name='teams_set',
                                    ).set_tags(viewable=False)
+
+    time_zone = CharField(_(u'Time zone'), max_length=50, default=settings.TIME_ZONE,
+                          choices=[(tz, tz) for tz in pytz.common_timezones],
+                         ).set_tags(viewable=False)
+    theme     = CharField(_(u'Theme'), max_length=50,
+                          default=settings.THEMES[0][0],
+                          choices=settings.THEMES,
+                         ).set_tags(viewable=False)
 
     objects = CremeUserManager()
 
@@ -433,6 +447,17 @@ class CremeUser(AbstractBaseUser):
     # @staticmethod
     # def get_common_ones():
     #     return User.objects.filter(is_staff=False)
+
+    @property
+    def theme_info(self):
+        THEMES = settings.THEMES
+        theme_name = self.theme
+
+        for theme_info in settings.THEMES:
+            if theme_name == theme_info[0]:
+                return theme_info
+
+        return THEMES[0]
 
     @property  # NB notice that a cache is built
     def teams(self):

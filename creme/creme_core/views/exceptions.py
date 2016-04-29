@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,12 @@
 ################################################################################
 
 from django.http import HttpResponseServerError
-from django.template import loader
+# from django.template import loader
+from django.template.loader import render_to_string
 
 
 def server_error(request, template_name='500.html'):
     "500 error handler."
-    t = loader.get_template(template_name)
-    return HttpResponseServerError(t.render())
+    # t = loader.get_template(template_name)
+    # return HttpResponseServerError(t.render())
+    return HttpResponseServerError(render_to_string(template_name, request=request))
