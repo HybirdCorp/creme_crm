@@ -529,11 +529,23 @@ creme.dialogs = $.extend(creme.dialogs, {
         var options = options || {};
         var data = options.choices || [];
         var selected = options.selected || (data ? data[0] : null);
+        var selector = new creme.model.ChoiceGroupRenderer($("<select style='width:100%;'>"), data).redraw().target();
+        var content = $('<div>');
 
-        var selector = new creme.model.ChoiceRenderer($("<select style='width:100%;'>"), data).redraw().target().val(selected);
+        if (options.selected) {
+            selector.val(options.selected);
+        } else {
+            selector.val($('option:first', selector).attr('value'));
+        }
+
+        if (message) {
+            content.append($('<div>').html(message));
+        }
+
+        content.append($('<p>').append(selector));
 
         return new creme.dialog.SelectionDialog(options)
-                                    .fill($('<p>').html(message).append($('<p>').append(selector)))
+                                    .fill(content)
                                     .selector(function(frame) {
                                          return $('select', frame).val();
                                      });
