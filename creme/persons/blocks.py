@@ -217,12 +217,14 @@ class AddressBlock(Block):
                         addr = Address()
                 elif addr is None:
                     addr = Address()
-                    display_button  = True
+                    display_button = True
                 else:
                     display_content = True
 
             addr.display_button  = display_button
             addr.display_content = display_content
+
+            addr.owner = person  # NB: avoids a query (per address) for credentials.
 
             return addr
 
@@ -241,7 +243,7 @@ class AddressBlock(Block):
                                             ),
                                 b_address=b_address,
                                 s_address=s_address,
-                                field_names=_get_address_field_names(), #TODO: cache in context ??
+                                field_names=_get_address_field_names(),  # TODO: cache in context ??
                                 address_model=Address,  # For fields' verbose name
                                 colspan=colspan,
                                )
