@@ -334,6 +334,7 @@ class MergeViewsTestCase(ViewsTestCase):
         cf_01 = create_cf(name='Number of manga')
         cf_02 = create_cf(name='Number of anime')
         cf_03 = create_cf(name='Club', field_type=CustomField.ENUM)
+        cf_04 = create_cf(name='Last convention', field_type=CustomField.DATETIME)
 
         create_evalue = CustomFieldEnumValue.objects.create
         enum_val1_1 = create_evalue(custom_field=cf_03, value='Club Manga')
@@ -390,6 +391,11 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'custom_field_2_1':      '',
                                           'custom_field_2_2':      enum_val1_1.id,
                                           'custom_field_2_merged': enum_val1_1.id,
+
+                                          'custom_field_3_1':      '',
+                                          'custom_field_3_2':      '',
+                                          'custom_field_3_merged': '',
+
                                          }
                                    )
         self.assertNoFormError(response)
@@ -416,6 +422,8 @@ class MergeViewsTestCase(ViewsTestCase):
         cf_03_value = cf_03_values[0]
         self.assertEqual(contact01.id, cf_03_value.entity_id)
         self.assertEqual(enum_val1_1, cf_03_value.value)
+
+        self.assertFalse(cf_04.get_value_class().objects.all())
 
     def test_error01(self):
         "Try to merge 2 entities with different types"
