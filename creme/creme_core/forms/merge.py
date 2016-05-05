@@ -69,6 +69,7 @@ class MergeWidget(Widget):
         render = widget.render
         # TODO: improve Wigdets with a 'read_only' param -> each type choose the right html attribute
         ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readonly'
+        w_id = attrs.get('id') or 'id_%s' % name
 
         return mark_safe(u'<ul %(attrs)s>'
                               '<li class="li_merge_entity1">%(input_1)s</li>'
@@ -79,9 +80,15 @@ class MergeWidget(Widget):
                                                               **{'class': 'merge_entity_field ui-layout hbox'}
                                                              )
                                            ),
-                            'input_1':      render('%s_1' % name,      value_1, attrs={ro_attr: '', 'class': 'merge_entity1'}),
-                            'input_merged': render('%s_merged' % name, value_m, attrs={'class': 'merge_result'}),
-                            'input_2':      render('%s_2' % name,      value_2, attrs={ro_attr: '', 'class': 'merge_entity2'}),
+                            'input_1':      render('%s_1' % name, value_1,
+                                                   attrs={'id': '%s_1' % w_id, ro_attr: '', 'class': 'merge_entity1'},
+                                                  ),
+                            'input_merged': render('%s_merged' % name, value_m,
+                                                   attrs={'id': '%s_merged' % w_id, 'class': 'merge_result'},
+                                                  ),
+                            'input_2':      render('%s_2' % name, value_2,
+                                                   attrs={'id': '%s_2' % w_id, ro_attr: '', 'class': 'merge_entity2'},
+                                                  ),
                           }
                         )
 
