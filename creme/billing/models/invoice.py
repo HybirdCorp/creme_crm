@@ -45,14 +45,17 @@ class AbstractInvoice(Base):
 
     def _get_total(self):
         lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()
+
         if lines_total < 0 or creditnotes_total < lines_total:
             return lines_total - creditnotes_total
+
         return DEFAULT_DECIMAL
 
     def _get_total_with_tax(self):
         lines_total_with_tax, creditnotes_total = self._get_lines_total_n_creditnotes_total_with_tax()
         if lines_total_with_tax < 0 or creditnotes_total < lines_total_with_tax:
             return lines_total_with_tax - creditnotes_total
+
         return DEFAULT_DECIMAL
 
     def get_absolute_url(self):

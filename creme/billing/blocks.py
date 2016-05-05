@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,7 +99,8 @@ class _LineBlock(SimpleBlock):
                                                  # can we really delete a line of this document ???
                                                  can_delete=True,
                                                  form=_LineForm,
-                                                 extra=0)
+                                                 extra=0,
+                                                )
 
         lineformset = lineformset_class(prefix=LINE_FORMSET_PREFIX[self.line_model], queryset=lines)
 
@@ -107,7 +108,8 @@ class _LineBlock(SimpleBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(self.line_model).id,
                                                             formset=lineformset,
-                                                            item_count=lines.count(),
+                                                            # item_count=lines.count(),
+                                                            item_count=len(lines),
                                                             related_item_ct=self.related_item_ct,
                                                             related_item_label=self.related_item_label,
                                                            )
@@ -123,7 +125,8 @@ class ProductLinesBlock(_LineBlock):
     related_item_label = _(u'Product')
 
     def _get_document_lines(self, document):
-        return document.product_lines
+        # return document.product_lines
+        return document.get_lines(ProductLine)
 
 
 class ServiceLinesBlock(_LineBlock):
@@ -135,7 +138,8 @@ class ServiceLinesBlock(_LineBlock):
     related_item_label = _(u'Service')
 
     def _get_document_lines(self, document):
-        return document.service_lines
+        # return document.service_lines
+        return document.get_lines(ServiceLine)
 
 
 class CreditNoteBlock(QuerysetBlock):
