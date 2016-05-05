@@ -1,12 +1,24 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
 
-{# /!\ See view_billing.html for javascrip document ready related to block lines #}
-
+{% comment %}
 <script type='text/javascript'>
     // init block after a json reload
     creme.billing.initBlockLines('{{object.currency.local_symbol}}', {{object.discount}});
 </script>
+{% endcomment %}
+{% if not request.is_ajax %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#content').on('block-ready', function(e, block) {
+                if (block.attr('id') == '{{block_name}}') {
+                    creme.billing.initBlockLines(block, '{{object.currency.local_symbol}}', {{object.discount}});
+                }
+            });
+        });
+    </script>
+{% endif %}
+
 
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5 %}
