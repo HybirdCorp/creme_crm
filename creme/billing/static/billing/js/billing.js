@@ -345,21 +345,27 @@ creme.billing.redirect = function(url, checkmodified) {
     window.location = url;
 }
 
-creme.billing.initBlockLines = function(currency, global_discount) {
-    creme.billing.initializeForms();
+//creme.billing.initBlockLines = function(currency, global_discount) {
+creme.billing.initBlockLines = function(block, currency, global_discount) {
+//    creme.billing.initializeForms();
+    creme.billing.initializeForms(block);
 
-    $('a[class^="add_on_the_fly_"]').removeAttr('disabled');
+    // Commented on 03/04/2016, because it seemed useless
+//    $('a[class^="add_on_the_fly_"]').removeAttr('disabled');
 
-    $('.linetable').each(function(index) {
+//    $('.linetable').each(function(index) {
+    $('.linetable', block).each(function(index) {
         creme.billing.initBoundedFields($(this), currency, global_discount);
     });
 
     // TODO hack because css class bound is not added to joe's widget
-    $('select[name*="vat_value"]').each(function(index) {
+//    $('select[name*="vat_value"]').each(function(index) {
+    $('select[name*="vat_value"]', block).each(function(index) {
         $(this).addClass('bound line-vat');
     });
 
-    $('textarea.line-comment').each(function() {
+//    $('textarea.line-comment').each(function() {
+    $('textarea.line-comment', block).each(function() {
         new creme.layout.TextAreaAutoSize().bind($(this));
     });
 }
