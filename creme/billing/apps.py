@@ -44,6 +44,8 @@ class BillingConfig(CremeAppConfig):
 #        super(BillingConfig, self).ready()
         super(BillingConfig, self).all_apps_ready()
 
+        self.register_billing()
+
         from . import signals
         from .function_fields import hook_organisation
 
@@ -58,8 +60,13 @@ class BillingConfig(CremeAppConfig):
                                               self.ServiceLine, self.ProductLine,
                                              )
 
+    def register_billing(self):
+        from .registry import lines_registry
+
+        lines_registry.register(self.ProductLine, self.ServiceLine)
+
     def register_blocks(self, block_registry):
-        from .blocks import block_list # BillingBlock
+        from .blocks import block_list
 
         block_registry.register(*block_list)
         block_registry.register_invalid_models(self.ProductLine, self.ServiceLine)

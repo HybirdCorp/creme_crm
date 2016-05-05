@@ -526,6 +526,45 @@ class InvoiceTestCase(_BillingTestCase):
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
+    def test_get_lines02(self):
+        user = self.login()
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        kwargs = {'user': user, 'related_document': invoice}
+
+        # ----
+        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
+        plines = list(invoice.get_lines(ProductLine))
+
+        self.assertEqual([product_line], plines)
+
+        with self.assertNumQueries(0):
+            list(invoice.get_lines(ProductLine))
+
+        # ----
+        service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
+        slines = list(invoice.get_lines(ServiceLine))
+
+        self.assertEqual([service_line], slines)
+
+        with self.assertNumQueries(0):
+            list(invoice.get_lines(ServiceLine))
+
+    @skipIfCustomProductLine
+    @skipIfCustomServiceLine
+    def test_iter_all_lines(self):
+        user = self.login()
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+
+        kwargs = {'user': user, 'related_document': invoice}
+        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
+        service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
+
+        self.assertEqual([product_line, service_line],
+                         list(invoice.iter_all_lines())
+                        )
+
+    @skipIfCustomProductLine
+    @skipIfCustomServiceLine
     def test_total_vat(self):
         user = self.login()
 

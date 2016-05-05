@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from datetime import date
 from itertools import chain
 import logging
-#import warnings
+import warnings
 
 from django.conf import settings
 from django.db.models import (CharField, TextField, ForeignKey, DateField,
@@ -97,9 +97,9 @@ class Base(CremeEntity):
 
     generate_number_in_create = True # TODO: use settings instead ???
 
-    #caches
-    _productlines_cache = None
-    _servicelines_cache = None
+    # Caches
+    # _productlines_cache = None
+    # _servicelines_cache = None
     _creditnotes_cache = None
 
     class Meta:
@@ -107,11 +107,16 @@ class Base(CremeEntity):
         app_label = 'billing'
         ordering = ('name',)
 
+    def __init__(self, *args, **kwargs):
+        super(Base, self).__init__(*args, **kwargs)
+        self._lines_cache = {}  # Key: Line class ; Value: Lines instances (list)
+
     def __unicode__(self):
         return self.name
 
     def _pre_delete(self):
-        lines = list(chain(self.product_lines, self.service_lines))
+        # lines = list(chain(self.product_lines, self.service_lines))
+        lines = list(self.iter_all_lines())
 
         for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED,
                                                           REL_SUB_BILL_RECEIVED,
@@ -125,8 +130,9 @@ class Base(CremeEntity):
             line._delete_without_transaction()
 
     def invalidate_cache(self):
-        self._productlines_cache = None
-        self._servicelines_cache = None
+        self._lines_cache.clear()
+        # self._productlines_cache = None
+        # self._servicelines_cache = None
         self._creditnotes_cache = None
 
     # TODO: property + cache
@@ -182,68 +188,109 @@ class Base(CremeEntity):
 
     @property
     def product_lines(self):
-        if self._productlines_cache is None:
-            queryset = ProductLine.objects.filter(relations__object_entity=self.id)
-            bool(queryset)  # Force the retrieving all lines (no slice)
-            self._productlines_cache = queryset
-        else:
-            logger.debug('Cache HIT for product lines in document pk=%s !!' % self.id)
+        warnings.warn("billing.Base.product_lines() method is deprecated; use get_lines() instead",
+                      DeprecationWarning
+                     )
 
-        return self._productlines_cache
+        # if self._productlines_cache is None:
+        #     queryset = ProductLine.objects.filter(relations__object_entity=self.id)
+        #     bool(queryset)  # Force the retrieving all lines (no slice)
+        #     self._productlines_cache = queryset
+        # else:
+        #     logger.debug('Cache HIT for product lines in document pk=%s !!' % self.id)
+        #
+        # return self._productlines_cache
+        return self.get_lines(ProductLine)
 
     @property
     def service_lines(self):
-        if self._servicelines_cache is None:
-            queryset = ServiceLine.objects.filter(relations__object_entity=self.id)
-            bool(queryset)
-            self._servicelines_cache = queryset
-        else:
-            logger.debug('Cache HIT for service lines in document pk=%s !!' % self.id)
+        warnings.warn("billing.Base.product_lines() method is deprecated; use get_lines() instead",
+                      DeprecationWarning
+                     )
 
-        return self._servicelines_cache
+        # if self._servicelines_cache is None:
+        #     queryset = ServiceLine.objects.filter(relations__object_entity=self.id)
+        #     bool(queryset)
+        #     self._servicelines_cache = queryset
+        # else:
+        #     logger.debug('Cache HIT for service lines in document pk=%s !!' % self.id)
+        #
+        # return self._servicelines_cache
+        return self.get_lines(ServiceLine)
 
-    # TODO: we need away to get all Line concrete child models
-    # Could replace get_x_lines() # TODO: add a cache
     def get_lines(self, klass):
         assert not klass._meta.abstract, '"klass" cannot be an abstract model (use ProductLine or ServiceLine)'
 
-        return klass.objects.filter(relations__object_entity=self.id,
-                                    relations__type=REL_OBJ_HAS_LINE,
-                                   )
+        cache = self._lines_cache
+        lines = cache.get(klass)
+
+        if lines is None:
+            lines = cache[klass] = klass.objects.filter(relations__object_entity=self.id,
+                                                        relations__type=REL_OBJ_HAS_LINE,
+                                                       )
+
+        return lines
 
     # TODO: round_to_2 is already used when processing per lines prices.
     # Summing already rounded values has no effect, so the next 4 calls to round_to_2
     # could be deleted.
-    def get_product_lines_total_price_exclusive_of_tax(self): # TODO: inline ???
+    def get_product_lines_total_price_exclusive_of_tax(self):
+        warnings.warn("billing.Base.get_product_lines_total_price_exclusive_of_tax() method is deprecated.",
+                      DeprecationWarning
+                     )
         return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.product_lines))
 
     def get_product_lines_total_price_inclusive_of_tax(self):
+        warnings.warn("billing.Base.get_product_lines_total_price_inclusive_of_tax() method is deprecated.",
+                      DeprecationWarning
+                     )
         return round_to_2(sum(l.get_price_inclusive_of_tax(self) for l in self.product_lines))
 
     def get_service_lines_total_price_exclusive_of_tax(self):
+        warnings.warn("billing.Base.get_service_lines_total_price_exclusive_of_tax() method is deprecated.",
+                      DeprecationWarning
+                     )
         return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.service_lines))
 
     def get_service_lines_total_price_inclusive_of_tax(self):
+        warnings.warn("billing.Base.get_service_lines_total_price_inclusive_of_tax() method is deprecated.",
+                      DeprecationWarning
+                     )
         return round_to_2(sum(l.get_price_inclusive_of_tax(self) for l in self.service_lines))
 
+    def iter_all_lines(self):
+        from ..registry import lines_registry
+
+        for line_cls in lines_registry:
+            for line in chain(self.get_lines(line_cls)):
+                yield line
+
     def _get_lines_total_n_creditnotes_total(self):
-        creditnotes_total = sum(credit_note.total_no_vat for credit_note in self.get_credit_notes())
-        lines_total = self.get_service_lines_total_price_exclusive_of_tax() \
-                + self.get_product_lines_total_price_exclusive_of_tax()
+        creditnotes_total = sum(credit_note.total_no_vat
+                                    for credit_note in self.get_credit_notes()
+                               )
+        # lines_total = self.get_service_lines_total_price_exclusive_of_tax() \
+        #             + self.get_product_lines_total_price_exclusive_of_tax()
+        lines_total = sum(l.get_price_exclusive_of_tax(self) for l in self.iter_all_lines())
+
         return lines_total, creditnotes_total
 
     def _get_lines_total_n_creditnotes_total_with_tax(self):
         creditnotes_total = sum(credit_note.total_vat for credit_note in self.get_credit_notes())
-        lines_total_with_tax = self.get_service_lines_total_price_inclusive_of_tax() \
-                         + self.get_product_lines_total_price_inclusive_of_tax()
+        # lines_total_with_tax = self.get_service_lines_total_price_inclusive_of_tax() \
+        #                      + self.get_product_lines_total_price_inclusive_of_tax()
+        lines_total_with_tax = sum(l.get_price_inclusive_of_tax(self) for l in self.iter_all_lines())
+
         return lines_total_with_tax, creditnotes_total
 
     def _get_total(self):
         lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()
+
         return max(DEFAULT_DECIMAL, lines_total - creditnotes_total)
 
     def _get_total_with_tax(self):
         lines_total_with_tax, creditnotes_total = self._get_lines_total_n_creditnotes_total_with_tax()
+
         return max(DEFAULT_DECIMAL, lines_total_with_tax - creditnotes_total)
 
     def _pre_save_clone(self, source):
@@ -271,7 +318,8 @@ class Base(CremeEntity):
     def _post_clone(self, source):
         source.invalidate_cache()
 
-        for line in chain(source.product_lines, source.service_lines):
+        # for line in chain(source.product_lines, source.service_lines):
+        for line in source.iter_all_lines():
             line.clone(self)
 
     # TODO: factorise with persons ??
@@ -293,9 +341,9 @@ class Base(CremeEntity):
     def build(self, template):
         self._build_object(template)
         self._post_save_clone(template)  # Copy addresses
-        self._build_lines(template, ProductLine)
-        self._build_lines(template, ServiceLine)
-        # self._post_clone(template) #copy lines TODO: replace the 2 previous lines
+        # self._build_lines(template, ProductLine)
+        # self._build_lines(template, ServiceLine)
+        self._post_clone(template)  # Copy lines
         self._build_relations(template)
         self._build_properties(template)
         return self
@@ -319,10 +367,10 @@ class Base(CremeEntity):
         # - payment_terms
 
     def _build_lines(self, template, klass):
-        logger.debug("=> Clone lines")
-        # warnings.warn("billing.Base._build_lines() method is deprecated; use _post_clone() instead",
-        #               DeprecationWarning
-        #              ) TODO
+        # logger.debug("=> Clone lines")
+        warnings.warn("billing.Base._build_lines() method is deprecated; use _post_clone() instead",
+                      DeprecationWarning
+                     )
         for line in template.get_lines(klass):
             line.clone(self)
 

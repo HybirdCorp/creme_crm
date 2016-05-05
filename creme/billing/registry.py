@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from imp import find_module
 import logging
 
 from django.apps import apps
+from django.utils.datastructures import OrderedSet
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,8 @@ class AlgoRegistry(object):
         algos = self._algos
 
         for name, algo in to_register:
-            if algos.has_key(name):
+            # if algos.has_key(name):
+            if name in algos:
                 logger.warning("Duplicate algo's id or algo registered twice : %s", name)  # exception instead ???
 
             algos[name] = algo
@@ -77,6 +79,7 @@ for app_config in apps.get_app_configs():
     algo_registry.register(*algos_import.to_register)
 
 
+# ------------------------------------------------------------------------------
 class RelationTypeConverterRegistry(object):
     """ This registry is used when converting a billing document into another billing document.
     The RelationTypes which ContentType doesn't match after the conversion also have to be
@@ -101,4 +104,36 @@ class RelationTypeConverterRegistry(object):
         "Takes instances as arguments"
         return self.get_class_map(source_object, target_object).get(relationtype_id, None)
 
+
 relationtype_converter = RelationTypeConverterRegistry()
+
+
+# ------------------------------------------------------------------------------
+class LinesRegistry(object):
+    """ Stores the different Line classes to use with billing document.
+
+    Generally, it is just ProductLine & ServiceLine.
+    """
+    def __init__(self):
+        self._line_classes = OrderedSet()
+
+    def register(self, *classes):
+        all_classes = self._line_classes
+
+        for cls in classes:
+            all_classes.add(cls)
+
+    # def unregister(self, *classes):
+    #     all_classes = self._line_classes
+    #
+    #     for cls in classes:
+    #         try:
+    #             all_classes.remove(cls)
+    #         except KeyError:
+    #             logger.warning("This Line class is not registered : %s", cls)
+
+    def __iter__(self):
+        return iter(self._line_classes)
+
+
+lines_registry = LinesRegistry()
