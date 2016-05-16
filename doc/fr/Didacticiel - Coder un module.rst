@@ -2003,7 +2003,8 @@ Liste des différents services
 - Vous pouvez enregistrer de nouveaux intervalles de temps dans
   ``creme_core.utils.date_range.date_range_registry``.
 - L'app *billing* permet d'enregistrer des algorithmes de génération de numéros
-  de facture. Regardez le fichier ``billing/billing_register.py``.
+  de facture. Regardez le fichier ``billing/apps.py``, dans la méthode
+  ``register_billing_algorithm()`` pour savoir comment faire.
 - L'app *recurrents* permet de générer des objets de manière récurrente. Regardez
   les fichiers ``recurrents_register.py`` dans ``billing`` ou ``tickets``.
 - L'app *crudity* permet de créer des objets depuis des données externes, comme

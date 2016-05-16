@@ -28,7 +28,6 @@ class BillingConfig(CremeAppConfig):
     verbose_name = _(u'Billing')
     dependencies = ['creme.persons', 'creme.products']
 
-#    def ready(self):
     def all_apps_ready(self):
         from . import (get_credit_note_model, get_invoice_model, get_quote_model,
                 get_sales_order_model, get_template_base_model,
@@ -41,10 +40,10 @@ class BillingConfig(CremeAppConfig):
         self.TemplateBase = get_template_base_model()
         self.ProductLine  = get_product_line_model()
         self.ServiceLine  = get_service_line_model()
-#        super(BillingConfig, self).ready()
         super(BillingConfig, self).all_apps_ready()
 
-        self.register_billing()
+        self.register_billing_algorithm()
+        self.register_billing_lines()
 
         from . import signals
         from .function_fields import hook_organisation
@@ -60,9 +59,15 @@ class BillingConfig(CremeAppConfig):
                                               self.ServiceLine, self.ProductLine,
                                              )
 
-    def register_billing(self):
-        from .registry import lines_registry
+    def register_billing_algorithm(self):
+        from .algos import SimpleAlgo
+        from .models import SimpleBillingAlgo
+        from .registry import algo_registry
 
+        algo_registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
+
+    def register_billing_lines(self):
+        from .registry import lines_registry
         lines_registry.register(self.ProductLine, self.ServiceLine)
 
     def register_blocks(self, block_registry):
@@ -115,10 +120,10 @@ class BillingConfig(CremeAppConfig):
 
         from creme.creme_core.auth import build_creation_perm as cperm
 
-        CreditNote   = self.CreditNote
-        Invoice      = self.Invoice
-        Quote        = self.Quote
-        SalesOrder   = self.SalesOrder
+        CreditNote = self.CreditNote
+        Invoice    = self.Invoice
+        Quote      = self.Quote
+        SalesOrder = self.SalesOrder
         reg_item = creme_menu.register_app('billing', '/billing/').register_item
         reg_item('/billing/',                            _(u'Portal of billing'),   'billing')
         reg_item(reverse('billing__create_invoice'),     Invoice.creation_label,    cperm(Invoice))

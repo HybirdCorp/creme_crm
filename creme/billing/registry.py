@@ -21,6 +21,7 @@
 from collections import defaultdict
 from imp import find_module
 import logging
+import warnings
 
 from django.apps import apps
 from django.utils.datastructures import OrderedSet
@@ -44,7 +45,7 @@ class AlgoRegistry(object):
         for name, algo in to_register:
             # if algos.has_key(name):
             if name in algos:
-                logger.warning("Duplicate algo's id or algo registered twice : %s", name)  # exception instead ???
+                logger.warning("Duplicate algorithm's id or algo registered twice : %s", name)  # exception instead ???
 
             algos[name] = algo
 
@@ -64,8 +65,7 @@ class AlgoRegistry(object):
 
 algo_registry = AlgoRegistry()
 
-# TODO: use creme_core.utils.import find_n_import
-logger.debug('Billing: algos registering')
+# logger.debug('Billing: algos registering')
 for app_config in apps.get_app_configs():
     app_name = app_config.name
 
@@ -74,6 +74,11 @@ for app_config in apps.get_app_configs():
     except ImportError:
         # there is no app creme_config.py, skip it
         continue
+
+    warnings.warn("'billing_register' feature is deprecated ; "
+                  "register your algorithms in your AppConfig instead.",
+                  DeprecationWarning
+                 )
 
     algos_import = __import__("%s.billing_register" % app_name, globals(), locals(), ['to_register'], -1)
     algo_registry.register(*algos_import.to_register)
