@@ -78,7 +78,7 @@ def print_image(entity, fval, user, field):  # TODO: rename print_image_html
     return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
                 'url':  fval.url,
                 'size': image_size(fval),
-            }
+            } if fval else ''
 
 
 def print_integer(entity, fval, user, field):
