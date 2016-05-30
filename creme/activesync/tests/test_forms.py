@@ -7,7 +7,8 @@ try:
     from creme.creme_core.models import SettingValue
 
     from ..blocks import mobile_sync_config_block
-    from ..constants import *
+    from .. import setting_keys, constants
+    # from ..constants import *
     from ..utils import is_user_sync_calendars, is_user_sync_contacts
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -24,9 +25,9 @@ class GlobalSettingsTestCase(CremeTestCase):
         url = '/activesync/mobile_synchronization/edit'
         self.assertGET200(url)
 
-        sv_url    = self.get_object_or_fail(SettingValue, key_id=MAPI_SERVER_URL)
-        sv_domain = self.get_object_or_fail(SettingValue, key_id=MAPI_DOMAIN)
-        sv_ssl    = self.get_object_or_fail(SettingValue, key_id=MAPI_SERVER_SSL)
+        sv_url    = self.get_object_or_fail(SettingValue, key_id=constants.MAPI_SERVER_URL)
+        sv_domain = self.get_object_or_fail(SettingValue, key_id=constants.MAPI_DOMAIN)
+        sv_ssl    = self.get_object_or_fail(SettingValue, key_id=constants.MAPI_SERVER_SSL)
 
         server_url = 'http://cremecrm.com/as'
         server_domain = 'creme'
@@ -62,50 +63,90 @@ class GlobalSettingsTestCase(CremeTestCase):
 
 
 class UserSettingsTestCase(CremeTestCase):
+    URL = '/activesync/user_settings'
+
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'activesync')
 
-    def _assertNoSValue(self, skey_ids, user):
-        self.assertFalse(SettingValue.objects.filter(key_id__in=skey_ids, user=user))
+    # def _assertNoSValue(self, skey_ids, user):
+    #     self.assertFalse(SettingValue.objects.filter(key_id__in=skey_ids, user=user))
+    def _assertNoSValue(self, skeys, user):
+        user_settings = user.settings
 
-    def _build_values_map(self, skey_ids, user):
-        svalues = SettingValue.objects.filter(key_id__in=skey_ids, user=user)
-        self.assertEqual(len(skey_ids), len(svalues))
+        for skey in skeys:
+            try:
+                user_settings[skey]
+            except KeyError:
+                pass
+            else:
+                self.fail('The key %s exists' % skey.id)
 
-        return {svalue.key_id: svalue.value for svalue in svalues}
+    # def _build_values_map(self, skey_ids, user):
+    #     svalues = SettingValue.objects.filter(key_id__in=skey_ids, user=user)
+    #     self.assertEqual(len(skey_ids), len(svalues))
+    #
+    #     return {svalue.key_id: svalue.value for svalue in svalues}
 
     def test_is_user_sync_calendars(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
-        self.assertEqual(0, SettingValue.objects.filter(key_id=USER_MOBILE_SYNC_ACTIVITIES).count())
+        # self.assertEqual(0, SettingValue.objects.filter(key_id=USER_MOBILE_SYNC_ACTIVITIES).count())
+        # self.assertIs(False, is_user_sync_calendars(user))
+        #
+        # SettingValue.objects.create(key_id=USER_MOBILE_SYNC_ACTIVITIES, value=True, user=user)
+        # self.assertTrue(is_user_sync_calendars(user))
+        with self.assertRaises(KeyError):
+            user.settings[setting_keys.user_msync_activities_key]
+
         self.assertIs(False, is_user_sync_calendars(user))
 
-        SettingValue.objects.create(key_id=USER_MOBILE_SYNC_ACTIVITIES, value=True, user=user)
-        self.assertTrue(is_user_sync_calendars(user))
+        # --------------
+        with user.settings as settings:
+            settings[setting_keys.user_msync_activities_key] = True
+
+        self.assertIs(True, is_user_sync_calendars(self.refresh(user)))
 
     def test_is_user_sync_contacts(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
-        self.assertEqual(0, SettingValue.objects.filter(key_id=USER_MOBILE_SYNC_CONTACTS).count())
+        # self.assertEqual(0, SettingValue.objects.filter(key_id=USER_MOBILE_SYNC_CONTACTS).count())
+        # self.assertIs(False, is_user_sync_contacts(user))
+        #
+        # SettingValue.objects.create(key_id=USER_MOBILE_SYNC_CONTACTS, value=True, user=user)
+        # self.assertTrue(is_user_sync_contacts(user))
+
+        with self.assertRaises(KeyError):
+            user.settings[setting_keys.user_msync_contacts_key]
+
         self.assertIs(False, is_user_sync_contacts(user))
 
-        SettingValue.objects.create(key_id=USER_MOBILE_SYNC_CONTACTS, value=True, user=user)
-        self.assertTrue(is_user_sync_contacts(user))
+        # --------------
+        with user.settings as settings:
+            settings[setting_keys.user_msync_contacts_key] = True
+
+        self.assertIs(True, is_user_sync_contacts(self.refresh(user)))
 
     def test_view(self):
-        self.login()
-        user = self.user
+        user = self.login()
+        other_user = self.other_user
 
-        skeys = [USER_MOBILE_SYNC_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
-                 USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
-                 USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS,
+        # skeys = [USER_MOBILE_SYNC_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
+        #          USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
+        #          USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS,
+        #         ]
+        skeys = [setting_keys.user_msync_server_url_key,
+                 setting_keys.user_msync_server_domain_key,
+                 setting_keys.user_msync_server_ssl_key,
+                 setting_keys.user_msync_server_login_key,
+                 setting_keys.user_msync_server_pwd_key,
+                 setting_keys.user_msync_activities_key,
+                 setting_keys.user_msync_contacts_key,
                 ]
 
-        url = '/activesync/user_settings'
+        # url = '/activesync/user_settings'
+        url = self.URL
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -118,16 +159,22 @@ class UserSettingsTestCase(CremeTestCase):
             sync_calendars_f = fields['sync_calendars']
             sync_contacts_f  = fields['sync_contacts']
 
-        self.assertIsNone(url_f.initial)
-        self.assertIsNone(domain_f.initial)
-        self.assertIsNone(ssl_f.initial)
-        self.assertIsNone(login_f.initial)
+        # self.assertIsNone(url_f.initial)
+        self.assertEqual('', url_f.initial)
+        # self.assertIsNone(domain_f.initial)
+        self.assertEqual('', domain_f.initial)
+        # self.assertIsNone(ssl_f.initial)
+        self.assertEqual(0, ssl_f.initial)
+        # self.assertIsNone(login_f.initial)
+        self.assertEqual('', login_f.initial)
         self.assertIsNone(pwd_f.initial)
-        self.assertIsNone(sync_calendars_f.initial)
-        self.assertIsNone(sync_contacts_f.initial)
+        # self.assertIsNone(sync_calendars_f.initial)
+        self.assertEqual(0, sync_calendars_f.initial)
+        # self.assertIsNone(sync_contacts_f.initial)
+        self.assertEqual(0, sync_contacts_f.initial)
 
         self._assertNoSValue(skeys, user)
-        self._assertNoSValue(skeys, self.other_user)
+        self._assertNoSValue(skeys, other_user)
 
         server_url = 'http://cremecrm.com/as'
         server_domain = 'creme'
@@ -143,16 +190,23 @@ class UserSettingsTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self._assertNoSValue(skeys, self.other_user)
+        self._assertNoSValue(skeys, self.refresh(other_user))
 
-        values = self._build_values_map(skeys, user)
-        get_val = values.get
-        self.assertEqual(server_url,    get_val(USER_MOBILE_SYNC_SERVER_URL))
-        self.assertEqual(server_domain, get_val(USER_MOBILE_SYNC_SERVER_DOMAIN))
-        self.assertEqual(login,         get_val(USER_MOBILE_SYNC_SERVER_LOGIN))
-        self.assertIs(get_val(USER_MOBILE_SYNC_SERVER_SSL), True)
-        self.assertIs(get_val(USER_MOBILE_SYNC_ACTIVITIES), True)
-        self.assertIs(get_val(USER_MOBILE_SYNC_CONTACTS),   False)
+        # values = self._build_values_map(skeys, user)
+        # get_val = values.get
+        # self.assertEqual(server_url,    get_val(USER_MOBILE_SYNC_SERVER_URL))
+        # self.assertEqual(server_domain, get_val(USER_MOBILE_SYNC_SERVER_DOMAIN))
+        # self.assertEqual(login,         get_val(USER_MOBILE_SYNC_SERVER_LOGIN))
+        # self.assertIs(get_val(USER_MOBILE_SYNC_SERVER_SSL), True)
+        # self.assertIs(get_val(USER_MOBILE_SYNC_ACTIVITIES), True)
+        # self.assertIs(get_val(USER_MOBILE_SYNC_CONTACTS),   False)
+        get_settings = self.refresh(user).settings.get
+        self.assertEqual(server_url,    get_settings(setting_keys.user_msync_server_url_key))
+        self.assertEqual(server_domain, get_settings(setting_keys.user_msync_server_domain_key))
+        self.assertEqual(login,         get_settings(setting_keys.user_msync_server_login_key))
+        self.assertIs(True,  get_settings(setting_keys.user_msync_server_ssl_key))
+        self.assertIs(True,  get_settings(setting_keys.user_msync_activities_key))
+        self.assertIs(False, get_settings(setting_keys.user_msync_contacts_key))
 
         # Other values --------------------------------------------------------
         response = self.assertGET200(url)
@@ -176,7 +230,6 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertEqual(_(u"Let empty to get the default configuration (currently '%s').") % '',
                          domain_f.help_text
                         )
-
 
         self.assertEqual(1, ssl_f.initial)
         self.assertEqual(_(u"Let 'Default' to get the default configuration (currently '%s').") % _('No'),
@@ -202,14 +255,21 @@ class UserSettingsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        values = self._build_values_map(skeys, user)
-        get_val = values.get
-        self.assertEqual(server_url,    get_val(USER_MOBILE_SYNC_SERVER_URL))
-        self.assertEqual(server_domain, get_val(USER_MOBILE_SYNC_SERVER_DOMAIN))
-        self.assertEqual(login,         get_val(USER_MOBILE_SYNC_SERVER_LOGIN))
-        self.assertIs(get_val(USER_MOBILE_SYNC_SERVER_SSL), False)
-        self.assertIs(get_val(USER_MOBILE_SYNC_ACTIVITIES), False)
-        self.assertIs(get_val(USER_MOBILE_SYNC_CONTACTS),   True)
+        # values = self._build_values_map(skeys, user)
+        # get_val = values.get
+        # self.assertEqual(server_url,    get_val(USER_MOBILE_SYNC_SERVER_URL))
+        # self.assertEqual(server_domain, get_val(USER_MOBILE_SYNC_SERVER_DOMAIN))
+        # self.assertEqual(login,         get_val(USER_MOBILE_SYNC_SERVER_LOGIN))
+        # self.assertIs(get_val(USER_MOBILE_SYNC_SERVER_SSL), False)
+        # self.assertIs(get_val(USER_MOBILE_SYNC_ACTIVITIES), False)
+        # self.assertIs(get_val(USER_MOBILE_SYNC_CONTACTS),   True)
+        get_settings = self.refresh(user).settings.get
+        self.assertEqual(server_url,    get_settings(setting_keys.user_msync_server_url_key))
+        self.assertEqual(server_domain, get_settings(setting_keys.user_msync_server_domain_key))
+        self.assertEqual(login,         get_settings(setting_keys.user_msync_server_login_key))
+        self.assertFalse(get_settings(setting_keys.user_msync_server_ssl_key))
+        self.assertFalse(get_settings(setting_keys.user_msync_activities_key))
+        self.assertTrue(get_settings(setting_keys.user_msync_contacts_key))
 
         # Empty values --------------------------------------------------------
         response = self.client.post(url, data={'ssl':            '',
@@ -219,19 +279,35 @@ class UserSettingsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        self._assertNoSValue([USER_MOBILE_SYNC_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN,
-                              USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
-                              USER_MOBILE_SYNC_SERVER_SSL,
+        # self._assertNoSValue([USER_MOBILE_SYNC_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN,
+        #                       USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
+        #                       USER_MOBILE_SYNC_SERVER_SSL,
+        #                      ],
+        #                      user
+        #                     )
+        user = self.refresh(user)
+        self._assertNoSValue([setting_keys.user_msync_server_url_key,
+                              setting_keys.user_msync_server_domain_key,
+                              setting_keys.user_msync_server_ssl_key,
+                              setting_keys.user_msync_server_login_key,
+                              setting_keys.user_msync_server_pwd_key,
+                              # setting_keys.user_msync_activities_key,
+                              # setting_keys.user_msync_contacts_key,
                              ],
                              user
                             )
-        self._build_values_map([USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS], user)
+
+        # self._build_values_map([USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS], user)
+        get_settings = user.settings.get
+        self.assertFalse(get_settings(setting_keys.user_msync_activities_key))
+        self.assertFalse(get_settings(setting_keys.user_msync_contacts_key))
 
     def _aux_test_sync_view_error(self, url):
         self.login()
 
-        #response =
-        self.client.post('/activesync/user_settings',
+        # response =
+        self.client.post(#'/activesync/user_settings',
+                         self.URL,
                                     data={'url':            url,
                                           'ssl':            '1',
                                           'login':          'fulbert',
@@ -242,7 +318,7 @@ class UserSettingsTestCase(CremeTestCase):
                                    )
 
         self.assertGET200('/activesync/sync')
-        #TODO: test errors
+        # TODO: test errors
 
     def test_sync_view_error01(self):
         self._aux_test_sync_view_error('http://toto.com')

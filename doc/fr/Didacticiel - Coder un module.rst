@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 15-12-2015 pour la version 1.6 de Creme
+:Version: 26-04-2015 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1708,7 +1708,7 @@ Dans votre fichier ``populate.py``, nous allons créé l'instance de
         def populate(self):
             [...]
 
-            SettingValue.create_if_needed(key=beaver_key, user=None, value=True)
+            SettingValue.objects.get_or_create(key_id=beaver_key.id, defaults={'value': True})
 
 
 Il faut maintenant exposer la clé à Creme. Dans votre ``apps.py`` : ::

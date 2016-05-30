@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ import logging
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-#from django.conf import settings
 from django.utils.translation import ugettext as _, pgettext
 
 from creme.creme_core.blocks import (properties_block, relations_block,
@@ -35,11 +34,10 @@ from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigI
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from . import get_activity_model
 from . import blocks, buttons, constants, setting_keys
-from .models import ActivityType, ActivitySubType, Status, Calendar  # Activity
+from .models import ActivityType, ActivitySubType, Status, Calendar
 
 
 logger = logging.getLogger(__name__)
@@ -174,10 +172,12 @@ class Populator(BasePopulator):
         SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
 
 
-        #for user in User.objects.all():
         for user in get_user_model().objects.all():
             Calendar.get_user_default_calendar(user)
 
-        create_svalue = SettingValue.create_if_needed
-        create_svalue(key=setting_keys.review_key,        user=None, value=True)
-        create_svalue(key=setting_keys.auto_subjects_key, user=None, value=True)
+        # create_svalue = SettingValue.create_if_needed
+        # create_svalue(key=setting_keys.review_key,        user=None, value=True)
+        # create_svalue(key=setting_keys.auto_subjects_key, user=None, value=True)
+        create_svalue = SettingValue.objects.get_or_create
+        create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
+        create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})

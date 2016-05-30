@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,12 +28,11 @@ from creme.creme_core.gui.block import Block
 from creme.creme_core.models import EntityFilter
 
 from creme.persons import get_contact_model, get_organisation_model, get_address_model
-#from creme.persons.models import Contact, Organisation, Address
 
-from .constants import DEFAULT_SEPARATING_NEIGHBOURS
+# from .constants import DEFAULT_SEPARATING_NEIGHBOURS
 from .models import GeoAddress
-from .setting_keys import NEIGHBOURHOOD_DISTANCE
-from .utils import address_as_dict, get_setting
+# from .setting_keys import NEIGHBOURHOOD_DISTANCE
+from .utils import address_as_dict, get_radius  # get_setting
 
 
 Contact      = get_contact_model()
@@ -73,7 +72,6 @@ class _MapBlock(Block):
 
 
 class PersonsMapsBlock(_MapBlock):
-#    id_           = Block.generate_id('persons', 'geolocation')
     id_           = Block.generate_id('geolocation', 'detail_google_maps')
     verbose_name  = _(u'Maps')
     template_name = 'geolocation/templatetags/block_persons_google_map.html'
@@ -91,7 +89,6 @@ class PersonsMapsBlock(_MapBlock):
 
 
 class PersonsFiltersMapsBlock(_MapBlock):
-#    id_           = Block.generate_id('persons_filters', 'geolocation')
     id_           = Block.generate_id('geolocation', 'filtered_google_maps')
     verbose_name  = _(u'Maps By Filter')
     template_name = 'geolocation/templatetags/block_persons_filters_google_map.html'
@@ -108,7 +105,6 @@ class PersonsFiltersMapsBlock(_MapBlock):
 
 
 class WhoisAroundMapsBlock(_MapBlock):
-#    id_           = Block.generate_id('whoisarround', 'geolocation')
     id_           = Block.generate_id('geolocation', 'google_whoisaround')
     dependencies  = (Address, GeoAddress,)
     verbose_name  = _(u'Around this address')
@@ -133,9 +129,10 @@ class WhoisAroundMapsBlock(_MapBlock):
                                 address_filters=self.get_filter_choices(context['user'],
                                                                         Contact, Organisation,
                                                                        ),
-                                radius=get_setting(NEIGHBOURHOOD_DISTANCE,
-                                                   DEFAULT_SEPARATING_NEIGHBOURS,
-                                                  ),
+                                # radius=get_setting(NEIGHBOURHOOD_DISTANCE,
+                                #                    DEFAULT_SEPARATING_NEIGHBOURS,
+                                #                   ),
+                                radius=get_radius(),
                                 maps_blockid=PersonsMapsBlock.id_,
                                )
                            )

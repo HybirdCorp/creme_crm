@@ -60,7 +60,8 @@ class Populator(BasePopulator):
         Contact = get_contact_model()
         Organisation = get_organisation_model()
 
-        SettingValue.create_if_needed(key=emailcampaign_sender, user=None, value="")
+        # SettingValue.create_if_needed(key=emailcampaign_sender, user=None, value="")
+        SettingValue.objects.get_or_create(key_id=emailcampaign_sender.id, defaults={'value': ''})
 
         RelationType.create((constants.REL_SUB_MAIL_RECEIVED, _(u"(email) received by"),  [EntityEmail]),
                             (constants.REL_OBJ_MAIL_RECEIVED, _(u"received the email"),   [Organisation, Contact]))

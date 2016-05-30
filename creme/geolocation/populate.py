@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import BlockDetailviewLocation, BlockMypageLocation, SettingValue
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation, Address
 
 from .blocks import persons_maps_block, persons_filter_maps_block, who_is_around_maps_block
 from .constants import DEFAULT_SEPARATING_NEIGHBOURS
@@ -42,7 +41,10 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = SettingValue.objects.filter(key_id=NEIGHBOURHOOD_DISTANCE.id).exists()
 
-        SettingValue.create_if_needed(key=NEIGHBOURHOOD_DISTANCE, user=None, value=DEFAULT_SEPARATING_NEIGHBOURS)
+        # SettingValue.create_if_needed(key=NEIGHBOURHOOD_DISTANCE, user=None, value=DEFAULT_SEPARATING_NEIGHBOURS)
+        SettingValue.objects.get_or_create(key_id=NEIGHBOURHOOD_DISTANCE.id,
+                                           defaults={'value': DEFAULT_SEPARATING_NEIGHBOURS},
+                                          )
 
         if not already_populated:
             if self.verbosity:
@@ -55,14 +57,15 @@ class Populator(BasePopulator):
             Contact = get_contact_model()
             Organisation = get_organisation_model()
 
-            BlockDetailviewLocation.create(block_id=persons_maps_block.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Organisation)
-            BlockDetailviewLocation.create(block_id=persons_maps_block.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Contact)
-            BlockDetailviewLocation.create(block_id=who_is_around_maps_block.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Organisation)
-            BlockDetailviewLocation.create(block_id=who_is_around_maps_block.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Contact)
+            create_bdl = BlockDetailviewLocation.create
+            create_bdl(block_id=persons_maps_block.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Organisation)
+            create_bdl(block_id=persons_maps_block.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Contact)
+            create_bdl(block_id=who_is_around_maps_block.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Organisation)
+            create_bdl(block_id=who_is_around_maps_block.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Contact)
 
             BlockMypageLocation.create(block_id=persons_filter_maps_block.id_, order=20)
 
-            # add this bloc only if the root user exists (creme_core populated)
+            # Add this bloc only if the root user exists (creme_core populated)
             root = get_user_model().objects.filter(pk=1).first()
             if root:
                 logger.info('Creme core is installed => the block PersonsFilterMap can be activated')

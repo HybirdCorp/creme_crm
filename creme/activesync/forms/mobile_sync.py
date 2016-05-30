@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,9 +25,10 @@ from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.base import CremeForm
-from creme.creme_core.models import SettingValue
+# from creme.creme_core.models import SettingValue
 
-from ..constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL, COMMONS_SERVER_URL_CFG
+from ..constants import COMMONS_SERVER_URL_CFG  # MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
+from ..utils import get_default_server_setting_values
 
 
 class MobileSyncForm(CremeForm):
@@ -41,13 +42,14 @@ class MobileSyncForm(CremeForm):
     ssl    = BooleanField(label=_(u"Is secure"), required=False)
 
     def __init__(self, *args, **kwargs):
-        get_sv = SettingValue.objects.get #TODO: group queries ?
-        #self.server_url    = url    = get_sv(key__id=MAPI_SERVER_URL)
-        #self.server_domain = domain = get_sv(key__id=MAPI_DOMAIN)
-        #self.server_ssl    = ssl    = get_sv(key__id=MAPI_SERVER_SSL)
-        self.server_url    = url    = get_sv(key_id=MAPI_SERVER_URL)
-        self.server_domain = domain = get_sv(key_id=MAPI_DOMAIN)
-        self.server_ssl    = ssl    = get_sv(key_id=MAPI_SERVER_SSL)
+        # get_sv = SettingValue.objects.get
+        # self.server_url    = url    = get_sv(key_id=MAPI_SERVER_URL)
+        # self.server_domain = domain = get_sv(key_id=MAPI_DOMAIN)
+        # self.server_ssl    = ssl    = get_sv(key_id=MAPI_SERVER_SSL)
+        svalues = get_default_server_setting_values()
+        self.server_url    = url    = svalues['url']
+        self.server_domain = domain = svalues['domain']
+        self.server_ssl    = ssl    = svalues['ssl']
 
         initial = kwargs['initial'] or {}
         initial.update(url=url.value, domain=domain.value, ssl=ssl.value)

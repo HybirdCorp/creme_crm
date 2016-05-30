@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,20 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.conf import settings
 from django.db.models import Model, CharField, TextField, ForeignKey
-from django.utils.translation import ugettext as _
 
-from ..core.setting_key import SettingKey, setting_key_registry
-from ..utils import bool_as_html
+from ..core.setting_key import setting_key_registry
 
 
-# TODO: move to utils
-def print_hour(value):
-    return _('%sh') % value
-
-
-# TODO: Add a null and blank attribute ?? And a unique together with key, user
+# TODO: Add a null and blank attribute ??
 class SettingValue(Model):
     key_id    = CharField(max_length=100)  # See SettingKey.id
     user      = ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
@@ -40,10 +35,12 @@ class SettingValue(Model):
     class Meta:
         app_label = 'creme_core'
 
-    _HTML_PRINTERS = {
-            SettingKey.BOOL:   bool_as_html,
-            SettingKey.HOUR:   print_hour,
-        }
+    def __init__(self, *args, **kwargs):
+        super(SettingValue, self).__init__(*args, **kwargs)
+        if self.user_id:
+            warnings.warn("SettingValue.user attribute is deprecated ; use UserSettingValue instead.",
+                          DeprecationWarning
+                         )
 
     @property
     def key(self):
@@ -63,16 +60,15 @@ class SettingValue(Model):
 
     @property
     def as_html(self):
-        value = self.value
-
-        printer = self._HTML_PRINTERS.get(self.key.type)
-        if printer is not None:
-            value = printer(value)
-
-        return value
+        return self.key.value_as_html(self.value)
 
     @staticmethod
     def create_if_needed(key, user, value):
+        warnings.warn("SettingValue.create_if_needed() is deprecated ; "
+                      "use SettingValue.objects.get_or_create() instead.",
+                      DeprecationWarning
+                     )
+
         return SettingValue.objects.get_or_create(key_id=key.id, user=user,
                                                   defaults={'value': value},
                                                  )[0]

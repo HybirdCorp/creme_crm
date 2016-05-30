@@ -103,7 +103,8 @@ class Populator(BasePopulator):
                          (constants.REL_OBJ_CURRENT_DOC,       _(u'has as current accounting document'),    [Opportunity]))
 
 
-        SettingValue.create_if_needed(key=quote_key, user=None, value=False)
+        # SettingValue.create_if_needed(key=quote_key, user=None, value=False)
+        SettingValue.objects.get_or_create(key_id=quote_key.id, defaults={'value': False})
 
 
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=Opportunity,

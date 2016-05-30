@@ -40,7 +40,8 @@ class Populator(BasePopulator):
         for pk, title in USERMESSAGE_PRIORITIES.iteritems():
             create_if_needed(UserMessagePriority, {'pk': pk}, title=unicode(title), is_custom=False)
 
-        SettingValue.create_if_needed(key=todo_reminder_key, user=None, value=9)
+        # SettingValue.create_if_needed(key=todo_reminder_key, user=None, value=9)
+        SettingValue.objects.get_or_create(key_id=todo_reminder_key.id, defaults={'value': 9})
 
         Job.objects.get_or_create(type_id=usermessages_send_type.id,
                                   defaults={'language': settings.LANGUAGE_CODE,

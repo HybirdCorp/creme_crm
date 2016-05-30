@@ -5,7 +5,6 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
-    # from creme.persons.models.address import Address
 
     from ..models import GeoAddress, Town
 except Exception as e:

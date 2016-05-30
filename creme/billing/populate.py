@@ -226,7 +226,8 @@ class Populator(BasePopulator):
         for model in (ProductLine, ServiceLine):
             SearchConfigItem.create_if_needed(model, [], disabled=True)
 
-        SettingValue.create_if_needed(key=setting_keys.payment_info_key, user=None, value=True)
+        # SettingValue.create_if_needed(key=setting_keys.payment_info_key, user=None, value=True)
+        SettingValue.objects.get_or_create(key_id=setting_keys.payment_info_key.id, defaults={'value': True})
 
 
         if not already_populated:

@@ -18,6 +18,7 @@ try:
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.core.function_field import FunctionField, FunctionFieldsManager
     from creme.creme_core.core.reminder import Reminder, reminder_registry
+    from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
     from creme.creme_core.creme_jobs import reminder_type
     from creme.creme_core.models import RelationType, CustomField, CustomFieldEnumValue, Job
     from creme.creme_core.tests.base import CremeTestCase
@@ -472,6 +473,61 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(name, cell.value)
 
         self.assertIsNone(EntityCellFunctionField.build(Contact, func_field_name='invalid'))
+
+
+class SettingKeyTestCase(CremeTestCase):
+    def test_01(self):
+        sk1 = SettingKey('creme_core-test_sk_string',
+                         description=u'Page title',
+                         app_label='creme_core',
+                         type=SettingKey.STRING,
+                        )
+        sk2 = SettingKey('creme_core-test_sk_int',
+                         description=u'Page size',
+                         app_label='creme_core',
+                         type=SettingKey.INT, hidden=False,
+                        )
+        sk3 = SettingKey('creme_core-test_sk_bool',
+                         description=u'Page hidden',
+                         app_label='creme_core',
+                         type=SettingKey.BOOL,
+                        )
+
+        registry = _SettingKeyRegistry()
+        registry.register(sk1, sk2, sk3)
+
+        # ------
+        with self.assertNoException():
+            sk = registry[sk1.id]
+        self.assertEqual(sk1, sk)
+
+        self.assertEqual(sk2, registry[sk2.id])
+        self.assertEqual(sk3, registry[sk3.id])
+
+        # ------
+        all_key_ids = {sk.id for sk in registry}
+        self.assertIn(sk1.id, all_key_ids)
+        self.assertIn(sk2.id, all_key_ids)
+        self.assertIn(sk3.id, all_key_ids)
+
+        # ------
+        registry.unregister(sk1, sk3)
+
+        self.assertEqual(sk2, registry[sk2.id])
+
+        with self.assertRaises(KeyError):
+            registry[sk1.id]
+
+        with self.assertRaises(KeyError):
+            registry[sk3.id]
+
+        all_key_ids = {sk.id for sk in registry}
+        self.assertIn(sk2.id, all_key_ids)
+        self.assertNotIn(sk1.id, all_key_ids)
+        self.assertNotIn(sk3.id, all_key_ids)
+
+        with self.assertNoException():
+            registry.unregister(sk3)
 
 
 class JobManagerTestCase(CremeTestCase):

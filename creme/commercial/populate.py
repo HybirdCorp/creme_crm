@@ -100,9 +100,9 @@ class Populator(BasePopulator):
         create_searchconf(ActObjectivePattern, [], disabled=True)
 
 
-        create_svalue = SettingValue.create_if_needed
-        # create_svalue(key=setting_keys.notification_key,    user=None, value=True)
-        create_svalue(key=setting_keys.orga_approaches_key, user=None, value=True)
+        # create_svalue = SettingValue.create_if_needed
+        # create_svalue(key=setting_keys.orga_approaches_key, user=None, value=True)
+        SettingValue.objects.get_or_create(key_id=setting_keys.orga_approaches_key.id, defaults={'value': True})
 
 
         Job.objects.get_or_create(type_id=com_approaches_emails_send_type.id,

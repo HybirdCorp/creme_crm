@@ -13,6 +13,18 @@ except Exception as e:
 
 
 class CipherTestCase(CremeTestCase):
+    def setUp(self):
+        super(CipherTestCase, self).setUp()
+        self._registered_skey = []
+
+    def tearDown(self):
+        super(CipherTestCase, self).tearDown()
+        setting_key_registry.unregister(*self._registered_skey)
+
+    def _register_key(self, skey):
+        setting_key_registry.register(skey)
+        self._registered_skey.append(skey)
+
     def test_cipher01(self):
         text = "Creme is opensrc" # len(text) is explicitly == 16
         ciphertext = Cipher.encrypt(text)
@@ -24,23 +36,25 @@ class CipherTestCase(CremeTestCase):
         self.assertEqual(text, Cipher.decrypt(ciphertext))
 
     def test_cipher03(self):
-        text = "Creme is a free/open-source" # len(text) is explicitly >= 16 and not mod 16
+        text = "Creme is a free/open-source"  # len(text) is explicitly >= 16 and not mod 16
         ciphertext = Cipher.encrypt(text)
         self.assertEqual(text, Cipher.decrypt(ciphertext))
 
-        text = "".join(str(i) for i in xrange(50))
+        text = ''.join(str(i) for i in xrange(50))
         ciphertext = Cipher.encrypt(text)
         self.assertEqual(text, Cipher.decrypt(ciphertext))
 
     def test_cipher04(self):
         for i in xrange(143):
-            text = ''.join(chr(random.randint(0, 0xFF)) for i in xrange(i))#Test with text with not always the same length
+            # Test with text with not always the same length
+            text = ''.join(chr(random.randint(0, 0xFF)) for _ in xrange(i))
             ciphertext = Cipher.encrypt(text)
             self.assertEqual(text, Cipher.decrypt(ciphertext))
 
     def test_cipher05(self):
         for i in xrange(143):
-            text = ''.join(chr(random.randint(0, 255)) for i in xrange(i))#Test with text with not always the same length
+            # Test with text with not always the same length
+            text = ''.join(chr(random.randint(0, 255)) for _ in xrange(i))
             ciphertext = Cipher.encrypt(text)
             self.assertEqual(text, Cipher.decrypt(ciphertext))
 
@@ -51,7 +65,8 @@ class CipherTestCase(CremeTestCase):
 
     def test_cipher_for_db02(self):
         for i in xrange(143):
-            text = ''.join(chr(random.randint(0, 255)) for i in xrange(i))#Test with text with not always the same length
+            # Test with text with not always the same length
+            text = ''.join(chr(random.randint(0, 255)) for _ in xrange(i))
             ciphertext = Cipher.encrypt_for_db(text)
             self.assertEqual(text, Cipher.decrypt_from_db(ciphertext))
 
@@ -60,13 +75,16 @@ class CipherTestCase(CremeTestCase):
         password = "my password"
         skey_id = 'activesync-test_ciphered_setting_value01'
         skey = SettingKey(id=skey_id, type=SettingKey.STRING, app_label='creme_config', description='')
-        setting_key_registry.register(skey) #TODO: clean in tearDown()...
+        # setting_key_registry.register(skey)
+        self._register_key(skey)
 
-        sv = SettingValue.create_if_needed(key=skey, user=self.user, value='val')
-        self.assertEqual(1, SettingValue.objects.filter(key_id=skey_id).count())
+        # sv = SettingValue.create_if_needed(key=skey, user=self.user, value='val')
+        sv = SettingValue.objects.get_or_create(key_id=skey_id, defaults={'value': 'val'})[0]
+        # self.assertEqual(1, SettingValue.objects.filter(key_id=skey_id).count())
 
         sv.value = Cipher.encrypt_for_db(password)
         sv.save()
 
-        sv = SettingValue.objects.get(key_id=skey_id, user=self.user)
+        # sv = SettingValue.objects.get(key_id=skey_id, user=self.user)
+        sv = self.refresh(sv)
         self.assertEqual(password, Cipher.decrypt_from_db(sv.value))

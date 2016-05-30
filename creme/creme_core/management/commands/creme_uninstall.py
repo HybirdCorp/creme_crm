@@ -20,8 +20,10 @@
 
 from functools import wraps
 from itertools import chain
+from json import dumps as jsondumps, loads as jsonloads
 
 from django.apps import apps
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import AppCommand, CommandError
 from django.core.management.color import no_style
@@ -198,6 +200,27 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
 def _uninstall_history_lines(sender, content_types, **kwargs):
     # NB: we delete HistoryLine manually, in order to delete related lines too.
     HistoryLine.delete_lines(HistoryLine.objects.filter(entity_ctype__in=content_types))
+
+
+@receiver(post_uninstall_flush)
+@uninstall_handler('Deleting user setting values...')
+def _uninstall_user_setting_values(sender, **kwargs):
+    prefix = sender.label + '-'
+
+    for user in get_user_model().objects.all():
+        d = jsonloads(user.json_settings)
+        new_d = {}
+        save = False
+
+        for k, v in d.iteritems():
+            if k.startswith(prefix):
+                save = True
+            else:
+                new_d[k] = v
+
+        if save:
+            user.json_settings = jsondumps(new_d)
+            user.save()
 
 
 class Command(AppCommand):

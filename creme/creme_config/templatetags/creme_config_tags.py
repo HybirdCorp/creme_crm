@@ -28,13 +28,16 @@ from ..registry import config_registry
 register = Library()
 _USER_SETTINGS_BLOCK = 'user_settings_blocks'
 
-@register.filter(name="is_custom")
+
+@register.filter(name='is_custom')
 def is_custom(obj):
     return getattr(obj, 'is_custom', True)
 
-@register.tag(name="import_usersettings_blocks")
+
+@register.tag(name='import_usersettings_blocks')
 def do_usersettings_blocks_importer(parser, token):
     return UserSettingsBlocksImporterNode()
+
 
 class UserSettingsBlocksImporterNode(TemplateNode):
     def render(self, context):
@@ -43,9 +46,10 @@ class UserSettingsBlocksImporterNode(TemplateNode):
         return ''
 
 
-@register.tag(name="display_usersettings_blocks")
+@register.tag(name='display_usersettings_blocks')
 def do_usersettings_blocks_displayer(parser, token):
     return UserSettingsBlocksDisplayerNode()
+
 
 class UserSettingsBlocksDisplayerNode(TemplateNode):
     def render(self, context):

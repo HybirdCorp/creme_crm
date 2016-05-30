@@ -12,7 +12,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.core.setting_key import SettingKey
+    from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
     from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import (CremeEntity, CremeProperty, RelationType,
             EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue) #Relation
@@ -877,7 +877,17 @@ class UserSettingsTestCase(CremeTestCase):
         cls.populate('creme_core')
 
     def setUp(self):
+        super(UserSettingsTestCase, self).setUp()
         self.login()
+        self._registered_skey = []
+
+    def tearDown(self):
+        super(UserSettingsTestCase, self).tearDown()
+        user_setting_key_registry.unregister(*self._registered_skey)
+
+    def _register_key(self, *skeys):
+        user_setting_key_registry.register(*skeys)
+        self._registered_skey.extend(skeys)
 
     def test_user_settings(self):
         response = self.assertGET200('/creme_config/my_settings/')
@@ -1012,3 +1022,38 @@ class UserSettingsTestCase(CremeTestCase):
         assertSelected(tz)
 
         change_tz(time_zones[1])
+
+    def _build_edit_user_svalue_url(self, setting_key):
+        return '/creme_config/my_settings/edit_value/%s' % setting_key.id
+
+    def test_edit_user_setting_value01(self):
+        user = self.user
+        sk = UserSettingKey('creme_config-test_edit_user_setting_value01',
+                            description=u'Page displayed',
+                            app_label='creme_core',
+                            type=SettingKey.BOOL, hidden=False,
+                           )
+        self.assertIsNone(user.settings.get(sk))
+
+        url = self._build_edit_user_svalue_url(sk)
+        self.assertGET404(url)
+
+        self._register_key(sk)
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'value': 'on'})
+        self.assertNoFormError(response)
+
+        self.assertIs(True, self.refresh(user).settings.get(sk))
+
+    def test_edit_user_setting_value02(self):
+        "hidden=True => error"
+        user = self.user
+        sk = UserSettingKey('creme_config-test_edit_user_setting_value02',
+                            description=u'Page displayed',
+                            app_label='creme_core',
+                            type=SettingKey.BOOL, hidden=True,
+                           )
+
+        self._register_key(sk)
+        self.assertGET404(self._build_edit_user_svalue_url(sk))

@@ -407,11 +407,15 @@ class CremeUser(AbstractBaseUser):
                           choices=settings.THEMES,
                          ).set_tags(viewable=False)
 
+    # NB: do not use directly ; use the property 'settings'
+    json_settings = TextField(editable=False, default='{}').set_tags(viewable=False)  # TODO: JSONField ?
+
     objects = CremeUserManager()
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'email']
 
+    _settings = None
     _teams = None
     _teammates = None
 
@@ -447,6 +451,19 @@ class CremeUser(AbstractBaseUser):
     # @staticmethod
     # def get_common_ones():
     #     return User.objects.filter(is_staff=False)
+
+    @property
+    def settings(self):
+        settings = self._settings
+
+        if settings is None:
+            from ..core.setting_key import UserSettingValueManager
+            settings = self._settings = UserSettingValueManager(user_class=self.__class__,
+                                                                user_id=self.id,
+                                                                json_settings=self.json_settings,
+                                                               )
+
+        return settings
 
     @property
     def theme_info(self):

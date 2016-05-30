@@ -30,9 +30,13 @@ from .setting_keys import mapi_server_url_key, mapi_domain_key, mapi_server_ssl_
 
 class Populator(BasePopulator):
     def populate(self):
-        SettingValue.create_if_needed(key=mapi_server_url_key, user=None, value='')
-        SettingValue.create_if_needed(key=mapi_domain_key,     user=None, value='')
-        SettingValue.create_if_needed(key=mapi_server_ssl_key, user=None, value=False)
+        # SettingValue.create_if_needed(key=mapi_server_url_key, user=None, value='')
+        # SettingValue.create_if_needed(key=mapi_domain_key,     user=None, value='')
+        # SettingValue.create_if_needed(key=mapi_server_ssl_key, user=None, value=False)
+        create_svalue = SettingValue.objects.get_or_create
+        create_svalue(key_id=mapi_server_url_key.id, defaults={'value': ''})
+        create_svalue(key_id=mapi_domain_key.id,     defaults={'value': ''})
+        create_svalue(key_id=mapi_server_ssl_key.id, defaults={'value': False})
 
         Job.objects.get_or_create(type_id=activesync_type.id,
                                   defaults={'language':    settings.LANGUAGE_CODE,
