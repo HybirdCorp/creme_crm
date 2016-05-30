@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,15 +28,13 @@ class ActivesyncConfig(CremeAppConfig):
     verbose_name = _(u'Mobile synchronization')
     dependencies = ['creme.persons', 'creme.activities']
 
-#    def ready(self):
-#        super(ActivesyncConfig, self).ready()
     def all_apps_ready(self):
         super(ActivesyncConfig, self).all_apps_ready()
 
         from . import signals
 
     def register_creme_app(self, creme_registry):
-        creme_registry.register_app('activesync', _(u'Mobile synchronization') , None)
+        creme_registry.register_app('activesync', _(u'Mobile synchronization'), None)
 
     def register_blocks(self, block_registry):
         from .blocks import (user_mobile_sync_config_block, mobile_sync_config_block,
@@ -55,3 +53,8 @@ class ActivesyncConfig(CremeAppConfig):
         from .setting_keys import skeys
 
         setting_key_registry.register(*skeys)
+
+    def register_user_setting_keys(self, user_setting_key_registry):
+        from .setting_keys import user_skeys
+
+        user_setting_key_registry.register(*user_skeys)

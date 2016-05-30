@@ -20,7 +20,6 @@
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-#from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
@@ -65,13 +64,12 @@ def edit(request, svalue_id):
                        delegate_reload=True,
                       )
 
+
 @login_required
 @jsonify
 def reload_block(request, app_name):
     request.user.has_perm_to_admin_or_die(app_name)
 
-#    context = RequestContext(request)
-#    context['app_name'] =  app_name
     context = build_context(request, app_name=app_name)
 
     return [(settings_block.id_, settings_block.detailview_display(context))]

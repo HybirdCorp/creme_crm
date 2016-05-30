@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import base64
+import logging
 import os
 import random
 from struct import unpack
@@ -34,11 +35,42 @@ from django.core.files.base import File
 
 from creme.creme_core.models import SettingValue
 
-from .constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+from .constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
+    # USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+from .setting_keys import user_msync_activities_key, user_msync_contacts_key
 
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
 KNOW_BASE64_INCREASE = 1.33
+
+
+def get_default_server_setting_values():
+    svalues = {sv.key_id: sv
+                  for sv in SettingValue.objects.filter(key_id__in=(MAPI_SERVER_URL,
+                                                                    MAPI_DOMAIN,
+                                                                    MAPI_SERVER_SSL,
+                                                                   )
+                                                       )
+              }
+
+    result = {}
+
+    try:
+        result['url']    = svalues[MAPI_SERVER_URL]
+        result['domain'] = svalues[MAPI_DOMAIN]
+        result['ssl']    = svalues[MAPI_SERVER_SSL]
+    except KeyError as e:
+        logger.warn('activesync.utils.get_default_server_setting_values: unfoundable SettingValue(key=%s) '
+                    '- Populate has not been run ?! (if you are running unit tests you can '
+                    'ignore this message' % e
+                   )  # NB useful for creme_config tests
+        result['url']    = SettingValue(key_id=MAPI_SERVER_URL, value='')
+        result['domain'] = SettingValue(key_id=MAPI_DOMAIN, value='')
+        result['ssl']    = SettingValue(key_id=MAPI_SERVER_SSL, value=False)
+
+    return result
 
 
 def generate_guid():
@@ -55,8 +87,9 @@ def generate_guid():
 
     return guid
 
+
 def b64_encode_file(file_path):
-    """Get a file path
+    """Get a file path.
     Returns (len(b64encoded file), file in b64)
     """
     encoded = StringIO()
@@ -69,10 +102,11 @@ def b64_encode_file(file_path):
 
     encoded.close()
 
-    return (len_encoded, value)
+    return len_encoded, value
+
 
 def b64_from_pil_image(im, quality=75, reduce_by=1, out_format='JPEG'):
-    """Get a PIL Image
+    """Get a PIL Image.
     Returns (image content in base64), image content in base64)
     """
     img_content = StringIO()
@@ -84,12 +118,13 @@ def b64_from_pil_image(im, quality=75, reduce_by=1, out_format='JPEG'):
     content = base64.b64encode(img_content.getvalue())
     content_size = len(content)
     img_content.close()
-    return (content_size, content)
+
+    return content_size, content
+
 
 def get_b64encoded_img_of_max_weight(image_file_path, max_weight):
-    """
-        Get an image file path and max weight (in bytes)
-        Returns base64 encoded string of an image file with weight < max_weight
+    """Get an image file path and max weight (in bytes).
+    Returns base64 encoded string of an image file with weight < max_weight
     """
 
     im = Image.open(image_file_path)
@@ -102,7 +137,7 @@ def get_b64encoded_img_of_max_weight(image_file_path, max_weight):
         if content_size <= max_weight:
             return content
 
-    #TODO: Optimize the end image by a better non-linear reduction, quality, ...
+    # TODO: Optimize the end image by a better non-linear reduction, quality, ...
     content_size, content = b64_from_pil_image(im, reduce_by=.5)
     while content_size > max_weight:
         content_size, content = b64_from_pil_image(im, reduce_by=.5)
@@ -148,26 +183,31 @@ def decode_AS_timezone(tz):
 #    unpack('cxcxc59x' daylightName standardName
     tz_dict = dict(zip(tz_infos_keys, unpack('<l64s8hl64s8hl', base64.b64decode(tz))))
 
-    tz_dict['daylight_name'] = "".join(unpack('cxcxc59x', tz_dict['daylight_name']))
-    tz_dict['standard_name'] = "".join(unpack('cxcxc59x', tz_dict['standard_name']))
+    tz_dict['daylight_name'] = ''.join(unpack('cxcxc59x', tz_dict['daylight_name']))
+    tz_dict['standard_name'] = ''.join(unpack('cxcxc59x', tz_dict['standard_name']))
 
     return tz_dict
 
+
 def encode_AS_timezone(time_zone):
-    #TODO: Do this function (for now just handling Europe/Paris
+    # TODO: Do this function (for now just handling Europe/Paris
     return 'xP///0MARQBUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAEMARQBTAFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w=='
 
-def _is_user_sync(user, key_id):
-    try:
-        return SettingValue.objects.get(key_id=key_id, user=user).value
-    except SettingValue.DoesNotExist:
-        pass
 
-    return False
+# def _is_user_sync(user, key_id):
+#     try:
+#         return SettingValue.objects.get(key_id=key_id, user=user).value
+#     except SettingValue.DoesNotExist:
+#         pass
+#
+#     return False
+
 
 def is_user_sync_calendars(user):
-    return _is_user_sync(user, USER_MOBILE_SYNC_ACTIVITIES)
+    # return _is_user_sync(user, USER_MOBILE_SYNC_ACTIVITIES)
+    return user.settings.get(user_msync_activities_key, False)
+
 
 def is_user_sync_contacts(user):
-    return _is_user_sync(user, USER_MOBILE_SYNC_CONTACTS)
-
+    # return _is_user_sync(user, USER_MOBILE_SYNC_CONTACTS)
+    return user.settings.get(user_msync_contacts_key, False)

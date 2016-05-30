@@ -18,11 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.http import Http404
 from django.shortcuts import render
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
+from creme.creme_core.core.setting_key import user_setting_key_registry
 from creme.creme_core.utils import jsonify
+from creme.creme_core.views.generic import inner_popup
 
+from ..forms.setting import UserSettingForm
 from ..forms.user_settings import UserThemeForm, UserTimeZoneForm
 
 # NB: no special permissions needed (user can only view/change its own settings)
@@ -33,7 +38,7 @@ def view(request):
     user = request.user
 
     return render(request, 'creme_config/user_settings.html',
-                  {  # user
+                  {
                    # 'theme_form': UserThemeForm(user).as_span(),
                    # 'tz_form':    UserTimeZoneForm(user).as_span(),
                    'theme_form': UserThemeForm(user=user, instance=user).as_span(),
@@ -72,3 +77,32 @@ def set_theme(request):
 def set_timezone(request):
     # return _set_usersetting(request, UserTimeZoneForm, 'usertimezone')
     return _set_usersetting(request, UserTimeZoneForm)
+
+
+@login_required
+def edit_setting_value(request, skey_id):
+    try:
+        skey = user_setting_key_registry[skey_id]
+    except KeyError:
+        raise Http404('This key is invalid')
+
+    if skey.hidden:
+        raise Http404('You can not edit a UserSettingValue which is hidden.')
+
+    if request.method == 'POST':
+        form = UserSettingForm(skey=skey, user=request.user, data=request.POST)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = UserSettingForm(skey=skey, user=request.user)
+
+    return inner_popup(request,
+                       'creme_core/generics/blockform/edit_popup.html',
+                       {'form':  form,
+                        'title': _(u'Edit «%s»') % skey.description,
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                      )

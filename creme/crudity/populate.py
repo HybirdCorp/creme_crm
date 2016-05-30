@@ -30,7 +30,8 @@ from .setting_keys import sandbox_key
 
 class Populator(BasePopulator):
     def populate(self):
-        SettingValue.create_if_needed(key=sandbox_key, user=None, value=False)
+        # SettingValue.create_if_needed(key=sandbox_key, user=None, value=False)
+        SettingValue.objects.get_or_create(key_id=sandbox_key.id, defaults={'value': False})
 
         Job.objects.get_or_create(type_id=crudity_synchronize_type.id,
                                   defaults={'language':    settings.LANGUAGE_CODE,

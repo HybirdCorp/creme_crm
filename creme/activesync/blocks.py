@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,21 +20,20 @@
 
 import logging
 
-#from django.utils.translation import ugettext_lazy as _
-
 from creme.creme_core.gui.block import Block, QuerysetBlock
-from creme.creme_core.models import SettingValue
+# from creme.creme_core.models import SettingValue
 
 from creme.persons import get_contact_model
-#from creme.persons.models.contact import Contact
 
 from .models.active_sync import (UserSynchronizationHistory,
         USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE)
-from .constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL,
-        USER_MOBILE_SYNC_SERVER_DOMAIN, MAPI_DOMAIN,
-        USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL,
-        USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
-        USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
+# from .constants import (MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL,
+#         USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_URL,
+#         USER_MOBILE_SYNC_SERVER_SSL,
+#         USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
+#         USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
+from . import setting_keys
+from .utils import get_default_server_setting_values
 
 
 logger = logging.getLogger(__name__)
@@ -48,41 +47,67 @@ class UserMobileSyncConfigBlock(Block):
     permission    = None
 
     def detailview_display(self, context):
-        request = context['request']
-        user   = request.user
-        sv_get = SettingValue.objects.get
+        user = context['user']
+        user_settings = user.settings
+        # sv_get = SettingValue.objects.get
+        default_values = {}
 
-        def get_setting_value(user_key_id, default_key_id=None):
-            svalue = None
+        # def get_setting_value(user_key_id, default_key_id=None):
+        #     svalue = None
+        #
+        #     try:
+        #         svalue = sv_get(key_id=user_key_id, user=user)
+        #     except SettingValue.DoesNotExist:
+        #         if default_key_id:
+        #             try:
+        #                 svalue = sv_get(key_id=default_key_id)
+        #             except SettingValue.DoesNotExist:
+        #                 logger.warn('Activesync.UserMobileSyncConfigBlock: unfoundable SettingValue(key="%s") '
+        #                             '- Populate has not been run ?! (if you are running unit tests you can '
+        #                             'ignore this message' % default_key_id
+        #                            )  # NB useful for creme_config tests
+        #             else:
+        #                 svalue.default_config = True
+        #     else:
+        #         svalue.default_config = False
+        #
+        #     return svalue
+        def get_setting_value(user_skey, default_key=None):
+            html_value = None
+            default_config = False
 
             try:
-                svalue = sv_get(key_id=user_key_id, user=user)
-            except SettingValue.DoesNotExist:
-                if default_key_id:
-                    try:
-                        svalue = sv_get(key_id=default_key_id)
-                    except SettingValue.DoesNotExist:
-                        logger.warn('Activesync.UserMobileSyncConfigBlock: unfoundable SettingValue(key="%s") '
-                                    '- Populate has not been run ?! (if you are running unit tests you can '
-                                    'ignore this message' % default_key_id
-                                   ) # NB useful for creme_config tests
-                    else:
-                        svalue.default_config = True
-            else:
-                svalue.default_config = False
+                html_value = user_settings.as_html(user_skey)
+            except KeyError:
+                if not default_key:
+                    return None
 
-            return svalue
+                # TODO: use nonlocal in py3 instead...
+                if not default_values:
+                    default_values.update(get_default_server_setting_values())
+
+                html_value = default_values[default_key].as_html
+                default_config = True
+
+            return {'as_html': html_value, 'default_config': default_config}
 
         return self._render(self.get_block_template_context(
                                 context,
-                                url=get_setting_value(USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL),
-                                domain=get_setting_value(USER_MOBILE_SYNC_SERVER_DOMAIN, MAPI_DOMAIN),
-                                ssl=get_setting_value(USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL),
-                                username=get_setting_value(USER_MOBILE_SYNC_SERVER_LOGIN),
+                                # url=get_setting_value(USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL),
+                                # domain=get_setting_value(USER_MOBILE_SYNC_SERVER_DOMAIN, MAPI_DOMAIN),
+                                # ssl=get_setting_value(USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL),
+                                # username=get_setting_value(USER_MOBILE_SYNC_SERVER_LOGIN),
+                                # password=get_setting_value(USER_MOBILE_SYNC_SERVER_PWD),
+                                # sync_cal=get_setting_value(USER_MOBILE_SYNC_ACTIVITIES),
+                                # sync_con=get_setting_value(USER_MOBILE_SYNC_CONTACTS),
+                                url=get_setting_value(setting_keys.user_msync_server_url_key, 'url'),
+                                domain=get_setting_value(setting_keys.user_msync_server_domain_key, 'domain'),
+                                ssl=get_setting_value(setting_keys.user_msync_server_ssl_key, 'ssl'),
+                                username=get_setting_value(setting_keys.user_msync_server_login_key),
                                 # TODO: It's the ciphered value but it's just for display. Is it a problem ?
-                                password=get_setting_value(USER_MOBILE_SYNC_SERVER_PWD),
-                                sync_cal=get_setting_value(USER_MOBILE_SYNC_ACTIVITIES),
-                                sync_con=get_setting_value(USER_MOBILE_SYNC_CONTACTS),
+                                password=get_setting_value(setting_keys.user_msync_server_pwd_key),
+                                sync_cal=get_setting_value(setting_keys.user_msync_activities_key),
+                                sync_con=get_setting_value(setting_keys.user_msync_contacts_key),
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                )
                            )
@@ -90,28 +115,29 @@ class UserMobileSyncConfigBlock(Block):
 
 class MobileSyncConfigBlock(Block):
     id_           = Block.generate_id('activesync', 'mobile_sync_config')
-    dependencies  = ()
+    # dependencies  = ()
     verbose_name  = u'Mobile synchronization configuration'
     template_name = 'activesync/templatetags/block_mobile_sync_config.html'
     configurable  = False
     permission    = 'activesync.can_admin'
 
     def detailview_display(self, context):
-        # TODO: group queries ?? hand made VS something like
-        # SettingValue.objects.bulk_per_keys(url=MAPI_SERVER_URL, domain=MAPI_DOMAIN)
-        #   => {'url': ..., 'domain': ...}   (as **kwargs for get_block_template_context())
-        sv_get = SettingValue.objects.get
-        server_url    = sv_get(key_id=MAPI_SERVER_URL)
-        server_domain = sv_get(key_id=MAPI_DOMAIN)
-        server_ssl    = sv_get(key_id=MAPI_SERVER_SSL)
+        # sv_get = SettingValue.objects.get
+        # server_url    = sv_get(key_id=MAPI_SERVER_URL)
+        # server_domain = sv_get(key_id=MAPI_DOMAIN)
+        # server_ssl    = sv_get(key_id=MAPI_SERVER_SSL)
+        values = get_default_server_setting_values()
 
-        return self._render(self.get_block_template_context(context,
-                                                            url=server_url,
-                                                            domain=server_domain,
-                                                            ssl=server_ssl,
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+                                context,
+                                # url=server_url,
+                                # domain=server_domain,
+                                # ssl=server_ssl,
+                                url=values['url'],
+                                domain=values['domain'],
+                                ssl=values['ssl'],
+                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                           ))
 
 
 class UserSynchronizationHistoryBlock(QuerysetBlock):
@@ -129,7 +155,6 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
                                                                                 .select_related('entity_ct'),
                                               history_type_verbose=USER_HISTORY_TYPE_VERBOSE,
                                               history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
-#                                              contact_klass=Contact,
                                               contact_klass=get_contact_model(),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk),
                                              )

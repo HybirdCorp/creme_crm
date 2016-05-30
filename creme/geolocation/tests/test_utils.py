@@ -5,20 +5,18 @@ try:
 
     from creme.creme_core.models import SettingValue
 
-    # from creme.persons.models import Organisation, Contact, Address
     from creme.persons.tests.base import (skipIfCustomAddress,
             skipIfCustomContact, skipIfCustomOrganisation)
 
     from ..constants import DEFAULT_SEPARATING_NEIGHBOURS
     from ..models import GeoAddress
     from ..setting_keys import NEIGHBOURHOOD_DISTANCE
-    from ..utils import get_setting, address_as_dict, addresses_from_persons, location_bounding_box
+    from ..utils import (get_setting, get_radius, address_as_dict,
+             addresses_from_persons, location_bounding_box)
     from .base import GeoLocationBaseTestCase, Organisation, Contact, Address
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
-
-# __all__ = ('GeoLocationUtilsTestCase',)
 
 class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
@@ -162,7 +160,6 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         GeoAddress.objects.filter(address=address).delete()
         address = Address.objects.select_related('geoaddress').get(pk=address.pk)
 
-        #self.assertIsNone(address.geoaddress)
         with self.assertRaises(GeoAddress.DoesNotExist):
             address.geoaddress
 
@@ -224,6 +221,16 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         self.assertEqual(get_setting(NEIGHBOURHOOD_DISTANCE, DEFAULT_SEPARATING_NEIGHBOURS),
                          new_value
                         )
+
+    def test_get_radius(self):
+        self.assertEqual(get_radius(), DEFAULT_SEPARATING_NEIGHBOURS)
+
+        setting = SettingValue.objects.get_or_create(key_id=NEIGHBOURHOOD_DISTANCE.id)[0]
+
+        new_value = 12500
+        setting.value = new_value
+        setting.save()
+        self.assertEqual(get_radius(), new_value)
 
     def test_location_bounding_box(self):
         # 10 km ~ 0.09046499004885108 lat, 0.12704038469036066 long (for 45° lat)

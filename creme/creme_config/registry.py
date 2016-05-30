@@ -159,16 +159,12 @@ class _ConfigRegistry(object):
         # Add an app to creme_config if it has at least a visible SettingKey
         # (to be sure that even app without registered models appear)
         for app_label in {skey.app_label for skey in setting_key_registry if not skey.hidden}:
-#            _apps[app_label] = AppConfigRegistry(app_label, creme_registry.get_app(app_label).verbose_name)
-            #_apps[app_label] = self._build_app_conf_registry(app_label)
             _apps[app_label] = self._build_app_conf_registry(self._get_app_name(app_label))
 
     def _build_app_conf_registry(self, app_name):
         return AppConfigRegistry(app_name, creme_registry.get_app(app_name).verbose_name)
 
-#    def get_app(self, app_name):
     def get_app(self, app_label):
-#        return self._apps[app_name]
         return self._apps[self._get_app_name(app_label)]
 
     def _get_app_name(self, app_label):
@@ -187,12 +183,10 @@ class _ConfigRegistry(object):
         app_registries = self._apps
 
         for args in to_register:
-#            app_name = args[0]._meta.app_label
             app_name = self._get_app_name(args[0]._meta.app_label)
             app_conf = app_registries.get(app_name)
 
             if app_conf is None:
-#                app_registries[app_name] = app_conf = AppConfigRegistry(app_name, creme_registry.get_app(app_name).verbose_name)
                 app_registries[app_name] = app_conf = self._build_app_conf_registry(app_name)
 
             app_conf.register_model(*args)
@@ -203,7 +197,6 @@ class _ConfigRegistry(object):
     def register_blocks(self, *blocks_to_register):  # TODO: factorise with register()
         app_registries = self._apps
 
-#        for app_name, block in blocks_to_register:
         for app_label, block in blocks_to_register:
             assert hasattr(block, 'detailview_display'), 'block with id="%s" has no detailview_display() method' % block.id_
             # TODO: need a method is_registered() ?
@@ -213,7 +206,6 @@ class _ConfigRegistry(object):
             app_conf = app_registries.get(app_name)
 
             if app_conf is None:
-#                app_registries[app_name] = app_conf = AppConfigRegistry(app_name, creme_registry.get_app(app_name).verbose_name)
                 app_registries[app_name] = app_conf = self._build_app_conf_registry(app_name)
 
             app_conf.register_block(block)

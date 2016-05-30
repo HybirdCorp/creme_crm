@@ -73,9 +73,13 @@ class Populator(BasePopulator):
                 root.is_staff = False
                 root.save()
 
-        SettingValue.create_if_needed(key=block_opening_key,   user=None, value=True)
-        SettingValue.create_if_needed(key=block_showempty_key, user=None, value=True)
-        SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
+        # SettingValue.create_if_needed(key=block_opening_key,   user=None, value=True)
+        # SettingValue.create_if_needed(key=block_showempty_key, user=None, value=True)
+        # SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
+        create_svalue = SettingValue.objects.get_or_create
+        create_svalue(key_id=block_opening_key.id,   defaults={'value': True})
+        create_svalue(key_id=block_showempty_key.id, defaults={'value': True})
+        create_svalue(key_id=currency_symbol_key.id, defaults={'value': True})
 
         create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
 

@@ -37,6 +37,7 @@ from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingV
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem,
         ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
 from creme.creme_core.registry import creme_registry
+from creme.creme_core.core.setting_key import user_setting_key_registry
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
 
@@ -614,6 +615,50 @@ class UserPreferedMenusBlock(QuerysetBlock):
                            ))
 
 
+class UserSettingValuesBlock(Block):
+    id_           = QuerysetBlock.generate_id('creme_config', 'user_setting_values')
+    # dependencies  = (User,) ??
+    verbose_name  = u'My setting values'
+    template_name = 'creme_config/templatetags/block_user_setting_values.html'
+    configurable  = False
+    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic ;
+                          #     None means 'No special permission required'
+
+    def detailview_display(self, context):
+        # NB: credentials OK: user can only view his own settings
+        settings = context['user'].settings
+        sv_info_per_app = defaultdict(list)
+        get_app = creme_registry.get_app
+        count = 0
+
+        for skey in user_setting_key_registry:
+            if skey.hidden:
+                continue
+
+            info = {
+                'description': skey.description,
+                'key_id':      skey.id,
+            }
+
+            try:
+                info['value'] = settings.as_html(skey)
+            except KeyError:
+                info['not_set'] = True
+
+            sv_info_per_app[skey.app_label].append(info)
+            count += 1
+
+        return self._render(self.get_block_template_context(
+                                context,
+                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                values_per_app=[
+                                    (get_app(app_label, silent_fail=True).verbose_name, svalues)
+                                        for app_label, svalues in sv_info_per_app.iteritems()
+                                ],
+                                count=count,
+                           ))
+
+
 generic_models_block = GenericModelsBlock()
 settings_block       = SettingsBlock()
 custom_fields_block  = CustomFieldsBlock()
@@ -642,4 +687,5 @@ blocks_list = (
         HistoryConfigBlock(),
         UserRolesBlock(),
         UserPreferedMenusBlock(),
+        UserSettingValuesBlock(),
     )

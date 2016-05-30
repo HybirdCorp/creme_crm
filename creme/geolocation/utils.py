@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,9 @@ from creme.creme_core.core.setting_key import SettingKey
 from creme.creme_core.models import SettingValue
 
 from creme.persons import get_address_model
-#from creme.persons.models import Address
+
+from .constants import DEFAULT_SEPARATING_NEIGHBOURS
+from .setting_keys import NEIGHBOURHOOD_DISTANCE
 
 
 def address_as_dict(address):
@@ -42,8 +44,6 @@ def address_as_dict(address):
 
     geoaddress = GeoAddress.get_geoaddress(address)
 
-#    is_billing  = owner.billing_address_id == address_id
-#    is_shipping = owner.shipping_address_id == address_id
     # NB: we use gettattr() to accept custom person model without
     # billing_address/shipping_address attribute.
     is_billing  = getattr(owner, 'billing_address_id', None) == address_id
@@ -66,38 +66,41 @@ def address_as_dict(address):
             'url':          owner.get_absolute_url(),
            }
 
+
 def address_title(address):
     if address.name:
         return address.name
 
     address_id = address.id
 
-#    if address.owner.billing_address_id == address.id:
     # See above
     if getattr(address.owner, 'billing_address_id', None) == address_id:
         return _('Billing address')
 
-#    if address.owner.shipping_address_id == address.id:
     if getattr(address.owner, 'shipping_address_id', None) == address_id:
         return _('Shipping address')
 
     return ''
 
+
 def addresses_from_persons(queryset, user):
     entities = EntityCredentials.filter(user, queryset.filter(is_deleted=False))
-#    addresses = Address.objects.filter(content_type_id=ContentType.objects.get_for_model(queryset.model).id)
-    addresses = get_address_model().objects.filter(content_type_id=ContentType.objects.get_for_model(queryset.model).id)
+    addresses = get_address_model().objects.filter(content_type=ContentType.objects.get_for_model(queryset.model))
 
     # get address ids which owner has billing or shipping or both
-    billing_shipping_ids = entities.filter(Q(billing_address__isnull=False) | Q(shipping_address__isnull=False))\
-                                   .values_list('pk', 'billing_address', 'shipping_address')
-    billing_shipping_ids = {owner: billing or shipping for owner, billing, shipping in billing_shipping_ids}
+    billing_shipping_ids = {owner: billing or shipping
+                                for owner, billing, shipping in
+                                    entities.filter(Q(billing_address__isnull=False) |
+                                                    Q(shipping_address__isnull=False)
+                                                   )
+                                            .values_list('pk', 'billing_address', 'shipping_address')
+                           }
 
     # get address ids which owner without billing nor shipping
     address_ids = {owner: pk for owner, pk in
                         addresses.filter(object_id__in=entities.filter(billing_address__isnull=True,
-                                                                  shipping_address__isnull=True,
-                                                                 )
+                                                                       shipping_address__isnull=True,
+                                                                      )
                                                                .values_list('pk', flat=True)
                                         )
                                  .order_by('-pk')
@@ -106,9 +109,10 @@ def addresses_from_persons(queryset, user):
 
     # merge ids
     address_ids.update(billing_shipping_ids)
-    return addresses.filter(pk__in=address_ids.itervalues()) # TODO: select_related('geoaddress') ??
+    return addresses.filter(pk__in=address_ids.itervalues())  # TODO: select_related('geoaddress') ??
 
-# TODO : move it to creme_core
+
+# TODO: deprecate ?
 def get_setting(key, default=None):
     try:
         if isinstance(key, SettingKey):
@@ -117,6 +121,14 @@ def get_setting(key, default=None):
         return SettingValue.objects.get(key_id=key).value
     except SettingValue.DoesNotExist:
         return default
+
+
+def get_radius():
+    try:
+        return SettingValue.objects.get(key_id=NEIGHBOURHOOD_DISTANCE.id).value
+    except SettingValue.DoesNotExist:
+        return DEFAULT_SEPARATING_NEIGHBOURS
+
 
 def location_bounding_box(latitude, longitude, distance):
     # latitude:  1 deg ~ 110.54 km

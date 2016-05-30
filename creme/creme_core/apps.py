@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
 from .core.reminder import reminder_registry
-from .core.setting_key import setting_key_registry
+from .core.setting_key import setting_key_registry, user_setting_key_registry
 from .gui import (creme_menu, block_registry, bulk_update_registry, button_registry,
         fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
         merge_form_registry, quickforms_registry, smart_columns_registry)
@@ -109,6 +109,7 @@ class CremeAppConfig(AppConfig):
             self.register_quickforms(quickforms_registry)
             self.register_reminders(reminder_registry)
             self.register_setting_key(setting_key_registry)
+            self.register_user_setting_keys(user_setting_key_registry)
             self.register_smart_columns(smart_columns_registry)
 
     def register_creme_app(self, creme_registry):
@@ -154,6 +155,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_smart_columns(self, smart_columns_registry):
+        pass
+
+    def register_user_setting_keys(self, user_setting_key_registry):
         pass
 
 

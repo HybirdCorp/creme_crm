@@ -24,9 +24,10 @@ team_patterns = [
 ]
 
 user_settings_patterns = [
-    url(r'^set_theme/$',    user_settings.set_theme),
-    url(r'^set_timezone/$', user_settings.set_timezone),
-    url(r'^$',              user_settings.view),
+    url(r'^set_theme/$',                     user_settings.set_theme),
+    url(r'^set_timezone/$' ,                 user_settings.set_timezone),
+    url(r'^edit_value/(?P<skey_id>[\w-]+)$', user_settings.edit_setting_value),
+    url(r'^$',                               user_settings.view),
 ]
 
 role_patterns = [
@@ -75,11 +76,9 @@ custom_fields_patterns = [
 blocks_patterns = [
     url(r'^portal/$', blocks.portal),
 
-#    url(r'^detailview/add/$',                blocks.add_detailview),
-    url(r'^detailview/add/(?P<ct_id>\d+)$',  blocks.add_detailview),
-#    url(r'^detailview/edit/(?P<ct_id>\d+)$', blocks.edit_detailview),
+    url(r'^detailview/add/(?P<ct_id>\d+)$',                blocks.add_detailview),
     url(r'^detailview/edit/(?P<ct_id>\d+)/(?P<role>\w+)$', blocks.edit_detailview),
-    url(r'^detailview/delete$',              blocks.delete_detailview),
+    url(r'^detailview/delete$',                            blocks.delete_detailview),
 
     url(r'^portal/add/$',                   blocks.add_portal),
     url(r'^portal/edit/(?P<app_name>\w+)$', blocks.edit_portal),

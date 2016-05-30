@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,9 +28,9 @@ from ..forms.user_settings import UserSettingsConfigForm
 
 @login_required
 def edit_own_mobile_settings(request):
-#TODO: If user change his email, all already synced items to be resync with the new email address
+# TODO: If user change his email, all already synced items to be resync with the new email address
     if request.method == 'POST':
-        form = UserSettingsConfigForm(request.user, request.POST)
+        form = UserSettingsConfigForm(user=request.user, data=request.POST)
 
         if form.is_valid():
             form.save()
@@ -38,7 +38,7 @@ def edit_own_mobile_settings(request):
         form = UserSettingsConfigForm(user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {'form':   form,
+                       {'form':  form,
                         'title': _(u'Edit your mobile synchronization configuration'),
                         'help_message': _(u"Note that if you change your server URL or your login, "
                                           u"synchronization will be reset. You will not loose all your "

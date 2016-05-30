@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.setting_key import SettingKey
-from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.models import SettingValue
 
 
@@ -31,7 +31,7 @@ _FIELDS = {
         SettingKey.STRING: lambda label: CharField(label=label, widget=Textarea),
         SettingKey.INT:    IntegerField,
         SettingKey.BOOL:   lambda label: BooleanField(label=label, required=False),
-        #TODO: an HourField inheriting ChoiceField ?? (+factorise with 'polls')
+        # TODO: an HourField inheriting ChoiceField ?? (+factorise with 'polls')
         SettingKey.HOUR:   lambda label: IntegerField(label=label, min_value=0, max_value=23),
         SettingKey.EMAIL:  EmailField,
     }
@@ -58,3 +58,25 @@ class SettingForm(CremeModelForm):
     def save(self, *args, **kwargs):
         self.instance.value = self.cleaned_data['value']
         return super(SettingForm, self).save(*args, **kwargs)
+
+
+class UserSettingForm(CremeForm):
+    value = CharField(label=_(u'Value'))
+
+    def __init__(self, skey, *args, **kwargs):
+        super(UserSettingForm, self).__init__(*args, **kwargs)
+        self.skey = skey
+        fields = self.fields
+        field_class = _FIELDS.get(skey.type)
+
+        if field_class:
+            fields['value'] = field_class(label=ugettext(u'Value'))
+
+        try:
+            fields['value'].initial = self.user.settings[skey]
+        except KeyError:
+            pass
+
+    def save(self, *args, **kwargs):
+        with self.user.settings as settings:
+            settings[self.skey] = self.cleaned_data['value']
