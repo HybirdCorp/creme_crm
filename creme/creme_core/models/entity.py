@@ -316,6 +316,11 @@ class CremeEntity(CremeAbstractEntity):
         """@param entities: Sequence of CremeEntity (iterated several times -> not an iterator)
                             with the _same_ ContentType.
         """
+        warnings.warn('CremeEntity.populate_fk_fields() method is deprecated ; '
+                      'use creme_core.utils.db.populate_related() instead.',
+                      DeprecationWarning
+                     )
+
         if not entities:
             return
 

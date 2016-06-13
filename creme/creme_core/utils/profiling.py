@@ -59,11 +59,11 @@ class CaptureQueriesContext(DjangoCaptureQueriesContext):
 class QueriesPrinter(CaptureQueriesContext, ContextDecorator):
     """Print the SQL queries which are executed.
     Use as a context manager:
-        with QueriesPrinterContext():
+        with QueriesPrinter():
             [...]
 
     Use as a decorator:
-        @QueriesPrinterContext()
+        @QueriesPrinter()
         def [...]
     """
     def __exit__(self, *args, **kwargs):

@@ -28,6 +28,7 @@ from django.db.models import Q
 from django.utils.lru_cache import lru_cache
 
 from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
+from creme.creme_core.utils.db import populate_related
 from creme.creme_core.utils.meta import FieldInfo
 
 
@@ -416,9 +417,11 @@ class FlowPage(collections.Sequence):
         """
         next_item = self._next_item
 
-        # TODO: populate FK fields to avoid multiple query for the duplicates search
-        #         => improved version of CremeEntity.populate_fk_fields
         if next_item is not None:
+            all_instances = [next_item]
+            all_instances.extend(self.object_list)
+            populate_related(all_instances, (self._attr_name,))
+
             value = self._key_field_info.value_from(next_item)
             offset = self._compute_offset(value, reversed(self.object_list))
 
@@ -442,6 +445,8 @@ class FlowPage(collections.Sequence):
         Internal information ; notice that 'type' will always be 'backward'.
         """
         if self.has_previous():
+            populate_related(self.object_list, (self._attr_name,))
+
             object_iter = iter(self.object_list)
             value = self._key_field_info.value_from(next(object_iter))
             offset = self._compute_offset(value, object_iter)

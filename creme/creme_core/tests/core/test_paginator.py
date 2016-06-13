@@ -1265,7 +1265,9 @@ class FlowPaginatorTestCase(CremeTestCase):
         page1 = paginator.page()
         self.assertEqual(contacts[:2], list(page1.object_list))
 
-        info2 = page1.next_page_info()
+        with self.assertNumQueries(1):
+            info2 = page1.next_page_info()
+
         self.assertEqual({'type': 'forward',
                           'value': 1,  # == s2.order
                           'key': key,
@@ -1465,7 +1467,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page4.has_next())
 
     def test_fk06(self):
-        "Key: pk1__pk2__foobar (pk1 not nullable)+ ASC"
+        "Key: pk1__pk2__foobar (pk1 not nullable) + ASC"
         self._build_contacts()
 
         other_user = self.other_user
@@ -1493,7 +1495,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page4.has_next())
 
     def test_fk07(self):
-        "Key: pk1__pk2__foobar (pk1 not nullable)+ DESC"
+        "Key: pk1__pk2__foobar (pk1 not nullable) + DESC"
         self._build_contacts()
 
         other_user = self.other_user
@@ -1518,6 +1520,20 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         with self.assertRaises(FirstPage):
             paginator.page(page2.previous_page_info())
+
+    def test_fk08(self):
+        "Populate FK for previous_info()"
+        self._build_contacts()
+        self._add_sectors()
+
+        key = 'sector'
+        qs = Contact.objects.order_by(key, 'id')
+
+        paginator = FlowPaginator(qs, key=key, per_page=2, count=len(qs))
+        last_page = paginator.last_page()
+
+        with self.assertNumQueries(1):
+            last_page.previous_page_info()
 
     def test_pages01(self):
         self._build_contacts()

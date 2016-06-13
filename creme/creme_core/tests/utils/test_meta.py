@@ -84,6 +84,7 @@ class MetaTestCase(CremeTestCase):
         fi = meta.FieldInfo(Contact, 'first_name')
 
         self.assertEqual(1, len(fi))
+        self.assertIs(True, bool(fi))
 
         with self.assertNoException():
             base_field = fi[0]
@@ -141,8 +142,12 @@ class MetaTestCase(CremeTestCase):
 
         self.assertIsInstance(sub_fi, meta.FieldInfo)
         self.assertEqual(2, len(sub_fi))
-        self.assertEqual(Image._meta.get_field('user'),    sub_fi[0])
+        self.assertEqual(Image._meta.get_field('user'), sub_fi[0])
         self.assertEqual(get_user_model()._meta.get_field('username'), sub_fi[1])
+
+        empty_sub_fi = fi[3:]
+        self.assertEqual(0, len(empty_sub_fi))
+        self.assertIs(False, bool(empty_sub_fi))
 
     def test_field_info_get_value01(self):
         FieldInfo = meta.FieldInfo

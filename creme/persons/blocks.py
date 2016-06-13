@@ -22,8 +22,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
+from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url  # SimpleBlock
 from creme.creme_core.models import Relation
+from creme.creme_core.utils.db import populate_related
 
 from creme.activities import get_activity_model
 from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
@@ -228,6 +229,7 @@ class AddressBlock(Block):
 
             return addr
 
+        populate_related((person,), ['billing_address', 'shipping_address'])
         b_address = prepare_address('billing_address')
         s_address = prepare_address('shipping_address')
 
