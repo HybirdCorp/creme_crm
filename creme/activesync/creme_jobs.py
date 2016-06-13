@@ -39,9 +39,9 @@ class _ActiveSyncType(JobType):
                 Synchronization(user).synchronize()
             except CremeActiveSyncError as e:
                 JobResult.objects.create(job=job,
-                                         errors=[ugettext(u'An error occurred for the user «%s»') % user,
-                                                 ugettext(u'Original error: %s') % e,
-                                                ],
+                                         messages=[ugettext(u'An error occurred for the user «%s»') % user,
+                                                   ugettext(u'Original error: %s') % e,
+                                                  ],
                                         )
 
     def get_description(self, job):
