@@ -49,7 +49,8 @@
                     {% if can_import %}
                         {% get_import_backends as import_backends %}
                         {% if import_backends|length > 2 %}
-                            <a {% if creation_perm %}href="/creme_core/list_view/import/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+{#                          <a {% if creation_perm %}href="/creme_core/list_view/import/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
+                            <a {% if creation_perm %}href="/creme_core/mass_import/{{content_type_id}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                                 {% trans "Import" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                             </a>&nbsp;
                         {% endif %}

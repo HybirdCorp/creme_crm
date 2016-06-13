@@ -4,10 +4,13 @@ try:
     from decimal import Decimal
     from functools import partial
     import json
+    from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
+    from django.template.defaultfilters import slugify
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
+    from django.utils.encoding import smart_unicode
     from django.test.utils import override_settings
 
     from .base import ViewsTestCase, CSVImportBaseTestCaseMixin, skipIfNoXLSLib
@@ -15,7 +18,7 @@ try:
             FakeOrganisation as Organisation, FakeAddress as Address,
             FakePosition as Position, FakeSector as Sector)
     from creme.creme_core.blocks import massimport_job_errors_block, job_errors_block
-    from creme.creme_core.creme_jobs.mass_import import mass_import_type
+    from creme.creme_core.creme_jobs import mass_import_type, batch_process_type
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue,
             Job, MassImportJobResult)
@@ -26,10 +29,17 @@ try:
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
+try:
+    from creme.creme_core.utils.xlrd_utils import XlrdReader
+    from creme.creme_core.registry import export_backend_registry
+    XlsMissing = 'xls' not in export_backend_registry.iterkeys()
+except Exception:
+    XlsMissing = True
+
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
+class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     lv_import_data = {
             'step': 1,
             # 'document':   doc.id,
@@ -71,6 +81,9 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         Job.objects.all().delete()
 
         cls.ct = ContentType.objects.get_for_model(Contact)
+
+    def _build_dl_errors_url(self, job):
+        return '/creme_core/mass_import/dl_errors/%s' % job.id
 
     def _dyn_relations_value(self, rtype, model, column, subfield):
         return '[{"rtype":"%(rtype)s","ctype":"%(ctype)s",' \
@@ -1194,3 +1207,116 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         asuka_line = lines[1]
         self.get_object_or_fail(Contact, first_name=asuka_line[0], last_name=asuka_line[1])
+
+    def _aux_test_dl_errors(self, doc_builder, result_builder, ext, header=False, follow=False):
+        "CSV, no header"
+        user = self.login()
+
+        first_name = u'Unchô'
+        # first_name = u'Uncho'
+        last_name = 'Kan-u'
+        birthday = '1995'
+        lines = [('First name',   'Last name', 'Birthday')] if header else []
+        lines.append((first_name, last_name,   birthday))      # Error
+        lines.append(('Asuka',    'Langley',   '01-02-1997'))  # OK
+
+        doc = doc_builder(lines)
+        data = dict(self.lv_import_data,
+                    document=doc.id,
+                    user=user.id,
+                    birthday_colselect=3,
+                   )
+
+        if header:
+           data['has_header'] = 'on'
+
+        response = self.client.post(self._build_import_url(Contact),
+                                    follow=True, data=data,
+                                   )
+        self.assertNoFormError(response)
+        job = self._execute_job(response)
+
+        jresults = MassImportJobResult.objects.filter(job=job)
+        self.assertEqual(2, len(jresults))
+        self.assertIsNone(jresults[1].messages)
+
+        j_error = jresults[0]
+        kanu = j_error.entity
+        self.assertIsNotNone(kanu)
+        self.assertEqual(first_name, kanu.get_real_entity().first_name)
+        self.assertEqual([_('Enter a valid date.')], j_error.messages)
+
+        # response = self.assertGET200('/creme_core/mass_import/dl_errors/%s' % job.id, follow=True)
+        response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
+
+        self.assertEqual('attachment; filename=%s-errors.%s' % (slugify(doc.title), ext),
+                         response['Content-Disposition']
+                        )
+
+        result_lines = [['First name',   'Last name', 'Birthday', _('Errors')]] if header else []
+        result_lines.append([first_name, last_name,   birthday,   _('Enter a valid date.')])
+
+        self.assertEqual(result_lines,
+                         result_builder(response),
+                        )
+
+    def _csv_to_list(self, response):
+        separator = u','
+
+        return [[i[1:-1] for i in line.split(separator)]
+                    # for line in response.content.splitlines()
+                    for line in smart_unicode(response.content).splitlines()
+               ]
+
+    def test_dl_errors01(self):
+        "CSV, no header"
+        self._aux_test_dl_errors(self._build_csv_doc,
+                                 result_builder=self._csv_to_list,
+                                 ext='csv',
+                                 header=False,
+                                )
+
+    def test_dl_errors02(self):
+        "CSV, header"  # TODO: other separator
+        self._aux_test_dl_errors(self._build_csv_doc,
+                                 result_builder=self._csv_to_list,
+                                 ext='csv',
+                                 header=True,
+                                )
+
+    @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_dl_errors03(self):
+        "XLS"
+        def result_builder(response):
+            return list(XlrdReader(None, file_contents=response.content))
+
+        self._aux_test_dl_errors(self._build_xls_doc,
+                                 result_builder=result_builder,
+                                 ext='xls',
+                                 header=True,
+                                 follow=True,
+                                )
+
+    def test_dl_errors04(self):
+        "Bad Job type"
+        user = self.login()
+        job = Job.objects.create(user=user,
+                                 type_id=batch_process_type.id,
+                                 language='en',
+                                 status=Job.STATUS_WAIT,
+                                 # raw_data='',
+                                )
+
+        self.assertGET404(self._build_dl_errors_url(job))
+
+    def test_dl_errors05(self):
+        "Bad user"
+        self.login(is_superuser=False)
+        job = Job.objects.create(user=self.other_user,
+                                 type_id=mass_import_type.id,
+                                 language='en',
+                                 status=Job.STATUS_WAIT,
+                                 # raw_data='',
+                                )
+
+        self.assertGET403(self._build_dl_errors_url(job))

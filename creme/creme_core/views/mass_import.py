@@ -18,18 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from os.path import splitext
+
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.encoding import smart_str
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
+from ..core.exceptions import ConflictError
 from ..creme_jobs import mass_import_type
-from ..forms.list_view_import import UploadForm, form_factory
+from ..forms.mass_import import UploadForm, form_factory, get_header, get_backend
 from ..gui.list_view_import import import_form_registry
-from ..models import Job
+from ..models import Job, MassImportJobResult
+from ..registry import export_backend_registry
 from ..utils import get_ct_or_404, get_from_POST_or_404
 from .utils import build_cancel_path
+
 
 # django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)
@@ -37,7 +43,8 @@ from .utils import build_cancel_path
 
 # TODO: remove creme_core/importing_report.html
 @login_required
-def import_listview(request, ct_id):
+# def import_listview(request, ct_id):
+def mass_import(request, ct_id):
     ct = get_ct_or_404(ct_id)
 
     try:
@@ -88,7 +95,6 @@ def import_listview(request, ct_id):
                 #               }
                 #              )
 
-                # TODO: remove request.GET['list_url'] ??
                 job = Job.objects.create(user=user,
                                          type=mass_import_type,
                                          data={'ctype': ct.id,
@@ -111,3 +117,43 @@ def import_listview(request, ct_id):
                    'submit_label': submit_label,
                   }
                  )
+
+
+@login_required
+def download_errors(request, job_id):
+    job = get_object_or_404(Job, id=job_id, type_id=mass_import_type.id)
+    job.check_owner_or_die(request.user)
+
+    # TODO: real API for that...
+    POST = mass_import_type._build_POST(job.data)
+    doc = mass_import_type._get_document(POST)
+
+    # TODO: improve get_header() & factorise to return the backend too (we retrieve it twice...)
+    header = get_header(doc.filedata, has_header='has_header' in POST)
+    import_backend, error_msg = get_backend(doc.filedata)
+
+    if error_msg:
+        return ConflictError(error_msg)
+
+    get_export_backend = export_backend_registry.get_backend
+    export_backend = get_export_backend(import_backend.id) or \
+                     get_export_backend(next(export_backend_registry.iterbackends()).id)
+
+    if not export_backend:
+        return ConflictError(_('Unknown file type ; please contact your administrator.'))
+
+    writer = export_backend()
+    writerow = writer.writerow
+
+    if header:
+        writerow([smart_str(h) for h in header] + [smart_str(_('Errors'))])
+
+    for job_result in MassImportJobResult.objects.filter(job=job) \
+                                                 .exclude(raw_messages=None):  # TODO: '' too ?
+        writerow([smart_str(i) for i in job_result.line] +
+                 [smart_str('/'.join(job_result.messages))]
+                )
+
+    writer.save(u'%s-errors' % splitext(doc.title)[0])
+
+    return writer.response

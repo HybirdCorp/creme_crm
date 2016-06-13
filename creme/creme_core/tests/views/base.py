@@ -57,6 +57,7 @@ class ViewsTestCase(CremeTestCase):
                                      )
 
 
+# TODO: rename (MassImportBaseTestCaseMixin)
 class CSVImportBaseTestCaseMixin(object):
     clean_files_in_teardown = True  # See CremeTestCase
 
@@ -115,7 +116,8 @@ class CSVImportBaseTestCaseMixin(object):
 
     def _build_import_url(self, model):
         ct = ContentType.objects.get_for_model(model)
-        return '/creme_core/list_view/import/%s?list_url=%s' % (ct.id, model.get_lv_absolute_url())
+        # return '/creme_core/list_view/import/%s?list_url=%s' % (ct.id, model.get_lv_absolute_url())
+        return '/creme_core/mass_import/%s' % ct.id
 
     def _get_job(self, response):
         with self.assertNoException():

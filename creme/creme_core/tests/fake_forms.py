@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ..forms import CremeModelWithUserForm, CremeModelForm, CremeEntityForm
-from ..forms.list_view_import import ImportForm4CremeEntity, extractorfield_factory
+from ..forms.mass_import import ImportForm4CremeEntity, extractorfield_factory
 from ..forms.merge import MergeEntitiesBaseForm
 
 from .fake_models import FakeContact, FakeOrganisation, FakeAddress

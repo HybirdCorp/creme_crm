@@ -23,7 +23,7 @@ from functools import partial
 from django.forms.fields import BooleanField
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, EntityExtractorField
+from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, EntityExtractorField
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first, update_model_instance
 

@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
 from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
-from ..forms.list_view_import import get_header, form_factory
+from ..forms.mass_import import get_header, form_factory
 from ..models import MassImportJobResult
 from .base import JobType
 

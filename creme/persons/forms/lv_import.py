@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, extractorfield_factory
+from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, extractorfield_factory
 from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model
