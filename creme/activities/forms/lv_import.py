@@ -32,7 +32,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, ExtractorWidget
+from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, ExtractorWidget
 from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import Relation, RelationType

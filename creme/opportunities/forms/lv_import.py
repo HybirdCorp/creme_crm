@@ -21,8 +21,8 @@
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.list_view_import import (ImportForm4CremeEntity,
-        EntityExtractorField)
+from creme.creme_core.forms.mass_import import (ImportForm4CremeEntity,
+                                                EntityExtractorField)
 
 from creme.persons import get_contact_model, get_organisation_model
 

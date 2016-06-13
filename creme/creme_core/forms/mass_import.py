@@ -146,63 +146,64 @@ class Extractor(object):
 
     def set_subfield_search(self, subfield_search, subfield_model, multiple, create_if_unfound):
         self._subfield_search = str(subfield_search)
-        self._fk_model  = subfield_model
+        self._fk_model = subfield_model
         self._m2m = multiple
 
         if create_if_unfound:
             self._fk_form = modelform_factory(subfield_model, fields='__all__')  # TODO: creme_config form ??
 
     def extract_value(self, line):
-        value = None
+        value = self._default_value
         err_msg = None
 
         if self._column_index:  # 0 -> not in csv
-            value = line[self._column_index - 1]
+            line_value = line[self._column_index - 1]
 
-            if self._subfield_search and value:
-                data = {self._subfield_search: value}
-
-                try:
+            if line_value:
+                if self._subfield_search:
+                    data = {self._subfield_search: line_value}
                     retriever = self._fk_model.objects.filter if self._m2m else \
                                 self._fk_model.objects.get
-                    return retriever(**data), err_msg  # TODO: improve self._value_castor avoid the direct 'return' ?
-                except Exception as e:
-                    fk_form = self._fk_form
 
-                    if fk_form:  # Try to create the referenced instance
-                        creator = fk_form(data=data)
+                    try:
+                        value = retriever(**data)
+                    except Exception as e:
+                        fk_form = self._fk_form
 
-                        if creator.is_valid():
-                            creator.save()
-                            # TODO: improve self._value_castor avoid the direct 'return' ?
-                            return creator.instance, err_msg
+                        if fk_form:  # Try to create the referenced instance
+                            creator = fk_form(data=data)
+
+                            if creator.is_valid():
+                                creator.save()
+
+                                value = creator.instance
+                            else:
+                                err_msg = ugettext(u'Error while extracting value: tried to retrieve '
+                                                    'and then build "%(value)s" (column %(column)s) on %(model)s. '
+                                                    'Raw error: [%(raw_error)s]') % {
+                                                            'raw_error': e,
+                                                            'column':    self._column_index,
+                                                            'value':     line_value,
+                                                            'model':     self._fk_model._meta.verbose_name,
+                                                        }
                         else:
                             err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                                'and then build "%(value)s" (column %(column)s) on %(model)s. '
+                                                '"%(value)s" (column %(column)s) on %(model)s. '
                                                 'Raw error: [%(raw_error)s]') % {
                                                         'raw_error': e,
                                                         'column':    self._column_index,
-                                                        'value':     value,
+                                                        'value':     line_value,
                                                         'model':     self._fk_model._meta.verbose_name,
                                                     }
-                    else:
-                        err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                            '"%(value)s" (column %(column)s) on %(model)s. '
-                                            'Raw error: [%(raw_error)s]') % {
-                                                    'raw_error': e,
-                                                    'column':    self._column_index,
-                                                    'value':     value,
-                                                    'model':     self._fk_model._meta.verbose_name,
-                                                }
+                else:
+                    try:
+                        value = self._value_castor(line_value)
+                    except ValidationError as e:
+                        err_msg = e.messages[0]  # TODO: are several messages possible ??
+                    except Exception as e:
+                        err_msg = unicode(e)
 
-                    value = None
-
-                if not value:
-                    value = self._default_value
-
-                return value, err_msg
-
-        return (self._value_castor(value) if value else self._default_value), err_msg
+        return value, err_msg
 
 
 class ExtractorWidget(SelectMultiple):
@@ -1076,7 +1077,6 @@ class ImportForm(CremeModelForm):
         pass
 
     # def save(self):
-    # TODO: dump line in order to fix errors later
     def process(self, job):
         model_class = self._meta.model
         get_cleaned = self.cleaned_data.get

@@ -5,7 +5,7 @@ from django.conf.urls import url, include
 
 from .views import (batch_process, blocks, creme_property, enumerable, entity,
         entity_filter, file_handling, header_filter, index, job, list_view_export,
-        list_view_import, quick_forms, relation, search, testjs,
+        mass_import, quick_forms, relation, search, testjs,
        )
 from .views.generic import listview
 
@@ -121,10 +121,13 @@ creme_core_patterns = [
     url(r'^job/',           include(job_patterns)),
 
     url(r'^list_view/popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$',                   listview.list_view_popup_from_widget),
-    url(r'^list_view/import/(?P<ct_id>\d+)$',                               list_view_import.import_listview),
+    # url(r'^list_view/import/(?P<ct_id>\d+)$',                               list_view_import.import_listview),
     url(r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',        list_view_export.dl_listview),
     # url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',   list_view_export.dl_listview_header),
     url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$', list_view_export.dl_listview, {'header_only': True}),
+
+    url(r'^mass_import/(?P<ct_id>\d+)$',            mass_import.mass_import),
+    url(r'^mass_import/dl_errors/(?P<job_id>\d+)$', mass_import.download_errors),
 
     # TODO: change url (remove 'list_view'...)??
     url(r'^list_view/batch_process/(?P<ct_id>\d+)$',                          batch_process.batch_process),

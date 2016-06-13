@@ -234,8 +234,8 @@ class BaseJobResult(Model):
         abstract = True
 
     def __repr__(self):
-        return 'JobResult(job=%s, entity=%s, raw_messages="%s")' % (
-                    self.job_id, self.entity_id, self.raw_messages,
+        return 'JobResult(job=%s, raw_messages="%s")' % (
+                    self.job_id, self.raw_messages,
                 )
 
     @property
@@ -260,6 +260,11 @@ class EntityJobResult(BaseJobResult):
     # class Meta(BaseJobResult.Meta):
     #     abstract = False
 
+    def __repr__(self):
+        return 'EntityJobResult(job=%s, raw_messages="%s", entity=%s)' % (
+                    self.job_id, self.raw_messages, self.entity_id,
+                )
+
 
 class MassImportJobResult(BaseJobResult):
     entity   = ForeignKey(CremeEntity, null=True)
@@ -269,6 +274,11 @@ class MassImportJobResult(BaseJobResult):
 
     # class Meta(BaseJobResult.Meta):
     #     abstract = False
+
+    def __repr__(self):
+        return 'MassImportJobResult(job=%s, raw_messages="%s", entity=%s, raw_line="%s", updated=%s)' % (
+                    self.job_id, self.raw_messages, self.entity_id, self.raw_line, self.updated,
+                )
 
     @property
     def line(self):  # TODO: cache ?
