@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from ..models import CremeEntity, RelationType, CustomField
 from ..models.fields import DatePeriodField
+from ..utils.db import populate_related
 from ..utils.meta import FieldInfo
 from .function_field import FunctionFieldDecimal
 
@@ -241,7 +242,8 @@ class EntityCellRegularField(EntityCell):
 
     @staticmethod
     def populate_entities(cells, entities):
-        CremeEntity.populate_fk_fields(entities, [cell.field_info[0].name for cell in cells])
+        # CremeEntity.populate_fk_fields(entities, [cell.field_info[0].name for cell in cells])
+        populate_related(entities, [cell.value for cell in cells])
 
     def render_html(self, entity, user):
         from ..gui.field_printers import field_printers_registry
@@ -271,13 +273,13 @@ class EntityCellCustomField(EntityCell):
             CustomField.MULTI_ENUM: '%s__value__exact',
         }
     _CF_CSS = {
-        CustomField.DATETIME:   DateTimeField,
-        CustomField.INT:        PositiveIntegerField,
-        CustomField.FLOAT:      DecimalField,
-        CustomField.BOOL:       BooleanField,
-        CustomField.ENUM:       ForeignKey,
-        CustomField.MULTI_ENUM: ManyToManyField,
-    }
+            CustomField.DATETIME:   DateTimeField,
+            CustomField.INT:        PositiveIntegerField,
+            CustomField.FLOAT:      DecimalField,
+            CustomField.BOOL:       BooleanField,
+            CustomField.ENUM:       ForeignKey,
+            CustomField.MULTI_ENUM: ManyToManyField,
+        }
 
     def __init__(self, customfield):
         self._customfield = customfield
@@ -289,7 +291,8 @@ class EntityCellCustomField(EntityCell):
                                                     editable=False,  # TODO: make it editable
                                                     sortable=False,  # TODO: make it sortable ?
                                                     is_hidden=False,
-                                                    filter_string=pattern % customfield.get_value_class().get_related_name(),
+                                                    filter_string=pattern % customfield.get_value_class()
+                                                                                       .get_related_name(),
                                                    )
 
     @staticmethod

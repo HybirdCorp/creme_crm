@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.conf import settings
+    from django.contrib.contenttypes.models import ContentType
     from django.db import connections, DEFAULT_DB_ALIAS
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeOrganisation
-    from creme.creme_core.utils.db import (get_indexes_columns, get_keyed_indexes_columns, \
-                                           get_indexed_ordering, build_columns_key)
+    from ..fake_models import (FakeContact, FakeOrganisation, FakeSector,
+            FakeCivility, FakeFolder, FakeDocument)
+    from creme.creme_core.models import Relation, CremeEntity
+    from creme.creme_core.constants import REL_SUB_HAS
+    from creme.creme_core.utils.db import (get_indexes_columns, get_keyed_indexes_columns,
+           get_indexed_ordering, build_columns_key, populate_related)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -16,6 +22,7 @@ class DBTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
+        cls.populate('creme_core')
 
         # NB: We build an index, so it is not declared in the model's Meta
         #     => functions have to make introspection on the DB server.
@@ -192,3 +199,153 @@ class DBTestCase(CremeTestCase):
 
         with self.assertRaises(ValueError):
             get_indexed_ordering(FakeContact, ['last_name', '*', '*', 'cremeentity_ptr_id'])
+
+    def _create_contacts(self):
+        self.sector1, self.sector2 = FakeSector.objects.all()[:2]
+        self.civ1, self.civ2 = FakeCivility.objects.all()[:2]
+
+        create_contact = partial(FakeContact.objects.create, user=self.user, last_name='Simpson')
+        contacts = [create_contact(first_name='Homer', sector=self.sector1),
+                    create_contact(first_name='Marge', sector=self.sector2, civility=self.civ1),
+                    create_contact(first_name='Bart'),
+                    create_contact(first_name='Lisa', civility=self.civ2),
+                   ]
+
+        return [self.refresh(c) for c in contacts]
+
+    def test_populate_related01(self):
+        "One field"
+        self.login()
+
+        with self.assertNoException():
+            populate_related([], ['sector'])
+
+        contacts = self._create_contacts()
+
+        with self.assertNumQueries(1):
+            populate_related(contacts, ['sector'])
+
+        with self.assertNumQueries(0):
+            s1 = contacts[0].sector
+        self.assertEqual(self.sector1, s1)
+
+        with self.assertNumQueries(0):
+            s2 = contacts[1].sector
+        self.assertEqual(self.sector2, s2)
+
+        self.assertIsNone(contacts[2].sector)
+
+    def test_populate_related02(self):
+        "Two fields"
+        self.login()
+        contacts = self._create_contacts()
+
+        with self.assertNumQueries(2):
+            populate_related(contacts, ['sector', 'civility', 'last_name'])
+
+        with self.assertNumQueries(0):
+            s1 = contacts[0].sector
+        self.assertEqual(self.sector1, s1)
+
+        with self.assertNumQueries(0):
+            c1 = contacts[1].civility
+        self.assertEqual(self.civ1, c1)
+
+        self.assertIsNone(contacts[2].civility)
+
+    def test_populate_related03(self):
+        "Do not retrieve already cached values"
+        self.login()
+
+        contacts = self._create_contacts()
+        contacts[0].sector
+        contacts[1].sector
+
+        with self.assertNumQueries(1):
+            populate_related(contacts, ['sector', 'civility'])
+
+    def test_populate_related04(self):
+        "Partially cached"
+        self.login()
+
+        contacts = self._create_contacts()
+        contacts[0].sector
+        # contacts[1].sector # Not Cached
+
+        with self.assertNumQueries(2):
+            populate_related(contacts, ['sector', 'civility'])
+
+    def test_populate_related05(self):
+        "Two fields related to the same model"
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user, last_name='Simpson')
+        marge = create_contact(first_name='Marge')
+        homer = create_contact(first_name='Homer')
+
+        rel = Relation.objects.create(user=user, type_id=REL_SUB_HAS,
+                                      subject_entity=marge,
+                                      object_entity=homer,
+                                     )
+        rel = self.refresh(rel)
+
+        # NB: we fill the ContentType cache to not disturb assertNumQueries()
+        ContentType.objects.get_for_model(CremeEntity)
+
+        with self.assertNumQueries(1):
+            populate_related([rel], ['subject_entity', 'object_entity'])
+
+        with self.assertNumQueries(0):
+             e1 = rel.subject_entity
+
+        self.assertEqual(marge, e1.get_real_entity())
+
+    def test_populate_related06(self):
+        "depth = 1"
+        self.login()
+
+        contacts = self._create_contacts()
+
+        with self.assertNumQueries(1):
+            populate_related(contacts, ['sector__title'])
+
+        with self.assertNumQueries(0):
+            s1 = contacts[0].sector
+        self.assertEqual(self.sector1, s1)
+
+    def test_populate_related07(self):
+        "Field with depth=1 is a FK"
+        user = self.login()
+
+        create_folder = partial(FakeFolder.objects.create, user=user)
+        folder1  = create_folder(title='Maps')
+        folder11 = create_folder(title='Earth maps', parent=folder1)
+        folder12 = create_folder(title='Mars maps', parent=folder1)
+        folder2  = create_folder(title='Blue prints')
+
+        create_doc = partial(FakeDocument.objects.create, user=user)
+        docs = [create_doc(title='Japan map part#1',   folder=folder11),
+                create_doc(title='Japan map part#2',   folder=folder11),
+                create_doc(title='Mars city 1',        folder=folder12),
+                create_doc(title='Swordfish',          folder=folder2),
+               ]
+        docs = [self.refresh(c) for c in docs]
+
+        with self.assertNumQueries(2):
+            populate_related(docs, ['folder__parent', 'title'])
+
+        with self.assertNumQueries(0):
+            f11 = docs[0].folder
+        self.assertEqual(folder11, f11)
+
+        with self.assertNumQueries(0):
+            f1 = f11.parent
+        self.assertEqual(folder1, f1)
+
+        with self.assertNumQueries(0):
+            f2 = docs[3].folder
+        self.assertEqual(folder2, f2)
+
+        with self.assertNumQueries(0):
+            f_null = f2.parent
+        self.assertIsNone(f_null)

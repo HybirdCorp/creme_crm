@@ -23,10 +23,16 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import absolute_import  # for std 'collections'
+
+from collections import defaultdict
 from fnmatch import fnmatch
 
 from django.db import connections, DEFAULT_DB_ALIAS
+from django.db.models import ForeignKey
 from django.utils.lru_cache import lru_cache
+
+from .meta import FieldInfo
 
 
 def get_indexes_columns(model):
@@ -156,3 +162,60 @@ def get_indexed_ordering(model, fields_pattern):
             return ordering
 
     return None
+
+
+# TODO: ManyToManyField too ?
+def populate_related(instances, field_names):
+    """Retrieve the given ForeignKeys values for some instances, in order to
+    reduce the number of DB queries.
+
+    @param instances: Sequence of instances with the _same_ ContentType.
+                      NB: iterated several times -> not an iterator.
+    @param field_names: Sequence of strings representing field names.
+    """
+    if not instances:
+        return
+
+    def _populate_depth(fields_info, instances):
+        fields_per_model = defaultdict(list)
+        next_fields_info = []  # FieldInfo instances for the deeper fields
+        next_instances = ()  # Related instances of this level => instances of the deeper level
+
+        for field_info in fields_info:
+            if field_info:
+                field = field_info[0]
+
+                if isinstance(field, ForeignKey):
+                    fields_per_model[field.rel.to].append(field)
+                    next_fields_info.append(field_info[1:])
+
+        for model, fields in fields_per_model.iteritems():
+            ids = set()
+            fill_info = []
+
+            for field in fields:
+                fname = field.name
+                att_name = field.get_attname()
+                cache_name = field.get_cache_name()
+
+                for instance in instances:
+                    if not hasattr(instance, cache_name):
+                        attr_id = getattr(instance, att_name)
+                        if attr_id:
+                            ids.add(attr_id)
+                            fill_info.append((instance, fname, att_name, attr_id))
+
+            if ids:
+                next_instances = model._default_manager.filter(pk__in=ids)
+                attr_values = {o.pk: o for o in next_instances}
+
+                for instance, fname, att_name, attr_id in fill_info:
+                    setattr(instance, fname, attr_values[getattr(instance, att_name)])
+
+        return next_fields_info, next_instances
+
+    base_model = instances[0].__class__
+    fields_info = [FieldInfo(base_model, fname) for fname in field_names]
+
+    while fields_info:
+        fields_info, instances = _populate_depth(fields_info, instances)
