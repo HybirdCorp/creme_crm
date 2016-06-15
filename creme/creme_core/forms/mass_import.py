@@ -42,7 +42,7 @@ from django.utils.html import escape
 
 from creme.documents import get_document_model
 
-from ..gui.list_view_import import import_form_registry
+from ..gui.mass_import import import_form_registry
 from ..models import (CremePropertyType, CremeProperty,
         RelationType, Relation, CremeEntity, EntityCredentials, FieldsConfig,
         CustomField, CustomFieldValue, CustomFieldEnumValue, MassImportJobResult)
