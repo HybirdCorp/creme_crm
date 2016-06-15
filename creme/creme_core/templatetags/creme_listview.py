@@ -29,7 +29,7 @@ from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
         EntityCellFunctionField, EntityCellRelation)
 from ..core.paginator import FlowPaginator
 from ..gui.listview import NULL_FK
-from ..gui.list_view_import import import_form_registry
+from ..gui.mass_import import import_form_registry
 from ..models import CustomField
 from ..models.fields import EntityCTypeForeignKey
 from ..utils import creme_entity_content_types, build_ct_choices

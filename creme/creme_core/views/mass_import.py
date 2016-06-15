@@ -30,7 +30,7 @@ from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..creme_jobs import mass_import_type
 from ..forms.mass_import import UploadForm, form_factory, get_header, get_backend
-from ..gui.list_view_import import import_form_registry
+from ..gui.mass_import import import_form_registry
 from ..models import Job, MassImportJobResult
 from ..registry import export_backend_registry
 from ..utils import get_ct_or_404, get_from_POST_or_404
