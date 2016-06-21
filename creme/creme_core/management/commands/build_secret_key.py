@@ -30,8 +30,10 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ################################################################################
 
+import random
+
 from django.core.management.base import BaseCommand
-from django.utils.crypto import get_random_string
+# from django.utils.crypto import get_random_string
 
 
 class Command(BaseCommand):
@@ -40,5 +42,39 @@ class Command(BaseCommand):
     requires_system_checks = False
 
     def handle(self, **options):
-        # Code copied from django/core/management/commands/startproject.py
-        return get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
+        # # Code copied from django/core/management/commands/startproject.py
+        # return get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
+
+        # Code based on django/utils/crypto.py
+        try:
+            choice = random.SystemRandom().choice
+        except NotImplementedError:
+            from getpass import getpass
+            from hashlib import sha256
+            from time import time
+
+            from django.utils.encoding import force_unicode
+
+            choice = random.choice
+
+            self.stderr.write('No secure pseudo-random number generator is available.')
+            self.stdout.write('Please enter a random sequence of chars.')
+
+            while 1:
+                kb_seed = getpass('At least 16 chars:').strip()
+
+                if len(kb_seed) < 16:
+                    self.stderr.write('The (stripped) strings msut conatins at least 16 chars.')
+                else:
+                    break
+
+            random.seed(
+                sha256((
+                   u'%s%s%s' % (random.getstate(), time(), force_unicode(kb_seed))).encode('utf-8')
+                ).digest()
+            )
+
+        # List of chars copied from django/core/management/commands/startproject.py
+        return ''.join(choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
+                            for _i in range(50)
+                      )

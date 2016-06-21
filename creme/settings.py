@@ -11,6 +11,15 @@ JAVASCRIPT_DEBUG = DEBUG
 TESTS_ON = len(argv) > 1 and argv[1] == 'test'
 FORCE_JS_TESTVIEW = False
 
+# Commands which does not need to perform SQL queries (so the apps do not need to be totally initialized)
+NO_SQL_COMMANDS = ('help', 'version', '--help', '--version', '-h',
+                   'compilemessages', 'makemessages',
+                   'startapp', 'startproject',
+                   'migrate',
+                   'generatemedia',
+                   'build_secret_key',
+                  )
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )

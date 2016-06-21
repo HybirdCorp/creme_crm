@@ -23,6 +23,7 @@ from sys import argv
 
 from django.apps import AppConfig, apps
 from django.core import checks
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
@@ -46,7 +47,7 @@ class MediaGeneratorConfig(AppConfig):
         self._build_MEDIA_BUNDLES()
 
     def _build_MEDIA_BUNDLES(self):
-        from django.conf import settings
+        # from django.conf import settings
 
         is_installed = apps.is_installed
         MEDIA_BUNDLES = (settings.CREME_I18N_JS,
@@ -74,7 +75,8 @@ class CremeAppConfig(AppConfig):
     dependencies = ()  # Overload ; eg: ['creme.persons']
 
     # Lots of problems with ContentType table which can be not created yet.
-    MIGRATION_MODE = ('migrate' in argv)
+    # MIGRATION_MODE = ('migrate' in argv)
+    MIGRATION_MODE = any(cmd in argv for cmd in settings.NO_SQL_COMMANDS)  # TODO: rename
 
     def ready(self):
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
