@@ -21,7 +21,6 @@
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_list_or_404
-#from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
@@ -36,6 +35,7 @@ from ..registry import crudity_registry
 
 def _retrieve_actions_ids(request):
     return request.POST.getlist('ids')
+
 
 @login_required
 @permission_required('crudity')
@@ -53,12 +53,13 @@ def delete(request):
 
     if not errors:
         status = 200
-        message = _(u"Operation successfully completed")
+        message = _(u'Operation successfully completed')
     else:
         status = 400
-        message = ",".join(errors)
+        message = ','.join(errors)
 
-    return HttpResponse(message, content_type="text/javascript", status=status)
+    return HttpResponse(message, content_type='text/javascript', status=status)
+
 
 @jsonify
 @permission_required('crudity')
@@ -80,21 +81,21 @@ def validate(request):
         #else: Add a message for the user
 
     return {}
-#    return HttpResponse()
+
 
 @jsonify
 @permission_required('crudity')
 def reload(request, ct_id, backend_subject):
-    get_ct_or_404(ct_id) #TODO: useless ??
+    get_ct_or_404(ct_id)  # TODO: useless ??
     backend = crudity_registry.get_configured_backend(backend_subject)
     if not backend:
         raise Http404()
 
     block = WaitingActionBlock(backend)
-#    ctx = RequestContext(request)
     ctx = blocks_views.build_context(request)
 
     return [(block.id_, block.detailview_display(ctx))]
+
 
 def _fetch(user):
     count = 0
@@ -126,12 +127,12 @@ def _fetch(user):
 
     return count
 
+
 @login_required
 @permission_required('crudity')
-def fetch(request, template="crudity/waiting_actions.html",
-          ajax_template="crudity/frags/ajax/waiting_actions.html",
+def fetch(request, template='crudity/waiting_actions.html',
+          ajax_template='crudity/frags/ajax/waiting_actions.html',
           extra_tpl_ctx=None, extra_req_ctx=None):
-#    context = RequestContext(request)
     context = blocks_views.build_context(request)
 
     if extra_req_ctx:
@@ -139,27 +140,17 @@ def fetch(request, template="crudity/waiting_actions.html",
 
     _fetch(request.user)
 
-#    tpl_dict = {
-#            'blocks': ["".join(block(backend).detailview_display(context) for block in backend.blocks)
-#                       or WaitingActionBlock(backend).detailview_display(context)
-#                            for backend in crudity_registry.get_configured_backends()
-#                                if backend.in_sandbox
-#                      ],
-#        }
-
-    context['blocks'] = ["".join(block(backend).detailview_display(context) for block in backend.blocks)
+    context['blocks'] = [''.join(block(backend).detailview_display(context) for block in backend.blocks)
                          or WaitingActionBlock(backend).detailview_display(context)
                             for backend in crudity_registry.get_configured_backends()
                                 if backend.in_sandbox
                       ]
 
     if extra_tpl_ctx:
-#        tpl_dict.update(extra_tpl_ctx)
-        context.update(extra_tpl_ctx) #TODO: remove one argument between extra_req_ctx & extra_tpl_ctx
+        # TODO: remove one argument between extra_req_ctx & extra_tpl_ctx
+        context.update(extra_tpl_ctx)
 
     if request.is_ajax():
-#        return HttpResponse(render_to_string(ajax_template, tpl_dict, context_instance=context))
         return HttpResponse(render_to_string(ajax_template, context))
 
-#    return render_to_response(template, tpl_dict, context_instance=context)
     return render_to_response(template, context)

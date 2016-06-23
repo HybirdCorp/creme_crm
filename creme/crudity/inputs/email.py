@@ -21,15 +21,12 @@
 from future_builtins import filter
 import logging
 import re
-#from pyexpat import ExpatError
 from xml.etree import ElementTree as ET
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
-
-#from creme.persons.models import Contact
 
 from creme.media_managers.models import Image
 
@@ -50,11 +47,12 @@ MULTILINE_SEP_LEN = len(RIGHT_MULTILINE_SEP)
 
 
 class EmailInput(CrudityInput):
-    name   = u"raw"
+    name = u"raw"
     verbose_name = _(u"Email - Raw")
 
     def strip_html(self, html):
-        html = re.sub(re_html_br, '\n', html).replace('&nbsp;', ' ')#'Manually' replace &nbsp; because we don't want \xA0 unicode char
+        # 'Manually' replace &nbsp; because we don't want \xA0 unicode char
+        html = re.sub(re_html_br, '\n', html).replace('&nbsp;', ' ')
         html = strip_html(html)
         html = strip_html_(html)
         return html
@@ -66,23 +64,27 @@ class CreateEmailInput(EmailInput):
     verbose_method = _(u"Create")
 
     def create(self, email):
-        backend = self.get_backend(CrudityBackend.normalize_subject(email.subject))# or self.get_backend("*")
+        backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) # or self.get_backend("*")
 
         if backend is not None and self.authorize_senders(backend, email.senders):
             data = backend.body_map.copy()
             body = (self.strip_html(email.body_html) or email.body).replace('\r', '')
-            #Multiline handling
+
+            # Multiline handling
             left_idx = body.find(LEFT_MULTILINE_SEP)
             while left_idx > -1:
                 right_idx = body.find(RIGHT_MULTILINE_SEP)
 
-                if right_idx < left_idx: #A RIGHT_MULTILINE_SEP is specified before LEFT_MULTILINE_SEP
+                if right_idx < left_idx:  # A RIGHT_MULTILINE_SEP is specified before LEFT_MULTILINE_SEP
                     body = body[:right_idx] + body[right_idx + MULTILINE_SEP_LEN:]
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                     continue
 
-                malformed_idx = (body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:right_idx]).find(LEFT_MULTILINE_SEP)#The body excepted current LEFT_MULTILINE_SEP
-                if malformed_idx > -1: #This means that a next occurrence of multiline is opened before closing current one
+                # The body excepted current LEFT_MULTILINE_SEP
+                malformed_idx = (body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:right_idx]).find(LEFT_MULTILINE_SEP)
+
+                if malformed_idx > -1:
+                    # This means that a next occurrence of multiline is opened before closing current one
                     body = body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:]
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                     continue
@@ -96,18 +98,18 @@ class CreateEmailInput(EmailInput):
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                 else:
                     left_idx = -1
-            #End Multiline handling
+            # End Multiline handling
 
             split_body = [line.replace('\t', '') for line in body.split('\n') if line.strip()]
 
             if self.is_allowed_password(backend.password, split_body):
                 for key in data.keys():
                     for i, line in enumerate(split_body):
-#                        r = re.search(r"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!\\\w]+)""" % (key, key), line)
                         r = re.search(ur"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
 
                         if r:
-                            data[key] = (r.groupdict().get(key).replace('\\n', '\n')).encode('utf8')#TODO: Check if the target field is a simple-line field ?
+                            # TODO: Check if the target field is a simple-line field ?
+                            data[key] = (r.groupdict().get(key).replace('\\n', '\n')).encode('utf8')
                             split_body.pop(i)
                             break
 
@@ -131,6 +133,7 @@ class CreateEmailInput(EmailInput):
         self._pre_process_data(backend, data)
 
         if backend.in_sandbox:
+            # TODO: WaitingAction.objects.create()
             action         = WaitingAction()
             action.data    = action.set_data(data)
             action.action  = "create"
@@ -138,7 +141,7 @@ class CreateEmailInput(EmailInput):
             action.ct      = ContentType.objects.get_for_model(backend.model)
             action.subject = backend.subject
             action.user    = owner
-            action.save() #TODO: WaitingAction.objects.create()
+            action.save()
         else:
             self._pre_create(backend, data)
             is_created, instance = backend._create_instance_n_history(data, user=owner, source="email - %s" % self.name)
@@ -147,23 +150,21 @@ class CreateEmailInput(EmailInput):
         return True
 
     @staticmethod
-    #def get_owner(self, is_sandbox_by_user, sender=None):
     def get_owner(is_sandbox_by_user, sender=None):
         """Returns the owner to assign to waiting actions and history"""
         if is_sandbox_by_user:
             #TODO: use first()
             User = get_user_model()
             try:
-                #return Contact.objects.filter(email__iexact=sender, is_user__isnull=False)[0].is_user
                 return User.objects.filter(email=sender)[0]
             except IndexError:
-                return User.objects.filter(is_superuser=True).order_by('-pk')[0]#No need to catch IndexError
+                return User.objects.filter(is_superuser=True).order_by('-pk')[0] # No need to catch IndexError
 
         return None
 
     def is_allowed_password(self, password, split_body):
         allowed = False
-        #Search first the password
+        # Search first the password
         for i, line in enumerate(split_body):
             line = line.replace(' ', '')
             r = re.search(passwd_pattern, line)
@@ -176,6 +177,7 @@ class CreateEmailInput(EmailInput):
 
 
 remove_pattern = re.compile('[\t\n\r\f\v]')
+
 
 class CreateInfopathInput(CreateEmailInput):
     name   = "infopath"
@@ -192,8 +194,10 @@ class CreateInfopathInput(CreateEmailInput):
             except FieldDoesNotExist:
                 continue
 
-            if field_value is not None and (isinstance(field, ForeignKey) and issubclass(field.rel.to, Image)) or issubclass(field.__class__, FileField):
-                data[field_name] = decode_b64binary(field_value)#(filename, image_blob)
+            if field_value is not None \
+               and (isinstance(field, ForeignKey) and issubclass(field.rel.to, Image)) \
+               or issubclass(field.__class__, FileField):
+                data[field_name] = decode_b64binary(field_value)  # (filename, image_blob)
 
     def create(self, email):
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) or self.get_backend("*")
@@ -202,7 +206,6 @@ class CreateInfopathInput(CreateEmailInput):
             return False
 
         MIME_TYPES = self.MIME_TYPES
-        #attachments = filter(lambda x: x[1].content_type in MIME_TYPES, email.attachments)
         attachments = [a for a in email.attachments if a[1].content_type in MIME_TYPES]
 
         if attachments and self.authorize_senders(backend, email.senders):
@@ -211,7 +214,6 @@ class CreateInfopathInput(CreateEmailInput):
 
             if self.is_allowed_password(backend.password, split_body):
                 is_created = False
-                #for data in filter(lambda x: x is not None, [self.get_data_from_infopath_file(backend, attachment) for attachment_name, attachment in attachments]):
                 for data in filter(lambda x: x is not None,
                                    (self.get_data_from_infopath_file(backend, attachment)
                                         for name, attachment in attachments
@@ -226,15 +228,13 @@ class CreateInfopathInput(CreateEmailInput):
         data = {}
         content = re.sub(remove_pattern, '', content.strip(), re.U)
         content = re.sub('>[\s]*<', '><', content, re.U)
-#        content = content.replace('\xa0', ' ')
 
         if not content:
             return None
 
         try:
             xml = ET.fromstring(content)
-        #except ExpatError as e:
-        except Exception as e: #ExpatError in py2.6, ParseError in py2.7...
+        except Exception as e:  # ExpatError in py2.6, ParseError in py2.7...
             logging.error(e)
             return None
 
@@ -246,10 +246,9 @@ class CreateInfopathInput(CreateEmailInput):
                 continue
 
             if data.has_key(tag):
-                #children = node.getchildren()
                 children = list(node)
 
-                if children: #Multi-line
+                if children:  # Multi-line
                     data[tag] = "\n".join(child.text or '' for child in children)
                 else:
                     data[tag] = node.text

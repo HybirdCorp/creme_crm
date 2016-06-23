@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from itertools import chain
 from collections import defaultdict
 from copy import deepcopy
 import logging
@@ -64,10 +63,11 @@ class FetcherInterface(object):
 
     def fetch(self):
         data = []
+
         for fetcher in self.fetchers:
             data.extend(fetcher.fetch())
+
         return data
-#        return chain(fetcher.fetch() for fetcher in self.fetchers)
 
     def get_default_backend(self):
         """Special case, for retrieving the backend defined as the default one.
@@ -88,19 +88,19 @@ class CRUDityRegistry(object):
 
     def autodiscover(self):
         for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'backends']):
-            #Fetchers
+            # Fetchers
             fetchers = getattr(crud_import, "fetchers", {})
             register_fetchers = self.register_fetchers
             for source_type, fetchers_list in fetchers.iteritems():
                 register_fetchers(source_type, fetchers_list)
 
-            #Inputs
+            # Inputs
             inputs = getattr(crud_import, "inputs", {})
             register_inputs = self.register_inputs
             for source_type, inputs_list in inputs.iteritems():
                 register_inputs(source_type, inputs_list)
 
-            #Backends (registered by models)
+            # Backends (registered by models)
             backends = getattr(crud_import, "backends", [])
             self.register_backends(backends)
 
@@ -182,7 +182,9 @@ class CRUDityRegistry(object):
                 if backend is None:
                     raise NotRegistered("No backend is registered for this model '%s'" % model)
             except KeyError as e:
-                raise ImproperlyConfigured(u"You have an error in your CRUDITY_BACKENDS settings. Check if '%s' is present" % e)
+                raise ImproperlyConfigured(u'You have an error in your CRUDITY_BACKENDS settings. '
+                                           u'Check if "%s" is present' % e
+                                          )
             except DeserializationError as de:
                 raise ImproperlyConfigured(de)
             else:
@@ -191,8 +193,8 @@ class CRUDityRegistry(object):
 
                 if (fetcher and crud_input) is not None:
                     backend_cfg['source'] = u"%s - %s" % (fetcher_source, input_name)
-                    backend_cfg['verbose_source'] = crud_input.verbose_name #for i18n
-                    backend_cfg['verbose_method'] = crud_input.verbose_method #for i18n
+                    backend_cfg['verbose_source'] = crud_input.verbose_name  # For i18n
+                    backend_cfg['verbose_method'] = crud_input.verbose_method  # For i18n
 
                     if subject == "*":
                         if fetcher.get_default_backend() is not None:
@@ -205,23 +207,7 @@ class CRUDityRegistry(object):
                     else:
                         crud_input.add_backend(backend(backend_cfg))
 
+
 crudity_registry = CRUDityRegistry()
-
-#for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'models']):
-    ##Fetchers
-    #fetchers = getattr(crud_import, "fetchers", {})
-    #register_fetchers = crudity_registry.register_fetchers
-    #for source_type, fetchers_list in fetchers.iteritems():
-        #register_fetchers(source_type, fetchers_list)
-
-    ##Inputs
-    #inputs = getattr(crud_import, "inputs", {})
-    #register_inputs = crudity_registry.register_inputs
-    #for source_type, inputs_list in inputs.iteritems():
-        #register_inputs(source_type, inputs_list)
-
-    ##Backends (registered by models)
-    #backends = getattr(crud_import, "backends", [])
-    #crudity_registry.register_backends(backends)
 crudity_registry.autodiscover()
 crudity_registry.dispatch()
