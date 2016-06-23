@@ -25,7 +25,6 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db.models import (FieldDoesNotExist, TextField, BooleanField,
         DateField, DateTimeField, FileField, ForeignKey, ManyToManyField)
-#from django.db import transaction, IntegrityError
 from django.db import IntegrityError
 from django.db.transaction import atomic
 from django.template.context import Context
@@ -33,10 +32,9 @@ from django.utils.translation import ugettext_lazy as _ #TODO: lazy ??
 
 from creme.creme_core.models import SettingValue
 from creme.creme_core.utils.dates import get_dt_from_str, get_date_from_str
-#from creme.creme_core.utils.meta import is_date_field
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-#TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
+# TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
 from creme.media_managers.models import Image
 
 from ..models import History
@@ -50,48 +48,51 @@ logger = logging.getLogger(__name__)
 class CrudityBackend(object):
     model = None
 
-    password     = u""  #Password to check permission
-    in_sandbox   = True #Show in sandbox (if False can be shown only in history & the creation will be automatic)
-    body_map     = {}   #Mapping email body's key <==> model's key, value in the dict is the default value
-    limit_froms  = ()   #If "recipient" doesn't the backend policy
-    subject      = u""  #Matched subject
-    blocks       = ()   #Blocks classes
-    #buttons      = None #An (mutable) iterable of buttons
+    password    = u""   # Password to check permission
+    in_sandbox  = True  # Show in sandbox (if False can be shown only in history & the creation will be automatic)
+    body_map    = {}    # Mapping email body's key <==> model's key, value in the dict is the default value
+    limit_froms = ()    # If "recipient" doesn't the backend policy
+    subject     = u""   # Matched subject
+    blocks      = ()    # Blocks classes
+    # buttons     = None  # An (mutable) iterable of buttons
 
     def __init__(self, config, *args, **kwargs):
         config_get = config.get
 
         self.password    = config_get('password')    or self.password
         self.limit_froms = config_get('limit_froms') or self.limit_froms
+
         in_sandbox = config_get('in_sandbox')
         if in_sandbox is not None:
             self.in_sandbox  = in_sandbox
-        self.body_map    = config_get('body_map')    or self.body_map
-        self.subject     = CrudityBackend.normalize_subject(config_get('subject') or self.subject)
+
+        self.body_map = config_get('body_map')    or self.body_map
+        self.subject  = CrudityBackend.normalize_subject(config_get('subject') or self.subject)
+
         self.source         = config_get('source')
         self.verbose_source = config_get('verbose_source')
         self.verbose_method = config_get('verbose_method')
+
         self._sandbox_by_user = None
         self._check_configuration()
-#        self.body_map.update({'password': self.password})
         self.buttons = []
 
     @property
     def is_configured(self):
         return all([self.subject, self.body_map, self.model])
-        #TODO ? return bool(self.subject and self.body_map and self.model)
+        # TODO ? return bool(self.subject and self.body_map and self.model)
 
     def _check_configuration(self):
         """Check if declared fields exists in the model
         TODO: Check the requirement, default value ?
         """
         if self.is_configured:
-            model = self.model #TODO: alias _meta
+            model = self.model  # TODO: alias _meta
             for field_name in self.body_map.iterkeys():
                 try:
                     model._meta.get_field(field_name)
                 except FieldDoesNotExist as e:
-                    for field in model._meta.fields: #TODO: any()
+                    for field in model._meta.fields:  # TODO: any()
                         if field.get_attname() == field_name:
                             break
                     else:
@@ -149,10 +150,11 @@ class CrudityBackend(object):
                     try:
                         field = model_get_field(field_name)
                     except FieldDoesNotExist:
-                        #TODO: data.pop(field_name) when virtual fields are added in crudity, because for example user_id is not a "real field" (model._meta.get_field)
+                        # TODO: data.pop(field_name) when virtual fields are added in crudity,
+                        #       because for example user_id is not a "real field" (model._meta.get_field)
                         continue
 
-                    #TODO: exclude not editable fields ??
+                    # TODO: exclude not editable fields ??
 
                     if field_value is None:
                         data[field_name] = field.to_python(None)
@@ -164,8 +166,6 @@ class CrudityBackend(object):
                     if not isinstance(field, TextField) and isinstance(field_value, basestring):
                         data[field_name] = field_value = field_value.replace('\n', ' ')
 
-                    #if is_date_field(field):
-                        #data[field_name] = field_value = get_dt_from_str(field_value.strip())
                     if isinstance(field, DateTimeField):
                         data[field_name] = field_value = get_dt_from_str(field_value.strip())
                     elif isinstance(field, DateField):
@@ -180,13 +180,14 @@ class CrudityBackend(object):
 
                         if user is None:
                             shift_user_id = data.get('user_id')
-                            User = get_user_model() # TODO: use first() instead
+                            User = get_user_model()  # TODO: use first() instead
                             if shift_user_id is None:
                                 try:
-                                    shift_user_id = User.objects.filter(is_superuser=True)[0].id #Not as the default value of data.get because a query is always done even the default value is not necessary
-                                #except User.DoesNotExist: #todo: WTF filter does not raise DoesNotExist !!!
+                                    # Not as the default value of data.get because a query is
+                                    # always done even the default value is not necessary
+                                    shift_user_id = User.objects.filter(is_superuser=True)[0].id
                                 except IndexError:
-                                    continue #There is really nothing we can do
+                                    continue  # There is really nothing we can do
                         else:
                             shift_user_id = user.id
 
@@ -198,8 +199,8 @@ class CrudityBackend(object):
                         data.pop(field_name)
                         continue
 
-                    elif issubclass(field.__class__, FileField): #TODO: why not isinstance(field, FileField) ??
-                        filename, blob = field_value #should be pre-processed by the input
+                    elif issubclass(field.__class__, FileField):  # TODO: why not isinstance(field, FileField) ??
+                        filename, blob = field_value  # Should be pre-processed by the input
                         upload_path = field.upload_to.split('/')
                         setattr(instance, field_name, handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename))
                         data.pop(field_name)
@@ -218,7 +219,7 @@ class CrudityBackend(object):
                 if need_new_save:
                     instance.save()
 
-                history = History() #TODO: History.objects.create(entity=intance [...])
+                history = History()  # TODO: History.objects.create(entity=intance [...])
                 history.entity = instance
                 history.action = "create"
                 history.source = source
@@ -232,10 +233,9 @@ class CrudityBackend(object):
         return is_created, instance
 
     def add_buttons(self, *buttons):
-        #if self.buttons is None:
-            #self.buttons = []
         self.buttons.extend(buttons)
 
     def get_rendered_buttons(self):
-        return [button.render(Context({'backend': self})) for button in self.buttons if self.is_configured]
-
+        return [button.render(Context({'backend': self}))
+                    for button in self.buttons if self.is_configured
+               ]

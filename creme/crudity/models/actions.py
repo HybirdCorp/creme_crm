@@ -20,8 +20,7 @@
 
 from pickle import loads, dumps
 
-from django.db.models import TextField, CharField #ForeignKey
-#from django.contrib.contenttypes.models import ContentType
+from django.db.models import TextField, CharField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel
@@ -29,13 +28,12 @@ from creme.creme_core.models.fields import CremeUserForeignKey, CTypeForeignKey
 
 
 class WaitingAction(CremeModel):
-    action  = CharField(_(u"Action"), max_length=100)#Action (i.e: create, update...) #TODO: int instead ??
-    source  = CharField(_(u"Source"), max_length=100)#Source (i.e: email raw, email from infopath, sms raw...)
+    action  = CharField(_(u"Action"), max_length=100)  # Action (i.e: create, update...) #TODO: int instead ??
+    source  = CharField(_(u"Source"), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)
     data    = TextField(blank=True, null=True)
-    #ct      = ForeignKey(ContentType, verbose_name=_(u"Ressource's type"), blank=False, null=False)#Redundant, but faster bd recovery
-    ct      = CTypeForeignKey(verbose_name=_(u"Ressource's type"))#Redundant, but faster bd recovery
+    ct      = CTypeForeignKey(verbose_name=_(u"Ressource's type"))  # Redundant, but faster bd recovery
     subject = CharField(_(u"Subject"), max_length=100)
-    user    = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)#Case of sandboxes are by user
+    user    = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)  # Case of sandboxes are by user
 
     class Meta:
         app_label = "crudity"

@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from collections import namedtuple
 from datetime import datetime
 import email
 import poplib
@@ -28,7 +27,6 @@ import re
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
-#from ..utils import get_unicode_decoded_str
 from creme.creme_core.utils import safe_unicode
 
 from .base import CrudityFetcher
@@ -46,7 +44,7 @@ CREME_GET_EMAIL_SSL_CERTFILE = settings.CREME_GET_EMAIL_SSL_CERTFILE
 
 
 class PopEmail(object):
-    def __init__(self, body=u"", body_html=u"", senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
+    def __init__(self, body=u"", body_html=u'', senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
         self.body        = body
         self.body_html   = body_html
         self.senders     = senders
@@ -56,8 +54,6 @@ class PopEmail(object):
         self.dates       = dates
         self.attachments = attachments
 
-#Better ?
-#PopEmail = namedtuple('PopEmail', 'body body_html senders tos ccs subjects dates attachment_paths', verbose=False)
 
 class PopFetcher(CrudityFetcher):
     server       = CREME_GET_EMAIL_SERVER
@@ -84,7 +80,7 @@ class PopFetcher(CrudityFetcher):
 
             message_count, mailbox_size = client.stat()
             response, messages, total_size = client.list()
-        except Exception:#TODO: Define better exception
+        except Exception:  # TODO: Define better exception
             logger.exception("PopFetcher.fetch: POP connection error")
             if client is not None:
                 client.quit()
@@ -94,7 +90,6 @@ class PopFetcher(CrudityFetcher):
         parsedate    = email.utils.parsedate
 
         for msg_infos in messages:
-#            attachment_paths = []
             attachments = []
 
             message_number, message_size = msg_infos.split(' ')
@@ -118,9 +113,9 @@ class PopFetcher(CrudityFetcher):
                     s = s.decode(enc)
                 decode_subject.append(s)
 
-            subject    = ''.join(decode_subject)
+            subject = ''.join(decode_subject)
 
-            #TODO: list comprehension
+            # TODO: list comprehension
             dates = []
             for d in get_all('date', []):
                 if d is not None:
@@ -131,7 +126,7 @@ class PopFetcher(CrudityFetcher):
             # CONTENT HTML / PLAIN
             if email_message.is_multipart():
                 for part in email_message.walk():
-                    encodings = set(part.get_charsets()) - {None} #TODO: use  discard() ?
+                    encodings = set(part.get_charsets()) - {None}  # TODO: use discard() ?
                     payload   = part.get_payload(decode=True)
 
                     mct = part.get_content_maintype()
@@ -152,7 +147,7 @@ class PopFetcher(CrudityFetcher):
                         elif cst == 'plain':
                             body = content
             else:
-                encodings = set(email_message.get_charsets()) - {None} #TODO: use  discard() ?
+                encodings = set(email_message.get_charsets()) - {None}  # TODO: use  discard() ?
 
                 cst = email_message.get_content_subtype()
                 content = safe_unicode(email_message.get_payload(decode=True), encodings)

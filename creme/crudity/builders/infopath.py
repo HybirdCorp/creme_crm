@@ -33,7 +33,6 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist, EmailField
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
-#from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
@@ -46,10 +45,10 @@ from creme.media_managers.models import Image
 from ..backends.models import CrudityBackend
 from ..utils import generate_guid_for_field
 
-#Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
+# Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
 
 INFOPATH_LANGUAGES_CODES = {
-#http://support.microsoft.com/kb/12739/fr
+# http://support.microsoft.com/kb/12739/fr
     'fr':    '1036',
     'en-gb': '2057',
     'en':    '1033',
@@ -93,7 +92,7 @@ _ELEMENT_TEMPLATE = {
 }
 
 XSL_VIEW_FIELDS_TEMPLATES_PATH = "crudity/infopath/create_template/frags/xsl/view/%s.xml"
-_TEMPLATE_NILLABLE_TYPES = (#Types which could be nil="true" in template.xml
+_TEMPLATE_NILLABLE_TYPES = ( # Types which could be nil="true" in template.xml
     models.DecimalField,
     models.IntegerField,
     models.TimeField,
@@ -131,8 +130,8 @@ class InfopathFormField(object):
 
     def _get_element(self, element_type):
         template_name = _ELEMENT_TEMPLATE.get(self.model_field.__class__)(element_type)
-#        return render_to_string(template_name, {'field': self}, context_instance=RequestContext(self.request)) if template_name is not None else None
-        return render_to_string(template_name, {'field': self}, request=self.request) if template_name is not None else None
+        return render_to_string(template_name, {'field': self}, request=self.request) \
+               if template_name is not None else None
 
     def _get_xsd_element(self):
         return self._get_element("xsd")
@@ -140,10 +139,9 @@ class InfopathFormField(object):
     def _get_xsl_element(self):
         return self._get_element("xsl")
 
-    def _get_validation(self):#TODO: Could be cool to match django validators
+    def _get_validation(self):  # TODO: Could be cool to match django validators
         validation = []
         if isinstance(self.model_field, EmailField):
-#            validation.append(render_to_string("crudity/infopath/create_template/frags/validation/email_field.xml", {'field': self}, context_instance=RequestContext(self.request)))
             validation.append(render_to_string('crudity/infopath/create_template/frags/validation/email_field.xml',
                                                {'field': self}, request=self.request,
                                               )
@@ -174,13 +172,11 @@ class InfopathFormField(object):
         elif isinstance(model_field, models.ManyToManyField):
             template_name = "crudity/infopath/create_template/frags/editing/m2m_field.xml"
 
-#        return render_to_string(template_name, tpl_dict, context_instance=RequestContext(self.request)) if template_name is not None else None
         return render_to_string(template_name, tpl_dict, request=self.request) if template_name is not None else None
 
     def get_view_element(self):
         template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH % self.model_field.get_internal_type()
         try:
-#            return render_to_string(template_name, {'field': self, 'choices': self._get_choices()}, context_instance=RequestContext(self.request))
             return render_to_string(template_name,
                                     {'field': self,
                                      'choices': self._get_choices(),
@@ -192,8 +188,12 @@ class InfopathFormField(object):
 
     def _get_choices(self):
         choices = []
+
         if isinstance(self.model_field, (models.ForeignKey, models.ManyToManyField)):
-            choices = [(entity.pk, unicode(entity)) for entity in self.model_field.rel.to._default_manager.all()]
+            choices = [(entity.pk, unicode(entity))
+                            for entity in self.model_field.rel.to._default_manager.all()
+                      ]
+
         return choices
 
     @property
@@ -204,7 +204,10 @@ class InfopathFormField(object):
     @property
     def is_file_field(self):
         model_field = self.model_field
-        return issubclass(model_field.__class__, models.FileField) or (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Image))
+        return issubclass(model_field.__class__, models.FileField) \
+               or (isinstance(model_field, models.ForeignKey) and
+                   issubclass(model_field.rel.to, Image)
+                  )
 
     @property
     def is_m2m_field(self):
@@ -215,7 +218,7 @@ class InfopathFormField(object):
         return isinstance(self.model_field, models.BooleanField)
 
     def get_m2m_xsl_choices_str(self):
-        return " and ".join(['.!="%s"' % c[0] for c in self._get_choices()]) #TODO: generator expression
+        return " and ".join('.!="%s"' % c[0] for c in self._get_choices())
 
 
 class InfopathFormBuilder(object):
@@ -232,7 +235,7 @@ class InfopathFormBuilder(object):
         return "http://schemas.microsoft.com/office/infopath/2003/myXSD/%s" % self.now.strftime('%Y-%m-%dT%H:%M:%S')
 
     def get_urn(self):
-        #TODO:Change 'create' ? Make a constant ?
+        # TODO:Change 'create' ? Make a constant ?
         return 'urn:schemas-microsoft-com:office:infopath:%s-%s:-myXSD-%s' % (
                     'create',
                     self.backend.subject.lower(),
@@ -247,7 +250,11 @@ class InfopathFormBuilder(object):
         if self._fields is None:
             backend      = self.backend
             build_field  = partial(InfopathFormField, self.urn, backend.model, request=self.request)
-            self._fields = [build_field(field_name) for field_name in backend.body_map.iterkeys() if field_name != "password"]
+            self._fields = [build_field(field_name)
+                                for field_name in backend.body_map.iterkeys()
+                                    if field_name != 'password'
+                           ]
+
         return self._fields
 
     @property
@@ -275,7 +282,13 @@ class InfopathFormBuilder(object):
             path_join = os_path.join
             copy2 = shutil.copy2
 
-            crudity_media_path = path_join(settings.CREME_ROOT, "crudity", "templates", "crudity", "infopath", "create_template")
+            crudity_media_path = path_join(settings.CREME_ROOT,
+                                           'crudity',
+                                           'templates',
+                                           'crudity',
+                                           'infopath',
+                                           'create_template',
+                                          )
 
             for name in media_files:
                 media_path = path_join(crudity_media_path, name)
@@ -293,7 +306,6 @@ class InfopathFormBuilder(object):
                                                     {'file_name': "%s.xsn" % self.backend.subject,
                                                      'backend_path':backend_path,
                                                     },
-#                                                    context_instance=RequestContext(request)
                                                     request=request,
                                                    )
 
@@ -303,7 +315,6 @@ class InfopathFormBuilder(object):
 
                 cabify_content = render_to_string("crudity/infopath/create_template/cabify.bat",
                                                   {'ddf_path': ddf_path},
-#                                                  context_instance=RequestContext(request)
                                                   request=request,
                                                  )
 
@@ -312,7 +323,7 @@ class InfopathFormBuilder(object):
                     f.write(cabify_content)
 
                 subprocess.call([cabify_path])
-                #clean because  .Set GenerateInf=off doesn't seems to work...
+                # Clean because  .Set GenerateInf=off doesn't seems to work...
                 os.unlink(path_join(settings.CREME_ROOT, "setup.inf"))
                 os.unlink(path_join(settings.CREME_ROOT, "setup.rpt"))
             else:
@@ -328,6 +339,7 @@ class InfopathFormBuilder(object):
 
     def render(self):
         response =  HttpResponse(self._render(), content_type="application/vnd.ms-infopath")
+        # TODO: use secure_filename() ?
         response['Content-Disposition'] = 'attachment; filename=%s.xsn' % \
             normalize('NFKD',
                       unicode(CrudityBackend.normalize_subject(self.backend.subject))
@@ -346,7 +358,6 @@ class InfopathFormBuilder(object):
                                  'to':              settings.CREME_GET_EMAIL,
                                  'password':        self.backend.password,
                                 },
-#                                context_instance=RequestContext(request),
                                 request=request,
                                )
 
@@ -355,7 +366,6 @@ class InfopathFormBuilder(object):
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
                                 },
-#                                context_instance=RequestContext(request),
                                 request=request,
                                )
 
@@ -365,7 +375,6 @@ class InfopathFormBuilder(object):
                                  'form_urn':        self.urn,
                                  'fields':          self.fields,
                                 },
-#                                context_instance=RequestContext(request),
                                 request=request,
                                )
 
@@ -374,7 +383,6 @@ class InfopathFormBuilder(object):
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
                                 },
-#                                context_instance=RequestContext(request),
                                 request=request,
                                )
 
@@ -385,6 +393,5 @@ class InfopathFormBuilder(object):
                                  'fields':          self.fields,
                                  'form_title':      u"%s %s" % (_(u"Create"), backend.model._meta.verbose_name),
                                 },
-#                                context_instance=RequestContext(request),
                                 request=request,
                                )

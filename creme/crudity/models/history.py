@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,15 +25,13 @@ from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import CreationDateTimeField, CremeUserForeignKey
 
 
-__all__ = ("History", )
-
 class History(CremeModel):
     entity      = ForeignKey(CremeEntity, verbose_name=_(u"Entity"), blank=False, null=False)
     created     = CreationDateTimeField(_(u'Creation date'))
-    action      = CharField(_(u"Action"), max_length=100)#Action (i.e: create, update...)
-    source      = CharField(_(u"Source"), max_length=100)#Source (i.e: email raw, email from infopath, sms raw...)
+    action      = CharField(_(u"Action"), max_length=100)  # Action (i.e: create, update...)
+    source      = CharField(_(u"Source"), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)
     description = TextField(_(u'Description'), blank=True, null=True)
-    user        = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)#Case of sandboxes are by user
+    user        = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)  # Case of sandboxes are by user
 
     class Meta:
         app_label = "crudity"
@@ -47,4 +45,4 @@ class History(CremeModel):
         return entity
 
     def __unicode__(self):
-        return u"History of %s" % self.get_entity() or u""
+        return u"History of %s" % self.get_entity() or u''

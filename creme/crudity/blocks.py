@@ -25,8 +25,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.gui.block import QuerysetBlock
 from creme.creme_core.models import SettingValue
 
-#from creme.emails.models import EntityEmail
-
 from .backends.models import CrudityBackend
 from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from .models import WaitingAction, History
@@ -42,11 +40,12 @@ class CrudityQuerysetBlock(QuerysetBlock):
 
     @property
     def is_sandbox_by_user(self):
-        return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value#No cache need sub-blocks are created on the fly
+        # No cache need sub-blocks are created on the fly
+        return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
 
 
 class WaitingActionBlock(CrudityQuerysetBlock):
-    #dependencies  = ()
+    # dependencies  = ()
     verbose_name  = _(u'Waiting actions')
     template_name = 'crudity/templatetags/block_waiting_action.html'
 
@@ -61,9 +60,10 @@ class WaitingActionBlock(CrudityQuerysetBlock):
         return 'block_crudity-%s-%s' % (self.ct.id, CrudityBackend.normalize_subject(self.backend.subject))
 
     def detailview_display(self, context):
-        #credentials are OK: block is not registered in block registry, so reloading is necessarily done with the custom view
+        # Credentials are OK: block is not registered in block registry,
+        # so reloading is necessarily done with the custom view
         super(WaitingActionBlock, self).detailview_display(context)
-        ct   = self.ct
+        ct = self.ct
         backend = self.backend
 
         waiting_actions = WaitingAction.objects.filter(ct=ct, source=backend.source, subject=backend.subject)
@@ -74,31 +74,31 @@ class WaitingActionBlock(CrudityQuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             waiting_actions,
                                                             waiting_ct=ct,
-                                                            #email_ct=ContentType.objects.get_for_model(EntityEmail),#todo: For now email, but generify this!
                                                             buttons=self.buttons,
                                                             backend=backend,
-                                                            update_url='/crudity/waiting_actions_blocks/%s/reload' % (self.id_,),
+                                                            update_url='/crudity/waiting_actions_blocks/%s/reload' % self.id_,
                                                            ))
 
 
 class HistoryBlock(CrudityQuerysetBlock):
-    #dependencies  = ()
+    # dependencies  = ()
     verbose_name  = _(u'History')
     template_name = 'crudity/templatetags/block_history.html'
 
     def __init__(self, ct, buttons=None):
         super(HistoryBlock, self).__init__()
-        self.ct   = ct
-        self.id_  = self.generate_id()
+        self.ct = ct
+        self.id_ = self.generate_id()
         self.buttons = buttons
 
     def generate_id(self):
-        return 'block_crudity-%s' % (self.ct.id,)
+        return 'block_crudity-%s' % self.ct.id
 
     def detailview_display(self, context):
-        #credentials are OK: block is not registered in block registry, so reloading is necessarily done with the custom view
+        # Credentials are OK: block is not registered in block registry,
+        # so reloading is necessarily done with the custom view
         super(HistoryBlock, self).detailview_display(context)
-        ct   = self.ct
+        ct = self.ct
 
         histories = History.objects.filter(entity__entity_type=ct)
         if self.is_sandbox_by_user:
@@ -108,7 +108,6 @@ class HistoryBlock(CrudityQuerysetBlock):
                                                             histories,
                                                             ct=ct,
                                                             buttons=self.buttons,
-                                                            #email_ct=ContentType.objects.get_for_model(EntityEmail),
-                                                            update_url='/crudity/history_block/%s/reload' % (self.id_,),
+                                                            update_url='/crudity/history_block/%s/reload' % self.id_,
                                                            ))
 
