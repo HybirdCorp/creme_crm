@@ -2,9 +2,10 @@
 
 try:
     from ..registry import CRUDityRegistry
-    from .base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
-            OrganisationFakeBackend, DocumentFakeBackend, FakeInput,
-            Document, Contact, Organisation)
+    from .base import CrudityTestCase, FakeFetcher, ContactFakeBackend, FakeInput
+            # OrganisationFakeBackend, DocumentFakeBackend, Document, Contact, Organisation
+    from .fake_crudity_register import (FakeContact, FakeOrganisation, FakeDocument,
+            FakeContactBackend, FakeOrganisationBackend, FakeDocumentBackend)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -27,9 +28,14 @@ class CrudityRegistryTestCase(CrudityTestCase):
 
     def test_register_backend01(self):
         crudity_registry = self.crudity_registry
-        crudity_registry.register_backends([ContactFakeBackend, OrganisationFakeBackend])
-        crudity_registry.register_backends([DocumentFakeBackend])
-        self.assertEqual({Contact, Organisation, Document}, set(crudity_registry._backends))
+        # crudity_registry.register_backends([ContactFakeBackend, OrganisationFakeBackend])
+        crudity_registry.register_backends([FakeContactBackend, FakeOrganisationBackend])
+        # crudity_registry.register_backends([DocumentFakeBackend])
+        crudity_registry.register_backends([FakeDocumentBackend])
+        # self.assertEqual({Contact, Organisation, Document}, set(crudity_registry._backends))
+        self.assertEqual({FakeContact, FakeOrganisation, FakeDocument},
+                         set(crudity_registry._backends)
+                        )
 
     def test_register_input01(self):
         crudity_registry = self.crudity_registry
