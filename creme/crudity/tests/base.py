@@ -13,6 +13,7 @@ from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..backends.models import CrudityBackend
 from ..fetchers.base import CrudityFetcher
 from ..inputs.base import CrudityInput
+from .fake_crudity_register import FakeContactBackend, SwallowInput, SwallowFetcher
 
 
 Document = get_document_model()
@@ -55,8 +56,17 @@ class CrudityTestCase(CremeTestCase):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'crudity')
 
+        cls.FakeContactBackend = FakeContactBackend
+        cls.SwallowInput = SwallowInput
+        cls.SwallowFetcher = SwallowFetcher
+
     def setUp(self):
         self.login()
+        self.FakeContactBackend.calls_args[:] = ()
+        self.SwallowInput.force_not_handle = False
+
+        SwallowFetcher.user_id = 0
+        SwallowFetcher.last_name = ''
 
     def _set_sandbox_by_user(self):
         sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
