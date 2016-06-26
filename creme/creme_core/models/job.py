@@ -84,7 +84,7 @@ class Job(Model):
     language      = CharField(_('Language'), max_length=10, editable=False)
     # created      = CreationDateTimeField(_('Creation date'))
     reference_run = DateTimeField(_('Reference run'))
-    periodicity   = DatePeriodField(null=True)
+    periodicity   = DatePeriodField(_('Periodicity'), null=True)
     last_run      = DateTimeField(_('Last run'), null=True, editable=False)
     ack_errors    = PositiveIntegerField(default=0, editable=False)
     status        = PositiveSmallIntegerField(_('Status'), editable=False,
@@ -170,6 +170,10 @@ class Job(Model):
 
     def forget_ack_errors(self):
         self._update_ack_errors(- self.ack_errors)
+
+    def get_config_form_class(self):
+        "@see JobType.get_config_form_class()"
+        return self.type.get_config_form_class(self)
 
     def refresh(self):
         """Ask to the JobManager to refresh the job, because the next runs should

@@ -61,10 +61,6 @@
                             <ul>
                                 <li>{% trans "Reference run" %}: {{job.reference_run}}</li>
                                 <li>{% trans "Every" %}: {{job.real_periodicity}}</li>
-                                {% if job.type.periodic == PERIODIC %}
-                                    {% comment %}TODO {% get_line_editor at_url job.get_edit_absolute_url with_perms 1 %}{% endcomment %}
-                                    <li>{% get_line_editor at_url '/creme_core/job/{{job.id}}/edit' with_perms 1 %}</li>
-                                {% endif %}
                             </ul>
                         {% endif %}
                     </td>
@@ -77,6 +73,9 @@
                         {% endif %}
                     </td>
                     <td class="{{row_color}} action">
+                        {% if job.get_config_form_class %}
+                             {% get_line_editor at_url job.get_edit_absolute_url with_perms 1 %}
+                        {% endif %}
                         {% get_line_viewer at_url job.get_absolute_url with_label "" with_perms 1 %}
                         {% if job.is_finished and job.user_id %}
                             {% comment %}TODO: job.get_delete_absolute_url {% endcomment %}

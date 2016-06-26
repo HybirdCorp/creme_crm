@@ -104,6 +104,19 @@ class JobType(object):
         """
         return []
 
+    def get_config_form_class(self, job):
+        """Get the configuration form for this job.
+
+        Overload this method if you want a custom form.
+        If your job is PERIODIC, your form should inherit creme_core.forms.job.JobForm
+
+        @return A class of form, or None if the job is not configurable.
+        """
+        if self.periodic == JobType.PERIODIC:
+            from ..forms.job import JobForm
+
+            return JobForm
+
     def get_stats(self, job):
         "Get stats as a list of strings. To be overloaded by child classes."
         return []

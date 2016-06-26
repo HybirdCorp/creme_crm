@@ -24,10 +24,10 @@ from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required, superuser_required
 from ..blocks import job_block
-from ..creme_jobs.base import JobType
+# from ..creme_jobs.base import JobType
 from ..core.exceptions import ConflictError
 from ..core.job import JobManagerQueue
-from ..forms.job import JobForm
+# from ..forms.job import JobForm
 from ..models import Job
 from ..utils import jsonify
 from .blocks import build_context
@@ -64,16 +64,21 @@ def edit(request, job_id):
     if job.user_id is not None:
         raise ConflictError('A non-system job cannot be edited')
 
-    if job.type.periodic != JobType.PERIODIC:
-        raise ConflictError('A non-periodic job cannot be edited')
+    # if job.type.periodic != JobType.PERIODIC:
+    #     raise ConflictError('A non-periodic job cannot be edited')
+    config_form = job.get_config_form_class()
+    if config_form is None:
+        raise ConflictError('This job cannot be edited')
 
     if request.method == 'POST':
-        edit_form = JobForm(user=request.user, data=request.POST, instance=job)
+        # edit_form = JobForm(user=request.user, data=request.POST, instance=job)
+        edit_form = config_form(user=request.user, data=request.POST, instance=job)
 
         if edit_form.is_valid():
             edit_form.save()
     else:  # GET request
-        edit_form = JobForm(user=request.user, instance=job)
+        # edit_form = JobForm(user=request.user, instance=job)
+        edit_form = config_form(user=request.user, instance=job)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  edit_form,
@@ -148,7 +153,8 @@ def get_info(request):
                     # TODO: other info -> progress, progress label, is finished
                     ack_errors = job.ack_errors
 
-                    if ack_errors and not error:  # NB: we check 'error' too, to avoid flooding queue/job_manager.
+                    # NB: we check 'error' too, to avoid flooding queue/job_manager.
+                    if ack_errors and not error:
                         queue_error = queue.start_job(job) if job.user else job.refresh()
                         if not queue_error:
                             job.forget_ack_errors()

@@ -23,6 +23,11 @@
         <th class="label">{% get_basic_block_header _('Job') 'info_48.png' _('Information') %}</th>
         <th class="actions">
             <div class="buttons">
+                {% if job.get_config_form_class %}
+                    <a onclick="creme.blocks.form('{{job.get_edit_absolute_url}}', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'80%'});">
+                        {% trans "Configure" as label %}<img src="{% creme_media_url 'images/edit_22_button.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
+                    </a>
+                {% endif %}
                 {% if job.is_finished and job.user_id %}
                     <a class="negative" onclick="creme.utils.confirmSubmit(this);">
                         {% trans "Delete" as label %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{label}}" alt="{{label}}">{{label}}
@@ -70,10 +75,6 @@
                         <li>{% trans "Reference run" %}: {{job.reference_run}}</li>
                         <li>{% trans "Every" %}: {{job.real_periodicity}}</li>
                     </ul>
-                    {% if job.type.periodic == PERIODIC %}
-                        {% comment %}TODO {% get_line_editor at_url job.get_edit_absolute_url with_perms 1 %}{% endcomment %}
-                        {% get_line_editor at_url '/creme_core/job/{{job.id}}/edit' with_perms 1 %}
-                    {% endif %}
                 </td>
             </tr>
         {% endif %}

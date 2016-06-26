@@ -161,6 +161,8 @@ class JobViewsTestCase(ViewsTestCase):
                                                                            ),
                                                'periodicity_0': 'minutes',
                                                'periodicity_1': '180',
+
+                                               'user': self.user.id,
                                               },
                                    )
         self.assertNoFormError(response)
@@ -189,6 +191,8 @@ class JobViewsTestCase(ViewsTestCase):
                                     data={'reference_run': '26-08-2014 14:00:00',
                                           'periodicity_0': pdict['type'],
                                           'periodicity_1': str(pdict['value']),
+
+                                          'user': self.user.id,
                                          },
                                    )
         self.assertNoFormError(response)
@@ -221,6 +225,8 @@ class JobViewsTestCase(ViewsTestCase):
                                                                       ),
                                           'periodicity_0': pdict['type'],
                                           'periodicity_1': str(pdict['value']),
+
+                                          'user': self.user.id,
                                          },
                                    )
         self.assertNoFormError(response)
