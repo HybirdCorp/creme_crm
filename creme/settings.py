@@ -843,7 +843,10 @@ CREME_GET_EMAIL_SSL_CERTFILE = ""  # Not used for the moment
 
 # Only for job. Default user id which will handle the synchronization
 # User used to synchronize mails with management command.
-CREME_GET_EMAIL_JOB_USER_ID  = 1
+# This ID is only used during the installation for the crudity's job configuration.
+# Configure (graphically) the job if you want to change it later.
+# TODO: delete it in creme1.8
+CREME_GET_EMAIL_JOB_USER_ID = 1
 
 # CRUDITY_BACKENDS configures the backends (it's a list of dict)
 # Here a template of a crudity backend configuration:

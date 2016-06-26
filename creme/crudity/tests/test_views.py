@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.test.utils import override_settings
     from django.utils.translation import ungettext
@@ -299,15 +300,49 @@ class CrudityViewsTestCase(CrudityTestCase):
 
     @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
     def test_actions_fetch04(self):
-        "Default backend"
+        "Default backend + job configuration"
+        other_user = self.other_user
+
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
-
-        job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
 
         self.SwallowInput.force_not_handle = True
         self._build_test_registry()
 
+        # -----------------------------
+        job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        with self.assertNoException():
+            jdata = job.data
+
+        self.assertIsInstance(jdata, dict)
+        self.assertEqual(1, len(jdata))
+
+        user_id = jdata.get('user')
+        self.assertIsNotNone(user_id)
+        self.get_object_or_fail(get_user_model(), id=user_id)
+
+        url = job.get_edit_absolute_url()
+        self.assertGET200(url)
+
+        pdict = {'type': 'hours', 'value': 12}
+        response = self.client.post(url,
+                                    data={'reference_run': '26-06-2016 14:00:00',
+                                          'periodicity_0': pdict['type'],
+                                          'periodicity_1': str(pdict['value']),
+
+                                          'user': other_user.id,
+                                         },
+                                   )
+        self.assertNoFormError(response)
+
+        job = self.refresh(job)
+        self.assertEqual(pdict, job.periodicity.as_dict())
+        self.assertEqual(self.create_datetime(year=2016, month=6, day=26, hour=14),
+                         job.reference_run
+                        )
+        self.assertEqual({'user': other_user.id}, job.data)
+
+        # -----------------------------
         crudity_synchronize_type.execute(job)
 
         jresults = JobResult.objects.filter(job=job)
@@ -320,7 +355,7 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertEqual(1, len(calls_args))
         call_args = calls_args[0]
         self.assertIsInstance(call_args[0], Swallow)
-        # self.assertEqual(user, call_args[1])  # TODO
+        self.assertEqual(other_user, call_args[1])
 
     # def test_actions_delete(self): TODO
     # def test_actions_reload(self): TODO

@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SettingValue, Job
@@ -29,13 +30,23 @@ from .setting_keys import sandbox_key
 
 
 class Populator(BasePopulator):
+    dependencies = ['creme_core']
+
     def populate(self):
         # SettingValue.create_if_needed(key=sandbox_key, user=None, value=False)
         SettingValue.objects.get_or_create(key_id=sandbox_key.id, defaults={'value': False})
+
+        CremeUser = get_user_model()
+
+        try:
+            user = CremeUser.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
+        except (CremeUser.DoesNotExist, AttributeError):
+            user = CremeUser.objects.get_admin()
 
         Job.objects.get_or_create(type_id=crudity_synchronize_type.id,
                                   defaults={'language':    settings.LANGUAGE_CODE,
                                             'periodicity': date_period_registry.get_period('minutes', 30),
                                             'status':      Job.STATUS_OK,
+                                            'data':        {'user': user.id},
                                            }
                                  )

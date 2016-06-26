@@ -222,7 +222,7 @@ class JobBlock(Block):
                     JOB_OK=Job.STATUS_OK,
                     JOB_ERROR=Job.STATUS_ERROR,
                     JOB_WAIT=Job.STATUS_WAIT,
-                    PERIODIC=JobType.PERIODIC,
+                    # PERIODIC=JobType.PERIODIC,
                     NOT_PERIODIC=JobType.NOT_PERIODIC,
                 ))
 
@@ -303,7 +303,7 @@ class JobsBlock(QuerysetBlock):
                     user_jobs_count=Job.objects.filter(user=user).count(),
                     MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
                     JOB_WAIT=Job.STATUS_WAIT,
-                    PERIODIC=JobType.PERIODIC,
+                    # PERIODIC=JobType.PERIODIC,
                     NOT_PERIODIC=JobType.NOT_PERIODIC,
                 ))
 

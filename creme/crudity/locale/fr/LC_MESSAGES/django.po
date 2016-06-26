@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-09 13:04+0100\n"
+"POT-Creation-Date: 2016-06-26 17:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,95 +24,115 @@ msgstr "Gestion des données externes"
 msgid "Email waiting actions"
 msgstr "Actions en attente pour les emails"
 
-#: apps.py:42 blocks.py:86 models/history.py:40 models/history.py:41
+#: apps.py:42 blocks.py:85 models/history.py:38 models/history.py:39
 #: templates/crudity/history.html:8 templates/crudity/history.html.py:15
 msgid "History"
 msgstr "Historique"
 
-#: backends/models.py:226
+#: backends/models.py:227
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
 
-#: blocks.py:41
+#: blocks.py:39
 #, python-format
 msgid "Error: you are not allowed to view this block: %s"
 msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
 
-#: blocks.py:50 models/actions.py:43
+#: blocks.py:49 models/actions.py:41
 #: templates/crudity/frags/ajax/waiting_actions.html:4
 #: templates/crudity/waiting_actions.html:4
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: builders/infopath.py:386 inputs/email.py:66
+#: builders/infopath.py:394 inputs/email.py:64
 msgid "Create"
 msgstr "Créer"
 
-#: creme_jobs.py:39
+#: creme_jobs.py:40
 msgid "Synchronize externals data sent to Creme"
 msgstr "Synchroniser les données externes envoyées à Creme"
 
-#: creme_jobs.py:53
+#: creme_jobs.py:51
+msgid ""
+"The configured default user is invalid. Edit the job's configuration to fix "
+"it."
+msgstr ""
+"L'utilisateur par défaut configuré est invalide. Modifiez la configuration "
+"pour la réparer."
+
+#: creme_jobs.py:63
 #, python-format
 msgid "There is %s change"
 msgid_plural "There are %s changes"
 msgstr[0] "Il y a %s changement"
 msgstr[1] "Il y a %s changements"
 
-#: inputs/email.py:54
+#: forms.py:34
+msgid "Default owner user"
+msgstr "Utilisateur propriétaire par défaut"
+
+#: forms.py:36
+msgid ""
+"Eg: user owning emails/folder/documents created during the emails "
+"synchronization."
+msgstr ""
+"Ex: l'utilisateur possédant les e-mails/dossier/documents créés pendant la "
+"synchronisation des e-mails"
+
+#: inputs/email.py:51
 msgid "Email - Raw"
 msgstr "E-mail - Simple"
 
-#: inputs/email.py:182
+#: inputs/email.py:184
 msgid "Email - Infopath"
 msgstr "E-mail - Infopath"
 
-#: models/actions.py:32 models/history.py:33
+#: models/actions.py:31 models/history.py:31
 #: templates/crudity/templatetags/block_history.html:46
 msgid "Action"
 msgstr "Action"
 
-#: models/actions.py:33 models/history.py:34
+#: models/actions.py:32 models/history.py:32
 #: templates/crudity/templatetags/block_history.html:47
 msgid "Source"
 msgstr "Source"
 
-#: models/actions.py:36
+#: models/actions.py:34
 msgid "Ressource's type"
 msgstr "Type de ressource"
 
-#: models/actions.py:37
+#: models/actions.py:35
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/actions.py:38 models/history.py:36
+#: models/actions.py:36 models/history.py:34
 msgid "Owner"
 msgstr "Propriétaire"
 
-#: models/actions.py:42
+#: models/actions.py:40
 msgid "Waiting action"
 msgstr "Action en attente"
 
-#: models/actions.py:61
+#: models/actions.py:59
 #, python-format
 msgid "You are not allowed to validate/delete the waiting action <%s>"
 msgstr ""
 "Vous n'êtes pas autorisé à valider/effacer cette action en attente <%s>"
 
-#: models/actions.py:63
+#: models/actions.py:61
 msgid "OK"
 msgstr "OK"
 
-#: models/history.py:31 templates/crudity/templatetags/block_history.html:44
+#: models/history.py:29 templates/crudity/templatetags/block_history.html:44
 msgid "Entity"
 msgstr "Fiche"
 
-#: models/history.py:32
+#: models/history.py:30
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/history.py:35 templates/crudity/templatetags/block_history.html:48
+#: models/history.py:33 templates/crudity/templatetags/block_history.html:48
 msgid "Description"
 msgstr "Description"
 
