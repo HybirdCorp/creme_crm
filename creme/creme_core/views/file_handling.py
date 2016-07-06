@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import os
+from os.path import basename, join
 from random import randint
 
 from django.conf import settings
@@ -26,7 +27,9 @@ from django.http import HttpResponse, Http404
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
-from ..utils.secure_filename import secure_filename
+# from ..utils.secure_filename import secure_filename
+from ..utils.file_handling import FileCreator
+
 
 MAXINT = 100000
 
@@ -35,49 +38,50 @@ def handle_uploaded_file(f, path=None, name=None):
     """Handle an uploaded file by a form and return the complete file's path
     path has to be iterable
     """
-    def get_name(file, exists=False):
+    # def get_name(file, exists=False):
+    def get_name(file):
         if hasattr(file, 'name'):
             name = file.name
         elif hasattr(file, '_name'):
             name = file._name
-        else :
+        else:
             name = 'file_%08x' % randint(0, MAXINT)
 
-        if exists or not name:
-            name = "%08x%s" % (randint(0, MAXINT), name)
+        # if exists or not name:
+        #     name = "%08x%s" % (randint(0, MAXINT), name)
 
         if name.rpartition('.')[2] not in settings.ALLOWED_EXTENSIONS:
-            name = "%s.txt" % name
+            name = '%s.txt' % name
+
         return name
 
-
-    if not hasattr(path, "__iter__"):
-        return_path = 'upload'
-        path = os.path.join(settings.MEDIA_ROOT, 'upload')
+    if not hasattr(path, '__iter__'):  # TODO: path is None  (or add support for only one string)
+        relative_dir_path = 'upload'
+        dir_path = join(settings.MEDIA_ROOT, 'upload')
     else:
-        return_path = os.path.join(*path)
-        path = os.path.join(settings.MEDIA_ROOT, *path)
+        relative_dir_path = join(*path)
+        dir_path = join(settings.MEDIA_ROOT, *path)
 
-    if not os.path.exists(path):
-        os.makedirs(path, 0755)
+    # if not os.path.exists(dir_path):
+    #     os.makedirs(dir_path, 0755)
 
     if not name:
         name = get_name(f)
 
-    name = secure_filename(name)
+    # name = secure_filename(name)
+    # final_path = join(path, name)
+    #
+    # while os.path.exists(final_path):
+    #     name = secure_filename(get_name(f, True))
+    #     final_path = join(path, name)
+    final_path = FileCreator(dir_path=dir_path, name=name).create()
 
-    final_path = os.path.join(path, name)
+    with open(final_path, 'wb+', 0755) as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
 
-    while os.path.exists(final_path):
-        name = secure_filename(get_name(f, True))
-        final_path = os.path.join(path, name)
-
-    destination = open(final_path, 'wb+', 0755)
-    for chunk in f.chunks():
-        destination.write(chunk)
-    destination.close()
-
-    return os.path.join(return_path, name)
+    # return join(relative_dir_path, name)
+    return join(relative_dir_path, basename(final_path))
 
 
 @login_required
@@ -117,5 +121,4 @@ def fetch_resources(uri, rel):
     `uri` is the href attribute from the html link element.
     `rel` gives a relative path, but it's not used here.
     """
-    path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
-    return path
+    return join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ''))

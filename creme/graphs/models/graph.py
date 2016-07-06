@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from os import remove as delete_file
+from os.path import basename
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import CharField, ManyToManyField, ForeignKey
@@ -25,16 +28,17 @@ from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity, RelationType, Relation
+from creme.creme_core.utils.file_handling import FileCreator
 
 
-#class Graph(CremeEntity):
 class AbstractGraph(CremeEntity):
     name                   = CharField(pgettext_lazy('graphs', u'Name of the graph'), max_length=100)
     orbital_relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types of the peripheral relations'))
 
-    #creation_label = pgettext_lazy('graphs', u'Add a graph')
-    creation_label = _('Add a graph') #TODO: we do not use context because creme_core.PreferedMenuItem doesn't know them
-                                      #      so the label remains untranslated in the PreferedMenu bar.
+    # creation_label = pgettext_lazy('graphs', u'Add a graph')
+    creation_label = _('Add a graph')  # TODO: we do not use context because creme_core.PreferedMenuItem
+                                       #       doesn't know them  so the label remains untranslated in
+                                       #       the PreferedMenu bar.
 
     class GraphException(Exception):
         pass
@@ -50,7 +54,6 @@ class AbstractGraph(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return "/graphs/graph/%s" % self.id
         return reverse('graphs__view_graph', args=(self.id,))
 
     @staticmethod
@@ -58,27 +61,25 @@ class AbstractGraph(CremeEntity):
         return reverse('graphs__create_graph')
 
     def get_edit_absolute_url(self):
-#        return "/graphs/graph/edit/%s" % self.id
         return reverse('graphs__edit_graph', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/graphs/graphs"
         return reverse('graphs__list_graphs')
 
     def generate_png(self, user):
-        from os.path import join, exists
-        from os import makedirs
+        from os.path import join  # exists
+        # from os import makedirs
 
         import pygraphviz as pgv
 
-        #NB: to work with utf8 label in node: all node must be added explicitly with
-        #    unicode label, and when edges are a created, nodes identified by their
-        #    labels encoded as string
+        # NB: to work with utf8 label in node: all node must be added explicitly with
+        #     unicode label, and when edges are a created, nodes identified by their
+        #     labels encoded as string
 
         graph = pgv.AGraph(directed=True)
 
-        #NB: "self.roots.all()" causes a strange additional query (retrieving of the base CremeEntity !)....
+        # NB: "self.roots.all()" causes a strange additional query (retrieving of the base CremeEntity !)....
         has_perm_to_view = user.has_perm_to_view
         roots = [root for root in RootNode.objects.filter(graph=self.id).select_related('entity')
                     if not root.entity.is_deleted and has_perm_to_view(root.entity)
@@ -87,14 +88,14 @@ class AbstractGraph(CremeEntity):
         add_node = graph.add_node
         add_edge = graph.add_edge
 
-        #TODO: entity cache ? regroups relations by type ? ...
+        # TODO: entity cache ? regroups relations by type ? ...
 
         CremeEntity.populate_real_entities([root.entity for root in roots]) #small optimisation
 
         for root in roots:
             add_node(unicode(root.entity), shape='box')
-            #add_node('filled box',    shape='box', style='filled', color='#FF00FF')
-            #add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
+            # add_node('filled box',    shape='box', style='filled', color='#FF00FF')
+            # add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
 
         orbital_nodes = {} #cache
 
@@ -104,7 +105,7 @@ class AbstractGraph(CremeEntity):
             relations   = subject.relations.filter(type__in=root.relation_types.all())\
                                            .select_related('object_entity', 'type')
 
-            Relation.populate_real_object_entities(relations) #small optimisation
+            Relation.populate_real_object_entities(relations)  # Small optimisation
 
             for relation in relations:
                 object_ = relation.object_entity
@@ -121,7 +122,7 @@ class AbstractGraph(CremeEntity):
 
                 add_edge(str_subject, str_object,
                          label=unicode(relation.type.predicate))
-                #add_edge('b', 'd', color='#FF0000', fontcolor='#00FF00', label='foobar', style='dashed')
+                # add_edge('b', 'd', color='#FF0000', fontcolor='#00FF00', label='foobar', style='dashed')
 
         orbital_rtypes = self.orbital_relation_types.all()
 
@@ -135,24 +136,33 @@ class AbstractGraph(CremeEntity):
                          label=unicode(relation.type.predicate),
                          style='dashed')
 
-        #print graph.string()
+        # print graph.string()
 
-        graph.layout(prog='dot') #algo: neato dot twopi circo fdp nop
+        graph.layout(prog='dot')  # Algo: neato dot twopi circo fdp nop
 
-        #TODO: use a true tmp file ???? or in populate ???
-        dir_path = join(settings.MEDIA_ROOT, 'upload', 'graphs')
-        if not exists(dir_path):
-            makedirs(dir_path)
+        # dir_path = join(settings.MEDIA_ROOT, 'upload', 'graphs')
+        # if not exists(dir_path):
+        #     makedirs(dir_path)
 
-        filename = 'graph_%i.png' % self.id
-
-        #TODO: delete old files ???
+        # filename = 'graph_%i.png' % self.id
         try:
-            graph.draw(join(dir_path, filename), format='png') #format: pdf svg
+            path = FileCreator(join(settings.MEDIA_ROOT, 'upload', 'graphs'),
+                               'graph_%i.png' % self.id,
+                              ).create()
+        except FileCreator.Error as e:
+            raise Graph.GraphException(e)
+
+        # TODO: delete old files ???
+        try:
+            # graph.draw(join(dir_path, filename), format='png')  # Format: pdf svg
+            graph.draw(path, format='png')  # Format: pdf svg
         except IOError as e:
+            delete_file(path)
+
             raise Graph.GraphException(str(e))
 
-        return HttpResponseRedirect('/download_file/upload/graphs/' + filename)
+        # return HttpResponseRedirect('/download_file/upload/graphs/' + filename)
+        return HttpResponseRedirect('/download_file/upload/graphs/' + basename(path))
 
     def _post_save_clone(self, source):
         for node in RootNode.objects.filter(graph=source):
@@ -166,10 +176,10 @@ class Graph(AbstractGraph):
 
 
 class RootNode(CremeModel):
-#    graph          = ForeignKey(Graph, related_name='roots', editable=False)
     graph          = ForeignKey(settings.GRAPHS_GRAPH_MODEL, related_name='roots', editable=False)
     entity         = ForeignKey(CremeEntity, editable=False)
-    relation_types = ManyToManyField(RelationType, editable=False) #TODO: editable=False is only to avoid inner edition with an ugly widget
+    # TODO: editable=False is only to avoid inner edition with an ugly widget
+    relation_types = ManyToManyField(RelationType, editable=False)
 
     class Meta:
         app_label = 'graphs'
@@ -177,7 +187,7 @@ class RootNode(CremeModel):
     def get_edit_absolute_url(self):
         return '/graphs/root/edit/%s/' % self.id
 
-    def get_related_entity(self): #for generic views (edit_related_to_entity)
+    def get_related_entity(self):  # For generic views (edit_related_to_entity)
         return self.graph
 
     def get_relation_types(self):

@@ -25,16 +25,13 @@ from creme.creme_core.apps import CremeAppConfig
 
 class GraphsConfig(CremeAppConfig):
     name = 'creme.graphs'
-    #verbose_name = _(u'Graphs')
     verbose_name = pgettext_lazy('graphs', u'Graphs')
     dependencies = ['creme.creme_core']
 
-#    def ready(self):
     def all_apps_ready(self):
         from . import get_graph_model
 
         self.Graph = get_graph_model()
-#        super(GraphsConfig, self).ready()
         super(GraphsConfig, self).all_apps_ready()
 
     def register_creme_app(self, creme_registry):

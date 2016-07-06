@@ -26,12 +26,10 @@ from creme.creme_core.forms import CremeForm, CremeEntityForm
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from .. import get_graph_model
-#from ..models import Graph
 
 
 class GraphForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
-#        model = Graph
         model = get_graph_model()
         exclude = CremeEntityForm.Meta.exclude + ('orbital_relation_types', )
 
