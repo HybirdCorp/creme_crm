@@ -336,18 +336,20 @@ class _FieldPrintersRegistry(object):
             )
 
         self._header_listview_css_printers = ClassKeyedMap([
-                    (models.DateField,          css_date_header_listview),
-                    (models.DateTimeField,      css_date_header_listview),
+                    (models.DateField,      css_date_header_listview),
+                    (models.DateTimeField,  css_date_header_listview),
                 ],
                 default=css_default_header,
             )
 
-    def register(self, field, printer):  # TODO: html & csv
+    def register(self, field, printer, output='html'):
         """Register a field printer.
         @param field: A class inheriting django.models.Field.
         @param printer: A callable object. See simple_print_html() for arguments/return.
+        @param output: string in {'html', 'csv'}.
         """
-        self._printers[field] = printer
+        # self._printers[field] = printer
+        self._printers_maps[output][field] = printer
 
     def register_listview_css_class(self, field, css_class, header_css_class):
         """Register a listview css class for field.
