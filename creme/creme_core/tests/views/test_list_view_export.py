@@ -353,6 +353,35 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(it.next(), ["", "Wong", "Edward", "", "is a girl"])
         self.assertRaises(StopIteration, it.next)
 
+    @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_xls_export02(self):
+        "Other CT, other type of fields"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='Bebop')
+        orga02 = create_orga(name='Swordfish', subject_to_vat=False, creation_date=date(year=2016, month=7, day=5))
+
+        build_cell = partial(EntityCellRegularField.build, model=Organisation)
+        cells = [build_cell(name='name'),
+                 build_cell(name='subject_to_vat'),
+                 build_cell(name='creation_date'),
+                ]
+
+        HeaderFilter.create(pk='test-hf_orga', name='Organisation view',
+                            model=Organisation, cells_desc=cells,
+                           )
+
+        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(Organisation), doc_type='xls'),
+                                     data={'list_url': self._set_listview_state(model=Organisation)}, follow=True,
+                                    )
+
+        it = iter(XlrdReader(None, file_contents=response.content))
+        self.assertEqual(it.next(), [hfi.title for hfi in cells])
+        self.assertEqual(it.next(), [orga01.name, _('Yes'), ''])
+        self.assertEqual(it.next(), [orga02.name, _('No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])
+        self.assertRaises(StopIteration, it.next)
+
     def test_print_integer01(self):
         "No choices"
         user = self.login()
