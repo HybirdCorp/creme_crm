@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2013-2016 Hybird
+# Copyright (c) 2016 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,9 @@
 # SOFTWARE.
 ################################################################################
 
-from django.db.models import ProtectedError
+from ..utils import ellipsis
 
 
-class ConflictError(Exception):
-    "Corresponds to HTTP error 409"
-    pass
-
-
-class SpecificProtectedError(ProtectedError):
-    """A ProtectedError corresponding to a business logic protection (and not
-    a simple dependency problem).
-    The message should be localized.
-    """
-    pass
+def assign_2_charfield(instance, field_name, value, truncate=ellipsis):
+    field = instance._meta.get_field(field_name)
+    setattr(instance, field_name, truncate(value, field.max_length))

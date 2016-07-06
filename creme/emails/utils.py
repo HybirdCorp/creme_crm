@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,7 +77,8 @@ def get_images_from_html(html):
     """
     MEDIA_URL  = settings.MEDIA_URL
     MEDIA_ROOT = settings.MEDIA_ROOT
-    images_info = {}  # key=Image.id  Value=(source, basefilename)
+    # images_info = {}  # key=Image.id  Value=(source, basefilename)
+    images_info = {}  # key=relative_file_path  Value=(source, basefilename)
 
     for source in re_findall(_IMG_PATTERN, html):
         if not source.startswith(MEDIA_URL):
@@ -85,20 +86,27 @@ def get_images_from_html(html):
 
         filename = basename(source)
 
-        if not exists(join(MEDIA_ROOT, "upload", "images", filename)):
+        if not exists(join(MEDIA_ROOT, 'upload', 'images', filename)):
             raise ImageFromHTMLError(filename)
 
-        try:
-            images_info[int(filename.split('_', 1)[0])] = (source, filename)
-        except ValueError:
-            raise ImageFromHTMLError(filename)
+        # try:
+        #     images_info[int(filename.split('_', 1)[0])] = (source, filename)
+        # except ValueError:
+        #     raise ImageFromHTMLError(filename)
+        images_info['upload/images/' + filename] = (source, filename)
 
-    images_map = {image.id: image
-                    for image in Image.objects.filter(pk__in=images_info.iterkeys())
+    # images_map = {image.id: image
+    #                 for image in Image.objects.filter(pk__in=images_info.iterkeys())
+    #              }
+    images_map = {e_image.image.name: e_image
+                    for e_image in Image.objects.filter(image__in=images_info.iterkeys())
                  }
 
-    return {filename: (images_map.get(image_id), source)
-                for image_id, (source, filename) in images_info.iteritems()
+    # return {filename: (images_map.get(image_id), source)
+    #             for image_id, (source, filename) in images_info.iteritems()
+    #        }
+    return {filename: (images_map.get(rel_path), source)
+                for rel_path, (source, filename) in images_info.iteritems()
            }
 
 
@@ -131,7 +139,7 @@ class EMailSender(object):
         mime_images = []
 
         # Replacing image sources with embedded images
-        for filename, (image_entity, src) in get_images_from_html(body_html).iteritems(): # Can throws ImageFromHTMLError
+        for filename, (image_entity, src) in get_images_from_html(body_html).iteritems():  # Can throws ImageFromHTMLError
             if image_entity is None:
                 logger.error('Image with filename <%s> do not exist any more.')
             else:

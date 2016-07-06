@@ -152,7 +152,29 @@ class DocumentTestCase(_DocumentsTestCase):
                          response['Content-Disposition']
                         )
 
-    def test_donwload_error(self):
+    def test_createview05(self):
+        "No title"
+        user = self.login()
+
+        ext = settings.ALLOWED_EXTENSIONS[0]
+        file_obj, file_name = self._build_filedata('Content', suffix='.%s' % ext)
+
+        folder = Folder.objects.create(user=user, title='test_createview05')
+        response = self.client.post(self.ADD_DOC_URL, follow=True,
+                                    data={'user':     user.pk,
+                                          # 'title':    '',
+                                          'filedata': file_obj,
+                                          'folder':   folder.id,
+                                         }
+                                   )
+
+        self.assertNoFormError(response)
+
+        doc = self.get_object_or_fail(Document, folder=folder)
+        self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
+        self.assertEqual(file_name, doc.title)
+
+    def test_download_error(self):
         self.login()
         self.assertGET404('/download_file/%s' % 'tmpLz48vy.txt')
 

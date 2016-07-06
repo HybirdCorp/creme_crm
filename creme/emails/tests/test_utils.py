@@ -84,9 +84,10 @@ class UtilsTestCase(_EmailsTestCase):
         with self.assertNoException():
             content_disp = imime['Content-Disposition']
 
-        # self.assertIn('inline', content_disp)
-        # self.assertIn('creme_22.png', content_disp)
-        self.assertRegexpMatches(content_disp, r'inline; filename="(\d+)_creme_22_(\d+)_(\d+).png"')
+        # # self.assertIn('inline', content_disp)
+        # # self.assertIn('creme_22.png', content_disp)
+        # self.assertRegexpMatches(content_disp, r'inline; filename="(\d+)_creme_22_(\d+)_(\d+).png"')
+        self.assertRegexpMatches(content_disp, r'inline; filename="creme_22_(\d+)_(\d+).png"')
 
     def test_get_images_from_html(self):
         self.login()
@@ -110,7 +111,9 @@ class UtilsTestCase(_EmailsTestCase):
     </body>
 </html>""" % (url1, url2)
 
-        images = get_images_from_html(html)
+        with self.assertNoException():
+            images = get_images_from_html(html)
+
         self.assertIsInstance(images, dict)
         self.assertEqual(2, len(images))
 

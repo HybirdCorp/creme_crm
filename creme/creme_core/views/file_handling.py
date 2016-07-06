@@ -34,7 +34,7 @@ from ..utils.file_handling import FileCreator
 MAXINT = 100000
 
 
-def handle_uploaded_file(f, path=None, name=None):
+def handle_uploaded_file(f, path=None, name=None, max_length=None):
     """Handle an uploaded file by a form and return the complete file's path
     path has to be iterable
     """
@@ -55,12 +55,16 @@ def handle_uploaded_file(f, path=None, name=None):
 
         return name
 
+    dir_path_length = 1  # For the final '/'
+
     if not hasattr(path, '__iter__'):  # TODO: path is None  (or add support for only one string)
         relative_dir_path = 'upload'
-        dir_path = join(settings.MEDIA_ROOT, 'upload')
+        dir_path = join(settings.MEDIA_ROOT, relative_dir_path)
+        dir_path_length += len(relative_dir_path)
     else:
         relative_dir_path = join(*path)
         dir_path = join(settings.MEDIA_ROOT, *path)
+        dir_path_length += len('/'.join(relative_dir_path))  # The storage uses '/' even on Windows.
 
     # if not os.path.exists(dir_path):
     #     os.makedirs(dir_path, 0755)
@@ -68,15 +72,22 @@ def handle_uploaded_file(f, path=None, name=None):
     if not name:
         name = get_name(f)
 
+    if max_length:
+        max_length -= dir_path_length
+
+        if max_length <= 0:
+            raise ValueError('The max length is too small.')
+
     # name = secure_filename(name)
     # final_path = join(path, name)
     #
     # while os.path.exists(final_path):
     #     name = secure_filename(get_name(f, True))
     #     final_path = join(path, name)
-    final_path = FileCreator(dir_path=dir_path, name=name).create()
+    final_path = FileCreator(dir_path=dir_path, name=name, max_length=max_length).create()
 
-    with open(final_path, 'wb+', 0755) as destination:
+    # with open(final_path, 'wb+', 0755) as destination:
+    with open(final_path, 'wb', 0755) as destination:
         for chunk in f.chunks():
             destination.write(chunk)
 
