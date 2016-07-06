@@ -1249,9 +1249,14 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         # response = self.assertGET200('/creme_core/mass_import/dl_errors/%s' % job.id, follow=True)
         response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
 
-        self.assertEqual('attachment; filename=%s-errors.%s' % (slugify(doc.title), ext),
-                         response['Content-Disposition']
-                        )
+        # self.assertEqual('attachment; filename=%s-errors.%s' % (slugify(doc.title), ext),
+        #                  response['Content-Disposition']
+        #                 )
+        cdisp = response['Content-Disposition']
+        self.assertTrue(cdisp.startswith('attachment; filename=%s-errors' % slugify(doc.title)),
+                        'Content-Disposition: not expected: %s' % cdisp
+                       )
+        self.assertTrue(cdisp.endswith('.%s' % ext))
 
         result_lines = [['First name',   'Last name', 'Birthday', _('Errors')]] if header else []
         result_lines.append([first_name, last_name,   birthday,   _('Enter a valid date.')])
