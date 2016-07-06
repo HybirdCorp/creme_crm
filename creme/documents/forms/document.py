@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,16 +19,18 @@
 ################################################################################
 
 import logging
+from os.path import basename
 
-#from django.forms import CharField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_model
+from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.creme_core.utils import ellipsis
+
 
 from .. import get_folder_model, get_document_model
 from ..constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
@@ -39,24 +41,34 @@ logger = logging.getLogger(__name__)
 Folder   = get_folder_model()
 Document = get_document_model()
 
-# TODO: uncomment when form field for Folder is naturally CreatorEntityField
-# class DocumentCreateForm(CremeEntityForm):
-#    class Meta(CremeEntityForm.Meta):
-#        model = Document
-#
-#    def clean_filedata(self):
-#        return str(handle_uploaded_file(self.cleaned_data['filedata'], path=['upload', 'documents']))
 
-
-class _DocumentBaseForm(CremeEntityForm):
+class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseForm ?
     class Meta(CremeEntityForm.Meta):
         model = Document
 
-    def clean_filedata(self):
-        return str(handle_uploaded_file(self.cleaned_data['filedata'],
-                                        path=['upload', 'documents'],
-                                       )
-                  )
+    # def clean_filedata(self):
+    #     return str(handle_uploaded_file(self.cleaned_data['filedata'],
+    #                                     path=['upload', 'documents'],
+    #                                    )
+    #               )
+    def __init__(self, *args, **kwargs):
+        super(_DocumentBaseForm, self).__init__(*args, **kwargs)
+        self.fields['title'].required = False
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+
+        instance.filedata = fpath = handle_uploaded_file(
+                self.cleaned_data['filedata'],
+                path=['upload', 'documents'],
+                max_length=Document._meta.get_field('filedata').max_length,
+            )
+
+        if not instance.title:
+            # TODO: truncate but keep extension if possible ?
+            assign_2_charfield(instance, 'title', basename(fpath))
+
+        return super(_DocumentBaseForm, self).save(*args, **kwargs)
 
 
 class DocumentCreateForm(_DocumentBaseForm):
@@ -73,10 +85,7 @@ class DocumentEditForm(CremeEntityForm):
 
 _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
-# TODO: see above
-# class RelatedDocumentCreateForm(DocumentCreateForm):
-#    class Meta(DocumentCreateForm.Meta):
-#        exclude = DocumentCreateForm.Meta.exclude + ('folder', )
+
 class RelatedDocumentCreateForm(_DocumentBaseForm):
     class Meta(_DocumentBaseForm.Meta):
         exclude = _DocumentBaseForm.Meta.exclude + ('folder', )
@@ -102,7 +111,7 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
                                       parent_folder=creme_folder,
                                       category=category,
                                       defaults={'user': user},
-                                     ) [0]
+                                     )[0]
             entity_folder = get_folder(title=ellipsis(u'%s_%s' % (entity.id, unicode(entity)),
                                                       _TITLE_MAX_LEN,
                                                      ),  # meh

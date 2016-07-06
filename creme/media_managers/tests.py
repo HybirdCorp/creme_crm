@@ -4,7 +4,7 @@ try:
     import filecmp
     from functools import partial
     import json
-    from os.path import join, exists, split, basename
+    from os.path import join, exists, split, basename, splitext
     from tempfile import NamedTemporaryFile
 
     from django.conf import settings
@@ -15,7 +15,6 @@ try:
 
     from creme.persons.tests.base import skipIfCustomContact
     from creme.persons import get_contact_model
-    # from creme.persons.models import Contact
 
     from .models import Image, MediaCategory
 except Exception as e:
@@ -61,8 +60,8 @@ class MediaManagersTestCase(CremeTestCase):
         self.login()
         self.assertGET200('/media_managers/')
 
-    def test_add(self): #TODO: test popup version
-        self.login()
+    def test_add01(self):  # TODO: test popup version
+        user = self.login()
         self.assertEqual(0, Image.objects.count())
 
         url = '/media_managers/image/add'
@@ -76,23 +75,51 @@ class MediaManagersTestCase(CremeTestCase):
         description = 'Blabala'
         category = MediaCategory.objects.all()[0]
         response = self.client.post(url, follow=True,
-                            data={'user':        self.user.pk,
-                                  'name':        name,
-                                  'description': description,
-                                  'image':       image_file,
-                                  'categories':  [category.id],
-                                 }
-                           )
+                                    data={'user':        user.pk,
+                                          'name':        name,
+                                          'description': description,
+                                          'image':       image_file,
+                                          'categories':  [category.id],
+                                         }
+                                   )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            image = Image.objects.get(name=name)
-
-        self.assertEqual(self.user,   image.user)
+        image = self.get_object_or_fail(Image, name=name)
+        self.assertEqual(user,        image.user)
         self.assertEqual(description, image.description)
         self.assertEqual([category],  list(image.categories.all()))
 
         self.assertTrue(filecmp.cmp(path, image.image.path))
+
+        image.delete()
+
+    def test_add02(self):
+        "No name"
+        user = self.login()
+
+        path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
+        self.assertTrue(exists(path))
+        image_file = open(path, 'rb')
+
+        description = 'This image has no name'
+        category = MediaCategory.objects.all()[1]
+        response = self.client.post('/media_managers/image/add', follow=True,
+                                    data={'user':        user.pk,
+                                          # 'name':        name,
+                                          'description': description,
+                                          'image':       image_file,
+                                          'categories':  [category.id],
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        image = self.get_object_or_fail(Image, description=description)
+        self.assertEqual(user,       image.user)
+        self.assertEqual([category], list(image.categories.all()))
+
+        name = image.name
+        self.assertTrue(name.startswith('creme_22'), 'This name is not expected: %s' % name)
+        self.assertTrue(name.endswith('.png'))
 
         image.delete()
 
@@ -116,7 +143,7 @@ class MediaManagersTestCase(CremeTestCase):
 
         self.images.append(image)
 
-        return  image
+        return image
 
     def test_edit(self):
         self.login()
@@ -141,7 +168,6 @@ class MediaManagersTestCase(CremeTestCase):
                            )
         self.assertNoFormError(response)
 
-        #image = Image.objects.get(pk=image.pk) #refresh
         image = self.refresh(image)
         self.assertEqual(description, image.description)
         self.assertEqual([category],  list(image.categories.all()))
@@ -158,27 +184,6 @@ class MediaManagersTestCase(CremeTestCase):
             images_page = response.context['entities']
 
         self.assertEqual([image], list(images_page.object_list))
-
-    #def test_listview_popup(self):
-        #image = self._create_image()
-
-        #response = self.client.get('/media_managers/images/popup')
-        #self.assertEqual(200, response.status_code)
-
-        #with self.assertNoException():
-            #images_page = response.context['entities']
-
-        #self.assertEqual([image], list(images_page.object_list))
-
-    #def test_popupview(self):
-        #image = self._create_image()
-        #response = self.client.get('/media_managers/image/popup/%s' % image.id)
-        #self.assertEqual(200, response.status_code)
-
-        #with self.assertNoException():
-            #entity = response.context['object']
-
-        #self.assertEqual(image, entity)
 
     def test_get_url(self):
         self.login()
@@ -320,9 +325,15 @@ class ImageQuickFormTestCase(CremeTestCase):
 
         image = Image.objects.get()
 
-        self.assertEqual('upload/images/%s_%s' % (image.id, file_name), image.image.name)
+        # self.assertEqual('upload/images/%s_%s' % (image.id, file_name), image.image.name)
+        self.assertEqual('upload/images/%s' % file_name, image.image.name)
         self.assertSequenceEqual([], image.categories.all())
 
         filedata = image.image
         filedata.open()
         self.assertEqual(content, filedata.read())
+
+        name = image.name
+        fname_parts = splitext(file_name)
+        self.assertTrue(name.startswith(fname_parts[0]), 'This name is not expected: %s' % name)
+        self.assertTrue(name.endswith(fname_parts[1]), 'This name is not expected: %s' % name)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,11 @@
 ################################################################################
 
 import logging
-from os.path import join, split
-import shutil
+from os.path import basename  # join, split
+# import shutil
 
 from creme.creme_core.forms import CremeModelWithUserForm
+from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from ..models import Image
@@ -33,34 +34,45 @@ logger = logging.getLogger(__name__)
 class ImageQuickForm(CremeModelWithUserForm):
     class Meta:
         model = Image
-        #exclude = ('description', 'height', 'width', 'categories')
         fields = ('user', 'name', 'image')
+        # fields = ('user', 'image')
 
     def __init__(self, categories=None, user=None, *args, **kwargs):
         super(ImageQuickForm, self).__init__(user=user, *args, **kwargs)
         self.categories = categories
 
-    def clean_image(self):
-        return str(handle_uploaded_file(self.cleaned_data['image'], path=['upload', 'images']))
-
+    # def clean_image(self):
+    #     return str(handle_uploaded_file(self.cleaned_data['image'], path=['upload', 'images']))
+    #
+    # def save(self, *args, **kwargs):
+    #     instance = super(ImageQuickForm, self).save(*args, **kwargs)
+    #
+    #     if self.categories is not None:
+    #         instance.categories = self.categories
+    #
+    #     upload_path = str(instance.image.file)
+    #     upload_dirname, upload_filename = split(upload_path)
+    #
+    #     image_filename = "%s_%s" % (instance.id, upload_filename)
+    #     image_path = join(upload_dirname, image_filename)
+    #
+    #     try:
+    #         shutil.move(upload_path, image_path)
+    #     except IOError as e:
+    #         logger.debug('IOError in %s: %s', self.__class__, e)
+    #     else:
+    #         instance.image = join('upload', 'images', image_filename) #Not dst_path! chrooted?
+    #         instance.save()
+    #
+    #     return instance
     def save(self, *args, **kwargs):
-        instance = super(ImageQuickForm, self).save(*args, **kwargs)
+        instance = self.instance
+        instance.image = fpath = handle_uploaded_file(
+                self.cleaned_data['image'],
+                path=['upload', 'images'],
+                max_length=Image._meta.get_field('image').max_length,
+            )
 
-        if self.categories is not None:
-            instance.categories = self.categories
+        assign_2_charfield(instance, 'name', basename(fpath))
 
-        upload_path = str(instance.image.file)
-        upload_dirname, upload_filename = split(upload_path)
-
-        image_filename = "%s_%s" % (instance.id, upload_filename)
-        image_path = join(upload_dirname, image_filename)
-
-        try:
-            shutil.move(upload_path, image_path)
-        except IOError as e:
-            logger.debug('IOError in %s: %s', self.__class__, e)
-        else:
-            instance.image = join('upload', 'images', image_filename) #Not dst_path! chrooted?
-            instance.save()
-
-        return instance
+        return super(ImageQuickForm, self).save(*args, **kwargs)

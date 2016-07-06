@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from os import path
+from os.path import basename
 
 from creme.creme_core.forms.base import CremeModelWithUserForm
+from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from .. import get_document_model
@@ -35,15 +36,24 @@ class DocumentQuickForm(CremeModelWithUserForm):
         model = Document
         fields = ('user', 'filedata', 'folder')
 
-    def clean_filedata(self):
-        # TODO : return tuple with a pretty name for uploaded file
-        return str(handle_uploaded_file(self.cleaned_data['filedata'],
-                                        path=['upload', 'documents'],
-                                       )
-                  )
+    # def clean_filedata(self):
+    #     # todo : return tuple with a pretty name for uploaded file
+    #     return str(handle_uploaded_file(self.cleaned_data['filedata'],
+    #                                     path=['upload', 'documents'],
+    #                                    )
+    #               )
 
     def save(self, *args, **kwargs):
-        self.instance.title = path.basename(self.cleaned_data['filedata'])
+        # self.instance.title = basename(self.cleaned_data['filedata'])
+        instance = self.instance
+
+        instance.filedata = fpath = handle_uploaded_file(
+                self.cleaned_data['filedata'],
+                path=['upload', 'documents'],
+                max_length=Document._meta.get_field('filedata').max_length,
+            )
+        assign_2_charfield(instance, 'title', basename(fpath))
+
         return super(DocumentQuickForm, self).save(*args, **kwargs)
 
 
