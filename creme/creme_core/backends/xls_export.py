@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from os.path import join, exists
-from os import makedirs
+from os.path import join, basename  # exists
+# from os import makedirs
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import slugify
 
+from ..utils.file_handling import FileCreator
 from ..utils.xlwt_utils import XlwtWriter
 
 from .base import ExportBackend
@@ -37,12 +38,19 @@ class XLSExportBackend(XlwtWriter, ExportBackend):
     help_text = ''
 
     def __init__(self, encoding='utf-8'):
-        self.dir_path = dir_path = join(settings.MEDIA_ROOT, 'upload', 'xls')
-        if not exists(dir_path):
-            makedirs(dir_path)
+        # self.dir_path = dir_path = join(settings.MEDIA_ROOT, 'upload', 'xls')
+        # if not exists(dir_path):
+        #     makedirs(dir_path)
         super(XLSExportBackend, self).__init__(encoding=encoding)
+        self.dir_path = join(settings.MEDIA_ROOT, 'upload', 'xls')
 
     def save(self, filename):
-        filename = '%s.%s' % (slugify(filename), self.id)
-        self.response = HttpResponseRedirect('/download_file/upload/xls/%s' % filename)
-        super(XLSExportBackend, self).save(join(self.dir_path, filename))
+        # filename = '%s.%s' % (slugify(filename), self.id)
+        # self.response = HttpResponseRedirect('/download_file/upload/xls/%s' % filename)
+        # super(XLSExportBackend, self).save(join(self.dir_path, filename))
+
+        path = FileCreator(dir_path=self.dir_path,
+                           name='%s.%s' % (slugify(filename), self.id),
+                          ).create()
+        self.response = HttpResponseRedirect('/download_file/upload/xls/%s' % basename(path))
+        super(XLSExportBackend, self).save(path)
