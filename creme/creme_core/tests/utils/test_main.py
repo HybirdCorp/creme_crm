@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import string
     from datetime import datetime, date
     from functools import partial
+    import string
 
-    from django.http import Http404
     from django.conf import settings
+    from django.http import Http404
+    from django.utils.translation import ugettext_lazy
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact as Contact, FakeCivility as Civility
     from creme.creme_core.models import PreferedMenuItem
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
-        safe_unicode, safe_unicode_error, int_2_roman, ellipsis, ellipsis_multi)
+        safe_unicode, safe_unicode_error, int_2_roman, ellipsis, ellipsis_multi, prefixed_truncate)
     from creme.creme_core.utils.dates import (get_dt_from_str, get_date_from_str,
         get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict,
         get_dt_from_json_str, dt_to_json_str, round_hour)
@@ -243,6 +244,18 @@ class MiscTestCase(CremeTestCase):
                         )
         self.assertEqual([u'12…', '12', u'123…'],  # [u'123…', '12', u'12…'] would be better...
                          ellipsis_multi(['123456', '12', '12345'], 9)
+                        )
+
+    def test_prefixed_truncate(self):
+        s = 'Supercalifragilis Ticexpialidocious'
+        self.assertEqual(s, prefixed_truncate(s, '(My prefix)', 49))
+        self.assertEqual('(My prefix)Supercalifragilis Tic', prefixed_truncate(s, '(My prefix)', 32))
+
+        with self.assertRaises(ValueError):
+            prefixed_truncate(s, '(My prefix)', 10)  # Prefix is too short for this length
+
+        self.assertEqual('(My unlocated prefix)Supercalif',
+                         prefixed_truncate(s, ugettext_lazy('(My unlocated prefix)'), 31)
                         )
 
 

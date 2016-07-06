@@ -349,6 +349,25 @@ def ellipsis_multi(strings, length):
     return [ellipsis(elt[1], elt[0]) for elt in str_2_truncate]
 
 
+def prefixed_truncate(s, prefix, length):
+    """Truncates a string if it is too long ; when a truncation is done, the given prefix is added.
+    The length of the result is always lesser or equal than the given length.
+
+    @param s: A basestring instance.
+    @param prefix: An object which can be "stringified" ; eg: a string, a ugettext_lazy instance.
+    @param length: An integer
+    @return: A basestring.
+    """
+    if len(s) <= length:
+        return s
+
+    rem_len = length - len(prefix)
+    if rem_len < 0:
+        raise ValueError('Prefix is too short for this length')
+
+    return prefix + s[:rem_len]
+
+
 def is_testenvironment(request):
     warnings.warn("is_testenvironment() function is deprecated ; use settings.TESTS_ON instead",
                   DeprecationWarning
