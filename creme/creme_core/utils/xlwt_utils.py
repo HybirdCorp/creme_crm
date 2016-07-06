@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from xlwt import Workbook, XFStyle
 class XlwtWriter(object):
     def __init__(self, encoding='utf-8'):
         self.nline = 0
-        self.wb = wb = Workbook(encoding='utf-8')
+        self.wb = wb = Workbook(encoding=encoding)
         self.ws = wb.add_sheet("sheet 1")
         self.date_format = XFStyle()
         self.date_format.num_format_str = 'dd/mm/yyyy'  # TODO: convert from settings.DATE_FORMAT
