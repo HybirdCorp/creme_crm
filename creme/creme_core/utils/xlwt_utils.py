@@ -22,6 +22,10 @@ from datetime import datetime
 
 from xlwt import Workbook, XFStyle
 
+from django.utils.translation import ugettext as _
+
+from . import prefixed_truncate
+
 
 class XlwtWriter(object):
     def __init__(self, encoding='utf-8'):
@@ -30,15 +34,21 @@ class XlwtWriter(object):
         self.ws = wb.add_sheet("sheet 1")
         self.date_format = XFStyle()
         self.date_format.num_format_str = 'dd/mm/yyyy'  # TODO: convert from settings.DATE_FORMAT
+        self.truncate_prefix = _(u'(truncated cell)')  # TODO: cached_gettext
 
     def writerow(self, line):
         write = self.ws.write
         nline = self.nline
+        prefix = self.truncate_prefix
+
         for col, cell in enumerate(line):
             if isinstance(cell, datetime):
                 write(nline, col, cell, self.date_format)
+            elif isinstance(cell, basestring):
+                write(nline, col, prefixed_truncate(cell, prefix, 32767))
             else:
                 write(nline, col, cell)
+
         self.nline += 1
 
     def save(self, filepath):

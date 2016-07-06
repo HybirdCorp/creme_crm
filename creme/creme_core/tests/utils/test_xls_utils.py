@@ -103,3 +103,30 @@ class XLSUtilsTestCase(CremeTestCase):
             file_content = file_content.read()
             rd = XlrdReader(file_contents=file_content)
             self.assertEqual(list(rd), self.data)
+
+    @skipIf(XlrdMissing or XlwtMissing, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_truncate(self):
+        content = u"""Lôrèm ipsum dolor sit amet, consectetur adipiscing elit. Proin ac odio libero.
+Praesent sollicitudin, mauris non sagittis tincidunt, magna libero malesuada lectus, sit amet dictum nulla mi ac justo.
+Vivamus laoreet metus eu purus tincidunt, et consectetur justo mattis.
+Phasellus egestas a lacus nec pulvinar.
+Sed a lectus eleifend, hendrerit ligula nec, aliquet sem.
+Quisque nec tortor nec ante pharetra cursus sed facilisis lorem.
+Praesent blandit pharetra nulla, id ultrices diam molestie sed.
+""" * 100
+        self.assertGreater(len(content), 32767)
+
+        file = NamedTemporaryFile(suffix='.xls')
+
+        wt = XlwtWriter()
+        wt.writerow([content])
+
+        with self.assertNoException():
+            wt.save(file.name)
+
+        read_content = list(XlrdReader(filedata=file.name))
+        self.assertEqual(1, len(read_content))
+
+        elt = read_content[0]
+        self.assertEqual(1, len(elt))
+        self.assertEqual(32767, len(elt[0]))
