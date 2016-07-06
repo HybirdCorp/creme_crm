@@ -19,6 +19,7 @@
 ################################################################################
 
 from itertools import chain
+import warnings
 
 from django.conf import settings
 from django.db import models
@@ -66,15 +67,30 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
     return "height=%s width=%s" % (h, w)
 
 
-def simple_print(entity, fval, user, field):  # TODO: rename simple_print_html
-    return unicode(escape(fval)) if fval is not None else ""  # TODO: remove 'unicode()'
+def simple_print(entity, fval, user, field):
+    warnings.warn('simple_print() is deprecated ; use simple_print_html() instead.',
+                  DeprecationWarning
+                 )
+    return simple_print_html(entity, fval, user, field)
+
+
+def simple_print_html(entity, fval, user, field):
+    # return unicode(escape(fval)) if fval is not None else ""
+    return escape(fval) if fval is not None else ''
 
 
 def simple_print_csv(entity, fval, user, field):
     return unicode(fval) if fval is not None else ""
 
 
-def print_image(entity, fval, user, field):  # TODO: rename print_image_html
+def print_image(entity, fval, user, field):
+    warnings.warn('print_image() is deprecated ; use print_image_html() instead.',
+                  DeprecationWarning
+                 )
+    return print_image_html(entity, fval, user, field)
+
+
+def print_image_html(entity, fval, user, field):
     return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
                 'url':  fval.url,
                 'size': image_size(fval),
@@ -93,7 +109,14 @@ def print_decimal(entity, fval, user, field):
     return number_format(fval, use_l10n=True) if fval is not None else ''
 
 
-def print_boolean(entity, fval, user, field):  # TODO: rename print_boolean_html
+def print_boolean(entity, fval, user, field):
+    warnings.warn('print_boolean() is deprecated ; use print_boolean_html() instead.',
+                  DeprecationWarning
+                 )
+    return print_boolean_html(entity, fval, user, field)
+
+
+def print_boolean_html(entity, fval, user, field):
     return bool_as_html(fval)
 
 
@@ -101,9 +124,16 @@ def print_boolean_csv(entity, fval, user, field):
     return _('Yes') if fval else _('No')
 
 
-def print_urlfield(entity, fval, user, field):  # TODO: rename print_url_html
+def print_urlfield(entity, fval, user, field):
+    warnings.warn('print_urlfield() is deprecated ; use print_url_html() instead.',
+                  DeprecationWarning
+                 )
+    return print_url_html(entity, fval, user, field)
+
+
+def print_url_html(entity, fval, user, field):
     if not fval:
-        return ""
+        return ''
 
     esc_fval = escape(fval)
     return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
@@ -117,7 +147,14 @@ def print_date(entity, fval, user, field):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
 
-def print_foreignkey(entity, fval, user, field):  # TODO: rename print_foreignkey_html
+def print_foreignkey(entity, fval, user, field):
+    warnings.warn('print_foreignkey() is deprecated ; use print_foreignkey_html() instead.',
+                  DeprecationWarning
+                 )
+    return print_foreignkey_html(entity, fval, user, field)
+
+
+def print_foreignkey_html(entity, fval, user, field):
     # TODO: temporary hack before print_field refactor in order to give extra parameters for custom display.
     from creme.media_managers.models.image import Image
 
@@ -146,7 +183,14 @@ def print_foreignkey_csv(entity, fval, user, field):
     return unicode(fval) if fval else u''
 
 
-def print_many2many(entity, fval, user, field):  # TODO: rename print_many2many_html
+def print_many2many(entity, fval, user, field):
+    warnings.warn('print_many2many() is deprecated ; use print_many2many_html() instead.',
+                  DeprecationWarning
+                 )
+    return print_many2many_html(entity, fval, user, field)
+
+
+def print_many2many_html(entity, fval, user, field):
     output = []
 
     # TODO: temporary hack before print_field refactor in order to give extra parameters for custom display.
@@ -229,26 +273,26 @@ class _FieldPrintersRegistry(object):
         self._printers = ClassKeyedMap([
                     (models.IntegerField,       print_integer),
                     (models.DecimalField,       print_decimal),
-                    (models.BooleanField,       print_boolean),
+                    (models.BooleanField,       print_boolean_html),
 
                     (models.DateField,          print_date),
                     (models.DateTimeField,      print_datetime),
 
                     (models.TextField,          print_text_html),
                     (models.EmailField,         print_email_html),
-                    (models.URLField,           print_urlfield),
-                    (models.ImageField,         print_image),
+                    (models.URLField,           print_url_html),
+                    (models.ImageField,         print_image_html),
 
-                    (models.ForeignKey,         print_foreignkey),
-                    (models.ManyToManyField,    print_many2many),
-                    (models.OneToOneField,      print_foreignkey),
+                    (models.ForeignKey,         print_foreignkey_html),
+                    (models.ManyToManyField,    print_many2many_html),
+                    (models.OneToOneField,      print_foreignkey_html),
 
                     (fields.DurationField,      print_duration),
-                    (fields.DatePeriodField,    simple_print),  # TODO: JSONField ?
+                    (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
 
                     (fields.UnsafeHTMLField,    print_unsafehtml_html),
                 ],
-                default=simple_print,
+                default=simple_print_html,
             )
         self._csv_printers = ClassKeyedMap([
                     (models.IntegerField,       print_integer),
@@ -300,8 +344,8 @@ class _FieldPrintersRegistry(object):
 
     def register(self, field, printer):  # TODO: html & csv
         """Register a field printer.
-        @param field A class inheriting django.models.Field.
-        @param printer A callable object. See simple_print(), print_urlfield for arguments/return.
+        @param field: A class inheriting django.models.Field.
+        @param printer: A callable object. See simple_print_html() for arguments/return.
         """
         self._printers[field] = printer
 

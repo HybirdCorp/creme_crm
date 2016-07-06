@@ -20,7 +20,6 @@
 
 from datetime import date
 from time import sleep
-
 import logging
 from os import listdir
 from os.path import join
@@ -40,8 +39,9 @@ from ..core.exceptions import ConflictError
 # from ..global_info import set_global_info
 from ..gui import block_registry
 from ..gui.block import PaginatedBlock
-from ..gui.field_printers import (print_image, print_urlfield, print_datetime,
-        print_date, print_duration, print_foreignkey, print_many2many)
+from ..gui.field_printers import (print_image_html, print_url_html, print_datetime,
+        print_date, print_duration, print_foreignkey_html, print_many2many_html)
+#       print_image print_urlfield print_foreignkey print_many2many
 # from ..utils import is_testenvironment
 from ..utils.media import creme_media_themed_url as media_url  # get_current_theme
 
@@ -69,7 +69,8 @@ class MockImage(object):
         self.height = height or width
 
     def html(self, entity):
-        return mark_safe(print_image(entity, self, entity.user, None))
+        # return mark_safe(print_image(entity, self, entity.user, None))
+        return mark_safe(print_image_html(entity, self, entity.user, None))
 
 
 class MockManyToMany(object):
@@ -88,12 +89,15 @@ class Dummy(object):
         self.user = user
         self.name = u'Dummy (%d)' % id
         self.image = MockImage(media_url(TEST_IMAGE_URLS[randint(0, len(TEST_IMAGE_URLS) - 1)]), randint(16, 64)).html(self)
-        self.url = mark_safe(print_urlfield(self, media_url('images/add_16.png'), self.user, None))
+        # self.url = mark_safe(print_urlfield(self, media_url('images/add_16.png'), self.user, None))
+        self.url = mark_safe(print_url_html(self, media_url('images/add_16.png'), self.user, None))
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(self, '%d:%d:%d' % (randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
-        self.foreignkey = mark_safe(print_foreignkey(self, CremeProperty.objects.all()[0], user, None))
-        self.manytomany = mark_safe(print_many2many(self, MockManyToMany(CremeProperty), user, None))
+        # self.foreignkey = mark_safe(print_foreignkey(self, CremeProperty.objects.all()[0], user, None))
+        self.foreignkey = mark_safe(print_foreignkey_html(self, CremeProperty.objects.all()[0], user, None))
+        # self.manytomany = mark_safe(print_many2many(self, MockManyToMany(CremeProperty), user, None))
+        self.manytomany = mark_safe(print_many2many_html(self, MockManyToMany(CremeProperty), user, None))
 
     def __unicode__(self):
         return self.name
