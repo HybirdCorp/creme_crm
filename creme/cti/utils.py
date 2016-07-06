@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,13 +22,13 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.gui.field_printers import simple_print
+from creme.creme_core.gui.field_printers import simple_print_html
 from creme.creme_core.utils.media import creme_media_themed_url
 
 
-def print_phone(entity, fval, user, field):
+def print_phone(entity, fval, user, field):  # TODO: rename  print_phone_html ?
     if not fval:
-        return simple_print(entity, fval, user, field)
+        return simple_print_html(entity, fval, user, field)
 
 #    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
     return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(external_url)s', %(creme_url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
