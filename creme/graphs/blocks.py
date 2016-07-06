@@ -23,7 +23,6 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.block import QuerysetBlock
 
-#from .models import Graph, RootNode
 from . import get_graph_model
 from .models import RootNode
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -33,7 +32,6 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
 from .. import get_graph_model
 from ..constants import DEFAULT_HFILTER_GRAPH
 from ..forms.graph import GraphForm, AddRelationTypesForm
-#from ..models import Graph
 
 
 Graph = get_graph_model()
@@ -54,13 +52,10 @@ def abstract_edit_graph(request, graph_id, form=GraphForm):
 def abstract_view_graph(request, graph_id,
                         template='graphs/view_graph.html',
                        ):
-    return view_entity(request, graph_id, Graph, template=template,
-                       # path='/graphs/graph',
-                      )
+    return view_entity(request, graph_id, Graph, template=template)
 
 
 @login_required
-# @permission_required(('graphs', 'graphs.add_graph'))
 @permission_required(('graphs', cperm(Graph)))
 def add(request):
     return abstract_add_graph(request)
@@ -70,7 +65,7 @@ def add(request):
 @permission_required('graphs')
 def dl_png(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
-    user  = request.user
+    user = request.user
 
     user.has_perm_to_view_or_die(graph)
 
@@ -97,10 +92,7 @@ def detailview(request, graph_id):
 @login_required
 @permission_required('graphs')
 def listview(request):
-    return list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH,
-                     # extra_dict={'add_url': '/graphs/graph/add'},
-                     # extra_dict={'add_url': reverse('graphs__create_graph')},
-                    )
+    return list_view(request, Graph, hf_pk=DEFAULT_HFILTER_GRAPH)
 
 
 @login_required
@@ -116,7 +108,7 @@ def add_relation_types(request, graph_id):
 @permission_required('graphs')
 def delete_relation_type(request, graph_id):
     rtypes_id = get_from_POST_or_404(request.POST, 'id')
-    graph     = get_object_or_404(Graph, pk=graph_id)
+    graph = get_object_or_404(Graph, pk=graph_id)
 
     request.user.has_perm_to_change_or_die(graph)
     graph.orbital_relation_types.remove(rtypes_id)

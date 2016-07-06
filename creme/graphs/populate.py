@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -29,7 +28,6 @@ from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailv
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-#from .models import Graph
 from . import get_graph_model
 from .blocks import root_nodes_block, orbital_rtypes_block
 from .constants import DEFAULT_HFILTER_GRAPH
@@ -48,9 +46,7 @@ class Populator(BasePopulator):
                             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                            )
 
-
         SearchConfigItem.create_if_needed(Graph, ['name'])
-
 
         if not BlockDetailviewLocation.config_exists(Graph):  # NB: no straightforward way to test that this populate script has not been already run
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Graph)

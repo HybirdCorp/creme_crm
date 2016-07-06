@@ -84,8 +84,9 @@ class UtilsTestCase(_EmailsTestCase):
         with self.assertNoException():
             content_disp = imime['Content-Disposition']
 
-        self.assertIn('inline', content_disp)
-        self.assertIn('creme_22.png', content_disp)
+        # self.assertIn('inline', content_disp)
+        # self.assertIn('creme_22.png', content_disp)
+        self.assertRegexpMatches(content_disp, r'inline; filename="(\d+)_creme_22_(\d+)_(\d+).png"')
 
     def test_get_images_from_html(self):
         self.login()

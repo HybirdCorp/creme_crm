@@ -28,7 +28,7 @@ from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from .. import get_graph_model
 from ..forms.root_node import AddRootNodesForm, EditRootNodeForm
-from ..models import RootNode #Graph
+from ..models import RootNode
 
 
 @login_required
@@ -36,7 +36,6 @@ from ..models import RootNode #Graph
 def add(request, graph_id):
     return add_to_entity(request, graph_id, AddRootNodesForm,
                          _(u'Add root nodes to «%s»'),
-                         #entity_class=Graph,
                          entity_class=get_graph_model(),
                         )
 
@@ -55,4 +54,4 @@ def delete(request):
     request.user.has_perm_to_change_or_die(root_node.graph)
     root_node.delete()
 
-    return HttpResponse("", content_type="text/javascript")
+    return HttpResponse('', content_type='text/javascript')

@@ -14,8 +14,6 @@ try:
             FakeOrganisation as Organisation)
     from creme.creme_core.models import RelationType, Relation
 
-    #from creme.persons.models import Contact, Organisation
-
     from . import graph_model_is_custom, get_graph_model
     from .models import RootNode
 
@@ -41,8 +39,10 @@ class GraphsTestCase(CremeTestCase):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'graphs')
 
-    def login(self, is_superuser=True):
-        return super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])
+    def login(self, allowed_apps=('graphs',), *args, **kwargs):
+        return super(GraphsTestCase, self).login(allowed_apps=allowed_apps,
+                                                 *args, **kwargs
+                                                )
 
     def test_portal(self):
         self.login()
@@ -51,7 +51,6 @@ class GraphsTestCase(CremeTestCase):
     def test_graph_create(self):
         user = self.login()
 
-#        url = '/graphs/graph/add'
         url = reverse('graphs__create_graph')
         self.assertGET200(url)
 
@@ -148,20 +147,22 @@ class GraphsTestCase(CremeTestCase):
         contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         orga = Organisation.objects.create(user=user, name='NERV')
 
-        rtype = RelationType.create(('test-subject_hate', u'déteste'), # test an encoding error, pygraphviz supports unicode...
+        # Tests an encoding error, pygraphviz supports unicode...
+        rtype = RelationType.create(('test-subject_hate', u'déteste'),
                                     ('test-object_hate',  u'est détesté par')
                                    )[0]
         Relation.objects.create(user=user,
                                 subject_entity=contact,
                                 type=rtype,
-                                object_entity=orga
+                                object_entity=orga,
                                )
 
         graph = Graph.objects.create(user=user, name='Graph01')
         url = '/graphs/graph/%s/roots/add' % graph.id
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities': '[{"ctype":{"id":"%s"},"entity":"%s"}, {"ctype":{"id":"%s"},"entity":"%s"}]' % (
+        response = self.client.post(url, data={'entities': '[{"ctype":{"id":"%s"},"entity":"%s"}, '
+                                                           '{"ctype":{"id":"%s"},"entity":"%s"}]' % (
                                                                 contact.entity_type_id, contact.pk,
                                                                 orga.entity_type_id,    orga.pk
                                                             ),
@@ -174,9 +175,12 @@ class GraphsTestCase(CremeTestCase):
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype.pk]}))
 
-        self.assertGET200('/graphs/graph/%s/png' % graph.id, follow=True)
+        response = self.assertGET200('/graphs/graph/%s/png' % graph.id, follow=True)
+        self.assertEqual('png', response['Content-Type'])
 
-        #TODO: improve
+        cdisp = response['Content-Disposition']
+        self.assertTrue(cdisp.startswith('attachment; filename=graph_%i' % graph.id))
+        self.assertTrue(cdisp.endswith('.png'))
 
     def test_add_rootnode(self):
         user = self.login()
@@ -184,7 +188,7 @@ class GraphsTestCase(CremeTestCase):
         contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         orga = Organisation.objects.create(user=user, name='NERV')
 
-        #TODO: factorise
+        # TODO: factorise
         rtype_create = RelationType.create
         rtype01 = rtype_create(('test-subject_love', 'loves'),
                                ('test-object_love',  'is loved to')
@@ -197,7 +201,8 @@ class GraphsTestCase(CremeTestCase):
         url = '/graphs/graph/%s/roots/add' % graph.id
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities': '[{"ctype":{"id":"%s"},"entity":"%s"}, {"ctype":{"id":"%s"},"entity":"%s"}]' % (
+        response = self.client.post(url, data={'entities': '[{"ctype":{"id":"%s"},"entity":"%s"}, '
+                                                           '{"ctype":{"id":"%s"},"entity":"%s"}]' % (
                                                                 contact.entity_type_id, contact.pk,
                                                                 orga.entity_type_id,    orga.pk
                                                             ),
@@ -214,7 +219,7 @@ class GraphsTestCase(CremeTestCase):
                         )
         self.assertEqual({rtype01, rtype02}, set(rnodes[0].relation_types.all()))
 
-        #delete
+        # Delete
         rnode = rnodes[1]
         url = '/graphs/root/delete'
         data = {'id': rnode.id}
@@ -228,7 +233,7 @@ class GraphsTestCase(CremeTestCase):
 
         orga = Organisation.objects.create(user=user, name='NERV')
 
-        #TODO: factorise
+        # TODO: factorise
         rtype_create = RelationType.create
         rtype01 = rtype_create(('test-subject_love', 'loves'),
                                ('test-object_love',  'is loved to')
