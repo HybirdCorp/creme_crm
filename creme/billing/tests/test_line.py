@@ -87,7 +87,7 @@ class LineTestCase(_BillingTestCase):
         product_name = 'on the fly product'
         create_pline = partial(ProductLine.objects.create, user=user, on_the_fly_item=product_name,
                                unit_price=unit_price, unit=''
-                               )
+                              )
         create_pline(related_document=quote)
         create_pline(related_document=invoice)
         self.assertEqual(Decimal('-50.0'), invoice.total_vat)
