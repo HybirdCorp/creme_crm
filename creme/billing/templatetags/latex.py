@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django import template
 
 register = template.Library()
@@ -25,4 +27,8 @@ register = template.Library()
 
 @register.filter(name="latexnewline")
 def latexnewline(x):
+    warnings.warn("The templatetag latex.latexnewline is deprecated ; use creme_latex.latex_newline instead.",
+                  DeprecationWarning
+                 )
+
     return x.replace("\n", "\\newline ")

@@ -1,5 +1,7 @@
-{% load creme_core_tags %}
+{% autoescape off %}
+{% load creme_core_tags creme_latex %}
 
+{% with billing_address=object.billing_address source_address=source.billing_address %}
 
 \documentclass[french,11pt]{article}
 \usepackage[french]{babel}
@@ -34,7 +36,7 @@
 \newcolumntype{M}[1]{>{\raggedleft}p{#1}}
 
 \def\SourceName{%
-{{source.name}}
+{{source|latex_escape}}
 }
 
 \def\EditDate{%
@@ -42,11 +44,11 @@
 }
 
 \def\TargetName{% 
-{{target.name}} 
+{{target|latex_escape}}
 }
 
 \def\Number{%
-{% if object.number %} {{object.number}} {%else%} Numéro non généré {%endif%} 
+{% if object.number %} {{object.number|latex_escape}} {% else %} Numéro non généré {% endif %}
 }
 
 \def\DocumentName{% 
@@ -73,12 +75,12 @@
         \hline Réglement & A 30 jours \\
         \hline 
         \end{tabular}
-        
+
 }
 
 \def\TargetAddress{%
-{{object.billing_address.address|safe}} \\
-{{object.billing_address.city|safe}} {{object.billing_address.po_box|safe}} \\
+{{billing_address.address|latex_escape}} \\
+{{billing_address.city|latex_escape}} {{billing_address.po_box|latex_escape}} \\
 }
 
 \cfoot{ \footnotesize{ SIRET : {{source.siret}} - NAF : {{source.naf}} -  RCS : {{source.rcs}} - Numéro TVA : {{source.tvaintra}} } }
@@ -90,16 +92,16 @@
 
 \begin{tabular}{@{}p{0.5\linewidth}M{0.5\linewidth{% templatetag closevariable %}
 \HySourceName{\SourceName} & \HyDocName{\DocumentName} \tabularnewline
-{{source.billing_address.address|safe}} &  \tabularnewline
-{{source.billing_address.city|safe}} {{source.billing_address.po_box|safe}} &  \tabularnewline
+{{source_address.address|latex_escape}} &  \tabularnewline
+{{source_address.city|latex_escape}} {{source_address.po_box|latex_escape}} &  \tabularnewline
 \end{tabular}
 
 \vspace{1cm}
 
 \begin{tabular}{@{}p{10cm} l }
 \multirow{3}{*} {\HyInvoiceHeader{\Number}} & \textbf{\TargetName} \\
- & {{object.billing_address.address|safe}} \\
- & {{object.billing_address.city|safe}} {{object.billing_address.po_box|safe}} \\
+ & {{billing_address.address|latex_escape}} \\
+ & {{billing_address.city|latex_escape}} {{billing_address.po_box|latex_escape}} \\
 \end{tabular} 
 
 \vspace{2cm}
@@ -117,17 +119,15 @@
 \multicolumn{2}{c|} {} & \centering{ TVA } & \centering{ {{object.total_vat|sub:object.total_no_vat}} Euros } \tabularnewline \cline{3-4}
 \multicolumn{2}{c|} {} & \centering{ TTC } & \centering{ {{object.total_vat}} Euros } \tabularnewline \cline{3-4}
 \endlastfoot
-   
+
 {% for line in plines %}
    \hline
-    {% if line.related_item %} \centering{ {{line.related_item|safe}} } {% else %} \centering{ {{line.on_the_fly_item|safe}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} } \tabularnewline
-   \hline
+    {% if line.related_item %} \centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} } \tabularnewline
 {% endfor %}
 
 {% for line in slines %}
-
-    {% if line.related_item %}\centering{ {{line.related_item|safe}} } {% else %} \centering{ {{line.on_the_fly_item|safe}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} }  \tabularnewline
    \hline
+    {% if line.related_item %}\centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} }  \tabularnewline
 {% endfor %}
 \end{longtable}
 
@@ -141,9 +141,12 @@ Vous pouvez régler par chéque ou par virement bancaire sur le compte suivant :
 \hline
 Banque & Guichet & Numéro de Compte & Clé RIB & Domiciliation \\
 \hline
- {{object.payment_info.bank_code}} & {{object.payment_info.counter_code}}  & {{object.payment_info.account_number}} & {{object.payment_info.rib_key}}   & {{object.payment_info.banking_domiciliation}}  \\
+ {{object.payment_info.bank_code|latex_escape}} & {{object.payment_info.counter_code|latex_escape}}  & {{object.payment_info.account_number|latex_escape}} & {{object.payment_info.rib_key|latex_escape}}   & {{object.payment_info.banking_domiciliation|latex_escape}}  \\
 \hline
 \end{tabular}
 \end{center}
 {% endif %}
 \end{document}
+
+{% endwith %}
+{% endautoescape %}

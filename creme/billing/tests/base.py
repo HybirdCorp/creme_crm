@@ -133,7 +133,7 @@ class _BillingTestCaseMixin(object):
 
     def create_invoice_n_orgas(self, name, user=None, discount=Decimal(), currency=None):
         source, target = self.create_orgas()
-        invoice = self.create_invoice(name, source, target, user=self.user,
+        invoice = self.create_invoice(name, source, target, user=user,
                                       discount=discount, currency=currency,
                                      )
 

@@ -90,7 +90,7 @@ class BillingConfig(CremeAppConfig):
         button_registry.register(*button_list)
 
     def register_field_printers(self, field_printers_registry):
-        from .models.fields  import BillingDiscountField
+        from .models.fields import BillingDiscountField
 
         from .utils import print_discount
 
