@@ -117,10 +117,13 @@ def print_boolean(entity, fval, user, field):
 
 
 def print_boolean_html(entity, fval, user, field):
-    return bool_as_html(fval)
+    return bool_as_html(fval) if fval is not None else ''
 
 
 def print_boolean_csv(entity, fval, user, field):
+    if fval is None:
+        return ''
+
     return _('Yes') if fval else _('No')
 
 
@@ -274,6 +277,7 @@ class _FieldPrintersRegistry(object):
                     (models.IntegerField,       print_integer),
                     (models.DecimalField,       print_decimal),
                     (models.BooleanField,       print_boolean_html),
+                    (models.NullBooleanField,   print_boolean_html),
 
                     (models.DateField,          print_date),
                     (models.DateTimeField,      print_datetime),
@@ -298,6 +302,7 @@ class _FieldPrintersRegistry(object):
                     (models.IntegerField,       print_integer),
                     (models.DecimalField,       print_decimal),
                     (models.BooleanField,       print_boolean_csv),
+                    (models.NullBooleanField,   print_boolean_csv),
 
                     (models.DateField,          print_date),
                     (models.DateTimeField,      print_datetime),
