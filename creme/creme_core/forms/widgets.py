@@ -33,7 +33,7 @@ from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _, pgettext_lazy, pgettext
+from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
 
 from ..utils.date_range import date_range_registry
 from ..utils.media import creme_media_themed_url as media_url
@@ -445,7 +445,7 @@ class SelectorList(TextInput):
         super(SelectorList, self).__init__(attrs)
         self.selector = selector
         self.enabled = enabled
-        self.actions = [self.Action('add', _(u'Add'))]
+        self.actions = [self.Action('add', ugettext_lazy(u'Add'))]
         # TODO : wait for django 1.2 and new widget api to remove this hack
         self.from_python = None
 
