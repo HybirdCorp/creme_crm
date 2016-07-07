@@ -26,6 +26,7 @@ from django.core.checks import register, Error, Warning
 class Tags(object):
     settings = 'settings'
     api_breaking = 'api_breaking'
+    deprecation = 'deprecation'
 
 
 @register(Tags.settings)
