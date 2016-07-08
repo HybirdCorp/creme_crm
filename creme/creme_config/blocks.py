@@ -315,7 +315,7 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because teh instances are stored in a global cache, so we do
         #     not want to mutate them.
-        class _ContentTypeWrapper(object): # TODO: move from here ?
+        class _ContentTypeWrapper(object):  # TODO: move from here ?
             __slots__ = ('ctype', 'locations_info', 'default_count')
 
             def __init__(self, ctype):
@@ -355,7 +355,7 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
                 role_ids.add(role_id)
 
         role_names = dict(UserRole.objects.filter(id__in=role_ids).values_list('id', 'name'))
-        superusers_label = ugettext('Superuser') # TODO: cached_lazy_ugettext
+        superusers_label = ugettext('Superuser')  # TODO: cached_lazy_ugettext
 
         for ctw in ctypes_wrappers:
             count_per_role = block_counts[ctw.ctype.id]
@@ -384,7 +384,7 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
 class BlockPortalLocationsBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('creme_config', 'blocks_portal_locations')
     dependencies  = (BlockPortalLocation,)
-    page_size     = _PAGE_SIZE - 2  # '-1' because there is always the line for default config & home config on each page
+    page_size     = _PAGE_SIZE - 2  # '-2' because there is always the line for default config & home config on each page
     verbose_name  = u'Blocks locations on portals'
     template_name = 'creme_config/templatetags/block_blockportallocations.html'
     permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
@@ -466,15 +466,48 @@ class InstanceBlocksConfigBlock(_ConfigAdminBlock):
                            ))
 
 
-class CustomBlocksConfigBlock(_ConfigAdminBlock):
+# class CustomBlocksConfigBlock(_ConfigAdminBlock):
+class CustomBlocksConfigBlock(PaginatedBlock):
     id_           = _ConfigAdminBlock.generate_id('creme_config', 'custom_blocks_config')
     dependencies  = (CustomBlockConfigItem,)
     verbose_name  = u'Custom blocks configuration'
     template_name = 'creme_config/templatetags/block_customblocksconfig.html'
+    page_size    = _PAGE_SIZE
+    permission   = None  # The portals can be viewed by all users => reloading can be done by all uers too.
+    configurable = False
 
     def detailview_display(self, context):
+    #     return self._render(self.get_block_template_context(
+    #                             context,
+    #                             # NB: order ot in _meta.ordering in order to have light queries in all other cases.
+    #                             CustomBlockConfigItem.objects.order_by('name'),
+    #                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+    #                        ))
+        # NB: we wrap the ContentType instances instead of store extra data in
+        #     them because teh instances are stored in a global cache, so we do
+        #     not want to mutate them.
+        class _ContentTypeWrapper(object):  # TODO: move from here ?
+            __slots__ = ('ctype', 'items')
+
+            def __init__(self, ctype, items):
+                self.ctype = ctype
+                self.items = items
+
+        cbi_per_ctid = defaultdict(list)
+
+        for cb_item in CustomBlockConfigItem.objects.order_by('name'):
+            cbi_per_ctid[cb_item.content_type_id].append(cb_item)
+
+        get_ct = ContentType.objects.get_for_id
+        ctypes = [_ContentTypeWrapper(get_ct(ct_id), cb_items)
+                      for ct_id, cb_items in cbi_per_ctid.iteritems()
+                 ]
+
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
+
         return self._render(self.get_block_template_context(
-                                context, CustomBlockConfigItem.objects.all(),
+                                context, ctypes,
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
 
@@ -490,7 +523,7 @@ class ButtonMenuBlock(Block):
     def detailview_display(self, context):
         buttons_map = defaultdict(list)
 
-        for bmi in ButtonMenuItem.objects.order_by('order'): #TODO: meta.ordering...
+        for bmi in ButtonMenuItem.objects.order_by('order'):
             buttons_map[bmi.content_type_id].append(bmi)
 
         build_verbose_names = lambda bm_items: [unicode(bmi) for bmi in bm_items if bmi.button_id]
@@ -540,7 +573,8 @@ class SearchConfigBlock(PaginatedBlock):
         btc = self.get_block_template_context(
                         context, ctypes,
                         update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                        max_conf_count=UserRole.objects.count() + 2, # NB: '+ 2' is for default config + super-users config.
+                        # NB: '+ 2' is for default config + super-users config.
+                        max_conf_count=UserRole.objects.count() + 2,
                     )
 
         ctypes_wrappers = btc['page'].object_list
