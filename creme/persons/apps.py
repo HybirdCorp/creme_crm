@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,14 +30,12 @@ class PersonsConfig(CremeAppConfig):
     verbose_name = _(u'Accounts and Contacts')
     dependencies = ['creme.creme_core']
 
-#    def ready(self):
     def all_apps_ready(self):
         from . import get_contact_model, get_organisation_model, get_address_model
 
         self.Contact = get_contact_model()
         self.Organisation = get_organisation_model()
         self.Address = get_address_model()
-#        super(PersonsConfig, self).ready()
         super(PersonsConfig, self).all_apps_ready()
         self.hook_user()
         self.hook_user_form()
@@ -51,11 +49,8 @@ class PersonsConfig(CremeAppConfig):
         creme_registry.register_entity_models(self.Contact, self.Organisation)
 
     def register_blocks(self, block_registry):
-#        from .blocks import block_list, ContactBlock, OrganisationBlock
         from .blocks import block_list
 
-#        block_registry.register_4_model(self.Contact,      ContactBlock())
-#        block_registry.register_4_model(self.Organisation, OrganisationBlock())
         block_registry.register(*block_list)
 
     def register_bulk_update(self, bulk_update_registry):
@@ -70,6 +65,17 @@ class PersonsConfig(CremeAppConfig):
 
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register(self.Address)
+
+    def register_field_printers(self, field_printers_registry):
+        from django.contrib.auth import get_user_model
+
+        from creme.creme_core.gui.field_printers import print_foreignkey_html
+        from creme.creme_core.templatetags.creme_widgets import widget_entity_hyperlink
+
+        def print_fk_user_html(entity, fval, user, field):
+            return widget_entity_hyperlink(fval.linked_contact, user)
+
+        print_foreignkey_html.register(get_user_model(), print_fk_user_html)
 
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register

@@ -7,6 +7,7 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.models import Session
+    from django.db import models
     from django.utils.formats import date_format, number_format
     from django.utils.html import escape
     from django.utils.timezone import localtime
@@ -21,7 +22,9 @@ try:
             FakeEmailCampaign as EmailCampaign, FakeMailingList as MailingList,
             FakeInvoice, FakeInvoiceLine)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui.field_printers import field_printers_registry
+    from creme.creme_core.gui.field_printers import (_FieldPrintersRegistry,
+            FKPrinter, print_fk_null_html, simple_print_html,
+            print_foreignkey_html, print_fk_entity_html)  # field_printers_registry
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.models import CremeEntity, SetCredentials, Language
 except Exception as e:
@@ -106,6 +109,14 @@ class GuiTestCase(CremeTestCase):
     def test_field_printers01(self):
         user = self.login()
 
+        print_foreignkey_html = FKPrinter(none_printer=print_fk_null_html,
+                                          default_printer=simple_print_html,
+                                         )
+        print_foreignkey_html.register(CremeEntity, print_fk_entity_html)
+
+        field_printers_registry = _FieldPrintersRegistry()
+        field_printers_registry.register(models.ForeignKey, print_foreignkey_html)
+
         get_html_val = field_printers_registry.get_html_field_value
         get_csv_val  = field_printers_registry.get_csv_field_value
 
@@ -142,13 +153,6 @@ class GuiTestCase(CremeTestCase):
                         )
         self.assertEqual('', get_csv_val(casca, 'is_user', user))  # Null_label not used in CSV backend
 
-# NB: temporarily tested in media_managers
-#        self.assertEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
-#                                casca.image.get_image_url(),
-#                                casca.image.get_entity_summary(user),
-#                            ),
-#                         get_html_val(casca, 'image', user)
-#                        )
         self.assertEqual(u'<a href="%s">%s</a>' % (img.get_absolute_url(), escape(img)),
                          get_html_val(casca, 'image', user)
                         )
@@ -178,12 +182,13 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('', get_html_val(judo, 'image__description', user))
         self.assertEqual('', get_html_val(judo, 'image__categories',  user))
 
-        self.assertEqual(unicode(user), get_html_val(casca, 'image__user', user))           #depth = 2
-        self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user)) #depth = 3
+        self.assertEqual(unicode(user), get_html_val(casca, 'image__user', user))            # depth = 2
+        self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user))  # depth = 3
 
     def test_field_printers02(self):
         "ManyToMany (simple model)"
         user = self.login()
+        field_printers_registry = _FieldPrintersRegistry()
 
         create_lang = Language.objects.create
         lang1 = create_lang(name='Klingon')
@@ -221,6 +226,8 @@ class GuiTestCase(CremeTestCase):
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
+
+        field_printers_registry = _FieldPrintersRegistry()
 
         create_camp = partial(EmailCampaign.objects.create, user=user)
         camp1 = create_camp(name='Camp#1')
@@ -280,6 +287,8 @@ class GuiTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
+        field_printers_registry = _FieldPrintersRegistry()
+
         create_img = Image.objects.create
         casca_face = create_img(name='Casca face', user=self.other_user, description="Casca's selfie")
         judo_face  = create_img(name='Judo face',  user=user,            description="Judo's selfie")
@@ -311,6 +320,7 @@ class GuiTestCase(CremeTestCase):
     def test_field_printers06(self):
         "Boolean Field"
         user = self.login()
+        field_printers_registry = _FieldPrintersRegistry()
 
         create_contact = partial(Contact.objects.create, user=user)
         casca = create_contact(first_name='Casca', last_name='Mylove', is_a_nerd=False)
@@ -331,6 +341,7 @@ class GuiTestCase(CremeTestCase):
     def test_field_printers07(self):
         "Numerics Field"
         user = self.login()
+        field_printers_registry = _FieldPrintersRegistry()
 
         # Integer
         capital = 12345

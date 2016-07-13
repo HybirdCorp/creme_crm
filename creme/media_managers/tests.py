@@ -206,7 +206,6 @@ class MediaManagersTestCase(CremeTestCase):
 
         # TODO: improve this test....
 
-    # TODO: remove when hack in creme_core has been removed
     @skipIfCustomContact
     def test_field_printers01(self):
         "Field printer with FK on Image"
@@ -226,7 +225,6 @@ class MediaManagersTestCase(CremeTestCase):
                          field_printers_registry.get_csv_field_value(casca, 'image', user)
                         )
 
-    # TODO: remove when hack in creme_core has been removed
     @skipIfCustomContact
     def test_field_printers02(self):
         "Field printer with FK on Image + credentials"

@@ -8,10 +8,11 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
     from django.core.urlresolvers import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.gui.field_printers import field_printers_registry
     from creme.creme_core.forms.widgets import Label, TextInput
     from creme.creme_core.gui.quick_forms import quickforms_registry
     from creme.creme_core.models import RelationType, Relation, SetCredentials, FieldsConfig
@@ -1658,3 +1659,19 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertStillExists(deunan)
         self.assertEqual(user, self.assertStillExists(briareos).user)
+
+    def test_fk_user_printer(self):
+        user = self.login()
+
+        deunan = Contact.objects.create(user=user, first_name='Deunan', last_name='Knut')
+        kirika = user.linked_contact
+
+        get_html_val = field_printers_registry.get_html_field_value
+        self.assertEqual(u'<a href="%s">%s</a>' % (kirika.get_absolute_url(), kirika),
+                         get_html_val(deunan, 'user', user)
+                        )
+        self.assertEqual(u'<em>%s</em>' % pgettext('persons-is_user', 'None'),
+                         get_html_val(deunan, 'is_user', user)
+                        )
+
+        self.assertEqual(unicode(user), field_printers_registry.get_csv_field_value(deunan, 'user', user))
