@@ -18,9 +18,9 @@ try:
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity, Contact, Organisation, Activity
-    from ..forms.lv_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
-                                   MultiColumnsParticipantsExtractor, SplitColumnParticipantsExtractor,
-                                   SubjectsExtractor)
+    from ..forms.mass_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
+                                     MultiColumnsParticipantsExtractor, SplitColumnParticipantsExtractor,
+                                     SubjectsExtractor)
     from ..models import Calendar
     from ..constants import (ACTIVITYTYPE_TASK, NARROW, FLOATING, FLOATING_TIME,
             REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT,
@@ -34,7 +34,7 @@ Document = get_document_model()
 
 @skipIfCustomDocument
 @skipIfCustomActivity
-class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin):
+class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin):
     lv_import_data = {
             'step': 1,
             'title_colselect': 1,

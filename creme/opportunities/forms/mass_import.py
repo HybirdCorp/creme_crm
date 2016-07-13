@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +30,8 @@ Organisation = get_organisation_model()
 Contact = get_contact_model()
 
 
-def get_csv_form_builder(header_dict, choices):
-    class OpportunityCSVImportForm(ImportForm4CremeEntity):
+def get_mass_form_builder(header_dict, choices):
+    class OpportunityMassImportForm(ImportForm4CremeEntity):
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
                                       choices, label=_('Target')
                                      )
@@ -50,4 +50,4 @@ def get_csv_form_builder(header_dict, choices):
             self.append_error(line, err_msg, instance)  # Error is really appended if 'err_msg' is not empty
 
 
-    return OpportunityCSVImportForm
+    return OpportunityMassImportForm

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ _BILL_PREFIX = 'billaddr_'
 _SHIP_PREFIX = 'shipaddr_'
 
 
-class _PersonCSVImportForm(ImportForm4CremeEntity):
+class _PersonMassImportForm(ImportForm4CremeEntity):
     class Meta:
         exclude = ('image',)
 
@@ -73,7 +73,7 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
         return save
 
     def _post_instance_creation(self, instance, line, updated):
-        super(_PersonCSVImportForm, self)._post_instance_creation(instance, line, updated)
+        super(_PersonMassImportForm, self)._post_instance_creation(instance, line, updated)
         data = self.cleaned_data
         save_address    = self._save_address
         change4billing  = save_address('billing_address',  _BILL_PREFIX, instance, data, line, _('Billing address'))
@@ -83,7 +83,7 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
             instance.save()
 
 
-def get_csv_form_builder(header_dict, choices, model):
+def get_massimport_form_builder(header_dict, choices, model):
     address_field_names = list(Address.info_field_names())  # TODO: remove not-editable fields ??
     try:
        address_field_names.remove('name')
@@ -119,4 +119,4 @@ def get_csv_form_builder(header_dict, choices, model):
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames)
                         )
 
-    return type('PersonCSVImportForm', (_PersonCSVImportForm,), attrs)
+    return type('PersonMassImportForm', (_PersonMassImportForm,), attrs)
