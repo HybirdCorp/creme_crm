@@ -90,7 +90,7 @@ class DynamicInput(TextInput):
 #     is_hidden = True
 
 
-class EnchancedSelectOptions(object):
+class EnhancedSelectOptions(object):
     class Choice(object):
         def __init__(self, value, disabled=False, help=u''):
             self.value = value
@@ -155,7 +155,7 @@ class EnchancedSelectOptions(object):
                                                          )
 
 
-class DynamicSelect(Select, EnchancedSelectOptions):
+class DynamicSelect(Select, EnhancedSelectOptions):
     def __init__(self, attrs=None, options=None, url='', label=None):
         super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
@@ -176,7 +176,7 @@ class DynamicSelect(Select, EnchancedSelectOptions):
         return mark_safe(self.render_label(output, self.label))
 
 
-class DynamicSelectMultiple(SelectMultiple, EnchancedSelectOptions):
+class DynamicSelectMultiple(SelectMultiple, EnhancedSelectOptions):
     def __init__(self, attrs=None, options=None, url='', label=None):
         super(DynamicSelectMultiple, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
@@ -901,7 +901,7 @@ class ColorPickerWidget(TextInput):
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context, plugin='gccolor'))
 
 
-class UnorderedMultipleChoiceWidget(SelectMultiple, EnchancedSelectOptions):
+class UnorderedMultipleChoiceWidget(SelectMultiple, EnhancedSelectOptions):
     def __init__(self, attrs=None, choices=(), columntype='', filtertype=None, viewless=None):
         super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
         self.columntype = columntype
