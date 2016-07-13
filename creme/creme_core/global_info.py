@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,3 +43,13 @@ def set_global_info(**kwargs):
 def clear_global_info():
     # Don't use del _globals[currentThread()], it causes problems with dev server.
     _globals.pop(currentThread(), None)
+
+
+def get_per_request_cache():
+    cache = get_global_info('per_request_cache')
+
+    if cache is None:
+        cache = {}
+        set_global_info(per_request_cache=cache)
+
+    return cache

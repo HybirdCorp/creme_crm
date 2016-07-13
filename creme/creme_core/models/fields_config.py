@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.db.models import TextField, FieldDoesNotExist
 from django.utils.translation import ugettext as _
 
 from ..core.entity_cell import EntityCellRegularField
-from ..global_info import get_global_info, set_global_info
+from ..global_info import get_per_request_cache  # get_global_info, set_global_info
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 
@@ -225,10 +225,11 @@ class FieldsConfig(CremeModel):
         cache_key_fmt = 'creme_core-fields_config-%s'
         not_cached_ctypes = []
 
-        cache = get_global_info('per_request_cache')
-        if cache is None:
-            cache = {}
-            set_global_info(per_request_cache=cache)
+        # cache = get_global_info('per_request_cache')
+        # if cache is None:
+        #     cache = {}
+        #     set_global_info(per_request_cache=cache)
+        cache = get_per_request_cache()
 
         # Step 1: fill 'result' with cached configs
         for model in models:

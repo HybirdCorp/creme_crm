@@ -322,14 +322,36 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
 
-    def _build_managed_orga(self, user=None):
+    def _build_managed_orga(self, user=None, name='Bebop'):
         user = user or self.user
 
         with self.assertNoException():
-            mng_orga = Organisation.objects.create(user=user, name='Bebop')
+            mng_orga = Organisation.objects.create(user=user, name=name)
             CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
 
         return mng_orga
+
+    def test_get_all_managed_by_creme(self):
+        user = self.login()
+
+        mng_orga1 = self._build_managed_orga()
+        mng_orga2 = self._build_managed_orga(name='NERV')
+        orga = Organisation.objects.create(user=user, name='Seele')
+
+        with self.assertNumQueries(1):
+            qs1 = Organisation.get_all_managed_by_creme()
+            mng_orgas = set(qs1)
+
+        self.assertIn(mng_orga1, mng_orgas)
+        self.assertIn(mng_orga2, mng_orgas)
+        self.assertNotIn(orga,   mng_orgas)
+
+        # Test request-cache
+        with self.assertNumQueries(0):
+            qs2 = Organisation.get_all_managed_by_creme()
+            list(qs2)
+
+        self.assertEqual(id(qs1), id(qs2))
 
     def _become_test(self, url, relation_type):
         user = self.login()
