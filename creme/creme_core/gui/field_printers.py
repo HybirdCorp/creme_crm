@@ -157,27 +157,54 @@ def print_foreignkey(entity, fval, user, field):
     return print_foreignkey_html(entity, fval, user, field)
 
 
-def print_foreignkey_html(entity, fval, user, field):
-    # TODO: temporary hack before print_field refactor in order to give extra parameters for custom display.
-    from creme.media_managers.models.image import Image
+# def print_foreignkey_html(entity, fval, user, field):
+#     from creme.media_managers.models.image import Image
+#
+#     if isinstance(fval, Image) and user.has_perm_to_view(fval):
+#         return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (
+#                 fval.get_image_url(),
+#                 ' class="is_deleted"' if fval.is_deleted else u'',
+#                 fval.get_entity_summary(user)
+#             )
+#
+#     if isinstance(fval, CremeEntity):
+#         return widget_entity_hyperlink(fval, user)
+#
+#     if fval is None:
+#         null_label = field.get_null_label()
+#         return u'<em>%s</em>' % null_label if null_label else ''
+#
+#     return escape(unicode(fval))
+class FKPrinter(object):
+    def __init__(self, none_printer, default_printer):
+        self.none_printer = none_printer
+        self._sub_printers = ClassKeyedMap(default=default_printer)
 
-    if isinstance(fval, Image) and user.has_perm_to_view(fval):
-        return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (
-                fval.get_image_url(),
-                ' class="is_deleted"' if fval.is_deleted else u'',
-                fval.get_entity_summary(user)
-            )
+    def __call__(self, entity, fval, user, field):
+        return self.none_printer(entity, user, field) if fval is None else \
+               self._sub_printers[fval.__class__](entity, fval, user, field)
 
-    if isinstance(fval, CremeEntity):
-        return widget_entity_hyperlink(fval, user)
-
-    if fval is None:
-        null_label = field.get_null_label()
-        return u'<em>%s</em>' % null_label if null_label else ''
-
-    return escape(unicode(fval))
+    def register(self, model, printer):
+        self._sub_printers[model] = printer
+        return self
 
 
+def print_fk_null_html(entity, user, field):
+    null_label = field.get_null_label()
+    return u'<em>%s</em>' % null_label if null_label else ''
+
+
+def print_fk_entity_html(entity, fval, user, field):
+    return widget_entity_hyperlink(fval, user)
+
+
+print_foreignkey_html = FKPrinter(none_printer=print_fk_null_html,
+                                  default_printer=simple_print_html,
+                                 )
+print_foreignkey_html.register(CremeEntity, print_fk_entity_html)
+
+
+# TODO: FKPrinter() ?
 def print_foreignkey_csv(entity, fval, user, field):
     if isinstance(fval, CremeEntity):
         # TODO: change allowed unicode ??

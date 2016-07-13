@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -44,6 +45,18 @@ class MediaManagersConfig(CremeAppConfig):
 
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(Image, exclude=['image'])
+
+    def register_field_printers(self, field_printers_registry):
+        from creme.creme_core.gui.field_printers import print_foreignkey_html
+
+        def print_fk_image_html(entity, fval, user, field):
+            return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (
+                    fval.get_image_url(),
+                    ' class="is_deleted"' if fval.is_deleted else u'',
+                    fval.get_entity_summary(user)
+                ) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+
+        print_foreignkey_html.register(Image, print_fk_image_html)
 
     def register_icons(self, icon_registry):
         icon_registry.register(Image, 'images/image_%(size)s.png')
