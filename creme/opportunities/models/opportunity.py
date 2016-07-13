@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#import logging
+# import logging
 from functools import partial
-#import warnings
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
@@ -48,22 +47,21 @@ from .. import constants
 
 
 class _TurnoverField(FunctionField):
-    name         = "get_weighted_sales"
+    name         = 'get_weighted_sales'
     verbose_name = _(u"Weighted sales")
     result_type  = FunctionFieldDecimal
 
-    @classmethod
-    def populate_entities(cls, entities):
-        # TODO: remove when FieldsConfig cache has been added.
-        fc = FieldsConfig.get_4_model(entities[0].__class__)
-
-        for entity in entities:
-            entity._fconfig_cache = fc
+    # @classmethod
+    # def populate_entities(cls, entities):
+    #     fc = FieldsConfig.get_4_model(entities[0].__class__)
+    #
+    #     for entity in entities:
+    #         entity._fconfig_cache = fc
 
 
 class SalesPhase(CremeModel):
     name  = CharField(_(u"Name"), max_length=100, blank=False, null=False)
-    order = BasicAutoField(_('Order')) #.set_tags(viewable=False)
+    order = BasicAutoField(_('Order'))
     won   = BooleanField(pgettext_lazy('opportunities-sales_phase', u"Won"), default=False)
 
     def __unicode__(self):
@@ -127,7 +125,7 @@ class AbstractOpportunity(CremeEntity):
     _opp_target  = None
     _opp_target_rel = None
 
-    _fconfig_cache = None
+    # _fconfig_cache = None
 
     class Meta:
         abstract = True
@@ -157,7 +155,6 @@ class AbstractOpportunity(CremeEntity):
 
     def clean(self):
         self._clean_emitter_n_target()
-#        super(Opportunity, self).clean()
         super(AbstractOpportunity, self).clean()
 
     def get_absolute_url(self):
@@ -174,16 +171,17 @@ class AbstractOpportunity(CremeEntity):
     def get_lv_absolute_url():
         return reverse('opportunities__list_opportunities')
 
-    def __get_fieldsconfig(self):
-        fc = self._fconfig_cache
-
-        if fc is None:
-            self._fconfig_cache = fc = FieldsConfig.get_4_model(self.__class__)
-
-        return fc
+    # def __get_fieldsconfig(self):
+    #     fc = self._fconfig_cache
+    #
+    #     if fc is None:
+    #         self._fconfig_cache = fc = FieldsConfig.get_4_model(self.__class__)
+    #
+    #     return fc
 
     def get_weighted_sales(self):
-        is_hidden = self.__get_fieldsconfig().is_fieldname_hidden
+        # is_hidden = self.__get_fieldsconfig().is_fieldname_hidden
+        is_hidden = FieldsConfig.get_4_model(self.__class__).is_fieldname_hidden
 
         if is_hidden('estimated_sales'):
             return ugettext(u'Error: «Estimated sales» is hidden')
