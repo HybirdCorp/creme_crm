@@ -79,9 +79,9 @@ class CommercialTestCase(CremeTestCase):
 
         def add_salesman(first_name, last_name):
             self.client.post(self.ADD_SALESMAN_URL,
-                             data={'user':        user.pk,
-                                   'first_name': 'first_name1',
-                                   'last_name':   'last_name1',
+                             data={'user':       user.pk,
+                                   'first_name': first_name,
+                                   'last_name':  last_name,
                                   }
                             )
 
