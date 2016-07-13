@@ -8,7 +8,7 @@ try:
     from django.core.exceptions import ValidationError
     from django.utils.translation import ugettext as _
 
-    from ..fake_models import (FakeContact as Contact, FakeCivility as Civility,
+    from ..fake_models import (FakeContact as Contact, FakeCivility as Civility, FakePosition,
             FakeOrganisation as Organisation, FakeImage, FakeInvoice, FakeInvoiceLine)
     from .base import FieldTestCase
     from creme.creme_core.models import (RelationType, CremePropertyType,
@@ -600,7 +600,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                          conditions=[EntityFilterCondition.build_4_field(
                                             model=Contact,
                                             operator=EntityFilterCondition.EQUALS,
-                                            name='description', values=['Ikari'],
+                                            name=hidden_fname, values=['Ikari'],
                                         ),
                                     ],
                         )
@@ -678,6 +678,37 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         condition = conditions[0]
         self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(hidden_sfname,                   condition.name)
+
+    def test_fields_config06(self):
+        "Field (ForeignKey) is already used => still proposed"
+        hidden_fname = 'position'
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
+                           )
+
+        position = FakePosition.objects.all()[0]
+        field = RegularFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(Contact),
+                         conditions=[EntityFilterCondition.build_4_field(
+                                            model=Contact,
+                                            operator=EntityFilterCondition.EQUALS,
+                                            name=hidden_fname, values=[position.id],
+                                        ),
+                                    ],
+                        )
+
+        with self.assertNoException():
+            conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+                                          'operator': EntityFilterCondition.EQUALS,
+                                          'name':     hidden_fname,
+                                          'value':    str(position.id),
+                                      }
+                                    )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(hidden_fname,                    condition.name)
 
 
 class DateFieldsConditionsFieldTestCase(FieldTestCase):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -468,12 +468,12 @@ class RegularFieldsConditionsField(_ConditionsField):
         related_model = field.rel.to
         field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
         excluded = self.excluded_fields
+        non_hiddable_fnames = self._non_hiddable_fnames
 
-        if field.get_tag('enumerable') and not field_hidden:
+        if field.get_tag('enumerable') and (not field_hidden or fname in non_hiddable_fnames):
             fields[field.name] = [field]
 
         is_sfield_hidden = fconfigs.get_4_model(related_model).is_field_hidden
-        non_hiddable_fnames = self._non_hiddable_fnames
 
         for subfield in related_model._meta.fields:
             if subfield.get_tag('viewable') and not is_date_field(subfield) \
@@ -549,7 +549,7 @@ class RegularFieldsConditionsField(_ConditionsField):
         return dicts
 
     def _clean_fieldname(self, entry):
-        clean_value =  self.clean_value
+        clean_value = self.clean_value
         fname = clean_value(clean_value(entry, 'field', dict, required_error_key='invalidfield'),
                             'name', str, required_error_key='invalidfield')
 
@@ -559,7 +559,7 @@ class RegularFieldsConditionsField(_ConditionsField):
         return fname
 
     def _clean_operator_n_values(self, entry):
-        clean_value =  self.clean_value
+        clean_value = self.clean_value
         operator = clean_value(clean_value(entry, 'operator', dict, required_error_key='invalidoperator'),
                                'id', int, required_error_key='invalidoperator')
 
