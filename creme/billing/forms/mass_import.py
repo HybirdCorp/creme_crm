@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,7 @@ def _copy_or_update_address(source, dest, attr_name, addr_name):
 
 
 def get_import_form_builder(header_dict, choices):
-    class InvoiceLVImportForm(ImportForm4CremeEntity):
+    class InvoiceMassImportForm(ImportForm4CremeEntity):
         source = EntityExtractorField([(Organisation, 'name')], choices, label=_('Source organisation'))
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
                                       choices, label=_('Target'),
@@ -69,7 +69,7 @@ def get_import_form_builder(header_dict, choices):
                                              )
 
         def _post_instance_creation(self, instance, line, updated):
-            super(InvoiceLVImportForm, self)._post_instance_creation(instance, line, updated)
+            super(InvoiceMassImportForm, self)._post_instance_creation(instance, line, updated)
             cdata = self.cleaned_data
             user = self.user
 
@@ -126,4 +126,4 @@ def get_import_form_builder(header_dict, choices):
                 if b_change or s_change:
                     instance.save()
 
-    return InvoiceLVImportForm
+    return InvoiceMassImportForm

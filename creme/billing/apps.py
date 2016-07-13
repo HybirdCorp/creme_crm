@@ -108,7 +108,7 @@ class BillingConfig(CremeAppConfig):
         reg_icon(self.ServiceLine,  icon_fmt)
 
     def register_mass_import(self, import_form_registry):
-        from .forms.lv_import import get_import_form_builder
+        from .forms.mass_import import get_import_form_builder
 
         reg_import_form = import_form_registry.register
         reg_import_form(self.Invoice,    get_import_form_builder)

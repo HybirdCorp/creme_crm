@@ -59,7 +59,7 @@ MODE_SPLITTEDCOLUMN = 2
 MAX_RELATIONSHIPS = 5
 
 
-#TODO: in creme_core ?
+# TODO: in creme_core ?
 def as_int(value, default=0):
     try:
         return int(value)
@@ -532,7 +532,7 @@ class SubjectsExtractorField(Field):
         self.widget.choices = choices
 
     @property
-    def user(self, user):
+    def user(self):
         return self._user
 
     @user.setter
@@ -567,8 +567,8 @@ class SubjectsExtractorField(Field):
 
 
 # Main -------------------------------------------------------------------------
-def get_csv_form_builder(header_dict, choices):
-    class ActivityCSVImportForm(ImportForm4CremeEntity):
+def get_massimport_form_builder(header_dict, choices):
+    class ActivityMassImportForm(ImportForm4CremeEntity):
         type_selector = ActivityTypeField(label=_(u'Type'),
                                           types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO)
                                          )
@@ -599,7 +599,7 @@ def get_csv_form_builder(header_dict, choices):
                         )
 
         def __init__(self, *args, **kwargs):
-            super(ActivityCSVImportForm, self).__init__(*args, **kwargs)
+            super(ActivityMassImportForm, self).__init__(*args, **kwargs)
             user = self.user
             fields = self.fields
 
@@ -607,14 +607,15 @@ def get_csv_form_builder(header_dict, choices):
             my_calendar_field.queryset = Calendar.objects.filter(user=user)
             my_calendar_field.initial  = Calendar.get_user_default_calendar(user)
 
-            #TODO: refactor this with a smart widget that manages dependencies
+            # TODO: refactor this with a smart widget that manages dependencies
             fields['my_participation'].widget.attrs['onclick'] = \
-                "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+                "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}" \
+                "else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
             self.user_participants = []
 
         def clean_my_participation(self):
-            return  self.cleaned_data.get('my_participation', False)
+            return self.cleaned_data.get('my_participation', False)
 
         def clean_participating_users(self):
             users = self.cleaned_data['participating_users']
@@ -624,7 +625,7 @@ def get_csv_form_builder(header_dict, choices):
             return users
 
         def clean(self):
-            cdata = super(ActivityCSVImportForm, self).clean()
+            cdata = super(ActivityMassImportForm, self).clean()
 
             if not self._errors:
                 if cdata['my_participation'] and not cdata.get('my_calendar'):
@@ -651,7 +652,7 @@ def get_csv_form_builder(header_dict, choices):
                 instance.floating_type = FLOATING
 
         def _post_instance_creation(self, instance, line, updated):
-            super(ActivityCSVImportForm, self)._post_instance_creation(instance, line, updated)
+            super(ActivityMassImportForm, self)._post_instance_creation(instance, line, updated)
 
             cdata = self.cleaned_data
             user = instance.user
@@ -722,4 +723,4 @@ def get_csv_form_builder(header_dict, choices):
             for subject in subjects:
                 create_sub_rel(subject_entity=subject)
 
-    return ActivityCSVImportForm
+    return ActivityMassImportForm
