@@ -204,6 +204,12 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(product, product_line.related_item)
         self.assertRelationCount(1, product_line, REL_SUB_LINE_RELATED_ITEM, product)
 
+        product_line = self.refresh(product_line)
+        with self.assertNumQueries(3):
+            p = product_line.related_item
+
+        self.assertEqual(product, p)
+
     @skipIfCustomProductLine
     def test_related_item02(self):
         user = self.login()
@@ -213,6 +219,20 @@ class LineTestCase(_BillingTestCase):
                                                   on_the_fly_item='Flyyyyy',
                                                  )
         self.assertIsNone(product_line.related_item)
+
+        product_line = self.refresh(product_line)
+        with self.assertNumQueries(0):
+            p = product_line.related_item
+
+        self.assertIsNone(p)
+
+    @skipIfCustomProductLine
+    def test_related_item03(self):
+        with self.assertNumQueries(0):
+            product_line = ProductLine()
+            product = product_line.related_item
+
+        self.assertIsNone(product)
 
     @skipIfCustomProduct
     @skipIfCustomProductLine
