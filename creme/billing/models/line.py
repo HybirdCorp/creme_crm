@@ -91,7 +91,7 @@ class Line(CremeEntity):
                                               ),
                                       code='discount_gt_total',
                                      )
-        else: # Unitary discount
+        else:  # Unitary discount
             if self.discount > self.unit_price:
                 raise ValidationError(ugettext(u"Your discount is superior than the unit price"),
                                       code='discount_gt_unitprice',
@@ -175,7 +175,7 @@ class Line(CremeEntity):
 
     @property
     def related_item(self):
-        if not self._related_item and not self.on_the_fly_item:
+        if self.id and not self._related_item and not self.on_the_fly_item:
             try:
                 self._related_item = self.relations.get(type=REL_SUB_LINE_RELATED_ITEM,
                                                         subject_entity=self.id,
