@@ -119,7 +119,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertGET404(reverse('tickets__view_ticket', args=(1024,)))
 
     def test_createview01(self):
-        self.login()
+        user = self.login()
 
         self.assertEqual(0, Ticket.objects.count())
         url = reverse('tickets__create_ticket')
@@ -159,7 +159,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             funf = ticket.function_fields.get('get_resolving_duration')
 
-        self.assertEqual('', funf(ticket).for_html())
+        self.assertEqual('', funf(ticket, user).for_html())
 
         self.assertRedirects(response, ticket.get_absolute_url())
 
@@ -289,7 +289,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertTrue(ticket.closing_date)
         self.assertTrue(ticket.get_resolving_duration())
-        self.assertTrue(ticket.function_fields.get('get_resolving_duration')(ticket))
+        self.assertTrue(ticket.function_fields.get('get_resolving_duration')(ticket, user))
 
     def test_listview01(self):
         self.login()

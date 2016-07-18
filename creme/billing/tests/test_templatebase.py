@@ -94,12 +94,14 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertIsNotNone(funf)
 
         with self.assertNumQueries(1):
-            status_str = funf(tpl).for_html()
+            # status_str = funf(tpl).for_html()
+            status_str = funf(tpl, self.user).for_html()
 
         self.assertEqual(unicode(invoice_status), status_str)
 
         with self.assertNumQueries(0):
-            funf(tpl).for_html()
+            # funf(tpl).for_html()
+            funf(tpl, self.user).for_html()
 
     @skipIfCustomInvoice
     def test_create_invoice01(self):

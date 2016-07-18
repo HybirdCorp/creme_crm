@@ -81,7 +81,8 @@ class _GetAlerts(FunctionField):
     name         = 'assistants-get_alerts'
     verbose_name = _(u"Alerts")
 
-    def __call__(self, entity):
+    # def __call__(self, entity):
+    def __call__(self, entity, user):
         cache = getattr(entity, '_alerts_cache', None)
 
         if cache is None:
@@ -94,7 +95,8 @@ class _GetAlerts(FunctionField):
         return FunctionFieldResultsList(FunctionFieldResult(title) for title in cache)
 
     @classmethod
-    def populate_entities(cls, entities):
+    # def populate_entities(cls, entities):
+    def populate_entities(cls, entities, user):
         alerts_map = defaultdict(list)
 
         for title, e_id in Alert.objects.filter(entity_id__in=[e.id for e in entities], is_validated=False) \

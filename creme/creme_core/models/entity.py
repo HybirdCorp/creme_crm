@@ -54,13 +54,15 @@ class _PrettyPropertiesField(FunctionField):
         # Should we make a separated query to retrieve first the searched types ?
         return Q(properties__type__text__icontains=search_string)
 
-    def __call__(self, entity):
+    # def __call__(self, entity):
+    def __call__(self, entity, user):
         return FunctionFieldResultsList(FunctionFieldResult(unicode(p))
                                             for p in entity.get_properties()
                                        )
 
     @classmethod
-    def populate_entities(cls, entities):
+    # def populate_entities(cls, entities):
+    def populate_entities(cls, entities, user):
         CremeEntity.populate_properties(entities)
 
 

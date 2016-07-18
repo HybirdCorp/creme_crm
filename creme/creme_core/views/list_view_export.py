@@ -104,7 +104,7 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
             entities = entities_page.object_list
 
             # hf.populate_entities(entities_slice)  # Optimisation time !!!
-            hf.populate_entities(entities)  # Optimisation time !!!
+            hf.populate_entities(entities, user)  # Optimisation time !!!
 
             # for entity in entities_slice:
             for entity in entities:

@@ -273,7 +273,7 @@ class TodoTestCase(AssistantsTestCase):
     def test_function_field01(self):
         funf = CremeEntity.function_fields.get('assistants-get_todos')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity).for_html())
+        self.assertEqual(u'<ul></ul>', funf(self.entity, self.user).for_html())
 
     def test_function_field02(self):
         funf = CremeEntity.function_fields.get('assistants-get_todos')
@@ -285,7 +285,7 @@ class TodoTestCase(AssistantsTestCase):
         todo3.save()
 
         with self.assertNumQueries(1):
-            result = funf(self.entity)
+            result = funf(self.entity, self.user)
 
         self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result.for_html())
 
@@ -296,6 +296,7 @@ class TodoTestCase(AssistantsTestCase):
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
+        user = self.user
         self._oldify_todo(self._create_todo('Todo01', 'Description01'))
         self._create_todo('Todo02', 'Description02')
 
@@ -303,17 +304,17 @@ class TodoTestCase(AssistantsTestCase):
         todo3.is_ok = True
         todo3.save()
 
-        entity02 = CremeEntity.objects.create(user=self.user)
+        entity02 = CremeEntity.objects.create(user=user)
         self._create_todo('Todo04', 'Description04', entity=entity02)
 
         funf = CremeEntity.function_fields.get('assistants-get_todos')
 
         with self.assertNumQueries(1):
-            funf.populate_entities([self.entity, entity02])
+            funf.populate_entities([self.entity, entity02], user)
 
         with self.assertNumQueries(0):
-            result1 = funf(self.entity)
-            result2 = funf(entity02)
+            result1 = funf(self.entity, user)
+            result2 = funf(entity02, user)
 
         self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result1.for_html())
         self.assertEqual(u'<ul><li>Todo04</li></ul>',                result2.for_html())

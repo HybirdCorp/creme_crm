@@ -134,7 +134,7 @@ class AlertTestCase(AssistantsTestCase):
     def test_function_field01(self):
         funf = CremeEntity.function_fields.get('assistants-get_alerts')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity).for_html())
+        self.assertEqual(u'<ul></ul>', funf(self.entity, self.user).for_html())
 
     def test_function_field02(self):
         funf = CremeEntity.function_fields.get('assistants-get_alerts')
@@ -147,16 +147,17 @@ class AlertTestCase(AssistantsTestCase):
         alert3.save()
 
         with self.assertNumQueries(1):
-            result = funf(self.entity)
+            result = funf(self.entity, self.user)
 
         self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result.for_html())
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
+        user = self.user
         self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
         self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
 
-        entity02 = CremeEntity.objects.create(user=self.user)
+        entity02 = CremeEntity.objects.create(user=user)
 
         alert3 = self._create_alert('Alert03', 'Description03', trigger_date='2010-10-3', entity=entity02)
         alert3.is_validated = True
@@ -167,11 +168,11 @@ class AlertTestCase(AssistantsTestCase):
         funf = CremeEntity.function_fields.get('assistants-get_alerts')
 
         with self.assertNumQueries(1):
-            funf.populate_entities([self.entity, entity02])
+            funf.populate_entities([self.entity, entity02], user)
 
         with self.assertNumQueries(0):
-            result1 = funf(self.entity)
-            result2 = funf(entity02)
+            result1 = funf(self.entity, user)
+            result2 = funf(entity02, user)
 
         self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result1.for_html())
         self.assertEqual(u'<ul><li>Alert04</li></ul>',                 result2.for_html())

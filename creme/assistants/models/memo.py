@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,9 +35,9 @@ class Memo(CremeModel):
     content       = TextField(_(u'Content'), blank=True, null=True)
     on_homepage   = BooleanField(_(u"Displayed on homepage"), blank=True, default=False)
     creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
-    user          = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
+    user          = CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
+    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -48,7 +48,7 @@ class Memo(CremeModel):
         verbose_name_plural = _(u'Memos')
 
     def __unicode__(self):
-        #NB: translate for unicode can not take 2 arguments...
+        # NB: translate for unicode can not take 2 arguments...
         return ellipsis(self.content.strip().replace('\n', ''), 25)
 
     def get_edit_absolute_url(self):
@@ -66,7 +66,7 @@ class Memo(CremeModel):
     def get_memos_for_ctypes(ct_ids, user):
         return Memo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.creme_entity
 
 
@@ -74,19 +74,21 @@ class _GetMemos(FunctionField):
     name         = 'assistants-get_memos'
     verbose_name = _(u"Memos")
 
-    def __call__(self, entity):
+    # def __call__(self, entity):
+    def __call__(self, entity, user):
         cache = getattr(entity, '_memos_cache', None)
 
         if cache is None:
-            cache = entity._memos_cache = list(Memo.objects.filter(entity_id=entity.id) \
-                                                           .order_by('-creation_date') \
+            cache = entity._memos_cache = list(Memo.objects.filter(entity_id=entity.id)
+                                                           .order_by('-creation_date')
                                                            .values_list('content', flat=True)
                                               )
 
         return FunctionFieldResultsList(FunctionFieldResult(content) for content in cache)
 
     @classmethod
-    def populate_entities(cls, entities):
+    # def populate_entities(cls, entities):
+    def populate_entities(cls, entities, user):
         memos_map = defaultdict(list)
 
         for content, e_id in Memo.objects.filter(entity_id__in=[e.id for e in entities]) \

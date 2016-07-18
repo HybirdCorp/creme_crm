@@ -276,7 +276,7 @@ class HeaderFiltersTestCase(CremeTestCase):
                    ]
 
         with self.assertNumQueries(0):
-            hf.populate_entities(contacts)
+            hf.populate_entities(contacts, user)
 
         with self.assertNumQueries(1):
             contacts[0].position
@@ -302,7 +302,7 @@ class HeaderFiltersTestCase(CremeTestCase):
                    ]
 
         with self.assertNumQueries(2):
-            hf.populate_entities(contacts)
+            hf.populate_entities(contacts, user)
 
         with self.assertNumQueries(0):
             contacts[0].position
@@ -343,7 +343,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         with self.assertNoException():
             with self.assertNumQueries(0):
-                hf.populate_entities(contacts)
+                hf.populate_entities(contacts, user)
 
     def test_populate_entities_fields04(self):
         "Regular fields: invalid subfields."
@@ -397,7 +397,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         ContentType.objects.get_for_model(CremeEntity)
 
         with self.assertNumQueries(2):
-            hf.populate_entities([nagate, shizuka])
+            hf.populate_entities([nagate, shizuka], user)
 
         with self.assertNumQueries(0):
             r1 = nagate.get_relations(loved.id,  real_obj_entities=True)

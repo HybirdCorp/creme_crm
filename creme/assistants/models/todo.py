@@ -79,21 +79,23 @@ class ToDo(CremeModel):
 
 class _GetTodos(FunctionField):
     name         = 'assistants-get_todos'
-    verbose_name = _(u"Todos")
+    verbose_name = _(u'Todos')
 
-    def __call__(self, entity):
+    # def __call__(self, entity):
+    def __call__(self, entity, user):
         cache = getattr(entity, '_todos_cache', None)
 
         if cache is None:
-            cache = entity._todos_cache = list(ToDo.objects.filter(entity_id=entity.id, is_ok=False) \
-                                                           .order_by('-creation_date') \
+            cache = entity._todos_cache = list(ToDo.objects.filter(entity_id=entity.id, is_ok=False)
+                                                           .order_by('-creation_date')
                                                            .values_list('title', flat=True)
                                               )
 
         return FunctionFieldResultsList(FunctionFieldResult(title) for title in cache)
 
     @classmethod
-    def populate_entities(cls, entities):
+    # def populate_entities(cls, entities):
+    def populate_entities(cls, entities, user):
         todos_map = defaultdict(list)
 
         for title, e_id in ToDo.objects.filter(entity_id__in=[e.id for e in entities], is_ok=False) \

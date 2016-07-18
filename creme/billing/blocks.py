@@ -355,12 +355,13 @@ class PersonsStatisticsBlock(Block):
 
     def detailview_display(self, context):
         person = context['object']
+        user = context['user']
         return self._render(self.get_block_template_context(
                                 context,
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
-                                total_pending=get_total_pending(person),
-                                total_won_quote_last_year=get_total_won_quote_last_year(person),
-                                total_won_quote_this_year=get_total_won_quote_this_year(person),
+                                total_pending=get_total_pending(person, user),
+                                total_won_quote_last_year=get_total_won_quote_last_year(person, user),
+                                total_won_quote_this_year=get_total_won_quote_this_year(person, user),
                            ))
 
 

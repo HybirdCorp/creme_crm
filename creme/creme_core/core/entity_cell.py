@@ -138,7 +138,8 @@ class EntityCell(object):
         return self._get_listview_css_class('_header_listview_css_class')
 
     @staticmethod
-    def populate_entities(cells, entities):
+    # def populate_entities(cells, entities):
+    def populate_entities(cells, entities, user):
         pass
 
     # TODO: factorise render_* => like FunctionField, result that can be html, csv...
@@ -241,7 +242,8 @@ class EntityCellRegularField(EntityCell):
         return self._field_info[-1].__class__
 
     @staticmethod
-    def populate_entities(cells, entities):
+    # def populate_entities(cells, entities):
+    def populate_entities(cells, entities, user):
         # CremeEntity.populate_fk_fields(entities, [cell.field_info[0].name for cell in cells])
         populate_related(entities, [cell.value for cell in cells])
 
@@ -315,7 +317,8 @@ class EntityCellCustomField(EntityCell):
         return self._CF_CSS.get(self._customfield.field_type, Field)
 
     @staticmethod
-    def populate_entities(cells, entities):
+    # def populate_entities(cells, entities):
+    def populate_entities(cells, entities, user):
         CremeEntity.populate_custom_values(entities, [cell.custom_field for cell in cells]) # NB: not itervalues()
 
     def render_html(self, entity, user):
@@ -362,15 +365,19 @@ class EntityCellFunctionField(EntityCell):
         return self._FUNFIELD_CSS.get(self._functionfield.result_type, Field)
 
     @staticmethod
-    def populate_entities(cells, entities):
+    # def populate_entities(cells, entities):
+    def populate_entities(cells, entities, user):
         for cell in cells:
-            cell.function_field.populate_entities(entities)
+            # cell.function_field.populate_entities(entities)
+            cell.function_field.populate_entities(entities, user)
 
     def render_html(self, entity, user):
-        return self.function_field(entity).for_html()
+        # return self.function_field(entity).for_html()
+        return self.function_field(entity, user).for_html()
 
     def render_csv(self, entity, user):
-        return self.function_field(entity).for_csv()
+        # return self.function_field(entity).for_csv()
+        return self.function_field(entity, user).for_csv()
 
 
 @CELLS_MAP
@@ -400,7 +407,8 @@ class EntityCellRelation(EntityCell):
         return self._rtype
 
     @staticmethod
-    def populate_entities(cells, entities):
+    # def populate_entities(cells, entities):
+    def populate_entities(cells, entities, user):
         CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells])
 
     def render_html(self, entity, user):
