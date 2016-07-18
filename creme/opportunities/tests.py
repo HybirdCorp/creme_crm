@@ -1004,7 +1004,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales01(self):
-        self.login()
+        user = self.login()
 
         opportunity = self._create_opportunity_n_organisations()[0]
         funf = opportunity.function_fields.get('get_weighted_sales')
@@ -1014,14 +1014,14 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNone(opportunity.chance_to_win)
         self.assertEqual(0, opportunity.get_weighted_sales())
         self.assertEqual(number_format('0.0', use_l10n=True),
-                         funf(opportunity).for_html()
+                         funf(opportunity, user).for_html()
                         )
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   =  10
         self.assertEqual(100, opportunity.get_weighted_sales())
         self.assertEqual(number_format('100.0', use_l10n=True),
-                         funf(opportunity).for_html()
+                         funf(opportunity, user).for_html()
                         )
 
     @skipIfCustomOrganisation

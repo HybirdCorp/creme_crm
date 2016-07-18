@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -429,7 +429,8 @@ class RHFunctionField(ReportHand):
         super(RHFunctionField, self).__init__(report_field, title=unicode(funcfield.verbose_name))
 
     def _get_value_single_on_allowed(self, entity, user, scope):
-        return self._funcfield(entity).for_csv()
+        # return self._funcfield(entity).for_csv()
+        return self._funcfield(entity, user).for_csv()
 
 
 class RHAggregate(ReportHand):

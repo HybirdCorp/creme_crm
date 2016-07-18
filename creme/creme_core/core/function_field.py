@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,8 +60,8 @@ class FunctionField(object):
     this model : it has a verbose name and can be used by HeaderFilter to build
     a column (like regular fields).
     """
-    name         = ""  # Name of the attr if the related model class
-    verbose_name = ""  # Verbose name (used by HeaderFilter)
+    name         = ''  # Name of the attr if the related model class
+    verbose_name = ''  # Verbose name (used by HeaderFilter)
     has_filter   = False  # See EntityCell.has_a_filter
     is_hidden    = False  # See EntityCell.is_hidden
     choices      = None  # Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
@@ -71,15 +71,17 @@ class FunctionField(object):
     def filter_in_result(cls, search_string):
         return Q()
 
-    def __call__(self, entity):
+    # def __call__(self, entity):
+    def __call__(self, entity, user):
         """"@return An instance of FunctionField object
         (so you can call for_html()/for_csv() on the result).
         """
         return self.result_type(getattr(entity, self.name)())
 
     @classmethod
-    def populate_entities(cls, entities):
-        """Optimisation used for listviews ; see HeaderFilter"""
+    # def populate_entities(cls, entities):
+    def populate_entities(cls, entities, user):
+        """Optimisation used for list-views ; see HeaderFilter"""
         pass
 
 
@@ -88,10 +90,10 @@ class FunctionFieldResultsList(FunctionFieldResult):
         self._data = list(iterable)
 
     def for_html(self):
-        return u"<ul>%s</ul>" % u"".join(u"<li>%s</li>" % e.for_html() for e in self._data)
+        return u'<ul>%s</ul>' % u''.join(u'<li>%s</li>' % e.for_html() for e in self._data)
 
     def for_csv(self):
-        return u"/".join(e.for_csv() for e in self._data)
+        return u'/'.join(e.for_csv() for e in self._data)
 
 
 class FunctionFieldsManager(object):

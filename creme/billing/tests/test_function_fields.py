@@ -9,10 +9,11 @@ try:
     from django.utils.formats import number_format
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.core.entity_cell import EntityCellFunctionField
     from creme.creme_core.core.function_field import FunctionField
-    from creme.creme_core.models import CremeProperty, FieldsConfig
+    from creme.creme_core.models import CremeProperty, FieldsConfig, SetCredentials
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -21,7 +22,7 @@ try:
     from ..models import QuoteStatus, InvoiceStatus
     from .base import (_BillingTestCase, skipIfCustomProductLine,
             skipIfCustomQuote, skipIfCustomInvoice,
-            Organisation, Contact, Quote, ProductLine)
+            Organisation, Contact, Quote, Invoice, ProductLine)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -30,7 +31,7 @@ except Exception as e:
 class FunctionFieldTestCase(_BillingTestCase):
     def setUp(self):
         # _BillingTestCase.setUp(self)
-        self.login()
+        # self.login()
         self.won_status = QuoteStatus.objects.create(name='won_status', won=True)
         self.pending_payment_status = InvoiceStatus.objects.create(name='pending_payment',
                                                                    pending_payment=True,
@@ -53,10 +54,10 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_get_total_pending01(self):
-        user = self.user
+        user = self.login()
         create_orga = partial(Organisation.objects.create, user=user)
         target = create_orga(name='Target')
-        self.assertEqual(0, get_total_pending(target))
+        self.assertEqual(0, get_total_pending(target, user))
 
         source01 = create_orga(name='Source#1')
         self._set_manages_by_creme(source01)
@@ -96,22 +97,22 @@ class FunctionFieldTestCase(_BillingTestCase):
         #  - managed organisations
         #  - only billing issued by managed organisations
         with self.assertNumQueries(2):
-            total = get_total_pending(target)
+            total = get_total_pending(target, user)
 
         self.assertEqual(0, total)
 
         self.create_line(invoice01, 5000, 1)
-        self.assertEqual(5000, get_total_pending(target))
+        self.assertEqual(5000, get_total_pending(target, user))
 
         self.create_line(invoice02, 2000, 1)
-        self.assertEqual(7000, get_total_pending(target))
+        self.assertEqual(7000, get_total_pending(target, user))
 
         funf = target.function_fields.get('total_pending_payment')
         self.assertIsNotNone(funf)
 
         val = number_format('7000.00', use_l10n=True)
-        self.assertEqual(val, funf(target).for_html())
-        self.assertEqual(val, funf(target).for_csv())
+        self.assertEqual(val, funf(target, user).for_html())
+        self.assertEqual(val, funf(target, user).for_csv())
 
         # Test for EntityCellFunctionField + CSS
         cell = EntityCellFunctionField(func_field=funf)
@@ -122,9 +123,9 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_pending02(self):
         "populate_entities()"
-        user = self.user
+        user = self.login()
 
-        create_orga= partial(Organisation.objects.create, user=user)
+        create_orga = partial(Organisation.objects.create, user=user)
         target01 = create_orga(name='Target #1')
         target02 = create_orga(name='Target #2')
 
@@ -171,18 +172,183 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertIsNotNone(funf)
 
         with self.assertNumQueries(2):
-            funf.populate_entities([target01, target02])
+            funf.populate_entities([target01, target02], user)
 
         with self.assertNumQueries(0):
-            total1 = funf(target01).for_csv()
-            total2 = funf(target02).for_csv()
+            total1 = funf(target01, user).for_csv()
+            total2 = funf(target02, user).for_csv()
 
         self.assertEqual(number_format('3500.00', use_l10n=True), total1)
         self.assertEqual(number_format('3300.00', use_l10n=True), total2)
 
+    @skipIfCustomInvoice
+    @skipIfCustomProductLine
+    def test_get_total_pending03(self):
+        "Credentials"
+        user = self.login(is_superuser=False,
+                          allowed_apps=['persons', 'billing'],
+                          creatable_models=[Invoice],
+                         )
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        target = create_orga(name='Target')
+
+        source01 = create_orga(name='Source#1')
+        self._set_manages_by_creme(source01)
+
+        def set_status(invoice):
+            invoice.status = self.pending_payment_status
+            invoice.save()
+
+        invoice01 = self.create_invoice('Invoice #1', source01, target, user=user)
+        set_status(invoice01)
+
+        invoice02 = self.create_invoice('Invoice #2', source01, target, user=user)
+        set_status(invoice02)
+
+        # Now viewable => not used
+        invoice03 = self.create_invoice('Invoice #3', source01, target, user=user)
+        set_status(invoice03)
+
+        invoice03.user = self.other_user
+        invoice03.save()
+        self.assertFalse(user.has_perm_to_view(invoice03))
+
+        self.create_line(invoice01, 5000, 1)
+        self.create_line(invoice02, 2000, 1)
+        self.create_line(invoice03, 750, 1)  # Not used
+        self.assertEqual(7000, get_total_pending(target, user))
+
+    @skipIfCustomInvoice
+    @skipIfCustomProductLine
+    def test_get_total_pending04(self):
+        "Credentials + populate()"
+        user = self.login(is_superuser=False,
+                          allowed_apps=['persons', 'billing'],
+                          creatable_models=[Invoice],
+                         )
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        target = create_orga(name='Target')
+
+        source01 = create_orga(name='Source#1')
+        self._set_manages_by_creme(source01)
+
+        def set_status(invoice):
+            invoice.status = self.pending_payment_status
+            invoice.save()
+
+        invoice01 = self.create_invoice('Invoice #1', source01, target, user=user)
+        set_status(invoice01)
+
+        invoice02 = self.create_invoice('Invoice #2', source01, target, user=user)
+        set_status(invoice02)
+
+        # Now viewable => not used
+        invoice03 = self.create_invoice('Invoice #3', source01, target, user=user)
+        set_status(invoice03)
+
+        invoice03.user = self.other_user
+        invoice03.save()
+        self.assertFalse(user.has_perm_to_view(invoice03))
+
+        self.create_line(invoice01, 3000, 1)
+        self.create_line(invoice02, 2500, 1)
+        self.create_line(invoice03, 750, 1)  # Not used
+
+        funf = target.function_fields.get('total_pending_payment')
+        funf.populate_entities([target], user)
+        self.assertEqual(number_format('5500.00', use_l10n=True), funf(target, user).for_csv())
+
+    @skipIfCustomInvoice
+    @skipIfCustomProductLine
+    def test_get_total_pending05(self):
+        "Per-user cache"
+        user = self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice #1', user=user)
+
+        invoice.status = self.pending_payment_status
+        invoice.save()
+
+        self._set_manages_by_creme(source)
+        self.create_line(invoice, 2000, 1)
+
+        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        funf = target.function_fields.get('total_pending_payment')
+
+        with self.assertNumQueries(2):
+            total1 = funf(target, user).for_csv()
+
+        self.assertEqual(number_format('2000.00', use_l10n=True), total1)
+
+        other_user = self.other_user
+        other_user.is_superuser = True
+        other_user.role = None
+        other_user.save()
+
+        with self.assertNumQueries(2):
+            total2 = funf(target, other_user).for_csv()
+
+        self.assertEqual(number_format('2000.00', use_l10n=True), total2)
+
+        with self.assertNumQueries(0):  # Cache is kept
+            funf(target, user).for_csv()
+
+    @skipIfCustomInvoice
+    @skipIfCustomProductLine
+    def test_get_total_pending06(self):
+        "Per-user cache + populate()"
+        user = self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice #1', user=user)
+
+        invoice.status = self.pending_payment_status
+        invoice.save()
+
+        self._set_manages_by_creme(source)
+        self.create_line(invoice, 2000, 1)
+
+        bool(Organisation.get_all_managed_by_creme())  # Fill cache
+        funf = target.function_fields.get('total_pending_payment')
+
+        with self.assertNumQueries(2):
+            funf.populate_entities([target], user)
+
+        with self.assertNumQueries(0):
+            total1 = funf(target, user).for_csv()
+
+        self.assertEqual(number_format('2000.00', use_l10n=True), total1)
+
+        other_user = self.other_user
+        other_user.is_superuser = True
+        other_user.role = None
+        other_user.save()
+
+        with self.assertNumQueries(2):
+            funf.populate_entities([target], other_user)
+
+        with self.assertNumQueries(0):
+            total2 = funf(target, other_user).for_csv()
+
+        self.assertEqual(number_format('2000.00', use_l10n=True), total2)
+
+        with self.assertNumQueries(0):  # Cache is kept
+            funf(target, user).for_csv()
+
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year01(self):
+        user = self.login()
+
         def set_date(quote):
             quote.acceptation_date = self.today_date - timedelta(days=365)
             quote.save()
@@ -210,25 +376,26 @@ class FunctionFieldTestCase(_BillingTestCase):
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
-            total = get_total_won_quote_last_year(target)
+            total = get_total_won_quote_last_year(target, user)
 
         self.assertEqual(0, total)
 
         self.create_line(quote01, 5000, 1)
         self.create_line(quote02, 300, 1)
-        self.assertEqual(5300, get_total_won_quote_last_year(target))
+        self.assertEqual(5300, get_total_won_quote_last_year(target, user))
 
         funf = target.function_fields.get('total_won_quote_last_year')
         self.assertIsNotNone(funf)
 
         val = number_format('5300.00', use_l10n=True)
-        self.assertEqual(val, funf(target).for_html())
-        self.assertEqual(val, funf(target).for_csv())
+        self.assertEqual(val, funf(target, user).for_html())
+        self.assertEqual(val, funf(target, user).for_csv())
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year02(self):
         "'acceptation_date' is hidden"
+        user = self.login()
         quote, source, target = self.create_quote_n_orgas("YOLO")
 
         FieldsConfig.create(Quote,
@@ -242,7 +409,7 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         # with self.assertNumQueries(1):
         with self.assertNumQueries(0):
-            total = get_total_won_quote_last_year(target)
+            total = get_total_won_quote_last_year(target, user)
 
         self.assertEqual(_(u'Error: «Acceptation date» is hidden'), total)
 
@@ -253,6 +420,7 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year03(self):
         "'populate_entities()"
+        user = self.login()
         previous_year = self.today_date - timedelta(days=365)
 
         def set_date(quote):
@@ -290,11 +458,11 @@ class FunctionFieldTestCase(_BillingTestCase):
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
-            funf.populate_entities([target01, target02])
+            funf.populate_entities([target01, target02], user)
 
         with self.assertNumQueries(0):
-            total1 = funf(target01).for_csv()
-            total2 = funf(target02).for_csv()
+            total1 = funf(target01, user).for_csv()
+            total2 = funf(target02, user).for_csv()
 
         self.assertEqual(number_format('5000.00', use_l10n=True), total1)
         self.assertEqual(number_format('4000.00', use_l10n=True), total2)
@@ -303,6 +471,7 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year04(self):
         "'acceptation_date' is hidden + populate_entities()"
+        user = self.login()
         quote1, source1, target1 = self.create_quote_n_orgas('Quote1')
         quote2, source2, target2 = self.create_quote_n_orgas('Quote2')
 
@@ -315,12 +484,12 @@ class FunctionFieldTestCase(_BillingTestCase):
         FieldsConfig.get_4_model(Quote)  # Fill cache
 
         with self.assertNumQueries(0):
-            funf.populate_entities([target1, target2])
+            funf.populate_entities([target1, target2], user)
 
         with self.assertNumQueries(0):
             # get_total_won_quote_last_year(target1)
-            total1 = get_total_won_quote_last_year(target1)
-            total2 = get_total_won_quote_last_year(target2)
+            total1 = get_total_won_quote_last_year(target1, user)
+            total2 = get_total_won_quote_last_year(target2, user)
 
         msg = _(u'Error: «Acceptation date» is hidden')
         self.assertEqual(msg, total1)
@@ -329,6 +498,8 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year01(self):
+        user = self.login()
+
         def set_date(quote):
             quote.acceptation_date = self.today_date
             quote.save()
@@ -356,25 +527,27 @@ class FunctionFieldTestCase(_BillingTestCase):
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
-            total = get_total_won_quote_this_year(target)
+            total = get_total_won_quote_this_year(target, user)
 
         self.assertEqual(0, total)
 
         self.create_line(quote01, 5000, 1)
         self.create_line(quote02, 1000, 1)
-        self.assertEqual(6000, get_total_won_quote_this_year(target))
+        self.assertEqual(6000, get_total_won_quote_this_year(target, user))
 
         funf = target.function_fields.get('total_won_quote_this_year')
         self.assertIsNotNone(funf)
 
         val = number_format('6000.00', use_l10n=True)
-        self.assertEqual(val, funf(target).for_html())
-        self.assertEqual(val, funf(target).for_csv())
+        self.assertEqual(val, funf(target, user).for_html())
+        self.assertEqual(val, funf(target, user).for_csv())
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year02(self):
         "'acceptation_date' is hidden"
+        user = self.login()
+
         quote, source, target = self.create_quote_n_orgas('Quote #1')
         FieldsConfig.create(Quote,
                             descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
@@ -385,7 +558,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         FieldsConfig.get_4_model(Quote)  # Fill cache
 
         with self.assertNumQueries(0):
-            total = funf(target).for_csv()
+            total = funf(target, user).for_csv()
 
         self.assertEqual(_(u'Error: «Acceptation date» is hidden'), total)
 
@@ -393,6 +566,8 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year03(self):
         "'populate_entities()"
+        user = self.login()
+
         def set_date(quote):
             quote.acceptation_date = self.today_date
             quote.save()
@@ -428,11 +603,11 @@ class FunctionFieldTestCase(_BillingTestCase):
         bool(Organisation.get_all_managed_by_creme())  # Fill cache
 
         with self.assertNumQueries(2):
-            funf.populate_entities([target01, target02])
+            funf.populate_entities([target01, target02], user)
 
         with self.assertNumQueries(0):
-            total1 = funf(target01).for_csv()
-            total2 = funf(target02).for_csv()
+            total1 = funf(target01, user).for_csv()
+            total2 = funf(target02, user).for_csv()
 
         self.assertEqual(number_format('5000.00', use_l10n=True), total1)
         self.assertEqual(number_format('2500.00', use_l10n=True), total2)
@@ -441,6 +616,7 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year04(self):
         "'acceptation_date' is hidden + populate_entities()"
+        user = self.login()
         quote1, source1, target1 = self.create_quote_n_orgas('Quote1')
         quote2, source2, target2 = self.create_quote_n_orgas('Quote2')
 
@@ -453,11 +629,11 @@ class FunctionFieldTestCase(_BillingTestCase):
         FieldsConfig.get_4_model(Quote)  # Fill cache
 
         with self.assertNumQueries(0):
-            funf.populate_entities([target1, target2])
+            funf.populate_entities([target1, target2], user)
 
         with self.assertNumQueries(0):
-            total1 = get_total_won_quote_this_year(target1)
-            total2 = get_total_won_quote_this_year(target2)
+            total1 = get_total_won_quote_this_year(target1, user)
+            total2 = get_total_won_quote_this_year(target2, user)
 
         msg = _(u'Error: «Acceptation date» is hidden')
         self.assertEqual(msg, total1)
@@ -465,6 +641,7 @@ class FunctionFieldTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_functionfields(self):
+        user = self.login()
         quote, source, target = self.create_quote_n_orgas("YOLO")
 
         with self.assertNoException():
@@ -478,4 +655,4 @@ class FunctionFieldTestCase(_BillingTestCase):
                              'total_won_quote_this_year',
                              'total_won_quote_last_year',
                             ):
-                self.assertEqual('0', funf(target).for_html())
+                self.assertEqual('0', funf(target, user).for_html())

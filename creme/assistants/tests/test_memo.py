@@ -93,7 +93,7 @@ will be truncate by unicode() method"""
     def test_function_field01(self):
         funf = CremeEntity.function_fields.get('assistants-get_memos')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity).for_html())
+        self.assertEqual(u'<ul></ul>', funf(self.entity, self.user).for_html())
 
     def _oldify_memo(self, memo):
         cdate = memo.creation_date
@@ -107,27 +107,28 @@ will be truncate by unicode() method"""
         self._create_memo('Content02')
 
         with self.assertNumQueries(1):
-            result = funf(self.entity)
+            result = funf(self.entity, self.user)
 
         self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result.for_html())
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
+        user = self.user
         self._oldify_memo(self._create_memo('Content01'))
         self._create_memo('Content02')
 
-        entity02 = CremeEntity.objects.create(user=self.user)
+        entity02 = CremeEntity.objects.create(user=user)
         self._oldify_memo(self._create_memo('Content03', entity=entity02))
         self._create_memo('Content04', entity=entity02)
 
         funf = CremeEntity.function_fields.get('assistants-get_memos')
 
         with self.assertNumQueries(1):
-            funf.populate_entities([self.entity, entity02])
+            funf.populate_entities([self.entity, entity02], user)
 
         with self.assertNumQueries(0):
-            result1 = funf(self.entity)
-            result2 = funf(entity02)
+            result1 = funf(self.entity, user)
+            result2 = funf(entity02, user)
 
         self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result1.for_html())
         self.assertEqual(u'<ul><li>Content04</li><li>Content03</li></ul>', result2.for_html())

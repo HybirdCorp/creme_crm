@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 26-04-2015 pour la version 1.7 de Creme
+:Version: 16-07-2016 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1354,10 +1354,10 @@ d'une app dont vous ne voulez pas toucher le code) : ::
     from creme.creme_core.core.function_field import FunctionField,  FunctionFieldResult
 
     class _BeaverAgeField(FunctionField):
-        name         = "compute_age"
+        name         = 'compute_age'
         verbose_name = _(u'Age')
 
-        def __call__(self, entity):
+        def __call__(self, entity, user):
             birthday = entity.birthday
 
             if not birthday:

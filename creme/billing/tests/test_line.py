@@ -1,28 +1,24 @@
 # -*- coding: utf-8 -*-
 
 try:
-    #from datetime import date
     from decimal import Decimal
     from functools import partial
     from json import dumps as json_dump
 
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
-    #from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    #from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
-    from creme.creme_core.models import Relation, SetCredentials, Vat # HeaderFilter
+    from creme.creme_core.models import Relation, SetCredentials, Vat
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.products.models import Product, Service # Category, SubCategory
+    from creme.products.models import Product, Service
     from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
     from ..constants import (REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM,
             DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
-    # from ..models import *
     from .base import (_BillingTestCase, skipIfCustomInvoice,
             skipIfCustomProductLine, skipIfCustomServiceLine,
             Invoice, ProductLine, ServiceLine)

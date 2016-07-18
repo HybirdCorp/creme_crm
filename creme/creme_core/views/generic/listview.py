@@ -227,7 +227,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         search = current_lvs._search or False
 
     ct = ContentType.objects.get_for_model(model)
-    header_filters = HeaderFilterList(ct, request.user)
+    user = request.user
+    header_filters = HeaderFilterList(ct, user)
     # Try first to get the posted header filter which is the most recent.
     # Then try to retrieve the header filter from session, then fallback
     hf = header_filters.select_by_id(POST_get('hfilter', -1),
@@ -251,7 +252,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     #                      POST_get('sort_order', current_lvs.sort_order),
     #                     )
 
-    entity_filters = EntityFilterList(ct, request.user)
+    entity_filters = EntityFilterList(ct, user)
     efilter = _select_entityfilter(request, entity_filters, current_lvs.entity_filter_id)
     current_lvs.entity_filter_id = efilter.id if efilter else None
 
@@ -304,7 +305,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         post_process(template_dict, request)
 
     # Optimisation time !!
-    hf.populate_entities(entities_page.object_list)
+    # hf.populate_entities(entities_page.object_list)
+    hf.populate_entities(entities_page.object_list, user)
 
     return template, template_dict
 

@@ -311,10 +311,11 @@ else:
         verbose_name = _(u"Fake Todos")
         # has_filter   = False #==> cannot search
 
-        def __call__(self, entity):
+        # def __call__(self, entity):
+        def __call__(self, entity, user):
             return FunctionFieldResultsList(FunctionFieldResult('Todo %s #%s' % (entity, i))
                                                 for i in xrange(1, 3)
-                                        )
+                                           )
 
 
     class FakeOrganisation(CremeEntity):

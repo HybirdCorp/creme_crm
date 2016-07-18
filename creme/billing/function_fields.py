@@ -25,6 +25,7 @@ import datetime
 # from django.db.models import Sum
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
 from creme.creme_core.models import Relation, FieldsConfig
 
@@ -77,15 +78,18 @@ Quote   = get_quote_model()
 #                          .aggregate(sum_total=Sum('total_no_vat'))['sum_total']
 #
 #     return Decimal(0) if total is None else total
-def sum_totals_no_vat(model, entity, **kwargs):
-    all_totals = dict(model.objects.filter(relations__type=REL_SUB_BILL_RECEIVED,
-                                           relations__object_entity=entity.id,
-                                           is_deleted=False,
-                                           total_no_vat__isnull=False,
-                                           **kwargs
-                                          )
-                                   .values_list('id', 'total_no_vat')
-                     )
+# def sum_totals_no_vat(model, entity, **kwargs):
+def sum_totals_no_vat(model, entity, user, **kwargs):
+    all_totals = dict(EntityCredentials.filter(
+                            user,
+                            model.objects.filter(relations__type=REL_SUB_BILL_RECEIVED,
+                                                 relations__object_entity=entity.id,
+                                                 is_deleted=False,
+                                                 total_no_vat__isnull=False,
+                                                 **kwargs
+                                                )
+                                         .values_list('id', 'total_no_vat')
+                     ))
     managed_ids = Relation.objects.filter(
             subject_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
             type=REL_OBJ_BILL_ISSUED,
@@ -95,17 +99,22 @@ def sum_totals_no_vat(model, entity, **kwargs):
     return sum(all_totals[b_id] for b_id in managed_ids)
 
 
-def sum_totals_no_vat_multi(model, entities, **kwargs):
+def sum_totals_no_vat_multi(model, entities, user, **kwargs):
     bill_info_map = defaultdict(list)
     bill_ids = []
 
-    for bill_id, total, e_id in model.objects.filter(
-                                    relations__type=REL_SUB_BILL_RECEIVED,
-                                    relations__object_entity__in=[e.id for e in entities],
-                                    is_deleted=False,
-                                    total_no_vat__isnull=False,
-                                    **kwargs
-                                ).values_list('id', 'total_no_vat', 'relations__object_entity'):
+    for bill_id, total, e_id in EntityCredentials.filter(
+                                    user,
+                                    model.objects
+                                         .filter(
+                                            relations__type=REL_SUB_BILL_RECEIVED,
+                                            relations__object_entity__in=[e.id for e in entities],
+                                            is_deleted=False,
+                                            total_no_vat__isnull=False,
+                                            **kwargs
+                                           )
+                                         .values_list('id', 'total_no_vat', 'relations__object_entity')
+                                ):
         bill_info_map[e_id].append((bill_id, total))
         bill_ids.append(bill_id)
 
@@ -121,12 +130,13 @@ def sum_totals_no_vat_multi(model, entities, **kwargs):
                          )
 
 
-def get_total_pending(entity):
-    return sum_totals_no_vat(Invoice, entity, status__pending_payment=True)
+# def get_total_pending(entity):
+def get_total_pending(entity, user):
+    return sum_totals_no_vat(Invoice, entity, user, status__pending_payment=True)
 
 
-def get_total_pending_multi(entities):
-    return sum_totals_no_vat_multi(Invoice, entities, status__pending_payment=True)
+def get_total_pending_multi(entities, user):
+    return sum_totals_no_vat_multi(Invoice, entities, user, status__pending_payment=True)
 
 # def _get_quote_fieldsconfig(entity):
 #     fc = getattr(entity, '_fconfig_quote_cache', None)
@@ -137,47 +147,49 @@ def get_total_pending_multi(entities):
 #     return fc
 
 
-def get_total_won_quote_last_year(entity):
+# def get_total_won_quote_last_year(entity):
+def get_total_won_quote_last_year(entity, user):
     # if _get_quote_fieldsconfig(entity).is_fieldname_hidden('acceptation_date'):
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
         return ugettext(u'Error: «Acceptation date» is hidden')
 
-    return sum_totals_no_vat(Quote, entity,
+    return sum_totals_no_vat(Quote, entity, user,
                              status__won=True,
                              acceptation_date__year=datetime.date.today().year - 1,
                             )
 
 
-def get_total_won_quote_last_year_multi(entities):
+def get_total_won_quote_last_year_multi(entities, user):
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
         msg = ugettext(u'Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
-    return sum_totals_no_vat_multi(Quote, entities,
+    return sum_totals_no_vat_multi(Quote, entities, user,
                                    status__won=True,
                                    acceptation_date__year=datetime.date.today().year - 1,
                                   )
 
 
-def get_total_won_quote_this_year(entity):
+# def get_total_won_quote_this_year(entity):
+def get_total_won_quote_this_year(entity, user):
     # TODO: factorise (decorator in creme_core ?)
     # if _get_quote_fieldsconfig(entity).is_fieldname_hidden('acceptation_date'):
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
         return ugettext(u'Error: «Acceptation date» is hidden')
 
-    return sum_totals_no_vat(Quote, entity,
+    return sum_totals_no_vat(Quote, entity, user,
                              status__won=True,
                              acceptation_date__year=datetime.date.today().year,
                             )
 
 
-def get_total_won_quote_this_year_multi(entities):
+def get_total_won_quote_this_year_multi(entities, user):
     # TODO: factorise
     if FieldsConfig.get_4_model(Quote).is_fieldname_hidden('acceptation_date'):
         msg = ugettext(u'Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
-    return sum_totals_no_vat_multi(Quote, entities,
+    return sum_totals_no_vat_multi(Quote, entities, user,
                                    status__won=True,
                                    acceptation_date__year=datetime.date.today().year,
                                   )
@@ -197,22 +209,37 @@ class _BaseTotalFunctionField(FunctionField):
     result_type = FunctionFieldDecimal  # Useful to get the right CSS class in list-view
     cache_attr  = None  # OVERLOAD ME
 
-    def __call__(self, entity):
+    # def __call__(self, entity):
+    def __call__(self, entity, user):
+        total = None
         cache_attr = self.cache_attr
-        total = getattr(entity, cache_attr, None)
+        cache = getattr(entity, cache_attr, None)
+
+        if cache is None:
+            cache = {}
+            setattr(entity, cache_attr, cache)
+        else:
+            total = cache.get(user.id)
 
         if total is None:
-            total = self.single_func()(entity)
-            setattr(entity, cache_attr, total)
+            total = cache[user.id] = self.single_func()(entity, user)
 
         return FunctionFieldDecimal(total)
 
     @classmethod
-    def populate_entities(cls, entities):
+    def populate_entities(cls, entities, user):
         cache_attr = cls.cache_attr
+        user_id = user.id
+        # TODO: only populate entities which are not already populated
 
-        for entity, total in cls.multi_func()(entities):
-            setattr(entity, cache_attr, total)
+        for entity, total in cls.multi_func()(entities, user):
+            cache = getattr(entity, cache_attr, None)
+
+            if cache is None:
+                cache = {}
+                setattr(entity, cache_attr, cache)
+
+            cache[user_id] = total
 
     @classmethod
     def single_func(cls):

@@ -358,7 +358,8 @@ class EntityTestCase(CremeTestCase):
         self.assertIsNone(pp_ff.choices)
 
     def test_prettypropertiesfield01(self):
-        entity = CremeEntity.objects.create(user=self.user)
+        user = self.user
+        entity = CremeEntity.objects.create(user=user)
 
         pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
         self.assertIsNotNone(pp_ff)
@@ -371,7 +372,7 @@ class EntityTestCase(CremeTestCase):
         CremeProperty.objects.create(type=ptype2, creme_entity=entity)
 
         with self.assertNumQueries(1):
-            result = pp_ff(entity)
+            result = pp_ff(entity, user)
 
         self.assertIsInstance(result, FunctionFieldResult)
         self.assertIsInstance(result, FunctionFieldResultsList)
@@ -379,23 +380,26 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual('Awesome/Wonderful',                           result.for_csv())
 
     def test_prettypropertiesfield02(self):  # Prefetch with populate_entities()
-        entity1 = CremeEntity.objects.create(user=self.user)
-        entity2 = CremeEntity.objects.create(user=self.user)
+        user = self.user
+        create_entity = CremeEntity.objects.create
+        entity1 = create_entity(user=user)
+        entity2 = create_entity(user=user)
 
         pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
 
         ptype1 = CremePropertyType.create(str_pk='test-prop_awesome',   text='Awesome')
         ptype2 = CremePropertyType.create(str_pk='test-prop_wonderful', text='Wonderful')
 
-        CremeProperty.objects.create(type=ptype1, creme_entity=entity1)
-        CremeProperty.objects.create(type=ptype2, creme_entity=entity1)
-        CremeProperty.objects.create(type=ptype2, creme_entity=entity2)
+        create_prop = CremeProperty.objects.create
+        create_prop(type=ptype1, creme_entity=entity1)
+        create_prop(type=ptype2, creme_entity=entity1)
+        create_prop(type=ptype2, creme_entity=entity2)
 
-        pp_ff.populate_entities([entity1, entity2])
+        pp_ff.populate_entities([entity1, entity2], user)
 
         with self.assertNumQueries(0):
-            result1 = pp_ff(entity1)
-            result2 = pp_ff(entity2)
+            result1 = pp_ff(entity1, user)
+            result2 = pp_ff(entity2, user)
 
         self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result1.for_html())
         self.assertEqual('<ul><li>Wonderful</li></ul>',                 result2.for_html())
