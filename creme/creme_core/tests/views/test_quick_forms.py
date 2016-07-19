@@ -14,10 +14,10 @@ except Exception as e:
 
 
 class QuickFormTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def quickform_data(self, count):
         return {'form-INITIAL_FORMS':  '0',

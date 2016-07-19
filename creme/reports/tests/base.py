@@ -56,7 +56,7 @@ class BaseReportsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'reports')
+        # cls.populate('creme_core', 'reports')
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(Contact)

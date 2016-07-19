@@ -38,10 +38,10 @@ class EntityViewsTestCase(ViewsTestCase):
     EMPTY_TRASH_URL  = '/creme_core/entity/trash/empty'
     SEARCHNVIEW_URL  = '/creme_core/entity/search_n_view'
 
-    @classmethod
-    def setUpClass(cls):
-        ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     ViewsTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def _build_delete_url(self, entity):
         return '/creme_core/entity/delete/%s' % entity.id

@@ -8,8 +8,6 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation)
-
-    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -21,9 +19,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        #ButtonMenuItem.objects.all().delete()
-        #cls.populate('creme_core', 'creme_config')
-        cls.populate()
+        # # ButtonMenuItem.objects.all().delete()
+        # # cls.populate('creme_core', 'creme_config')
+        # cls.populate()
 
         cls.contact_ct = ct = ContentType.objects.get_for_model(Contact)
         contact_conf = ButtonMenuItem.objects.filter(content_type=ct)
@@ -43,7 +41,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertGET200('/creme_config/button_menu/portal/')
 
     def test_add_detailview(self):
-        #ct = ContentType.objects.get_for_model(Contact)
         ct = self.contact_ct
         #self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))
 
@@ -71,7 +68,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.fail('No "%s" in field' % button_id)
 
     def test_edit01(self):
-        #ct = ContentType.objects.get_for_model(Contact)
         ct = self.contact_ct
         self.assertGET404('/creme_config/button_menu/edit/%s' % ct.id)
 
@@ -104,7 +100,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                         )
 
     def test_edit03(self):
-        #ct = ContentType.objects.get_for_model(Contact)
         ct = self.contact_ct
 
         class TestButton01(Button):
@@ -125,7 +120,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             verbose_name = u'Testing purpose'
 
             def get_ctypes(self):
-                return [Organisation] #no Contact
+                return [Organisation]  # No Contact
 
 
         button01 = TestButton01()
@@ -173,10 +168,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         bmi = ButtonMenuItem.objects.create(content_type=None, button_id='', order=1)
         self.assertPOST404(url)
         self.assertPOST200(url, data={'id': 0})
-        self.get_object_or_fail(ButtonMenuItem, pk=bmi.pk) #still exists
+        self.assertStillExists(bmi)
 
     def test_delete_detailview02(self):
-        #ct = ContentType.objects.get_for_model(Contact)
         ct = self.contact_ct
         self.client.post(self.ADD_URL, data={'ctype': ct.id})
         self.get_object_or_fail(ButtonMenuItem, content_type=ct)

@@ -46,10 +46,10 @@ def find_node_by_attr(node, tag, name, value):
 
 @skipIfCustomOrganisation
 class BlocksTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons', 'activities')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'persons', 'activities')
 
     def setUp(self):
         self.login()

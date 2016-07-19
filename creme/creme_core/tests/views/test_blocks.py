@@ -24,10 +24,10 @@ class BlockViewTestCase(CremeTestCase):
     SET_STATE_URL = '/creme_core/blocks/reload/set_state/%s/'
     # TODO: other urls...
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def test_set_state01(self):
         user = self.login()

@@ -30,7 +30,7 @@ class EmailsCrudityTestCase(_EmailsTestCase):
     @classmethod
     def setUpClass(cls):
         _EmailsTestCase.setUpClass()
-        cls.populate('documents', 'crudity')
+        # cls.populate('documents', 'crudity')
 
         from ..crudity_register import EntityEmailBackend
         cls.EntityEmailBackend = EntityEmailBackend

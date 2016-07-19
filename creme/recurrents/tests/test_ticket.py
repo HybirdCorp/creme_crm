@@ -37,13 +37,13 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        apps_2_pop = ['recurrents']
+        # apps_2_pop = ['recurrents']
 
         if apps.is_installed('creme.tickets'):
-            apps_2_pop.append('tickets')
+            # apps_2_pop.append('tickets')
             cls.ct = ContentType.objects.get_for_model(Ticket)
 
-        cls.populate(*apps_2_pop)
+        # cls.populate(*apps_2_pop)
 
     def setUp(self):
         self.login()

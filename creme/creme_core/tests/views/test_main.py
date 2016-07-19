@@ -18,10 +18,10 @@ except Exception as e:
 
 
 class MiscViewsTestCase(ViewsTestCase):
-    @classmethod
-    def setUpClass(cls):
-        ViewsTestCase.setUpClass()
-        cls.populate()
+    # @classmethod
+    # def setUpClass(cls):
+    #     ViewsTestCase.setUpClass()
+    #     cls.populate()
 
     def setUp(self):
         super(MiscViewsTestCase, self).setUp()
@@ -199,10 +199,10 @@ class MiscViewsTestCase(ViewsTestCase):
 
 
 class LanguageTestCase(ViewsTestCase):
-    @classmethod
-    def setUpClass(cls):
-        ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     ViewsTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def setUp(self):
         self.login()
@@ -248,10 +248,10 @@ class LanguageTestCase(ViewsTestCase):
 
 
 class CurrencyTestCase(ViewsTestCase):
-    @classmethod
-    def setUpClass(cls):
-        ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     ViewsTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def setUp(self):
         self.login()

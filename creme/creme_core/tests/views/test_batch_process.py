@@ -30,7 +30,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
         Job.objects.all().delete()
 
         get_ct = ContentType.objects.get_for_model

@@ -25,7 +25,7 @@ class GenericModelConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
 
         cls._sector_backup = list(Sector.objects.all())
         Sector.objects.all().delete()

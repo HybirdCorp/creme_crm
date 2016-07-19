@@ -20,8 +20,8 @@ class GeoLocationBaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
-        Town.objects.all().delete()
+        # cls.populate('creme_core', 'persons')
+        Town.objects.all().delete()  # TODO: backup ?
 
     def assertModelInstance(self, instance, klass, **kwargs):
         self.assertIsInstance(instance, klass)

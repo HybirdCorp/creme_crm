@@ -30,10 +30,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     CONDITION_2X_FIELD_JSON_FMT = '[{"field": {"name": "%(name1)s"}, "operator": {"id": "%(operator1)s"}, "value": %(value1)s}, ' \
                                    '{"field": {"name": "%(name2)s"}, "operator": {"id": "%(operator2)s"}, "value": %(value2)s}]'
 
-    @classmethod
-    def setUpClass(cls):
-        FieldTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     FieldTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def test_clean_empty_required(self):
         clean = RegularFieldsConditionsField(required=True).clean

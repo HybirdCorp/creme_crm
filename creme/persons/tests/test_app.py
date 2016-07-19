@@ -13,10 +13,10 @@ except Exception as e:
 
 
 class PersonsAppTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('persons')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('persons')
 
     def test_populate(self):
         self.get_relationtype_or_fail(constants.REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])

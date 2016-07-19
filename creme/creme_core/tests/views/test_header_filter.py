@@ -26,7 +26,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
 
         cls._hf_backup = list(HeaderFilter.objects.all())

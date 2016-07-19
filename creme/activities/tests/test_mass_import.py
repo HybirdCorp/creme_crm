@@ -50,11 +50,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
             'minutes_colselect':        0,
         }
 
-    @classmethod
-    def setUpClass(cls):
-        cls.populate('creme_core', 'activities', 'persons')
-        _ActivitiesTestCase.setUpClass()
-        # CSVImportBaseTestCaseMixin.setUpClass()
+    # @classmethod
+    # def setUpClass(cls):
+    #     cls.populate('creme_core', 'activities', 'persons')
+    #     _ActivitiesTestCase.setUpClass()
+    #     # CSVImportBaseTestCaseMixin.setUpClass()
 
     def test_import01(self):
         user = self.login()

@@ -40,10 +40,10 @@ class UserTestCase(CremeTestCase):
     ADD_URL = '/creme_config/user/add/'
     ADD_TEAM_URL = '/creme_config/team/add/'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'persons')
 
     def _build_delete_url(self, user):
         return '/creme_config/user/delete/%s' % user.id
@@ -871,10 +871,10 @@ class UserTestCase(CremeTestCase):
 
 
 class UserSettingsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def setUp(self):
         super(UserSettingsTestCase, self).setUp()

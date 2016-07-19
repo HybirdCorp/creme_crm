@@ -26,9 +26,9 @@ try:
 
     if apps.is_installed('creme.crudity'):
         from creme.crudity.creme_jobs import crudity_synchronize_type
-        crudity_installed = True
-    else:
-        crudity_installed = False
+    #     crudity_installed = True
+    # else:
+    #     crudity_installed = False
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -40,14 +40,14 @@ class JobViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        Job.objects.all().delete()
+        # Job.objects.all().delete()
 
-        apps = ['creme_core', 'creme_config']
-
-        if crudity_installed:
-            apps.append('crudity')
-
-        cls.populate(*apps)
+        # apps = ['creme_core', 'creme_config']
+        #
+        # if crudity_installed:
+        #     apps.append('crudity')
+        #
+        # cls.populate(*apps)
 
         cls.queue = queue = JobManagerQueue.get_main_queue()
         cls._original_queue_ping = queue.ping

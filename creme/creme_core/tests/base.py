@@ -117,6 +117,11 @@ class _CremeTestCase(object):
 
     @classmethod
     def populate(cls, *args):
+        warnings.warn("_CremeTestCase.populate() method is deprecated, "
+                      "because it's useless if you are not in a CremeTransactionTestCase.",
+                      DeprecationWarning
+                     )
+
         PopulateCommand().execute(*args, verbosity=0)
 
     # @staticmethod
@@ -541,3 +546,7 @@ class CremeTransactionTestCase(_CremeTestCase, TransactionTestCase):
     def setUpClass(cls):
         TransactionTestCase.setUpClass()
         _CremeTestCase.setUpClass()
+
+    @classmethod
+    def populate(cls, *args):
+        PopulateCommand().execute(*args, verbosity=0)

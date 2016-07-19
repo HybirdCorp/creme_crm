@@ -17,10 +17,10 @@ except Exception as e:
 
 
 class FieldsConfigTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def setUp(self):
         super(FieldsConfigTestCase, self).setUp()

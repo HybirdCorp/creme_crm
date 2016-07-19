@@ -538,10 +538,10 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     FMT = '{"rtype": "%s", "ctype": "%s", "entity": "%s"}'
 
-    @classmethod
-    def setUpClass(cls):
-        _JSONFieldBaseTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     _JSONFieldBaseTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def test_rtypes(self):
         rtype1 = self.create_loves_rtype()[0]

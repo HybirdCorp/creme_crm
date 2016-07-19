@@ -17,10 +17,10 @@ class PropertyTypeTestCase(CremeTestCase):
     ADD_URL = '/creme_config/property_type/add/'
     DELETE_URL = '/creme_config/property_type/delete'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def setUp(self):
         self.login()

@@ -31,10 +31,10 @@ except Exception as e:
 class LineTestCase(_BillingTestCase):
     clean_files_in_teardown = False
 
-    @classmethod
-    def setUpClass(cls):
-        _BillingTestCase.setUpClass()
-        cls.populate('products', 'billing')
+    # @classmethod
+    # def setUpClass(cls):
+    #     _BillingTestCase.setUpClass()
+    #     cls.populate('products', 'billing')
 
     @skipIfCustomProduct
     def test_add_product_lines01(self):

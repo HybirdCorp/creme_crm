@@ -29,10 +29,10 @@ except Exception as e:
 
 @skipIfCustomOrganisation
 class ConvertTestCase(_BillingTestCase):
-    @classmethod
-    def setUpClass(cls):
-        _BillingTestCase.setUpClass()
-        cls.populate('creme_core', 'persons', 'billing')
+    # @classmethod
+    # def setUpClass(cls):
+    #     _BillingTestCase.setUpClass()
+    #     cls.populate('creme_core', 'persons', 'billing')
 
     def _convert(self, status_code, src, dest_type):
         self.assertPOST(status_code, '/billing/%s/convert/' % src.id,

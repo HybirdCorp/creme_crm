@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.apps import apps
+    # from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
@@ -13,17 +13,15 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 
     from creme.persons import get_address_model, get_organisation_model
-    # from creme.persons.models import Organisation, Address
 
     from creme.billing import (get_credit_note_model, get_invoice_model,
            get_quote_model, get_sales_order_model, get_template_base_model)
     from creme.billing.models import (InvoiceStatus, QuoteStatus, SalesOrderStatus,
-            CreditNoteStatus)  # Invoice TemplateBase Quote SalesOrder CreditNote
+            CreditNoteStatus)
     from creme.billing.tests.base import (skipIfCustomInvoice, skipIfCustomQuote,
             skipIfCustomSalesOrder, skipIfCustomCreditNote)
 
     from .base import skipIfCustomGenerator, RecurrentGenerator
-    # from ..models import RecurrentGenerator
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -40,17 +38,15 @@ TemplateBase = get_template_base_model()
 
 @skipIfCustomGenerator
 class RecurrentsBillingTestCase(CremeTestCase):
-#    ADD_URL = '/recurrents/generator/add'
-
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        apps_2_pop = ['recurrents']
-
-        if apps.is_installed('creme.billing'):
-            apps_2_pop.append('billing')
-
-        cls.populate(*apps_2_pop)
+        # apps_2_pop = ['recurrents']
+        #
+        # if apps.is_installed('creme.billing'):
+        #     apps_2_pop.append('billing')
+        #
+        # cls.populate(*apps_2_pop)
 
         Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
 

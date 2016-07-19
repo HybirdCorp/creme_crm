@@ -34,10 +34,10 @@ def skipIfCustomGraph(test_func):
 
 @skipIfCustomGraph
 class GraphsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'graphs')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'graphs')
 
     def login(self, allowed_apps=('graphs',), *args, **kwargs):
         return super(GraphsTestCase, self).login(allowed_apps=allowed_apps,

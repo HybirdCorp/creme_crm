@@ -45,7 +45,7 @@ class CommercialApproachTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'activities', 'opportunities', 'commercial', 'persons')
+        # cls.populate('creme_core', 'activities', 'opportunities', 'commercial', 'persons')
         cls.original_send_messages = EmailBackend.send_messages
 
     def setUp(self):

@@ -18,10 +18,10 @@ except Exception as e:
 
 @skipIfCustomAddress
 class AddressTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'persons')
 
     def login(self, create_orga=True, *args, **kwargs):
         super(AddressTestCase, self).login(*args, **kwargs)

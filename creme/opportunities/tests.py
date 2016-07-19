@@ -71,7 +71,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('opportunities', 'documents') #'commercial'
+        # cls.populate('opportunities', 'documents') #'commercial'
 
         cls.lvimport_data = {'step':     1,
                              # 'document': doc.id,
@@ -1463,7 +1463,7 @@ class SalesPhaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'opportunities')
+        # cls.populate('creme_core', 'opportunities')
 
         cls._phase_backup = list(SalesPhase.objects.all())
         SalesPhase.objects.all().delete()
@@ -1553,10 +1553,10 @@ class SalesPhaseTestCase(CremeTestCase):
 
 
 class OriginTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'opportunities')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'opportunities')
 
     def setUp(self):
         self.login()

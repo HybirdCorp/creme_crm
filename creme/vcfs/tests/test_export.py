@@ -26,10 +26,10 @@ Organisation = get_organisation_model()
 
 @skipIfCustomContact
 class VcfExportTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'persons')
 
     def _generate_vcf(self, contact, status_code=200):
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
@@ -74,15 +74,17 @@ class VcfExportTestCase(CremeTestCase):
         self.assertTemplateUsed(response, generate_vcf_button.template_name)
 
     def test_get_empty_vcf(self):
-        self.login()
-        response = self._generate_vcf(Contact.objects.create(user=self.user, last_name='Abitbol'))
+        user = self.login()
+        response = self._generate_vcf(Contact.objects.create(user=user, last_name='Abitbol'))
         self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nEND:VCARD\r\n',
                          response.content
                         )
 
     def test_get_vcf_basic_role(self):
-        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons', 'vcfs'), creatable_models=[Contact])
-        user = self.user
+        user = self.login(is_superuser=False,
+                          allowed_apps=('creme_core', 'persons', 'vcfs'),
+                          creatable_models=[Contact],
+                         )
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.CHANGE |
@@ -98,10 +100,10 @@ class VcfExportTestCase(CremeTestCase):
         self._generate_vcf(contact, status_code=403)
 
     def test_get_vcf_civility(self):
-        self.login()
-        contact = Contact.objects.create(user=self.user,
+        user = self.login()
+        contact = Contact.objects.create(user=user,
                                          civility=Civility.objects.create(title='Monsieur'),
-                                         last_name='Abitbol'
+                                         last_name='Abitbol',
                                         )
 
         response = self._generate_vcf(contact)
@@ -111,8 +113,7 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_get_vcf_org(self):
-        self.login()
-        user = self.user
+        user = self.login()
         contact = Contact.objects.create(user=user, last_name='Abitbol')
         orga = Organisation.objects.create(user=user, name='ORGNAME')
 

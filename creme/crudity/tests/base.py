@@ -54,7 +54,7 @@ class CrudityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'crudity')
+        # cls.populate('creme_core', 'crudity')
 
         cls.FakeContactBackend = FakeContactBackend
         cls.SwallowInput = SwallowInput

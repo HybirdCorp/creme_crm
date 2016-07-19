@@ -26,10 +26,10 @@ Organisation = get_organisation_model()
 
 
 class ActiveSyncModelsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons', 'activities', 'activesync')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'persons', 'activities', 'activesync')
 
     def setUp(self):
         self.login()

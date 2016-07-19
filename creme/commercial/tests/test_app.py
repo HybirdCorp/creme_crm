@@ -5,7 +5,7 @@ try:
 
     from creme.persons.tests.base import skipIfCustomContact
 
-    from ..models import ActType, MarketSegment #Act
+    from ..models import ActType, MarketSegment
     from ..constants import (REL_SUB_SOLD_BY, REL_OBJ_SOLD_BY,
             REL_SUB_COMPLETE_GOAL, PROP_IS_A_SALESMAN)
     from .base import Act, Contact
@@ -17,10 +17,10 @@ class CommercialTestCase(CremeTestCase):
     ADD_SALESMAN_URL = '/commercial/salesman/add'
     SALESMEN_URL = '/commercial/salesmen'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('commercial')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('commercial')
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_SOLD_BY)

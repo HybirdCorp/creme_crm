@@ -448,10 +448,10 @@ class UnicodeCollationTestCase(CremeTestCase):
 
 
 class CurrencyFormatTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def test_currency(self):
         from decimal import Decimal

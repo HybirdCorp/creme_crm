@@ -38,7 +38,7 @@ Organisation = get_organisation_model()
 class MappingTestCase(CremeTestCase):
     def setUp(self):
         self.xml_path = join(dirname(abspath(__file__)), 'data', 'mappings')
-        self.populate('creme_core', 'persons', ) #in setUpClass ??
+        # self.populate('creme_core', 'persons', ) #in setUpClass ??
 
     def _open_n_read(self, filename, mode='r'):
         path = join(self.xml_path, filename)

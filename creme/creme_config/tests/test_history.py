@@ -12,10 +12,10 @@ except Exception as e:
 class HistoryConfigTestCase(CremeTestCase):
     ADD_URL = '/creme_config/history/add/'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def setUp(self):
         self.login()

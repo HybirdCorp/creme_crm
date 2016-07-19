@@ -22,7 +22,7 @@ class SearchViewTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
         QuerysetBlock.page_size = 10

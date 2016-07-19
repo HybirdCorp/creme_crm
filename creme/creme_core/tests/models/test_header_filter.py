@@ -22,10 +22,10 @@ class HeaderFiltersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
-        cls.contact_ct = get_ct(Contact) #TODO: used once ?!
+        cls.contact_ct = get_ct(Contact)  # TODO: used once ?!
         cls.orga_ct    = get_ct(Organisation)
 
     def assertCellEqual(self, cell1, cell2):

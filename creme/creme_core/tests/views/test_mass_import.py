@@ -77,7 +77,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
         Job.objects.all().delete()
 
         cls.ct = ContentType.objects.get_for_model(Contact)

@@ -46,10 +46,10 @@ def skipIfCustomTicketTemplate(test_func):
 
 @skipIfCustomTicket
 class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('tickets')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('tickets')
 
     def test_populate(self):
         for pk, name in BASE_STATUS:
@@ -519,10 +519,10 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
 @skipIfCustomTicketTemplate
 class TicketTemplateTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('tickets')  # TODO: factorise
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('tickets')
 
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)
