@@ -32,10 +32,10 @@ except Exception as e:
 
 
 class GuiTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def test_last_viewed_items(self):
         settings.MAX_LAST_ITEMS = 5

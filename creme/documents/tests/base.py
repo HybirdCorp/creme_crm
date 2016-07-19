@@ -36,7 +36,7 @@ class _DocumentsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'documents')
+        # cls.populate('creme_core', 'documents')
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
     def _build_filedata(self, content_str, suffix='.txt'):

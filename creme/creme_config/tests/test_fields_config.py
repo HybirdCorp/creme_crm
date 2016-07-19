@@ -22,7 +22,7 @@ class FieldsConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 

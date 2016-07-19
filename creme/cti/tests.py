@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import timedelta # datetime
-    #from functools import partial
+    from datetime import timedelta
 
     from django.core.urlresolvers import reverse
     from django.utils.timezone import now
@@ -12,11 +11,10 @@ try:
     from creme.creme_core.models import FieldsConfig
 
     from creme.persons import get_contact_model, get_organisation_model
-    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities import get_activity_model
-    from creme.activities.models import Calendar, ActivityType, ActivitySubType  # Activity
+    from creme.activities.models import Calendar, ActivityType, ActivitySubType
     from creme.activities import constants as a_constants
     from creme.activities.tests.base import skipIfCustomActivity
 except Exception as e:
@@ -35,22 +33,17 @@ class CTITestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'activities')
-        #cls.autodiscover()
+        # cls.populate('creme_core', 'activities')
 
         cls.ADD_PCALL_URL = reverse('cti__create_phonecall_as_caller')
 
     def _buid_add_pcall_url(self, contact):
-#        return '/cti/phonecall/add/%s' % contact.id
         return reverse('cti__create_phonecall', args=(contact.id,))
 
     def login(self):
         user = super(CTITestCase, self).login()
 
         other_user = self.other_user
-        #create_contact = partial(Contact.objects.create, user=user)
-        #self.contact = create_contact(is_user=user, first_name='Rally', last_name='Vincent')
-        #self.contact_other_user = create_contact(is_user=other_user, first_name='Bean', last_name='Bandit')
         self.contact = user.linked_contact
         self.contact_other_user = other_user.linked_contact
 

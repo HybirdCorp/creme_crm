@@ -15,10 +15,10 @@ except Exception as e:
 
 
 class GlobalSettingsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'activesync')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'activesync')
 
     def test_editview(self):
         self.login()
@@ -65,10 +65,10 @@ class GlobalSettingsTestCase(CremeTestCase):
 class UserSettingsTestCase(CremeTestCase):
     URL = '/activesync/user_settings'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'activesync')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'activesync')
 
     # def _assertNoSValue(self, skey_ids, user):
     #     self.assertFalse(SettingValue.objects.filter(key_id__in=skey_ids, user=user))

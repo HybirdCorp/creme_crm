@@ -33,7 +33,7 @@ class HistoryTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
         HistoryLine.objects.all().delete()
 
     def setUp(self):

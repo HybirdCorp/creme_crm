@@ -61,7 +61,7 @@ class EventsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('persons', 'opportunities', 'events')  # 'persons' -> HeaderFilters
+        # cls.populate('persons', 'opportunities', 'events')  # 'persons' -> HeaderFilters
 
         cls.ADD_URL = reverse('events__create_event')
 

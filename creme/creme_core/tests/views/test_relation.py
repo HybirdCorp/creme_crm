@@ -29,10 +29,10 @@ class RelationViewsTestCase(ViewsTestCase):
                     ' {"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
                     ' {"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
 
-    @classmethod
-    def setUpClass(cls):
-        ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     ViewsTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def _build_get_ctypes_url(self, rtype_id):
         return '/creme_core/relation/type/%s/content_types/json' % rtype_id

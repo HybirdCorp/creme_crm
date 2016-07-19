@@ -46,7 +46,7 @@ class HomePortalBlock(Block):
     id_           = Block.generate_id('creme_config', 'testblockconfig_home_portal')
     verbose_name  = u'Testing purpose'
 
-    #def detailview_display(self, context): NO
+    # def detailview_display(self, context): NO
 
     def home_display(self, context):
         return '<table id="%s"></table>' % self.id_
@@ -94,8 +94,8 @@ class HomeOnlyBlock(Block):
     id_           = Block.generate_id('creme_config', 'testblockconfig_home_only')
     verbose_name  = u'Testing purpose'
 
-    #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
-    #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+    # def detailview_display(self, context): return self._render(self.get_block_template_context(context))
+    # def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
 
     def home_display(self, context):
         return '<table id="%s"></table>' % self.id_
@@ -141,8 +141,7 @@ class BlocksConfigTestCase(CremeTestCase):
         BlockMypageLocation.objects.all().delete()
         RelationBlockItem.objects.all().delete()
 
-        cls.populate('creme_core')
-        #cls.autodiscover()
+        # cls.populate('creme_core')
 
         # TODO: unregister in tearDownClass()
         cls.complete_block     = b1 = CompleteBlock()

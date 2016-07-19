@@ -18,12 +18,11 @@ except Exception as e:
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
     ADD_URL = '/creme_config/creme_core/fake_position/add_widget/'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-#        cls.populate('creme_core', 'persons')
-        cls.populate('creme_core')
-        #cls.autodiscover()
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     # cls.populate('creme_core', 'persons')
+    #     cls.populate('creme_core')
 
     def _create_superuser(self):
         return get_user_model().objects.create_superuser(username='averagejoe',

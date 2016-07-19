@@ -9,8 +9,6 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation)
-
-    #from creme.persons.models import Contact, Organisation #need CremeEntity
 except Exception, e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -19,12 +17,12 @@ class RelationTypeTestCase(CremeTestCase):
     ADD_URL = '/creme_config/relation_type/add/'
     DEL_URL = '/creme_config/relation_type/delete'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
-    def setUp(self): #in CremeConfigTestCase ??
+    def setUp(self):  # In CremeConfigTestCase ??
         self.login()
 
     def _build_edit_url(self, rtype):
@@ -46,7 +44,7 @@ class RelationTypeTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        self.assertEqual(count + 2, RelationType.objects.count()) #2 freshly created
+        self.assertEqual(count + 2, RelationType.objects.count())  # 2 freshly created
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertTrue(rel_type.is_custom)
@@ -133,10 +131,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
     ADD_URL = '/creme_config/relation_type/semi_fixed/add/'
     format_str = '{"rtype": "%s", "ctype": %s,"entity": %s}'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core')
 
     def setUp(self):
         self.login()

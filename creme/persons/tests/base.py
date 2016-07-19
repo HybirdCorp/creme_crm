@@ -39,10 +39,10 @@ class _BaseTestCase(CremeTestCase):
     def login(self, is_superuser=True, **kwargs):
         return super(_BaseTestCase, self).login(is_superuser, allowed_apps=['persons'], **kwargs)
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'persons')
 
     def assertAddressOnlyContentEqual(self, address1, address2):
         self.assertNotEqual(address1.id, address2.id)

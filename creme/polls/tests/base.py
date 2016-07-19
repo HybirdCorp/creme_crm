@@ -53,7 +53,7 @@ class _PollsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('polls')
+        # cls.populate('polls')
 
         cls.ADD_REPLY_URL = reverse('polls__create_reply')
 

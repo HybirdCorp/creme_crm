@@ -37,7 +37,7 @@ class VcfImportTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('persons')
+        # cls.populate('persons')
 
         cls.IMPORT_URL = reverse('vcfs__import')
 

@@ -31,7 +31,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
 
         cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
         cls._bpl_backup = list(BlockPortalLocation.objects.all())

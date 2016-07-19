@@ -23,10 +23,10 @@ except Exception as e:
 
 
 class MergeViewsTestCase(ViewsTestCase):
-    @classmethod
-    def setUpClass(cls):
-        ViewsTestCase.setUpClass()
-        cls.populate('creme_core')  # HeaderFilter for FakeContact/FakeOrganisation
+    # @classmethod
+    # def setUpClass(cls):
+    #     ViewsTestCase.setUpClass()
+    #     cls.populate('creme_core')  # HeaderFilter for FakeContact/FakeOrganisation
 
     def _build_select_url(self, e1):
         return '/creme_core/entity/merge/select_other/%s' % e1.id

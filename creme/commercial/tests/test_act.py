@@ -14,10 +14,9 @@ try:
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from creme.opportunities.models import SalesPhase  # Opportunity
+    from creme.opportunities.models import SalesPhase
     from creme.opportunities.tests import skipIfCustomOpportunity
 
-    # from creme.activities.models import Activity
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, ACTIVITYTYPE_MEETING
     from creme.activities.tests.base import skipIfCustomActivity
 
@@ -35,7 +34,7 @@ class ActTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
         CommercialBaseTestCase.setUpClass()
-        cls.populate('activities', 'opportunities', 'commercial')
+        # cls.populate('activities', 'opportunities', 'commercial')
 
         cls.ADD_URL = reverse('commercial__create_act')
 

@@ -52,10 +52,10 @@ def skipIfCustomStrategy(test_func):
 class CommercialBaseTestCase(CremeTestCase):
     ADD_SEGMENT_URL = '/commercial/market_segment/add'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'commercial')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'commercial')
 
     def setUp(self):
         self.login()

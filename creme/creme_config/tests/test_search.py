@@ -23,8 +23,8 @@ class SearchConfigTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
 
-        SearchConfigItem.objects.all().delete() # TODO: backup ?
-        cls.populate('creme_core')
+        SearchConfigItem.objects.all().delete()  # TODO: backup ?
+        # cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(Contact)

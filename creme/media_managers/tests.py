@@ -38,10 +38,10 @@ def create_image(user, ident=1):
 
 
 class MediaManagersTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'media_managers')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'media_managers')
 
     # TODO: remove when documents & images have been merged -> use the CremeTestCase.tearDown cleaning.
     def setUp(self):
@@ -268,10 +268,10 @@ class MediaManagersTestCase(CremeTestCase):
 
 
 class ImageQuickFormTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'media_managers')
+    # @classmethod
+    # def setUpClass(cls):
+    #     CremeTestCase.setUpClass()
+    #     cls.populate('creme_core', 'media_managers')
 
     def setUp(self):
         self.images = []

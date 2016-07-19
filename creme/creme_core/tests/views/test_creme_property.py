@@ -21,7 +21,7 @@ class PropertyViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        cls.populate('creme_core')
+        # cls.populate('creme_core')
         cls.centity_ct = ContentType.objects.get_for_model(CremeEntity)
 
     def assertEntityHasProperty(self, ptype, entity):
