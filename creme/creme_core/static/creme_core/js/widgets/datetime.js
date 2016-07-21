@@ -90,3 +90,50 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
         return element.val(value);
     }
 });
+
+
+creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
+    options: {
+        format:'dd-mm-yy',
+        readonly: false,
+        disabled: false
+    },
+
+    _create: function(element, options, cb, sync)
+    {
+        this._disabled = creme.object.isTrue(options.disabled) && element.is('[disabled]');
+        this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
+
+        creme.forms.DateTimePicker.init(element, options.format);
+
+        $('input[type="hidden"]', element).on('change', function() {
+            var datetime = creme.forms.DateTimePicker.parseDateTime($(this).val());
+
+            $('li.date input[type="text"]', element).val(datetime.date);
+            $('li.hour input[type="text"]', element).val(datetime.hour);
+            $('li.minute input[type="text"]', element).val(datetime.minute);
+        });
+
+        this._datepicker = $('li.date input[type="text"]', element).datepicker();
+        this._buttons = $('button[type="button"]', element);
+
+        this._updateDisabledState(element, this._disabled);
+        element.addClass('widget-ready');
+    },
+
+    _updateDisabledState: function(element, disabled)
+    {
+        var state = disabled || this._readonly;
+        this._datepicker.datepicker('option', 'disabled', state);
+        this._buttons.prop('disabled', state);
+        $('li input[type="text"]', element).toggleAttr('disabled', state);
+    },
+
+    val: function(element, value) {
+        if (value === undefined) {
+            return creme.forms.DateTimePicker.val(element);
+        }
+
+        $('input[type="hidden"]', element).val(value).change();
+    }
+});

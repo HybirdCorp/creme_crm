@@ -120,7 +120,7 @@ DATE_FORMAT         = 'd-m-Y'
 SHORT_DATE_FORMAT   = 'd-m-Y'
 DATE_FORMAT_VERBOSE = _(u'Format: Day-Month-Year (Ex:31-12-2016)')
 DATE_FORMAT_JS      = {
-    'd-m-Y': 'dd-mm-yy',
+    DATE_FORMAT: 'dd-mm-yy',
 }
 DATE_FORMAT_JS_SEP = '-' # DATE_FORMAT_JS values separator
 DATE_INPUT_FORMATS = (
