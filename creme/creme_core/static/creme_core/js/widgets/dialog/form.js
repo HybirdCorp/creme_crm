@@ -44,11 +44,11 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         this.frame().on('before-submit before-fetch', disable_buttons);
 
         this._submitListeners = {
-            done: $.proxy(this._onSubmitDone, this),
-            fail: $.proxy(this._onSubmitFail, this)
+            done: this._onSubmitDone.bind(this),
+            fail: this._onSubmitFail.bind(this)
         };
 
-        this._submitKeyCb = $.proxy(this._onSubmitKey, this);
+        this._submitKeyCb = this._onSubmitKey.bind(this);
     },
 
     validator: function(validator)
@@ -69,9 +69,17 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
     _compatibleValidator: function(data, statusText, dataType)
     {
-        return dataType !== 'text/html' ||
-               data.startsWith('<div class="in-popup" closing="true"') ||
-               (data.startsWith('<div class="in-popup"') && data.match(/<form[^>]*>/) === null);
+        if (Object.isEmpty(data) || dataType !== 'text/html')
+            return true;
+
+        if (data.match(/^<div[^>]+class="in-popup"[^>]*>/)) {
+            if (data.match(/^<div[^>]+closing="true"[^>]*>/))
+                return true;
+
+            return (data.match(/<form[^>]*>/) === null)
+        }
+
+        return false;
     },
 
     _validate: function(data, statusText, dataType)
@@ -80,22 +88,35 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return !Object.isFunc(validator) || validator(data, statusText, dataType);
     },
 
-    submit: function()
+    _frameSubmitData: function(data)
+    {
+        var options = this.options;
+        var submitData = Object.isFunc(options.submitData) ? options.submitData.bind(this)(options, data) : options.submitData || {};
+        return $.extend({}, submitData, data);
+    },
+
+    submit: function(options, data, listeners)
     {
         var self = this;
         var dialog = this.dialog();
         var form = $('form:first', this.content());
         var html5_errors = $(form).validateHTML5();
+        var options = options || {};
 
         if (Object.isEmpty(html5_errors) === false) {
             return this;
         }
 
-        var data = this.options.submitData || {};
-        data = Object.isFunc(data) ? data(this) : data;
+        var data = Object.isFunc(data) ? data.bind(this)(options) : data;
+        var submitData = this._frameSubmitData(data);
 
-        this.frame().submit('', {data: data}, form, this._submitListeners);
+        this.frame().submit('', $.extend({}, options, {data: submitData}), form, this._submitListeners);
         return this;
+    },
+
+    _onFrameCleanup: function() {
+        this._super_(creme.dialog.Dialog, '_onFrameCleanup');
+        this.frame().delegate().off('keypress', this._submitKeyCb);
     },
 
     _onFrameUpdate: function(event, data, dataType, action)
@@ -113,6 +134,10 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             }
         } else {
             $(':tabbable', this._frame.delegate()).blur();
+        }
+
+        if (this.options.submitOnKey) {
+            this.frame().delegate().on('keypress', this._submitKeyCb);
         }
     },
 
@@ -139,17 +164,8 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     _onSubmitKey: function(e) {
         if (e.keyCode === this.options.submitOnKey && $(e.target).is(':not(textarea)')) {
             e.preventDefault();
-            this.submit($(e.target), e);
+            this.button('send').click();
         }
-    },
-
-    _onClose: function(dialog, frame, options)
-    {
-        if (options.submitOnKey) {
-            frame.delegate().unbind('keypress', this._submitKeyCb);
-        }
-
-        this._super_(creme.dialog.Dialog, '_onClose', dialog, frame, options);
     },
 
     _onOpen: function(dialog, frame, options)
@@ -165,10 +181,6 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
                   self._updateButtonState("cancel", true);
               });
 
-        if (options.submitOnKey) {
-            frame.delegate().bind('keypress', this._submitKeyCb);
-        }
-
         this._super_(creme.dialog.Dialog, '_onOpen', dialog, frame, options);
     },
 
@@ -178,9 +190,31 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         var buttons = this._super_(creme.dialog.Dialog, '_frameActionButtons', options);
 
         $('.ui-creme-dialog-action[type="submit"]', this.content()).each(function() {
-            var name = $(this).attr('name') || 'send';
-            var label = $(this).val();
-            self._appendButton(buttons, name, label, self.submit);
+            var item  = $(this);
+            var data  = {};
+            var name  = item.attr('name');
+            var label = item.text();
+            var order = parseInt(item.attr('data-dialog-action-order') || 0);
+
+            if (item.is('input')) {
+                name = name || 'send';
+                label = item.val();
+            } else {
+                if (!Object.isEmpty(name)) {
+                    data[name] = item.val();
+                } else {
+                    name = 'button';
+                }
+
+                if (buttons[name]) {
+                    name += '-' + item.val();
+                }
+            }
+
+            self._appendButton(buttons, name, label, function(button, e, options) {
+                                   this.submit(options, options.data);
+                               },
+                               {data: data, order: order});
         }).toggleAttr('disabled', true);
 
         return buttons;
@@ -188,8 +222,12 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
     _defaultButtons: function(buttons, options)
     {
-        this._appendButton(buttons, 'send', gettext('Save'), this.submit);
-        this._appendButton(buttons, 'cancel', gettext('Cancel'), this.close);
+        this._appendButton(buttons, 'send', gettext('Save'), function(button, e, options) {
+                               this.submit();
+                           });
+        this._appendButton(buttons, 'cancel', gettext('Cancel'), function(button, e, options) {
+                               this.close();
+                           });
 
         return buttons;
     },

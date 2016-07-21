@@ -79,7 +79,7 @@ creme.dialog.Frame = creme.component.Component.sub({
     _cleanResponse: function(response, statusText, dataType)
     {
         if (Object.isType(response, 'string')) {
-            return this._cleanJSONResponse(response) || {content: response, type: 'text/html'};
+            return this._cleanJSONResponse(response) || {content: response, type: dataType || 'text/html'};
         } else if (Object.isType(response, 'object')) {
             if (response.type == 'text/html') {
                 return response;
@@ -227,7 +227,8 @@ creme.dialog.Frame = creme.component.Component.sub({
 
         // TODO : change api in order to force url on submit
         this._backend.submit(form,
-                             function(response, statusText, dataType) {
+                             function(response, statusText, xhr) {
+                                 var dataType = xhr.getResponseHeader('Content-Type').split(';')[0];
                                  var cleaned = self._cleanResponse(response, statusText, dataType);
 
                                  self.fill(cleaned, 'submit');
