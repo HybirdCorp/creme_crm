@@ -129,14 +129,20 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         }
 
         var url = creme.widget.template(options.labelURL, {'id': value});
+        var default_label = gettext('Entity #%s (not viewable)').format(value);
 
         options.backend.get(url, {fields:['summary']},
                             function(data, status) {
-                                button.html(data[0][0] || '&nbsp;');
+                                try {
+                                    button.html(data[0][0] || default_label);
+                                } catch(e) {
+                                    button.html(default_label);
+                                }
+
                                 creme.object.invoke(on_success, element, data);
                             },
                             function(data, error) {
-                                button.html(options.label);
+                                button.html(default_label);
                                 creme.object.invoke(on_error, element, error);
                             },
                             {dataType:'json', sync:sync});

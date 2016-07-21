@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-16 12:57+0100\n"
+"POT-Creation-Date: 2016-07-18 12:57+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -125,6 +125,10 @@ msgstr "Choisi(s)"
 #: static/creme_core/js/widgets/entityselector.js:33
 msgid "Select"
 msgstr "Sélectionnez"
+
+#: static/creme_core/js/widgets/entityselector.js:132
+msgid "Entity #%s (not viewable)"
+msgstr "Entité #%s (non visible)"
 
 #: static/creme_core/js/jobs.js:37
 msgid ""
