@@ -126,6 +126,20 @@ input.dperiod-value {
     max-width: 5%;
 }
 
+form .table_detail_view .li_merge_entity1 input,
+form .table_detail_view .li_merge_entity1 textarea {
+    color: #5a92ab;
+    background: #edf9ff;
+    border: 1px solid #bbe0f0;
+}
+
+form .table_detail_view .li_merge_entity2 input,
+form .table_detail_view .li_merge_entity2 textarea {
+    color: #d87d72;
+    background: #ffedeb;
+    border: 1px solid #f9c9c4;
+}
+
 form .table_detail_view .merge_entity1 {
     width: 99%;
     color: #5a92ab;

@@ -155,8 +155,9 @@ creme.forms.TimePicker.set = function(self, hour, minute) {
  * DateTimePicker widget
  */
 creme.forms.DateTimePicker = {}
-creme.forms.DateTimePicker.init = function(self) {
+creme.forms.DateTimePicker.init = function(self, format) {
     var datetime = creme.forms.DateTimePicker.datetimeval(self);
+    var format = format || 'yy-mm-dd';
 
     $('li.date input[type="text"]', self).val(datetime.date);
     $('li.hour input[type="text"]', self).val(datetime.hour);
@@ -166,18 +167,18 @@ creme.forms.DateTimePicker.init = function(self) {
             creme.forms.DateTimePicker.update(self);
         });
 
-    $('li.now button', self).bind('click', function() {
-            var now = new Date();
-            creme.forms.DateTimePicker.set(self, now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes());
+    $('li.now button', self).bind('click', function(e) {
+            e.preventDefault();
+            creme.forms.DateTimePicker.setDate(self, new Date());
         });
 
-    $('li.clear button', self).bind('click', function() {
-//             var now = new Date();
+    $('li.clear button', self).bind('click', function(e) {
+            e.preventDefault();
             creme.forms.DateTimePicker.clear(self);
         });
 
     $('li.date input[type="text"]', self).datepicker({
-            dateFormat:      "yy-mm-dd",
+            dateFormat:      format,
             showOn:          "button",
             buttonText:      gettext("Calendar"),
             buttonImage:     creme_media_url("images/icon_calendar.gif"),
@@ -214,12 +215,19 @@ creme.forms.DateTimePicker.clear = function(self) {
     $('input[type="hidden"]', self).val('');
 }
 
-creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) {
-    var date = year + '-' + ((month < 9) ? '0' : '') + (month + 1) + '-' + ((day < 9) ? '0' : '') + day;
-    $('li.date input[type="text"]', self).val(date);
+creme.forms.DateTimePicker.setDate = function(self, date) {
+    var hour = date.getHours();
+    var minute = date.getMinutes();
+
+    $('li.date input[type="text"]', self).datepicker('setDate', date);
     $('li.hour input[type="text"]', self).val(hour);
     $('li.minute input[type="text"]', self).val(minute);
-    $('input[type="hidden"]', self).val(date + ' ' + hour + ':' + minute);
+
+    creme.forms.DateTimePicker.update(self);
+}
+
+creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) {
+    creme.forms.DateTimePicker.setDate(self, new Date(year, month, day, hour, minute));
 }
 
 //TODO: refactor in order the widget can be properly reload (see report.js)

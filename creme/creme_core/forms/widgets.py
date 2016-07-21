@@ -29,11 +29,12 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.forms.utils import flatatt
 from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
-        TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer)
+        TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer, DateTimeInput)
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
+from django.utils.timezone import localtime
 
 from ..utils.date_range import date_range_registry
 from ..utils.media import creme_media_themed_url as media_url
@@ -741,12 +742,30 @@ class FilteredEntityTypeWidget(ChainedInput):
         return super(FilteredEntityTypeWidget, self).render(name, value, attrs)
 
 
-class DateTimeWidget(TextInput):
+class DateTimeWidget(DateTimeInput):
+    is_localized = True
+
+    def __init__(self, attrs=None):
+        super(DateTimeWidget, self).__init__(attrs=attrs, format='%d-%m-%Y %H:%M')
+
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
+        value = localtime(value) if value is not None else value
+        context = widget_render_context('ui-creme-datetimepicker', attrs,
+                                        date_format=settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT),
+                                        date_label=_(u'On'),
+                                        time_label=_(u'at'),
+                                        hour_label=_(u'h'),  # TODO: improve i18n
+                                        minute_label='',     # TODO: improve i18n
+                                        clear_label=_(u'Clean'),
+                                        now_label=_(u'Now'),
+                                        readonly_attr='readonly' if attrs.get('readonly') is not None else '',
+                                        disabled_attr='disabled' if attrs.get('disabled') is not None else '',
+                                        input=super(DateTimeWidget, self).render(name, value, attrs)
+                                       )
 
         return mark_safe(
-"""<ul id="%(id)s_datetimepicker" class="ui-creme-datetimepicker">
+"""<ul class="%(css)s" style="%(style)s" widget="%(typename)s" format="%(date_format)s" %(readonly_attr)s %(disabled_attr)s>
     %(input)s
     <li>%(date_label)s</li>
     <li class="date"><input class="ui-corner-all" type="text" maxlength="12"/></li>
@@ -758,17 +777,7 @@ class DateTimeWidget(TextInput):
     <li class="clear"><button type="button">%(clear_label)s</button></li>
     <li class="now"><button type="button">%(now_label)s</button></li>
 </ul>
-<script type="text/javascript">
-    $('.ui-creme-datetimepicker#%(id)s_datetimepicker').each(function() {creme.forms.DateTimePicker.init($(this));});
-</script>""" % {'input':        super(DateTimeWidget, self).render(name, value, attrs),
-                'date_label':   _(u'On'),
-                'time_label':   _(u'at'),
-                'hour_label':   _(u'h'),  # TODO: improve i18n
-                'minute_label': '',       # TODO: improve i18n
-                'id':           attrs['id'],
-                'clear_label':  _(u'Clean'),
-                'now_label':    _(u'Now'),
-              })
+""" % context)
 
 
 class TimeWidget(TextInput):
