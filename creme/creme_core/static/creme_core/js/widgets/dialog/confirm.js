@@ -45,8 +45,12 @@ creme.dialog.ConfirmDialog = creme.dialog.Dialog.sub({
 
     _defaultButtons: function(buttons, options)
     {
-        this._appendButton(buttons, 'ok', gettext('Ok'), this.ok);
-        this._appendButton(buttons, 'cancel', gettext('Cancel'), this.close);
+        this._appendButton(buttons, 'ok', gettext('Ok'), function(button, e, options) {
+                               this.ok();
+                           });
+        this._appendButton(buttons, 'cancel', gettext('Cancel'), function(button, e, options) {
+                               this.close()
+                           });
 
         return buttons;
     },

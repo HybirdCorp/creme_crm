@@ -134,12 +134,8 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
 
     form.attr('action', options.action || form_action);
 
-
-
-    function parse_response_status(responseText) {
-        if (responseText === "") {
-            return 404;
-        } else if (/^HTTPError [0-9]+$/.test(responseText)) {
+    function parse_iframe_response_status(responseText) {
+        if (/^HTTPError [0-9]+$/.test(responseText)) {
             return parseInt(responseText.substr('HTTPError '.length));
         } else {
             return 200;
@@ -150,7 +146,10 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
             iframe: needs_iframe,
             success:function(responseText, statusText, xhr, form) {
                 form.attr('action', form_action);
-                xhr.status = parse_response_status(responseText);
+
+                if (needs_iframe && xhr.status === 0) {
+                    xhr.status = parse_iframe_response_status(responseText);
+                }
 
                 if (xhr.status === 200) {
                     if (success_cb !== undefined)

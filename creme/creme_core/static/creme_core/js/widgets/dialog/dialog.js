@@ -82,8 +82,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     _activateFrameContent: function()
     {
         if (this.options.useFrameActions) {
-            var buttons = Object.values(this._frameActionButtons(this.options));
-            this.replaceButtons(buttons);
+            this.replaceButtons(this._orderedFrameActionButtons(this.options));
         }
 
         this.frame().activateContent();
@@ -182,25 +181,34 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return $.extend(buttons, this._frameActionLinkButtons(options));
     },
 
-    _appendButton: function(buttons, name, label, action)
+    _orderedFrameActionButtons: function(options)
+    {
+        var buttons = this._frameActionButtons(options);
+        return Object.values(buttons).sort(function(a, b) {return (a.order || 0) - (b.order || 0);});
+    },
+
+    _appendButton: function(buttons, name, label, action, options)
     {
         var self = this;
         var custom_labels = this.options.defaultButtonLabels || {};
+        var options = options || {};
 
-        buttons[name] = {'name': name,
-                         'text': custom_labels[name] || label,
-                         'click': function(e) {
-                             action.apply(self, [$(this), e]);
-                             return false;
-                         }
-                        };
+        buttons[name] = $.extend({
+                            'name': name,
+                            'text': custom_labels[name] || label,
+                            'click': function(e) {
+                                action.apply(self, [$(this), e, options]);
+                                return false;
+                            }
+                        }, options);
     },
 
     _defaultButtons: function(buttons, options)
     {
-        var self = this;
+        this._appendButton(buttons, 'close', gettext('Close'), function(button, e, options) {
+                               this.close();
+                           });
 
-        this._appendButton(buttons, 'close', gettext('Close'), this.close);
         return buttons;
     },
 
@@ -379,7 +387,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var container = frame.delegate();
 
         var buttons = $.extend(this._defaultButtons({}, options), options.buttons || {});
-
         var content = $('<div/>').append(container);
 
         var position = {my: "center center", at: "center center", of: window};

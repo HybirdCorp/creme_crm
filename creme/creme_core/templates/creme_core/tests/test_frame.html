@@ -212,7 +212,6 @@
         });
 
         $('#popup .popup-fetch button').click(function() {
-            var confirm = $('#popup input.popup-confirm').val();
             var url = 'mock/' + ($('#popup .popup-fetch .popup-url').val() || '');
             var dialog = creme.dialogs.url(url, {backend: mockbackend, title:url});
 
@@ -220,9 +219,22 @@
         });
 
         $('#popup button.popup-error-url').click(function() {
-            var confirm = $('#popup input.popup-confirm').val();
             var url = '/test_http_response?status=' + ($('#popup .popup-error-status').val() || '');
             var dialog = creme.dialogs.url(url, {title:url});
+
+            openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
+        });
+
+        $('#popup button.popup-image').click(function() {
+            var url = '{% creme_media_url logo_url %}';
+            var dialog = creme.dialogs.image(url, {title:url});
+            openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
+        });
+
+        $('#popup button.popup-select').click(function() {
+            var choices = [{label:'A', value:1}, {label:'B', value:2}, {label:'C', value:3}];
+            var dialog = creme.dialogs.choice('Choose a value', {choices: choices, selected: 2})
+                                      .onOk(function(e, value) {console.log('selected > ', value);});
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
@@ -359,6 +371,12 @@
             </div>
             <div>
                 <button type="button" class="popup-block">Static - Blocks</button>
+            </div>
+            <div>
+                <button type="button" class="popup-image">Static - Image</button>
+            </div>
+            <div>
+                <button type="button" class="popup-select">Static - Select</button>
             </div>
             <div class="popup-form">
                 <button type="button" data-url="mock/form">Form</button>

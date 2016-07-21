@@ -149,3 +149,37 @@ test('creme.dialog.SelectionDialog (validator)', function() {
     deepEqual([], this.mockListenerCalls('ok'));
     deepEqual([['close', dialog.options]], this.mockListenerCalls('close'));
 });
+
+test('creme.dialog.FormDialog (default validator)', function() {
+    var options = $.extend({compatible: false}, options || {});
+    var dialog = new creme.dialog.FormDialog(options);
+
+    equal(dialog._defaultValidator, dialog.validator());
+    equal(true, dialog._validate('', 'success', 'text/html'));
+    equal(true, dialog._validate('<div></div>', 'success', 'text/html'));
+
+    equal(false, dialog._validate('<div><form></form></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('"<div><form></form></div>"', 'success', 'text/json'));
+});
+
+test('creme.dialog.FormDialog (compatible validator)', function() {
+    var options = $.extend({compatible: true}, options || {});
+    var dialog = new creme.dialog.FormDialog(options);
+
+    equal(dialog._compatibleValidator, dialog.validator());
+    equal(true, dialog._validate('', 'success', 'text/html'));
+    equal(false, dialog._validate('<div></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('<div class="in-popup"></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('<div class="in-popup" closing="true"></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('<div class="in-popup" reload="/" closing="true"></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('<div closing="true" class="in-popup"></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('<div  closing="true"  reload="/"   class="in-popup"></div>', 'success', 'text/html'));
+
+    equal(false, dialog._validate('<div><form></form></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('<div class="in-popup" closing="true"><form></form></div>', 'success', 'text/html'), 'closing+form');
+    equal(true, dialog._validate('<div closing="true" class="in-popup"><form></form></div>', 'success', 'text/html'));
+
+    equal(true, dialog._validate('"<div><form></form></div>"', 'success', 'text/json'));
+});
+
+
