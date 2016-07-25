@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,24 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import DateTimeField
+# from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
-from creme.creme_core.forms.widgets import DateTimeWidget
+# from creme.creme_core.forms.widgets import DateTimeWidget
 
 from .. import get_rgenerator_model
-#from ..models import RecurrentGenerator
 
 
 class RecurrentGeneratorEditForm(CremeEntityForm):
-    first_generation = DateTimeField(label=_(u'Date of the first generation'),
-                                     widget=DateTimeWidget(),
-                                    )
+    # first_generation = DateTimeField(label=_(u'Date of the first generation'),
+    #                                  widget=DateTimeWidget(),
+    #                                 )
 
     class Meta(CremeEntityForm.Meta):
-#        model = RecurrentGenerator
         model = get_rgenerator_model()
 
     def __init__(self, *args, **kwargs):
@@ -50,8 +48,6 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     def __init__(self, *args, **kwargs):
         from ..registry import recurrent_registry
 
-        #kwargs['user'] = kwargs['initial']['user']
-        #super(RecurrentGeneratorCreateForm, self).__init__(data=args[0], **kwargs)
         super(RecurrentGeneratorCreateForm, self).__init__(*args, **kwargs)
 
         has_perm = self.user.has_perm_to_create
@@ -60,8 +56,6 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
                                    ]
 
     def save(self, *args, **kwargs):
-        instance = self.instance
-        #instance.last_generation = instance.first_generation #todo: in model.save() ??
-        instance.ct = self.cleaned_data['ct']
+        self.instance.ct = self.cleaned_data['ct']
 
         return super(RecurrentGeneratorCreateForm, self).save(*args, **kwargs)
