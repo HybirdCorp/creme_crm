@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ from zipfile import ZipFile
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.db.models.query_utils import Q
+# from django.db.models.query_utils import Q
 from django.template.defaultfilters import slugify
 
 from creme.creme_core.utils import safe_unicode
@@ -80,7 +80,7 @@ class CSVPopulator(object):
             url_info = urlparse(url)
 
             if url_info.scheme in ('file', ''):
-                input = open(url_info.path, 'rb') # binary mode in order to avoid surprises with windows.
+                input = open(url_info.path, 'rb')  # binary mode in order to avoid surprises with windows.
             elif url_info.scheme in ('http', 'https'):
                 self.info('Downloading database...')
                 input = urllib2.urlopen(url)
@@ -253,7 +253,8 @@ class Command(BaseCommand):
 
     def populate_addresses(self, verbosity=0):
         self.sysout('Populate geolocation information of addresses...', verbosity > 0)
-        GeoAddress.populate_geoaddresses(get_address_model().objects.filter(Q(zipcode__isnull=False) | Q(city__isnull=False)))
+        # GeoAddress.populate_geoaddresses(get_address_model().objects.filter(Q(zipcode__isnull=False) | Q(city__isnull=False)))
+        GeoAddress.populate_geoaddresses(get_address_model().objects.exclude(zipcode='', city=''))
 
     def import_town_database(self, url, defaults):
         try:

@@ -5,18 +5,13 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    # from creme.persons.models import Address, Organisation
     from creme.persons.tests.base import skipIfCustomAddress, skipIfCustomOrganisation
 
     from ..models import Town, GeoAddress
     from ..management.commands.geolocation import CSVPopulator, Command as GeolocationCommand
-    # from ..populate import Populator
     from .base import GeoLocationBaseTestCase, Address, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-# __all__ = ('CSVPopulatorTestCase', 'TownPopulatorTestCase')
 
 
 class MockCSVPopulator(CSVPopulator):
@@ -263,28 +258,34 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         self.assertEqual(0, GeoAddress.objects.count())
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
-        Address.objects.create(name='Addresse',
-                               address='13 rue du yahourt',
-                               po_box='',
-                               zipcode='13008',
-                               city='Marseille',
-                               department='13',
-                               # state=None,
-                               state='',
-                               country='FRANCE',
-                               owner=orga,
-                              )
+        address = Address.objects.create(name='Addresse',
+                                         address='13 rue du yahourt',
+                                         po_box='',
+                                         zipcode='13008',
+                                         city='Marseille',
+                                         department='13',
+                                         # state=None,
+                                         state='',
+                                         country='FRANCE',
+                                         owner=orga,
+                                        )
 
         GeoAddress.objects.all().delete()
 
         with self.assertRaises(GeoAddress.DoesNotExist):
-            Address.objects.get().geoaddress
+            # Address.objects.get().geoaddress
+            self.refresh(address).geoaddress
 
         self.command.populate_addresses()
-        self.assertEqual(1, GeoAddress.objects.count())
 
-        address = Address.objects.get()
-        self.assertEqual(address.geoaddress, GeoAddress.objects.get())
+        # self.assertEqual(1, GeoAddress.objects.count())
+        geo_addresses = GeoAddress.objects.all()
+        self.assertEqual(1, len(geo_addresses))
+
+        # address = Address.objects.get()
+        address = self.refresh(address)
+        # self.assertEqual(address.geoaddress, GeoAddress.objects.get())
+        self.assertEqual(address.geoaddress, geo_addresses[0])
         self.assertGeoAddress(address.geoaddress, address=address,
                               latitude=None, longitude=None,
                               draggable=True, geocoded=False,
@@ -299,29 +300,66 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
                                          )
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
-        Address.objects.create(name='Addresse',
-                               address='13 rue du yahourt',
-                               po_box='',
-                               zipcode='01630',
-                               city=u'Péron',
-                               department='01',
-                               # state=None,
-                               state='',
-                               country='FRANCE',
-                               owner=orga,
-                              )
+        address = Address.objects.create(name='Addresse',
+                                         address='13 rue du yahourt',
+                                         po_box='',
+                                         zipcode='01630',
+                                         city=u'Péron',
+                                         department='01',
+                                         # state=None,
+                                         state='',
+                                         country='FRANCE',
+                                         owner=orga,
+                                        )
 
         GeoAddress.objects.all().delete()
 
         with self.assertRaises(GeoAddress.DoesNotExist):
-            Address.objects.get().geoaddress
+            # Address.objects.get().geoaddress
+            self.refresh(address).geoaddress
 
         self.command.populate_addresses()
-        self.assertEqual(1, GeoAddress.objects.count())
+        # self.assertEqual(1, GeoAddress.objects.count())
 
-        address = Address.objects.get()
-        self.assertEqual(address.geoaddress, GeoAddress.objects.get())
+        geo_addresses = GeoAddress.objects.all()
+        self.assertEqual(1, len(geo_addresses))
+
+        # address = Address.objects.get()
+        address = self.refresh(address)
+        # self.assertEqual(address.geoaddress, GeoAddress.objects.get())
+        self.assertEqual(address.geoaddress, geo_addresses[0])
         self.assertGeoAddress(address.geoaddress, address=address,
                               longitude=5.93333, latitude=46.2,
                               draggable=True, geocoded=False,
                              )
+
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
+    def test_populate_empty(self):
+        "No zipcode, no city"
+        user = self.login()
+        self.command.import_town_database([self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],
+                                          {'country': 'FRANCE'},
+                                         )
+
+        orga = Organisation.objects.create(name='Orga 1', user=user)
+        address = Address.objects.create(name='Addresse',
+                                         address='13 rue du yahourt',
+                                         po_box='',
+                                         zipcode='',
+                                         city='',
+                                         department='01',
+                                         state='',
+                                         country='FRANCE',
+                                         owner=orga,
+                                        )
+
+        GeoAddress.objects.all().delete()
+
+        with self.assertRaises(GeoAddress.DoesNotExist):
+            self.refresh(address).geoaddress
+
+        self.command.populate_addresses()
+
+        with self.assertRaises(GeoAddress.DoesNotExist):
+            self.refresh(address).geoaddress
