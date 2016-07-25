@@ -19,6 +19,7 @@
 ################################################################################
 
 import copy
+from datetime import datetime
 from functools import partial
 from itertools import chain
 from json import dumps as json_dump
@@ -34,7 +35,7 @@ from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
-from django.utils.timezone import localtime
+from django.utils.timezone import localtime, is_naive
 
 from ..utils.date_range import date_range_registry
 from ..utils.media import creme_media_themed_url as media_url
@@ -750,7 +751,11 @@ class DateTimeWidget(DateTimeInput):
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
-        value = localtime(value) if value is not None else value
+        # value = localtime(value) if value is not None else value
+
+        if isinstance(value, datetime) and not is_naive(value):
+            value = localtime(value)
+
         context = widget_render_context('ui-creme-datetimepicker', attrs,
                                         date_format=settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT),
                                         date_label=_(u'On'),
@@ -761,7 +766,7 @@ class DateTimeWidget(DateTimeInput):
                                         now_label=_(u'Now'),
                                         readonly_attr='readonly' if attrs.get('readonly') is not None else '',
                                         disabled_attr='disabled' if attrs.get('disabled') is not None else '',
-                                        input=super(DateTimeWidget, self).render(name, value, attrs)
+                                        input=super(DateTimeWidget, self).render(name, value, attrs),
                                        )
 
         return mark_safe(
