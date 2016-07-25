@@ -798,6 +798,37 @@ class ProjectsTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     @skipIfCustomTask
+    def test_resource_n_activity07(self):
+        "Resource must ne related to the task."
+        user = self.login()
+
+        project = self.create_project('Eva01')[0]
+
+        task1 = self.create_task(project, 'Legs')
+        task2 = self.create_task(project, 'Head')
+
+        worker = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
+        self.create_resource(task1, worker, hourly_cost=100)
+
+        resources = list(task1.resources_set.all())
+        self.assertEqual(1, len(resources))
+        resource1 = resources[0]
+
+        response = self.assertPOST200(self._build_add_activity_url(task2), follow=True,
+                                    data={'resource':      resource1.id,
+                                          'start':         '2016-05-19',
+                                          'end':           '2016-06-03',
+                                          'duration':      8,
+                                          'type_selector': self._build_type_value(),
+                                          'user':          user.id,
+                                         }
+                                   )
+        self.assertFormError(response, 'form', 'resource',
+                             _(u"This entity doesn't exist.")
+                            )
+
+    @skipIfCustomActivity
+    @skipIfCustomTask
     def test_edit_resource01(self):
         "Related contact participates to activities"
         user = self.login()

@@ -128,6 +128,14 @@ class RelatedActivityEditForm(CremeEntityForm):
                                                   'status', 'type', 'sub_type',
                                                  )
 
+    def _get_task(self):
+        try:
+            return Relation.objects.get(subject_entity=self.instance.pk, type=REL_SUB_LINKED_2_PTASK) \
+                           .object_entity \
+                           .get_real_entity()
+        except Relation.DoesNotExist:
+            raise ConflictError('This Activity is not related to a projet task')
+
     def __init__(self, *args, **kwargs):
         super(RelatedActivityEditForm, self).__init__(*args, **kwargs)
         fields = self.fields
@@ -136,6 +144,11 @@ class RelatedActivityEditForm(CremeEntityForm):
         self.old_participant = self.old_relation = None
         instance = self.instance
         pk = instance.pk
+
+        task = self._get_task()
+
+        resource_f = fields['resource']
+        resource_f.q_filter = {'task_id': task.id}
 
         if pk:  # Edition
             fields['keep_participating'] = \
@@ -148,9 +161,9 @@ class RelatedActivityEditForm(CremeEntityForm):
             get_relation = Relation.objects.get
 
             try:
-                task = get_relation(subject_entity=pk, type=REL_SUB_LINKED_2_PTASK) \
-                               .object_entity \
-                               .get_real_entity()
+                # task = get_relation(subject_entity=pk, type=REL_SUB_LINKED_2_PTASK) \
+                #                .object_entity \
+                #                .get_real_entity()
                 self.old_relation = get_relation(type=REL_SUB_PART_AS_RESOURCE,
                                                  object_entity=pk,
                                                 )
@@ -158,9 +171,9 @@ class RelatedActivityEditForm(CremeEntityForm):
                 raise ConflictError('This Activity is not related to a projet task')
 
             self.old_participant = self.old_relation.subject_entity.get_real_entity()
-            fields['resource'].initial = Resource.objects.get(task=task,
-                                                              linked_contact=self.old_participant,
-                                                             )
+            resource_f.initial = Resource.objects.get(task=task,
+                                                      linked_contact=self.old_participant,
+                                                     )
 
             fields['type_selector'].initial = (instance.type_id, instance.sub_type_id)
 
@@ -208,7 +221,11 @@ class RelatedActivityEditForm(CremeEntityForm):
 class RelatedActivityCreateForm(RelatedActivityEditForm):
     def __init__(self, *args, **kwargs):
         super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
-        self._task = self.initial['task']
+        # self._task = self.initial['task']
+        self._task = self._get_task()  # TODO: remove
+
+    def _get_task(self):
+        return self.initial['task']
 
     def save(self, *args, **kwargs):
         instance = self.instance
