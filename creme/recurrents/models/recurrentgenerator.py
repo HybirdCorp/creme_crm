@@ -28,7 +28,7 @@ from creme.creme_core.models.fields import CTypeForeignKey, DatePeriodField
 
 
 class AbstractRecurrentGenerator(CremeEntity):
-    name             = CharField(_(u'Name of the generator'), max_length=100, blank=True, null=True)
+    name             = CharField(_(u'Name of the generator'), max_length=100, blank=True)
     description      = TextField(_(u'Description'), blank=True, null=True)
     first_generation = DateTimeField(_(u'Date of the first generation'))
     last_generation  = DateTimeField(_(u'Date of the last generation'), null=True, editable=False)
