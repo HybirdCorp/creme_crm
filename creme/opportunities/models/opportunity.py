@@ -89,9 +89,8 @@ class Origin(CremeModel):
 
 class AbstractOpportunity(CremeEntity):
     name                  = CharField(_(u"Name of the opportunity"), max_length=100)
-    reference             = CharField(_(u"Reference"), max_length=100,
-                                      blank=True, null=True,
-                                     ).set_tags(optional=True)
+    reference             = CharField(_(u'Reference'), max_length=100, blank=True)\
+                                     .set_tags(optional=True)
     estimated_sales       = PositiveIntegerField(_(u'Estimated sales'),
                                                  blank=True, null=True,
                                                 ).set_tags(optional=True)
