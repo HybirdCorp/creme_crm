@@ -42,7 +42,7 @@ class AbstractProject(CremeEntity):
     effective_end_date  = DateTimeField(_(u'Effective end date'), blank=True, null=True)\
                                        .set_tags(optional=True)
 
-    tasks_list          = None
+    tasks_list = None
 
     allowed_related = CremeEntity.allowed_related | {'tasks_set'}
     creation_label = _('Add a project')

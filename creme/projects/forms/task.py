@@ -20,13 +20,13 @@
 
 from functools import partial
 
-from django.forms import DateTimeField, BooleanField, ValidationError
+from django.forms import BooleanField, ValidationError  # DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm, CremeEntityForm
 from creme.creme_core.forms.fields import CreatorEntityField, MultiCreatorEntityField
-from creme.creme_core.forms.widgets import DateTimeWidget
+# from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import ellipsis_multi
 
@@ -57,8 +57,8 @@ def _link_contact_n_activity(contact, activity, user):
 
 
 class _TaskForm(CremeEntityForm):
-    start = DateTimeField(label=_(u'Start'), widget=DateTimeWidget(), required=True)
-    end   = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required=True)
+    # start = DateTimeField(label=_(u'Start'), widget=DateTimeWidget(), required=True)
+    # end   = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required=True)
 
     class Meta(CremeEntityForm.Meta):
         model = ProjectTask
@@ -66,7 +66,10 @@ class _TaskForm(CremeEntityForm):
     def __init__(self, *args, **kwargs):
         super(_TaskForm, self).__init__(*args, **kwargs)
 
-        self.fields['duration'].required = True
+        fields = self.fields
+        fields['duration'].required = True
+        fields['start'].required = True
+        fields['end'].required = True
 
 
 class TaskEditForm(_TaskForm):
@@ -118,8 +121,8 @@ class TaskAddParentForm(CremeForm):
 
 class RelatedActivityEditForm(CremeEntityForm):
     resource      = CreatorEntityField(label=_(u'Allocated resource'), model=Resource)
-    start         = DateTimeField(label=_(u'Start'), widget=DateTimeWidget())  # TODO: required = False ??
-    end           = DateTimeField(label=_(u'End'), widget=DateTimeWidget())
+    # start         = DateTimeField(label=_(u'Start'), widget=DateTimeWidget())
+    # end           = DateTimeField(label=_(u'End'), widget=DateTimeWidget())
     type_selector = ActivityTypeField(label=_(u'Type'))
 
     class Meta(CremeEntityForm.Meta):
@@ -140,6 +143,8 @@ class RelatedActivityEditForm(CremeEntityForm):
         super(RelatedActivityEditForm, self).__init__(*args, **kwargs)
         fields = self.fields
         fields['duration'].required = True
+        fields['start'].required = True
+        fields['end'].required = True
 
         self.old_participant = self.old_relation = None
         instance = self.instance

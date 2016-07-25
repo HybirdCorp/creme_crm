@@ -21,12 +21,12 @@
 from functools import partial
 
 from django.forms import DateTimeField
-from django.forms.widgets import HiddenInput
+# from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, MultiCreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
-from creme.creme_core.forms.widgets import DateTimeWidget
+# from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model
@@ -36,12 +36,15 @@ from ..constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):
-    start_date         = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget())  # TODO: not required in the model !
-    end_date           = DateTimeField(label=_(u'End date'), required=True, widget=DateTimeWidget())
-    effective_end_date = DateTimeField(widget=HiddenInput(), required=False)
+    # start_date         = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget())
+    # end_date           = DateTimeField(label=_(u'End date'), required=True, widget=DateTimeWidget())
+    start_date = DateTimeField(label=_(u'Start date'), required=True)  # TODO: not required in the model !
+    end_date   = DateTimeField(label=_(u'End date'), required=True)
+    # effective_end_date = DateTimeField(widget=HiddenInput(), required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = get_project_model()
+        exclude = CremeEntityForm.Meta.exclude + ('effective_end_date',)  # TODO: field not editable ??
 
 
 class ProjectCreateForm(ProjectEditForm):
