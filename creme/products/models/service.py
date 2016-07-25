@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,9 +46,7 @@ class AbstractService(CremeEntity):
     quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True) \
                                     .set_tags(optional=True)
     unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
-    web_site          = CharField(_(u'Web Site'), max_length=100,
-                                  blank=True, null=True,
-                                 ).set_tags(optional=True)
+    web_site          = CharField(_(u'Web Site'), max_length=100, blank=True).set_tags(optional=True)
     images            = ManyToManyField(Image, blank=True,
                                         verbose_name=_(u'Images'),
                                         related_name='ServiceImages_set',
