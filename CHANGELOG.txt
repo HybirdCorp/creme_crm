@@ -4,7 +4,7 @@
   ------------
     # The version of Django has been upgraded to 1.8.
         - There is now an integrated migration system, which is better than South. Only the command 'migrate' is needed & 'syncdb' is useless.
-        - The new hint system performs some useful checkings, like the apps dependencies.
+        - The new hint system performs some useful checking, like the apps dependencies.
     # A new feature has been added: FieldsConfig.
       It allows the users to hide fields everywhere in Creme (forms, blocks, listview...), directly in the "General configuration".
     # The blocks configurations can now be set by role.
@@ -129,8 +129,8 @@
             - get_line_viewer
             - get_line_deletor
             - get_line_unlinker
-        # 2 signals have been added ; they provide a way to customize the uninstallation.
-        # Test models (ie: models which only exist when tests are runned) are used when it is possible (creme_core, reports).
+        # 2 signals have been added ; they provide a way to customize the uninstall.
+        # Test models (ie: models which only exist when tests are run) are used when it is possible (creme_core, reports).
         # Several ForeignKey fields are now OneToOneFields (RelationBlockItem.relation_type, HistoryConfigItem.relation_type) ;
           a new model field has been added: CTypeOneToOneField.
         # Apps :
@@ -248,7 +248,7 @@
                 - The listview for Lines ('/billing/lines') has been removed.
                 - The related names for FK in Base ('*_address', 'currency', 'additional_info', 'payment_terms', 'payment_info') have been removed.
                 - The block ReceivedBillingDocumentBlock has been removed (replaced by ReceivedQuotesBlock/ReceivedSalesOrdersBlock/ReceivedCreditNotesBlock).
-                - The field Line.type has been removed and also the related stuffes :
+                - The field Line.type has been removed and also the related stuff :
                     - The method Line.get_verbose_type().
                     - The constants PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE & LINE_TYPES.
                     - The FunctionField '_LineTypeField'.
@@ -398,7 +398,7 @@
     # The inner/bulk edition has been improved :
         - The widgets are the same the full form ones, and so :
             - The creator widgets are now used with configurable models (eg: Invoice.status).
-            - The ForeignKeys to CremeEntities are now well managed (eg: Contat.image).
+            - The ForeignKeys to CremeEntities are now well managed (eg: Contact.image).
             - The ManyToManyFields are now supported (eg: Image.categories).
         - The form of a specific field can be customized in order to manage correctly its business logic (see 'Apps' section).
         - The support of related sub-fields (eg: Contact.billing_address__city) has been added.
@@ -411,11 +411,11 @@
         - The conditions on FK fields (eg: Invoice.status) can now use a multi-selection.
         - The Empty/NotEmpty operators are enabled only when a field can be null.
         - The Date fields (regular & custom ones) now supports the Empty/NotEmpty operators.
-        - The EntityFilters created by the 'populate' scripts (ie: not custom) are now editable (but not deletable, and their name is not editable); their are versionned too.
+        - The EntityFilters created by the 'populate' scripts (ie: not custom) are now editable (but not deletable, and their name is not editable); their are versioned too.
           Their owner is now the first super-user (in order not all users can edit them).
           The versionning means that when a populate script is run again, if the script tries to create a filter which already exists (ie: its PK exists) :
             - if the new version would have the same conditions, the name of the existing filter is updated (in order to fix a potential typo).
-            - if the conditions are different, a new filter with the old one PK as base for its own PK (plus a version mark) is created ; the name is versionned too.
+            - if the conditions are different, a new filter with the old one PK as base for its own PK (plus a version mark) is created ; the name is versioned too.
     # Listviews Views (HeaderFilters) :
         - They can now be private ; it means that they can only be used by their owner.
         - The Views created by the 'populate' scripts (ie: not custom) are now editable (but not deletable).
@@ -426,7 +426,7 @@
         - The search on a model can be disabled in creme_config.
     # The CSV import can now set the CustomFields values.
     # You can now create an Entity "on the fly" with the multi-select widget for Entities.
-    # A User and its related Contact are now synchonised (ie: first_name, last_name & email remain equal).
+    # A User and its related Contact are now synchronised (ie: first_name, last_name & email remain equal).
     # The autocompletion has been added to several forms, to select a content type or a relationship type.
     # The non mandatory instances are not re-created anymore when the command 'creme_populate' is run.
     # The ordering of models has been improved: lots of models are now ordered by name/title.
@@ -545,9 +545,9 @@
         # The method CremeEntity.get_edit_absolute_url() now returns '' (and not an invalid URL anymore) which means 'No edition' ;
           the base templates/templatetags use this official behaviour (view_entity.html, {% get_edit_button ... %}).
         # _BulkUpdateRegistry.register() args have changed. It is not anymore a list of tuples (model, list_of_field_names),
-          but now it allows to register only a model at once, an optionnal list of field names, and an optional dict of custom forms.
+          but now it allows to register only a model at once, an optional list of field names, and an optional dict of custom forms.
         # ManyToManyFields are now inner-editable by default ; so you have to manage them with bulk_update_registry.register(MyModel, ...)
-          if it causes a businness logic problem (by excluding them, or adding a custom form for them).
+          if it causes a business logic problem (by excluding them, or adding a custom form for them).
         # SettingKey & SettingValue :
             - The SettingKey class is not a model anymore ; the SettingKey instances should be created
               in a setting_keys.py file and registered in your creme_core_register.py (see setting_key_registry).
@@ -905,7 +905,7 @@
     # In CremeAbstractEntity class 'excluded_fields_in_html_output' and 'header_filter_exclude_fields' attributes have been removed (tags are used instead).
     # New attribute in CremeModel (so, in CremeEntity), 'creation_label', that contains the (localized) string used by forms, buttons etc... that create instances.
     # The code manages better the invalidation of model fields.
-      HeaderFilters, EntityFilters & Histories check now at runtime if they handle invalid fields (and they modificate themselves to ignore them).
+      HeaderFilters, EntityFilters & Histories check now at runtime if they handle invalid fields (and they modify themselves to ignore them).
     # New model field : 'CTypeForeignKey'. It uses the cache of ContentType manager, when ForeignKey(ContentType, ...) does not.
     # Unit tests for JavaScript code.
     # Blocks system :
@@ -927,7 +927,7 @@
     # The setting DEFAULT_EMAIL_FOR_REMIND has been deleted ; DEFAULT_USER_EMAIL is used instead.
     # Apps :
         * Opportunities :
-            - Opportunit.emitter & Opportunit.target properties added.
+            - Opportunity.emitter & Opportunity.target properties added.
         * Emails : settings have changed.
             - CREME_EMAIL_SERVER => EMAILCAMPAIGN_HOST
             - CREME_EMAIL_PORT => EMAILCAMPAIGN_PORT
@@ -1019,7 +1019,7 @@
     # Deletion of users (& teams) with files assignation to an other user.
     # UI :
         * Improved scrolling for the side menu.
-        * Portals have not yet the same name in the prefered menu.
+        * Portals have not yet the same name in the preferred menu.
         * Can delete all (allowed) relations on relation block in one click.
         * Lots of choices are now smartly ordered (eg: predicates in relation creation popup).
     # Credentials improved :
