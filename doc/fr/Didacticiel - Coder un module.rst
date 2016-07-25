@@ -397,21 +397,17 @@ Dans ``forms/``, nous créons alors le fichier ``beaver.py`` : ::
 
     from django.utils.translation import ugettext_lazy as _
 
-    from creme.creme_core.forms import CremeEntityForm, CremeDateField
+    from creme.creme_core.forms import CremeEntityForm
 
     from ..models import Beaver
 
 
     class BeaverForm(CremeEntityForm):
-        birthday = CremeDateField(label=_(u'Birthday'))
-
         class Meta(CremeEntityForm.Meta):
             model = Beaver
 
 
-Il s'agit assez simplement d'un formulaire lié à notre modèle ; la seule subtilité
-est l'utilisation du champ ``CremeDateField`` afin de disposer d'un 'widget' pour
-remplir la date en cliquant sur un mini-calendrier.
+Il s'agit d'un formulaire lié à notre modèle tout simple.
 
 Puis nous modifions ``views/beaver.py``, en ajoutant ceci à la fin (vous pouvez
 ramener les ``import`` au début, avec les autres directives ``import`` bien sûr) : ::
