@@ -5,7 +5,6 @@ try:
 
     from django.utils.translation import ugettext as _
 
-    # from creme.persons.models import Address, Organisation, Contact
     from creme.persons.tests.base import (skipIfCustomAddress,
             skipIfCustomContact, skipIfCustomOrganisation)
 
@@ -13,9 +12,6 @@ try:
     from .base import GeoLocationBaseTestCase, Address, Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-# __all__ = ('GeoLocationModelsTestCase',)
 
 
 @skipIfCustomOrganisation
@@ -344,7 +340,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                               latitude=None, longitude=None,
                               draggable=True, geocoded=False,
                               status=GeoAddress.PARTIAL,
-                             ) # invalid status
+                             )  # invalid status
 
         address = addresses[4]
         self.assertGeoAddress(address.geoaddress, address=address,
@@ -386,7 +382,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                               latitude=town1.latitude, longitude=town1.longitude,
                               draggable=True, geocoded=False,
                               status=GeoAddress.PARTIAL,
-                             ) # 13001 first
+                             )  # 13001 first
 
         address = addresses[4]
         self.assertGeoAddress(address.geoaddress, address=address,
@@ -484,7 +480,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         self.assertFalse(COMMANDERIE.geoaddress.neighbours(distance=1000))
         self.assertEqual(list(COMMANDERIE.geoaddress.neighbours(distance=10000)),
                          [ST_VICTOR.geoaddress]
-                        ) # ignore aubagne, same owner !
+                        )  # ignore aubagne, same owner !
 
     @skipIfCustomContact
     def test_neighbours_with_empty_coordinates(self):

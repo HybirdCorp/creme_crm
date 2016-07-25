@@ -9,7 +9,6 @@ try:
     from creme.creme_core.models.auth import SetCredentials
     from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
 
-    # from creme.persons.models import Organisation, Contact # Address
     from creme.persons.tests.base import (skipIfCustomAddress,
             skipIfCustomContact, skipIfCustomOrganisation)
 
@@ -18,9 +17,6 @@ try:
     from .base import GeoLocationBaseTestCase, Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-# __all__ = ('SetAddressInfoTestCase', 'GetAddressesTestCase', 'GetNeighboursTestCase')
 
 
 create_town = Town.objects.create
@@ -41,7 +37,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         orga = create_orga(name='Orga 1', user=user)
         address = self.create_address(orga)
         self.assertEqual(1, GeoAddress.objects.count())
-
 
         data = {'latitude':  45.22454,
                 'longitude': -1.22121,
@@ -193,6 +188,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
                                  'geocoded':  True,
                                 }
                           )
+
 
 @skipIfCustomOrganisation
 @skipIfCustomAddress
