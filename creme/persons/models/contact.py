@@ -57,8 +57,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     phone    = PhoneField(_(u'Phone number'), max_length=100, blank=True)\
                          .set_tags(optional=True)
     mobile   = PhoneField(_(u'Mobile'), max_length=100, blank=True).set_tags(optional=True)
-    fax      = CharField(_(u'Fax'), max_length=100, blank=True, null=True)\
-                        .set_tags(optional=True)
+    fax      = CharField(_(u'Fax'), max_length=100, blank=True).set_tags(optional=True)
     email    = EmailField(_(u'Email address'), blank=True).set_tags(optional=True)
     url_site = URLField(_(u'Web Site'), max_length=500, blank=True)\
                        .set_tags(optional=True)
