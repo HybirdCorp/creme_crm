@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -64,14 +64,15 @@ class CustomField(CremeModel):
     def __unicode__(self):
         return self.name
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, using=None):
         for value_class in _TABLES.itervalues():
             value_class.objects.filter(custom_field=self).delete()
 
         # Beware: we don't call the CustomFieldEnumValue.delete() to avoid loop.
         self.customfieldenumvalue_set.all().delete()
 
-        super(CustomField, self).delete()
+        super(CustomField, self).delete(using=using)
 
     def type_verbose_name(self):
         return _TABLES[self.field_type].verbose_name
@@ -253,9 +254,8 @@ class CustomFieldDateTime(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        # TODO: hook DateTimeField to automatically use DateTimeWidget
-        from creme.creme_core.forms.widgets import DateTimeWidget
-        kwargs['widget'] = DateTimeWidget
+        # from creme.creme_core.forms.widgets import DateTimeWidget
+        # kwargs['widget'] = DateTimeWidget
         return forms.DateTimeField(**kwargs)
 
 
