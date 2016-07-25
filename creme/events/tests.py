@@ -3,7 +3,7 @@
 skip_event_tests = False
 
 try:
-    #from datetime import date, datetime
+    # from datetime import date, datetime
     from functools import partial
     from unittest import skipIf
 
@@ -48,7 +48,6 @@ def skipIfCustomEvent(test_func):
     return skipIf(skip_event_tests, 'Custom Event model in use')(test_func)
 
 
-
 @skipIfCustomEvent
 class EventsTestCase(CremeTestCase):
     format_str    = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
@@ -85,32 +84,76 @@ class EventsTestCase(CremeTestCase):
         self.login()
         self.assertGET200('/events/')
 
-    def _create_event(self, name, etype=None):
+    def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
         etype = etype or EventType.objects.all()[0]
-        self.assertNoFormError(self.client.post(self.ADD_URL, follow=True,
-                                                data={'user':       self.user.pk,
-                                                      'name':       name,
-                                                      'type':       etype.pk,
-                                                      'start_date': '2010-11-3',
-                                                     }
-                                               )
-                              )
+
+        data = {'user':       self.user.pk,
+                'name':       name,
+                'type':       etype.pk,
+                'start_date': start_date,
+               }
+        data.update(extra_data)
+
+        self.assertNoFormError(self.client.post(self.ADD_URL, follow=True, data=data))
 
         return self.get_object_or_fail(Event, name=name)
 
-    def test_event_createview(self):
+    def test_event_createview01(self):
         self.login()
-
         self.assertGET200(self.ADD_URL)
 
-        name  = 'Eclipse'
         etype = EventType.objects.all()[0]
-        event = self._create_event(name, etype)
+        event = self._create_event('Eclipse', etype)
 
-        self.assertEqual(1,     Event.objects.count())
-        self.assertEqual(name,  event.name)
+        self.assertEqual(1, Event.objects.count())
         self.assertEqual(etype, event.type)
         self.assertEqual(self.create_datetime(2010, 11, 3), event.start_date)
+        self.assertIsNone(event.end_date)
+
+    def test_event_createview02(self):
+        "End data, hours"
+        self.login()
+
+        etype = EventType.objects.all()[1]
+        event = self._create_event('Comiket', etype,
+                                   start_date='2016-7-25 8:00',
+                                   end_date='2016-7-29 18:30',
+                                  )
+        self.assertEqual(etype, event.type)
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2016, month=7, day=25, hour=8), event.start_date)
+        self.assertEqual(create_dt(year=2016, month=7, day=29, hour=18, minute=30), event.end_date)
+
+    def test_event_createview03(self):
+        "start > end"
+        user = self.login()
+        etype = EventType.objects.all()[1]
+        response = self.assertPOST200(self.ADD_URL,
+                                      data={'user':       user.pk,
+                                            'name':       'Comicon',
+                                            'type':       etype.pk,
+                                            'start_date': '2016-7-29 8:00',
+                                            'end_date':   '2016-7-28 18:30',
+                                           })
+        self.assertFormError(response, 'form', 'end_date',
+                             _(u'The end date must be after the start date.')
+                            )
+
+    def test_event_createview04(self):
+        "FieldsConfig: end is hidden"
+        self.login()
+
+        FieldsConfig.create(Event,
+                            descriptions=[('end_date', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        event = self._create_event('Comiket',
+                                   start_date='2016-7-25 8:00',
+                                   end_date='2016-7-29 18:30',
+                                  )
+        self.assertEqual(self.create_datetime(year=2016, month=7, day=25, hour=8), event.start_date)
+        self.assertIsNone(event.end_date)
 
     def test_event_editview(self):
         user = self.login()
@@ -177,7 +220,7 @@ class EventsTestCase(CremeTestCase):
         judo     = create_contact(first_name='Judo',     last_name='Miura')
         griffith = create_contact(first_name='Griffith', last_name='Miura')
         rickert  = create_contact(first_name='Rickert',  last_name='Miura')
-        #carcus   = create_contact(first_name='Carcus',   last_name='Miura', is_deleted=True) TODO ??
+        # carcus   = create_contact(first_name='Carcus',   last_name='Miura', is_deleted=True) TODO ??
 
         def create_relation(subject, type_id):
             Relation.objects.create(subject_entity=subject,
@@ -199,7 +242,7 @@ class EventsTestCase(CremeTestCase):
         create_relation(casca,    REL_SUB_CAME_EVENT)
         create_relation(judo,     REL_SUB_CAME_EVENT)
         create_relation(griffith, REL_SUB_CAME_EVENT)
-        #create_relation(carcus,   REL_SUB_CAME_EVENT)
+        # create_relation(carcus,   REL_SUB_CAME_EVENT)
 
         stats = event.get_stats()
         self.assertEqual(4, stats['invations_count'])
@@ -563,7 +606,6 @@ class EventsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'related_contacts',
-                             #_(u'Contact %s is present twice.') % casca
                              _(u'Contact %(contact)s is present twice.') % {
                                     'contact': casca,
                                 }

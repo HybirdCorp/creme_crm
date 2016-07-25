@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,12 @@
 
 from collections import defaultdict
 
-from django.forms import DateTimeField, ModelChoiceField, ValidationError
+from django.forms import ModelChoiceField, ValidationError  # DateTimeField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
-from creme.creme_core.forms.widgets import DateTimeWidget
+# from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first
 
@@ -39,11 +39,22 @@ from .. import constants
 
 
 class EventForm(CremeEntityForm):
-    start_date = DateTimeField(label=_(u'Start date'), widget=DateTimeWidget)
-    end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)  # TODO: start_date > end_date ?
+    # start_date = DateTimeField(label=_(u'Start date'), widget=DateTimeWidget)
+    # end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)
 
     class Meta(CremeEntityForm.Meta):
         model = get_event_model()
+
+    def clean(self):
+        cdata = super(CremeEntityForm, self).clean()
+
+        if not self._errors:
+            end = cdata.get('end_date')
+
+            if end and cdata['start_date'] > end:
+                self.add_error('end_date', ugettext(u'The end date must be after the start date.'))
+
+        return cdata
 
 
 _SYMMETRICS = {
