@@ -88,7 +88,7 @@ class AbstractProjectTask(CremeEntity):
             self.parents = self.parent_tasks.all()
         return self.parents
 
-    def get_subtasks(self): #TODO: store result in a cache ?
+    def get_subtasks(self):  # TODO: store result in a cache ?
         """Return all the sub-tasks in a list.
         Sub-tasks include the task itself, all its children, the children of its children etc...
         """
@@ -157,9 +157,9 @@ class AbstractProjectTask(CremeEntity):
 
     @staticmethod
     def clone_scope(tasks, project):
-        """Clone each task in 'tasks',assign them to 'project', and restore links between each task
-        @params tasks : an iterable of ProjectTask
-        @params project : A Project
+        """Clone each task in 'tasks',assign them to 'project', and restore links between each task.
+        @params tasks: an iterable of ProjectTask.
+        @params project: a Project instance.
         """
         context = {}
 
