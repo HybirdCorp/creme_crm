@@ -74,30 +74,29 @@ def check_uninstalled_apps(**kwargs):
     return warnings
 
 
-# TODO: remove me in Creme 1.7
-@register(Tags.api_breaking)
-def check_creme_core_registers(**kwargs):
-    from imp import find_module
-
-    errors = []
-
-    # We search the remaining 'creme_core_register.py' files of all apps.
-    for app_config in apps.get_app_configs():
-        app_name = app_config.name
-
-        try:
-            find_module('creme_core_register',
-                        __import__(app_name, {}, {}, [app_config.label]).__path__,
-                       )
-        except ImportError:
-            pass  # There is no creme_core_register.py => OK
-        else:
-            errors.append(Error('You seem to still use the "creme_core_register" feature.',
-                                hint='Use the AppConfig feature instead & remove the '
-                                     'creme_core_register.py(c) file(s)',
-                                obj=app_name,
-                                id='creme.E004',
-                               )
-                         )
-
-    return errors
+# @register(Tags.api_breaking)
+# def check_creme_core_registers(**kwargs):
+#     from imp import find_module
+#
+#     errors = []
+#
+#     # We search the remaining 'creme_core_register.py' files of all apps.
+#     for app_config in apps.get_app_configs():
+#         app_name = app_config.name
+#
+#         try:
+#             find_module('creme_core_register',
+#                         __import__(app_name, {}, {}, [app_config.label]).__path__,
+#                        )
+#         except ImportError:
+#             pass  # There is no creme_core_register.py => OK
+#         else:
+#             errors.append(Error('You seem to still use the "creme_core_register" feature.',
+#                                 hint='Use the AppConfig feature instead & remove the '
+#                                      'creme_core_register.py(c) file(s)',
+#                                 obj=app_name,
+#                                 id='creme.E004',
+#                                )
+#                          )
+#
+#     return errors
