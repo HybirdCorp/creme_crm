@@ -23,11 +23,13 @@ try:
             CustomField, CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean,
             CustomFieldString, CustomFieldDateTime,
             CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue)
-    from creme.creme_core.models import history
+    from creme.creme_core.models import history, SetCredentials
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.blocks import trash_block
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
     from creme.creme_core.utils import safe_unicode
+
+    from creme.creme_config.tests.fake_models import FakeConfigEntity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -75,6 +77,23 @@ class EntityViewsTestCase(ViewsTestCase):
 
         nerv = Organisation.objects.create(user=self.other_user, name='Nerv')
         self.assertGET(400, '/creme_core/relation/entity/%s/json' % nerv.id)
+
+    def test_json_entity_get03(self):
+        "No credentials for the basic CremeEntity, but real entity is viewable"
+        user = self.login(is_superuser=False, allowed_apps=['creme_config'],  # Not 'creme_core'
+                          creatable_models=[FakeConfigEntity],
+                         )
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        e = FakeConfigEntity.objects.create(user=user, name='Nerv')
+        response = self.assertGET200('/creme_core/relation/entity/%s/json' % e.id,
+                                     data={'fields': ['unicode']},
+                                    )
+        self.assertEqual([[unicode(e)]], load_json(response.content))
 
     def test_get_creme_entities_repr01(self):
         user = self.login()
@@ -392,7 +411,7 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertFalse(entity.is_deleted)
 
     def test_empty_trash01(self):
-        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'))
+        user = self.login(is_superuser=False, allowed_apps=('creme_core',))  # 'persons'
 
         create_contact = partial(Contact.objects.create, user=user, is_deleted=True)
         contact1 = create_contact(first_name='Lawrence', last_name='Kraft')
@@ -427,6 +446,43 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertStillExists(entity01)
         self.assertStillExists(entity02)
         self.assertDoesNotExist(entity03)
+
+    def test_empty_trash03(self):
+        "Credentials on specific CT"
+        user = self.login(is_superuser=False, allowed_apps=('creme_core',))  # NB: can delete ESET_OWN
+        other_user = self.other_user
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                      ctype=ContentType.objects.get_for_model(Organisation),
+                                     )
+
+        create_contact = partial(Contact.objects.create, user=user, is_deleted=True)
+        contact1 = create_contact(first_name='Lawrence', last_name='Kraft')
+        contact2 = create_contact(first_name='Holo',     last_name='Wolf', user=other_user)
+        self.assertTrue(user.has_perm_to_delete(contact1))
+        self.assertFalse(user.has_perm_to_delete(contact2))
+
+        create_orga = partial(Organisation.objects.create, user=user, is_deleted=True)
+        orga1 = create_orga(name='Nerv')
+        orga2 = create_orga(name='Seele', is_deleted=False)
+        orga3 = create_orga(name='Neo tokyo', user=other_user)
+        self.assertTrue(user.has_perm_to_delete(orga1))
+        self.assertTrue(user.has_perm_to_delete(orga2))  # But not deleted
+        self.assertTrue(user.has_perm_to_delete(orga3))
+
+        self.assertPOST200(self.EMPTY_TRASH_URL)
+        self.assertDoesNotExist(contact1)
+        self.assertStillExists(contact2)
+
+        self.assertStillExists(orga2)
+        self.assertDoesNotExist(orga1)
+        self.assertDoesNotExist(orga3)
 
     def _build_test_get_info_fields_url(self, model):
         ct = ContentType.objects.get_for_model(model)

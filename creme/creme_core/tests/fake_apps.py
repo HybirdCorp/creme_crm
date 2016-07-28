@@ -21,6 +21,7 @@ def ready():
     from .fake_models import (FakeContact, FakeOrganisation, FakeAddress, FakeImage,
             FakeActivity, FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
 
+    from creme.creme_config.tests.fake_models import FakeConfigEntity
 
     creme_registry.register_entity_models(FakeContact,
                                           FakeOrganisation,
@@ -30,6 +31,7 @@ def ready():
                                           FakeMailingList,
                                           FakeInvoice,
                                           FakeInvoiceLine,
+                                          FakeConfigEntity,
                                          )
 
     block_registry.register_invalid_models(FakeInvoiceLine)  # See creme_config tests

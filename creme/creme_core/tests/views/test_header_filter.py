@@ -57,7 +57,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_create01(self):
         self.login()
 
-        ct = ContentType.objects.get_for_model(CremeEntity)
+        # ct = ContentType.objects.get_for_model(CremeEntity)
+        ct = ContentType.objects.get_for_model(Organisation)
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
 
         url = self._build_add_url(ct)
@@ -87,7 +88,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('created__range', cell.filter_string)
         self.assertIs(cell.is_hidden, False)
 
-        self.assertRedirects(response, '/')
+        # self.assertRedirects(response, '/')
+        self.assertRedirects(response, Organisation.get_lv_absolute_url())
 
     def test_create02(self):
         user = self.login()

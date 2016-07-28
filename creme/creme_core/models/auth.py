@@ -32,12 +32,13 @@ from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
 from django.db.models import (Model, CharField, TextField, BooleanField,
         PositiveSmallIntegerField, PositiveIntegerField, EmailField,
-        DateTimeField, ForeignKey, ManyToManyField, PROTECT)
+        DateTimeField, ForeignKey, ManyToManyField, PROTECT, Q)
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..auth.entity_credentials import EntityCredentials
 from ..registry import creme_registry, NotRegistered
+from ..utils import split_filter
 from ..utils.unicode_collation import collator
 from .fields import CTypeForeignKey
 
@@ -186,15 +187,52 @@ class UserRole(Model):
 
     # TODO: factorise
     def filter(self, user, queryset, perm):
-        """@param perm value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...)
-        @return A new (filtered) queryset
+        """Filter a QuerySet of CremeEntities by the credentials related to this role.
+        Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
+
+        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser) ;
+                     should be related to the UserRole instance.
+        @param queryset: A Queryset on a child class of CremeEntity.
+        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @return: A new (filtered) queryset on the same model.
         """
-        if self.is_app_allowed_or_administrable(queryset.model._meta.app_label):
+        from .entity import CremeEntity
+
+        model = queryset.model
+        assert issubclass(model, CremeEntity)
+        assert model is not CremeEntity
+
+        if self.is_app_allowed_or_administrable(model._meta.app_label):
             queryset = SetCredentials.filter(self._get_setcredentials(), user, queryset, perm)
         else:
             queryset = queryset.none()
 
         return queryset
+
+    def filter_entities(self, user, queryset, perm):
+        """Filter a QuerySet of CremeEntities by the credentials related to this role.
+        Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
+
+        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser) ;
+                     should be related to the UserRole instance.
+        @param queryset: A Queryset with model=CremeEntity.
+        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @return: A new (filtered) queryset on the same model.
+        """
+        from creme.creme_core.models import CremeEntity
+        assert queryset.model is CremeEntity
+
+        from ..registry import creme_registry
+
+        is_app_allowed = self.is_app_allowed_or_administrable
+
+        return SetCredentials.filter_entities(
+                    self._get_setcredentials(), user, queryset, perm,
+                    models=[model
+                                for model in creme_registry.iter_entity_models()
+                                    if is_app_allowed(model._meta.app_label)
+                           ],
+                )
 
 
 class SetCredentials(Model):
@@ -288,27 +326,92 @@ class SetCredentials(Model):
 
     @staticmethod
     def filter(sc_sequence, user, queryset, perm):
-        """Filter a queryset of entities with credentials.
-        @param sc_sequence Sequence of SetCredentials instances.
-        @param user from django.contrib.auth.models.User instance.
-        @param queryset Queryset of CremeEntity (or a child class of course).
-        @param perm value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...)
-        @return A new queryset.
+        """Filter a queryset of entities with the given credentials.
+        Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
+
+        @param sc_sequence: A sequence of SetCredentials instances.
+        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser).
+        @param queryset: A Queryset on a child class of CremeEntity.
+        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @return: A new queryset on the same model.
         """
-        allowed_ctype_ids = (None, ContentType.objects.get_for_model(queryset.model).id)
+        from .entity import CremeEntity
+
+        model = queryset.model
+        assert issubclass(model, CremeEntity)
+        assert model is not CremeEntity
+
+        allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id)
         ESET_ALL = SetCredentials.ESET_ALL
 
         # NB: we sort to get ESET_ALL creds before ESET_OWN ones (more priority)
         for sc in sorted(sc_sequence, key=lambda sc: sc.set_type):
             if sc.ctype_id in allowed_ctype_ids and sc.value & perm:
                 if sc.set_type == ESET_ALL:
-                    return queryset  # No additionnal filtering needed
+                    return queryset  # No additional filtering needed
                 else:  # SetCredentials.ESET_OWN
                     teams = user.teams
                     return queryset.filter(user__in=[user] + teams) if teams else \
                            queryset.filter(user=user)
 
         return queryset.none()
+
+    @staticmethod
+    def filter_entities(sc_sequence, user, queryset, perm, models):
+        """Filter a queryset of entities with the given credentials.
+        Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
+
+        @param sc_sequence: A sequence of SetCredentials instances.
+        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser).e.
+        @param queryset: Queryset with model=CremeEntity.
+        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @param models: An iterable of CremeEntity-child-classes, corresponding to allowed models.
+        @return: A new queryset on CremeEntity.
+        """
+        from .entity import CremeEntity
+        assert queryset.model is CremeEntity
+
+        get_for_model = ContentType.objects.get_for_model
+        ct_ids = {get_for_model(model).id for model in models}
+
+        ESET_ALL = SetCredentials.ESET_ALL
+        sc_all, sc_owner = split_filter(predicate=(lambda sc: sc.set_type == ESET_ALL),
+                                        iterable=(sc for sc in sc_sequence if sc.value & perm),
+                                       )
+
+        def extract_ct_ids(sc_instances):
+            extracted_ct_ids = []
+
+            for sc in sc_instances:
+                ct_id = sc.ctype_id
+
+                if ct_id is None:
+                    extracted_ct_ids.extend(ct_ids)
+                    ct_ids.clear()
+                    break
+
+                if ct_id in ct_ids:
+                    extracted_ct_ids.append(ct_id)
+                    ct_ids.remove(ct_id)
+
+            return extracted_ct_ids
+
+        ctype_ids_all = extract_ct_ids(sc_all)
+        ctype_ids_owner = extract_ct_ids(sc_owner)
+
+        if not ctype_ids_all and not ctype_ids_owner:
+            queryset = queryset.none()
+        else:
+            q = Q(entity_type_id__in=ctype_ids_all) if ctype_ids_all else Q()
+
+            if ctype_ids_owner:
+                teams = user.teams
+                kwargs = {'user__in': [user] + teams} if teams else {'user': user}
+                q |= Q(entity_type_id__in=ctype_ids_owner, **kwargs)
+
+            queryset = queryset.filter(q)
+
+        return queryset
 
     def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):
         """Set the 'value' attribute from 5 booleans"""
@@ -566,8 +669,11 @@ class CremeUser(AbstractBaseUser):
         if entity.is_deleted:
             return False
 
-        get_related_entity = getattr(entity, 'get_related_entity', None)
-        main_entity = get_related_entity() if get_related_entity else entity
+        # get_related_entity = getattr(entity, 'get_related_entity', None)
+        # main_entity = get_related_entity() if get_related_entity else entity
+        main_entity = entity.get_real_entity().get_related_entity() \
+                      if hasattr(entity.entity_type.model_class(), 'get_related_entity') \
+                      else entity
 
         return self._get_credentials(main_entity).can_change()
 
@@ -591,9 +697,11 @@ class CremeUser(AbstractBaseUser):
                                   )
 
     def has_perm_to_delete(self, entity):
-        get_related_entity = getattr(entity, 'get_related_entity', None)
-        if get_related_entity:
-            return self._get_credentials(get_related_entity()).can_change()
+        # get_related_entity = getattr(entity, 'get_related_entity', None)
+        # if get_related_entity:
+        #     return self._get_credentials(get_related_entity()).can_change()
+        if hasattr(entity.entity_type.model_class(), 'get_related_entity'):  # TODO: factorise
+            return self._get_credentials(entity.get_real_entity().get_related_entity()).can_change()
 
         return self._get_credentials(entity).can_delete()
 
@@ -628,6 +736,7 @@ class CremeUser(AbstractBaseUser):
         from .entity import CremeEntity
 
         if isinstance(entity_or_model, CremeEntity):
+            # TODO: what about related_entity ?
             return False if entity_or_model.is_deleted else \
                    self._get_credentials(entity_or_model).can_link()
 
@@ -649,6 +758,7 @@ class CremeUser(AbstractBaseUser):
             raise PermissionDenied(msg)
 
     def has_perm_to_unlink(self, entity):
+        # TODO: what about related_entity ?
         return self._get_credentials(entity).can_unlink()
 
     def has_perm_to_unlink_or_die(self, entity):
@@ -658,6 +768,7 @@ class CremeUser(AbstractBaseUser):
                                   )
 
     def has_perm_to_view(self, entity):
+        # TODO: what about related_entity ?
         return self._get_credentials(entity).can_view()
 
     def has_perm_to_view_or_die(self, entity):
