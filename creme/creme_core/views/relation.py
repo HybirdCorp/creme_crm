@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from django.utils.translation import ugettext as _
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
-from ..models import Relation, RelationType, CremeEntity, EntityCredentials
+from ..models import Relation, RelationType, CremeEntity  # EntityCredentials
 from ..utils import get_from_POST_or_404, get_ct_or_404, creme_entity_content_types, jsonify
 from .generic import inner_popup, list_view_popup_from_widget
 
@@ -90,9 +90,17 @@ JSON_ENTITY_FIELDS = {'unicode':     lambda e, user: e.allowed_unicode(user),
 @jsonify
 def json_entity_get(request, entity_id):
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_ENTITY_FIELDS)
-    query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=entity_id))
+    # query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=entity_id))
+    #
+    # return _fields_values(query, getters, (0, 1), sort, request.user)
+    user = request.user
+    instances = []
+    entity = CremeEntity.objects.filter(pk=entity_id).first()
 
-    return _fields_values(query, getters, (0, 1), sort, request.user)
+    if entity is not None and user.has_perm_to_view(entity):
+        instances.append(entity)
+
+    return _fields_values(instances, getters, (0, 1), sort, user)
 
 
 JSON_PREDICATE_FIELDS = {'unicode': lambda e, user: unicode(e),

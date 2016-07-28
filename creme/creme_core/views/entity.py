@@ -467,10 +467,15 @@ def empty_trash(request):
         progress = False
         errors = []  # TODO: LimitedList
         # NB: we do not use delete() method of queryset in order to send signals
-        entities = EntityCredentials.filter(user,
-                                            CremeEntity.objects.filter(is_deleted=True),
-                                            EntityCredentials.DELETE,
-                                           )
+        # entities = EntityCredentials.filter(user,
+        #                                     CremeEntity.objects.filter(is_deleted=True),
+        #                                     EntityCredentials.DELETE,
+        #                                    )
+        entities = EntityCredentials.filter_entities(
+                        user,
+                        CremeEntity.objects.filter(is_deleted=True),
+                        EntityCredentials.DELETE,
+                    )
 
         for entities_slice in iter_as_slices(entities, 1024):
             CremeEntity.populate_real_entities(entities_slice)

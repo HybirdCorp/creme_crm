@@ -27,7 +27,7 @@ UNLINK_PERM = 'creme_core.unlink_entity'
 
 class EntityCredentials(object):
     NONE   =  0
-    # ADD    =  1 # 0b000001   #useless...
+    # ADD    =  1 # 0b000001   # Useless...
     VIEW   =  2  # 0b000010
     CHANGE =  4  # 0b000100
     DELETE =  8  # 0b001000
@@ -81,13 +81,46 @@ class EntityCredentials(object):
 
     @staticmethod
     def filter(user, queryset, perm=VIEW):
-        """Filter a Queryset of CremeEntities with their 'view' credentials.
-        @param queryset A Queryset on CremeEntity models (better if not yet retrieved).
-        @param perm A value in: VIEW, CHANGE, DELETE, LINK, UNLINK [TODO: allow combination]
-        @return A new Queryset on CremeEntity, more selective (not retrieved).
+        """Filter a Queryset of CremeEntities by the credentials of a given user.
+        Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
+
+        @param queryset: A Queryset on a CremeEntity inheriting model (better if not yet retrieved).
+        @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
+        @return: A new Queryset on the same model, more selective (not retrieved).
         """
+        from creme.creme_core.models import CremeEntity
+
+        model = queryset.model
+
+        if not issubclass(model, CremeEntity) or model is CremeEntity:
+            raise ValueError('EntityCredentials.filter() takes a queryset on models '
+                             'inheriting CremeEntity, not CremeEntity directly.'
+                            )
+
         if not user.is_superuser:
             assert user.role is not None
             queryset = user.role.filter(user, queryset, perm)
+
+        return queryset
+
+    @staticmethod
+    def filter_entities(user, queryset, perm=VIEW):
+        """Filter a Queryset of CremeEntities by the credentials of a given user.
+        Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
+
+        @param queryset: A Queryset with model=CremeEntity (better if not yet retrieved).
+        @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
+        @return: A new Queryset on CremeEntity, more selective (not retrieved).
+        """
+        from creme.creme_core.models import CremeEntity
+
+        if queryset.model is not CremeEntity:
+            raise ValueError('EntityCredentials.filter_entities() takes '
+                             'a queryset on CremeEntity, not an inheriting model.'
+                            )
+
+        if not user.is_superuser:
+            assert user.role is not None
+            queryset = user.role.filter_entities(user, queryset, perm)
 
         return queryset
