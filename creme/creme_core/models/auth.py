@@ -209,7 +209,7 @@ class UserRole(Model):
 
         return queryset
 
-    def filter_entities(self, user, queryset, perm):
+    def filter_entities(self, user, queryset, perm, as_model=None):
         """Filter a QuerySet of CremeEntities by the credentials related to this role.
         Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
 
@@ -217,6 +217,11 @@ class UserRole(Model):
                      should be related to the UserRole instance.
         @param queryset: A Queryset with model=CremeEntity.
         @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
+               entities in the queryset are filtered with the credentials for this model.
+               BEWARE: you should probably use this feature only if the queryset if already filtered
+               by its field 'entity_type' (to keep only entities of the right model, & so do not
+               make mistakes with credentials).
         @return: A new (filtered) queryset on the same model.
         """
         from creme.creme_core.models import CremeEntity
@@ -232,6 +237,7 @@ class UserRole(Model):
                                 for model in creme_registry.iter_entity_models()
                                     if is_app_allowed(model._meta.app_label)
                            ],
+                    as_model=as_model,
                 )
 
 
@@ -324,23 +330,8 @@ class SetCredentials(Model):
                         for sc in filtered_sc_sequence
                   )
 
-    @staticmethod
-    def filter(sc_sequence, user, queryset, perm):
-        """Filter a queryset of entities with the given credentials.
-        Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
-
-        @param sc_sequence: A sequence of SetCredentials instances.
-        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser).
-        @param queryset: A Queryset on a child class of CremeEntity.
-        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
-        @return: A new queryset on the same model.
-        """
-        from .entity import CremeEntity
-
-        model = queryset.model
-        assert issubclass(model, CremeEntity)
-        assert model is not CremeEntity
-
+    @classmethod
+    def _aux_filter(cls, model, sc_sequence, user, queryset, perm):
         allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id)
         ESET_ALL = SetCredentials.ESET_ALL
 
@@ -356,8 +347,32 @@ class SetCredentials(Model):
 
         return queryset.none()
 
-    @staticmethod
-    def filter_entities(sc_sequence, user, queryset, perm, models):
+
+    # @staticmethod
+    # def filter(sc_sequence, user, queryset, perm):
+    @classmethod
+    def filter(cls, sc_sequence, user, queryset, perm):
+        """Filter a queryset of entities with the given credentials.
+        Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
+
+        @param sc_sequence: A sequence of SetCredentials instances.
+        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser).
+        @param queryset: A Queryset on a child class of CremeEntity.
+        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @return: A new queryset on the same model.
+        """
+        from .entity import CremeEntity
+
+        model = queryset.model
+        assert issubclass(model, CremeEntity)
+        assert model is not CremeEntity
+
+        return cls._aux_filter(model, sc_sequence, user, queryset, perm)
+
+    # @staticmethod
+    # def filter_entities(sc_sequence, user, queryset, perm, models):
+    @classmethod
+    def filter_entities(cls, sc_sequence, user, queryset, perm, models, as_model=None):
         """Filter a queryset of entities with the given credentials.
         Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
 
@@ -366,10 +381,19 @@ class SetCredentials(Model):
         @param queryset: Queryset with model=CremeEntity.
         @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
         @param models: An iterable of CremeEntity-child-classes, corresponding to allowed models.
+        @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
+               entities in the queryset are filtered with the credentials for this model.
+               BEWARE: you should probably use this feature only if the queryset if already filtered
+               by its field 'entity_type' (to keep only entities of the right model, & so do not
+               make mistakes with credentials).
         @return: A new queryset on CremeEntity.
         """
         from .entity import CremeEntity
         assert queryset.model is CremeEntity
+
+        if as_model is not None:
+            assert issubclass(as_model, CremeEntity)
+            return cls._aux_filter(as_model, sc_sequence, user, queryset, perm)
 
         get_for_model = ContentType.objects.get_for_model
         ct_ids = {get_for_model(model).id for model in models}

@@ -99,12 +99,14 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
     # If the query does not use the real entities' specific fields to filter,
     # we perform a query on CremeEntity & so we avoid a JOIN.
     count = queryset.count() if filtered else \
-            EntityCredentials.filter(user,
-                                     CremeEntity.objects.filter(
-                                         is_deleted=False,
-                                         entity_type=ContentType.objects.get_for_model(model),
-                                        )
-                                    ).count()
+            EntityCredentials.filter_entities(
+                    user,
+                    CremeEntity.objects.filter(
+                         is_deleted=False,
+                         entity_type=ContentType.objects.get_for_model(model),
+                        ),
+                    as_model=model,
+                ).count()
 
     # return queryset
     return queryset, count

@@ -237,6 +237,7 @@ def inner_edit_field(request, ct_id, id, field_name):
                        reload=False, delegate_reload=True,
                       )
 
+
 @login_required
 def bulk_update_field(request, ct_id, field_name):
     user   = request.user
