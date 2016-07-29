@@ -1190,3 +1190,21 @@ class CredentialsTestCase(CremeTestCase):
         self.assertEqual({self.contact1, self.contact2},
                          {e.get_real_entity() for e in qs2}
                         )
+
+    def test_filter_entities05(self):
+        "as_model"
+        user = self.user
+        self._create_role('Coder', ['creme_core'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_OWN, Contact)]
+                         )
+
+        create_orga = Organisation.objects.create
+        orga1 = create_orga(user=user, name='Yoshioka')
+        orga2 = create_orga(user=self.other_user, name='Miyamoto')
+
+        # Beware: filter_entities() should not be used like this ; 'qs' should not contain not Contact entities.
+        qs = CremeEntity.objects.filter(pk__in=[self.contact1.id, self.contact2.id, orga1.id, orga2.id])
+        qs2 = EntityCredentials.filter_entities(user, qs, as_model=Contact)
+        self.assertEqual({self.contact1, orga1},
+                         {e.get_real_entity() for e in qs2}
+                        )

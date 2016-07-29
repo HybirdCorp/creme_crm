@@ -104,12 +104,17 @@ class EntityCredentials(object):
         return queryset
 
     @staticmethod
-    def filter_entities(user, queryset, perm=VIEW):
+    def filter_entities(user, queryset, perm=VIEW, as_model=None):
         """Filter a Queryset of CremeEntities by the credentials of a given user.
         Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
 
         @param queryset: A Queryset with model=CremeEntity (better if not yet retrieved).
         @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
+        @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
+               entities in the queryset are filtered with the credentials for this model.
+               BEWARE: you should probably use this feature only if the queryset if already filtered
+               by its field 'entity_type' (to keep only entities of the right model, & so do not
+               make mistakes with credentials).
         @return: A new Queryset on CremeEntity, more selective (not retrieved).
         """
         from creme.creme_core.models import CremeEntity
@@ -121,6 +126,6 @@ class EntityCredentials(object):
 
         if not user.is_superuser:
             assert user.role is not None
-            queryset = user.role.filter_entities(user, queryset, perm)
+            queryset = user.role.filter_entities(user, queryset, perm, as_model)
 
         return queryset
