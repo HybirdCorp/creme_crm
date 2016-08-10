@@ -46,7 +46,7 @@ from .. import get_activity_model
 from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
         REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
 from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
-from ..models import Calendar #Activity
+from ..models import Calendar
 from ..utils import get_last_day_of_a_month, check_activity_collisions
 
 

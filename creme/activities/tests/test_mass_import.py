@@ -1253,7 +1253,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         "Other ContentType"
         from creme.tickets.models import Ticket, Priority, Criticity
 
-        self.populate('tickets')
+        # self.populate('tickets')
 
         rtype = self.get_object_or_fail(RelationType, pk=REL_OBJ_ACTIVITY_SUBJECT)
         self.assertIn(Ticket, (ct.model_class() for ct in rtype.object_ctypes.all()))

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ class Calendar(CremeModel):
     is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
     user        = CremeUserForeignKey(verbose_name=_(u'Calendar owner'))
-    color       = CharField(_(u'Color'), max_length=100, blank=True, null=True)
+    color       = CharField(_(u'Color'), max_length=100, blank=True, null=True)  # TODO: ColorField ?
 
     _enable_default_checking = True
 
@@ -51,10 +51,13 @@ class Calendar(CremeModel):
         "color can be null, so in this case a default color is used in templates"
         return self.color if self.color else DEFAULT_CALENDAR_COLOR
 
-    def delete(self):
-        super(Calendar, self).delete()
+    # def delete(self):
+    def delete(self, using=None):
+        # super(Calendar, self).delete()
+        super(Calendar, self).delete(using=using)
 
         if self.is_default:
+            # Sadly we cannot update() on a slice...
             for def_cal in Calendar.objects.filter(user=self.user).order_by('id')[:1]:
                 def_cal.is_default = True
                 def_cal._enable_default_checking = False
@@ -95,11 +98,10 @@ class Calendar(CremeModel):
             defaults = [c for c in calendars if c.is_default]
 
             if not defaults:
-                # TODO: only update 'is_default' field (django 1.5)
                 cal = calendars[0]
                 cal.is_default = True
                 cal._enable_default_checking = False
-                cal.save()
+                cal.save()  # TODO: update_fields=['is_default']
             else:
                 cal = defaults[0]
 
