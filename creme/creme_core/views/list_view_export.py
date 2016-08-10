@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import sys
 import logging
 
 # from django.db.models import Q
@@ -92,11 +91,8 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
             entities_qs = entities_qs.distinct()
 
         # entities = current_lvs.sort_query(entities)
-
         paginator = FlowPaginator(queryset=entities_qs.order_by(*ordering),
-                                  key=ordering[0],
-                                  per_page=1024,
-                                  count=sys.maxint,  # NB: won't be used....
+                                  key=ordering[0], per_page=1024,
                                  )
 
         # for entities_slice in iter_as_slices(entities_qs, 256):

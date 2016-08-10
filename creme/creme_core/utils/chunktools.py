@@ -20,9 +20,9 @@
 
 from future_builtins import map
 
-#def iter_splitchunks(chunks, sep, filter):
+# def iter_splitchunks(chunks, sep, filter):
 def iter_splitchunks(chunks, sep, parser=None, limit=None):
-    """ Iterator through chunks as split single stream.
+    """Iterator through chunks as split single stream.
 
     @param chunks: iterator of list of strings
     @param sep: split separator
@@ -94,7 +94,7 @@ def iter_as_chunk(iterable, step):
 
 
 def iter_as_slices(iterable, step):
-    """ Iterator that returns chunks from an iterable using slices (useful for requests)
+    """Iterator that returns chunks from an iterable using slices.
     @param iterable: iterator
     @param step: chunks size
     """

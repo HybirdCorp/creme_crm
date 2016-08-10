@@ -28,8 +28,9 @@ from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _, ungettext, ugettext
 
 from ..core.batch_process import BatchAction
+from ..core.paginator import FlowPaginator
 from ..models import EntityFilter, EntityCredentials, EntityJobResult
-from ..utils.chunktools import iter_as_slices
+# from ..utils.chunktools import iter_as_slices
 from .base import JobType
 
 
@@ -91,11 +92,16 @@ class _BatchProcessType(JobType):
             logger.info('BatchProcess: resuming job %s', job.id)
 
         entities = EntityCredentials.filter(job.user, entities, EntityCredentials.CHANGE)
+        paginator = FlowPaginator(queryset=entities.order_by('id'),
+                                  key='id', per_page=1024,
+                                 )
         actions = list(self._get_actions(model, job_data))
         create_result = partial(EntityJobResult.objects.create, job=job)
 
-        for entities_slice in iter_as_slices(entities, 1024):
-            for entity in entities_slice:
+        # for entities_slice in iter_as_slices(entities, 1024):
+        for entities_page in paginator.pages():
+            # for entity in entities_slice:
+            for entity in entities_page.object_list:
                 if entity.id in already_processed:
                     continue
 

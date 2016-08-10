@@ -125,6 +125,7 @@ class Message(CremeModel):
         if not ws:
             return
 
+        # TODO: use FlowPaginator instead
         for chunk in chunktools.iter_as_slices(request, 256):
             action(ws, sending, chunk)
 
@@ -174,7 +175,7 @@ class Message(CremeModel):
             except WSException:
                 pass
 
-            print res
+            # print res
 
             for phone, status, status_message in res:
                 Message.objects.filter(phone=phone, sending__id=sending_id) \
