@@ -688,12 +688,15 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertFalse(self.refresh(cal1).is_default)
 
-        #Delete
+        cal3 = Calendar.objects.create(user=user, name='My third calendar')
+
+        # Delete
         self.assertPOST200('/creme_config/activities/calendar/delete',
                            data={'id': cal2.id},
                           )
         self.assertDoesNotExist(cal2)
         self.assertTrue(self.refresh(cal1).is_default)
+        self.assertFalse(self.refresh(cal3).is_default)
 
     def test_config03(self): 
         "Edition"

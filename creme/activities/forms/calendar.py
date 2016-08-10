@@ -58,7 +58,7 @@ class CalendarConfigForm(CalendarForm):
         return self.cleaned_data.get('user') or self.instance.user
 
 
-#TODO: manage multi-calendar better
+# TODO: manage multi-calendar better
 class ActivityCalendarLinkerForm(CremeForm):
     calendar = ModelChoiceField(label=_('Calendar'), queryset=None, empty_label=None)
 
