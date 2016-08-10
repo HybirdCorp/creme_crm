@@ -34,6 +34,7 @@ from django.utils.translation import ugettext as _, ungettext
 
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError, SpecificProtectedError
+from ..core.paginator import FlowPaginator
 from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
@@ -41,7 +42,7 @@ from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
 from ..models import CremeEntity, EntityCredentials, FieldsConfig
 from ..models.fields import UnsafeHTMLField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
-from ..utils.chunktools import iter_as_slices
+# from ..utils.chunktools import iter_as_slices
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 from .decorators import POST_only
@@ -477,11 +478,19 @@ def empty_trash(request):
                         CremeEntity.objects.filter(is_deleted=True),
                         EntityCredentials.DELETE,
                     )
+        paginator = FlowPaginator(queryset=entities.order_by('id'),
+                                  key='id', per_page=1024,
+                                 )
 
-        for entities_slice in iter_as_slices(entities, 1024):
-            CremeEntity.populate_real_entities(entities_slice)
+        # for entities_slice in iter_as_slices(entities, 1024):
+        for entities_page in paginator.pages():
+            entities = entities_page.object_list
 
-            for entity in entities_slice:
+            # CremeEntity.populate_real_entities(entities_slice)
+            CremeEntity.populate_real_entities(entities)
+
+            # for entity in entities_slice:
+            for entity in entities:
                 entity = entity.get_real_entity()
 
                 try:

@@ -21,6 +21,7 @@
 import collections
 from datetime import date, datetime
 from decimal import Decimal
+import sys
 
 from django.core.exceptions import ValidationError
 from django.core.paginator import InvalidPage
@@ -55,7 +56,7 @@ class FlowPaginator(object):
             (ie: first in ASC order, last in DESC order).
             Tip: you can use creme.models.manager.LowNullsQuerySet.
     """
-    def __init__(self, queryset, key, per_page, count):
+    def __init__(self, queryset, key, per_page, count=sys.maxint):
         """Constructor.
         @param queryset: QuerySet instance. Beware: lines must have always the same order when
                          sub-set queries are performed, or the paginated content won't be consistent.
@@ -66,6 +67,8 @@ class FlowPaginator(object):
         @param per_page: Number of entities.
         @param count: Total number of entities (ie should be equal to object_list.count())
                       (so no additional query is performed to get it).
+                      The default value _should_ be overridden with the correct value ; it is only useful
+                      when a whole queryset is iterated with pages() (because count is not used).
         @raise ValueError: If key is invalid.
         """
         assert per_page > 1
