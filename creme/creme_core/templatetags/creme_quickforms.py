@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.template import Library
 
 from ..gui.quick_forms import quickforms_registry
-
+from ..utils.unicode_collation import collator
 
 # TODO: regroup with some others templatetags files (eg search_panel, menu) ?????
 
@@ -37,10 +38,9 @@ def get_quickforms_panel(context, target_node_id='sub_content'):
                      } for model in quickforms_registry.iter_models() if has_perm(model)
                     ]
 
-    content_types.sort(key=lambda k: k['verbose_name'])
+    sort_key = collator.sort_key
+    content_types.sort(key=lambda k: sort_key(k['verbose_name']))
 
-    context.update({
-            'content_types': content_types,
-        })
+    context['content_types'] = content_types
 
     return context
