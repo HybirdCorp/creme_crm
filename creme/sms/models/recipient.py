@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,25 +24,22 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel
 
-#from .messaging_list import MessagingList
-
 
 class Recipient(CremeModel):
     """ A model that stores a phone number not linked to a Contact"""
-#    messaging_list = ForeignKey(MessagingList, verbose_name=_(u'Related messaging list'))
     messaging_list = ForeignKey(settings.SMS_MLIST_MODEL, verbose_name=_(u'Related messaging list'))
-    phone          = CharField(_(u'Number'), max_length=100, blank=True, null=True)
+    phone          = CharField(_(u'Number'), max_length=100, blank=True)
 
     class Meta:
-        app_label = "sms"
+        app_label = 'sms'
         verbose_name = _(u'Recipient')
         verbose_name_plural = _(u'Recipients')
-        #ordering = ('phone',) TODO ??
+        # ordering = ('phone',) TODO ??
 
     def __unicode__(self):
         return self.phone
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.messaging_list
 
     def clone(self, messaging_list):

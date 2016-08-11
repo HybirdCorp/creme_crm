@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from django.conf import settings
 from django.db.models import ForeignKey, CharField, DateField, TextField
-#from django.db.models.aggregates import Count
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
@@ -30,8 +29,6 @@ from ..webservice.samoussa import (SamoussaBackEnd, SAMOUSSA_STATUS_ACCEPT,
         SAMOUSSA_STATUS_WAITING, SAMOUSSA_STATUS_SENT,
         SAMOUSSA_STATUS_ERROR)
 from ..webservice.backend import WSException
-#from .campaign import SMSCampaign
-#from .template import MessageTemplate
 
 
 MESSAGE_STATUS_NOTSENT = 'notsent'
@@ -52,14 +49,12 @@ MESSAGE_STATUS = {
 
 class Sending(CremeModel):
     date     = DateField(_(u'Date'))
-#    campaign = ForeignKey(SMSCampaign, verbose_name=_(u'Related campaign'), related_name="sendings")
-    campaign = ForeignKey(settings.SMS_CAMPAIGN_MODEL, verbose_name=_(u'Related campaign'), related_name="sendings")
-#    template = ForeignKey(MessageTemplate, verbose_name=_(u'Message template'))
+    campaign = ForeignKey(settings.SMS_CAMPAIGN_MODEL, verbose_name=_(u'Related campaign'), related_name='sendings')
     template = ForeignKey(settings.SMS_TEMPLATE_MODEL, verbose_name=_(u'Message template'))
     content  = TextField(_(u'Generated message'), max_length=160)
 
     class Meta:
-        app_label = "sms"
+        app_label = 'sms'
         verbose_name = _(u'Sending')
         verbose_name_plural = _(u'Sendings')
 
@@ -70,14 +65,15 @@ class Sending(CremeModel):
         items = ((self.messages.filter(status=status).count(), status_name) for status, status_name in MESSAGE_STATUS.iteritems())
         return ', '.join((u'%s %s' % (count, label[1] if count > 1 else label[0]) for count, label in items if count > 0))
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, using=None):
         ws = SamoussaBackEnd()
         ws.connect()
         ws.delete_messages(user_data=self.id)
         ws.close()
 
-        self.messages.all().delete()
-        return super(Sending, self).delete()
+        self.messages.all().delete()  # TODO: useful ??
+        return super(Sending, self).delete(using=using)
 
 
 # TODO: keep the related entity (to hide the number when the entity is not viewable)
@@ -85,7 +81,7 @@ class Message(CremeModel):
     sending = ForeignKey(Sending, verbose_name=_(u'Sending'), related_name='messages')
     phone  = CharField(_(u'Number'), max_length=100)
     status = CharField(_(u'State'), max_length=10)
-    status_message = CharField(_(u'Full state'), max_length=100, blank=True, null=True)
+    status_message = CharField(_(u'Full state'), max_length=100, blank=True)
 
     def __unicode__(self):
         return self.phone
@@ -105,7 +101,7 @@ class Message(CremeModel):
 
         try:
             ws.connect()
-        except WSException, err:
+        except WSException as err:
             sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).update(status_message=unicode(err))
             return None
 
@@ -142,12 +138,10 @@ class Message(CremeModel):
             numbers = (m[1] for m in chunk)
             not_accepted = []
 
-            #print 'send action', chunk
-
             try:
                 res = ws.send_messages(content, list(numbers), sending_id)
                 not_accepted = res.get('not_accepted', [])
-            except WSException, err:
+            except WSException as err:
                 Message.objects.filter(pk__in=pks).update(status_message=unicode(err))
 
             for phone, status, status_message in not_accepted:
