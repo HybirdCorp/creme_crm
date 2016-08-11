@@ -33,7 +33,7 @@ class Calendar(CremeModel):
     is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
     user        = CremeUserForeignKey(verbose_name=_(u'Calendar owner'))
-    color       = CharField(_(u'Color'), max_length=100, blank=True, null=True)  # TODO: ColorField ?
+    color       = CharField(_(u'Color'), max_length=100)  # TODO: ColorField ?
 
     _enable_default_checking = True
 

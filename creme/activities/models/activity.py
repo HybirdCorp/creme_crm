@@ -45,22 +45,21 @@ class AbstractActivity(CremeEntity):
     end           = DateTimeField(_(u'End'), blank=True, null=True)
     description   = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
     minutes       = TextField(_(u'Minutes'), blank=True, null=True)
-    place         = CharField(_(u'Activity place'), max_length=500,
-                              blank=True, null=True,
-                              ).set_tags(optional=True)
+    place         = CharField(_(u'Activity place'), max_length=500, blank=True)\
+                             .set_tags(optional=True)
     duration      = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
     type          = ForeignKey(ActivityType, verbose_name=_(u'Activity type'),
                                on_delete=PROTECT,
-                               )
+                              )
     sub_type      = ForeignKey(ActivitySubType, verbose_name=_(u'Activity sub-type'),
                                blank=True, null=True, on_delete=SET_NULL,
-                               )
+                              )
     status        = ForeignKey(Status, verbose_name=_(u'Status'),
                                blank=True, null=True, on_delete=SET_NULL,
-                               )
+                              )
     calendars     = ManyToManyField(Calendar, verbose_name=_(u'Calendars'),
                                     blank=True, editable=False,
-                                    )
+                                   )
     is_all_day    = BooleanField(_(u'All day?'), blank=True, default=False)
     busy          = BooleanField(_(u'Busy?'), default=False)
     # TODO: use choices ; to be improved with choices: list-view search/field printers/history
