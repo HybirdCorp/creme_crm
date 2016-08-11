@@ -43,18 +43,18 @@ logger = logging.getLogger(__name__)
 
 
 class SendingCreateForm(CremeModelForm):
-    sender       = EmailField(label=_(u"Sender address"))
+    sender       = EmailField(label=_(u'Sender address'))
     template     = CreatorEntityField(label=_(u'Email template'), model=get_emailtemplate_model())
-    sending_date = DateTimeField(label=_(u"Sending date"), required=False, widget=CalendarWidget,
-                                 help_text=_(u"Required only of the sending is deferred."))
-    hour         = IntegerField(label=_("Sending hour"), required=False, min_value=0, max_value=23)
-    minute       = IntegerField(label=_("Sending minute"), required=False, min_value=0, max_value=59)
+    sending_date = DateTimeField(label=_(u'Sending date'), required=False, widget=CalendarWidget,
+                                 help_text=_(u'Required only of the sending is deferred.'))
+    hour         = IntegerField(label=_(u'Sending hour'), required=False, min_value=0, max_value=23)
+    minute       = IntegerField(label=_(u'Sending minute'), required=False, min_value=0, max_value=59)
 
     error_messages = {
-        'forbidden': _(u"You are not allowed to modify the sender address, please contact your administrator."),
+        'forbidden': _(u'You are not allowed to modify the sender address, please contact your administrator.'),
     }
 
-    blocks = CremeModelForm.blocks.new(('sending_date', _(u"Sending date"), ['type', 'sending_date', 'hour', 'minute']))
+    blocks = CremeModelForm.blocks.new(('sending_date', _(u'Sending date'), ['type', 'sending_date', 'hour', 'minute']))
 
     class Meta:
         model   = EmailSending

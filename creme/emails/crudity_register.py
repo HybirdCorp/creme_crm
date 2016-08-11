@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#import os
 from functools import partial
 from itertools import chain
 from os.path import basename
@@ -29,8 +28,8 @@ from creme.creme_core.models import Relation
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from creme.documents import get_folder_model, get_document_model
-from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS #DOCUMENTS_FROM_EMAILS_NAME
-from creme.documents.models import FolderCategory #Document, Folder
+from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
+from creme.documents.models import FolderCategory
 
 from creme.crudity.backends.models import CrudityBackend
 from creme.crudity.inputs.base import CrudityInput
@@ -40,7 +39,7 @@ from creme.crudity.models import History
 from . import get_entityemail_model
 from .blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
 from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
-#from .models import EntityEmail
+
 
 Folder      = get_folder_model()
 Document    = get_document_model()
@@ -57,30 +56,17 @@ class EntityEmailBackend(CrudityBackend):
             return
 
         if self.is_sandbox_by_user:
-            #current_user = self.get_owner(sender=email.senders[0])
             current_user = CreateEmailInput.get_owner(True, sender=email.senders[0])
 
         current_user_id = current_user.id
-#        cat_name = unicode(DOCUMENTS_FROM_EMAILS_NAME)
-#
-#        try:
-#            folder_cat = FolderCategory.objects.get(name=cat_name)
-#        except FolderCategory.DoesNotExist:
-#            try:
-#                folder_cat = FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS)
-#            except FolderCategory.DoesNotExist:
-#                folder_cat = FolderCategory.objects.create(pk=DOCUMENTS_FROM_EMAILS,
-#                                                           name=cat_name,
-#                                                          )
+
         # TODO: only if at least one attachment
         folder = Folder.objects.get_or_create(title=_(u"%(username)s's files received by email") % {
                                                             'username': current_user.username,
                                                         },
                                               category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
                                               parent_folder=None,
-                                              defaults={'user': current_user,
-#                                                        'category': folder_cat,
-                                                       }
+                                              defaults={'user': current_user},
                                              )[0]
 
         mail = EntityEmail(status=MAIL_STATUS_SYNCHRONIZED_WAITING,
@@ -102,13 +88,12 @@ class EntityEmailBackend(CrudityBackend):
                                  )
         create_doc = partial(Document.objects.create,
                              user_id=current_user_id, folder=folder,
-                             description=_(u"Received with the mail %s") % mail,
+                             description=_(u'Received with the mail %s') % mail,
                             )
 
         for attachment in email.attachments:
             filename, file_ = attachment
             path = handle_uploaded_file(file_, path=attachment_path, name=filename)
-#            doc = create_doc(title=u"%s (mail %s)" % (path.rpartition(os.sep)[2], mail.id),
             doc = create_doc(title=u'%s (mail %s)' % (basename(path), mail.id),
                              filedata=path,
                             )
@@ -116,10 +101,10 @@ class EntityEmailBackend(CrudityBackend):
             create_relation(subject_entity=doc)
 
         History.objects.create(entity=mail,
-                               action="create",
-                               source="email - raw",
-                               description=_(u"Creation of %(entity)s") % {'entity': mail},
+                               action='create',
+                               source='email - raw',
+                               description=_(u'Creation of %(entity)s') % {'entity': mail},
                                user=current_user,
                               )
 
-backends = [EntityEmailBackend, ]
+backends = [EntityEmailBackend]

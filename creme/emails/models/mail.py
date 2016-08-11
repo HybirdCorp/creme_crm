@@ -52,14 +52,14 @@ class _Email(CremeModel):
 
     sender         = CharField(_(u'Sender'), max_length=100)
     recipient      = CharField(_(u'Recipient'), max_length=100)
-    subject        = CharField(_(u'Subject'), max_length=100, blank=True, null=True)
+    subject        = CharField(_(u'Subject'), max_length=100, blank=True)
     body           = TextField(_(u'Body'))
-    sending_date   = DateTimeField(_(u"Sending date"), blank=True, null=True, editable=False)
-    reception_date = DateTimeField(_(u"Reception date"), blank=True, null=True, editable=False)
+    sending_date   = DateTimeField(_(u'Sending date'), blank=True, null=True, editable=False)
+    reception_date = DateTimeField(_(u'Reception date'), blank=True, null=True, editable=False)
 
     class Meta:
         abstract = True
-        app_label = "emails"
+        app_label = 'emails'
 
     def __unicode__(self):
         return u"Mail<from: %s> <to: %s> <sent: %s> <id: %s>" % (
@@ -125,15 +125,15 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
     # TODO: in a manager ?
     @classmethod
-    def create_n_send_mail(cls, sender, recipient, subject, user, body, body_html=u"", signature=None, attachments=None):
+    def create_n_send_mail(cls, sender, recipient, subject, user, body, body_html=u'', signature=None, attachments=None):
         email = cls(sender=sender,
-                            recipient=recipient,
-                            subject=subject,
-                            body=body,
-                            body_html=body_html,
-                            signature=signature,
-                            user=user,
-                           )
+                    recipient=recipient,
+                    subject=subject,
+                    body=body,
+                    body_html=body_html,
+                    signature=signature,
+                    user=user,
+                   )
         email.genid_n_save()
 
         if attachments:

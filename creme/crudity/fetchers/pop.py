@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,8 @@ CREME_GET_EMAIL_SSL_CERTFILE = settings.CREME_GET_EMAIL_SSL_CERTFILE
 
 
 class PopEmail(object):
-    def __init__(self, body=u"", body_html=u'', senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
+    # def __init__(self, body=u"", body_html=u'', senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
+    def __init__(self, body=u'', body_html=u'', senders=(), tos=(), ccs=(), subject='', dates=(), attachments=()):
         self.body        = body
         self.body_html   = body_html
         self.senders     = senders
@@ -105,21 +106,24 @@ class PopFetcher(CrudityFetcher):
             from_emails = [addr for name, addr in getaddresses(get_all('from', []))]
             cc_emails   = [addr for name, addr in getaddresses(get_all('cc', []))]
 
-            subject    = email_message.get('subject', [])
+            # subject    = email_message.get('subject', [])
+            #
+            # decode_subject = []
+            # for s, enc in email.Header.decode_header(subject):
+            #     if enc is not None:
+            #         s = s.decode(enc)
+            #     decode_subject.append(s)
+            #
+            # subject = ''.join(decode_subject)
+            subject = ''.join(s.decode(enc) if enc is not None else s
+                                for s, enc in email.Header.decode_header(email_message.get('subject', []))
+                             )
 
-            decode_subject = []
-            for s, enc in email.Header.decode_header(subject):
-                if enc is not None:
-                    s = s.decode(enc)
-                decode_subject.append(s)
-
-            subject = ''.join(decode_subject)
-
-            # TODO: list comprehension
-            dates = []
-            for d in get_all('date', []):
-                if d is not None:
-                    dates.append(datetime(*parsedate(d)[:-3]))
+            # dates = []
+            # for d in get_all('date', []):
+            #     if d is not None:
+            #         dates.append(datetime(*parsedate(d)[:-3]))
+            dates = [datetime(*parsedate(d)[:-3]) for d in get_all('date', []) if d is not None]
 
             body_html = u''
             body = u''
