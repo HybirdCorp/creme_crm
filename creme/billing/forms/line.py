@@ -108,12 +108,11 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 class LineEditForm(CremeModelWithUserForm):
     # TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
     vat_value = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
-                                 required=True, #TODO: remove when null=False in the model
+                                 required=True,  # TODO: remove when null=False in the model
                                  empty_label=None,
                                 )
 
     class Meta:
-        #exclude = ('total_discount', 'discount_unit') #todo: remove when total_discount is removed from Line..
         exclude = ()
 
     def __init__(self, user, related_document=None, *args, **kwargs):
@@ -127,11 +126,9 @@ class LineEditForm(CremeModelWithUserForm):
         fields['quantity'].widget = TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'})
         fields['unit'].widget = TextInput(attrs={'class': 'line-unit'})
         fields['discount'].widget = TextInput(attrs={'class': 'line-quantity_discount bound'})
-        #fields['discount_unit'].widget.attrs = fields['total_discount'].widget.attrs = {'class': 'bound'}
-        #fields['discount_unit'].required = True
 
         currency_str = related_document.currency.local_symbol
-        discount_units = [(DISCOUNT_PERCENT,        '%'), #_(u"Percent")
+        discount_units = [(DISCOUNT_PERCENT,        '%'),
                           (DISCOUNT_LINE_AMOUNT,    _(u"%s per line") % currency_str),
                           (DISCOUNT_ITEM_AMOUNT,    _(u"%s per unit") % currency_str),
                          ]
@@ -144,10 +141,6 @@ class LineEditForm(CremeModelWithUserForm):
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
         fields['comment'].widget = Textarea(attrs={'class': 'line-comment', 'rows': 2})
-
-        #vat_f = fields['vat_value']
-        #vat_f.initial = Vat.get_default_vat()
-        #vat_f.required = True
         fields['vat_value'].initial = Vat.get_default_vat()
 
     # TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount (refactor the template too)
@@ -207,7 +200,7 @@ class AddToCatalogForm(CremeForm):
         sub_category = self.cleaned_data['sub_category']
         line = self.line
 
-        # first create the related item
+        # First create the related item...
         item = self.related_item_class.objects.create(name=line.on_the_fly_item,
                                                       user=self.user,
                                                       unit_price=line.unit_price,
@@ -216,7 +209,7 @@ class AddToCatalogForm(CremeForm):
                                                       sub_category=sub_category,
                                                      )
 
-        # then update the line that is now related to the new created item and not on the fly any more
+        # ..then update the line that is now related to the new created item and not on the fly anymore.
         line.on_the_fly_item = None
         line.save()
 

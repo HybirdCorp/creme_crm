@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ import logging
 
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, DecimalField, BooleanField, TextField,
-        PositiveIntegerField, ForeignKey, PROTECT) #IntegerField
+        PositiveIntegerField, ForeignKey, PROTECT)
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
@@ -40,11 +40,13 @@ logger = logging.getLogger(__name__)
 #       for the moment when have to re-save the model manually.
 
 class Line(CremeEntity):
-    on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=True, null=True)
+    # NB: not blank (no related item => name is filled)
+    on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, null=True)
+
     comment         = TextField(_('Comment'), blank=True, null=True)
     quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=DEFAULT_QUANTITY)
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
-    unit            = CharField(_(u'Unit'), max_length=100, blank=True, null=True)
+    unit            = CharField(_(u'Unit'), max_length=100, blank=True)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     # TODO: remove total_discount & add a choice to discount_unit (see EditForm)
     # TODO: null=False ???
