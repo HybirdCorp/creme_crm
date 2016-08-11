@@ -47,12 +47,12 @@ class SendingsTestCase(_EmailsTestCase):
     def _send_mails(self, job=None):
         campaign_emails_send_type.execute(job or self._get_job())
 
-    def repopulate_email(self):
-        SettingValue.objects.filter(key_id=SETTING_EMAILCAMPAIGN_SENDER).delete()
-        self.populate('emails')
+    # def repopulate_email(self):
+    #     SettingValue.objects.filter(key_id=SETTING_EMAILCAMPAIGN_SENDER).delete()
+    #     self.populate('emails')
 
     def test_sender_setting01(self):
-        self.repopulate_email()
+        # self.repopulate_email()
         user = self.login()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name',
@@ -89,7 +89,7 @@ class SendingsTestCase(_EmailsTestCase):
                              _(u"You are not allowed to modify the sender address, please contact your administrator."))
 
     def test_sender_setting02(self):
-        self.repopulate_email()
+        # self.repopulate_email()
         user = self.login(is_superuser=False,
                           allowed_apps=('emails',),
                           creatable_models=(EmailSending, EmailCampaign),
