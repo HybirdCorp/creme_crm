@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 
 class Base(CremeEntity):
     name             = CharField(_(u'Name'), max_length=100)
-    number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
+    number           = CharField(_(u'Number'), max_length=100, blank=True)
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)\
                                 .set_tags(optional=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)\
@@ -297,7 +297,8 @@ class Base(CremeEntity):
         if self.generate_number_in_create:
             self.generate_number(source.get_source())
         else:
-            self.number = None
+            # self.number = None
+            self.number = ''
 
     def _copy_relations(self, source):
         from ..registry import relationtype_converter

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -119,13 +119,13 @@ class PaymentTerms(CremeModel):
 class PaymentInformation(CremeModel):
     name                  = CharField(_(u'Name'), max_length=200)
 
-    bank_code             = CharField(_(u'Bank code'), max_length=12, blank=True, null=True)
-    counter_code          = CharField(_(u'Counter code'), max_length=12, blank=True, null=True)
-    account_number        = CharField(_(u'Account number'), max_length=12, blank=True, null=True)
-    rib_key               = CharField(_(u'RIB key'), max_length=12, blank=True, null=True)
-    banking_domiciliation = CharField(_(u'Banking domiciliation'), max_length=200, blank=True, null=True)
+    bank_code             = CharField(_(u'Bank code'), max_length=12, blank=True)
+    counter_code          = CharField(_(u'Counter code'), max_length=12, blank=True)
+    account_number        = CharField(_(u'Account number'), max_length=12, blank=True)
+    rib_key               = CharField(_(u'RIB key'), max_length=12, blank=True)
+    banking_domiciliation = CharField(_(u'Banking domiciliation'), max_length=200, blank=True)
 
-    iban                  = CharField(_(u'IBAN'), max_length=100, blank=True, null=True)
+    iban                  = CharField(_(u'IBAN'), max_length=100, blank=True)
     bic                   = CharField(_(u'BIC'), max_length=100, blank=True, null=True)
 
     is_default            = BooleanField(_(u'Is default?'), default=False)
