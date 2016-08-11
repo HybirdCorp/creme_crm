@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,17 +25,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-#from creme.persons.models import Contact, Organisation
 
-
-#class MailingList(CremeEntity):
 class AbstractMailingList(CremeEntity):
     name          = CharField(_(u'Name of the mailing list'), max_length=80)
-#    children      = ManyToManyField('self', verbose_name=_(u'Child mailing lists'), symmetrical=False, related_name='parents_set')
-    children      = ManyToManyField(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Child mailing lists'), symmetrical=False, related_name='parents_set')
-#    contacts      = ManyToManyField(Contact, verbose_name=_(u'Contacts recipients'))
+    children      = ManyToManyField(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Child mailing lists'),
+                                    symmetrical=False, related_name='parents_set',
+                                   )
     contacts      = ManyToManyField(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contacts recipients'))
-#    organisations = ManyToManyField(Organisation, verbose_name=_(u'Organisations recipients'))
     organisations = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisations recipients'))
 
     creation_label = _('Add a mailing list')
@@ -51,7 +47,6 @@ class AbstractMailingList(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return "/emails/mailing_list/%s" % self.id
         return reverse('emails__view_mlist', args=(self.id,))
 
     @staticmethod
@@ -59,12 +54,10 @@ class AbstractMailingList(CremeEntity):
         return reverse('emails__create_mlist')
 
     def get_edit_absolute_url(self):
-#        return "/emails/mailing_list/edit/%s" % self.id
         return reverse('emails__edit_mlist', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/emails/mailing_lists"
         return reverse('emails__list_mlists')
 
     def already_in_parents(self, other_ml_id):

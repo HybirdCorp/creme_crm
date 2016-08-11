@@ -30,7 +30,7 @@ from creme.creme_core.utils import chunktools
 from ..models import EmailRecipient
 
 
-# TODO: move to creme_core.utils ?
+# TODO: move to creme_core.utils ? remove ?
 def _detect_end_line(uploaded_file):
     """Returns the end of line sequence (Unix/Windows/Mac ar handled).
     @param uploaded_file: instance with a method chunks() which yields strings
