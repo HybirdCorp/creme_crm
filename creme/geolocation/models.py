@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 from itertools import izip, chain, groupby
 
 from django.conf import settings
-#from django.db import transaction
 from django.db.models import (Model, FloatField, BooleanField,
     OneToOneField, CharField, SlugField, SmallIntegerField)
 from django.db.transaction import atomic
@@ -32,8 +31,6 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.chunktools import iter_as_slices
-
-#from creme.persons.models import Address
 
 from .utils import location_bounding_box
 
@@ -51,10 +48,9 @@ class GeoAddress(Model):
         COMPLETE:  '',
     }
 
-#    address   = OneToOneField(Address, verbose_name=_(u"Address"), primary_key=True)
     address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u"Address"), primary_key=True)
-    latitude  = FloatField(verbose_name=_(u"Latitude"), null=True, blank=True) # min_value=-90, max_value=90
-    longitude = FloatField(verbose_name=_(u"Longitude"), null=True, blank=True)  # min_value=-180, max_value=180,
+    latitude  = FloatField(verbose_name=_(u"Latitude"), null=True, blank=True)  # min_value=-90, max_value=90
+    longitude = FloatField(verbose_name=_(u"Longitude"), null=True, blank=True)  # min_value=-180, max_value=180
     draggable = BooleanField(verbose_name=_(u'Is this marker draggable in maps ?'), default=True)
     geocoded  = BooleanField(verbose_name=_(u'Geocoded from address ?'), default=False)
     status    = SmallIntegerField(verbose_name=pgettext_lazy('geolocation', u'Status'),
@@ -166,8 +162,8 @@ class GeoAddress(Model):
 class Town(Model):
     name      = CharField(_(u'Name of the town'), max_length=100, blank=False, null=False)
     slug      = SlugField(_(u'Slugified name of the town'), max_length=100, blank=False, null=False)
-    zipcode   = CharField(_(u"Zip code"), max_length=100, blank=True, null=True)
-    country   = CharField(_(u"Country"), max_length=40, blank=True, null=True)
+    zipcode   = CharField(_(u"Zip code"), max_length=100, blank=True)
+    country   = CharField(_(u"Country"), max_length=40, blank=True)
     latitude  = FloatField(verbose_name=_(u"Latitude"))
     longitude = FloatField(verbose_name=_(u"Longitude"))
 
@@ -201,7 +197,7 @@ class Town(Model):
         towns = list(towns.filter(query_filter))
 
         if len(towns) > 1 and slug:
-            #TODO: [:1] is useless (not a queryset) ; use next() with default arg instead
+            # TODO: [:1] is useless (not a queryset) ; use next() with default arg instead
             towns = filter(lambda c: c.slug == slug, towns)[:1]
 
         return towns[0] if len(towns) == 1 else None

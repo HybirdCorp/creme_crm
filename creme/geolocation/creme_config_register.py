@@ -3,6 +3,6 @@
 from .models import Town, GeoAddress
 
 
-to_register = ((Town,  'town'),
-               (GeoAddress,  'geoaddress'),
+to_register = ((Town,       'town'),
+               (GeoAddress, 'geoaddress'),
               )

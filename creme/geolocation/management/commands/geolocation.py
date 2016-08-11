@@ -223,7 +223,7 @@ class CSVTownPopulator(CSVPopulator):
                            slug=slug,
                            zipcode=zipcode,
                            latitude=latitude,
-                           longitude=longitude
+                           longitude=longitude,
                           ) for zipcode in zipcodes
                ]
 
@@ -242,7 +242,9 @@ class Command(BaseCommand):
         add_argument = parser.add_argument
         add_argument('-p', '--populate', action='store_true', dest='populate', help='Populate addresses', default=False)
         add_argument('-s', '--stat', action='store_true', dest='stats', help='Display geolocation database stats', default=False)
-        add_argument('-i', '--import', action='store_true', dest='import', help='Import towns configured in GEOLOCATION_TOWNS setting', default=False)
+        add_argument('-i', '--import', action='store_true', dest='import', default=False,
+                     help='Import towns configured in GEOLOCATION_TOWNS setting',
+                    )
 
     def sysout(self, message, visible):
         if visible:
