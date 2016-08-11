@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,10 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-#from creme.persons.models import Contact
 
-
-#class MessagingList(CremeEntity):
 class AbstractMessagingList(CremeEntity):
     name     = CharField(_(u'Name of the messaging list'), max_length=80)
     contacts = ManyToManyField(settings.PERSONS_CONTACT_MODEL,
@@ -48,7 +45,6 @@ class AbstractMessagingList(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-#        return "/sms/messaging_list/%s" % self.id
         return reverse('sms__view_mlist', args=(self.id,))
 
     @staticmethod
@@ -56,12 +52,10 @@ class AbstractMessagingList(CremeEntity):
         return reverse('sms__create_mlist')
 
     def get_edit_absolute_url(self):
-#        return "/sms/messaging_list/edit/%s" % self.id
         return reverse('sms__edit_mlist', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-#        return "/sms/messaging_lists"
         return reverse('sms__list_mlists')
 
     def _post_save_clone(self, source):
