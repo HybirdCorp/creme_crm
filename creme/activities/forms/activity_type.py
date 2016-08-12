@@ -87,19 +87,17 @@ class ActivityTypeWidget(ChainedInput):
 
 
 class ActivityTypeField(JSONField):
-    widget = ActivityTypeWidget # Should have a 'types' attribute
+    widget = ActivityTypeWidget  # Should have a 'types' attribute
     default_error_messages = {
         'typenotallowed':  _('This type causes constraint error.'),
         'subtyperequired': _('Sub-type is required.'),
     }
     value_type = dict
 
-#    def __init__(self, types=None, empty_label=u'---------', *args, **kwargs):
     def __init__(self, types=ActivityType.objects.all(), empty_label=u'---------', *args, **kwargs):
         self.empty_label = empty_label
 
         super(ActivityTypeField, self).__init__(*args, **kwargs)
-#        self.types = types if types is not None else ActivityType.objects.all()
         self.types = types
 
     def __deepcopy__(self, memo):
@@ -110,16 +108,7 @@ class ActivityTypeField(JSONField):
 
         return result
 
-#    def _create_widget(self):
-#        options = tuple((atype.pk, unicode(atype)) for atype in self.types)
-#
-#        if len(options) > 1 or not self.required:
-#            options = ((None, self.empty_label),) + options
-#
-#        return ActivityTypeWidget(options, attrs={'reset': not self.required},)
-##        return ActivityTypeWidget(self._get_types_options(self._get_types_objects()),
-##                                  attrs={'reset':False, 'direction':ChainedInput.VERTICAL})
-    def widget_attrs(self, widget): # See Field.widget_attrs()
+    def widget_attrs(self, widget):  # See Field.widget_attrs()
         return {'reset': not self.required}
 
     def _value_to_jsonifiable(self, value):
@@ -168,11 +157,10 @@ class ActivityTypeField(JSONField):
     @types.setter
     def types(self, types):
         self._types = types
-#        self._build_widget()
         self.widget.types = CallableChoiceIterator(self._get_types_options)
 
     def _get_types_options(self):
-        types = self._types # TODO: self.types ??
+        types = self._types  # TODO: self.types ??
 
         if len(types) > 1 or not self.required:
             yield None, self.empty_label
@@ -196,10 +184,12 @@ class BulkEditTypeForm(BulkDefaultEditForm):
         indispo_count = sum(a.type_id == ACTIVITYTYPE_INDISPO for a in entities)
 
         if indispo_count:
-            if indispo_count == len(entities): # all entities are indisponibilities, so we propose to change the sub-type
+            if indispo_count == len(entities):
+                # All entities are indisponibilities, so we propose to change the sub-type.
                 type_selector.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
             else:
                 self._mixed_indispo = True
+                # TODO: remove when old view entity.bulk_edit_field() has been removed
                 self.fields['beware'] = CharField(
                         label=_('Beware !'),
                         required=False, widget=Label,

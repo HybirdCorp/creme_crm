@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ import logging
 from django.contrib.auth import get_user_model
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField, DateField
 from django.forms.fields import ChoiceField, TimeField
-from django.forms.utils import ValidationError # ErrorList
+from django.forms.utils import ValidationError
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -36,15 +36,14 @@ from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Calend
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.utils.dates import make_aware_dt
 
-#from creme.creme_config.forms.fields import CreatorModelChoiceField TODO
+# from creme.creme_config.forms.fields import CreatorModelChoiceField TODO
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from creme.assistants.models import Alert
 
 from .. import get_activity_model
-from ..models import ActivityType, Calendar, ActivitySubType #Activity
+from ..models import ActivityType, Calendar, ActivitySubType
 from ..constants import (ACTIVITYTYPE_INDISPO, FLOATING, NARROW, FLOATING_TIME,
         REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..utils import check_activity_collisions
@@ -74,15 +73,13 @@ class _ActivityForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        #exclude = CremeEntityForm.Meta.exclude + ('sub_type',)
         exclude = CremeEntityForm.Meta.exclude + ('type', 'sub_type')
         widgets = {'start': CalendarWidget, 'end': CalendarWidget}
         help_texts = {'end': _(u'Default duration of the type will be used if you leave blank.')}
 
     def __init__(self, *args, **kwargs):
         super(_ActivityForm, self).__init__(*args, **kwargs)
-#        self.participants = [] #all Contacts who participate: me, other users, other contacts
-        self.participants = set() #all Contacts who participate: me, other users, other contacts
+        self.participants = set()  # All Contacts who participate: me, other users, other contacts
 
         duration_field = self.fields.get('duration')
         if duration_field:
@@ -123,7 +120,7 @@ class _ActivityForm(CremeEntityForm):
         start_time = get('start_time')
         end_time   = get('end_time')
 
-        #TODO not start, not end, start time, end time => floating activity with time set but lost in the process
+        # TODO: not start, not end, start time, end time => floating activity with time set but lost in the process
 
         if start_time is None and end_time is None:
             if not is_all_day:
@@ -150,8 +147,8 @@ class _ActivityForm(CremeEntityForm):
                 tdelta = atype.as_timedelta()
 
                 if (is_all_day or floating_type == FLOATING_TIME) and tdelta.days:
-                    # in 'all day' mode, we round the number of day
-                    days = tdelta.days - 1 #activity already takes 1 day (we do not want it takes 2)
+                    # In 'all day' mode, we round the number of day
+                    days = tdelta.days - 1  # Activity already takes 1 day (we do not want it takes 2)
 
                     if tdelta.seconds:
                         days += 1
@@ -175,7 +172,6 @@ class _ActivityForm(CremeEntityForm):
         return floating_type
 
     def _get_activity_type_n_subtype(self):
-        #raise NotImplementedError
         return self.cleaned_data['type_selector']
 
     def _get_participants_2_check(self):
@@ -236,11 +232,8 @@ class _ActivityCreateForm(_ActivityForm):
                                                    required=False, widget=UnorderedMultipleChoiceWidget,
                                                   )
 
-    #TODO: factorise with ParticipantCreateForm
+    # TODO: factorise with ParticipantCreateForm
     def clean_participating_users(self):
-#        users = self.cleaned_data['participating_users']
-#        self.participants.extend(validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user))
-#        return users
         users = set()
 
         for user in self.cleaned_data['participating_users']:
@@ -260,7 +253,7 @@ class _ActivityCreateForm(_ActivityForm):
         instance = super(_ActivityCreateForm, self).save(*args, **kwargs)
 
         for part_user in self.cleaned_data['participating_users']:
-            #TODO: regroup queries ??
+            # TODO: regroup queries ??
             instance.calendars.add(Calendar.get_user_default_calendar(part_user))
 
         return instance
@@ -310,14 +303,14 @@ class ActivityCreateForm(_ActivityCreateForm):
         fields = self.fields
 
         if activity_type_id:
-            #TODO: improve help_text of end (we know the type default duration)
+            # TODO: improve help_text of end (we know the type default duration)
             fields['type_selector'].types = ActivityType.objects.filter(pk=activity_type_id)
 
         my_calendar_field = fields['my_calendar']
         my_calendar_field.queryset = Calendar.objects.filter(user=user)
         my_calendar_field.initial  = Calendar.get_user_default_calendar(user)
 
-        #TODO: refactor this with a smart widget that manages dependencies
+        # TODO: refactor this with a smart widget that manages dependencies
         fields['my_participation'].widget.attrs['onclick'] = \
             "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
@@ -335,26 +328,20 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         other_f = fields['other_participants']
         other_f.q_filter = {'is_user__isnull': True}
-#        # hack : The 'q_filter' disable creation when 'creation_action_url' is empty because default creation views
-#        # cannot return filtered instances.
-#        # So this weird line forces a value in 'creation_action_url' in order re-enable creation button.
         # The creation view cannot create a Contact with a non-null 'is_user'.
-#        other_f.create_action_url = other_f.create_action_url
-        other_f.force_creation = True # TODO: in constructor
+        other_f.force_creation = True  # TODO: in constructor
 
     def clean_my_participation(self):
         my_participation = self.cleaned_data.get('my_participation', False)
 
         if my_participation:
             user = self.user
-#            self.participants.append(validate_linkable_entity(user.linked_contact, user))
             self.participants.add(validate_linkable_entity(user.linked_contact, user))
 
         return my_participation
 
     def clean_other_participants(self):
         participants = self.cleaned_data['other_participants']
-#        self.participants.extend(validate_linkable_entities(participants, self.user))
         self.participants.update(validate_linkable_entities(participants, self.user))
         return participants
 
@@ -369,7 +356,6 @@ class ActivityCreateForm(_ActivityCreateForm):
             cdata = self.cleaned_data
             my_participation = cdata['my_participation']
             if my_participation and not cdata.get('my_calendar'):
-                #self.errors['my_calendar'] = ErrorList([ugettext(u'If you participate, you have to choose one of your calendars.')])
                 self.add_error('my_calendar', _(u'If you participate, you have to choose one of your calendars.'))
 
             if not my_participation and not cdata['participating_users']:
@@ -390,7 +376,7 @@ class ActivityCreateForm(_ActivityCreateForm):
         if cdata['my_participation']:
             instance.calendars.add(cdata['my_calendar'])
 
-        #TODO: improve Relation model in order to avoid duplcation automatically
+        # TODO: improve Relation model in order to avoid duplcation automatically
         create_relation = partial(Relation.objects.get_or_create, object_entity_id=instance.id,
                                   defaults={'user': instance.user},
                                  )
@@ -461,25 +447,25 @@ class CalendarActivityCreateForm(ActivityCreateForm):
         fields = self.fields
         fields['participating_users'].widget.attrs = {'reduced': 'true'}
 
-        if start: #normally there's always a start_date for this kind of add
+        if start:  # Normally there's always a start_date for this kind of add
             fields['start'].initial = start
             hour = start.hour
             minute = start.minute
 
-            if hour or minute: #in case start date is not a simple date (add from month view in the calendar)
-                fields['start_time'].initial = time(hour=hour, minute=minute) #avoid 00h00 for start time in this case
+            if hour or minute:  # In case start date is not a simple date (add from month view in the calendar)
+                fields['start_time'].initial = time(hour=hour, minute=minute)  # Avoid 00h00 for start time in this case
 
 
 class IndisponibilityCreateForm(_ActivityCreateForm):
     type_selector = ModelChoiceField(label=_('Indisponibility type'), required=False,
                                      queryset=ActivitySubType.objects.filter(type=ACTIVITYTYPE_INDISPO),
-                                    ) #TODO: CreatorModelChoiceField
+                                    )  # TODO: CreatorModelChoiceField
 
     class Meta(_ActivityCreateForm.Meta):
         exclude = _ActivityCreateForm.Meta.exclude + (
                         'place', 'description', 'minutes', 'busy', 'status',
                         'duration',
-                    ) #'sub_type' #TODO: test
+                    )  #'sub_type' #TODO: test
 
     blocks = _ActivityCreateForm.blocks.new(
         ('datetime',     _(u'When'),         ['is_all_day', 'start', 'start_time', 'end', 'end_time']),

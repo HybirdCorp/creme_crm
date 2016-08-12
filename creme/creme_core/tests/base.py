@@ -534,6 +534,7 @@ class _CremeTestCase(object):
 
         return url
 
+
 class CremeTestCase(_CremeTestCase, TestCase):
     @classmethod
     def setUpClass(cls):
