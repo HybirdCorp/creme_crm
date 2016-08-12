@@ -241,8 +241,8 @@ def inner_edit_field(request, ct_id, id, field_name):
 
 @login_required
 def bulk_update_field(request, ct_id, field_name):
-    user   = request.user
-    model  = get_ct_or_404(ct_id).model_class()
+    user = request.user
+    model = get_ct_or_404(ct_id).model_class()
 
     if field_name is None:
         field_name = bulk_update_registry.get_default_field(model).name
@@ -250,7 +250,9 @@ def bulk_update_field(request, ct_id, field_name):
     try:
         form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
     except (FieldDoesNotExist, FieldNotAllowed):
-        return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited') % field_name)
+        return HttpResponseBadRequest(_(u'''The field "%s" doesn't exist or cannot be edited''') % field_name)
+
+    meta = model._meta
 
     if request.method == 'POST':
         entity_ids = request.POST.getlist('entities', [])
@@ -269,7 +271,7 @@ def bulk_update_field(request, ct_id, field_name):
             invalid_count = len(form.bulk_invalid_entities)
             unallowed_count = initial_count - success_count - invalid_count
 
-            context = {'model': model._meta.verbose_name_plural if success_count > 1 else model._meta.verbose_name,
+            context = {'model': meta.verbose_name_plural if success_count > 1 else meta.verbose_name,
                        'success': success_count,
                        'initial': initial_count,
                        'invalid': invalid_count,
@@ -288,10 +290,16 @@ def bulk_update_field(request, ct_id, field_name):
                                    )
 
                 if unallowed_count:
-                    summary += u' ' + ungettext('%(unallowed)s was not editable.', '%(unallowed)s were not editable.', unallowed_count)
+                    summary += u' ' + ungettext('%(unallowed)s was not editable.',
+                                                '%(unallowed)s were not editable.',
+                                                unallowed_count,
+                                               )
 
                 if invalid_count: 
-                    summary += u' ' + ungettext('%(invalid)s has returned an error.', '%(invalid)s have returned an error.', invalid_count)
+                    summary += u' ' + ungettext('%(invalid)s has returned an error.',
+                                                '%(invalid)s have returned an error.',
+                                                invalid_count,
+                                               )
 
             return render(request, 'creme_core/frags/bulk_process_report.html',
                           {'form':  form,
@@ -303,8 +311,8 @@ def bulk_update_field(request, ct_id, field_name):
         form = form_class(entities=(), user=user, is_bulk=True)
 
     help_message = u'<span class="bulk-selection-summary" data-msg="%s" data-msg-plural="%s"></span>' % (
-                         _(u'%%s %s has been selected.') % model._meta.verbose_name,
-                         _(u'%%s %s have been selected.') % model._meta.verbose_name_plural
+                         _(u'%%s %s has been selected.') % meta.verbose_name,
+                         _(u'%%s %s have been selected.') % meta.verbose_name_plural,
                     )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',

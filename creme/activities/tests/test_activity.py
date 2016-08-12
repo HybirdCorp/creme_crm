@@ -592,7 +592,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_alert01(self):
         user = self.login()
 
-        title  = 'Meeting01'
+        title = 'Meeting01'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':             user.pk,
@@ -633,7 +633,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         "Unit is missing"
         user = self.login()
 
-        title  = 'Meeting01'
+        title = 'Meeting01'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':             user.pk,
@@ -1346,6 +1346,98 @@ class ActivityTestCase(_ActivitiesTestCase):
                                     sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
                                    )
 
+        # url = self.build_bulkedit_url([activity1, activity2], 'type')
+        url = self.build_bulkupdate_url(Activity, 'type')
+        response = self.assertGET200(url)
+        # self.assertContains(response,
+        #                     escape(ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
+        #                                      u'The type of %s activities cannot be changed because they are indisponibilities.',
+        #                                      1
+        #                                     ) % 1
+        #                           )
+        #                    )
+
+        self.assertNoFormError(self.client.post(
+                                    url,
+                                    # data={'field_value': self._acttype_field_value(
+                                    #                               constants.ACTIVITYTYPE_MEETING,
+                                    #                               constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                    #                             ),
+                                    #      }
+                                    data={'_bulk_fieldname': url,
+                                          'field_value': self._acttype_field_value(
+                                                          constants.ACTIVITYTYPE_MEETING,
+                                                          constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                        ),
+                                          'entities': [activity1.pk, activity2.pk],
+                                         }
+                                   )
+                              )
+        self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
+        self.assertEqual(constants.ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)  # No change
+
+    def test_bulk_edit_type02(self):
+        "Unavailabilities type can be changed when they are not mixed with other types"
+        user = self.login()
+
+        ACTIVITYTYPE_INDISPO = constants.ACTIVITYTYPE_INDISPO
+        subtype = ActivitySubType.objects.create(id='holidays', name='Holidays',
+                                                 type_id=ACTIVITYTYPE_INDISPO,
+                                                )
+
+        create_dt = self.create_datetime
+        create_indispo = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
+        activity1 = create_indispo(title='Indispo01',
+                                   start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+                                   end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+                                  )
+        activity2 = create_indispo(title='Indispo02',
+                                   start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
+                                   end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
+                                  )
+
+        url = self.build_bulkupdate_url(Activity, 'type')
+        self.assertNoFormError(self.client.post(
+                                    # self.build_bulkedit_url([activity1, activity2], 'type'),
+                                    url,
+                                    # data={'field_value': self._acttype_field_value(
+                                    #                               ACTIVITYTYPE_INDISPO,
+                                    #                               subtype.id,
+                                    #                             ),
+                                    #      }
+                                    data={'_bulk_fieldname': url,
+                                          'field_value': self._acttype_field_value(
+                                                          ACTIVITYTYPE_INDISPO, subtype.id,
+                                                        ),
+                                          'entities': [activity1.pk, activity2.pk],
+                                         }
+                                   )
+                              )
+        activity1 = self.refresh(activity1)
+        self.assertEqual(ACTIVITYTYPE_INDISPO, activity1.type_id)
+        self.assertEqual(subtype,              activity1.sub_type)
+
+        activity2 = self.refresh(activity2)
+        self.assertEqual(ACTIVITYTYPE_INDISPO, activity2.type_id)
+        self.assertEqual(subtype,              activity2.sub_type)
+
+    def test_bulk_edit_type_legacy(self):  # TODO: remove when old inner bulk view is removed
+        user = self.login()
+
+        create_dt = self.create_datetime
+        create_activity = partial(Activity.objects.create, user=user)
+        activity1 = create_activity(title='act01',
+                                    start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+                                    end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+                                    type_id=constants.ACTIVITYTYPE_INDISPO,
+                                   )
+        activity2 = create_activity(title='act02',
+                                    start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
+                                    end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
+                                    type_id=constants.ACTIVITYTYPE_PHONECALL,
+                                    sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                                   )
+
         url = self.build_bulkedit_url([activity1, activity2], 'type')
         response = self.assertGET200(url)
         self.assertContains(response,
@@ -1367,42 +1459,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                               )
         self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
         self.assertEqual(constants.ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)  # No change
-
-    def test_bulk_edit_type02(self):
-        "Unavailabilities cannot be changed when they are mixed with other types"
-        user = self.login()
-
-        subtype = ActivitySubType.objects.create(id='hollydays', name='Hollydays',
-                                                 type_id=constants.ACTIVITYTYPE_INDISPO,
-                                                )
-
-        create_dt = self.create_datetime
-        create_indispo = partial(Activity.objects.create, user=user, type_id=constants.ACTIVITYTYPE_INDISPO)
-        activity1 = create_indispo(title='Indispo01',
-                                   start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-                                   end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-                                  )
-        activity2 = create_indispo(title='Indispo02',
-                                   start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
-                                   end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
-                                  )
-
-        self.assertNoFormError(self.client.post(
-                                    self.build_bulkedit_url([activity1, activity2], 'type'),
-                                    data={'field_value': self._acttype_field_value(
-                                                                  constants.ACTIVITYTYPE_INDISPO,
-                                                                  subtype.id,
-                                                                ),
-                                         }
-                                   )
-                              )
-        activity1 = self.refresh(activity1)
-        self.assertEqual(constants.ACTIVITYTYPE_INDISPO, activity1.type_id)
-        self.assertEqual(subtype,              activity1.sub_type)
-
-        activity2 = self.refresh(activity2)
-        self.assertEqual(constants.ACTIVITYTYPE_INDISPO, activity2.type_id)
-        self.assertEqual(subtype,              activity2.sub_type)
 
     def _check_activity_collisions(self, activity_start, activity_end, participants,
                                    busy=True, exclude_activity_id=None,
