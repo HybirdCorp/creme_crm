@@ -405,11 +405,11 @@ class ActivityCreateForm(_ActivityCreateForm):
         if specific_date_alert:
             start_time = get('alert_start_time')
             self._create_alert(activity,
-                               datetime.combine(specific_date_alert,
-                                                time(hour=start_time.hour,
-                                                     minute=start_time.minute,
-                                                    )
-                                               )
+                               make_aware_dt(datetime.combine(specific_date_alert,
+                                                              time(hour=start_time.hour,
+                                                                   minute=start_time.minute,
+                                                                  ),
+                                            ))
                               )
 
         amount = get('alert_trigger_number')
