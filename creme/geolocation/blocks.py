@@ -22,7 +22,7 @@ from collections import defaultdict
 from json import dumps as encode_json
 
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.gui.block import Block
 from creme.creme_core.models import EntityFilter
@@ -56,7 +56,8 @@ class _MapBlock(Block):
             efilters = efilters_per_ctid[ct.id]
 
             if efilters:
-                title = ugettext(ct.model_class()._meta.verbose_name_plural)
+                # title = ugettext(ct.model_class()._meta.verbose_name_plural)
+                title = unicode(ct.model_class()._meta.verbose_name_plural)
                 choices.append((title,
                                 [(ef.id, u'%s - %s' % (title, ef.name)) for ef in efilters]
                                )
