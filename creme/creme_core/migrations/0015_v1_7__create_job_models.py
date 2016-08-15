@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('enabled', models.BooleanField(default=True, verbose_name='Enabled', editable=False)),
                 ('language', models.CharField(verbose_name='Language', max_length=10, editable=False)),
                 ('reference_run', models.DateTimeField(verbose_name='Reference run')),
-                ('periodicity', creme.creme_core.models.fields.DatePeriodField(null=True)),
+                ('periodicity', creme.creme_core.models.fields.DatePeriodField(null=True, verbose_name='Periodicity')),
                 ('last_run', models.DateTimeField(verbose_name='Last run', null=True, editable=False)),
                 ('ack_errors', models.PositiveIntegerField(default=0, editable=False)),
                 ('status', models.PositiveSmallIntegerField(default=1, verbose_name='Status', editable=False,
