@@ -1,21 +1,21 @@
-# FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
-# Copyright (C) 2014 Hybird
+# FR LOCALISATION OF 'GEOLOCATION' APP (JavaScript only)
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Creme Geolocation 1.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-22 14:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Last-Translator: Hybird <contact@hybird.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 #: static/geolocation/js/block.js:24
 msgid "Not localized"
@@ -29,8 +29,6 @@ msgstr "Localisation manuelle"
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
 
-# "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-# "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 #: static/geolocation/js/block.js:228
 msgid "No address from"
 msgstr "Aucune adresse de"

@@ -27,6 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 from ..forms.mass_import import get_header, form_factory
 from ..models import MassImportJobResult
 from .base import JobType
+from ..utils.translation import get_model_verbose_name
 
 from creme.documents import get_document_model
 
@@ -79,8 +80,8 @@ class _MassImportType(JobType):
 
         return desc
 
-    def _get_verbose_name(self, meta, count):  # TODO: in utils (takes 'model') ?
-        return ungettext(meta.verbose_name, meta.verbose_name_plural, count)
+    # def _get_verbose_name(self, meta, count):
+    #     return ungettext(meta.verbose_name, meta.verbose_name_plural, count)
 
     def get_stats(self, job):
         stats = []
@@ -92,14 +93,17 @@ class _MassImportType(JobType):
         created_count = entity_result_qs.filter(updated=False).count()
         updated_count = entity_result_qs.filter(updated=True).count()
 
-        meta = self._get_ctype(job.data).model_class()._meta
+        # meta = self._get_ctype(job.data).model_class()._meta
+        model = self._get_ctype(job.data).model_class()
+        meta = model._meta
 
         if created_count:
             stats.append(ungettext(u'%(counter)s «%(type)s» has been created.',
                                    u'%(counter)s «%(type)s» have been created.',
                                    created_count
                                   ) % {'counter': created_count,
-                                       'type':    self._get_verbose_name(meta, created_count),
+                                       # 'type':    self._get_verbose_name(meta, created_count),
+                                       'type':    get_model_verbose_name(model, created_count),
                                       }
                         )
         elif updated_count != lines_count:
@@ -110,7 +114,8 @@ class _MassImportType(JobType):
                                    u'%(counter)s «%(type)s» have been updated.',
                                    updated_count
                                   ) % {'counter': updated_count,
-                                       'type':    self._get_verbose_name(meta, updated_count),
+                                       # 'type':    self._get_verbose_name(meta, updated_count),
+                                       'type':    get_model_verbose_name(model, updated_count),
                                       }
                         )
         elif created_count != lines_count:

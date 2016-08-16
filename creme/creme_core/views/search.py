@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from time import time
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.shortcuts import render
-from django.utils.translation import ugettext as _, ungettext
+from django.utils.translation import ugettext as _  # ungettext
 
 from ..auth.decorators import login_required
 from ..core.search import Searcher
@@ -31,6 +31,7 @@ from ..gui.block import QuerysetBlock
 from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
 from ..utils import get_ct_or_404, jsonify
+from ..utils.translation import get_model_verbose_name
 from .blocks import build_context
 
 
@@ -76,8 +77,8 @@ class FoundEntitiesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         model = self.model
-        meta = model._meta
-        verbose_name = meta.verbose_name
+        # meta = model._meta
+        # verbose_name = meta.verbose_name
         research = self.research
         searcher = self.searcher
         results = searcher.search(model, research)
@@ -94,13 +95,15 @@ class FoundEntitiesBlock(QuerysetBlock):
                     sfields=searcher.get_fields(model),
                     # If the model is inserted in the context, the template call it and create an instance...
                     ctype=self.ctype,
-                    short_title=verbose_name,
+                    # short_title=verbose_name,
+                    short_title=model._meta.verbose_name,
                 )
 
         count = btc['page'].paginator.count
-        btc['title'] = _('%(count)s %(model)s') % {
+        btc['title'] = _(u'%(count)s %(model)s') % {
                             'count': count,
-                            'model': ungettext(verbose_name, meta.verbose_name_plural, count),
+                            # 'model': ungettext(verbose_name, meta.verbose_name_plural, count),
+                            'model': get_model_verbose_name(model, count),
                         }
 
         return self._render(btc)

@@ -42,6 +42,7 @@ from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
 from ..models import CremeEntity, EntityCredentials, FieldsConfig
 from ..models.fields import UnsafeHTMLField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
+from ..utils.translation import get_model_verbose_name
 # from ..utils.chunktools import iter_as_slices
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
@@ -271,7 +272,8 @@ def bulk_update_field(request, ct_id, field_name):
             invalid_count = len(form.bulk_invalid_entities)
             unallowed_count = initial_count - success_count - invalid_count
 
-            context = {'model': meta.verbose_name_plural if success_count > 1 else meta.verbose_name,
+            # context = {'model': meta.verbose_name_plural if success_count > 1 else meta.verbose_name,
+            context = {'model': get_model_verbose_name(model, success_count),
                        'success': success_count,
                        'initial': initial_count,
                        'invalid': invalid_count,
@@ -310,6 +312,7 @@ def bulk_update_field(request, ct_id, field_name):
     else:
         form = form_class(entities=(), user=user, is_bulk=True)
 
+    # TODO: select_label in model instead (fr: masculin/féminin)
     help_message = u'<span class="bulk-selection-summary" data-msg="%s" data-msg-plural="%s"></span>' % (
                          _(u'%%s %s has been selected.') % meta.verbose_name,
                          _(u'%%s %s have been selected.') % meta.verbose_name_plural,

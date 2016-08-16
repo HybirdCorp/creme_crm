@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,12 +26,13 @@ from django.db.models import Q
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
-from django.utils.translation import ungettext
+# from django.utils.translation import ungettext
 
 from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
 from ..gui.block import Block, block_registry, BlocksManager
 from ..gui.bulk_update import bulk_update_registry
 from ..models import Relation, BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
+from ..utils.translation import plural
 
 
 register = Library()
@@ -64,6 +65,7 @@ class InnerTemplateVar(object):
 
 # ------------------------------------------------------------------------------
 _BLOCK_HEADER_RE = compile_re(r'colspan=(?P<colspan>.*?)(\scollapsable=(?P<collapsable>.+))?$')
+
 
 @register.tag(name="get_block_header")
 def do_block_header(parser, token):
@@ -121,9 +123,11 @@ class HeaderNode(TemplateNode):
 
 # ------------------------------------------------------------------------------
 
+
 @register.inclusion_tag('creme_core/templatetags/widgets/block_reload_uri.html', takes_context=True)
 def get_block_reload_uri(context):  # {% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
     return context
+
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_relation_reload_uri.html', takes_context=True)
 def get_block_relation_reload_uri(context):
@@ -144,8 +148,10 @@ def get_block_title(context, singular_title, plural_title, icon='', short_title=
     if count is None:
         count = context['page'].paginator.count
 
+    title_fmt = plural_title if plural(count) else singular_title
     context.update({
-            'title':       ungettext(singular_title, plural_title, count) % count,
+            # 'title':       ungettext(singular_title, plural_title, count) % count,
+            'title':       title_fmt % count,
             'icon':        icon,
             'short_title': short_title,
            })

@@ -42,7 +42,6 @@ Apps.populate = _hooked_populate
 from django.conf import settings
 
 
-# if 'mediagenerator' in settings.INSTALLED_DJANGO_APPS:
 try:
     import mediagenerator  # NB: we cannot use django.apps.apps.is_installed here, because apps are not registered yet.
 except ImportError:
