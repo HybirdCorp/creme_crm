@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-10 20:23+0100\n"
+"POT-Creation-Date: 2016-08-16 15:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -938,7 +938,7 @@ msgstr "Nouvel atout pour «%s»"
 
 #: views/strategy.py:114
 msgid "Save the commercial asset"
-msgstr "Enregistrer l'action commerciale"
+msgstr "Enregistrer l'atout commercial"
 
 #: views/strategy.py:122
 #, python-format
