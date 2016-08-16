@@ -31,6 +31,7 @@ from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
 from ..gui.block import QuerysetBlock, Block
 from ..models import CremeEntity, CremePropertyType
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
+from ..utils.translation import get_model_verbose_name
 from .blocks import _get_depblock_ids, build_context  # TODO: make _get_depblock_ids public ??
 from .generic import inner_popup, add_to_entity as generic_add_to_entity
 from .utils import build_cancel_path
@@ -229,8 +230,8 @@ class TaggedEntitiesBlock(QuerysetBlock):
     def detailview_display(self, context):
         ctype = self.ctype
         model = ctype.model_class()
-        meta = model._meta
-        verbose_name = meta.verbose_name
+        # meta = model._meta
+        # verbose_name = meta.verbose_name
         ptype = self.ptype
 
         btc = self.get_block_template_context(
@@ -240,13 +241,15 @@ class TaggedEntitiesBlock(QuerysetBlock):
                     ptype_id=ptype.id,
                     ctype=ctype,  # If the model is inserted in the context,
                                   #  the template call it and create an instance...
-                    short_title=verbose_name,
+                    # short_title=verbose_name,
+                    short_title=model._meta.verbose_name,
                 )
 
         count = btc['page'].paginator.count
-        btc['title'] = _('%(count)s %(model)s') % {
+        btc['title'] = _(u'%(count)s %(model)s') % {
                             'count': count,
-                            'model': ungettext(verbose_name, meta.verbose_name_plural, count),
+                            # 'model': ungettext(verbose_name, meta.verbose_name_plural, count),
+                            'model': get_model_verbose_name(model, count),
                         }
 
         return self._render(btc)

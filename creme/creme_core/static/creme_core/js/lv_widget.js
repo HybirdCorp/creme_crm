@@ -156,7 +156,9 @@ creme.lv_widget.editSelectedLines = function(list, url) {
 
               if (summary.length) {
                   var count = selection.length;
-                  var content = ngettext(summary.attr('data-msg'), summary.attr('data-msg-plural'), count);
+//                  TODO: need all model select_label in djangojs.po files
+//                  var content = ngettext(summary.attr('data-msg'), summary.attr('data-msg-plural'), count);
+                  var content = pluralidx(count) ? summary.attr('data-msg-plural') : summary.attr('data-msg');
                   summary.text(content.format(selection.length));
               }
           })
