@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,8 @@ class _LinkedStuffBlock(QuerysetBlock):
     # template_name = SET ME
     target_ctypes = (Opportunity,)
 
-    _ct = _get_ct(Contact)  # Overload if needed
+    # _ct = _get_ct(Contact)  # Overload if needed
+    _model = Contact
 
     def _get_queryset(self, entity):  # Overload
         pass
@@ -68,7 +69,8 @@ class _LinkedStuffBlock(QuerysetBlock):
                                 self._get_queryset(entity),
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                 predicate_id=self.relation_type_deps[0],
-                                ct=self._ct,
+                                # ct=self._ct,
+                                ct=_get_ct(self._model),
                                )
                            )
 
@@ -91,7 +93,8 @@ class LinkedProductsBlock(_LinkedStuffBlock):
     verbose_name  = _(u'Linked Products')
     template_name = 'opportunities/templatetags/block_products.html'
 
-    _ct = _get_ct(Product)
+    # _ct = _get_ct(Product)
+    _model = Product
 
     def _get_queryset(self, entity):
         return entity.get_products()
@@ -104,7 +107,8 @@ class LinkedServicesBlock(_LinkedStuffBlock):
     verbose_name  = _(u'Linked Services')
     template_name = 'opportunities/templatetags/block_services.html'
 
-    _ct = _get_ct(Service)
+    # _ct = _get_ct(Service)
+    _model = Service
 
     def _get_queryset(self, entity):
         return entity.get_services()
@@ -129,7 +133,7 @@ class TargettingOpportunitiesBlock(QuerysetBlock):
     template_name = 'opportunities/templatetags/block_opportunities.html'
     target_ctypes = (Organisation, Contact)
 
-    _ct = _get_ct(Opportunity)
+    # _ct = _get_ct(Opportunity)
 
     def detailview_display(self, context):
         entity = context['object']
@@ -143,7 +147,8 @@ class TargettingOpportunitiesBlock(QuerysetBlock):
                                                           ),
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                 predicate_id=self.relation_type_deps[0],
-                                ct=self._ct,
+                                # ct=self._ct,
+                                ct=_get_ct(Opportunity),
                                 hidden_fields={fname
                                                 for fname in ('estimated_sales', 'made_sales')
                                                     if is_hidden(fname)
@@ -202,7 +207,8 @@ if apps.is_installed('creme.billing'):
         verbose_name       = _(u"Quotes linked to the opportunity")
         template_name      = 'opportunities/templatetags/block_quotes.html'
 
-        _ct = _get_ct(Quote)
+        # _ct = _get_ct(Quote)
+        _model = Quote
 
         def _get_queryset(self, entity):
             # TODO: test
@@ -219,7 +225,8 @@ if apps.is_installed('creme.billing'):
         verbose_name       = _(u"Salesorders linked to the opportunity")
         template_name      = 'opportunities/templatetags/block_sales_orders.html'
 
-        _ct = _get_ct(SalesOrder)
+        # _ct = _get_ct(SalesOrder)
+        _model = SalesOrder
 
         def _get_queryset(self, entity):
             # TODO: test
@@ -236,7 +243,8 @@ if apps.is_installed('creme.billing'):
         verbose_name       = _(u"Invoices linked to the opportunity")
         template_name      = 'opportunities/templatetags/block_invoices.html'
 
-        _ct = _get_ct(Invoice)
+        # _ct = _get_ct(Invoice)
+        _model = Invoice
 
         def _get_queryset(self, entity):
             # TODO: test

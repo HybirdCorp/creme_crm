@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,9 +35,9 @@ PollForm     = get_pollform_model()
 PollReply    = get_pollreply_model()
 
 get_ct = ContentType.objects.get_for_model
-_CT_REPLY = get_ct(PollReply)
-_CT_FLINE_ID = get_ct(PollFormLine).id
-_CT_SECTION_ID = get_ct(PollFormSection).id
+# _CT_REPLY = get_ct(PollReply)
+# _CT_FLINE_ID = get_ct(PollFormLine).id
+# _CT_SECTION_ID = get_ct(PollFormSection).id
 
 
 class PollFormLinesBlock(Block):
@@ -58,8 +58,10 @@ class PollFormLinesBlock(Block):
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
                         nodes=nodes,
                         style=NodeStyle(),
-                        line_ct_id=_CT_FLINE_ID,
-                        section_ct_id=_CT_SECTION_ID,
+                        # line_ct_id=_CT_FLINE_ID,
+                        line_ct_id=get_ct(PollFormLine).id,
+                        # section_ct_id=_CT_SECTION_ID,
+                        section_ct_id=get_ct(PollFormSection).id,
                        )
                     )
 
@@ -101,7 +103,8 @@ class PollRepliesBlock(QuerysetBlock):
                         context,
                         PollReply.objects.filter(pform=pform),
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
-                        ct_reply=_CT_REPLY,
+                        # ct_reply=_CT_REPLY,
+                        ct_reply=get_ct(PollReply),
                         # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
                         propose_creation=pform.lines.exists(),
                        )
@@ -122,7 +125,8 @@ class _RelatedRepliesBlock(QuerysetBlock):
                         context,
                         self._get_replies(pk),
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                        ct_reply=_CT_REPLY,
+                        # ct_reply=_CT_REPLY,
+                        ct_reply=get_ct(PollReply),
                         propose_creation=True,
                        )
                     )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -114,7 +114,8 @@ class OpportunitiesConfig(CremeAppConfig):
             linked_salesorder = get_rtype(id=REL_SUB_LINKED_SALESORDER)
             linked_invoice    = get_rtype(id=REL_SUB_LINKED_INVOICE)
             linked_quote      = get_rtype(id=REL_SUB_LINKED_QUOTE)
-        except RelationType.DoesNotExist as e:
+        # except RelationType.DoesNotExist as e:
+        except Exception as e:
             logger.info("A problem occured: %s\n"
                         "It can happen during unitests or during the 'populate' phase. "
                         "Otherwise, has the database correctly been populated?", e

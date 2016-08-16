@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from .constants import REL_SUB_RELATED_2_DOC
 
 Folder   = get_folder_model()
 Document = get_document_model()
-_CT_DOC = ContentType.objects.get_for_model(Document)
+# _CT_DOC = ContentType.objects.get_for_model(Document)
 
 
 class FolderDocsBlock(QuerysetBlock):
@@ -50,7 +50,8 @@ class FolderDocsBlock(QuerysetBlock):
                         Document.objects.filter(**q_dict),
                         # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder_id),
-                        ct_id=_CT_DOC.id,
+                        # ct_id=_CT_DOC.id,
+                        ct_id=ContentType.objects.get_for_model(Document).id,
                         q_filter=json_dump(q_dict),
                        )
                    )
@@ -89,7 +90,8 @@ class LinkedDocsBlock(QuerysetBlock):
                                               Document.get_linkeddoc_relations(entity),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                               predicate_id=REL_SUB_RELATED_2_DOC,
-                                              ct_doc=_CT_DOC,
+                                              # ct_doc=_CT_DOC,
+                                              ct_doc=ContentType.objects.get_for_model(Document),
                                              )
         relations = btc['page'].object_list
         docs = {c.id: c

@@ -260,7 +260,7 @@ class OtherAddressBlock(QuerysetBlock):
     target_ctypes = (Contact, Organisation)
     page_size     = 1
 
-    _ADDRESS_CT_ID = ContentType.objects.get_for_model(Address).id
+    # _ADDRESS_CT_ID = ContentType.objects.get_for_model(Address).id
 
     def detailview_display(self, context):
         person = context['object']
@@ -272,7 +272,8 @@ class OtherAddressBlock(QuerysetBlock):
                                                 self.id_, person.pk,
                                             ),
                                 field_names=_get_address_field_names(),
-                                ct_id=self._ADDRESS_CT_ID,
+                                # ct_id=self._ADDRESS_CT_ID,
+                                ct_id=ContentType.objects.get_for_model(Address).id,
                                )
                            )
 

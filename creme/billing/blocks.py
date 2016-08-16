@@ -76,7 +76,8 @@ class _LineBlock(SimpleBlock):
     relation_type_deps  = (REL_SUB_HAS_LINE, )
     target_ctypes       = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     line_model          = "OVERLOAD_ME"
-    related_item_ct     = "OVERLOAD_ME"
+    # related_item_ct     = "OVERLOAD_ME"
+    related_item_model  = "OVERLOAD_ME"
     related_item_label  = "OVERLOAD_ME"
 
     def _get_document_lines(self, document):
@@ -111,7 +112,8 @@ class _LineBlock(SimpleBlock):
                     formset=lineformset,
                     # item_count=lines.count(),
                     item_count=len(lines),
-                    related_item_ct=self.related_item_ct,
+                    # related_item_ct=self.related_item_ct,
+                    related_item_ct=ContentType.objects.get_for_model(self.related_item_model),
                     related_item_label=self.related_item_label,
                    ))
 
@@ -121,7 +123,8 @@ class ProductLinesBlock(_LineBlock):
     verbose_name       = _(u'Product lines')
     template_name      = 'billing/templatetags/block_product_line.html'
     line_model         = ProductLine
-    related_item_ct    = ContentType.objects.get_for_model(get_product_model())
+    # related_item_ct    = ContentType.objects.get_for_model(get_product_model())
+    related_item_model  = get_product_model()
     related_item_label = _(u'Product')
 
     def _get_document_lines(self, document):
@@ -133,7 +136,8 @@ class ServiceLinesBlock(_LineBlock):
     verbose_name       = _(u'Service lines')
     template_name      = 'billing/templatetags/block_service_line.html'
     line_model         = ServiceLine
-    related_item_ct    = ContentType.objects.get_for_model(get_service_model())
+    # related_item_ct    = ContentType.objects.get_for_model(get_service_model())
+    related_item_model  = get_service_model()
     related_item_label = _(u'Service')
 
     def _get_document_lines(self, document):

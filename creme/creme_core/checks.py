@@ -21,6 +21,7 @@
 from django.apps import apps
 from django.conf import settings
 from django.core.checks import register, Error, Warning
+from django.db.utils import OperationalError
 
 
 class Tags(object):
@@ -55,21 +56,27 @@ def check_uninstalled_apps(**kwargs):
     if settings.TESTS_ON:
         return warnings
 
-    for app_label in apps.get_model('contenttypes.ContentType') \
-                         .objects \
-                         .order_by('app_label') \
-                         .distinct() \
-                         .values_list('app_label', flat=True):
-        try:
-            apps.get_app_config(app_label)
-        except LookupError:
-            warnings.append(Warning('The app seems not been correctly uninstalled.',
-                                    hint="""If it's a Creme app, uninstall it with the command "creme_uninstall" """
-                                         """(you must enable this app in your settings before).""",
-                                    obj=app_label,
-                                    id='creme.E003',
-                                   )
-                           )
+    try:
+        app_labels = list(apps.get_model('contenttypes.ContentType')
+                              .objects
+                              .order_by('app_label')
+                              .distinct()
+                              .values_list('app_label', flat=True)
+                        )
+    except OperationalError:
+        pass
+    else:
+        for app_label in app_labels:
+            try:
+                apps.get_app_config(app_label)
+            except LookupError:
+                warnings.append(Warning('The app seems not been correctly uninstalled.',
+                                        hint="""If it's a Creme app, uninstall it with the command "creme_uninstall" """
+                                             """(you must enable this app in your settings before).""",
+                                        obj=app_label,
+                                        id='creme.E003',
+                                       )
+                               )
 
     return warnings
 
