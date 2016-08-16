@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ from .constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, REL_SUB_RELAT
 
 
 EntityEmail = get_entityemail_model()
-entity_email_ct = ContentType.objects.get_for_model(EntityEmail)
+# entity_email_ct = ContentType.objects.get_for_model(EntityEmail)
 
 
 class EntityEmailLinkButton(Button):
@@ -43,7 +43,8 @@ class EntityEmailLinkButton(Button):
         return (EntityEmail, )
 
     def render(self, context):
-        context['entity_email_ct_id'] = entity_email_ct.id
+        # context['entity_email_ct_id'] = entity_email_ct.id
+        context['entity_email_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
         context['rtypes'] = ','.join([REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])
 
         return super(EntityEmailLinkButton, self).render(context)
