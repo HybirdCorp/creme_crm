@@ -6,7 +6,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeAddress as Address, FakeImage as Image,
             FakeActivity as Activity, FakeEmailCampaign as EmailCampaign, FakeInvoiceLine)
@@ -126,6 +126,9 @@ class PortalInstanceBlock(Block):
 class BlocksConfigTestCase(CremeTestCase):
 #    ADD_DT_URL     = '/creme_config/blocks/detailview/add/'
     DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'
+    RELATION_WIZARD_URL = '/creme_config/blocks/relation_block/wizard'
+    PORTAL_WIZARD_URL = '/creme_config/blocks/portal/wizard'
+    CUSTOM_WIZARD_URL = '/creme_config/blocks/custom/wizard'
 
     @classmethod
     def setUpClass(cls):
@@ -926,6 +929,140 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertPOST200('/creme_config/blocks/portal/delete', data={'id': app_name})
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
 
+    @skipIfNotInstalled('creme.persons')
+    def test_portal_wizard_appname_step(self):
+        app_name = 'persons'
+        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+
+        response = self.assertGET200(self.PORTAL_WIZARD_URL)
+        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+
+        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+                                      {'portal_block_wizard-current_step': '0',
+                                       '0-app_name': app_name,
+                                      }
+                                     )
+
+        block_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
+        self.assertIn('block_creme_core-history', block_ids)
+
+        # last step is not submitted so nothing yet in database
+        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+
+    def test_portal_wizard_appname_step_invalid(self):
+        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+                                      {'portal_block_wizard-current_step': '0',
+                                       '0-app_name': 'unregistered_app',
+                                      }
+                                     )
+
+        self.assertFormError(response, 'form', 'app_name',
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {'value': 'unregistered_app'}
+                            )
+
+    @skipIfNotInstalled('creme.persons')
+    def test_portal_wizard_config_step(self):
+        app_name = 'persons'
+        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+
+        response = self.assertGET200(self.PORTAL_WIZARD_URL)
+        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+
+        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+                                      {'portal_block_wizard-current_step': '0',
+                                       '0-app_name': app_name,
+                                      }
+                                     )
+
+        block_field = response.context['form'].fields['blocks']
+        block_ids = [e[0] for e in block_field.choices]
+        self.assertIn('block_creme_core-history', block_ids)
+
+        history_block_index = self._find_field_index(block_field, 'block_creme_core-history')
+
+        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+                                      {'portal_block_wizard-current_step': '1',
+                                       '1-blocks_check_%s' % history_block_index: 'on',
+                                       '1-blocks_value_%s' % history_block_index: 'block_creme_core-history',
+                                       '1-blocks_order_%s' % history_block_index: 1,
+                                      }
+                                     )
+        self.assertNoFormError(response)
+
+        blocks = list(BlockPortalLocation.objects.filter(app_name=app_name).order_by('order').values_list('block_id', 'order'))
+        self.assertListEqual([('block_creme_core-history', 1),
+                             ], blocks)
+
+    @skipIfNotInstalled('creme.assistants')
+    def test_portal_wizard_config_step_assistants(self):
+        app_name = 'assistants'
+        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+
+        response = self.assertGET200(self.PORTAL_WIZARD_URL)
+        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+
+        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+                                      {'portal_block_wizard-current_step': '0',
+                                       '0-app_name': app_name,
+                                      }
+                                     )
+
+        block_field = response.context['form'].fields['blocks']
+        block_ids = [e[0] for e in block_field.choices]
+
+        self.assertIn('block_assistants-memos', block_ids)
+        self.assertIn('block_assistants-messages', block_ids)
+        self.assertIn('block_creme_core-history', block_ids)
+
+        history_block_index = self._find_field_index(block_field, 'block_creme_core-history')
+        memos_block_index = self._find_field_index(block_field, 'block_assistants-memos')
+        messages_block_index = self._find_field_index(block_field, 'block_assistants-messages')
+
+        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+                                      {'portal_block_wizard-current_step': '1',
+                                       '1-blocks_check_%s' % history_block_index: 'on',
+                                       '1-blocks_value_%s' % history_block_index: 'block_creme_core-history',
+                                       '1-blocks_order_%s' % history_block_index: 1,
+                                       '1-blocks_check_%s' % memos_block_index: 'on',
+                                       '1-blocks_value_%s' % memos_block_index: 'block_assistants-memos',
+                                       '1-blocks_order_%s' % memos_block_index: 2,
+                                       '1-blocks_check_%s' % messages_block_index: 'on',
+                                       '1-blocks_value_%s' % messages_block_index: 'block_assistants-messages',
+                                       '1-blocks_order_%s' % messages_block_index: 3,
+                                      }
+                                     )
+        self.assertNoFormError(response)
+
+        blocks = list(BlockPortalLocation.objects.filter(app_name=app_name).order_by('order').values_list('block_id', 'order'))
+        self.assertListEqual([('block_creme_core-history', 1),
+                              ('block_assistants-memos', 2),
+                              ('block_assistants-messages', 3),
+                             ], blocks)
+
+    @skipIfNotInstalled('creme.persons')
+    def test_portal_wizard_go_back(self):
+        app_name = 'persons'
+        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+
+        response = self.assertGET200(self.PORTAL_WIZARD_URL)
+        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+
+        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+                                      {'portal_block_wizard-current_step': '0',
+                                       '0-app_name': app_name,
+                                      }
+                                     )
+
+        block_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
+        self.assertIn('block_creme_core-history', block_ids)
+
+        # return to first step
+        response = self.assertPOST(200, self.PORTAL_WIZARD_URL,
+                                   {'portal_block_wizard-current_step': '1',
+                                    'wizard_goto_step': '0'
+                                   })
+        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+
     def test_delete_home(self):
         "Can not delete home conf"
         # TODO: use a helper method ??
@@ -1037,7 +1174,7 @@ class BlocksConfigTestCase(CremeTestCase):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                  ('test-objfoo', 'object_predicate'),
                                 )[0]
-        self.assertFalse(RelationBlockItem.objects.count())
+        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rt).exists())
 
         url = '/creme_config/blocks/relation_block/add/'
         self.assertGET200(url)
@@ -1355,6 +1492,119 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertDoesNotExist(rbi)
         self.assertDoesNotExist(loc)
 
+    def test_relationblock_wizard_relation_step(self):
+        get_ct = ContentType.objects.get_for_model
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                    ('test-objfoo', 'object_predicate'),
+                                   )[0]
+
+        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+
+        response = self.assertGET200(self.RELATION_WIZARD_URL)
+        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+
+        response = self.assertPOST200(self.RELATION_WIZARD_URL,
+                                      {'relation_block_wizard-current_step': '0',
+                                       '0-relation_type': rtype.pk,
+                                      }
+                                     )
+        ctypes = response.context['form'].fields['ctypes'].ctypes
+        self.assertIn(get_ct(Contact),      ctypes)
+        self.assertIn(get_ct(Organisation), ctypes)
+        self.assertIn(get_ct(Activity),     ctypes)
+
+        # last step is not submitted so nothing yet in database
+        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+
+    def test_relationblock_wizard_relation_step_invalid(self):
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                    ('test-objfoo', 'object_predicate'),
+                                   )[0]
+
+        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+
+        response = self.assertGET200(self.RELATION_WIZARD_URL)
+        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+
+        response = self.assertPOST200(self.RELATION_WIZARD_URL,
+                                      {'relation_block_wizard-current_step': '0',
+                                       '0-relation_type': 'unknown',
+                                      }
+                                     )
+
+        self.assertFormError(response, 'form', 'relation_type',
+                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                            )
+
+    def test_relationblock_wizard_model_step(self):
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(Contact)
+        orga_ct = get_ct(Organisation)
+        activity_ct = get_ct(Activity)
+
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                    ('test-objfoo', 'object_predicate'),
+                                   )[0]
+
+        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+
+        response = self.assertGET200(self.RELATION_WIZARD_URL)
+        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+
+        response = self.assertPOST200(self.RELATION_WIZARD_URL,
+                                      {'relation_block_wizard-current_step': '0',
+                                       '0-relation_type': rtype.pk,
+                                      }
+                                     )
+        ctypes = response.context['form'].fields['ctypes'].ctypes
+        self.assertIn(get_ct(Contact),      ctypes)
+        self.assertIn(get_ct(Organisation), ctypes)
+        self.assertIn(get_ct(Activity),     ctypes)
+
+        response = self.assertPOST200(self.RELATION_WIZARD_URL,
+                                      {'relation_block_wizard-current_step': '1',
+                                       '1-ctypes': [contact_ct.pk, activity_ct.pk,]
+                                      }
+                                     )
+
+        self.assertNoFormError(response)
+
+        block = RelationBlockItem.objects.get(block_id='specificblock_creme_config-test-subfoo',
+                                              relation_type=rtype,
+                                             )
+
+        self.assertIsNotNone(block.get_cells(contact_ct))
+        self.assertIsNone(block.get_cells(orga_ct))
+        self.assertIsNotNone(block.get_cells(activity_ct))
+
+    def test_relationblock_wizard_go_back(self):
+        get_ct = ContentType.objects.get_for_model
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                    ('test-objfoo', 'object_predicate'),
+                                   )[0]
+
+        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+
+        response = self.assertGET200(self.RELATION_WIZARD_URL)
+        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+
+        response = self.assertPOST200(self.RELATION_WIZARD_URL,
+                                      {'relation_block_wizard-current_step': '0',
+                                       '0-relation_type': rtype.pk,
+                                      }
+                                     )
+        ctypes = response.context['form'].fields['ctypes'].ctypes
+        self.assertIn(get_ct(Contact),      ctypes)
+        self.assertIn(get_ct(Organisation), ctypes)
+        self.assertIn(get_ct(Activity),     ctypes)
+
+        # return to first step
+        response = self.assertPOST(200, self.RELATION_WIZARD_URL,
+                                   {'relation_block_wizard-current_step': '1',
+                                    'wizard_goto_step': '0'
+                                   })
+        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+
     def test_delete_instanceblock(self):
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
@@ -1616,3 +1866,134 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertPOST200('/creme_config/blocks/custom/delete', data={'id': cbci.id})
         self.assertDoesNotExist(cbci)
         self.assertDoesNotExist(loc)
+
+    def test_customblock_wizard_model_step(self):
+        contact_ct = ContentType.objects.get_for_model(Contact)
+        contact_customfield = CustomField.objects.create(name=u'Size (cm)',
+                                                         field_type=CustomField.INT,
+                                                         content_type=contact_ct,
+                                                        )
+
+        self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
+
+        response = self.assertGET200(self.CUSTOM_WIZARD_URL)
+        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+
+        response = self.assertPOST200(self.CUSTOM_WIZARD_URL,
+                                      {'custom_block_wizard-current_step': '0',
+                                       '0-ctype': contact_ct.pk,
+                                       '0-name': 'foobar',
+                                      }
+                                     )
+
+        cells_widget = response.context['form'].fields['cells'].widget
+        customfield_ids = [e[0] for e in cells_widget.custom_fields]
+        regularfield_ids = [e[0] for e in cells_widget.model_fields]
+
+        self.assertIn('custom_field-%s' % contact_customfield.id, customfield_ids)
+        self.assertIn('regular_field-first_name', regularfield_ids)
+        self.assertIn('regular_field-birthday', regularfield_ids)
+
+        # last step is not submitted so nothing yet in database
+        self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
+
+    def test_customblock_wizard_model_step_invalid(self):
+        contact_ct = ContentType.objects.get_for_model(Contact)
+        self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
+
+        response = self.assertGET200(self.CUSTOM_WIZARD_URL)
+        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+
+        response = self.assertPOST200(self.CUSTOM_WIZARD_URL,
+                                      {'custom_block_wizard-current_step': '0',
+                                       '0-ctype': 'unknown',
+                                       '0-name': 'foobar',
+                                      }
+                                     )
+
+        self.assertFormError(response, 'form', 'ctype',
+                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                            )
+
+        self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
+
+    def test_customblock_wizard_config_step(self):
+        contact_ct = ContentType.objects.get_for_model(Contact)
+        contact_customfield = CustomField.objects.create(name=u'Size (cm)',
+                                                         field_type=CustomField.INT,
+                                                         content_type=contact_ct,
+                                                        )
+
+        self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
+
+        response = self.assertGET200(self.CUSTOM_WIZARD_URL)
+        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+
+        response = self.assertPOST200(self.CUSTOM_WIZARD_URL,
+                                      {'custom_block_wizard-current_step': '0',
+                                       '0-ctype': contact_ct.pk,
+                                       '0-name': 'foobar',
+                                      }
+                                     )
+        cells_widget = response.context['form'].fields['cells'].widget
+        customfield_ids = [e[0] for e in cells_widget.custom_fields]
+        regularfield_ids = [e[0] for e in cells_widget.model_fields]
+
+        self.assertIn('custom_field-%s' % contact_customfield.id, customfield_ids)
+        self.assertIn('regular_field-first_name', regularfield_ids)
+        self.assertIn('regular_field-birthday', regularfield_ids)
+
+        response = self.assertPOST200(self.CUSTOM_WIZARD_URL,
+                                      {'custom_block_wizard-current_step': '1',
+                                       '1-cells': '%s,%s' % ('regular_field-first_name',
+                                                             'custom_field-%s' % contact_customfield.id,
+                                                            ),
+                                      }
+                                     )
+
+        self.assertNoFormError(response)
+
+        customblock = self.get_object_or_fail(CustomBlockConfigItem, content_type=contact_ct)
+        cells = [(c.__class__, c.key, c.value) for c in customblock.cells]
+
+        self.assertListEqual([(EntityCellRegularField, 'regular_field-first_name', 'first_name'),
+                              (EntityCellCustomField,
+                               'custom_field-%s' % contact_customfield.id,
+                               unicode(contact_customfield.id)
+                              ),
+                             ], cells
+                            )
+
+    def test_customblock_wizard_go_back(self):
+        contact_ct = ContentType.objects.get_for_model(Contact)
+        contact_customfield = CustomField.objects.create(name=u'Size (cm)',
+                                                         field_type=CustomField.INT,
+                                                         content_type=contact_ct,
+                                                        )
+
+        self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
+
+        response = self.assertGET200(self.CUSTOM_WIZARD_URL)
+        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+
+        response = self.assertPOST200(self.CUSTOM_WIZARD_URL,
+                                      {'custom_block_wizard-current_step': '0',
+                                       '0-ctype': contact_ct.pk,
+                                       '0-name': 'foobar',
+                                      }
+                                     )
+        cells_widget = response.context['form'].fields['cells'].widget
+        customfield_ids = [e[0] for e in cells_widget.custom_fields]
+        regularfield_ids = [e[0] for e in cells_widget.model_fields]
+
+        self.assertIn('custom_field-%s' % contact_customfield.id, customfield_ids)
+        self.assertIn('regular_field-first_name', regularfield_ids)
+        self.assertIn('regular_field-birthday', regularfield_ids)
+
+        # return to first step
+        response = self.assertPOST200(self.CUSTOM_WIZARD_URL,
+                                      {'custom_block_wizard-current_step': '1',
+                                       'wizard_goto_step': '0',
+                                      }
+                                     )
+        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
