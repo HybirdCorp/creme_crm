@@ -60,6 +60,7 @@ fields_config_patterns = [
     url(r'^add/$',                   fields_config.add),
     url(r'^edit/(?P<fconf_id>\d+)$', fields_config.edit),
     url(r'^delete$',                 fields_config.delete),
+    url(r'^wizard[/]*$',             fields_config.FieldConfigWizard.as_view()),
 ]
 
 custom_fields_patterns = [
@@ -80,6 +81,7 @@ blocks_patterns = [
     url(r'^detailview/edit/(?P<ct_id>\d+)/(?P<role>\w+)$', blocks.edit_detailview),
     url(r'^detailview/delete$',                            blocks.delete_detailview),
 
+    url(r'^portal/wizard[/]*$',             blocks.PortalBlockWizard.as_view()),
     url(r'^portal/add/$',                   blocks.add_portal),
     url(r'^portal/edit/(?P<app_name>\w+)$', blocks.edit_portal),
     url(r'^portal/delete$',                 blocks.delete_portal),
@@ -89,6 +91,7 @@ blocks_patterns = [
     url(r'^mypage/default/delete$', blocks.delete_default_mypage),
     url(r'^mypage/delete$',         blocks.delete_mypage),
 
+    url(r'^relation_block/wizard[/]*$',                                blocks.RelationBlockWizard.as_view()),
     url(r'^relation_block/add/$',                                      blocks.add_relation_block),
     url(r'^relation_block/add_ctypes/(?P<rbi_id>\d+)$',                blocks.add_ctypes_2_relation_block),
     url(r'^relation_block/(?P<rbi_id>\d+)/edit_ctype/(?P<ct_id>\d+)$', blocks.edit_ctype_of_relation_block),
@@ -97,6 +100,7 @@ blocks_patterns = [
 
     url(r'^instance_block/delete$', blocks.delete_instance_block),
 
+    url(r'^custom/wizard[/]*$',                blocks.CustomBlockWizard.as_view()),
     url(r'^custom/add/$',                      blocks.add_custom_block),
     url(r'^custom/edit/(?P<cbci_id>[-_\w]+)$', blocks.edit_custom_block),
     url(r'^custom/delete$',                    blocks.delete_custom_block),
