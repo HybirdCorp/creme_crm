@@ -45,6 +45,7 @@ class MediaGeneratorConfig(AppConfig):
 
     def ready(self):
         self._build_MEDIA_BUNDLES()
+        self._fix_i18n_filter()
 
     def _build_MEDIA_BUNDLES(self):
         # from django.conf import settings
@@ -69,6 +70,46 @@ class MediaGeneratorConfig(AppConfig):
 
         settings.CREME_CSS = CREME_CSS  # For compatibility (should not be useful)
         settings.MEDIA_BUNDLES = MEDIA_BUNDLES
+
+    def _fix_i18n_filter(self):
+        # NB: we do not fix in creme.__init__ because it does not work well (strange loading behaviour).
+
+        # Code copied from mediagenerator/filters/i18n.py ----------------------
+        #  Copyright (c) Waldemar Kornewald, Thomas Wanschik, and all contributors.
+        #  Copyright 2016 - Hybird
+        #  BSD License
+        from django.http import HttpRequest
+        from django.views.i18n import javascript_catalog
+
+        def _generate(self, language):
+            language_bidi = language.split('-')[0] in settings.LANGUAGES_BIDI
+            request = HttpRequest()
+            request.GET['language'] = language
+            # Add some JavaScript data
+            content = 'var LANGUAGE_CODE = "%s";\n' % language
+            content += 'var LANGUAGE_BIDI = ' + \
+                (language_bidi and 'true' or 'false') + ';\n'
+
+            # content += javascript_catalog(request,
+            #     packages=settings.INSTALLED_APPS).content
+
+            # DAT FIX
+            content += javascript_catalog(
+                            request,
+                            packages=[app_config.name for app_config in apps.app_configs.values()],
+                        ).content
+
+            # The hgettext() function just calls gettext() internally, but
+            # it won't get indexed by makemessages.
+            content += '\nwindow.hgettext = function(text) { return gettext(text); };\n'
+            # Add a similar hngettext() function
+            content += 'window.hngettext = function(singular, plural, count) { return ngettext(singular, plural, count); };\n'
+            return content
+
+        # Code copied from mediagenerator/filters/i18n.py [END]-----------------
+
+        from mediagenerator.filters.i18n import I18N
+        I18N._generate = _generate
 
 
 class CremeAppConfig(AppConfig):
