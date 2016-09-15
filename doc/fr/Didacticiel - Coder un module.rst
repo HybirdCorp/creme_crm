@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-07-2016 pour la version 1.7 de Creme
+:Version: 14-09-2016 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1802,9 +1802,11 @@ Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
                                        )
 
 
-Dans le ``models.py``, il faut déclarer un modèle qui va se substituer à ``Ticket``.
-Le plus facile étant de dériver de ``AbstractTicket`` (sachant que toutes les
-entités utilisent un schéma similaire) : ::
+Dans le ``models.py``, il faut déclarer un modèle qui va se substituer à
+``tickets.models.Ticket``. Le plus facile étant de dériver de
+``tickets.models.AbstractTicket`` (sachant que toutes les entités utilisent un
+schéma similaire). Il est important de garder ``Ticket`` comme nom de modèle,
+afin d'éviter tout un tas de petits désagréments/bugs : ::
 
     # -*- coding: utf-8 -*-
 
@@ -1816,7 +1818,7 @@ entités utilisent un schéma similaire) : ::
     from creme.tickets.models import AbstractTicket
 
 
-    class MyTicket(AbstractTicket):
+    class Ticket(AbstractTicket):
         estimated_cost = DecimalField(_(u'Estimated cost (€)'),
                                       blank=True, null=True,
                                       max_digits=10, decimal_places=2,
@@ -1834,9 +1836,9 @@ Dans ``settings.py``, il vous faut repérez une variable de la forme
 Nous allons surcharger cette variable dans notre ``project_settings.py`` de la
 manière suivante : ::
 
-    TICKETS_TICKET_MODEL = 'my_tickets.MyTicket'
+    TICKETS_TICKET_MODEL = 'my_tickets.Ticket'
 
-Cela indique la classe à utiliser concrètement à la place de ``Ticket``.
+Cela indique la classe à utiliser concrètement à la place de ``tickets.Ticket``.
 
 Vous pouvez à présent générer le répertoire de migrations comme nous l'avons
 déjà vu.
@@ -1859,10 +1861,10 @@ d'URLs ne sont définies que lorsque le modèle n'est pas personnalisé : ::
     [...]
 
 Ces vues ne peuvent évidemment pas respecter vos règles métier ; par exemple la
-vue de création peut planter si vous avez ajouté dans ``MyTicket`` un champ à
-la fois obligatoire et non éditable. dans la mesure où vous avez choisi de
+vue de création peut planter si vous avez ajouté dans ``my_tickets.Ticket`` un champ à
+la fois obligatoire et non éditable. Dans la mesure où vous avez choisi de
 définir votre modèle personnalisé, il faut fournir nos propres URLs qui sont
-sûres de fonctionner
+sûres de fonctionner.
 
 Dans notre cas, les vues de base devraient tout à fait suffire (les formulaires
 seront assez intelligents pour utiliser votre nouveau champ), et donc nous
@@ -1890,7 +1892,7 @@ ou template. Il en vous reste plus qu'à définir vos propres vues quand c'est
 nécessaire. Gardez à l'esprit qu'il vaut mieux copier/coller le moins de chose
 possible ; les apps de base fournissent des vues abstraites qui vous permettront
 en général de passer les arguments qui vous arrangent. Par exemple, si vous
-voulez définir la vue de création de ``MyTicket`` avec votre propre formulaire
+voulez définir la vue de création de ``my_tickets.Ticket`` avec votre propre formulaire
 (dont l'écriture n'est pas traité ici, vous savez déjà le faire), vous pourriez
 écrire quelque chose comme ça : ::
 
@@ -1904,7 +1906,7 @@ voulez définir la vue de création de ``MyTicket`` avec votre propre formulaire
 
 
     @login_required
-    @permission_required(('my_tickets', 'my_tickets.add_myticket'))
+    @permission_required(('my_tickets', 'my_tickets.add_ticket'))
     def add(request):
         return abstract_add_ticket(request, form=MyTicketForm)
 
@@ -1965,7 +1967,7 @@ sont assez sensibles).
    nom que donnerait Django à la table de votre modèle. Comprenez par là qu'il
    est important de suivre la convention Django. Dans l'exemple des tickets
    traité au dessus, ça voudrait dire renommer la table "tickets_ticket" en
-   "my_tickets_myticket". Normalement, les SGBDR récents s'en sortent bien, et
+   "my_tickets_ticket". Normalement, les SGBDR récents s'en sortent bien, et
    les contraintes associées (donc notamment les *ForeignKeys* vers cette table)
    sont correctement modifiées. Mais certaines vieilles version de MySQL ne font
    pas ce travail correctement, d'où l'importance de tester avec un environnement
@@ -1973,7 +1975,8 @@ sont assez sensibles).
 
 #. Modifiez, dans la table "django_content_type" la ligne correspondant au modèle ;
    par exemple la ligne app_label="tickets"/model="ticket" doit maintenant
-   contenir app_label="my_tickets" et model="myticket".
+   contenir app_label="my_tickets" (model="ticket" ne change pas si vous avez bien
+   gardé ``Ticket`` comme nom).
 
 #. Générez la migration de votre nouveau modèle. Cependant, comme la table existe
    déjà en base il faut *faker* cette migration : ::
