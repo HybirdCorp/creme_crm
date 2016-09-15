@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField, MultipleChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -28,8 +27,6 @@ from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
 from creme.creme_core.utils.collections import OrderedSet
 
 
-#CremeUser = get_user_model()
-
 class _SearchForm(CremeModelForm):
     fields = MultipleChoiceField(label=_(u'Concerned fields'), required=False,
                                  choices=(), widget=OrderedMultipleChoiceWidget,
@@ -37,7 +34,6 @@ class _SearchForm(CremeModelForm):
 
     class Meta:
         model = SearchConfigItem
-#        exclude = ('content_type', 'user', 'field_names')
         exclude = ('content_type', 'role', 'field_names')
 
     def save(self, *args, **kwargs):
@@ -46,9 +42,6 @@ class _SearchForm(CremeModelForm):
 
 
 class SearchAddForm(_SearchForm):
-#    user = ModelChoiceField(label=_(u'User'), queryset=CremeUser.objects.none(),
-#                            empty_label=None,
-#                           )
     role = ModelChoiceField(label=_(u'Role'), queryset=UserRole.objects.none(),
                             empty_label=None, required=False,
                            )
@@ -62,8 +55,6 @@ class SearchAddForm(_SearchForm):
         instance.content_type = self.initial['content_type']
         self.fields['fields'].choices = instance.get_modelfields_choices()
 
-#        used_user_ids = SearchConfigItem.objects.filter(content_type=ct, user__isnull=False)\
-#                                                .values_list('user', flat=True)
         role_f = self.fields['role']
         used_role_ids = set(SearchConfigItem.objects
                                             .filter(content_type=instance.content_type)
@@ -74,10 +65,8 @@ class SearchAddForm(_SearchForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = u'*%s*' % ugettext(u'Superuser') # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = u'*%s*' % ugettext(u'Superuser')  # NB: browser can ignore <em> tag in <option>...
 
-#        self.fields['user'].queryset = CremeUser.objects.filter(is_team=False) \
-#                                                        .exclude(pk__in=used_user_ids)
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
     # NB: we could manage the possible/unlikely race condition with 'unique_together'

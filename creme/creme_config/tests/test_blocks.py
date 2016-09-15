@@ -66,7 +66,7 @@ class PortalOnlyBlock1(Block):
 class PortalOnlyBlock2(Block):
     id_           = Block.generate_id('creme_config', 'testblockconfig_portal_only_2')
     verbose_name  = u'Testing purpose'
-    configurable  = False # <----
+    configurable  = False  # <----
 
     def portal_display(self, context, ct_ids):
         return '<table id="%s"></table>' % self.id_
@@ -124,7 +124,6 @@ class PortalInstanceBlock(Block):
 
 # Test case --------------------------------------------------------------------
 class BlocksConfigTestCase(CremeTestCase):
-#    ADD_DT_URL     = '/creme_config/blocks/detailview/add/'
     DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'
     RELATION_WIZARD_URL = '/creme_config/blocks/relation_block/wizard'
     PORTAL_WIZARD_URL = '/creme_config/blocks/portal/wizard'
@@ -603,9 +602,6 @@ class BlocksConfigTestCase(CremeTestCase):
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-#        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
-#        self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
-
         url = self._build_editdetail_url(ct)
         response = self.assertGET200(url)
 
@@ -649,8 +645,6 @@ class BlocksConfigTestCase(CremeTestCase):
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-#        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
-
         rtype = RelationType.objects.all()[0]
         rtype_block_id = SpecificRelationsBlock.generate_id('test', 'foobar')
         RelationBlockItem.objects.create(block_id=rtype_block_id, relation_type=rtype)
@@ -686,7 +680,6 @@ class BlocksConfigTestCase(CremeTestCase):
         "Default ContentType configuration"
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(Contact)
-#        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
 
         create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
                              content_type=ct, zone=BlockDetailviewLocation.TOP,
@@ -1561,12 +1554,11 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertIn(get_ct(Organisation), ctypes)
         self.assertIn(get_ct(Activity),     ctypes)
 
-        response = self.assertPOST200(self.RELATION_WIZARD_URL,
-                                      {'relation_block_wizard-current_step': '1',
-                                       '1-ctypes': [contact_ct.pk, activity_ct.pk,]
-                                      }
-                                     )
-
+        response = self.client.post(self.RELATION_WIZARD_URL,
+                                    {'relation_block_wizard-current_step': '1',
+                                     '1-ctypes': [contact_ct.pk, activity_ct.pk],
+                                    }
+                                   )
         self.assertNoFormError(response)
 
         block = RelationBlockItem.objects.get(block_id='specificblock_creme_config-test-subfoo',
