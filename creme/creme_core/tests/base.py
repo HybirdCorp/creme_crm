@@ -61,7 +61,8 @@ class _CremeTestCase(object):
             makedirs(documents_dir, 0755)
             cls.existing_doc_files = set()
 
-        warnings.filterwarnings('error', r"DateTimeField received a naive datetime",
+        # warnings.filterwarnings('error', r"DateTimeField received a naive datetime",
+        warnings.filterwarnings('error', r"(.)* received a naive datetime (.)*",
                                 RuntimeWarning, r'django\.db\.models\.fields',
                                )
 
