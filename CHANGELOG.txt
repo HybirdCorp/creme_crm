@@ -58,8 +58,8 @@
         * Mobile :
             - The call minutes can be added from the call form.
 
-  Developpers side :
-  ------------------
+  Developers side :
+  -----------------
     You should probably read the following releases notes for Django versions:
         https://docs.djangoproject.com/en/1.8/releases/1.5/
         https://docs.djangoproject.com/en/1.8/releases/1.6/
@@ -482,8 +482,8 @@
         * Polls :
             - The field PollReply.person can now be inner-edited.
 
-  Developpers side :
-  ------------------
+  Developers side :
+  -----------------
     Non breaking changes :
     ----------------------
         # Deprecations :
@@ -731,8 +731,8 @@
         * Projects :
             - The Project.name field is not nullable anymore.
 
-  Developpers side :
-  ------------------
+  Developers side :
+  -----------------
     Non breaking changes :
     ----------------------
         # A new field tag has been created : 'enumerable'. When a ForeignKey is tagged as enumerable, it means that the related model
@@ -884,8 +884,8 @@
         * VCFS :
             - Can export a Contact as a VCF file.
 
-  Developpers side :
-  ------------------
+  Developers side :
+  -----------------
     # The project layout has changed with Django 1.4 :
         - Apps are imported with namespace 'creme' (eg: 'creme.persons' instead of 'persons').
         - The script 'manage.py' is now at the root of the project.
@@ -986,8 +986,8 @@
         * Some HTML escaping problems fixed.
         * ...
 
-  Developpers side :
-  ------------------
+  Developers side :
+  -----------------
     # Upgrade to jquery 1.6.2 & jquery ui 1.8.15.
     # Improvements for FunctionFields (old API is broken) :
         * Return FunctionFieldResult objects (which can be easily serialised in HTML & CSV outputs).
@@ -1041,8 +1041,8 @@
         * Image file duplicated when an Image was edited.
         * ...
 
-  Developpers side :
-  ------------------
+  Developers side :
+  -----------------
     # Helper methods to build HeaderFilterItem objects.
     # Template tag 'get_html_field_value' replaced by a new one, 'print_field'.
     # New object block system: all blocks (at least on detailviews) are now 'true' blocks.

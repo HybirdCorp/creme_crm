@@ -690,9 +690,11 @@ COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
 # APPS CONFIGURATION ###########################################################
 
 # If you change a <APP>_<MODEL>_MODEL setting (eg: PERSONS_CONTACT_MODEL) in order
-# to use your own model class (eg: 'my_persons.MyContact') :
+# to use your own model class (eg: 'my_persons.Contact') :
 #   - It will be easier to inherit the corresponding abstract class
 #     (eg: persons.model.AbstractContact).
+#   - you should keep the same class name (eg: 'my_persons.Contact' replaces
+#     'persons.Contact') in order to avoids problems (mainly with related_names).
 #   - You have to manage the migrations of your model
 #     (see the django command 'makemigrations').
 #   - In your file my_app.urls.py, you have to define the URLs which are only
