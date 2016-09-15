@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import update_model_instance
 from creme.creme_core.signals import pre_merge_related
 
-from . import get_address_model
+from . import get_address_model, get_contact_model
 from .models.contact import _create_linked_contact
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,8 @@ def sync_with_user(sender, instance, created, **kwargs):
 
     try:
         if created:
-            instance._linked_contact_cache = _create_linked_contact(instance)
+            # instance._linked_contact_cache = _create_linked_contact(instance)
+            instance._linked_contact_cache = get_contact_model()._create_linked_contact(instance)
         else:
             update_model_instance(instance.linked_contact,
                                   last_name=instance.last_name,

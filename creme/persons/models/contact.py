@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-# import warnings
+import warnings
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -178,6 +178,16 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         self._check_deletion()
         super(AbstractContact, self).trash()
 
+    @staticmethod
+    def _create_linked_contact(user, **kwargs):
+        # TODO: assert user is not a team + enforce non team clean() ?
+        return get_contact_model().objects.create(user=user, is_user=user,
+                                                  last_name=user.last_name or user.username.title(),
+                                                  first_name=user.first_name or _('N/A'),
+                                                  email=user.email or _('replaceMe@byYourAddress.com'),
+                                                  **kwargs
+                                                 )
+
 
 class Contact(AbstractContact):
     class Meta(AbstractContact.Meta):
@@ -187,24 +197,32 @@ class Contact(AbstractContact):
 # Manage the related User ------------------------------------------------------
 
 def _create_linked_contact(user):
-    return get_contact_model().objects\
-                              .create(user=user, is_user=user,
-                                      last_name=user.last_name or user.username.title(),
-                                      first_name=user.first_name or _('N/A'),
-                                      email=user.email or _('replaceMe@byYourAddress.com'),
-                                      # TODO assert user is not a team + enforce non team clean() ?
-                                     )
+#    return get_contact_model().objects\
+#                              .create(user=user, is_user=user,
+#                                      last_name=user.last_name or user.username.title(),
+#                                      first_name=user.first_name or _('N/A'),
+#                                      email=user.email or _('replaceMe@byYourAddress.com'),
+#                                      # todo: assert user is not a team + enforce non team clean() ?
+#                                     )
+    warnings.warn("_create_linked_contact() is deprecated ; use AbstractContact._create_linked_contact() instead.",
+                  DeprecationWarning
+                 )
+
+    return get_contact_model()._create_linked_contact(user)
 
 
 def _get_linked_contact(self):
     contact = getattr(self, '_linked_contact_cache', None)
 
     if contact is None:
-        contacts = get_contact_model().objects.filter(is_user=self)[:2]
+        # contacts = get_contact_model().objects.filter(is_user=self)[:2]
+        model = get_contact_model()
+        contacts = model.objects.filter(is_user=self)[:2]
 
         if not contacts:
             logger.critical('User "%s" has no related Contact => we create it', self.username)
-            contact = _create_linked_contact(self)
+            # contact = _create_linked_contact(self)
+            contact = model._create_linked_contact(self)
         else:
             if len(contacts) > 1:
                 # TODO: repair ? (beware to race condition)
