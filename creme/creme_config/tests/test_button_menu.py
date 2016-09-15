@@ -14,6 +14,7 @@ except Exception as e:
 
 class ButtonMenuConfigTestCase(CremeTestCase):
     ADD_URL = '/creme_config/button_menu/add/'
+    WIZARD_URL = '/creme_config/button_menu/wizard/'
     DEL_URL = '/creme_config/button_menu/delete'
 
     @classmethod
@@ -42,7 +43,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_add_detailview(self):
         ct = self.contact_ct
-        #self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))
 
         url = self.ADD_URL
         self.assertGET200(url)
@@ -66,6 +66,46 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                 return i
 
         self.fail('No "%s" in field' % button_id)
+
+    def test_wizard(self):
+        class TestButton(Button):
+            id_          = Button.generate_id('creme_config', 'test_wizard')
+            verbose_name = u'Testing purpose'
+
+        button = TestButton()
+        button_registry.register(button)
+
+        ct = self.contact_ct
+        url = self.WIZARD_URL
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            ctypes = response.context['form'].fields['ctype'].ctypes
+
+        self.assertIn(ct, ctypes)
+
+        response = self.assertPOST200(url,
+                                      {'button_menu_wizard-current_step': '0',
+                                       '0-ctype': ct.id,
+                                      }
+                                     )
+
+        with self.assertNoException():
+            button_ids = response.context['form'].fields['button_ids']
+
+        button_index = self._find_field_index(button_ids, button.id_)
+
+        response = self.client.post(url,
+                                    {'button_menu_wizard-current_step': '1',
+                                     '1-button_ids_check_%s' % button_index: 'on',
+                                     '1-button_ids_value_%s' % button_index: button.id_,
+                                     '1-button_ids_order_%s' % button_index: 1,
+                                    }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual([(button.id_, 1000)],
+                         [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
+                        )
 
     def test_edit01(self):
         ct = self.contact_ct

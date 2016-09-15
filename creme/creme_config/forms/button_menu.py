@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,8 @@ class ButtonMenuAddForm(CremeForm):
 
 class ButtonMenuEditForm(CremeForm):
     button_ids = MultipleChoiceField(label=_(u'Buttons to display'), required=False,
-                                    choices=(), widget=OrderedMultipleChoiceWidget)
+                                     choices=(), widget=OrderedMultipleChoiceWidget,
+                                    )
 
     def __init__(self, button_menu_items, ct_id, *args, **kwargs):
         super(ButtonMenuEditForm, self).__init__(*args, **kwargs)
@@ -69,8 +70,7 @@ class ButtonMenuEditForm(CremeForm):
 
         choices = []
 
-        if not self.ct: #default conf
-#            choices.extend((id_, button.verbose_name) for id_, button in button_registry if not button.get_ctypes())
+        if not self.ct:  # Default conf
             choices.extend((id_, unicode(button.verbose_name))
                                 for id_, button in button_registry
                                     if not button.get_ctypes()
@@ -87,10 +87,8 @@ class ButtonMenuEditForm(CremeForm):
 
                 if not ctypes:
                     if id_ not in default_conf_ids:
-#                        choices.append((id_, button.verbose_name))
                         choices.append((id_, unicode(button.verbose_name)))
                 elif model_class in ctypes:
-#                    choices.append((id_, button.verbose_name))
                     choices.append((id_, unicode(button.verbose_name)))
 
         sort_key = collator.sort_key
@@ -108,18 +106,20 @@ class ButtonMenuEditForm(CremeForm):
         items_2_save = []
 
         if not button_ids:
-            BMI_objects.filter(content_type=ct).delete()  #No pk to BMI objects --> can delete() on queryset directly
-            items_2_save.append(ButtonMenuItem(content_type=ct, button_id='', order=1)) #No button for this content type -> fake button_id
+            # No pk to BMI objects --> can delete() on queryset directly
+            BMI_objects.filter(content_type=ct).delete()
+            # No button for this content type -> fake button_id
+            items_2_save.append(ButtonMenuItem(content_type=ct, button_id='', order=1))
         else:
             old_ids = {bmi.button_id for bmi in self.set_buttons}
             new_ids = set(button_ids)
             buttons_2_del = old_ids - new_ids
             buttons_2_add = new_ids - old_ids
 
-            #No pk to BCI objects --> can delete() on queryset directly
+            # No pk to BCI objects --> can delete() on queryset directly
             BMI_objects.filter(content_type=ct, button_id__in=buttons_2_del).delete()
 
-            offset = 1 if ct is None else 1000 #default conf before ct's conf
+            offset = 1 if ct is None else 1000  # Default conf before ct's conf
 
             for i, button_id in enumerate(button_ids):
                 if button_id in buttons_2_add:

@@ -21,9 +21,11 @@
 import warnings
 
 from django.db.transaction import atomic
-from django.http import Http404, HttpResponse # HttpResponseRedirect
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
+
+from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.gui import block_registry
@@ -36,8 +38,6 @@ from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
-
-from formtools.wizard.views import SessionWizardView
 
 from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLocationsEditForm,
         BlockPortalLocationsAddForm, BlockPortalLocationsEditForm,
@@ -58,6 +58,7 @@ def _get_configurable_ctype(ctype_id):
 
     return ctype
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def add_detailview(request, ct_id):
@@ -69,17 +70,20 @@ def add_detailview(request, ct_id):
                                 initial={'content_type': ctype},
                                )
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def add_portal(request):
-    warnings.warn("creme_config/blocks/portal/add is now deprecated. Use creme_config/blocks/portal/wizard view instead.",
+    warnings.warn("creme_config/blocks/portal/add is now deprecated. "
+                  "Use creme_config/blocks/portal/wizard view instead.",
                   DeprecationWarning
                  )
 
     return add_model_with_popup(request, BlockPortalLocationsAddForm,
                                 _(u'New blocks configuration'),
                                 submit_label=_('Save the configuration'),
-                               ) #TODO: title portal ???
+                               )  # TODO: title portal ???
+
 
 class PortalBlockWizard(PopupWizardMixin, SessionWizardView):
     class _RelationStep(BlockPortalLocationsAddForm):
@@ -97,8 +101,8 @@ class PortalBlockWizard(PopupWizardMixin, SessionWizardView):
     def done(self, form_list, **kwargs):
         conf_step = form_list[1]
 
-        with atomic():
-            conf_step.save()
+        # with atomic():
+        conf_step.save()
 
         return HttpResponse('', content_type='text/javascript')
 
@@ -116,7 +120,8 @@ class PortalBlockWizard(PopupWizardMixin, SessionWizardView):
 @login_required
 @permission_required('creme_core.can_admin')
 def add_relation_block(request):
-    warnings.warn("creme_config/blocks/relation_block/add is now deprecated. Use creme_config/blocks/relation_block/wizard view instead.",
+    warnings.warn("creme_config/blocks/relation_block/add is now deprecated. "
+                  "Use creme_config/blocks/relation_block/wizard view instead.",
                   DeprecationWarning
                  )
 
@@ -142,8 +147,8 @@ class RelationBlockWizard(PopupWizardMixin, SessionWizardView):
     def done(self, form_list, **kwargs):
         ctype_step = form_list[1]
 
-        with atomic():
-            ctype_step.save()
+        # with atomic():
+        ctype_step.save()
 
         return HttpResponse('', content_type='text/javascript')
 
@@ -159,7 +164,8 @@ class RelationBlockWizard(PopupWizardMixin, SessionWizardView):
 @login_required
 @permission_required('creme_core.can_admin')
 def add_custom_block(request):
-    warnings.warn("creme_config/blocks/custom/add is now deprecated. Use creme_config/blocks/custom/wizard view instead.",
+    warnings.warn("creme_config/blocks/custom/add is now deprecated. "
+                  "Use creme_config/blocks/custom/wizard view instead.",
                   DeprecationWarning
                  )
 
@@ -167,6 +173,7 @@ def add_custom_block(request):
                                 _(u'New custom block'),
                                 submit_label=_('Save the block'),
                                )
+
 
 class CustomBlockWizard(PopupWizardMixin, SessionWizardView):
     class _ResourceStep(CustomBlockConfigItemCreateForm):
@@ -187,7 +194,7 @@ class CustomBlockWizard(PopupWizardMixin, SessionWizardView):
     def done(self, form_list, **kwargs):
         resource_step, conf_step = form_list
 
-        with atomic():
+        with atomic():  # TODO: improve to do not save() twice
             conf_step.instance = resource_step.save()
             conf_step.save()
 
@@ -201,9 +208,9 @@ class CustomBlockWizard(PopupWizardMixin, SessionWizardView):
 
 
 @login_required
-#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/blocks_portal.html')
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -237,7 +244,7 @@ def edit_detailview(request, ct_id, role):
                         }
         else:
             title = ugettext(u'Edit default configuration for «%s»') % ct
-    else: # ct_id == 0
+    else:  # ct_id == 0
         if role != 'default':
             raise Http404('You can only edit "default" role with default config')
 
@@ -253,10 +260,11 @@ def edit_detailview(request, ct_id, role):
                                 submit_label=_('Save the configuration'),
                                )
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def edit_portal(request, app_name):
-    if  app_name == 'default':
+    if app_name == 'default':
         app_name = ''
         title = _(u'Edit default portal configuration')
     elif app_name == 'creme_core':
@@ -271,7 +279,7 @@ def edit_portal(request, app_name):
 
     b_locs = BlockPortalLocation.objects.filter(app_name=app_name).order_by('order')
 
-    if not b_locs: #TODO: a default config must exist (it works for now because there is always 'assistants' app)
+    if not b_locs:  # TODO: a default config must exist (it works for now because there is always 'assistants' app)
         raise Http404('This configuration does not exist (any more ?)')
 
     if request.method == 'POST':
@@ -293,6 +301,7 @@ def edit_portal(request, app_name):
                        delegate_reload=True,
                       )
 
+
 def _edit_mypage(request, title, user=None):
     if request.method == 'POST':
         locs_form = BlockMypageLocationsForm(owner=user, user=request.user, data=request.POST)
@@ -313,13 +322,14 @@ def _edit_mypage(request, title, user=None):
                        delegate_reload=True,
                       )
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def edit_default_mypage(request):
     return _edit_mypage(request, _(u'Edit default "My page"'))
 
+
 @login_required
-#@permission_required('my_page')
 def edit_mypage(request):
     return _edit_mypage(request, _(u'Edit "My page"'), user=request.user)
 
@@ -331,6 +341,7 @@ def add_ctypes_2_relation_block(request, rbi_id):
                                  RelationBlockItemAddCtypesForm,
                                  ugettext(u'New customised types for «%s»'),
                                 )
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -362,6 +373,7 @@ def edit_ctype_of_relation_block(request, rbi_id, ct_id):
                        delegate_reload=True,
                       )
 
+
 @POST_only
 @login_required
 @permission_required('creme_core.can_admin')
@@ -378,6 +390,7 @@ def delete_ctype_of_relation_block(request, rbi_id):
 
     return HttpResponse()
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def edit_custom_block(request, cbci_id):
@@ -385,6 +398,7 @@ def edit_custom_block(request, cbci_id):
                                  CustomBlockConfigItemEditForm,
                                  ugettext(u'Edit the block «%s»'),
                                 )
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -414,6 +428,7 @@ def delete_detailview(request):
 
     return HttpResponse()
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_portal(request):
@@ -426,6 +441,7 @@ def delete_portal(request):
 
     return HttpResponse()
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_default_mypage(request):
@@ -436,6 +452,7 @@ def delete_default_mypage(request):
 
     return HttpResponse()
 
+
 @login_required
 def delete_mypage(request):
     get_object_or_404(BlockMypageLocation,
@@ -444,6 +461,7 @@ def delete_mypage(request):
                      ).delete()
 
     return HttpResponse()
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -454,6 +472,7 @@ def delete_relation_block(request):
 
     return HttpResponse()
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_instance_block(request):
@@ -461,6 +480,7 @@ def delete_instance_block(request):
     get_object_or_404(InstanceBlockConfigItem, pk=block_id).delete()
 
     return HttpResponse()
+
 
 @login_required
 @permission_required('creme_core.can_admin')

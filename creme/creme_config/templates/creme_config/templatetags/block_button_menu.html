@@ -3,14 +3,14 @@
 {% has_perm_to admin 'creme_core' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
     {% get_block_header colspan=4 %}
-        {% comment %}<th class="label">{% get_block_title  _('%s Configured type of resource') _('%s Configured types of resource') %}</th>{% endcomment %}
         <th class="label">{% get_block_title  _('%s Configured type of resource') _('%s Configured types of resource') count=buttons|length %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_light" colspan="4">
-                {% get_line_adder at_url '/creme_config/button_menu/add/' with_label _("New buttons configuration") with_perms admin_perm %}
+                {# {% get_line_adder at_url '/creme_config/button_menu/add/' with_label _("New buttons configuration") with_perms admin_perm %} #}
+                {% get_line_adder at_url '/creme_config/button_menu/wizard/' with_label _("New buttons configuration") with_perms admin_perm %}
             </th>
         </tr>
         <tr class="header">
@@ -28,20 +28,6 @@
             </td>
             <td class="{{row_color}}"></td>
         </tr>
-{% comment %}        {% if page.paginator.count %}
-            {% for ct in page.object_list %}{% cycle row_color silent %}
-                <tr class="content">
-                    <td class="{{row_color}}">{{ct}}</td>
-                    <td class="{{row_color}}"></td>
-                    <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/creme_config/button_menu/edit/{{ct.id}}' with_perms admin_perm %}
-                    </td>
-                    <td class="{{row_color}} action">
-                        {% get_line_deletor at_url '/creme_config/button_menu/delete' with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %}
-                    </td>
-                </tr>
-            {% endfor %}
-        {% endif %}{% endcomment %}
         {% for ct, buttons_vnames in buttons %}<!--{% cycle row_color silent %}-->
             <tr class="content">
                 <td class="{{row_color}}">{{ct}}</td>
@@ -55,5 +41,4 @@
             </tr>
         {% endfor %}
     </tbody>
-    {% comment %}{% get_block_footer 4 %}{% endcomment %}
 </table>

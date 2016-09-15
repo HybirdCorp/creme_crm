@@ -86,16 +86,16 @@ class _BlockLocationsForm(CremeForm):
         store_it = iter(locations_store)
 
         for zone, block_ids in blocks_partitions.iteritems():
-            if not block_ids: # No block for this zone -> fake block_id
+            if not block_ids:  # No block for this zone -> fake block_id
                 block_ids = ('',)
 
             for order, block_id in enumerate(block_ids, start=1):
                 location = store_it.next()
                 location.block_id = block_id
                 location.order    = order
-                location.zone     = zone # NB: BlockPortalLocation has not 'zone' attr, but we do not care ! :)
-                location.role     = role # NB: idem with 'role'
-                location.superuser = superuser # NB: idem with 'superuser'
+                location.zone     = zone  # NB: BlockPortalLocation has not 'zone' attr, but we do not care ! :)
+                location.role     = role  # NB: idem with 'role'
+                location.superuser = superuser  # NB: idem with 'superuser'
 
                 location.save()
 
@@ -181,8 +181,6 @@ class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
                             empty_label=None, required=False,
                            )
 
-    #class Meta:
-        #fields = ('role', 'top', 'left', 'right', 'bottom')
     # TODO: manage Meta.fields in '*'
     blocks = FieldBlockManager(('general', _(u'Configuration'), ('role', 'top', 'left', 'right', 'bottom')))
 
@@ -198,7 +196,7 @@ class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = u'*%s*' % ugettext(u'Superuser') # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = u'*%s*' % ugettext(u'Superuser')  # NB: browser can ignore <em> tag in <option>...
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
@@ -231,7 +229,7 @@ class _BlockPortalLocationsForm(_BlockLocationsForm):
     def _save_portal_locations(self, app_name, old_locations=(), block_ids=()):
         self._save_locations(BlockPortalLocation,
                              lambda: BlockPortalLocation(app_name=app_name),
-                             {1: block_ids}, #1 is a "nameless" zone
+                             {1: block_ids},  # 1 is a "nameless" zone
                              old_locations,
                             )
 
@@ -288,7 +286,7 @@ class BlockMypageLocationsForm(_BlockLocationsForm):
     def save(self, *args, **kwargs):
         self._save_locations(BlockMypageLocation,
                              lambda: BlockMypageLocation(user=self.owner),
-                             {1: self.cleaned_data['blocks']}, #1 is a "nameless" zone
+                             {1: self.cleaned_data['blocks']},  # 1 is a "nameless" zone
                              self.locations,
                             )
 
@@ -333,7 +331,7 @@ class RelationBlockItemAddCtypesForm(CremeModelForm):
         if compatible_ctypes:
             ct_field.ctypes = compatible_ctypes
 
-        used_ct_ids = frozenset(ct.id for ct, cells in instance.iter_cells()) #TODO: iter_ctypes() ??
+        used_ct_ids = frozenset(ct.id for ct, cells in instance.iter_cells())  # TODO: iter_ctypes() ??
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
     def save(self, *args, **kwargs):

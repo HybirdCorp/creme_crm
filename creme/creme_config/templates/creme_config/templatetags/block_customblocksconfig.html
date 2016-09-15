@@ -12,24 +12,6 @@
             </th>
         </tr>
         {% if page.paginator.count %}
-{% comment %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
-            <tr class="header">
-                <th class="block_header_line_light">{% trans "Name" %}</th>
-                <th class="block_header_line_light">{% trans "Type" %}</th>
-                <th class="block_header_line_light">{% trans "Fields" %}</th>
-                <th class="block_header_line_light action">{% trans "Actions" %}</th>
-            </tr>
-            {% for config_item in page.object_list %}{% cycle row_color %}
-                <tr class="content">
-                    <td class="{{row_color}}">{{config_item.name}}</td>
-                    <td class="{{row_color}}">{{config_item.content_type}}</td>
-                    <td class="{{row_color}}">{{config_item.cells|join:" / "}}</td>
-                    <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/creme_config/blocks/custom/edit/{{config_item.id}}' with_perms admin_perm %}
-                        {% get_line_deletor at_url '/creme_config/blocks/custom/delete' with_args "{'id': '{{config_item.id}}'}" with_perms admin_perm %}
-                    </td>
-                </tr>
-{% endcomment %}
             <tr class="header">
                 <th class="block_header_line_light">{% trans "Type" %}</th>
                 <th class="block_header_line_light">{% trans "Name" %}</th>

@@ -113,6 +113,7 @@ prefered_menu_patterns = [
 
 button_menu_patterns = [
     url(r'^portal/$',             button_menu.portal),
+    url(r'^wizard[/]*$',          button_menu.ButtonMenuWizard.as_view()),
     url(r'^add/$',                button_menu.add),
     url(r'^edit/(?P<ct_id>\d+)$', button_menu.edit),
     url(r'^delete$',              button_menu.delete),
