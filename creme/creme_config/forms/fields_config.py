@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,9 +45,9 @@ class FieldsConfigAddForm(CremeForm):
     def __init__(self, *args, **kwargs):
         super(FieldsConfigAddForm, self).__init__(*args, **kwargs)
         used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
-        ctypes = [ct for ct in fields_config_registry.ctypes
-                        if ct.id not in used_ct_ids and any(_get_fields_enum(ct))
-                 ]
+        self.ctypes = ctypes = [ct for ct in fields_config_registry.ctypes
+                                    if ct.id not in used_ct_ids and any(_get_fields_enum(ct))
+                               ]
 
         if ctypes:
             self.fields['ctype'].ctypes = ctypes
@@ -61,9 +61,10 @@ class FieldsConfigAddForm(CremeForm):
                 )
 
     def save(self):
-        return FieldsConfig.objects.create(content_type=self.cleaned_data['ctype'],
-                                           descriptions=(),
-                                          )
+        if self.ctypes:
+            return FieldsConfig.objects.create(content_type=self.cleaned_data['ctype'],
+                                               descriptions=(),
+                                              )
 
 
 class FieldsConfigEditForm(CremeModelForm):

@@ -91,7 +91,7 @@ class FieldsConfigTestCase(CremeTestCase):
     def test_add03(self):
         "All CTypes are already configured"
         used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
-        FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct)
+        FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct, descriptions=())
                                             for ct in fields_config_registry.ctypes
                                                 if ct.id not in used_ct_ids
                                          ]
@@ -103,6 +103,8 @@ class FieldsConfigTestCase(CremeTestCase):
             ctype_f = response.context['form'].fields['ctype']
 
         self.assertIsInstance(ctype_f.widget, Label)
+
+        self.assertPOST200(self.ADD_CTYPE_URL)
 
     def test_edit(self):
         get_field = FakeContact._meta.get_field
@@ -133,7 +135,7 @@ class FieldsConfigTestCase(CremeTestCase):
         fconf = self.refresh(fconf)
         self.assertEqual([['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
                          jsonloads(fconf.raw_descriptions)
-                        ) #TODO: bof bof
+                        )  # TODO: meh
 
         # test initial ------
         response = self.assertGET200(url)
