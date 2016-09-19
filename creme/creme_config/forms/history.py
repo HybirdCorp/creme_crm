@@ -29,6 +29,7 @@ from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 _HELP_TEXT = _(u"""If an entity is linked to other entities by a relationship of this type,
  the history lines that are about the edition of this entity will appear in the history of the others entities.""")
 
+
 class HistoryConfigForm(CremeForm):
     relation_types = ModelMultipleChoiceField(label=_(u'Relation types'),
                                               queryset=RelationType.objects.all(),
