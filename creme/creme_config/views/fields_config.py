@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
@@ -38,13 +41,20 @@ from ..forms.fields_config import FieldsConfigAddForm, FieldsConfigEditForm
 def portal(request):
     return render(request, 'creme_config/fields_config_portal.html')
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def add(request):
+    warnings.warn("creme_config/fields/add/ is now deprecated. "
+                  "Use creme_config/fields/wizard view instead.",
+                  DeprecationWarning
+                 )
+
     return add_model_with_popup(request, FieldsConfigAddForm,
                                 _(u'New fields configuration'),
                                 submit_label=_('Save the configuration'),
                                )
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -52,6 +62,7 @@ def edit(request, fconf_id):
     return edit_model_with_popup(request, {'pk': fconf_id}, model=FieldsConfig,
                                  form_class=FieldsConfigEditForm,
                                 )
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -64,6 +75,11 @@ def delete(request):
 class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
     class _ModelStep(FieldsConfigAddForm):
         step_submit_label = _('Select')
+
+        def __init__(self, *args, **kwargs):
+            super(FieldConfigWizard._ModelStep, self).__init__(*args, **kwargs)
+            if not self.ctypes:
+                raise ConflictError(ugettext(u'All configurable types of resource are already configured.'))
 
     class _ConfigStep(FieldsConfigEditForm):
         step_prev_label = _('Previous step')

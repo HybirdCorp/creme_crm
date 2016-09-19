@@ -19,7 +19,7 @@ except Exception as e:
 
 class FieldsConfigTestCase(CremeTestCase):
     ADD_CTYPE_URL = '/creme_config/fields/add/'
-    FIELD_WIZARD_URL = '/creme_config/fields/wizard'
+    WIZARD_URL = '/creme_config/fields/wizard'
 
     @classmethod
     def setUpClass(cls):
@@ -42,9 +42,25 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(self.ADD_CTYPE_URL, data={'ctype': ct.id}))
         return self.get_object_or_fail(FieldsConfig, content_type=ct)
 
-    def test_portal(self):
+    def _configure_all_models(self):
+        used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
+        FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct, descriptions=())
+                                            for ct in fields_config_registry.ctypes
+                                                if ct.id not in used_ct_ids
+                                         ]
+                                        )
+
+    def test_portal01(self):
         response = self.assertGET200('/creme_config/fields/portal/')
         self.assertTemplateUsed(response, 'creme_config/fields_config_portal.html')
+        self.assertContains(response, self.WIZARD_URL)
+
+    def test_portal02(self):
+        "All CTypes are already configured"
+        self._configure_all_models()
+
+        response = self.assertGET200('/creme_config/fields/portal/')
+        self.assertNotContains(response, self.WIZARD_URL)
 
     def test_add01(self):
         ct = self.ct
@@ -62,7 +78,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn(ContentType.objects.get_for_model(FakeEmailCampaign), ctypes)
 
         fconf = self._create_fconf()
-        self.assertEqual([], jsonloads(fconf.raw_descriptions)) #TODO: bof bof
+        self.assertEqual([], jsonloads(fconf.raw_descriptions))  # TODO: bof bof
 
         # ---------------
         response = self.assertGET200(url)
@@ -90,12 +106,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def test_add03(self):
         "All CTypes are already configured"
-        used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
-        FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct, descriptions=())
-                                            for ct in fields_config_registry.ctypes
-                                                if ct.id not in used_ct_ids
-                                         ]
-                                        )
+        self._configure_all_models()
 
         response = self.assertGET200(self.ADD_CTYPE_URL)
 
@@ -155,13 +166,14 @@ class FieldsConfigTestCase(CremeTestCase):
         ctype = self.ct
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
-        response = self.assertGET200(self.FIELD_WIZARD_URL)
+        response = self.assertGET200(self.WIZARD_URL)
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
-        self.assertPOST(200, self.FIELD_WIZARD_URL, {'field_config_wizard-current_step': '0',
-                                                     '0-ctype': ctype.pk,
-                                                    }
-                       )
+        self.assertPOST200(self.WIZARD_URL,
+                           {'field_config_wizard-current_step': '0',
+                            '0-ctype': ctype.pk,
+                           }
+                           )
         self.assertNoFormError(response)
 
         # last step is not submitted so nothing yet in database
@@ -171,13 +183,14 @@ class FieldsConfigTestCase(CremeTestCase):
         ctype = self.ct
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
-        response = self.assertGET200(self.FIELD_WIZARD_URL)
+        response = self.assertGET200(self.WIZARD_URL)
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
-        response = self.assertPOST(200, self.FIELD_WIZARD_URL, {'field_config_wizard-current_step': '0',
-                                                                '0-ctype': 'unknown',
-                                                               }
-                                  )
+        response = self.assertPOST200(self.WIZARD_URL,
+                                      {'field_config_wizard-current_step': '0',
+                                       '0-ctype': 'unknown',
+                                      }
+                                      )
 
         self.assertFormError(response, 'form', 'ctype',
                              _(u'Select a valid choice. That choice is not one of the available choices.')
@@ -189,13 +202,14 @@ class FieldsConfigTestCase(CremeTestCase):
         ctype = self.ct
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
-        response = self.assertGET200(self.FIELD_WIZARD_URL)
+        response = self.assertGET200(self.WIZARD_URL)
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
-        response = self.assertPOST(200, self.FIELD_WIZARD_URL, {'field_config_wizard-current_step': '0',
-                                                                '0-ctype': ctype.pk,
-                                                               }
-                                  )
+        response = self.assertPOST200(self.WIZARD_URL,
+                                      {'field_config_wizard-current_step': '0',
+                                       '0-ctype': ctype.pk,
+                                      }
+                                      )
 
         ctype_fieldnames = {e[0] for e in response.context['form'].fields['hidden'].choices}
         self.assertIn('phone', ctype_fieldnames)
@@ -203,10 +217,11 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
-        response = self.assertPOST(200, self.FIELD_WIZARD_URL, {'field_config_wizard-current_step': '1',
-                                                                '1-hidden': ['phone', 'birthday']
-                                                               }
-                                  )
+        response = self.assertPOST200(self.WIZARD_URL,
+                                      {'field_config_wizard-current_step': '1',
+                                       '1-hidden': ['phone', 'birthday'],
+                                      }
+                                      )
         self.assertNoFormError(response)
 
         config = FieldsConfig.objects.filter(content_type=ctype).get()
@@ -220,19 +235,29 @@ class FieldsConfigTestCase(CremeTestCase):
         ctype = self.ct
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
-        response = self.assertGET200(self.FIELD_WIZARD_URL)
+        response = self.assertGET200(self.WIZARD_URL)
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
 
-        response = self.assertPOST(200, self.FIELD_WIZARD_URL, {'field_config_wizard-current_step': '0',
-                                                                '0-ctype': ctype.pk,
-                                                               }
-                                  )
+        response = self.assertPOST200(self.WIZARD_URL,
+                                      {'field_config_wizard-current_step': '0',
+                                       '0-ctype': ctype.pk,
+                                      }
+                                      )
 
         # return to first step
-        response = self.assertPOST(200, self.FIELD_WIZARD_URL, {'field_config_wizard-current_step': '1',
-                                                                'wizard_goto_step': '0',
-                                                                '1-hidden': ['phone', 'last_name']
-                                                               }
-                                  )
+        response = self.assertPOST200(self.WIZARD_URL,
+                                      {'field_config_wizard-current_step': '1',
+                                       'wizard_goto_step': '0',
+                                       '1-hidden': ['phone', 'last_name'],
+                                      }
+                                      )
         self.assertNoFormError(response)
         self.assertIn(ctype, response.context['form'].fields['ctype'].ctypes)
+
+    def test_wizard_409(self):
+        "All CTypes are already configured"
+        self._configure_all_models()
+
+        self.assertGET409(self.WIZARD_URL)
+
+        # TODO: test button not displayed

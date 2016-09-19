@@ -52,8 +52,7 @@ class FieldsConfigAddForm(CremeForm):
         if ctypes:
             self.fields['ctype'].ctypes = ctypes
         else:
-            # TODO: remove the save button ?
-            # TODO: disable the add button (and so do not to display this form)
+            # TODO: remove the 'submit' button ?
             self.fields['ctype'] = CharField(
                     label=_(u'Related resource'),
                     required=False, widget=Label,

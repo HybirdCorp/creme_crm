@@ -30,6 +30,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, block_registry
+from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
         CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
         CustomField, CustomFieldEnumValue,
@@ -187,18 +188,24 @@ class FieldsConfigsBlock(PaginatedBlock):
     page_size     = _PAGE_SIZE
     verbose_name  = u'Fields configuration'
     template_name = 'creme_config/templatetags/block_fields_configs.html'
-    permission    = None # NB: used by the view creme_core.views.blocks.reload_basic()
+    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
+        from .forms.fields_config import _get_fields_enum  # TODO: move to FieldsConfig ?
+
         # TODO: exclude CTs that user cannot see ? (should probably done everywhere in creme_config...)
         fconfigs = list(FieldsConfig.objects.all())
         sort_key = collator.sort_key
         fconfigs.sort(key=lambda fconf: sort_key(unicode(fconf.content_type)))
 
+        used_ctypes = {fconf.content_type for fconf in fconfigs}
         btc = self.get_block_template_context(
                     context, fconfigs,
                     update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    display_add_button=any(ct not in used_ctypes and any(_get_fields_enum(ct))
+                                                for ct in fields_config_registry.ctypes
+                                           ),
                 )
 
         for fconf in btc['page'].object_list:
@@ -235,7 +242,7 @@ class CustomFieldsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         # NB: credentials are OK : we are sure to use the custom reloading view if 'content_type' is in the context
-        ct = context['content_type'] #ct_id instead ??
+        ct = context['content_type']  # ct_id instead ??
 
         btc = self.get_block_template_context(
                     context, CustomField.objects.filter(content_type=ct),
@@ -313,7 +320,7 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         # NB: we wrap the ContentType instances instead of store extra data in
-        #     them because teh instances are stored in a global cache, so we do
+        #     them because the instances are stored in a global cache, so we do
         #     not want to mutate them.
         class _ContentTypeWrapper(object):  # TODO: move from here ?
             __slots__ = ('ctype', 'locations_info', 'default_count')
@@ -477,12 +484,6 @@ class CustomBlocksConfigBlock(PaginatedBlock):
     configurable = False
 
     def detailview_display(self, context):
-    #     return self._render(self.get_block_template_context(
-    #                             context,
-    #                             # NB: order ot in _meta.ordering in order to have light queries in all other cases.
-    #                             CustomBlockConfigItem.objects.order_by('name'),
-    #                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-    #                        ))
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because teh instances are stored in a global cache, so we do
         #     not want to mutate them.
