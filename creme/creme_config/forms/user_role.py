@@ -24,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
+from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import (CremeForm, CremeModelForm, FieldBlockManager,
         EntityCTypeChoiceField, MultiEntityCTypeChoiceField)
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label, DynamicSelect, CremeRadioSelect
@@ -107,7 +108,7 @@ class UserRoleEditForm(UserRoleCreateForm):
         fields['admin_4_apps'].initial = role.admin_4_apps
 
 
-class AddCredentialsForm(CremeModelForm):
+class EditCredentialsForm(CremeModelForm):
     can_view   = BooleanField(label=_(u'Can view'),   required=False)
     can_change = BooleanField(label=_(u'Can change'), required=False)
     can_delete = BooleanField(label=_(u'Can delete'), required=False)
@@ -135,24 +136,43 @@ class AddCredentialsForm(CremeModelForm):
         model = SetCredentials
         exclude = ('role', 'value')  # fields ??
 
-    def __init__(self, role, *args, **kwargs):
-        super(AddCredentialsForm, self).__init__(*args, **kwargs)
-        self.role = role
+    def __init__(self, *args, **kwargs):
+        super(EditCredentialsForm, self).__init__(*args, **kwargs)
         fields = self.fields
-        fields['set_type'].initial = SetCredentials.ESET_ALL
         fields['ctype'].ctypes = filtered_entity_ctypes(self._get_allowed_apps())
+
+        # TODO: SetCredentials.value default to 0
+        value = self.instance.value or 0
+        fields['can_view'].initial   = bool(value & EntityCredentials.VIEW)
+        fields['can_change'].initial = bool(value & EntityCredentials.CHANGE)
+        fields['can_delete'].initial = bool(value & EntityCredentials.DELETE)
+        fields['can_link'].initial   = bool(value & EntityCredentials.LINK)
+        fields['can_unlink'].initial = bool(value & EntityCredentials.UNLINK)
+
+    def _get_allowed_apps(self):
+        return self.instance.role.allowed_apps
+
+    def save(self, *args, **kwargs):
+        get_data = self.cleaned_data.get
+
+        self.instance.set_value(get_data('can_view'), get_data('can_change'), get_data('can_delete'),
+                                get_data('can_link'), get_data('can_unlink')
+                               )
+
+        return super(EditCredentialsForm, self).save(*args, **kwargs)
+
+
+class AddCredentialsForm(EditCredentialsForm):
+    def __init__(self, role, *args, **kwargs):
+        self.role = role
+        super(AddCredentialsForm, self).__init__(*args, **kwargs)
+        fields = self.fields['set_type'].initial = SetCredentials.ESET_ALL
 
     def _get_allowed_apps(self):
         return self.role.allowed_apps
 
     def save(self, *args, **kwargs):
-        instance = self.instance
-        get_data = self.cleaned_data.get
-
-        instance.role = self.role
-        instance.set_value(get_data('can_view'), get_data('can_change'), get_data('can_delete'),
-                           get_data('can_link'), get_data('can_unlink')
-                          )
+        self.instance.role = self.role
 
         return super(AddCredentialsForm, self).save(*args, **kwargs)
 

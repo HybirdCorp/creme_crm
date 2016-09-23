@@ -34,7 +34,6 @@ class UserRoleTestCase(CremeTestCase):
     def _build_add_creds_url(self, role):
         return '/creme_config/role/add_credentials/%s' % role.id
 
-
     def _build_wizard_edit_url(self, role):
         return '/creme_config/role/wizard/%s' % role.id
 
@@ -335,6 +334,49 @@ class UserRoleTestCase(CremeTestCase):
                                       'ctype':      0,
                                      }
                           )
+
+    @skipIfNotInstalled('creme.persons')
+    def test_edit_credentials(self):
+        self.login()
+
+        role = UserRole(name='CEO')
+        role.allowed_apps = ['persons']
+        role.save()
+
+        creds = SetCredentials.objects.create(role=role,
+                                              set_type=SetCredentials.ESET_ALL,
+                                              value=EntityCredentials.VIEW,
+                                             )
+
+        url = '/creme_config/role/edit_credentials/%s' % creds.id
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            cred_ctypes = set(response.context['form'].fields['ctype'].ctypes)
+
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+
+        self.assertIn(ct_contact, cred_ctypes)
+        self.assertIn(get_ct(Organisation), cred_ctypes)
+        self.assertNotIn(get_ct(Activity), cred_ctypes)  # App not allowed
+
+        response = self.client.post(url,
+                                    data={'can_view':   True,
+                                          'can_change': True,
+                                          'can_delete': True,
+                                          'can_link':   False,
+                                          'can_unlink': False,
+                                          'set_type':   SetCredentials.ESET_OWN,
+                                          'ctype':      ct_contact.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        creds = self.refresh(creds)
+        self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE, creds.value)
+        self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
+        self.assertEqual(ct_contact .id,          creds.ctype_id)
 
     def test_delete_credentials01(self):
         self.login()
