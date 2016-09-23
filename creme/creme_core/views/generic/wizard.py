@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.utils.decorators import method_decorator
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth.decorators import login_required
 
 
 class PopupWizardMixin(object):
@@ -34,8 +35,9 @@ class PopupWizardMixin(object):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        if self.permission is not None:
-            permission_required(self.permission)
+        perm = self.permission
+        if perm and not self.request.user.has_perm(perm):
+            raise PermissionDenied('You are not allowed to view this form')
 
         return super(PopupWizardMixin, self).dispatch(*args, **kwargs)
 
