@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,10 +25,9 @@ from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
-#from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import login_required  # permission_required
+from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
@@ -48,11 +47,11 @@ def _get_appconf(user, app_name):
 
     try:
         app_config = config_registry.get_app(app_name)
-#    except KeyError:
     except NotRegistered:
         raise Http404('Unknown app')
 
     return app_config
+
 
 def _get_modelconf(app_config, model_name):
     # TODO: use only ct instead of model_name ???
@@ -62,9 +61,11 @@ def _get_modelconf(app_config, model_name):
 
     raise Http404('Unknown model')
 
+
 def _popup_title(model_conf):
     # TODO: creation label for all CremeModel ??
     return _('New value: %s') % model_conf.model._meta.verbose_name
+
 
 @login_required
 def add_model(request, app_name, model_name):
@@ -73,6 +74,7 @@ def add_model(request, app_name, model_name):
     return add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
                                 template='creme_core/generics/form/add_innerpopup.html',
                                )
+
 
 @login_required
 def add_model_from_widget(request, app_name, model_name):
@@ -169,9 +171,7 @@ def edit_model(request, app_name, model_name, object_id):
 @POST_only
 def swap_order(request, app_name, model_name, object_id, offset):
     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
-#    fields = model._meta.get_all_field_names()
 
-#    if 'order' not in fields:
     if not any(f.name == 'order' for f in model._meta.get_fields()):
         raise Http404('Invalid model (no "user" field)')
 
@@ -184,7 +184,7 @@ def swap_order(request, app_name, model_name, object_id, offset):
     for i, instance in enumerate(model.objects.all()):
         new_order = i + 1
 
-        if str(instance.pk) == object_id: #manage the model with string as pk
+        if str(instance.pk) == object_id:  # Manage the model with string as pk
             found = i
             new_order += offset
 
@@ -198,7 +198,7 @@ def swap_order(request, app_name, model_name, object_id, offset):
     if not (0 <= swapped_index < len(ordered)):
         raise Http404('Invalid object id')
 
-    ordered[swapped_index][0] -= offset #update new_order
+    ordered[swapped_index][0] -= offset  # Update new_order
 
     for new_order, instance in ordered:
         if new_order != instance.order:
@@ -220,28 +220,21 @@ def portal_app(request, app_name):
                   }
                  )
 
+
 @login_required
 @jsonify
 def reload_block(request, ct_id):
-#    ct_id = int(ct_id)
     model = get_ct_or_404(ct_id).model_class()
     app_name = model._meta.app_label
 
     request.user.has_perm_to_admin_or_die(app_name)
 
-#    context = RequestContext(request)
-#    context.update({
-#            'model':      model,
-##            'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
-#            'model_name': config_registry.get_app(app_name).get_model_conf(model=model).name_in_url,
-#            'app_name':   app_name,
-#        })
     context = build_context(request,
-                           model=model,
-                           model_name=config_registry.get_app(app_name)
-                                                     .get_model_conf(model=model)
-                                                     .name_in_url,
-                           app_name=app_name,
-                          )
+                            model=model,
+                            model_name=config_registry.get_app(app_name)
+                                                      .get_model_conf(model=model)
+                                                      .name_in_url,
+                            app_name=app_name,
+                           )
 
     return [(generic_models_block.id_, generic_models_block.detailview_display(context))]

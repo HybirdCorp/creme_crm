@@ -9,9 +9,12 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import UserRole, SetCredentials
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeActivity as Activity)
+    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeActivity
+
+    from creme.documents.models import Document
+    from creme.persons.models import Contact, Organisation, Address
+    from creme.activities.models import Activity
 
     from ..blocks import UserRolesBlock
 except Exception as e:
@@ -20,6 +23,7 @@ except Exception as e:
 
 class UserRoleTestCase(CremeTestCase):
     ADD_URL = '/creme_config/role/add/'
+    WIZARD_URL = '/creme_config/role/wizard/'
     DEL_CREDS_URL = '/creme_config/role/delete_credentials'
 
     # @classmethod
@@ -29,6 +33,10 @@ class UserRoleTestCase(CremeTestCase):
 
     def _build_add_creds_url(self, role):
         return '/creme_config/role/add_credentials/%s' % role.id
+
+
+    def _build_wizard_edit_url(self, role):
+        return '/creme_config/role/wizard/%s' % role.id
 
     def _build_del_role_url(self, role):
         return '/creme_config/role/delete/%s' % role.id
@@ -70,8 +78,8 @@ class UserRoleTestCase(CremeTestCase):
 
         get_ct = ContentType.objects.get_for_model
         name = 'CEO'
-        creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
-        exportable_ctypes = [get_ct(Contact).id, get_ct(Activity).id]
+        creatable_ctypes = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
+        exportable_ctypes = [get_ct(FakeContact).id, get_ct(FakeActivity).id]
         apps = ['persons']
         response = self.client.post(url, follow=True,
                                     data={'name':              name,
@@ -104,16 +112,137 @@ class UserRoleTestCase(CremeTestCase):
                                      }
                           )
 
+    @skipIfNotInstalled('creme.persons')
+    @skipIfNotInstalled('creme.documents')
+    @skipIfNotInstalled('creme.activities')
+    def test_creation_wizard01(self):
+        self.login()
+        url = self.WIZARD_URL
+        name = 'Basic role'
+        apps = ['persons', 'documents']
+        adm_apps = ['persons']
+
+        # Step 1
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
+
+        self.assertIn(apps[0], app_labels)
+        self.assertIn(apps[1], app_labels)
+        self.assertIn('activities', app_labels)
+
+        response = self.client.post(url,
+                                    {'user_role_creation_wizard-current_step': '0',
+                                     '0-name': name,
+                                     '0-allowed_apps': apps,
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        # Step 2
+        with self.assertNoException():
+            adm_app_labels = {c[0] for c in response.context['form'].fields['admin_4_apps'].choices}
+
+        self.assertIn(apps[0], adm_app_labels)
+        self.assertIn(apps[1], adm_app_labels)
+        self.assertNotIn('activities', adm_app_labels)
+
+        response = self.client.post(url,
+                                    {'user_role_creation_wizard-current_step': '1',
+                                     '1-admin_4_apps': adm_apps,
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        # Step 3
+        with self.assertNoException():
+            creatable_ctypes = set(response.context['form'].fields['creatable_ctypes'].ctypes)
+
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+        ct_doc = get_ct(Document)
+
+        self.assertIn(ct_contact, creatable_ctypes)
+        self.assertIn(get_ct(Organisation), creatable_ctypes)
+        self.assertNotIn(get_ct(Address), creatable_ctypes)  # Not CremeEntity
+        self.assertIn(ct_doc, creatable_ctypes)
+        self.assertNotIn(get_ct(Activity), creatable_ctypes)  # App not allowed
+
+        response = self.client.post(url,
+                                    {'user_role_creation_wizard-current_step': '2',
+                                     '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        # Step 4
+        with self.assertNoException():
+            exp_ctypes = response.context['form'].fields['exportable_ctypes'].ctypes
+
+        self.assertIn(ct_contact, exp_ctypes)
+        self.assertIn(get_ct(Organisation), exp_ctypes)
+        self.assertNotIn(get_ct(Address), exp_ctypes)  # Not CremeEntity
+        self.assertIn(ct_doc, exp_ctypes)
+        self.assertNotIn(get_ct(Activity), exp_ctypes)  # App not allowed
+
+        response = self.client.post(url,
+                                    {'user_role_creation_wizard-current_step': '3',
+                                     '3-exportable_ctypes': [ct_contact.id],
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        # Step 5
+        with self.assertNoException():
+            cred_ctypes = set(response.context['form'].fields['ctype'].ctypes)
+
+        self.assertIn(ct_contact, cred_ctypes)
+        self.assertIn(get_ct(Organisation), cred_ctypes)
+        self.assertNotIn(get_ct(Address), cred_ctypes)  # Not CremeEntity
+        self.assertIn(ct_doc, cred_ctypes)
+        self.assertNotIn(get_ct(Activity), cred_ctypes)  # App not allowed
+
+        set_type = SetCredentials.ESET_ALL
+        response = self.client.post(url,
+                                    {'user_role_creation_wizard-current_step': '4',
+                                     '4-can_change': True,
+
+                                     '4-set_type': set_type,
+                                     '4-ctype':    ct_contact.id,
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        role = self.get_object_or_fail(UserRole, name=name)
+        self.assertEqual(set(apps),     role.allowed_apps)
+        self.assertEqual(set(adm_apps), role.admin_4_apps)
+
+        self.assertEqual({ct_contact, ct_doc},  set(role.creatable_ctypes.all()))
+        self.assertEqual([ct_contact],          list(role.exportable_ctypes.all()))
+
+        setcreds = role.credentials.all()
+        self.assertEqual(1, len(setcreds))
+
+        creds = setcreds[0]
+        self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE, creds.value)
+        self.assertEqual(set_type, creds.set_type)
+        self.assertEqual(ct_contact, creds.ctype)
+
+    def test_creation_wizard02(self):
+        "Not super-user"
+        self.login_not_as_superuser()
+        self.assertGET403(self.WIZARD_URL)
+
     def test_add_credentials01(self):
         user = self.login()
 
         role = UserRole(name='CEO')
-#        role.allowed_apps = ['persons']
         role.allowed_apps = ['creme_core']
         role.save()
 
         other_user = User.objects.create(username='chloe', role=role)
-        contact    = Contact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
+        contact    = FakeContact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
         self.assertFalse(other_user.has_perm_to_view(contact))
 
         self.assertEqual(0, role.credentials.count())
@@ -153,7 +282,7 @@ class UserRoleTestCase(CremeTestCase):
         role.save()
 
         set_type = SetCredentials.ESET_OWN
-        ct_id = ContentType.objects.get_for_model(Contact).id
+        ct_id = ContentType.objects.get_for_model(FakeContact).id
         response = self.client.post(self._build_add_creds_url(role),
                                     data={'can_view':   True,
                                           'can_change': True,
@@ -232,7 +361,7 @@ class UserRoleTestCase(CremeTestCase):
                                      )
 
         other_user = User.objects.create(username='chloe', role=role)
-        contact    = Contact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
+        contact    = FakeContact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
         self.assertFalse(other_user.has_perm_to_view(contact))  # role.allowed_apps does not contain 'persons'
 
         url = '/creme_config/role/edit/%s' % role.id
@@ -240,8 +369,8 @@ class UserRoleTestCase(CremeTestCase):
 
         name   = role.name + '_edited'
         get_ct = ContentType.objects.get_for_model
-        creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
-        exportable_ctypes = [get_ct(Contact).id, get_ct(Activity).id]
+        creatable_ctypes = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
+        exportable_ctypes = [get_ct(FakeContact).id, get_ct(FakeActivity).id]
         apps = ['creme_core', 'documents']
         admin_apps = ['creme_core']
         response = self.client.post(url, follow=True,
@@ -283,6 +412,110 @@ class UserRoleTestCase(CremeTestCase):
                                       'admin_4_apps':      [],
                                      }
                           )
+
+    @skipIfNotInstalled('creme.persons')
+    @skipIfNotInstalled('creme.documents')
+    @skipIfNotInstalled('creme.activities')
+    def test_edition_wizard01(self):
+        self.login()
+
+        role = UserRole.objects.create(name='CEO', allowed_apps=['persons'])
+        SetCredentials.objects.create(role=role, value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+
+        name = role.name + ' edited'
+        apps = ['persons', 'documents']
+        adm_apps = ['persons']
+
+        url = self._build_wizard_edit_url(role)
+
+        # Step 1
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
+
+        self.assertIn(apps[0], app_labels)
+        self.assertIn(apps[1], app_labels)
+        self.assertIn('activities', app_labels)
+
+        response = self.client.post(url,
+                                    {'user_role_edition_wizard-current_step': '0',
+                                     '0-name': name,
+                                     '0-allowed_apps': apps,
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        # Step 2
+        with self.assertNoException():
+            adm_app_labels = {c[0] for c in response.context['form'].fields['admin_4_apps'].choices}
+
+        self.assertIn(apps[0], adm_app_labels)
+        self.assertIn(apps[1], adm_app_labels)
+        self.assertNotIn('activities', adm_app_labels)
+
+        response = self.client.post(url,
+                                    {'user_role_edition_wizard-current_step': '1',
+                                     '1-admin_4_apps': adm_apps,
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        # Step 3
+        with self.assertNoException():
+            creatable_ctypes = set(response.context['form'].fields['creatable_ctypes'].ctypes)
+
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+        ct_doc = get_ct(Document)
+
+        self.assertIn(ct_contact, creatable_ctypes)
+        self.assertIn(get_ct(Organisation), creatable_ctypes)
+        self.assertNotIn(get_ct(Address), creatable_ctypes)  # Not CremeEntity
+        self.assertIn(ct_doc, creatable_ctypes)
+        self.assertNotIn(get_ct(Activity), creatable_ctypes)  # App not allowed
+
+        response = self.client.post(url,
+                                    {'user_role_edition_wizard-current_step': '2',
+                                     '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        # Step 4
+        with self.assertNoException():
+            exp_ctypes = response.context['form'].fields['exportable_ctypes'].ctypes
+
+        self.assertIn(ct_contact, exp_ctypes)
+        self.assertIn(get_ct(Organisation), exp_ctypes)
+        self.assertNotIn(get_ct(Address), exp_ctypes)  # Not CremeEntity
+        self.assertIn(ct_doc, exp_ctypes)
+        self.assertNotIn(get_ct(Activity), exp_ctypes)  # App not allowed
+
+        response = self.client.post(url,
+                                    {'user_role_edition_wizard-current_step': '3',
+                                     '3-exportable_ctypes': [ct_contact.id],
+                                    }
+                                   )
+        self.assertNoFormError(response)
+
+        role = self.refresh(role)
+        self.assertEqual(name,          role.name)
+        self.assertEqual(set(apps),     role.allowed_apps)
+        self.assertEqual(set(adm_apps), role.admin_4_apps)
+
+        self.assertEqual({ct_contact, ct_doc},  set(role.creatable_ctypes.all()))
+        self.assertEqual([ct_contact],          list(role.exportable_ctypes.all()))
+        self.assertEqual(1, role.credentials.count())
+
+    def test_edition_wizard02(self):
+        "Not super-user"
+        self.login_not_as_superuser()
+
+        role = UserRole.objects.create(name='CEO')
+        self.assertGET403(self._build_wizard_edit_url(role))
 
     def test_delete01(self):
         "Not superuser -> error"

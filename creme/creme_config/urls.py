@@ -25,7 +25,7 @@ team_patterns = [
 
 user_settings_patterns = [
     url(r'^set_theme/$',                     user_settings.set_theme),
-    url(r'^set_timezone/$' ,                 user_settings.set_timezone),
+    url(r'^set_timezone/$',                  user_settings.set_timezone),
     url(r'^edit_value/(?P<skey_id>[\w-]+)$', user_settings.edit_setting_value),
     url(r'^$',                               user_settings.view),
 ]
@@ -34,6 +34,8 @@ role_patterns = [
     url(r'^portal/$',                          user_role.portal),
     url(r'^add/$',                             user_role.add),
     url(r'^edit/(?P<role_id>\d+)$',            user_role.edit),
+    url(r'^wizard[/]*$',                       user_role.UserRoleCreationWizard.as_view()),
+    url(r'^wizard/(?P<role_id>\d+)$',          user_role.UserRoleEditionWizard.as_view()),
     url(r'^delete/(?P<role_id>\d+)$',          user_role.delete),
     url(r'^add_credentials/(?P<role_id>\d+)$', user_role.add_credentials),
     url(r'^delete_credentials$',               user_role.delete_credentials),
@@ -58,9 +60,9 @@ property_type_patterns = [
 fields_config_patterns = [
     url(r'^portal/$',                fields_config.portal),
     url(r'^add/$',                   fields_config.add),
+    url(r'^wizard[/]*$',             fields_config.FieldConfigWizard.as_view()),
     url(r'^edit/(?P<fconf_id>\d+)$', fields_config.edit),
     url(r'^delete$',                 fields_config.delete),
-    url(r'^wizard[/]*$',             fields_config.FieldConfigWizard.as_view()),
 ]
 
 custom_fields_patterns = [

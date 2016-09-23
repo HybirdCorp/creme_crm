@@ -1321,7 +1321,7 @@ class CTypeChoiceField(Field):
                  required=True, widget=None, label=None, initial=None,
                  help_text=None, to_field_name=None, limit_choices_to=None,
                  *args, **kwargs):
-        "@param ctypes A sequence of ContentTypes or a callable which returns one."
+        "@param ctypes: A sequence of ContentTypes or a callable which returns one."
         super(CTypeChoiceField, self).__init__(required, widget, label, initial, help_text,
                                                *args, **kwargs
                                               )

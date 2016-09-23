@@ -20,7 +20,7 @@
 
 import warnings
 
-from django.db.transaction import atomic
+# from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -92,8 +92,8 @@ class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
     def done(self, form_list, **kwargs):
         configure_step = form_list[1]
 
-        with atomic():
-            configure_step.save()
+        # with atomic():
+        configure_step.save()
 
         return HttpResponse('', content_type='text/javascript')
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,34 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from itertools import izip
+import warnings
 
-#from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
-from creme.creme_core.forms import (CremeForm, CremeModelForm,
+from creme.creme_core.forms import (CremeForm, CremeModelForm, FieldBlockManager,
         EntityCTypeChoiceField, MultiEntityCTypeChoiceField)
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label, DynamicSelect
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label, DynamicSelect, CremeRadioSelect
 from creme.creme_core.models import CremeUser, UserRole, SetCredentials, Mutex
 from creme.creme_core.registry import creme_registry
-#from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
 
-
-#_ALL_ENTITIES = list(creme_entity_content_types())
-
-#def sorted_entity_models_choices():
-#    sort_key = collator.sort_key
-#    return sorted(((ct.id, unicode(ct)) for ct in _ALL_ENTITIES), key=lambda t: sort_key(t[1]))
 
 def EmptyMultipleChoiceField(required=False, widget=UnorderedMultipleChoiceWidget, *args, **kwargs):
     return MultipleChoiceField(required=required, choices=(), widget=widget, *args, **kwargs)
 
 
 class UserRoleCreateForm(CremeModelForm):
-#    creatable_ctypes  = EmptyMultipleChoiceField(label=_(u'Creatable resources'))
-#    exportable_ctypes = EmptyMultipleChoiceField(label=_(u'Exportable resources'))
     creatable_ctypes  = MultiEntityCTypeChoiceField(label=_(u'Creatable resources'), required=False)
     exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False)
     allowed_apps      = EmptyMultipleChoiceField(label=_(u'Allowed applications'))
@@ -56,20 +47,12 @@ class UserRoleCreateForm(CremeModelForm):
         exclude = ('raw_allowed_apps', 'raw_admin_4_apps')
 
     def __init__(self, *args, **kwargs):
+        warnings.warn("UserRoleCreateForm is now deprecated. Use the wizard instead",
+                      DeprecationWarning
+                     )
+
         super(UserRoleCreateForm, self).__init__(*args, **kwargs)
         fields = self.fields
-
-#        models_choices = sorted_entity_models_choices()
-#        fields['creatable_ctypes'].choices  = models_choices
-#        fields['exportable_ctypes'].choices = models_choices
-
-        #sort_key = collator.sort_key
-        #apps = sorted(((app.name, unicode(app.verbose_name)) for app in creme_registry.iter_apps()),
-                      ##key=lambda t: t[1]
-                      #key=lambda t: sort_key(t[1])
-                     #)
-        #fields['allowed_apps'].choices = apps
-        #fields['admin_4_apps'].choices = apps
 
         iter_apps    = creme_registry.iter_apps
         CRED_REGULAR = creme_registry.CRED_REGULAR
@@ -100,60 +83,47 @@ class UserRoleCreateForm(CremeModelForm):
 
 
 class UserRoleEditForm(UserRoleCreateForm):
-    #set_credentials = ListEditionField(content=(), label=_(u'Existing set credentials'),
-                                       #help_text=_(u'Uncheck the credentials you want to delete.'),
-                                       #only_delete=True, required=False)
-
     def __init__(self, *args, **kwargs):
         super(UserRoleEditForm, self).__init__(*args, **kwargs)
-
         fields = self.fields
-        role   = self.instance
+        role = self.instance
 
-        #self._creds = role.credentials.all() #get_credentials() ?? problem with cache for updating SetCredentials lines
-        #self._apps  = role.allowed_apps | role.admin_4_apps
-
-        #fields['set_credentials'].content = [unicode(creds) for creds in self._creds]
         fields['allowed_apps'].initial = role.allowed_apps
         fields['admin_4_apps'].initial = role.admin_4_apps
-
-    #def save(self, *args, **kwargs):
-        #role = super(UserRoleEditForm, self).save(*args, **kwargs)
-
-        #creds2del = [creds.pk
-                        #for creds, new_creds in izip(self._creds, self.cleaned_data['set_credentials'])
-                            #if new_creds is None
-                    #]
-
-        #if creds2del:
-            #SetCredentials.objects.filter(pk__in=creds2del).delete()
-
-        #return role
 
 
 class AddCredentialsForm(CremeModelForm):
     can_view   = BooleanField(label=_(u'Can view'),   required=False)
     can_change = BooleanField(label=_(u'Can change'), required=False)
     can_delete = BooleanField(label=_(u'Can delete'), required=False)
-    can_link   = BooleanField(label=_(u'Can link'),   required=False, help_text=_(u'You must have the permission to link on 2 entities to create a relationship between them.'))
-    can_unlink = BooleanField(label=_(u'Can unlink'), required=False, help_text=_(u'You must have the permission to unlink on 2 entities to delete a relationship between them.'))
-    set_type   = ChoiceField(label=_(u'Type of entities set'), choices=SetCredentials.ESETS_MAP.items())
+    can_link   = BooleanField(label=_(u'Can link'),   required=False,
+                              help_text=_(u'You must have the permission to link on 2 entities'
+                                          u' to create a relationship between them.'
+                                         ),
+                             )
+    can_unlink = BooleanField(label=_(u'Can unlink'), required=False,
+                              help_text=_(u'You must have the permission to unlink on 2 entities'
+                                          u' to delete a relationship between them.'
+                                         ),
+                             )
+    set_type   = ChoiceField(label=_(u'Type of entities set'),
+                             choices=SetCredentials.ESETS_MAP.items(),
+                             widget=CremeRadioSelect,
+                            )
     ctype      = EntityCTypeChoiceField(label=_(u'Apply to a specific type'),
                                         widget=DynamicSelect(attrs={'autocomplete': True}),
                                         required=False,
-                                        empty_label=pgettext('content_type', 'None'))
+                                        empty_label=pgettext('content_type', 'None'),
+                                       )
 
     class Meta:
         model = SetCredentials
-        exclude = ('role', 'value') #fields ??
+        exclude = ('role', 'value')  # fields ??
 
     def __init__(self, role, *args, **kwargs):
         super(AddCredentialsForm, self).__init__(*args, **kwargs)
         self.role = role
-
-#     def clean_ctype(self):
-#         ct_id = int(self.cleaned_data['ctype'])
-#         return ContentType.objects.get_for_id(ct_id) if ct_id else None
+        self.fields['set_type'].initial = SetCredentials.ESET_ALL
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -179,7 +149,9 @@ class UserRoleDeleteForm(CremeForm):
                                                      )
         else:
             self.fields['info'] = CharField(label=ugettext('Information'), required=False, widget=Label,
-                                            initial=ugettext('This role is not used by any user, you can delete it safely.')
+                                            initial=ugettext('This role is not used by any user,'
+                                                             ' you can delete it safely.'
+                                                            ),
                                            )
 
     def save(self, *args, **kwargs):
@@ -193,3 +165,131 @@ class UserRoleDeleteForm(CremeForm):
             self.role_to_delete.delete()
         finally:
             mutex.release()
+
+
+# Wizard steps -----------------------------------------------------------------
+
+def filtered_entity_ctypes(app_names):  # TODO: move to creme_core.utils ??
+    get_ext_apps = creme_registry.get_extending_apps
+    app_labels = {ext_app.name
+                    for app_name in app_names
+                        for ext_app in get_ext_apps(app_name)
+                 }
+    app_labels.update(app_names)
+
+    get_for_model = ContentType.objects.get_for_model
+
+    for model in creme_registry.iter_entity_models():
+        if model._meta.app_label in app_labels:
+            yield get_for_model(model)
+
+
+class _UserRoleWizardFormStep(CremeModelForm):
+    class Meta:
+        model = UserRole
+        fields = ()
+
+    @staticmethod
+    def app_choices(apps):
+        sort_key = collator.sort_key
+
+        return sorted(((app.name, unicode(app.verbose_name)) for app in apps),
+                      key=lambda t: sort_key(t[1])
+                     )
+
+    def partial_save(self):
+         pass
+
+    def save(self, *args, **kwargs):
+        self.partial_save()
+        return super(_UserRoleWizardFormStep, self).save(*args, **kwargs)
+
+
+class UserRoleAppsStep(_UserRoleWizardFormStep):
+    allowed_apps = MultipleChoiceField(label=_(u'Allowed applications'), choices=(),
+                                       widget=UnorderedMultipleChoiceWidget,
+                                      )
+
+    class Meta(_UserRoleWizardFormStep.Meta):
+        fields = ('name', 'allowed_apps',)
+
+    def __init__(self, *args, **kwargs):
+        super(UserRoleAppsStep, self).__init__(*args, **kwargs)
+
+        CRED_REGULAR = creme_registry.CRED_REGULAR
+        allowed_apps_f = self.fields['allowed_apps']
+        allowed_apps_f.choices = self.app_choices(app for app in creme_registry.iter_apps()
+                                                        if app.credentials & CRED_REGULAR
+                                                 )
+        allowed_apps_f.initial = self.instance.allowed_apps
+
+    def partial_save(self):
+        self.instance.allowed_apps = self.cleaned_data['allowed_apps']
+
+
+class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
+    admin_4_apps = EmptyMultipleChoiceField(label=_(u'Administrated applications'))
+
+    class Meta(_UserRoleWizardFormStep.Meta):
+        fields = ('admin_4_apps',)
+
+    def __init__(self, allowed_app_names, *args, **kwargs):
+        super(UserRoleAdminAppsStep, self).__init__(*args, **kwargs)
+
+        CRED_ADMIN = creme_registry.CRED_ADMIN
+        names = set(allowed_app_names)
+        admin_4_apps_f = self.fields['admin_4_apps']
+        admin_4_apps_f.choices = self.app_choices(app for app in creme_registry.iter_apps()
+                                                        if app.name in names and
+                                                           app.credentials & CRED_ADMIN
+                                                 )
+        admin_4_apps_f.initial = self.instance.admin_4_apps
+
+    def partial_save(self):
+        self.instance.admin_4_apps = self.cleaned_data['admin_4_apps']
+
+
+class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
+    creatable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Creatable resources'), required=False)
+
+    class Meta(_UserRoleWizardFormStep.Meta):
+        fields = ('creatable_ctypes',)
+
+    def __init__(self, allowed_app_names, *args, **kwargs):
+        super(UserRoleCreatableCTypesStep, self).__init__(*args, **kwargs)
+        self.fields['creatable_ctypes'].ctypes = filtered_entity_ctypes(allowed_app_names)
+
+    def save(self, *args, **kwargs):
+        # Optimisation: we only save the M2M
+        self.instance.creatable_ctypes = self.cleaned_data['creatable_ctypes']
+
+
+class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
+    exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False)
+
+    class Meta(_UserRoleWizardFormStep.Meta):
+        fields = ('exportable_ctypes',)
+
+    def __init__(self, allowed_app_names, *args, **kwargs):
+        super(UserRoleExportableCTypesStep, self).__init__(*args, **kwargs)
+        self.fields['exportable_ctypes'].ctypes = filtered_entity_ctypes(allowed_app_names)
+
+    def save(self, *args, **kwargs):
+        # Optimisation: we only save the M2M
+        self.instance.exportable_ctypes = self.cleaned_data['exportable_ctypes']
+
+
+class UserRoleCredentialsStep(AddCredentialsForm):
+    blocks = FieldBlockManager(('general', _(u'First credentials'), '*'))
+
+    def __init__(self, allowed_app_names, *args, **kwargs):
+        super(UserRoleCredentialsStep, self).__init__(*args, **kwargs)
+        fields = self.fields
+        fields['can_view'] = CharField(label=_(u'Can view'),
+                                       required=False, widget=Label,
+                                       initial=_(u'Yes'),
+                                      )
+        fields['ctype'].ctypes = filtered_entity_ctypes(allowed_app_names)
+
+    def clean_can_view(self):
+        return True

@@ -187,7 +187,6 @@ class BlocksConfigTestCase(CremeTestCase):
         return '/creme_config/blocks/detailview/add/%s' % ct.id
 
     def _build_editdetail_url(self, ct=None, role=None, superuser=False):
-#        return '/creme_config/blocks/detailview/edit/%s' % (ct.id if ct else 0)
         return '/creme_config/blocks/detailview/edit/%(ctype)s/%(role)s' % {
                     'ctype': ct.id if ct else 0,
                     'role':  'superuser' if superuser else
@@ -950,7 +949,9 @@ class BlocksConfigTestCase(CremeTestCase):
                                      )
 
         self.assertFormError(response, 'form', 'app_name',
-                             _('Select a valid choice. %(value)s is not one of the available choices.') % {'value': 'unregistered_app'}
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                                    'value': 'unregistered_app',
+                                }
                             )
 
     @skipIfNotInstalled('creme.persons')
@@ -983,8 +984,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         blocks = list(BlockPortalLocation.objects.filter(app_name=app_name).order_by('order').values_list('block_id', 'order'))
-        self.assertListEqual([('block_creme_core-history', 1),
-                             ], blocks)
+        self.assertEqual([('block_creme_core-history', 1)], blocks)
 
     @skipIfNotInstalled('creme.assistants')
     def test_portal_wizard_config_step_assistants(self):
@@ -1026,11 +1026,15 @@ class BlocksConfigTestCase(CremeTestCase):
                                      )
         self.assertNoFormError(response)
 
-        blocks = list(BlockPortalLocation.objects.filter(app_name=app_name).order_by('order').values_list('block_id', 'order'))
         self.assertListEqual([('block_creme_core-history', 1),
                               ('block_assistants-memos', 2),
                               ('block_assistants-messages', 3),
-                             ], blocks)
+                             ],
+                             list(BlockPortalLocation.objects.filter(app_name=app_name)
+                                                             .order_by('order')
+                                                             .values_list('block_id', 'order')
+                                 )
+                            )
 
     @skipIfNotInstalled('creme.persons')
     def test_portal_wizard_go_back(self):
