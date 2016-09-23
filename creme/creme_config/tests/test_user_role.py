@@ -274,23 +274,37 @@ class UserRoleTestCase(CremeTestCase):
         other_user = self.refresh(other_user)
         self.assertTrue(other_user.has_perm_to_view(contact))
 
+    @skipIfNotInstalled('creme.persons')
     def test_add_credentials02(self):
+        "Specific CType + ESET_OWN"
         self.login()
 
         role = UserRole(name='CEO')
         role.allowed_apps = ['persons']
         role.save()
 
+        url = self._build_add_creds_url(role)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            cred_ctypes = set(response.context['form'].fields['ctype'].ctypes)
+
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+
+        self.assertIn(ct_contact, cred_ctypes)
+        self.assertIn(get_ct(Organisation), cred_ctypes)
+        self.assertNotIn(get_ct(Activity), cred_ctypes)  # App not allowed
+
         set_type = SetCredentials.ESET_OWN
-        ct_id = ContentType.objects.get_for_model(FakeContact).id
-        response = self.client.post(self._build_add_creds_url(role),
+        response = self.client.post(url,
                                     data={'can_view':   True,
                                           'can_change': True,
                                           'can_delete': False,
                                           'can_link':   False,
                                           'can_unlink': False,
                                           'set_type':   set_type,
-                                          'ctype':      ct_id,
+                                          'ctype':      ct_contact.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -301,7 +315,7 @@ class UserRoleTestCase(CremeTestCase):
         creds = setcreds[0]
         self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE, creds.value)
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
-        self.assertEqual(ct_id,                   creds.ctype_id)
+        self.assertEqual(ct_contact.id,           creds.ctype_id)
 
     def test_add_credentials03(self):
         self.login_not_as_superuser()
