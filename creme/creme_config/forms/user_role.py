@@ -32,6 +32,21 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.unicode_collation import collator
 
 
+def filtered_entity_ctypes(app_names):  # TODO: move to creme_core.utils ??
+    get_ext_apps = creme_registry.get_extending_apps
+    app_labels = {ext_app.name
+                    for app_name in app_names
+                        for ext_app in get_ext_apps(app_name)
+                 }
+    app_labels.update(app_names)
+
+    get_for_model = ContentType.objects.get_for_model
+
+    for model in creme_registry.iter_entity_models():
+        if model._meta.app_label in app_labels:
+            yield get_for_model(model)
+
+
 def EmptyMultipleChoiceField(required=False, widget=UnorderedMultipleChoiceWidget, *args, **kwargs):
     return MultipleChoiceField(required=required, choices=(), widget=widget, *args, **kwargs)
 
@@ -123,7 +138,12 @@ class AddCredentialsForm(CremeModelForm):
     def __init__(self, role, *args, **kwargs):
         super(AddCredentialsForm, self).__init__(*args, **kwargs)
         self.role = role
-        self.fields['set_type'].initial = SetCredentials.ESET_ALL
+        fields = self.fields
+        fields['set_type'].initial = SetCredentials.ESET_ALL
+        fields['ctype'].ctypes = filtered_entity_ctypes(self._get_allowed_apps())
+
+    def _get_allowed_apps(self):
+        return self.role.allowed_apps
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -168,21 +188,6 @@ class UserRoleDeleteForm(CremeForm):
 
 
 # Wizard steps -----------------------------------------------------------------
-
-def filtered_entity_ctypes(app_names):  # TODO: move to creme_core.utils ??
-    get_ext_apps = creme_registry.get_extending_apps
-    app_labels = {ext_app.name
-                    for app_name in app_names
-                        for ext_app in get_ext_apps(app_name)
-                 }
-    app_labels.update(app_names)
-
-    get_for_model = ContentType.objects.get_for_model
-
-    for model in creme_registry.iter_entity_models():
-        if model._meta.app_label in app_labels:
-            yield get_for_model(model)
-
 
 class _UserRoleWizardFormStep(CremeModelForm):
     class Meta:
@@ -283,13 +288,15 @@ class UserRoleCredentialsStep(AddCredentialsForm):
     blocks = FieldBlockManager(('general', _(u'First credentials'), '*'))
 
     def __init__(self, allowed_app_names, *args, **kwargs):
+        self.allowed_app_names = allowed_app_names
         super(UserRoleCredentialsStep, self).__init__(*args, **kwargs)
-        fields = self.fields
-        fields['can_view'] = CharField(label=_(u'Can view'),
-                                       required=False, widget=Label,
-                                       initial=_(u'Yes'),
-                                      )
-        fields['ctype'].ctypes = filtered_entity_ctypes(allowed_app_names)
+        self.fields['can_view'] = CharField(label=_(u'Can view'),
+                                            required=False, widget=Label,
+                                            initial=_(u'Yes'),
+                                           )
+
+    def _get_allowed_apps(self):
+        return self.allowed_app_names
 
     def clean_can_view(self):
         return True
