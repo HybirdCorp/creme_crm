@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-23 15:27+0200\n"
+"POT-Creation-Date: 2016-09-23 18:56+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -443,41 +443,41 @@ msgstr "Utilisateurs"
 msgid "Teams"
 msgstr "Équipes"
 
-#: forms/user_role.py:40 forms/user_role.py:253
+#: forms/user_role.py:56 forms/user_role.py:278
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: forms/user_role.py:41 forms/user_role.py:268
+#: forms/user_role.py:57 forms/user_role.py:293
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: forms/user_role.py:42 forms/user_role.py:209
+#: forms/user_role.py:58 forms/user_role.py:234
 #: templates/creme_config/templatetags/block_user_roles.html:18
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
-#: forms/user_role.py:43 forms/user_role.py:231
+#: forms/user_role.py:59 forms/user_role.py:256
 #: templates/creme_config/templatetags/block_user_roles.html:19
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:96 forms/user_role.py:288
+#: forms/user_role.py:112 forms/user_role.py:313
 msgid "Can view"
 msgstr "Peut voir"
 
-#: forms/user_role.py:97
+#: forms/user_role.py:113
 msgid "Can change"
 msgstr "Peut changer"
 
-#: forms/user_role.py:98
+#: forms/user_role.py:114
 msgid "Can delete"
 msgstr "Peut supprimer"
 
-#: forms/user_role.py:99
+#: forms/user_role.py:115
 msgid "Can link"
 msgstr "Peut lier"
 
-#: forms/user_role.py:100
+#: forms/user_role.py:116
 msgid ""
 "You must have the permission to link on 2 entities to create a relationship "
 "between them."
@@ -485,11 +485,11 @@ msgstr ""
 "Vous devez avoir le droit de relier sur 2 fiches pour créer une relation "
 "entre elles"
 
-#: forms/user_role.py:104
+#: forms/user_role.py:120
 msgid "Can unlink"
 msgstr "Peut délier"
 
-#: forms/user_role.py:105
+#: forms/user_role.py:121
 msgid ""
 "You must have the permission to unlink on 2 entities to delete a "
 "relationship between them."
@@ -497,38 +497,38 @@ msgstr ""
 "Vous devez avoir le droit de délier 2 fiches pour supprimer une relation "
 "entre elles"
 
-#: forms/user_role.py:109
+#: forms/user_role.py:125
 msgid "Type of entities set"
 msgstr "Type d'ensemble de fiches"
 
-#: forms/user_role.py:113
+#: forms/user_role.py:129
 msgid "Apply to a specific type"
 msgstr "Appliquer à un type spécifique"
 
-#: forms/user_role.py:116
+#: forms/user_role.py:132
 msgctxt "content_type"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_role.py:147
+#: forms/user_role.py:187
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
 
-#: forms/user_role.py:151
+#: forms/user_role.py:191
 msgid "Information"
 msgstr "Informations"
 
-#: forms/user_role.py:152
+#: forms/user_role.py:192
 msgid "This role is not used by any user, you can delete it safely."
 msgstr ""
 "Ce rôle n'est utilisé par aucun utilisateur, vous pouvez le supprimer en "
 "toute sécurité."
 
-#: forms/user_role.py:283
+#: forms/user_role.py:308
 msgid "First credentials"
 msgstr "Premiers droits"
 
-#: forms/user_role.py:290
+#: forms/user_role.py:315
 #: templates/creme_config/templatetags/block_users.html:36
 msgid "Yes"
 msgstr "Oui"
@@ -682,7 +682,7 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:19
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:22
 #: templates/creme_config/templatetags/block_teams.html:31
-#: templates/creme_config/templatetags/block_user_roles.html:46
+#: templates/creme_config/templatetags/block_user_roles.html:50
 #: templates/creme_config/templatetags/block_users.html:46
 msgid "Delete"
 msgstr "Supprimer"
@@ -1160,7 +1160,7 @@ msgid "No teammate"
 msgstr "Aucun Coéquipier"
 
 #: templates/creme_config/templatetags/block_teams.html:34
-#: templates/creme_config/templatetags/block_user_roles.html:49
+#: templates/creme_config/templatetags/block_user_roles.html:53
 #: templates/creme_config/templatetags/block_users.html:49
 msgid "Can't delete"
 msgstr "Suppression interdite"
@@ -1235,11 +1235,11 @@ msgstr "Pas de droit de création"
 msgid "No export credential"
 msgstr "Pas de droit d'export"
 
-#: templates/creme_config/templatetags/block_user_roles.html:37
+#: templates/creme_config/templatetags/block_user_roles.html:41
 msgid "New credentials"
 msgstr "Nouveaux droits"
 
-#: templates/creme_config/templatetags/block_user_roles.html:56
+#: templates/creme_config/templatetags/block_user_roles.html:60
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
@@ -1371,6 +1371,7 @@ msgstr "Modifier la configuration de portail pour «%s»"
 #: views/blocks.py:297 views/blocks.py:318 views/blocks.py:369
 #: views/button_menu.py:111 views/creme_property_type.py:61
 #: views/prefered_menu.py:66 views/relation_type.py:73 views/user_role.py:109
+#: views/user_role.py:203
 msgid "Save the modifications"
 msgstr ""
 
@@ -1506,12 +1507,16 @@ msgstr "Ajouter des droits à «%s»"
 msgid "Add the credentials"
 msgstr "Ajouter les droits"
 
-#: views/user_role.py:205
+#: views/user_role.py:202
+msgid "Edit credentials for «%s»"
+msgstr "Modifier les droits de «%s»"
+
+#: views/user_role.py:230
 #, python-format
 msgid "Delete role «%s»"
 msgstr "Supprimer le rôle «%s»"
 
-#: views/user_role.py:207
+#: views/user_role.py:232
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
 

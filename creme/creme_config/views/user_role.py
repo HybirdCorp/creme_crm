@@ -36,7 +36,7 @@ from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms.user_role import (UserRoleCreateForm, UserRoleEditForm,
-        AddCredentialsForm, UserRoleDeleteForm)
+        AddCredentialsForm, EditCredentialsForm, UserRoleDeleteForm)
 from ..forms import user_role as user_role_forms
 
 
@@ -178,6 +178,31 @@ def add_credentials(request, role_id):
                         'submit_label': _('Add the credentials'),
                        },
                        is_valid=add_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                      )
+
+
+# TODO: edit_model_with_popup  => improve title creation
+@login_required
+@superuser_required
+def edit_credentials(request, cred_id):
+    creds = get_object_or_404(SetCredentials, pk=cred_id)
+
+    if request.method == 'POST':
+        edit_form = EditCredentialsForm(instance=creds, user=request.user, data=request.POST)
+
+        if edit_form.is_valid():
+            edit_form.save()
+    else:
+        edit_form = EditCredentialsForm(instance=creds, user=request.user)
+
+    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+                       {'form':  edit_form,
+                        'title': _(u'Edit credentials for «%s»') % creds.role,
+                        'submit_label': _('Save the modifications'),
+                       },
+                       is_valid=edit_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
                       )

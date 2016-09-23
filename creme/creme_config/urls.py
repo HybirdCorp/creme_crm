@@ -31,14 +31,15 @@ user_settings_patterns = [
 ]
 
 role_patterns = [
-    url(r'^portal/$',                          user_role.portal),
-    url(r'^add/$',                             user_role.add),
-    url(r'^edit/(?P<role_id>\d+)$',            user_role.edit),
-    url(r'^wizard[/]*$',                       user_role.UserRoleCreationWizard.as_view()),
-    url(r'^wizard/(?P<role_id>\d+)$',          user_role.UserRoleEditionWizard.as_view()),
-    url(r'^delete/(?P<role_id>\d+)$',          user_role.delete),
-    url(r'^add_credentials/(?P<role_id>\d+)$', user_role.add_credentials),
-    url(r'^delete_credentials$',               user_role.delete_credentials),
+    url(r'^portal/$',                           user_role.portal),
+    url(r'^add/$',                              user_role.add),
+    url(r'^edit/(?P<role_id>\d+)$',             user_role.edit),
+    url(r'^wizard[/]*$',                        user_role.UserRoleCreationWizard.as_view()),
+    url(r'^wizard/(?P<role_id>\d+)$',           user_role.UserRoleEditionWizard.as_view()),
+    url(r'^delete/(?P<role_id>\d+)$',           user_role.delete),
+    url(r'^add_credentials/(?P<role_id>\d+)$',  user_role.add_credentials),
+    url(r'^edit_credentials/(?P<cred_id>\d+)$', user_role.edit_credentials),
+    url(r'^delete_credentials$',                user_role.delete_credentials),
 ]
 
 relation_type_patterns = [
