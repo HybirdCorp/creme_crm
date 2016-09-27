@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -506,7 +506,9 @@ def _add_participants(activity, persons):
 def _improve_minutes(pcall, minutes):
     if minutes:
         old_minutes = pcall.minutes
-        pcall.minutes = minutes if old_minutes is None else \
+        # pcall.minutes = minutes if old_minutes is None else \
+        #                 u'%s\n%s' % (old_minutes, minutes)
+        pcall.minutes = minutes if not old_minutes else \
                         u'%s\n%s' % (old_minutes, minutes)
 
 
@@ -517,7 +519,8 @@ def _phonecall_workflow_set_end(request, end_function):
     POST = request.POST
     start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))  # TODO: assert in the past
     end = end_function(start)
-    minutes = POST.get('minutes')
+    # minutes = POST.get('minutes')
+    minutes = POST.get('minutes', '')
 
     pcall = _get_pcall(request)
 
@@ -581,7 +584,8 @@ def _create_failed_pcall(request):
                                         status_id=STATUS_DONE,
                                         start=start,
                                         end=start,
-                                        minutes=POST.get('minutes'),
+                                        # minutes=POST.get('minutes'),
+                                        minutes=POST.get('minutes', ''),
                                        )
         _add_participants(pcall, (me, person))
 
@@ -595,7 +599,8 @@ def _set_pcall_as_failed(pcall, request):
     pcall.status_id = STATUS_DONE
     pcall.floating_type = NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
-    _improve_minutes(pcall, POST.get('minutes'))
+    # _improve_minutes(pcall, POST.get('minutes'))
+    _improve_minutes(pcall, POST.get('minutes', ''))
 
     pcall.save()
 
