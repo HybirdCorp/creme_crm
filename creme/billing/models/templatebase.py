@@ -20,7 +20,7 @@
 
 from datetime import timedelta
 import logging
-# import warnings
+import warnings
 
 # from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -129,10 +129,10 @@ class AbstractTemplateBase(Base):
 
         return instance
 
-    # TODO: probably useless now (10th june 2015)
-    # This build is in case of convert a template with a ct into another template with a different ct
     def build(self, template, new_ct):
-        # Specific generation rules
+        " This build is in case of convert a template with a ct into another template with a different ct"
+        warnings.warn('TemplateBase.build() method is deprecated.', DeprecationWarning)
+
         self.status_id = 1
         self.ct = new_ct
         return super(AbstractTemplateBase, self).build(template)
