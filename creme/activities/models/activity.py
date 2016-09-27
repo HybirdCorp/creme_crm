@@ -43,8 +43,8 @@ class AbstractActivity(CremeEntity):
     title         = CharField(_(u'Title'), max_length=100)
     start         = DateTimeField(_(u'Start'), blank=True, null=True)
     end           = DateTimeField(_(u'End'), blank=True, null=True)
-    description   = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
-    minutes       = TextField(_(u'Minutes'), blank=True, null=True)
+    description   = TextField(_(u'Description'), blank=True).set_tags(optional=True)
+    minutes       = TextField(_(u'Minutes'), blank=True)
     place         = CharField(_(u'Activity place'), max_length=500, blank=True)\
                              .set_tags(optional=True)
     duration      = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)

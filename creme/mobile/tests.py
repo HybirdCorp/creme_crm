@@ -1037,7 +1037,8 @@ class MobileTestCase(CremeTestCase):
         create_dt = partial(self.create_datetime, utc=True, year=2014, month=3, day=10, hour=11)
         self.assertEqual(create_dt(minute=30, second=28), pcall.start)
         self.assertEqual(create_dt(minute=35, second=28), pcall.end)
-        self.assertIsNone(pcall.minutes)
+        # self.assertIsNone(pcall.minutes)
+        self.assertEqual('', pcall.minutes)
 
     @skipIfCustomActivity
     def test_phone_call_wf_lasted5min02(self):
