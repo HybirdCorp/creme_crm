@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ class ActType(CremeModel):
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Type of Commercial Action')
         verbose_name_plural = _(u'Types of Commercial Actions')
         ordering = ('title',)
@@ -52,10 +52,10 @@ class ActType(CremeModel):
 
 
 class AbstractAct(CremeEntity):
-    name           = CharField(_(u"Name of the commercial action"), max_length=100)
+    name           = CharField(_(u'Name of the commercial action'), max_length=100)
     expected_sales = PositiveIntegerField(_(u'Expected sales'))
-    cost           = PositiveIntegerField(_(u"Cost of the commercial action"), blank=True, null=True)
-    goal           = TextField(_(u"Goal of the action"), blank=True, null=True)
+    cost           = PositiveIntegerField(_(u'Cost of the commercial action'), blank=True, null=True)
+    goal           = TextField(_(u'Goal of the action'), blank=True)
     start          = DateField(_(u'Start'))
     due_date       = DateField(_(u'Due date'))
     act_type       = ForeignKey(ActType, verbose_name=_(u'Type'), on_delete=PROTECT)
@@ -66,7 +66,7 @@ class AbstractAct(CremeEntity):
 
     class Meta:
         abstract = True
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Commercial Action')
         verbose_name_plural = _(u'Commercial Actions')
         ordering = ('name',)
@@ -135,7 +135,7 @@ class Act(AbstractAct):
 
 
 class ActObjective(CremeModel):
-    name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
+    name         = CharField(_(u'Name'), max_length=_NAME_LENGTH)
     act          = ForeignKey(settings.COMMERCIAL_ACT_MODEL, related_name='objectives', editable=False)
     counter      = PositiveIntegerField(_(u'Counter'), default=0, editable=False)
     counter_goal = PositiveIntegerField(_(u'Value to reach'), default=1)
@@ -147,7 +147,7 @@ class ActObjective(CremeModel):
     _count_cache = None
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Commercial Objective')
         verbose_name_plural = _(u'Commercial Objectives')
         # ordering = ('name',) TODO ?
@@ -203,7 +203,7 @@ class AbstractActObjectivePattern(CremeEntity):
 
     class Meta:
         abstract = True
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Commercial objective pattern')
         verbose_name_plural = _(u'Commercial objective patterns')
         ordering = ('name',)
@@ -260,7 +260,7 @@ class ActObjectivePattern(AbstractActObjectivePattern):
 class ActObjectivePatternComponent(CremeModel):
     pattern      = ForeignKey(ActObjectivePattern, related_name='components', editable=False)
     parent       = ForeignKey('self', null=True, related_name='children', editable=False)
-    name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
+    name         = CharField(_(u'Name'), max_length=_NAME_LENGTH)
     ctype        = CTypeForeignKey(verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
     filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'),
                               null=True, blank=True, on_delete=PROTECT, editable=False,
