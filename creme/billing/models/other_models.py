@@ -88,7 +88,7 @@ class CreditNoteStatus(AbstractStatus):
 
 class AdditionalInformation(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
-    description = TextField(verbose_name=_(u"Description"), blank=True, null=True)
+    description = TextField(verbose_name=_(u"Description"), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
@@ -103,7 +103,7 @@ class AdditionalInformation(CremeModel):
 
 class PaymentTerms(CremeModel):
     name        = CharField(_(u'Payment terms'), max_length=100)
-    description = TextField(verbose_name=_(u"Description"), blank=True, null=True)
+    description = TextField(verbose_name=_(u"Description"), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
@@ -126,7 +126,7 @@ class PaymentInformation(CremeModel):
     banking_domiciliation = CharField(_(u'Banking domiciliation'), max_length=200, blank=True)
 
     iban                  = CharField(_(u'IBAN'), max_length=100, blank=True)
-    bic                   = CharField(_(u'BIC'), max_length=100, blank=True, null=True)
+    bic                   = CharField(_(u'BIC'), max_length=100, blank=True)
 
     is_default            = BooleanField(_(u'Is default?'), default=False)
     organisation          = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Target organisation'),
