@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ MAXINT = 100000
 class AbstractFolder(CremeEntity):
     """Folder: contains Documents"""
     title         = CharField(_(u'Title'), max_length=100)
-    description   = TextField(_(u'Description'), null=True, blank=True).set_tags(optional=True)
+    description   = TextField(_(u'Description'), blank=True).set_tags(optional=True)
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
                                blank=True, null=True,
                                related_name='parent_folder_set',  # TODO: rename 'children'

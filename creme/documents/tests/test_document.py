@@ -470,7 +470,8 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
 
         doc = docs[0]
         self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
-        self.assertIsNone(doc.description)
+        # self.assertIsNone(doc.description)
+        self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.folder)
 
         filedata = doc.filedata
@@ -505,7 +506,8 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         doc = docs[0]
         folder = get_csv_folder_or_create(user)
         self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
-        self.assertIsNone(doc.description)
+        # self.assertIsNone(doc.description)
+        self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.folder)
 
         self.assertEqual(u'<json>%s</json>' % json_dump({
