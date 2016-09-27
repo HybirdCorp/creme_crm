@@ -34,12 +34,12 @@ from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTime
 
 class ToDo(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
-    is_ok         = BooleanField(_("Done ?"), editable=False, default=False)
+    is_ok         = BooleanField(_(u'Done ?'), editable=False, default=False)
     reminded      = BooleanField(_(u'Notification sent'), editable=False, default=False)  # Needed by creme_core.core.reminder
-    description   = TextField(_(u'Description'), blank=True, null=True)
+    description   = TextField(_(u'Description'), blank=True)
     creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
-    user          = CremeUserForeignKey(verbose_name=_('Owner user'))
+    user          = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
     # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set", editable=False)

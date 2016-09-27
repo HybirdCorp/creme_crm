@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,16 +24,16 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-from creme.creme_core.models import CremeModel # CremeEntity
+from creme.creme_core.models import CremeModel  # CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
 
 
 class Action(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
     is_ok               = BooleanField(_('Expected reaction has been done'), editable=False, default=False)
-    description         = TextField(_(u'Source action'), blank=True, null=True)
+    description         = TextField(_(u'Source action'), blank=True)
     creation_date       = CreationDateTimeField(_(u'Creation date'), editable=False)
-    expected_reaction   = TextField(_(u'Target action'), blank=True, null=True)
+    expected_reaction   = TextField(_(u'Target action'), blank=True)
     deadline            = DateTimeField(_(u"Deadline"))
     validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True, editable=False)
 
@@ -91,5 +91,5 @@ class Action(CremeModel):
         return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__lte=today) \
                              .select_related('user')
 
-    def get_related_entity(self): #for generic views
+    def get_related_entity(self):  # For generic views
         return self.creme_entity

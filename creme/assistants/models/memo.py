@@ -32,10 +32,10 @@ from creme.creme_core.utils import ellipsis
 
 
 class Memo(CremeModel):
-    content       = TextField(_(u'Content'), blank=True, null=True)
-    on_homepage   = BooleanField(_(u"Displayed on homepage"), blank=True, default=False)
+    content       = TextField(_(u'Content'))
+    on_homepage   = BooleanField(_(u'Displayed on homepage'), blank=True, default=False)
     creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
-    user          = CremeUserForeignKey(verbose_name=_('Owner user'))
+    user          = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
     # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set", editable=False)
@@ -72,7 +72,7 @@ class Memo(CremeModel):
 
 class _GetMemos(FunctionField):
     name         = 'assistants-get_memos'
-    verbose_name = _(u"Memos")
+    verbose_name = _(u'Memos')
 
     # def __call__(self, entity):
     def __call__(self, entity, user):
