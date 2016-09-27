@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,12 +29,12 @@ from creme.creme_core.models.fields import CreationDateTimeField
 
 
 class CommercialApproach(CremeModel):
-    title           = CharField(_(u'Title'), max_length=200)
-    ok_or_in_futur  = BooleanField(_("Done ?"), editable=False, default=False)  # TODO: Future ?
-    description     = TextField(_(u'Description'), blank=True, null=True)
-    creation_date   = CreationDateTimeField(_(u'Creation date'), editable=False)
+    title          = CharField(_(u'Title'), max_length=200)
+    ok_or_in_futur = BooleanField(_('Done ?'), editable=False, default=False)  # TODO: Future ?
+    description    = TextField(_(u'Description'), blank=True)
+    creation_date  = CreationDateTimeField(_(u'Creation date'), editable=False)
 
-    related_activity    = ForeignKey(settings.ACTIVITIES_ACTIVITY_MODEL, null=True, editable=False)
+    related_activity = ForeignKey(settings.ACTIVITIES_ACTIVITY_MODEL, null=True, editable=False)
 
     # TODO: use real ForeignKey to CremeEntity ( + remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set", editable=False)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ _CATEGORY_MAP = {
 
 
 class AbstractStrategy(CremeEntity):
-    name            = CharField(_(u"Name"), max_length=100)
+    name            = CharField(_(u'Name'), max_length=100)
     evaluated_orgas = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL,
                                       verbose_name=_(u'Evaluated organisation(s)'),
                                       editable=False,
@@ -56,7 +56,7 @@ class AbstractStrategy(CremeEntity):
 
     class Meta:
         abstract = True
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Commercial strategy')
         verbose_name_plural = _(u'Commercial strategies')
         ordering = ('name',)
@@ -150,7 +150,7 @@ class AbstractStrategy(CremeEntity):
                           for segment_desc in segment_info
                      }
 
-            #set the right scores in the matrix
+            # Set the right scores in the matrix
             for score in MarketSegmentCharmScore.objects.filter(organisation=orga,
                                                                 charm__in=charms,
                                                                 segment_desc__in=segment_info,
@@ -322,13 +322,13 @@ class Strategy(AbstractStrategy):
 class MarketSegmentDescription(CremeModel):
     strategy  = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='segment_info', editable=False)
     segment   = ForeignKey(MarketSegment)  # TODO: on_delete=PROTECT
-    product   = TextField(_(u'Product'), blank=True, null=True)
-    place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True, null=True)
-    price     = TextField(_(u'Price'), blank=True, null=True)
-    promotion = TextField(_(u'Promotion'), blank=True, null=True)
+    product   = TextField(_(u'Product'), blank=True)
+    place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True)
+    price     = TextField(_(u'Price'), blank=True)
+    promotion = TextField(_(u'Promotion'), blank=True)
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Market segment description')
         verbose_name_plural = _(u'Market segment descriptions')
 
@@ -358,11 +358,11 @@ class MarketSegmentDescription(CremeModel):
 
 
 class CommercialAsset(CremeModel):
-    name     = CharField(_(u"Name"), max_length=100)
+    name     = CharField(_(u'Name'), max_length=100)
     strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets', editable=False)
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Commercial asset')
         verbose_name_plural = _(u'Commercial assets')
 
@@ -383,7 +383,7 @@ class CommercialAssetScore(CremeModel):
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
 
     def __unicode__(self):  # Debugging
         return u'<AssetScore: orga=%s score=%s segment=%s asset=%s>' % (
@@ -391,11 +391,11 @@ class CommercialAssetScore(CremeModel):
 
 
 class MarketSegmentCharm(CremeModel):
-    name     = CharField(_(u"Name"), max_length=100)
+    name     = CharField(_(u'Name'), max_length=100)
     strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms', editable=False)
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Segment charm')
         verbose_name_plural = _(u'Segment charms')
 
@@ -416,7 +416,7 @@ class MarketSegmentCharmScore(CremeModel):
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
 
     def __unicode__(self):  # Debugging
         return u'<CharmScore: orga=%s score=%s segment=%s charm=%s>' % (
@@ -430,7 +430,7 @@ class MarketSegmentCategory(CremeModel):
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
 
     def __unicode__(self):  # Debugging
         return u'<MarketSegmentCategory: orga=%s cat=%s segment=%s>' % (
