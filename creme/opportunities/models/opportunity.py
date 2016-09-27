@@ -112,8 +112,7 @@ class AbstractOpportunity(CremeEntity):
     origin                = ForeignKey(Origin, verbose_name=_(u'Origin'),
                                        blank=True, null=True, on_delete=SET_NULL,
                                       ).set_tags(optional=True)
-    description           = TextField(_(u'Description'), blank=True, null=True)\
-                                     .set_tags(optional=True)
+    description           = TextField(_(u'Description'), blank=True).set_tags(optional=True)
     first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)\
                                      .set_tags(optional=True)
 
