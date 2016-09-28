@@ -259,6 +259,7 @@ def listview(request, type_id=None):
                      **kwargs
                     )
 
+
 @login_required
 @permission_required('activities')
 def download_ical(request, ids):
@@ -280,6 +281,6 @@ def get_types(request, type_id):
 
     get_object_or_404(ActivityType, pk=type_id)
     return list(ActivitySubType.objects.filter(type=type_id)
-                                       .order_by('id')
+                                       # .order_by('id')
                                        .values_list('id', 'name')
                )
