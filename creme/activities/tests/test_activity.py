@@ -175,7 +175,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         # Valid type
         response = self.assertGET200(self.GET_TYPES % constants.ACTIVITYTYPE_TASK)
         self.assertListEqual(list(ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_TASK)
-                                                         .order_by('id')
+                                                         # .order_by('id')
                                                          .values_list('id', 'name')
                                  ),
                              json_loads(response.content)
