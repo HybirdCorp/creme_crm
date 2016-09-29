@@ -53,7 +53,7 @@ from .widgets import (DynamicInput, SelectorList, ChainedInput,
 TRUE = 'true'
 FALSE = 'false'
 
-_BOOL_OPTIONS = ((TRUE, _("True")), (FALSE, _("False")))
+_BOOL_OPTIONS = ((TRUE, _('True')), (FALSE, _('False')))
 _HAS_PROPERTY_OPTIONS = OrderedDict([
         (TRUE,  _(u'Has the property')),
         (FALSE, _(u'Does not have the property')),
@@ -168,7 +168,8 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
 
     @staticmethod
     def field_choicetype(field):
-        isnull = '__null' if getattr(field, 'null', False) else ''
+        # isnull = '__null' if getattr(field, 'null', False) else ''
+        isnull = '__null' if field.null or field.many_to_many else ''
 
         if isinstance(field, ModelRelatedField):
             if issubclass(field.rel.to, get_user_model()):

@@ -459,7 +459,9 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         image_field = get_field('image')
         self.assertTrue(image_field.get_tag('enumerable'))
         self.assertTrue(issubclass(image_field.rel.to, CremeEntity))
-        self.assertEqual(field_choicetype(image_field),    'fk__null')
+        self.assertEqual(field_choicetype(image_field), 'fk__null')
+
+        self.assertEqual(field_choicetype(get_field('languages')), 'enum__null')
 
     def test_iendswith_valuelist(self):
         "Multi values"
