@@ -145,7 +145,7 @@ def get_listview_columns_header(context):
                     else:
                         choices = []
 
-                        if field.null:
+                        if field.null or field.many_to_many:
                             choices.append((NULL_FK, _('* is empty *')))
 
                         choices.extend((o.id, o) for o in field.rel.to.objects.distinct())
