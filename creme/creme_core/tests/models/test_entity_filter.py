@@ -920,11 +920,13 @@ class EntityFiltersTestCase(CremeTestCase):
         jet   = contacts['jet'];   jet.languages   = [l1, l3]
         rei   = contacts['rei'];   rei.languages   = [l1]
         asuka = contacts['asuka']; asuka.languages = [l1, l2, l3]
+        faye  = contacts['faye'];  faye.languages  = [l2, l3]
+        yui   = contacts['yui'];   yui.languages   = [l3]
 
         filter_contacts = Contact.objects.filter
         self.assertEqual(3, filter_contacts(languages__code='JP').count())
-        self.assertEqual(4, filter_contacts(languages__name__contains='an').count())  # BEWARE: duplicates !!
-        self.assertEqual(3, filter_contacts(languages__name__contains='an').distinct().count())
+        self.assertEqual(5, filter_contacts(languages__name__contains='an').count())  # BEWARE: duplicates !!
+        self.assertEqual(4, filter_contacts(languages__name__contains='an').distinct().count())
 
         efilter = EntityFilter.create('test-filter01', 'JP', Contact, is_custom=True)
         build_4_field = EntityFilterCondition.build_4_field
@@ -942,7 +944,35 @@ class EntityFiltersTestCase(CremeTestCase):
                                               name='languages__name', values=['an'],
                                              )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id], use_distinct=True)
+        self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id, faye.id], use_distinct=True)
+
+        # Empty
+        efilter = EntityFilter.create('test-filter03', 'has a language', Contact, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                            model=Contact,
+                                                            operator=EntityFilterCondition.ISEMPTY,
+                                                            name='languages', values=[True],
+                                                        ),
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact,
+                                    self._list_contact_ids('jet', 'rei', 'asuka', 'faye', 'yui', exclude=True),
+                                    use_distinct=True,
+                                   )
+
+        # Not empty
+        efilter = EntityFilter.create('test-filter04', 'has no language', Contact, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                            model=Contact,
+                                                            operator=EntityFilterCondition.ISEMPTY,
+                                                            name='languages', values=[False],
+                                                        ),
+                                                 ],
+                                     )
+        self.assertExpectedFiltered(efilter, Contact,
+                                    [jet.id, rei.id, asuka.id, faye.id, yui.id],
+                                    use_distinct=True,
+                                   )
 
     def test_problematic_validation_fields(self):
         efilter = EntityFilter.create('test-filter01', 'Mist..', Organisation, is_custom=True)
