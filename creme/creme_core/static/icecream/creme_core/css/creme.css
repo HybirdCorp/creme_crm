@@ -93,6 +93,11 @@ a img:hover {
     /*zoom: 1;*/
 }
 
+a img.text_icon {
+    width: 18px;
+    height: 18px;
+}
+
 /* default styling overrides end */
 
 /* page structure - header and footer */
