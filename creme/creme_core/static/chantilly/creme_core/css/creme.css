@@ -112,6 +112,11 @@ a.is_deleted {
     text-decoration: line-through;
 }
 
+a img.text_icon {
+    width: 18px;
+    height: 18px;
+}
+
 body {
     color: black;
     background-color: #f6fcff;

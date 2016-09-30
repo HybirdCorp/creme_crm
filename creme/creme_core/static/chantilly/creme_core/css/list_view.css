@@ -395,6 +395,11 @@
     height: 64px;
 }
 
+.list_view tbody .lv-cell-content a img.text_icon {
+    width: 18px;
+    height: 18px;
+}
+
 .list_view tbody .lv-cell-content {
     border-right: 0px;
 }

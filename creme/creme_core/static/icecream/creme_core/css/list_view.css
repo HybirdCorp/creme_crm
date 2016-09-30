@@ -509,6 +509,11 @@
     height: 64px;
 }
 
+.list_view tbody .lv-cell-content a img.text_icon {
+    width: 18px;
+    height: 18px;
+}
+
 .list_view tbody .lv-cell-action {
     height: 16px;
     max-width: 22px;

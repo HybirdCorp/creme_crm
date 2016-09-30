@@ -30,8 +30,9 @@ def print_phone(entity, fval, user, field):  # TODO: rename  print_phone_html ?
     if not fval:
         return simple_print_html(entity, fval, user, field)
 
-#    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
-    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(external_url)s', %(creme_url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
+# #    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
+#     return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(external_url)s', %(creme_url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
+    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(external_url)s', %(creme_url)s', '%(number)s', %(id)s);"><img class="text_icon" src="%(img)s" alt="%(label)s"/></a>""" % {
 #            'url':    settings.ABCTI_URL,
             'external_url': settings.ABCTI_URL,
             'creme_url':    reverse('cti__create_phonecall_as_caller'),
