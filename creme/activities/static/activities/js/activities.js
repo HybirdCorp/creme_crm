@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2016  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -36,15 +36,17 @@ creme.activities.calendar.loading = function(loading_done) {
 }
 
 creme.activities.calendar.filterEvents = function(widget, calendar, events) {
+    console.warn('activities.calendar.filterEvents() is deprecated.');
+
     widget.fullCalendar('removeEvents', function(event) {return calendar == event.calendar;});
 
     if (events) {
         // TODO: test server behavior - is this test still needed ?
-        var calendarEvents = events.filter (function (event) {
+        var calendarEvents = events.filter(function (event) {
           return calendar == event.calendar;
         });
 
-        widget.fullCalendar ('addEventSource', calendarEvents);
+        widget.fullCalendar('addEventSource', calendarEvents);
     }
 
     creme.activities.calendar.resizeSidebar();
@@ -59,7 +61,7 @@ creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
             return;
         }
 
-        input.data ('oldVal', val);
+        input.data('oldVal', val);
 
         filter_callable(val.toUpperCase());
     });
@@ -69,14 +71,13 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
     creme.activities.calendar.floatingEventFilter = function(input_value) {
         $('.floating_event').each(function(index, element) {
             var event = $(element);
-            event.toggleClass('hidden', event.text().toUpperCase().indexOf (input_value) == -1);
+            event.toggleClass('hidden', event.text().toUpperCase().indexOf(input_value) == -1);
         });
-
     }
 
     creme.activities.calendar.othersCalendarsFilter = function(input_value){
         for (var calendar_user in creme_calendars_by_user) {
-            var calendars = creme_calendars_by_user [calendar_user];
+            var calendars = creme_calendars_by_user[calendar_user];
             var username_match = calendar_user.toUpperCase().indexOf(input_value) != -1;
             var match_count = 0;
 
@@ -89,7 +90,7 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
                 $('.calendar_label_container[data-calendar=' + calendar.id + ']').toggleClass('hidden', !match);
             }
 
-            $('.calendar_label_owner[data-user="' + calendar_user + '"]').toggleClass ('hidden', match_count == 0);
+            $('.calendar_label_owner[data-user="' + calendar_user + '"]').toggleClass('hidden', match_count == 0);
         }
     }
 
@@ -97,33 +98,40 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
         var widget = $('.calendar');
         var chk_box = $(this);
         var calendar_id = chk_box.val();
-        var events_url = '/activities/calendar/users_activities/';
-        var calendar_view = widget.fullCalendar('getView');
+//        var events_url = '/activities/calendar/users_activities/';
+//        var calendar_view = widget.fullCalendar('getView');
 
         if (chk_box.is(':checked')) {
-            $.ajax({
-                type: "GET",
-                dataType:'json',
-                data: {
-                    start: Math.round(calendar_view.visStart.getTime() / 1000),
-                    end: Math.round(calendar_view.visEnd.getTime() / 1000)
-                },
-                url: events_url + calendar_id,
-                error: function(request, textStatus, errorThrown) {
-                    chk_box.attr('checked', false);
-                },
-                beforeSend: function(request) {
-                    creme.activities.calendar.loading(false);
-                },
-                complete: function(request, txtStatus) {
-                    creme.activities.calendar.loading(true);
-                },
-                success: function(returnedData, status) {
-                    creme.activities.calendar.filterEvents(widget, calendar_id, returnedData);
-                }
-            });
+            // NB: creating new event source is a bad idea, because these new sources
+            // have to be removed, in order to avoid :
+            //    - duplicated Activities when we go to a page we a newly checked calendar.
+            //    - accumulating event sources.
+            // so we just force a new fetch.  TODO: find a way to only retrieve new events + cache
+//            $.ajax({
+//                type: 'GET',
+//                dataType: 'json',
+//                data: {
+//                    start: Math.round(calendar_view.visStart.getTime() / 1000),
+//                    end: Math.round(calendar_view.visEnd.getTime() / 1000)
+//                },
+//                url: events_url + calendar_id,
+//                error: function(request, textStatus, errorThrown) {
+//                    chk_box.attr('checked', false);
+//                },
+//                beforeSend: function(request) {
+//                    creme.activities.calendar.loading(false);
+//                },
+//                complete: function(request, txtStatus) {
+//                    creme.activities.calendar.loading(true);
+//                },
+//                success: function(returnedData, status) {
+//                    creme.activities.calendar.filterEvents(widget, calendar_id, returnedData);
+//                }
+//            });
+            widget.fullCalendar('refetchEvents');
         } else {
-            creme.activities.calendar.filterEvents(widget, calendar_id);
+//            creme.activities.calendar.filterEvents(widget, calendar_id);
+            widget.fullCalendar('removeEvents', function(event) {return calendar_id == event.calendar;});
         }
     });
 
@@ -305,9 +313,14 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
             gettext("Saturday")
         ],
         events: function(start, end, callback) {
-            var cal_ids = $('input[type="checkbox"][name="selected_calendars"]:checked').map(function() {
+            var chk_boxes_q = 'input[type="checkbox"][name="selected_calendars"]'
+
+//            var cal_ids = $('input[type="checkbox"][name="selected_calendars"]:checked').map(function() {
+            var cal_ids = $(chk_boxes_q + ':checked').map(function() {
                 return $(this).val();
             });
+
+            $(chk_boxes_q).enable(false);
 
             $.ajax({
                 url: events_url + cal_ids.get().join(','),
@@ -319,6 +332,7 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
                 success: function(events) {
                     callback(events);
                     creme.activities.calendar.resizeSidebar();
+                    $(chk_boxes_q).enable(true);
                 }
             });
         },
@@ -368,12 +382,12 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
         },
         eventRender: function(event, element, view) {
             if (event.type) {
-                var eventType = $('<span>').addClass('fc-event-type').text (event.type);
-                var eventTime = element.find ('.fc-event-time');
+                var eventType = $('<span>').addClass('fc-event-type').text(event.type);
+                var eventTime = element.find('.fc-event-time');
 
                 if (eventTime.length != 0) {
                     if (view.name == 'month') {
-                        eventType.text (' – ' + eventType.text());
+                        eventType.text(' – ' + eventType.text());
                     }
 
                     eventType.insertAfter(eventTime);
