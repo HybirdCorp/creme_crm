@@ -20,6 +20,7 @@
 
 import logging
 
+from django.conf import settings
 from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
 from django.template import Library
 from django.template.loader import get_template
@@ -103,6 +104,11 @@ def _build_bool_search_widget(widget_ctx, search_value):
 def _build_date_search_widget(widget_ctx, search_value):
     # TODO: Needs datetime validation
     widget_ctx['type'] = 'datefield'
+
+    date_format = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+    if date_format:
+        widget_ctx['format'] = date_format
+
     if search_value:
         widget_ctx['values'] = {'start': search_value[0], 'end': search_value[-1]}
 

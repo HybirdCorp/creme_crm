@@ -164,14 +164,28 @@
                              me.getSubmit()(this, {'_search': 1});
                          });
 
-                    self.find('.columns_bottom .column.datefield input')
-                        .bind('keydown', function(event) {
-                             event.stopPropagation();
-                             me.getKdSubmit()(event, this, {'_search': 1});
-                         })
-                        .datepicker({showOn:     "both",
-                                     buttonImage: creme_media_url('images/icon_calendar.gif'),
-                                     buttonImageOnly: true});
+//                    self.find('.columns_bottom .column.datefield input')
+//                        .bind('keydown', function(event) {
+//                             event.stopPropagation();
+//                             me.getKdSubmit()(event, this, {'_search': 1});
+//                         })
+//                        .datepicker({showOn: 'both',
+//                                     buttonImage: creme_media_url('images/icon_calendar.gif'),
+//                                     buttonImageOnly: true});
+                    var date_inputs = self.find('.columns_bottom .column.datefield input');
+
+                    date_inputs.bind('keydown', function(event) {
+                                    event.stopPropagation();
+                                    me.getKdSubmit()(event, this, {'_search': 1});
+                               });
+
+                    date_inputs.each(function() {
+                       $(this).datepicker({
+                           showOn: 'both',
+                           dateFormat: $(this).attr('data-format'),
+                           buttonImage: creme_media_url('images/icon_calendar.gif'),
+                           buttonImageOnly: true});
+                    });
                 }
 
                 this.enableActions = function() {
