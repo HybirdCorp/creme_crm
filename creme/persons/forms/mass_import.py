@@ -33,7 +33,7 @@ _BILL_PREFIX = 'billaddr_'
 _SHIP_PREFIX = 'shipaddr_'
 
 
-class _PersonMassImportForm(ImportForm4CremeEntity):
+class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVImportForm' (useful in custom code)
     class Meta:
         exclude = ('image',)
 
@@ -83,7 +83,7 @@ class _PersonMassImportForm(ImportForm4CremeEntity):
             instance.save()
 
 
-def get_massimport_form_builder(header_dict, choices, model):
+def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMassImportForm):
     address_field_names = list(Address.info_field_names())  # TODO: remove not-editable fields ??
     try:
        address_field_names.remove('name')
@@ -119,4 +119,5 @@ def get_massimport_form_builder(header_dict, choices, model):
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames)
                         )
 
-    return type('PersonMassImportForm', (_PersonMassImportForm,), attrs)
+    # return type('PersonMassImportForm', (_PersonMassImportForm,), attrs)
+    return type('PersonMassImportForm', (base_form,), attrs)
