@@ -47,16 +47,27 @@ class MediaManagersConfig(CremeAppConfig):
         bulk_update_registry.register(Image, exclude=['image'])
 
     def register_field_printers(self, field_printers_registry):
-        from creme.creme_core.gui.field_printers import print_foreignkey_html
+        from creme.creme_core.gui.field_printers import print_foreignkey_html, print_many2many_html
 
         def print_fk_image_html(entity, fval, user, field):
-            return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (
+            return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
                     fval.get_image_url(),
                     ' class="is_deleted"' if fval.is_deleted else u'',
                     fval.get_entity_summary(user)
                 ) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
 
+        def print_image_summary_html(instance, related_entity, fval, user, field):
+            return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
+                        instance.get_image_url(),
+                        ' class="is_deleted"' if instance.is_deleted else u'',
+                        instance.get_entity_summary(user),
+                    ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
+
         print_foreignkey_html.register(Image, print_fk_image_html)
+        print_many2many_html.register(Image,
+                                      printer=print_image_summary_html,
+                                      enumerator=print_many2many_html.enumerator_entity,
+                                     )
 
     def register_icons(self, icon_registry):
         icon_registry.register(Image, 'images/image_%(size)s.png')

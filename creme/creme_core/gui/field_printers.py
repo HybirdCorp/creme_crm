@@ -200,8 +200,7 @@ def print_fk_entity_html(entity, fval, user, field):
 
 print_foreignkey_html = FKPrinter(none_printer=print_fk_null_html,
                                   default_printer=simple_print_html,
-                                 )
-print_foreignkey_html.register(CremeEntity, print_fk_entity_html)
+                                 ).register(CremeEntity, print_fk_entity_html)
 
 
 # TODO: FKPrinter() ?
@@ -220,40 +219,85 @@ def print_many2many(entity, fval, user, field):
     return print_many2many_html(entity, fval, user, field)
 
 
-def print_many2many_html(entity, fval, user, field):
-    output = []
+# def print_many2many_html(entity, fval, user, field):
+#     output = []
+#
+#     from creme.media_managers.models.image import Image
+#
+#     def print_entity_link(e):
+#         if not user.has_perm_to_view(e):
+#             return settings.HIDDEN_VALUE
+#
+#         if isinstance(e, Image):
+#             return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (
+#                             e.get_image_url(),
+#                             ' class="is_deleted"' if e.is_deleted else u'',
+#                             e.get_entity_summary(user),
+#                         )
+#
+#         return u'<a target="_blank" href="%s"%s>%s</a>' % (
+#                     e.get_absolute_url(),
+#                     ' class="is_deleted"' if e.is_deleted else u'',
+#                     e.get_entity_summary(user),
+#                 )
+#
+#     if issubclass(fval.model, CremeEntity):
+#         output.extend('<li>%s</li>' % print_entity_link(e) for e in fval.filter(is_deleted=False))
+#     else:
+#         output.extend('<li>%s</li>' % escape(a) for a in fval.all())
+#
+#     if output:
+#         output = chain(['<ul>'], output, ['</ul>'])
+#
+#     return ''.join(output)
+class M2MPrinter(object):
+    @staticmethod
+    def enumerator_all(entity, fval, user, field):
+        return fval.all()
 
-    # TODO: temporary hack before print_field refactor in order to give extra parameters for custom display.
-    from creme.media_managers.models.image import Image
+    @staticmethod
+    def enumerator_entity(entity, fval, user, field):
+        return fval.filter(is_deleted=False)
 
-    def print_entity_link(e):
-        if not user.has_perm_to_view(e):
-            return settings.HIDDEN_VALUE
+    @staticmethod
+    def printer_html(instance, related_entity, fval, user, field):
+        return escape(instance)
 
-        if isinstance(e, Image):
-            return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (
-                            e.get_image_url(),
-                            ' class="is_deleted"' if e.is_deleted else u'',
-                            e.get_entity_summary(user),
-                        )
-
+    @staticmethod
+    def printer_entity_html(instance, related_entity, fval, user, field):
         return u'<a target="_blank" href="%s"%s>%s</a>' % (
-                    e.get_absolute_url(),
-                    ' class="is_deleted"' if e.is_deleted else u'',
-                    e.get_entity_summary(user),
-                )
+                    instance.get_absolute_url(),
+                    ' class="is_deleted"' if instance.is_deleted else u'',
+                    instance.get_entity_summary(user),
+                ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
 
-    if issubclass(fval.model, CremeEntity):
-        output.extend('<li>%s</li>' % print_entity_link(e) for e in fval.filter(is_deleted=False))
-    else:
-        output.extend('<li>%s</li>' % escape(a) for a in fval.all())
+    def __init__(self, default_printer, default_enumerator):
+        self._sub_printers = ClassKeyedMap(default=(default_printer, default_enumerator))
 
-    if output:
-        output = chain(['<ul>'], output, ['</ul>'])
+    def __call__(self, entity, fval, user, field):
+        printer, enumerator = self._sub_printers[fval.model]
+        output = [u'<li>%s</li>' % printer(e, entity, fval, user, field)
+                    for e in enumerator(entity, fval, user, field)
+                 ]
 
-    return ''.join(output)
+        if output:
+            output = chain(['<ul>'], output, ['</ul>'])
+
+        return ''.join(output)
+
+    def register(self, model, printer, enumerator):
+        self._sub_printers[model] = (printer, enumerator)
+        return self
+
+print_many2many_html = M2MPrinter(default_printer=M2MPrinter.printer_html,
+                                  default_enumerator=M2MPrinter.enumerator_all,
+                                 ).register(CremeEntity,
+                                            printer=M2MPrinter.printer_entity_html,
+                                            enumerator=M2MPrinter.enumerator_entity,
+                                           )
 
 
+# TODO: M2MPrinter ??
 def print_many2many_csv(entity, fval, user, field):
     if issubclass(fval.model, CremeEntity):
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
