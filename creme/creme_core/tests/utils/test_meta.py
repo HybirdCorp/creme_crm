@@ -83,6 +83,7 @@ class MetaTestCase(CremeTestCase):
         "Simple field"
         fi = meta.FieldInfo(Contact, 'first_name')
 
+        self.assertEqual(Contact, fi.model)
         self.assertEqual(1, len(fi))
         self.assertIs(True, bool(fi))
 
@@ -133,21 +134,81 @@ class MetaTestCase(CremeTestCase):
         with self.assertRaises(FieldDoesNotExist):
             meta.FieldInfo(Contact, 'invalid__invalidtoo')
 
-    def test_field_info04(self):
-        "Slice"
+    def test_field_info_slice01(self):
+        "Start"
         fi = meta.FieldInfo(Contact, 'image__user__username')
 
         with self.assertNoException():
-            sub_fi = fi[1:]
+            sub_fi = fi[1:]  # Image.user__username
 
         self.assertIsInstance(sub_fi, meta.FieldInfo)
+        self.assertEqual(Image, sub_fi.model)
         self.assertEqual(2, len(sub_fi))
         self.assertEqual(Image._meta.get_field('user'), sub_fi[0])
         self.assertEqual(get_user_model()._meta.get_field('username'), sub_fi[1])
 
         empty_sub_fi = fi[3:]
+        self.assertEqual(Contact, empty_sub_fi.model)
         self.assertEqual(0, len(empty_sub_fi))
         self.assertIs(False, bool(empty_sub_fi))
+
+    def test_field_info_slice02(self):
+        "Stop (no start)"
+        fi = meta.FieldInfo(Contact, 'image__user__username')
+
+        with self.assertNoException():
+            sub_fi = fi[:2]  # Contact.image__user__username
+
+        self.assertIsInstance(sub_fi, meta.FieldInfo)
+        self.assertEqual(Contact, sub_fi.model)
+        self.assertEqual(2, len(sub_fi))
+        self.assertEqual(Contact._meta.get_field('image'), sub_fi[0])
+        self.assertEqual(Image._meta.get_field('user'), sub_fi[1])
+
+    def test_field_info_slice03(self):
+        "Negative start"
+        fi = meta.FieldInfo(Contact, 'image__user__username')
+
+        with self.assertNoException():
+            sub_fi = fi[-1:]  # User.username
+
+        User = get_user_model()
+        self.assertEqual(User, sub_fi.model)
+        self.assertEqual(1, len(sub_fi))
+        self.assertEqual(User._meta.get_field('username'), sub_fi[0])
+
+    def test_field_info_slice04(self):
+        "'very' negative start"
+        fi = meta.FieldInfo(Contact, 'image__user__username')
+
+        with self.assertNoException():
+            sub_fi = fi[-4:]  # No change (Contact.image__user__username)
+
+        self.assertEqual(Contact, sub_fi.model)
+        self.assertEqual(3, len(sub_fi))
+        self.assertEqual(Contact._meta.get_field('image'), sub_fi[0])
+        self.assertEqual(Image._meta.get_field('user'), sub_fi[1])
+        self.assertEqual(get_user_model()._meta.get_field('username'), sub_fi[2])
+
+    def test_field_info_slice05(self):
+        "Big start"
+        fi = meta.FieldInfo(Contact, 'image__user')
+
+        with self.assertNoException():
+            sub_fi = fi[5:]  # Empty
+
+        self.assertEqual(Contact, sub_fi.model)
+        self.assertFalse(sub_fi)
+
+    def test_field_info_slice06(self):
+        "Step is forbidden"
+        fi = meta.FieldInfo(Contact, 'image__user')
+
+        with self.assertRaises(ValueError):
+            _ = fi[::0]
+
+        with self.assertRaises(ValueError):
+            _ = fi[::2]
 
     def test_field_info_get_value01(self):
         FieldInfo = meta.FieldInfo
