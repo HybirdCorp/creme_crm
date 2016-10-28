@@ -88,10 +88,20 @@ class FieldInfo(object):
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
+            step = idx.step
+            if step is not None and step != 1:
+                raise ValueError('FieldInfo[] does not manage slice step.')
+
             # We avoid the call to __init__ and its introspection work
             fi = FieldInfo.__new__(FieldInfo)
             fi._model = self._model
-            fi.__fields = self.__fields[idx]
+            fi.__fields = new_fields = self.__fields[idx]
+
+            if new_fields and idx.start:
+                try:
+                    fi._model = self.__fields[idx.start - 1].rel.to
+                except IndexError:
+                    pass
 
             return fi
 
@@ -105,6 +115,16 @@ class FieldInfo(object):
 
     def __iter__(self):
         return iter(self.__fields)
+
+    def __repr__(self):
+        return 'FieldInfo(model=%s, field_name="%s")' % (
+                    self._model.__name__,
+                    '__'.join(f.name for f in self.__fields),
+                )
+
+    @property
+    def model(self):
+        return self._model
 
     @property
     def verbose_name(self):
