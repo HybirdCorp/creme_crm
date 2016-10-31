@@ -349,3 +349,75 @@ class DBTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             f_null = f2.parent
         self.assertIsNone(f_null)
+
+    def test_populate_related08(self):
+        "Two fields + depth > 1  => instances of level 2 have different models"
+        user = self.login()
+        user2 = self.other_user
+
+        create_folder = partial(FakeFolder.objects.create, user=user)
+        folder1 = create_folder(title='Maps')
+        folder11 = create_folder(title='Earth maps', parent=folder1)
+        folder2 = create_folder(title='Blue prints')
+
+        create_doc = partial(FakeDocument.objects.create, user=user)
+        docs = [create_doc(title='Japan map part#1',   folder=folder1),
+                create_doc(title='Mars city 1',        folder=folder11),
+                create_doc(title='Swordfish',          folder=folder2, user=user2),
+               ]
+        docs = [self.refresh(c) for c in docs]
+
+        # 3 queries:
+        #   1 for fhe folders of the first level.
+        #   0 for fhe folders of the second level, because already in the cache.
+        #   1 for the users.
+        #   1 for the roles.
+        with self.assertNumQueries(3):
+            populate_related(docs, ['folder__parent', 'user__role'])
+
+        # Folders
+        with self.assertNumQueries(0):
+            f1 = docs[0].folder
+        self.assertEqual(folder1, f1)
+
+        with self.assertNumQueries(0):
+            f11 = docs[1].folder
+        self.assertEqual(folder11, f11)
+
+        with self.assertNumQueries(0):
+            f1 = f11.parent
+        self.assertEqual(folder1, f1)
+
+        with self.assertNumQueries(0):
+            f2 = docs[2].folder
+        self.assertEqual(folder2, f2)
+
+        # Users
+        with self.assertNumQueries(0):
+             u1 = docs[0].user
+        self.assertEqual(user, u1)
+
+        with self.assertNumQueries(0):
+             u2 = docs[2].user
+        self.assertEqual(user2, u2)
+
+        with self.assertNumQueries(0):
+             role = u2.role
+        self.assertEqual(self.role, role)
+
+    def test_populate_related09(self):
+        "Already cached field (level 2)"
+        user = self.login()
+        user2 = self.other_user
+
+        create_contact = partial(FakeContact.objects.create, user=user, last_name='Simpson')
+        contacts = [create_contact(first_name='Homer'),
+                    create_contact(first_name='Lisa', user=user2),
+                   ]
+
+        contacts = [self.refresh(c) for c in contacts]
+        _ = contacts[1].user  # 'user' is cached
+
+        with self.assertNumQueries(2):
+            populate_related(contacts, ['user__role__name'])
+
