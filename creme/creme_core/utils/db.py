@@ -171,51 +171,88 @@ def populate_related(instances, field_names):
 
     @param instances: Sequence of instances with the _same_ ContentType.
                       NB: iterated several times -> not an iterator.
-    @param field_names: Sequence of strings representing field names.
+    @param field_names: Sequence of strings representing field names ala django (eg: 'user__username').
     """
     if not instances:
         return
 
-    def _populate_depth(fields_info, instances):
-        fields_per_model = defaultdict(list)
-        next_fields_info = []  # FieldInfo instances for the deeper fields
-        next_instances = ()  # Related instances of this level => instances of the deeper level
+    # Model/ID/Instances => big_instances_cache[my_model].get(my_id)
+    global_cache = defaultdict(dict)
 
-        for field_info in fields_info:
-            if field_info:
+    def _iter_works(works):
+        for instances, fields_info in works:
+            for field_info in fields_info:
+                if not field_info:
+                    continue
+
                 field = field_info[0]
 
-                if isinstance(field, ForeignKey):
-                    fields_per_model[field.rel.to].append(field)
-                    next_fields_info.append(field_info[1:])
+                if not isinstance(field, ForeignKey):
+                    continue
 
-        for model, fields in fields_per_model.iteritems():
-            ids = set()
-            fill_info = []
+                yield instances, field_info, field
 
-            for field in fields:
-                fname = field.name
-                att_name = field.get_attname()
-                cache_name = field.get_cache_name()
+    def _populate_depth(works):
+        new_ids_per_model = defaultdict(set)  # Key=model ; values=IDs
+        next_works = []
 
-                for instance in instances:
-                    if not hasattr(instance, cache_name):
-                        attr_id = getattr(instance, att_name)
-                        if attr_id:
-                            ids.add(attr_id)
-                            fill_info.append((instance, fname, att_name, attr_id))
+        # Step 1: we group all FK related to the same model, in order to group queries.
+        for instances, field_info, field in _iter_works(works):
+            attr_name  = field.get_attname()
+            cache_name = field.get_cache_name()
 
-            if ids:
-                next_instances = model._default_manager.filter(pk__in=ids)
-                attr_values = {o.pk: o for o in next_instances}
+            rel_model = field.rel.to
+            cached = global_cache[rel_model]
+            new_ids = new_ids_per_model[rel_model]
 
-                for instance, fname, att_name, attr_id in fill_info:
-                    setattr(instance, fname, attr_values[getattr(instance, att_name)])
+            for instance in instances:
+                if not hasattr(instance, cache_name):
+                    attr_id = getattr(instance, attr_name)
 
-        return next_fields_info, next_instances
+                    if attr_id and attr_id not in cached:
+                        new_ids.add(attr_id)
+
+        # Step 2: we retrieve all the new instances (ie: not already cached) needed by this level
+        #         with our grouped queries, & fill the cache.
+        for rel_model, ids in new_ids_per_model.iteritems():
+            global_cache[rel_model] \
+                        .update((o.pk, o)
+                                   for o in rel_model._default_manager.filter(pk__in=ids)
+                               )
+
+        # Step 3: we store the retrieved instances (level N+1) in our given instances (level N+1).
+        #         & we build the works for the level N+1 for these new instances.
+        for instances, field_info, field in _iter_works(works):
+            fname = field.name
+            attr_name  = field.get_attname()
+            cache_name = field.get_cache_name()
+
+            get_cached = global_cache[field.rel.to].get
+            related_instances = []
+
+            for instance in instances:
+                attr_id = getattr(instance, attr_name)
+
+                if attr_id:
+                    if hasattr(instance, cache_name):
+                        rel_instance = getattr(instance, fname)
+                    else:
+                        rel_instance = get_cached(attr_id)
+                        setattr(instance, fname, rel_instance)
+
+                    related_instances.append(rel_instance)
+
+            if related_instances:
+                next_works.append((related_instances, [field_info[1:]]))
+
+        return next_works
 
     base_model = instances[0].__class__
-    fields_info = [FieldInfo(base_model, fname) for fname in field_names]
 
-    while fields_info:
-        fields_info, instances = _populate_depth(fields_info, instances)
+    # NB: in a 'work':
+    #  [0] - The instances must have the same model.
+    #  [1] - The FieldInfo objects must be related to this model.
+    works = [(instances, [FieldInfo(base_model, deep_fname) for deep_fname in field_names])]
+
+    while works:
+        works = _populate_depth(works)

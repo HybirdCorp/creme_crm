@@ -199,14 +199,14 @@ else:
         value      = models.TextField(_(u"Address"), blank=True, null=True)
         zipcode    = models.CharField(_(u"Zip code"), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        city       = models.CharField(_(u"City"), max_length=100, blank=True, null=True)\
+        city       = models.CharField(_(u"City"), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        department = models.CharField(_(u"Department"), max_length=100, blank=True, null=True)\
+        department = models.CharField(_(u"Department"), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        country    = models.CharField(_(u"Country"), max_length=40, blank=True, null=True)\
+        country    = models.CharField(_(u"Country"), max_length=40, blank=True, null=True) \
                            .set_tags(optional=True)
 
-        entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False)\
+        entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False) \
                            .set_tags(viewable=False)
 
         class Meta:
@@ -215,7 +215,7 @@ else:
             verbose_name_plural = u'Test addresses'
 
         def __unicode__(self):
-            return  u' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
+            return u' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
 
         def get_edit_absolute_url(self):
             return '/tests/address/edit/%s' % self.id
@@ -233,7 +233,7 @@ else:
                                        blank=True, null=True,
                                       ).set_tags(optional=True)
         is_a_nerd   = models.BooleanField(_(u'Is a Nerd'), default=False)
-        description = models.TextField(_(u'Description'), blank=True, null=True)\
+        description = models.TextField(_(u'Description'), blank=True, null=True) \
                             .set_tags(optional=True)
         phone       = PhoneField(_(u'Phone number'), max_length=100,
                                  blank=True, null=True,
@@ -258,9 +258,9 @@ else:
                                         blank=True, null=True, editable=False,
                                         related_name='+',
                                         on_delete=models.SET_NULL,
-                                       ).set_tags(clonable=False, enumerable=False)\
+                                       ).set_tags(clonable=False, enumerable=False) \
                                         .set_null_label(pgettext_lazy('persons-is_user', u'None'))
-        birthday    = models.DateField(_(u'Birthday'), blank=True, null=True)\
+        birthday    = models.DateField(_(u'Birthday'), blank=True, null=True) \
                             .set_tags(optional=True)
         image       = models.ForeignKey(FakeImage, verbose_name=_(u'Photograph'),
                                         blank=True, null=True, on_delete=models.SET_NULL,
