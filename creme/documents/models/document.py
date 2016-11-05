@@ -37,6 +37,7 @@ class AbstractDocument(CremeEntity):
                             )
 
     creation_label = _('Add a document')
+    save_label     = _('Save the document')
 
     class Meta:
         abstract = True

@@ -20,7 +20,7 @@
 
 from django.conf import settings
 from django.db.models import CharField, TextField, ManyToManyField, ForeignKey
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
@@ -33,13 +33,16 @@ class EmailSignature(CremeModel):
     body   = TextField(_(u'Body'))
     images = ManyToManyField(Image, verbose_name=_(u'Images'), blank=True)
 
+    creation_label = pgettext_lazy('emails', 'Add a signature')
+    save_label     = pgettext_lazy('emails', 'Save the signature')
+
     def __unicode__(self):
         return self.name
 
     class Meta:
-        app_label = "emails"
-        verbose_name = _(u"Email signature")
-        verbose_name_plural = _(u"Email signatures")
+        app_label = 'emails'
+        verbose_name = _(u'Email signature')
+        verbose_name_plural = _(u'Email signatures')
         ordering = ('name',)
 
     def can_change_or_delete(self, user):

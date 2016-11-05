@@ -20,7 +20,7 @@
 
 from django.conf import settings
 from django.db.models import ForeignKey, CharField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
@@ -30,10 +30,14 @@ class EmailRecipient(CremeModel):
     ml      = ForeignKey(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing list'))
     address = CharField(_(u'Email address'), max_length=100)
 
+    creation_label   = pgettext_lazy('emails', 'Add a recipient')
+    save_label       = pgettext_lazy('emails', 'Save the recipient')
+    multi_save_label = pgettext_lazy('emails', 'Save the recipients')
+
     class Meta:
         app_label = 'emails'
-        verbose_name = _(u'Recipient')
-        verbose_name_plural = _(u'Recipients')
+        verbose_name = pgettext_lazy('emails', u'Recipient')
+        verbose_name_plural = pgettext_lazy('emails', u'Recipients')
         ordering = ('address',)
 
     def __unicode__(self):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,8 @@
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+# from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
@@ -34,9 +35,13 @@ from ..models import EmailSignature
 @login_required
 @permission_required('emails')
 def add(request):
-    return add_model_with_popup(request, SignatureForm, _(u'New signature'),
-                                submit_label=_('Save the signature'),
+    return add_model_with_popup(request, SignatureForm,
+                                # _(u'New signature'),
+                                title=EmailSignature.creation_label,
+                                # submit_label=_('Save the signature'),
+                                submit_label=EmailSignature.save_label,
                                )
+
 
 @login_required
 @permission_required('emails')
@@ -45,17 +50,19 @@ def edit(request, signature_id):
                                  can_change=EmailSignature.can_change_or_delete,
                                 )
 
+
 @login_required
 @permission_required('emails')
 def delete(request):
     signature = get_object_or_404(EmailSignature, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not signature.can_change_or_delete(request.user):
-        raise PermissionDenied(ugettext(u'You can not delete this signature (not yours)'))
+        # raise PermissionDenied(ugettext(u'You can not delete this signature (not yours)'))
+        raise PermissionDenied(_(u'You can not delete this signature (not yours)'))
 
     signature.delete()
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return HttpResponseRedirect('/emails/')

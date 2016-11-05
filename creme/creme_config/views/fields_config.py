@@ -51,8 +51,10 @@ def add(request):
                  )
 
     return add_model_with_popup(request, FieldsConfigAddForm,
-                                _(u'New fields configuration'),
-                                submit_label=_('Save the configuration'),
+                                # _(u'New fields configuration'),
+                                title=FieldsConfig.creation_label,
+                                # submit_label=_('Save the configuration'),
+                                submit_label=FieldsConfig.save_label,
                                )
 
 
@@ -83,10 +85,12 @@ class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
 
     class _ConfigStep(FieldsConfigEditForm):
         step_prev_label = _('Previous step')
-        step_submit_label = _('Save the configuration')
+        # step_submit_label = _('Save the configuration')
+        step_submit_label = FieldsConfig.save_label
 
     form_list = (_ModelStep, _ConfigStep)
-    wizard_title = _(u'New fields configuration')
+    # wizard_title = _(u'New fields configuration')
+    wizard_title = FieldsConfig.creation_label
     permission = 'creme_core.can_admin'
 
     def done(self, form_list, **kwargs):
@@ -95,7 +99,7 @@ class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
         # with atomic():
         configure_step.save()
 
-        return HttpResponse('', content_type='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     def get_form_instance(self, step):
         cleaned_data = self.get_cleaned_data_for_step('0')

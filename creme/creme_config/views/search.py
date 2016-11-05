@@ -38,14 +38,15 @@ def add(request, ct_id):
 
     return add_model_with_popup(request, SearchAddForm,
                                 title=_(u'New search configuration for «%s»') % ctype,
-                                submit_label=_('Save the configuration'),
+                                # submit_label=_('Save the configuration'),
                                 initial={'content_type': ctype},
                                )
 
+
 @login_required
-#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/search_portal.html')
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -54,14 +55,14 @@ def edit(request, search_config_id):
                                  model=SearchConfigItem, form_class=SearchEditForm,
                                 )
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def delete(request):
     sci = get_object_or_404(SearchConfigItem, id=get_from_POST_or_404(request.POST, 'id'))
 
-#    if sci.user is None:
     if sci.is_default:
-        raise ConflictError("You cannot delete the default configuration")
+        raise ConflictError('You cannot delete the default configuration')
 
     sci.delete()
 

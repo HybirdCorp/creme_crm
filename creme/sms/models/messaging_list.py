@@ -33,10 +33,11 @@ class AbstractMessagingList(CremeEntity):
                               )
 
     creation_label = _('Add a messaging list')
+    save_label     = _('Save the messaging list')
 
     class Meta:
         abstract = True
-        app_label = "sms"
+        app_label = 'sms'
         verbose_name = _(u'SMS messaging list')
         verbose_name_plural = _(u'SMS messaging lists')
         ordering = ('name',)

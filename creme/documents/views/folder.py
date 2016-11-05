@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,8 @@ Folder = get_folder_model()
 
 
 def abstract_add_folder(request, form=FolderForm,
-                        submit_label=_('Save the folder'),
+                        # submit_label=_('Save the folder'),
+                        submit_label=Folder.save_label,
                        ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},
@@ -48,7 +49,8 @@ def abstract_add_folder(request, form=FolderForm,
 
 def abstract_add_child_folder(request, folder_id, form=ChildFolderForm,
                               title=_(u'New child folder for «%s»'),
-                              submit_label=_('Save the folder'),
+                              # submit_label=_('Save the folder'),
+                              submit_label=Folder.save_label,
                             ):
     parent_folder = get_object_or_404(Folder, id=folder_id)
     user = request.user

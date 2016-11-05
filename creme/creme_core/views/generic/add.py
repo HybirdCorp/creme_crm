@@ -58,9 +58,11 @@ def add_entity(request, form_class, url_redirect='',
         # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
+    model = form_class._meta.model
     template_dict = {'form':  entity_form,
-                     'title': form_class._meta.model.creation_label,
-                     'submit_label': _('Save the entity'),
+                     'title': model.creation_label,
+                     # 'submit_label': _('Save the entity'),
+                     'submit_label': getattr(model, 'save_label', _('Save the entity')),
                      'cancel_url': cancel_url,
                     }
 
@@ -113,10 +115,12 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
 
 def add_model_with_popup(request, form_class, title=None, initial=None,
                          template='creme_core/generics/blockform/add_popup2.html',
-                         submit_label=_('Save')):
+                         # submit_label=_('Save')):
+                         submit_label=None):
     """
-    @param title Title of the Inner Popup.
-    @param initial classical 'initial' of Forms (passed when the request is a GET)
+    @param title: Title of the Inner Popup.
+    @param initial: Classical 'initial' of Forms (passed when the request is a GET).
+    @param submit_label: Label of the submission button.
     """
     if request.method == 'POST':
         form = form_class(user=request.user, data=request.POST, files=request.FILES or None, initial=initial)
@@ -126,9 +130,19 @@ def add_model_with_popup(request, form_class, title=None, initial=None,
     else:
         form = form_class(user=request.user, initial=initial)
 
+    try:
+        model = form_class._meta.model
+    except AttributeError:
+        title = title or _(u'New')
+        submit_label = submit_label or _(u'Save')
+    else:
+        title = title or getattr(model, 'creation_label', _(u'New'))
+        submit_label = submit_label or getattr(model, 'save_label', _(u'Save'))
+
     return inner_popup(request, template,
-                       {'form':   form,
-                        'title':  title or _(u'New'),
+                       {'form':         form,
+                        # 'title':        title or _(u'New'),
+                        'title':        title,
                         'submit_label': submit_label,
                        },
                        is_valid=form.is_valid(),

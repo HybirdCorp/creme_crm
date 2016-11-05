@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import logging
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404 # redirect
+from django.shortcuts import get_object_or_404  # redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -48,8 +48,9 @@ ProjectTask = get_task_model()
 
 def abstract_add_ptask(request, project_id, form=TaskCreateForm,
                        title=_(u'Add a task to «%s»'),
-                       submit_label=_('Save the task'),
-                       ):
+                       # submit_label=_('Save the task'),
+                       submit_label=ProjectTask.save_label,
+                      ):
     return add_to_entity(request, project_id, form, title,
                          entity_class=get_project_model(),
                          submit_label=submit_label,
@@ -112,7 +113,7 @@ def delete_parent(request):
     task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
     user = request.user
 
-    #user.has_perm_to_change_or_die(task.project) #beware: modify block_tasks.html template if uncommented....
+    # user.has_perm_to_change_or_die(task.project) #beware: modify block_tasks.html template if uncommented....
     user.has_perm_to_change_or_die(task)
 
     task.parent_tasks.remove(parent_id)
@@ -124,7 +125,8 @@ def delete_parent(request):
 
 def abstract_add_activity(request, task_id, form=RelatedActivityCreateForm,
                           title=_(u'New activity related to «%s»'),
-                          submit_label=_('Save the activity'),
+                          # submit_label=_('Save the activity'),
+                          submit_label=Activity.save_label,
                          ):
     task = get_object_or_404(ProjectTask, pk=task_id)
     user = request.user

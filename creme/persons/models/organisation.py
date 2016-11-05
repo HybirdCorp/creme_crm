@@ -84,6 +84,7 @@ class AbstractOrganisation(CremeEntity, PersonWithAddressesMixin):
     function_fields = CremeEntity.function_fields.new()
 
     creation_label = _('Add an organisation')
+    save_label = _('Save the organisation')
 
     class Meta:
         abstract = True

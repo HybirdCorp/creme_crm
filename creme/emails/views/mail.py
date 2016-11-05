@@ -44,9 +44,6 @@ EntityEmail = get_entityemail_model()
 @permission_required('emails')
 def get_lightweight_mail_body(request, mail_id):
     """Used to show an html document in an iframe """
-    # email = get_object_or_404(LightWeightEmail, pk=mail_id)
-    # request.user.has_perm_to_view_or_die(email.sending.campaign)
-    # return HttpResponse(email.get_body_html())
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
     request.user.has_perm_to_view_or_die(email.sending.campaign)
 
@@ -65,7 +62,7 @@ def view_lightweight_mail(request, mail_id):
     # TODO: disable the link in the template if view is not allowed
     request.user.has_perm_to_view_or_die(email.sending.campaign)
 
-    template = "emails/view_email.html"
+    template = 'emails/view_email.html'
     ctx_dict = {'mail': email, 'title': _(u'Details of the mail')}
 
     if request.is_ajax():
@@ -93,7 +90,8 @@ def abstract_popupview(request, mail_id,
 
 def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
                            title=_(u'Sending an email to «%s»'),
-                           submit_label=_('Send the email'),
+                           # submit_label=_('Send the email'),
+                           submit_label=EntityEmail.sending_label,
                           ):
     return generic.add_to_entity(request, entity_id, form, title=title,
                                  link_perm=True, submit_label=submit_label,
@@ -133,7 +131,8 @@ def abstract_create_from_template_n_send(request, entity_id,
                                            'attachments': list(email_template.attachments.values_list('id', flat=True)),
                                           }
                                  )
-                submit_label = _('Send the email')
+                # submit_label = _('Send the email')
+                submit_label = EntityEmail.sending_label
         else:
             assert step == 2
             form = email_form(user=user, entity=entity, data=POST)

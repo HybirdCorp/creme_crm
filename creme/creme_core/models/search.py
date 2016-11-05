@@ -64,6 +64,9 @@ class SearchConfigItem(CremeModel):
     disabled     = BooleanField(pgettext_lazy('creme_core-search_conf', u'Disabled?'), default=False)
     field_names  = TextField(null=True)  # Do not this field directly; use 'searchfields' property
 
+    creation_label = _(u'New search configuration')
+    save_label     = _(u'Save the configuration')
+
     _searchfields = None
     EXCLUDED_FIELDS_TYPES = [models.DateTimeField, models.DateField,
                              models.FileField, models.ImageField,

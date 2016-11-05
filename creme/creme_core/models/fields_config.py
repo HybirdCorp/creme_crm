@@ -24,7 +24,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import TextField, FieldDoesNotExist
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.entity_cell import EntityCellRegularField
 from ..global_info import get_per_request_cache  # get_global_info, set_global_info
@@ -37,6 +37,9 @@ logger = logging.getLogger(__name__)
 class FieldsConfig(CremeModel):
     content_type     = CTypeOneToOneField(editable=False, primary_key=True)  # verbose_name=_(u'Related type')
     raw_descriptions = TextField(editable=False)  # null=True  #TODO: JSONField ?
+
+    creation_label = _(u'New fields configuration')
+    save_label     = _(u'Save the configuration')
 
     HIDDEN = 'hidden'
 
@@ -96,7 +99,7 @@ class FieldsConfig(CremeModel):
             return False
 
     def __unicode__(self):
-        return _('Configuration of %s') % self.content_type
+        return ugettext('Configuration of %s') % self.content_type
 
     @staticmethod
     def _check_descriptions(model, descriptions):
@@ -179,7 +182,7 @@ class FieldsConfig(CremeModel):
                            model=self.content_type.model_class(),
                           )
         # TODO: cached_lazy_ugettext
-        msg = _(u'Warning: the app «%(app)s» need the field «%(field)s».')
+        msg = ugettext(u'Warning: the app «%(app)s» need the field «%(field)s».')
 
         return [msg % {'app': app.verbose_name, 'field': field.verbose_name}
                     for field in self.hidden_fields

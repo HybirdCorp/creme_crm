@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+# from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -34,7 +34,8 @@ Ticket = get_ticket_model()
 
 
 def abstract_add_ticket(request, form=TicketCreateForm,
-                        submit_label=_('Save the ticket'),
+                        # submit_label=_('Save the ticket'),
+                        submit_label=Ticket.save_label,
                        ):
     return add_entity(request, form,
                       extra_initial={'priority':  Priority.objects.first(),

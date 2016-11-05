@@ -42,6 +42,7 @@ class CremeModel(Model):
     _delete_files = True  # Delegate the deletion of the file on system
                           # when a model has one or more FileField sub-classes.
     creation_label = _('Add')
+    save_label     = _('Save')
     # TODO : do a complete refactor for _CremeModel.selection_label
     # selection_label = _('Select')
 

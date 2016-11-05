@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -31,7 +30,6 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
 
 from .. import get_emailtemplate_model
 from ..constants import DEFAULT_HFILTER_TEMPLATE
-#from ..models import EmailTemplate
 from ..forms.template import EmailTemplateForm, EmailTemplateAddAttachment
 
 
@@ -39,7 +37,8 @@ EmailTemplate = get_emailtemplate_model()
 
 
 def abstract_add_template(request, form=EmailTemplateForm,
-                          submit_label=_('Save the template'),
+                          # submit_label=_('Save the template'),
+                          submit_label=EmailTemplate.save_label,
                          ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},
@@ -53,14 +52,10 @@ def abstract_edit_template(request, template_id, form=EmailTemplateForm):
 def abstract_view_template(request, template_id,
                            template='emails/view_template.html',
                           ):
-    return view_entity(request, template_id, EmailTemplate,
-                       # '/emails/template',
-                       template=template,
-                      )
+    return view_entity(request, template_id, EmailTemplate, template=template)
 
 
 @login_required
-# @permission_required(('emails', 'emails.add_emailtemplate'))
 @permission_required(('emails', cperm(EmailTemplate)))
 def add(request):
     return abstract_add_template(request)
@@ -81,10 +76,8 @@ def detailview(request, template_id):
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, EmailTemplate, hf_pk=DEFAULT_HFILTER_TEMPLATE,
-                     # extra_dict={'add_url': '/emails/template/add'}
-                     # extra_dict={'add_url': reverse('emails__create_template')},
-                    )
+    return list_view(request, EmailTemplate, hf_pk=DEFAULT_HFILTER_TEMPLATE)
+
 
 @login_required
 @permission_required('emails')
@@ -107,6 +100,6 @@ def delete_attachment(request, template_id):
     template.attachments.remove(attachment_id)
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(template)

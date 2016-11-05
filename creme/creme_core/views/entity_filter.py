@@ -73,7 +73,7 @@ def add(request, ct_id):
                       template='creme_core/entity_filter_form.html',
                       extra_initial={'content_type': ct},
                       function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
-                      extra_template_dict={'submit_label': _('Save the filter')},
+                      # extra_template_dict={'submit_label': _('Save the filter')},
                      )
 
 

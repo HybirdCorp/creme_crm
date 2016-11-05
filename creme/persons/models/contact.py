@@ -94,6 +94,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     function_fields = CremeEntity.function_fields.new()
 
     creation_label = _('Add a contact')
+    save_label     = _('Save the contact')
 
     class Meta:
         abstract = True

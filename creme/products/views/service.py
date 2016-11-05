@@ -35,7 +35,8 @@ Service = get_service_model()
 
 
 def abstract_add_service(request, form=ServiceCreateForm,
-                         submit_label=_('Save the service'),
+                         # submit_label=_('Save the service'),
+                         submit_label=Service.save_label,
                         ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},

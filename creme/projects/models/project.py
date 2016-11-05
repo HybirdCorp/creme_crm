@@ -45,7 +45,9 @@ class AbstractProject(CremeEntity):
     tasks_list = None
 
     allowed_related = CremeEntity.allowed_related | {'tasks_set'}
+
     creation_label = _('Add a project')
+    save_label     = _('Save the project')
 
     class Meta:
         abstract = True

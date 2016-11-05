@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,8 @@ CreditNote = get_credit_note_model()
 
 def abstract_add_credit_note(request, form=CreditNoteCreateForm,
                              initial_status=1,
-                             submit_label=_('Save the credit note'),
+                             # submit_label=_('Save the credit note'),
+                             submit_label=CreditNote.save_label,
                             ):
     return add_entity(request, form, extra_initial={'status': initial_status},
                       extra_template_dict={'submit_label': submit_label},

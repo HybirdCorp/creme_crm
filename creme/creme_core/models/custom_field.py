@@ -55,6 +55,9 @@ class CustomField(CremeModel):
     # extra_args    = CharField(max_length=500, blank=True, null=True)
     # required      = BooleanField(defaut=False) ????
 
+    creation_label = _(u'New custom field')
+    save_label     = _(u'Save the custom field')
+
     class Meta:
        app_label = 'creme_core'
        verbose_name = _(u'Custom field')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.contrib.formtools.wizard.views import SessionWizardView
-# from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
+# from django.utils.translation import ugettext_lazy as _
 
 from formtools.wizard.views import SessionWizardView
 
@@ -34,7 +32,6 @@ from creme.creme_core.views.generic import view_entity, list_view, edit_entity
 from .. import get_rgenerator_model
 from ..constants import DEFAULT_HFILTER_RGENERATOR
 from ..forms.recurrentgenerator import RecurrentGeneratorEditForm
-#from ..models import RecurrentGenerator
 
 
 RecurrentGenerator = get_rgenerator_model()
@@ -63,7 +60,8 @@ class RecurrentGeneratorWizard(SessionWizardView):
     def get_context_data(self, form, **kwargs):
         context = super(RecurrentGeneratorWizard, self).get_context_data(form=form, **kwargs)
         context['title'] = RecurrentGenerator.creation_label
-        context['submit_label'] = _('Save the generator')
+        # context['submit_label'] = _('Save the generator')
+        context['submit_label'] = RecurrentGenerator.save_label
 
         return context
 
@@ -106,10 +104,7 @@ def abstract_edit_rgenerator(request, generator_id, form=RecurrentGeneratorEditF
 def abstract_view_rgenerator(request, generator_id,
                              template='recurrents/view_generator.html',
                             ):
-    return view_entity(request, generator_id, RecurrentGenerator,
-                       # path='/recurrents/generator',
-                       template=template,
-                      )
+    return view_entity(request, generator_id, RecurrentGenerator, template=template)
 
 
 @login_required
@@ -127,7 +122,4 @@ def detailview(request, generator_id):
 @login_required
 @permission_required('recurrents')
 def listview(request):
-    return list_view(request, RecurrentGenerator, hf_pk=DEFAULT_HFILTER_RGENERATOR,
-                     # extra_dict={'add_url': '/recurrents/generator/add'},
-                     # extra_dict={'add_url': reverse('recurrents__create_generator')},
-                    )
+    return list_view(request, RecurrentGenerator, hf_pk=DEFAULT_HFILTER_RGENERATOR)

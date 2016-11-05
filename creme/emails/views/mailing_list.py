@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -37,7 +36,6 @@ from ..constants import DEFAULT_HFILTER_MAILINGLIST
 from ..forms.mailing_list import (MailingListForm, AddChildForm,
         AddContactsForm, AddOrganisationsForm,
         AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
-#from ..models import MailingList
 
 
 Contact      = get_contact_model()
@@ -46,7 +44,8 @@ MailingList  = get_mailinglist_model()
 
 
 def abstract_add_mailinglist(request, form=MailingListForm,
-                             submit_label=_('Save the mailing list')
+                             # submit_label=_('Save the mailing list')
+                             submit_label=MailingList.save_label,
                             ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},
@@ -58,15 +57,12 @@ def abstract_edit_mailinglist(request, ml_id, form=MailingListForm):
 
 
 def abstract_view_mailinglist(request, ml_id,
-                              template='emails/view_mailing_list.html'
+                              template='emails/view_mailing_list.html',
                              ):
-    return view_entity(request, ml_id, MailingList, template=template,
-                       # '/emails/mailing_list',
-                      )
+    return view_entity(request, ml_id, MailingList, template=template)
 
 
 @login_required
-# @permission_required(('emails', 'emails.add_mailinglist'))
 @permission_required(('emails', cperm(MailingList)))
 def add(request):
     return abstract_add_mailinglist(request)
@@ -87,10 +83,7 @@ def detailview(request, ml_id):
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST,
-                     # extra_dict={'add_url': '/emails/mailing_list/add'}
-                     # extra_dict={'add_url': reverse('emails__create_mlist')},
-                    )
+    return list_view(request, MailingList, hf_pk=DEFAULT_HFILTER_MAILINGLIST)
 
 
 @login_required
@@ -100,7 +93,7 @@ def add_contacts(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsForm,
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MailingList,
-                         submit_label=_('Link the contacts'),
+                         submit_label=_('Link the contacts'),  # TODO: multi_link_label ??
                         )
 
 
@@ -159,7 +152,7 @@ def _delete_aux(request, ml_id, deletor):
     deletor(ml, subobject_id)
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(ml)
 

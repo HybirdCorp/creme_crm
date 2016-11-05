@@ -48,7 +48,8 @@ Opportunity = get_opportunity_model()
 
 
 def abstract_add_event(request, form=EventForm,
-                       submit_label=_('Save the event'),
+                       # submit_label=_('Save the event'),
+                       submit_label=Event.save_label,
                       ):
     return add_entity(request, form,
                       extra_initial={'type': EventType.objects.first()},
@@ -107,7 +108,7 @@ PRES_STATUS_MAP = {
 def build_get_actions(event, entity):
     """Build bound method to overload 'get_actions()' method of CremeEntities"""
     def _get_actions(user):
-        return {'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"),
+        return {'default': EntityAction(entity.get_absolute_url(), ugettext(u'See'),
                                         user.has_perm_to_view(entity),
                                         icon="images/view_16.png",
                                        ),
@@ -226,7 +227,7 @@ _FILTER_RELATIONTYPES = (constants.REL_SUB_IS_INVITED_TO,
 
 @login_required
 @permission_required('events')
-#@permission_required('persons') ????
+# @permission_required('persons') ????
 def list_contacts(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     request.user.has_perm_to_view_or_die(event)
@@ -255,7 +256,7 @@ def _get_status(request, valid_status):
         raise Http404('Status is not an integer: %s' % status_str)
 
     if not status in valid_status:
-        raise Http404('Unknow status: %s' % status)
+        raise Http404('Unknown status: %s' % status)
 
     return status
 
@@ -281,7 +282,7 @@ def set_invitation_status(request, event_id, contact_id):
 
     event.set_invitation_status(contact, status, user)
 
-    return HttpResponse('', content_type='text/javascript')
+    return HttpResponse(content_type='text/javascript')
 
 
 @login_required
@@ -293,7 +294,7 @@ def set_presence_status(request, event_id, contact_id):
 
     event.set_presence_status(contact, status, user)
 
-    return HttpResponse('', content_type='text/javascript')
+    return HttpResponse(content_type='text/javascript')
 
 
 def abstract_add_related_opportunity(request, event_id, contact_id,

@@ -88,6 +88,8 @@ class AbstractEntityEmail(_Email, CremeEntity):
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
 
     creation_label = _('Add an email')
+    save_label     = _('Save the email')
+    sending_label  = _('Send the email')
 
     class Meta:
         abstract = True

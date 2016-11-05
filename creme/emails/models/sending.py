@@ -47,9 +47,9 @@ SENDING_TYPE_IMMEDIATE = 1
 SENDING_TYPE_DEFERRED  = 2
 
 SENDING_TYPES = {
-                    SENDING_TYPE_IMMEDIATE: _(u"Immediate"),
-                    SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', u'Deferred'),
-                }
+        SENDING_TYPE_IMMEDIATE: _(u'Immediate'),
+        SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', u'Deferred'),
+    }
 
 SENDING_STATE_DONE       = 1
 SENDING_STATE_INPROGRESS = 2
@@ -57,33 +57,33 @@ SENDING_STATE_PLANNED    = 3
 SENDING_STATE_ERROR      = 4
 
 SENDING_STATES = {
-                    SENDING_STATE_DONE:       pgettext_lazy('emails-sending', u'Done'),
-                    SENDING_STATE_INPROGRESS: _(u"In progress"),
-                    SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', u'Planned'),
-                    SENDING_STATE_ERROR:      _(u"Error during sending"),
-                 }
+        SENDING_STATE_DONE:       pgettext_lazy('emails-sending', u'Done'),
+        SENDING_STATE_INPROGRESS: _(u'In progress'),
+        SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', u'Planned'),
+        SENDING_STATE_ERROR:      _(u'Error during sending'),
+    }
 
 
 class EmailSending(CremeModel):
-    sender        = EmailField(_(u"Sender address"), max_length=100)
+    sender        = EmailField(_(u'Sender address'), max_length=100)
     campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL,
                                verbose_name=pgettext_lazy('emails', u'Related campaign'),
                                related_name='sendings_set', editable=False,
                               )
-    type          = PositiveSmallIntegerField(verbose_name=_(u"Sending type"),
+    type          = PositiveSmallIntegerField(verbose_name=_(u'Sending type'),
                                               choices=SENDING_TYPES.items(),
                                               default=SENDING_TYPE_IMMEDIATE,
                                              )
-    sending_date  = DateTimeField(_(u"Sending date of emails"))
-    state         = PositiveSmallIntegerField(verbose_name=_(u"Sending state"),
+    sending_date  = DateTimeField(_(u'Sending date of emails'))
+    state         = PositiveSmallIntegerField(verbose_name=_(u'Sending state'),
                                               editable=False,
                                               choices=SENDING_STATES.items(),
                                               default=SENDING_STATE_PLANNED,
                                              )
 
     subject     = CharField(_(u'Subject'), max_length=100, editable=False)
-    body        = TextField(_(u"Body"), editable=False)
-    body_html   = TextField(_(u"Body (HTML)"), null=True, blank=True, editable=False)
+    body        = TextField(_(u'Body'), editable=False)
+    body_html   = TextField(_(u'Body (HTML)'), null=True, blank=True, editable=False)
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'),
                              blank=True, null=True, editable=False, on_delete=SET_NULL,
                             )
@@ -91,13 +91,16 @@ class EmailSending(CremeModel):
                                   verbose_name=_(u'Attachments'), editable=False,
                                  )
 
+    creation_label = pgettext_lazy('emails', 'Add a sending')
+    save_label     = pgettext_lazy('emails', 'Save the sending')
+
     class Meta:
-        app_label = "emails"
+        app_label = 'emails'
         verbose_name = _(u'Email campaign sending')
         verbose_name_plural = _(u'Email campaign sendings')
 
     def __unicode__(self):
-        return ugettext(u"Sending of «%(campaign)s» on %(date)s") % {
+        return ugettext(u'Sending of «%(campaign)s» on %(date)s') % {
                             'campaign': self.campaign,
                             'date':     self.sending_date,
                         }

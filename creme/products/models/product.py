@@ -54,6 +54,7 @@ class AbstractProduct(CremeEntity):
                                        )
 
     creation_label = _('Add a product')
+    save_label     = _('Save the product')
 
     class Meta:
         abstract = True

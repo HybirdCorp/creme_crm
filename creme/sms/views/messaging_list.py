@@ -31,14 +31,14 @@ from creme.creme_core.utils import get_from_POST_or_404
 from .. import get_messaginglist_model
 from ..constants import DEFAULT_HFILTER_MLIST
 from ..forms.messaging_list import MessagingListForm, AddContactsForm, AddContactsFromFilterForm
-#from ..models import MessagingList
 
 
 MessagingList = get_messaginglist_model()
 
 
 def abstract_add_messaginglist(request, form=MessagingListForm,
-                               submit_label=_('Save the messaging list'),
+                               # submit_label=_('Save the messaging list'),
+                               submit_label=MessagingList.save_label,
                               ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},
@@ -52,9 +52,7 @@ def abstract_edit_messaginglist(request, mlist_id, form=MessagingListForm):
 def abstract_view_messaginglist(request, mlist_id,
                                 template='sms/view_messaginglist.html',
                                ):
-    return view_entity(request, mlist_id, MessagingList, template=template,
-                       # path='/sms/messaging_list',
-                      )
+    return view_entity(request, mlist_id, MessagingList, template=template)
 
 
 @login_required
@@ -79,9 +77,7 @@ def detailview(request, mlist_id):
 @login_required
 @permission_required('sms')
 def listview(request):
-    return list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST,
-                     # extra_dict={'add_url': '/sms/messaging_list/add'}
-                    )
+    return list_view(request, MessagingList, hf_pk=DEFAULT_HFILTER_MLIST)
 
 
 @login_required
@@ -122,9 +118,3 @@ def _delete_aux(request, mlist_id, deletor):
 
 def delete_contact(request, mlist_id):
     return _delete_aux(request, mlist_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
-
-#def delete_organisation(request, mlist_id):
-#    return _delete_aux(request, mlist_id, lambda ml, orga_id: ml.organisations.remove(orga_id))
-#
-#def delete_child(request, mlist_id):
-#    return _delete_aux(request, mlist_id, lambda ml, child_id: ml.children.remove(child_id))

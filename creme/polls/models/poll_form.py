@@ -39,6 +39,7 @@ class AbstractPollForm(CremeEntity):
     type = ForeignKey(PollType, verbose_name=_(u'Type'), null=True, blank=True, on_delete=SET_NULL)
 
     creation_label = _('Add a form')
+    save_label     = _('Save the form of poll')
 
     class Meta:
         abstract = True
@@ -105,7 +106,6 @@ class AbstractPollForm(CremeEntity):
     def duplicate_tree(self, instance, pform_lines):
         from .poll_reply import PollReplyLineCondition, PollReplyLine
 
-
         if isinstance(instance, get_pollform_model()):
             create_line = partial(PollFormLine.objects.create, pform=instance)
             create_cond = PollFormLineCondition.objects.create
@@ -150,6 +150,9 @@ class PollFormSection(CremeModel):
     order  = PositiveIntegerField(editable=False, default=1)
     name   = CharField(_(u'Name'), max_length=250)
     body   = TextField(_(u'Section body'), blank=True)
+
+    creation_label = _('Add a section')
+    save_label     = _('Save the section')
 
     class Meta:
         app_label = 'polls'
@@ -200,6 +203,9 @@ class PollFormLine(CremeModel, _PollLine):
     conds_use_or = NullBooleanField(_(u'Use OR or AND between conditions'), editable=False)
 
     question     = TextField(_(u'Question'))
+
+    creation_label = _('Add a question')
+    save_label     = _('Save the question')
 
     class Meta:
         app_label = 'polls'
@@ -286,6 +292,8 @@ class PollFormLineCondition(CremeModel):
     source     = ForeignKey(PollFormLine)
     operator   = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
+
+    save_label = _('Save the condition')
 
     class Meta:
         app_label = 'polls'
