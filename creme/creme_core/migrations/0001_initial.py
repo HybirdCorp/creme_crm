@@ -881,4 +881,18 @@ class Migration(migrations.Migration):
                 },
                 bases=('creme_core.cremeentity',),
             ),
+            migrations.CreateModel(
+                name='FakeProduct',
+                fields=[
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('images', models.ManyToManyField(verbose_name='Images', to='creme_core.FakeImage', blank=True)),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Product',
+                    'verbose_name_plural': 'Test Products',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
         ])

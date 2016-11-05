@@ -153,11 +153,15 @@ class BulkForm(CremeForm):
     def _bulk_related_formfield(self, model_field, user, instance=None):
         form_field = model_field.formfield()
         related_to = model_field.rel.to
-        q_filter = None
+        # q_filter = None
+        #
+        # if hasattr(model_field, 'limit_choices_to'):
+        #     related_filter = model_field.limit_choices_to
+        #     q_filter = related_filter() if callable(related_filter) else related_filter
 
-        if hasattr(model_field, 'limit_choices_to'):
-            related_filter = model_field.limit_choices_to
-            q_filter = related_filter() if callable(related_filter) else related_filter
+        q_filter = model_field.rel.limit_choices_to
+        if callable(q_filter):
+            q_filter = q_filter()
 
         if issubclass(related_to, CremeEntity):
             if isinstance(q_filter, Q):

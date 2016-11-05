@@ -163,7 +163,7 @@ class HistoryTestCase(CremeTestCase):
         sector01 = create_sector(title='Studio')
         sector02 = create_sector(title='Animation studio')
 
-        lform = LegalForm.objects.create(title='Society')
+        lform = LegalForm.objects.create(title='Society [OK]')
 
         name = 'Gainax'
         old_phone = '7070707'
