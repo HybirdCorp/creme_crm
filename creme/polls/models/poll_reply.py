@@ -50,7 +50,9 @@ class AbstractPollReply(CremeEntity):
     is_complete = BooleanField(_(u'Is complete'), default=False, editable=False)
 
     # creation_label = _('Add a reply')
-    creation_label = _(u'Add replies')
+    creation_label   = _(u'Add replies')  # TODO: multi creation label
+    save_label       = _('Save the reply')
+    multi_save_label = _('Save the replies')
 
     class Meta:
         abstract = True

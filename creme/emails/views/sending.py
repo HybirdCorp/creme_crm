@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.shortcuts import render, get_object_or_404
-#from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -30,7 +29,7 @@ from creme.creme_core.utils import jsonify
 from .. import get_emailcampaign_model
 from ..blocks import mails_block
 from ..forms.sending import SendingCreateForm
-from ..models import EmailSending #EmailCampaign
+from ..models import EmailSending
 
 
 @login_required
@@ -38,10 +37,11 @@ from ..models import EmailSending #EmailCampaign
 def add(request, campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
                          _(u'New sending for «%s»'),
-#                         entity_class=EmailCampaign,
                          entity_class=get_emailcampaign_model(),
-                         submit_label=_('Save the sending'),
+                         # submit_label=_('Save the sending'),
+                         submit_label=EmailSending.save_label,
                         )
+
 
 def _get_sending(request, sending_id):
     sending  = get_object_or_404(EmailSending, pk=sending_id)
@@ -51,6 +51,7 @@ def _get_sending(request, sending_id):
 
     return sending
 
+
 @login_required
 @permission_required('emails')
 def detailview(request, sending_id):
@@ -58,12 +59,12 @@ def detailview(request, sending_id):
                   {'object': _get_sending(request, sending_id)},
                  )
 
-#Useful method because EmailSending is not a CremeEntity (should be ?)
+
+# Useful method because EmailSending is not a CremeEntity (should be ?)
 @jsonify
 @login_required
 @permission_required('emails')
 def reload_block_mails(request, sending_id):
-    #context = RequestContext(request)
     context = build_context(request)
     context['object'] = _get_sending(request, sending_id)
 

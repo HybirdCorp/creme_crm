@@ -117,7 +117,9 @@ class AbstractOpportunity(CremeEntity):
                                      .set_tags(optional=True)
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField())
+
     creation_label = _('Add an opportunity')
+    submit_label   = _('Save the opportunity')
 
     _opp_emitter = None
     _opp_target  = None

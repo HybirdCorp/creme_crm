@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,13 +61,14 @@ class AbstractEvent(CremeEntity):
                                blank=True, null=True,
                               ).set_tags(optional=True)
 
-    creation_label = _('Add an event')
+    creation_label = _('Add an event')  # TODO: pgettext_lazy('events', 'Add an event') when new menu only
+    save_label     = pgettext_lazy('events', 'Save the event')
 
     class Meta:
         abstract = True
         app_label = 'events'
-        verbose_name = _(u'Event')
-        verbose_name_plural = _(u'Events')
+        verbose_name = pgettext_lazy('events', u'Event')
+        verbose_name_plural = pgettext_lazy('events', u'Events')
         ordering = ('name',)
 
     def __unicode__(self):
@@ -97,9 +98,10 @@ class AbstractEvent(CremeEntity):
     def get_stats(self):
         types_count = dict(RelationType.objects.filter(id__in=_STATS_TYPES,
                                                        relation__subject_entity=self.id,
-                                                      ) \
-                                               .annotate(relations_count=Count('relation')) \
-                                               .values_list('id', 'relations_count'))
+                                                      )
+                                               .annotate(relations_count=Count('relation'))
+                                               .values_list('id', 'relations_count')
+                          )
         get_count = types_count.get
 
         return {'invations_count': get_count(REL_OBJ_IS_INVITED_TO, 0),
@@ -113,39 +115,75 @@ class AbstractEvent(CremeEntity):
 
         if status == INV_STATUS_NOT_INVITED:
             relations.filter(subject_entity=contact.id, object_entity=self.id,
-                                    type__in=(REL_SUB_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION)) \
-                            .delete()
+                             type__in=(REL_SUB_IS_INVITED_TO,
+                                       REL_SUB_ACCEPTED_INVITATION,
+                                       REL_SUB_REFUSED_INVITATION,
+                                      ),
+                            ).delete()
         else:
-            relations.get_or_create(subject_entity=contact, type=RelationType.objects.get(pk=REL_SUB_IS_INVITED_TO), object_entity=self, user=user)
+            relations.get_or_create(subject_entity=contact,
+                                    type=RelationType.objects.get(pk=REL_SUB_IS_INVITED_TO),
+                                    object_entity=self,
+                                    user=user,
+                                   )
 
             if status == INV_STATUS_ACCEPTED:
-                relations.create(subject_entity=contact, type_id=REL_SUB_ACCEPTED_INVITATION, object_entity=self, user=user)
-                relations.filter(subject_entity=contact.id, object_entity=self.id, type=REL_SUB_REFUSED_INVITATION) \
-                         .delete()
+                relations.create(subject_entity=contact,
+                                 type_id=REL_SUB_ACCEPTED_INVITATION,
+                                 object_entity=self,
+                                 user=user,
+                                )
+                relations.filter(subject_entity=contact.id,
+                                 object_entity=self.id,
+                                 type=REL_SUB_REFUSED_INVITATION,
+                                ).delete()
             elif status == INV_STATUS_REFUSED:
-                relations.create(subject_entity=contact, type_id=REL_SUB_REFUSED_INVITATION, object_entity=self, user=user)
-                relations.filter(subject_entity=contact.id, object_entity=self.id, type=REL_SUB_ACCEPTED_INVITATION) \
-                         .delete()
+                relations.create(subject_entity=contact,
+                                 type_id=REL_SUB_REFUSED_INVITATION,
+                                 object_entity=self,
+                                 user=user,
+                                )
+                relations.filter(subject_entity=contact.id,
+                                 type=REL_SUB_ACCEPTED_INVITATION,
+                                 object_entity=self.id,
+                                ).delete()
             else:
                 assert status == INV_STATUS_NO_ANSWER
-                relations.filter(subject_entity=contact.id, object_entity=self.id, type__in=[REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION]) \
-                         .delete()
+                relations.filter(subject_entity=contact.id,
+                                 type__in=[REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION],
+                                 object_entity=self.id,
+                                ).delete()
 
     def set_presence_status(self, contact, status, user):
         relations = Relation.objects
 
         if status == PRES_STATUS_NOT_COME:
-            relations.filter(subject_entity=contact.id, type=REL_SUB_CAME_EVENT, object_entity=self.id).delete()
-            relations.create(subject_entity=contact, type_id=REL_SUB_NOT_CAME_EVENT, object_entity=self, user=user)
+            relations.filter(subject_entity=contact.id,
+                             type=REL_SUB_CAME_EVENT,
+                             object_entity=self.id,
+                            ).delete()
+            relations.create(subject_entity=contact,
+                             type_id=REL_SUB_NOT_CAME_EVENT,
+                             object_entity=self,
+                             user=user,
+                            )
         elif status == PRES_STATUS_COME:
-            relations.filter(subject_entity=contact.id, type=REL_SUB_NOT_CAME_EVENT, object_entity=self.id).delete()
-            relations.create(subject_entity=contact, type_id=REL_SUB_CAME_EVENT, object_entity=self, user=user)
+            relations.filter(subject_entity=contact.id,
+                             type=REL_SUB_NOT_CAME_EVENT,
+                             object_entity=self.id,
+                            ).delete()
+            relations.create(subject_entity=contact,
+                             type_id=REL_SUB_CAME_EVENT,
+                             object_entity=self,
+                             user=user,
+                            )
         else:  # PRES_STATUS_DONT_KNOW
-            relations.filter(subject_entity=contact.id, type__in=(REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT), object_entity=self.id) \
-                     .delete()
+            relations.filter(subject_entity=contact.id,
+                             type__in=(REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT),
+                             object_entity=self.id,
+                            ).delete()
 
 
 class Event(AbstractEvent):
     class Meta(AbstractEvent.Meta):
-        #abstract = False # seems useless
         swappable = 'EVENTS_EVENT_MODEL'

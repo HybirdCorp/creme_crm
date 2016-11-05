@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,8 +35,10 @@ from ..forms.creme_property_type import CremePropertyTypeEditForm, CremeProperty
 def add(request):
     return add_model_with_popup(request, CremePropertyTypeAddForm,
                                 _(u'New custom type of property'),
-                                submit_label=_('Save the type of property'),
+                                # submit_label=_('Save the type of property'),
+                                submit_label=CremePropertyType.save_label,
                                )
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -65,12 +67,13 @@ def edit(request, property_type_id):
                        delegate_reload=True,
                       )
 
+
 @login_required
-#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/property_type_portal.html')
 
-#TODO: use the view in creme_core instead
+
+# TODO: use the view in creme_core instead
 @login_required
 @permission_required('creme_core.can_admin')
 def delete(request):

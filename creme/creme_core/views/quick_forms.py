@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,7 +99,7 @@ def add_from_widget(request, ct_id, count):
 
     if not user.has_perm_to_create(model):
         # TODO: manage/display error on JS side (for now it just does nothing)
-        raise PermissionDenied('You are not allowed to create entity with type "%s"' % model_name)
+        raise PermissionDenied(u'You are not allowed to create entity with type "%s"' % model_name)
 
     form_class = quickforms_registry.get_form(model)
 
@@ -107,21 +107,21 @@ def add_from_widget(request, ct_id, count):
         raise Http404('No form registered for model: %s' % model)
 
     if request.method == 'POST':
-        form = form_class(user=request.user, data=request.POST, files=request.FILES or None, initial=None)
+        form = form_class(user=user, data=request.POST, files=request.FILES or None, initial=None)
+
+        if form.is_valid():
+            form.save()
+
+            return json_quickform_response(form.instance)
     else:
-        form = form_class(user=request.user, initial=None)
+        form = form_class(user=user, initial=None)
 
-    if request.method == 'GET' or not form.is_valid():
-        return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
-                           {'form':   form,
-                            'title':  model.creation_label,
-                            # 'submit_label': model.save_label, TODO ?
-                           },
-                           is_valid=form.is_valid(),
-                           reload=False,
-                           delegate_reload=True,
-                          )
-
-    form.save()
-
-    return json_quickform_response(form.instance)
+    return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
+                       {'form':   form,
+                        'title':  model.creation_label,
+                        'submit_label': model.save_label,
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                      )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,10 +28,11 @@ from .other_models import QuoteStatus
 
 class AbstractQuote(Base):
     status           = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT)
-    acceptation_date = DateField(_(u"Acceptation date"), blank=True, null=True)\
+    acceptation_date = DateField(_(u"Acceptation date"), blank=True, null=True) \
                                 .set_tags(clonable=False, optional=True)
 
     creation_label = _('Add a quote')
+    save_label     = _('Save the quote')
 
     def get_absolute_url(self):
         return reverse('billing__view_quote', args=(self.id,))

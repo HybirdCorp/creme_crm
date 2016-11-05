@@ -74,6 +74,9 @@ class CremeEntity(CremeAbstractEntity):
     allowed_related = set()
 
     creation_label = _('Add an entity')
+    save_label     = _('Save the entity')
+    # multi_creation_label = _('Add entities')  TODO ??
+    # multi_save_label = _('Save the entities')  TODO ??
 
     class Meta:
         app_label = 'creme_core'

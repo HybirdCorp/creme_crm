@@ -29,7 +29,6 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth import EntityCredentials
-# from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_from_GET_or_404, jsonify
 from creme.creme_core.views.generic import list_view, inner_popup, edit_entity, view_entity
@@ -43,7 +42,7 @@ from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING,
         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..forms.activity import (ActivityCreateForm, IndisponibilityCreateForm,
         RelatedActivityCreateForm, CalendarActivityCreateForm, ActivityEditForm)
-from ..models import ActivityType, ActivitySubType  # Activity
+from ..models import ActivityType, ActivitySubType
 from ..utils import get_ical
 
 
@@ -74,16 +73,17 @@ def _add_activity(request, form_class,
                   {'form':             form,
                    'title':            Activity.get_creation_title(type_id),
                    'content_template': content_template,
-                   'submit_label':     _('Save the activity'),
+                   # 'submit_label':     _('Save the activity'),
+                   'submit_label':     Activity.save_label,
                    'cancel_url':       cancel_url,
                   },
                  )
 
 
 _TYPES_MAP = {
-        "meeting":   ACTIVITYTYPE_MEETING,
-        "phonecall": ACTIVITYTYPE_PHONECALL,
-        "task":      ACTIVITYTYPE_TASK,
+        'meeting':   ACTIVITYTYPE_MEETING,
+        'phonecall': ACTIVITYTYPE_PHONECALL,
+        'task':      ACTIVITYTYPE_TASK,
     }
 
 
@@ -136,7 +136,8 @@ def abstract_add_related_activity(request, entity_id, form=RelatedActivityCreate
 def abstract_add_activity_popup(request, form=CalendarActivityCreateForm,
                                 template='activities/add_popup_activity_form.html',
                                 title=_(u'New activity'),
-                                submit_label=_('Save the activity'),
+                                # submit_label=_('Save the activity'),
+                                submit_label=Activity.save_label,
                                ):
     if request.method == 'POST':
         form_instance = form(user=request.user, data=request.POST,
@@ -217,25 +218,6 @@ def edit(request, activity_id):
 @login_required
 @permission_required('activities')
 def detailview(request, activity_id):
-#    #return view_real_entity(request, activity_id, '/activities/activity',
-#                            #'activities/view_activity.html',
-#                           #)
-#
-#    # todo: this hack should be useless (ProjectTask do not inherit from Activity) => view_entity()
-#    # todo: create a generic view ? add this feature to _the_ generic detailview ??
-#    entity = get_object_or_404(Activity, pk=activity_id)
-#    real_entity = entity.get_real_entity()
-#
-#    if entity is not real_entity and \
-#       entity.get_absolute_url() != real_entity.get_absolute_url():
-#        return redirect(real_entity)
-#
-#    request.user.has_perm_to_view_or_die(real_entity)
-#    LastViewedItem(request, real_entity)
-#
-#    return render(request, template,
-#                  {'object': real_entity, 'path': '/activities/activity'},
-#                 )
     return abstract_view_activity(request, activity_id)
 
 

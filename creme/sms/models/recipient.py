@@ -30,6 +30,10 @@ class Recipient(CremeModel):
     messaging_list = ForeignKey(settings.SMS_MLIST_MODEL, verbose_name=_(u'Related messaging list'))
     phone          = CharField(_(u'Number'), max_length=100, blank=True)
 
+    creation_label   = _('Add a recipient')
+    save_label       = _('Save the recipient')
+    multi_save_label = _('Save the recipients')
+
     class Meta:
         app_label = 'sms'
         verbose_name = _(u'Recipient')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,8 @@ Report = get_report_model()
 def abstract_add_report(request, form=ReportCreateForm,
                         # TODO: improve widgets & drop this template
                         template='reports/add_report.html',
-                        submit_label=_('Save the report'),
+                        # submit_label=_('Save the report'),
+                        submit_label=Report.save_label,
                        ):
     return add_entity(request, form, template=template,
                       extra_template_dict={'submit_label': submit_label},
@@ -104,7 +105,7 @@ def unlink_report(request):
     field.selected = False
     field.save()
 
-    return HttpResponse("", content_type="text/javascript")
+    return HttpResponse(content_type='text/javascript')
 
 
 @login_required
@@ -174,14 +175,14 @@ def change_field_order(request):
     try:
         other_field = report.fields.get(order=field.order)
     except Field.DoesNotExist:
-        return HttpResponse("", status=403, content_type="text/javascript")
+        return HttpResponse(status=403, content_type='text/javascript')
 
     other_field.order -= _order_direction[direction]
 
     field.save()
     other_field.save()
 
-    return HttpResponse("", status=200, content_type="text/javascript")
+    return HttpResponse(status=200, content_type='text/javascript')
 
 
 # TODO: jsonify ?
@@ -210,4 +211,4 @@ def set_selected(request):
         rfield.selected = checked
         rfield.save()
 
-    return HttpResponse(content_type="text/javascript")
+    return HttpResponse(content_type='text/javascript')

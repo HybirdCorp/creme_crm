@@ -45,6 +45,8 @@ class AbstractReport(CremeEntity):
                        ).set_null_label(_(u'No filter'))
 
     creation_label = _('Add a report')
+    save_label     = _('Save the report')
+
     _columns = None
 
     class Meta:

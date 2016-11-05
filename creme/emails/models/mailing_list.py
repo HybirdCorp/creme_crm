@@ -35,6 +35,7 @@ class AbstractMailingList(CremeEntity):
     organisations = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisations recipients'))
 
     creation_label = _('Add a mailing list')
+    save_label     = _('Save the mailing list')
 
     class Meta:
         abstract = True

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,6 +59,9 @@ class RelationType(CremeModel):
     predicate      = CharField(_(u'Predicate'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
 
+    creation_label = _(u'Add a type of relationship')
+    save_label     = _(u'Save the type')
+
     class Meta:
         app_label = 'creme_core'
         verbose_name = _(u'Type of relationship')
@@ -86,6 +89,7 @@ class RelationType(CremeModel):
         types = RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
         if not include_internals:
             types = types.filter(Q(is_internal=False))
+
         return types
 
     @staticmethod
@@ -250,6 +254,9 @@ class SemiFixedRelationType(CremeModel):
     predicate     = CharField(_(u'Predicate'), max_length=100, unique=True)
     relation_type = ForeignKey(RelationType)
     object_entity = ForeignKey(CremeEntity)
+
+    creation_label = _(u'New semi-fixed type of relationship')
+    save_label     = _(u'Save the type')
 
     class Meta:
         app_label = 'creme_core'

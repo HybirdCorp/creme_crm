@@ -21,7 +21,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from django.utils.translation import ugettext as _, pgettext_lazy
+from django.utils.translation import ugettext as _  # pgettext_lazy
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -38,7 +38,8 @@ Graph = get_graph_model()
 
 
 def abstract_add_graph(request, form=GraphForm,
-                       submit_label=pgettext_lazy('graphs', 'Save the graph'),
+                       # submit_label=pgettext_lazy('graphs', 'Save the graph'),
+                       submit_label=Graph.save_label,
                       ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},
@@ -73,7 +74,7 @@ def dl_png(request, graph_id):
         return graph.generate_png(user)
     except Graph.GraphException:
         return render(request, 'graphs/graph_error.html',
-                      {'error_message': _(u"This graph is too big!")},
+                      {'error_message': _(u'This graph is too big!')},
                      )
 
 
@@ -113,4 +114,4 @@ def delete_relation_type(request, graph_id):
     request.user.has_perm_to_change_or_die(graph)
     graph.orbital_relation_types.remove(rtypes_id)
 
-    return HttpResponse('', content_type='text/javascript')
+    return HttpResponse(content_type='text/javascript')

@@ -53,6 +53,7 @@ class AbstractService(CremeEntity):
                                        )
 
     creation_label = _('Add a service')
+    save_label     = _('Save the service')
 
     class Meta:
         abstract = True

@@ -39,6 +39,7 @@ class AbstractGraph(CremeEntity):
     creation_label = _('Add a graph')  # TODO: we do not use context because creme_core.PreferedMenuItem
                                        #       doesn't know them  so the label remains untranslated in
                                        #       the PreferedMenu bar.
+    save_label = pgettext_lazy('graphs', 'Save the graph')
 
     class GraphException(Exception):
         pass

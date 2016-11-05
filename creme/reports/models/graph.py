@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,6 +44,7 @@ class AbstractReportGraph(CremeEntity):
     chart    = CharField(_(u'Chart type'), max_length=100, null=True)
 
     creation_label = _("Add a report's graph")
+    save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
 
     _hand = None
 

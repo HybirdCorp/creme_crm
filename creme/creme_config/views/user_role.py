@@ -49,13 +49,15 @@ def add(request):
                  )
 
     return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'),
-                                submit_label=_('Save the role'),
+                                # submit_label=_('Save the role'),
+                                submit_label=UserRole.save_label,
                                )
 
 
 class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
     class _CredentialsStep(user_role_forms.UserRoleCredentialsStep):
-        step_submit_label = _('Save the role')
+        # step_submit_label = _('Save the role')
+        step_submit_label = UserRole.save_label
 
     form_list = (user_role_forms.UserRoleAppsStep,
                  user_role_forms.UserRoleAdminAppsStep,
@@ -63,7 +65,8 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
                  user_role_forms.UserRoleExportableCTypesStep,
                  _CredentialsStep,
                 )
-    wizard_title = _(u'New role')
+    # wizard_title = _(u'New role')
+    wizard_title = UserRole.creation_label
     # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
 
     def __init__(self, *args, **kwargs):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,14 +30,14 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
 from .. import get_smscampaign_model
 from ..constants import DEFAULT_HFILTER_SMSCAMPAIGN
 from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
-#from ..models import SMSCampaign
 
 
 SMSCampaign = get_smscampaign_model()
 
 
 def abstract_add_smscampaign(request, form=CampaignCreateForm,
-                             submit_label=_('Save the SMS campaign'),
+                             # submit_label=_('Save the SMS campaign'),
+                             submit_label=SMSCampaign.save_label,
                             ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},
@@ -51,9 +51,7 @@ def abstract_edit_smscampaign(request, campaign_id, form=CampaignEditForm):
 def abstract_view_smscampaign(request, campaign_id,
                               template='sms/view_campaign.html',
                              ):
-    return view_entity(request, campaign_id, SMSCampaign, template=template,
-                       # path='/sms/campaign',
-                      )
+    return view_entity(request, campaign_id, SMSCampaign, template=template)
 
 
 @login_required
@@ -116,6 +114,6 @@ def delete_messaging_list(request, campaign_id):
     campaign.lists.remove(request.POST.get('id'))
 
     if request.is_ajax():
-        return HttpResponse('', content_type='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(campaign)

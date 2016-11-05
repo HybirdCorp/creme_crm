@@ -38,6 +38,7 @@ class AbstractEmailTemplate(CremeEntity):
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
 
     creation_label = _('Add an email template')
+    save_label     = _('Save the email template')
 
     class Meta:
         abstract = True

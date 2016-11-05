@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,7 @@ from .. import get_strategy_model
 from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 from ..forms import strategy as forms
-from ..models import (MarketSegmentDescription, CommercialAsset, CommercialAssetScore,
+from ..models import (MarketSegment, MarketSegmentDescription, CommercialAsset, CommercialAssetScore,
         MarketSegmentCharm, MarketSegmentCharmScore)
 
 
@@ -42,7 +42,8 @@ Strategy = get_strategy_model()
 
 
 def abstract_add_strategy(request, form=forms.StrategyForm,
-                          submit_label=_('Save the strategy'),
+                          # submit_label=_('Save the strategy'),
+                          submit_label=Strategy.save_label,
                          ):
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
@@ -91,7 +92,8 @@ def add_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
                                  ugettext(u"New market segment for «%s»"),
                                  entity_class=Strategy,
-                                 submit_label=_('Save the market segment'),
+                                 # submit_label=_('Save the market segment'),
+                                 submit_label=MarketSegment.save_label,
                                 )
 
 
@@ -101,7 +103,8 @@ def link_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
                                  ugettext(u"New market segment for «%s»"),
                                  entity_class=Strategy,
-                                 submit_label=_('Save the market segment'),
+                                 # submit_label=_('Save the market segment'),
+                                 submit_label=MarketSegment.save_label,  # TODO: MarketSegmentDescription ?
                                 )
 
 
@@ -109,9 +112,10 @@ def link_segment(request, strategy_id):
 @permission_required('commercial')
 def add_asset(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AssetForm,
-                                 ugettext(u"New commercial asset for «%s»"),
+                                 ugettext(u'New commercial asset for «%s»'),
                                  entity_class=Strategy,
-                                 submit_label=_('Save the commercial asset'),
+                                 # submit_label=_('Save the commercial asset'),
+                                 submit_label=CommercialAsset.save_label,
                                 )
 
 
@@ -119,9 +123,10 @@ def add_asset(request, strategy_id):
 @permission_required('commercial')
 def add_charm(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.CharmForm,
-                                 ugettext(u"New segment charm for «%s»"),
+                                 ugettext(u'New segment charm for «%s»'),
                                  entity_class=Strategy,
-                                 submit_label=_('Save the segment charm'),
+                                 # submit_label=_('Save the segment charm'),
+                                 submit_label=MarketSegmentCharm.save_label,
                                 )
 
 
@@ -171,7 +176,7 @@ def delete_evalorga(request, strategy_id):
     MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse('', content_type='text/javascript')
 
     return redirect(strategy)
 
@@ -252,7 +257,7 @@ def set_segment_category(request, strategy_id):
     except Exception as e:
         raise Http404(str(e))
 
-    return HttpResponse('', content_type='text/javascript')
+    return HttpResponse(content_type='text/javascript')
 
 
 @login_required

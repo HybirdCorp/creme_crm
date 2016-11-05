@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from creme.creme_core.views.generic import add_to_entity
 
 from .. import get_messaginglist_model
 from ..forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCSVForm
-#from ..models import MessagingList
+from ..models import Recipient
 
 
 @login_required
@@ -33,17 +33,18 @@ from ..forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCS
 def add(request, mlist_id):
     return add_to_entity(request, mlist_id, MessagingListAddRecipientsForm,
                          _(u'New recipients for «%s»'),
-#                         entity_class=MessagingList,
                          entity_class=get_messaginglist_model(),
-                         submit_label=_('Save the recipients'),
+                         # submit_label=_('Save the recipients'),
+                         submit_label=Recipient.multi_save_label,
                         )
+
 
 @login_required
 @permission_required('sms')
 def add_from_csv(request, mlist_id):
     return add_to_entity(request, mlist_id, MessagingListAddCSVForm,
                          _(u'New recipients for «%s»'),
-#                         entity_class=MessagingList,
                          entity_class=get_messaginglist_model(),
-                         submit_label=_('Save the recipients'),
+                         # submit_label=_('Save the recipients'),
+                         submit_label=Recipient.multi_save_label,
                         )

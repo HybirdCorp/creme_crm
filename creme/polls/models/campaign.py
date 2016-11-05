@@ -21,7 +21,7 @@
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, DateField,
         PositiveIntegerField, ForeignKey, PROTECT)
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity
 
@@ -38,7 +38,8 @@ class AbstractPollCampaign(CremeEntity):
                                )
     expected_count = PositiveIntegerField(_('Expected replies number'), default=1)
 
-    creation_label = _('Add a campaign')
+    creation_label = _('Add a campaign')  # TODO: ugettext_lazy  (when no old menu anymore)
+    save_label     = pgettext_lazy('polls', 'Save the campaign of polls')
 
     class Meta:
         abstract = True

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render
-#from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -41,6 +40,7 @@ def add_ct(request):
                                 submit_label=_(u'Save the configuration'),
                                )
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def add(request, ct_id):
@@ -49,26 +49,28 @@ def add(request, ct_id):
     return add_model_with_popup(request, CustomFieldsAddForm,
                                 _(u'New custom field for «%s»') % ct,
                                 initial={'ct': ct},
-                                submit_label=_(u'Save the custom field'),
+                                # submit_label=_(u'Save the custom field'),
                                )
 
+
 @login_required
-#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/custom_fields/portal.html')
 
+
 @login_required
-#@permission_required('creme_config')
 def view(request, ct_id):
     ct = get_ct_or_404(ct_id)
     # TODO: test app creds ??
 
     return render(request, 'creme_config/custom_fields/view.html', {'content_type': ct})
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def edit(request, field_id):
     return edit_model_with_popup(request, {'pk': field_id}, CustomField, CustomFieldsEditForm)
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -77,9 +79,10 @@ def delete_ct(request):
         field.delete()
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return HttpResponse()
+
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -88,16 +91,14 @@ def delete(request):
     field.delete()
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return HttpResponse()
 
+
 @jsonify
 @login_required
-#@permission_required('creme_core.can_admin')
 def reload_block(request, ct_id):
-#    context = RequestContext(request)
-#    context['content_type'] = get_ct_or_404(ct_id)
     context = build_context(request, content_type=get_ct_or_404(ct_id))
 
     return [(custom_fields_block.id_, custom_fields_block.detailview_display(context))]

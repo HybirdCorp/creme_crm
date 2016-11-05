@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ from ..constants import DEFAULT_HFILTER_PFORM
 from ..forms.poll_form import (PollFormForm, PollFormLineCreateForm, PollFormLineEditForm,
         PollFormSectionCreateForm, PollFormSectionEditForm,
         PollFormLineConditionsForm)
-from ..models import PollFormSection, PollFormLine
+from ..models import PollFormSection, PollFormLine, PollFormLineCondition
 from ..utils import StatsTree, NodeStyle  # TODO: templatetag instead ?
 
 
@@ -43,7 +43,8 @@ PollForm = get_pollform_model()
 
 
 def abstract_add_pollform(request, form=PollFormForm,
-                          submit_label=_('Save the form of poll'),
+                          # submit_label=_('Save the form of poll'),
+                          submit_label=PollForm.save_label,
                          ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},
@@ -90,7 +91,8 @@ def add_line(request, pform_id):
     return add_to_entity(request, pform_id, PollFormLineCreateForm,
                          _(u'New question for «%s»'),
                          entity_class=PollForm,
-                         submit_label=_('Save the question'),
+                         # submit_label=_('Save the question'),
+                         submit_label=PollFormLine.save_label,
                         )
 
 
@@ -119,7 +121,7 @@ def disable_line(request, line_id):
         raise PermissionDenied(e.args[0])
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(pform)
 
@@ -136,7 +138,8 @@ def edit_line_conditions(request, line_id):
                          _(u'Condition for «%s»'),
                          entity_class=PollForm,
                          initial={'line': line},
-                         submit_label=_('Save the condition'),
+                         # submit_label=_('Save the condition'),
+                         submit_label=PollFormLineCondition.save_label,
                         )
 
 
@@ -146,7 +149,8 @@ def add_section(request, pform_id):
     return add_to_entity(request, pform_id, PollFormSectionCreateForm,
                          _(u'New section for «%s»'),
                          entity_class=PollForm,
-                         submit_label=_('Save the section'),
+                         # submit_label=_('Save the section'),
+                         submit_label=PollFormSection.save_label,
                         )
 
 
@@ -167,7 +171,8 @@ def add_section_child(request, section_id):
                          _(u'New section for «%s»'),
                          entity_class=PollForm,
                          initial={'parent': parent_section},
-                         submit_label=_('Save the section'),
+                         # submit_label=_('Save the section'),
+                         submit_label=PollFormSection.save_label,
                         )
 
 
@@ -180,7 +185,8 @@ def add_line_to_section(request, section_id):
                          _(u'New question for «%s»'),
                          entity_class=PollForm,
                          initial={'section': section},
-                         submit_label=_('Save the question'),
+                         # submit_label=_('Save the question'),
+                         submit_label=PollFormLine.save_label,
                         )
 
 

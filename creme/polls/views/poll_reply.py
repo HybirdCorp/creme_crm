@@ -54,7 +54,8 @@ _CREATION_PERM = cperm(PollReply)
 
 def abstract_add_pollreply(request, form=PollRepliesCreateForm,
                            template='creme_core/generics/blockform/add.html',
-                           submit_label=_('Save the replies'),
+                           # submit_label=_('Save the replies'),
+                           submit_label=PollReply.multi_save_label,
                           ):
     if request.method == 'POST':
         POST = request.POST
@@ -84,7 +85,8 @@ def abstract_add_pollreply(request, form=PollRepliesCreateForm,
 def abstract_add_preply_from_campaign(request, campaign_id,
                                       form=PollRepliesCreateForm,
                                       title=_(u'New replies for «%s»'),
-                                      submit_label=_('Save the replies'),
+                                      # submit_label=_('Save the replies'),
+                                      submit_label=PollReply.multi_save_label,
                                      ):
     campaign = get_object_or_404(get_pollcampaign_model(), pk=campaign_id)
     user = request.user
@@ -102,7 +104,8 @@ def abstract_add_preply_from_campaign(request, campaign_id,
 # TODO: factorise ? (see documents.views)
 def abstract_add_preply_from_pform(request, pform_id, form=PollRepliesCreateForm,
                                    title=_(u'New replies for «%s»'),
-                                   submit_label=_('Save the replies'),
+                                   # submit_label=_('Save the replies'),
+                                   submit_label=PollReply.multi_save_label,
                                   ):
     pform = get_object_or_404(get_pollform_model(), pk=pform_id)
     user = request.user
@@ -120,7 +123,8 @@ def abstract_add_preply_from_pform(request, pform_id, form=PollRepliesCreateForm
 def abstract_add_preply_from_person(request, person_id,
                                     form=PollRepliesCreateForm,
                                     title=_(u'New replies for «%s»'),
-                                    submit_label=_('Save the replies'),
+                                    # submit_label=_('Save the replies'),
+                                    submit_label=PollReply.multi_save_label,
                                    ):
     person = get_object_or_404(CremeEntity, pk=person_id)
     user = request.user

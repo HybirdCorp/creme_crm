@@ -29,7 +29,8 @@ from creme.creme_core.forms.fields import EntityCTypeChoiceField, ListEditionFie
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
 
-#TODO: User friendly order in choices fields
+# TODO: User friendly order in choices fields
+
 
 class CustomFieldsBaseForm(CremeModelForm):
     field_type  = TypedChoiceField(label=_(u'Type of field'), coerce=int,

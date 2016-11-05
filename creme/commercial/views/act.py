@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,8 @@ ActObjectivePattern = get_pattern_model()
 
 
 def abstract_add_act(request, form=forms.ActForm,
-                     submit_label=_('Save the commercial action'),
+                     # submit_label=_('Save the commercial action'),
+                     submit_label=Act.save_label,
                     ):
     return generic.add_entity(request, form,
                               extra_initial={'act_type': ActType.objects.first(),
@@ -57,7 +58,8 @@ def abstract_add_act(request, form=forms.ActForm,
 
 
 def abstract_add_objective_pattern(request, form=forms.ObjectivePatternForm,
-                                   submit_label=_('Save the objective pattern'),
+                                   # submit_label=_('Save the objective pattern'),
+                                   submit_label=ActObjectivePattern.save_label,
                                   ):
     return generic.add_entity(request, form,
                               extra_template_dict={'submit_label': submit_label},
@@ -89,7 +91,8 @@ def abstract_view_objective_pattern(request, objpattern_id,
 def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
                              template='creme_core/generics/blockform/add_popup2.html',
                              title=_(u'Add a linked opportunity'),
-                             submit_label=_(u'Save the opportunity'),
+                             # submit_label=_(u'Save the opportunity'),
+                             submit_label=Opportunity.save_label,
                             ):
     act = get_object_or_404(Act, pk=act_id)
     user = request.user
@@ -307,11 +310,11 @@ def create_objective_entity(request, objective_id):
         form = form_class(user=user)
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {'form':  form,
-                        'title': model.creation_label,
-                        # 'submit_label': model.save_label, TODO ?
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+                               {'form':  form,
+                                'title': model.creation_label,
+                                'submit_label': model.save_label,
+                               },
+                               is_valid=form.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
+                              )

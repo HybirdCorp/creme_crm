@@ -62,6 +62,8 @@ class AbstractAct(CremeEntity):
     segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'), on_delete=PROTECT)
 
     creation_label = _('Add a commercial action')
+    save_label     = _('Save the commercial action')
+
     _related_opportunities = None
 
     class Meta:
@@ -199,6 +201,8 @@ class AbstractActObjectivePattern(CremeEntity):
     segment       = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
 
     creation_label = _('Add an objective pattern')
+    save_label     = _('Save the objective pattern')
+
     _components_cache = None
 
     class Meta:
@@ -233,7 +237,7 @@ class AbstractActObjectivePattern(CremeEntity):
         root_components = self._components_cache
 
         if root_components is None:
-            components = {comp.id: comp for comp  in self.components.all()}
+            components = {comp.id: comp for comp in self.components.all()}
             root_components = []
 
             for comp in components.itervalues():

@@ -31,31 +31,35 @@ from ..forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm, 
 
 
 @login_required
-#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/relation_type_portal.html')
+
 
 @login_required
 @permission_required('creme_core.can_admin')
 def add(request):
     return add_model_with_popup(request, RelationTypeCreateForm, _(u'New custom type'),
-                                submit_label=_('Save the type'),
+                                # submit_label=_('Save the type'),
+                                submit_label=RelationType.save_label,
                                )
+
 
 @login_required
 @permission_required('creme_core.can_admin')
 def add_semi_fixed(request):
     return add_model_with_popup(request, SemiFixedRelationTypeCreateForm,
-                                _(u'New semi-fixed type of relationship'),
-                                submit_label=_('Save the type'),
+                                # _(u'New semi-fixed type of relationship'),
+                                # submit_label=_('Save the type'),
                                )
+
 
 @login_required
 @permission_required('creme_core.can_admin')
 def edit(request, relation_type_id):
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
 
-    if not relation_type.is_custom: #TODO: in a generic method (can_edit or die() ?) and use edit_model_with_popup() ?
+    # TODO: in a generic method (can_edit or die() ?) and use edit_model_with_popup() ?
+    if not relation_type.is_custom:
         raise Http404("Can't edit a standard RelationType")
 
     if request.method == 'POST':
@@ -77,6 +81,7 @@ def edit(request, relation_type_id):
                        delegate_reload=True,
                       )
 
+
 @login_required
 @permission_required('creme_core.can_admin')
 def delete(request):
@@ -88,6 +93,7 @@ def delete(request):
     relation_type.delete()
 
     return HttpResponse()
+
 
 @login_required
 @permission_required('creme_core.can_admin')

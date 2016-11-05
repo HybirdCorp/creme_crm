@@ -39,12 +39,14 @@ def add(request, graph_id):
                          entity_class=get_graph_model(),
                         )
 
+
 @login_required
 @permission_required('graphs')
 def edit(request, root_id):
     return edit_related_to_entity(request, root_id, RootNode, EditRootNodeForm,
                                   _(u'Edit root node for «%s»'),
                                  )
+
 
 @login_required
 @permission_required('graphs')

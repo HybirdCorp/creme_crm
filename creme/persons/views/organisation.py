@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,8 @@
 ################################################################################
 
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext_lazy as _, ugettext
+# from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -37,7 +38,8 @@ Organisation = get_organisation_model()
 
 def abstract_add_organisation(request, form=OrganisationForm,
                               template='persons/add_organisation_form.html',
-                              submit_label=_('Save the organisation'),
+                              # submit_label=_('Save the organisation'),
+                              submit_label=Organisation.save_label,
                              ):
     return add_entity(request, form, template=template,
                       extra_template_dict={'submit_label': submit_label},
@@ -90,7 +92,8 @@ def listview(request):
 def list_my_leads_my_customers(request):
     # TODO: use a constant for 'persons-hf_leadcustomer' ??
     return list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
-                     extra_dict={'list_title': ugettext(u'List of my suspects / prospects / customers')},
+                     # extra_dict={'list_title': ugettext(u'List of my suspects / prospects / customers')},
+                     extra_dict={'list_title': _(u'List of my suspects / prospects / customers')},
                      extra_q=Q(relations__type__in=(REL_SUB_CUSTOMER_SUPPLIER,
                                                     REL_SUB_PROSPECT, REL_SUB_SUSPECT,
                                                    ),

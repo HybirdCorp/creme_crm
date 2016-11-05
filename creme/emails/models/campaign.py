@@ -33,6 +33,7 @@ class AbstractEmailCampaign(CremeEntity):
     mailing_lists = ManyToManyField(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing lists'))
 
     creation_label = _('Add an emailing campaign')
+    save_label     = _('Save the emailing campaign')
 
     class Meta:
         abstract = True

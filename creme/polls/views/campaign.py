@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+# from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -33,7 +33,8 @@ PollCampaign = get_pollcampaign_model()
 
 
 def abstract_add_pcampaign(request, form=PollCampaignForm,
-                           submit_label=_('Save the campaign of polls'),
+                           # submit_label=_('Save the campaign of polls'),
+                           submit_label=PollCampaign.save_label,
                           ):
     return add_entity(request, form,
                       extra_template_dict={'submit_label': submit_label},

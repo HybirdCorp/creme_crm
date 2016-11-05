@@ -60,7 +60,8 @@ def add(request, content_type_id, extra_template_dict=None):
         except AttributeError:
             callback_url = '/'
 
-    ctx = {'submit_label': _('Save the view')}
+    # ctx = {'submit_label': _('Save the view')}
+    ctx = {}
     if extra_template_dict:
         ctx.update(extra_template_dict)
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+# from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -38,7 +38,8 @@ Contact = get_contact_model()
 
 def abstract_add_contact(request, form=ContactForm,
                          template='persons/add_contact_form.html',
-                         submit_label=_('Save the contact'),
+                         # submit_label=_('Save the contact'),
+                         submit_label=Contact.save_label,
                         ):
     return add_entity(request, form, template=template,
                       extra_template_dict={'submit_label': submit_label},
@@ -48,7 +49,8 @@ def abstract_add_contact(request, form=ContactForm,
 def abstract_add_related_contact(request, orga_id, rtype_id,
                                  form=RelatedContactForm,
                                  template='persons/add_contact_form.html',
-                                 submit_label=_('Save the contact'),
+                                 # submit_label=_('Save the contact'),
+                                 submit_label=Contact.save_label,
                                 ):
     user = request.user
     linked_orga = get_object_or_404(get_organisation_model(), pk=orga_id)
@@ -91,9 +93,7 @@ def abstract_edit_contact(request, contact_id, form=ContactForm,
 def abstract_view_contact(request, contact_id,
                           template='persons/view_contact.html',
                          ):
-    return view_entity(request, contact_id, model=Contact, template=template,
-                       # path='/persons/contact',
-                      )
+    return view_entity(request, contact_id, model=Contact, template=template)
 
 
 @login_required
