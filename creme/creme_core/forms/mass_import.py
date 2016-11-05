@@ -1226,7 +1226,8 @@ class ImportForm4CremeEntity(ImportForm):
                                       )
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
-                                               widget=UnorderedMultipleChoiceWidget)
+                                               # widget=UnorderedMultipleChoiceWidget,
+                                              )
     fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'),
                                                required=False, autocomplete=True,
                                               )

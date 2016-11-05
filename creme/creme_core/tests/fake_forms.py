@@ -4,7 +4,7 @@ from ..forms import CremeModelWithUserForm, CremeModelForm, CremeEntityForm
 from ..forms.mass_import import ImportForm4CremeEntity, extractorfield_factory
 from ..forms.merge import MergeEntitiesBaseForm
 
-from .fake_models import FakeContact, FakeOrganisation, FakeAddress
+from .fake_models import FakeContact, FakeOrganisation, FakeAddress, FakeEmailCampaign, FakeProduct
 
 
 class FakeContactQuickForm(CremeModelWithUserForm):  # Not CremeEntityForm to ignore custom fields
@@ -87,3 +87,15 @@ def get_csv_form_builder(header_dict, choices):
 
 def get_merge_form_builder():
     return MergeEntitiesBaseForm
+
+
+class FakeEmailCampaignForm(CremeEntityForm):
+    class Meta:
+        model = FakeEmailCampaign
+        fields = '__all__'
+
+
+class FakeProductForm(CremeEntityForm):
+    class Meta:
+        model = FakeProduct
+        fields = '__all__'

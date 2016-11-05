@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,19 +22,19 @@ from collections import defaultdict
 
 from django.contrib.auth import get_user_model
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, RegexField
-from django.forms.utils import ValidationError # ErrorList
+from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import UserRole, Mutex
 from creme.creme_core.models.fields import CremeUserForeignKey
 
 
 CremeUser = get_user_model()
 
-#TODO: inherit from django.contrib.auth.forms.UserCreationForm
+# TODO: inherit from django.contrib.auth.forms.UserCreationForm
 class UserAddForm(CremeModelForm):
     # NB: field copied from django.contrib.auth.forms.UserCreationForm
     username = RegexField(label=_("Username"), max_length=30, regex=r'^[\w.@+-]+$',
@@ -50,12 +50,8 @@ class UserAddForm(CremeModelForm):
     password_2   = CharField(label=_('Confirm password'), min_length=6, widget=PasswordInput())
     role         = ModelChoiceField(label=_('Role'), required=False,
                                     queryset=UserRole.objects.all(),
-#                                    help_text=_('You must choose a role for a non-super user.'),
                                    )
 
-#    error_messages = {
-#        'no_role': _(u"Choose a role or set superuser status to 'True'."),
-#    }
 
     class Meta:
         model = CremeUser
@@ -67,64 +63,35 @@ class UserAddForm(CremeModelForm):
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = u'*%s*' % ugettext(u'Superuser')
 
-#    def clean_role(self):
-#        cleaned_data = self.cleaned_data
-#        role = cleaned_data['role']
-#
-#        if cleaned_data.get('is_superuser', False):
-#            role = None
-#        elif not role:
-#            raise ValidationError(self.error_messages['no_role'], code='no_role')
-#
-#        return role
-
     def clean(self):
         cleaned = super(UserAddForm, self).clean()
 
         if not self._errors and cleaned['password_1'] != cleaned['password_2']:
-            #self.errors['password_2'] = ErrorList([ugettext(u'Passwords are different')])
             self.add_error('password_2', _(u'Passwords are different'))
 
         return cleaned
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        instance.is_superuser = (instance.role is None) # TODO: remove field CremeUser.is_superuser ??
+        instance.is_superuser = (instance.role is None)  # TODO: remove field CremeUser.is_superuser ??
         instance.set_password(self.cleaned_data['password_1'])
 
         return super(UserAddForm, self).save(*args, **kwargs)
 
 
-#TODO: factorise with UserAddForm
+# TODO: factorise with UserAddForm
 class UserEditForm(CremeModelForm):
-    role = ModelChoiceField(label=_(u"Role"), queryset=UserRole.objects.all(), required=False,
-#                            help_text=_(u"You must choose a role for a non-super user."),
-                           )
-
-#    error_messages = {
-#        'no_role': _(u"Choose a role or set superuser status to 'True'."),
-#    }
+    role = ModelChoiceField(label=_(u"Role"), queryset=UserRole.objects.all(), required=False)
 
     class Meta:
         model = CremeUser
-        fields = ('first_name', 'last_name', 'email', 'role') # 'is_superuser'
+        fields = ('first_name', 'last_name', 'email', 'role')  # 'is_superuser'
 
     def __init__(self, *args, **kwargs):
         super(UserEditForm, self).__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = u'*%s*' % ugettext(u'Superuser')
-
-#    def clean_role(self):
-#        cleaned_data = self.cleaned_data
-#        role = cleaned_data['role']
-#
-#        if cleaned_data.get('is_superuser', False):
-#            role = None
-#        elif not role:
-#            raise ValidationError(self.error_messages['no_role'], code='no_role')
-#
-#        return role
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -135,7 +102,7 @@ class UserEditForm(CremeModelForm):
         return super(UserEditForm, self).save(*args, **kwargs)
 
 
-#TODO: see django.contrib.auth.forms.PasswordChangeForm
+# TODO: see django.contrib.auth.forms.PasswordChangeForm
 class UserChangePwForm(CremeForm):
     password_1 = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput())
     password_2 = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput())
@@ -165,7 +132,7 @@ class UserChangePwForm(CremeForm):
 
 class TeamCreateForm(CremeModelForm):
     teammates = ModelMultipleChoiceField(queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
-                                         widget=UnorderedMultipleChoiceWidget,
+                                         # widget=UnorderedMultipleChoiceWidget,
                                          label=_(u"Teammates"), required=False,
                                         )
 

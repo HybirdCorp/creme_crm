@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import (CremeForm, CremeModelForm, FieldBlockManager,
         EntityCTypeChoiceField, MultiEntityCTypeChoiceField)
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label, DynamicSelect, CremeRadioSelect
+from creme.creme_core.forms.widgets import Label, DynamicSelect, CremeRadioSelect  # UnorderedMultipleChoiceWidget
 from creme.creme_core.models import CremeUser, UserRole, SetCredentials, Mutex
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.unicode_collation import collator
@@ -48,8 +48,10 @@ def filtered_entity_ctypes(app_names):  # TODO: move to creme_core.utils ??
             yield get_for_model(model)
 
 
-def EmptyMultipleChoiceField(required=False, widget=UnorderedMultipleChoiceWidget, *args, **kwargs):
-    return MultipleChoiceField(required=required, choices=(), widget=widget, *args, **kwargs)
+# def EmptyMultipleChoiceField(required=False, widget=UnorderedMultipleChoiceWidget, *args, **kwargs):
+#     return MultipleChoiceField(required=required, choices=(), widget=widget, *args, **kwargs)
+def EmptyMultipleChoiceField(required=False, *args, **kwargs):
+    return MultipleChoiceField(required=required, choices=(), *args, **kwargs)
 
 
 class UserRoleCreateForm(CremeModelForm):
@@ -232,7 +234,7 @@ class _UserRoleWizardFormStep(CremeModelForm):
 
 class UserRoleAppsStep(_UserRoleWizardFormStep):
     allowed_apps = MultipleChoiceField(label=_(u'Allowed applications'), choices=(),
-                                       widget=UnorderedMultipleChoiceWidget,
+                                       # widget=UnorderedMultipleChoiceWidget,
                                       )
 
     class Meta(_UserRoleWizardFormStep.Meta):

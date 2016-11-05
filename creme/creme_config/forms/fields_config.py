@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import CTypeChoiceField
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, DynamicSelect, Label
+from creme.creme_core.forms.widgets import DynamicSelect, Label  # UnorderedMultipleChoiceWidget
 from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.utils.meta import ModelFieldEnumerator
@@ -68,7 +68,7 @@ class FieldsConfigAddForm(CremeForm):
 
 class FieldsConfigEditForm(CremeModelForm):
     hidden = MultipleChoiceField(label=_(u'Hidden fields'), choices=(),
-                                 widget=UnorderedMultipleChoiceWidget,
+                                 # widget=UnorderedMultipleChoiceWidget,
                                  required=False,
                                 )
 

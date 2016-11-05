@@ -796,7 +796,7 @@ class Migration(migrations.Migration):
                 fields=[
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                     ('name', models.CharField(max_length=100, verbose_name='Name of the campaign')),
-                    ('mailing_lists', models.ManyToManyField(to='creme_core.FakeMailingList', verbose_name='Related mailing lists')),
+                    ('mailing_lists', models.ManyToManyField(to='creme_core.FakeMailingList', verbose_name='Related mailing lists', blank=True)),
                 ],
                 options={
                     'ordering': ('name',),

@@ -45,9 +45,9 @@ from ..utils.unicode_collation import collator
 from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import (DynamicInput, SelectorList, ChainedInput,
-        EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect,
+        EntitySelector, DateRangeSelect,
         DynamicSelect, DynamicSelectMultiple, PolymorphicInput, CremeRadioSelect,
-        NullableDateRangeSelect)
+        NullableDateRangeSelect)  # UnorderedMultipleChoiceWidget
 
 
 TRUE = 'true'
@@ -1173,7 +1173,7 @@ class PropertiesConditionsField(_ConditionsField):
 
 # TODO: factorise with _ConditionsField (mixin ?)
 class SubfiltersConditionsField(ModelMultipleChoiceField):
-    widget = UnorderedMultipleChoiceWidget
+    # widget = UnorderedMultipleChoiceWidget
 
     def __init__(self, model=CremeEntity, *args, **kwargs):
         super(SubfiltersConditionsField, self).__init__(queryset=EntityFilter.objects.none(), *args, **kwargs)

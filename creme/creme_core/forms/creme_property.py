@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,19 +20,19 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.forms import ModelMultipleChoiceField, CharField # ValidationError
+from django.forms import ModelMultipleChoiceField, CharField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..models import CremePropertyType, CremeProperty
 from ..utils import entities2unicode
 from .base import CremeForm
-from .widgets import UnorderedMultipleChoiceWidget, Label
+from .widgets import Label  # UnorderedMultipleChoiceWidget
 
 
 class _AddPropertiesForm(CremeForm):
     types = ModelMultipleChoiceField(label=_(u'Type of property'),
                                      queryset=CremePropertyType.objects.none(),
-                                     widget=UnorderedMultipleChoiceWidget,
+                                     # widget=UnorderedMultipleChoiceWidget,
                                     )
 
     def _create_properties(self, entities, ptypes):
@@ -53,7 +53,8 @@ class AddPropertiesForm(_AddPropertiesForm):
         # TODO: move queryset to a CremePropertyType method ??
         excluded = CremeProperty.objects.filter(creme_entity=entity).values_list('type', flat=True)
         self.fields['types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=entity.entity_type_id) |
-                                                                         Q(subject_ctypes__isnull=True)) \
+                                                                         Q(subject_ctypes__isnull=True)
+                                                                        ) \
                                                                  .exclude(pk__in=excluded)
 
     def save(self):
@@ -69,7 +70,7 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         fields = self.fields
         ct = ContentType.objects.get_for_model(model)
 
-        fields['types'].queryset = CremePropertyType.get_compatible_ones(ct) # TODO:Sort?
+        fields['types'].queryset = CremePropertyType.get_compatible_ones(ct)  # TODO: Sort?
         fields['entities_lbl'].initial = entities2unicode(entities, self.user) if entities else ugettext(u'NONE !')
 
         if forbidden_entities:

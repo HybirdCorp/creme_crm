@@ -28,6 +28,7 @@ from creme.creme_core.models import CremeEntity
 # NB: no AbstractResource because resource should probably not be a CremeEntity at all...
 # NB: CremeEntity and not CremeModel because we use a CreatorEntityField in WorkingPeriods' form
 class Resource(CremeEntity):
+    # TODO: set a editable (& use automatic formfield()) + not bulk_editable ?
     linked_contact = ForeignKey(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contact'), editable=False)
     hourly_cost    = PositiveIntegerField(_(u'Hourly cost (in €)'), default=0)
     task           = ForeignKey(settings.PROJECTS_TASK_MODEL, verbose_name=_(u'Task'),

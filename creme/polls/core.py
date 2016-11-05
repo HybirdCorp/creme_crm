@@ -24,8 +24,7 @@ from json import loads as jsonloads, dumps as jsondumps
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import (Field, IntegerField, CharField, TypedChoiceField,
-                                 MultipleChoiceField, DateField
-                                )
+         MultipleChoiceField, DateField)
 from django.forms.widgets import RadioSelect, Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -339,7 +338,7 @@ class MultiEnumPollLineType(EnumPollLineType):
 
     def _formfield(self, initial):
         return MultipleChoiceField(choices=self._args['choices'], initial=initial,
-                                   widget=UnorderedMultipleChoiceWidget(columntype='wide')
+                                   widget=UnorderedMultipleChoiceWidget(columntype='wide'),
                                   )
 
     def is_condition_met(self, raw_answer, raw_cond_answer):

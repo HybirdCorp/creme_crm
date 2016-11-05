@@ -27,10 +27,8 @@ from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntity
 from creme.creme_core.models import EntityFilter
 
 from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
 
 from .. import get_mailinglist_model
-#from ..models import MailingList
 
 
 MailingList   = get_mailinglist_model()
@@ -45,7 +43,7 @@ class MailingListForm(CremeEntityForm):
 
 
 class AddContactsForm(CremeForm):
-    recipients = MultiCreatorEntityField(label=_(u'Contacts'), required=False, model=Contact)# other filter (name + email)??
+    recipients = MultiCreatorEntityField(label=_(u'Contacts'), required=False, model=Contact)  # other filter (name + email)??
 
     blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
@@ -56,12 +54,12 @@ class AddContactsForm(CremeForm):
     def save(self):
         contacts = self.ml.contacts
 
-        #TODO: check if email if ok ????
+        # TODO: check if email if ok ????
         for contact in self.cleaned_data['recipients']:
             contacts.add(contact)
 
 
-class AddOrganisationsForm(CremeForm): #TODO: factorise
+class AddOrganisationsForm(CremeForm):  # TODO: factorise
     recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation) # other filter (name + email)??
 
     blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
@@ -83,14 +81,13 @@ class _AddPersonsFromFilterForm(CremeForm):
                                empty_label=_(u'All'), required=False,
                               )
 
-    person_model = None #Contact/Organisation
+    person_model = None  # Contact/Organisation
 
     def __init__(self, entity, *args, **kwargs):
         super(_AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
         self.ml = entity
 
         ct = ContentType.objects.get_for_model(self.person_model)
-        #self.fields['filters'].queryset = EntityFilter.objects.filter(entity_type=ct)
         self.fields['filters'].queryset = EntityFilter.get_for_user(self.user, ct)
 
     def get_persons_m2m(self):
@@ -104,7 +101,7 @@ class _AddPersonsFromFilterForm(CremeForm):
         if efilter:
             new_persons = efilter.filter(new_persons)
 
-        #TODO: check if email if ok ????
+        # TODO: check if email if ok ????
         for person in new_persons:
             persons.add(person)
 

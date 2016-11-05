@@ -23,7 +23,7 @@ from os.path import basename  # join, split
 # import shutil
 
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
@@ -36,9 +36,9 @@ logger = logging.getLogger(__name__)
 class _ImageForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Image
-        widgets = {
-            'categories': UnorderedMultipleChoiceWidget,
-        }
+        # widgets = {
+        #     'categories': UnorderedMultipleChoiceWidget,
+        # }
 
 
 class ImageCreateForm(_ImageForm):

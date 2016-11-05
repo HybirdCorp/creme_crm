@@ -489,9 +489,12 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertTrue(callable(image_field.rel.limit_choices_to))
 
         orga = Organisation.objects.create(user=user, name='A')
-
         form = BulkDefaultEditForm(Organisation, image_field, user, [orga])
-        self.assertEqual({'user__is_staff': False}, form.fields['field_value'].q_filter)
+
+        field_value_f = form.fields['field_value']
+        # self.assertEqual({'user__is_staff': False}, field_value_f.q_filter)
+        self.assertTrue(callable(field_value_f.q_filter))
+        self.assertQEqual(Q(user__is_staff=False), field_value_f.q_filter_query)
 
         # TODO: test Q as limit_choices_to
         # with self.assertRaises(ValueError) as err:

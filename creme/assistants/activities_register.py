@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.contrib.auth import get_user_model
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from creme.activities.forms.activity import ActivityCreateForm, CalendarActivityCreateForm
 
@@ -35,12 +35,13 @@ def add_users_field(form):
         return
 
     form.fields['informed_users'] = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
-                                                             widget=UnorderedMultipleChoiceWidget,
+                                                             # widget=UnorderedMultipleChoiceWidget,
                                                              required=False,
                                                              label=_(u'Users to keep informed'),
                                                             )
 
     form.blocks = form.blocks.new(('informed_users', 'Users to keep informed', ['informed_users']))
+
 
 def save_users_field(form):
     if isinstance(form, CalendarActivityCreateForm):

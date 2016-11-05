@@ -445,7 +445,7 @@ else:
 
     class FakeEmailCampaign(CremeEntity):
         name          = models.CharField(_(u'Name of the campaign'), max_length=100, blank=False, null=False)
-        mailing_lists = models.ManyToManyField(FakeMailingList, verbose_name=_(u'Related mailing lists'))
+        mailing_lists = models.ManyToManyField(FakeMailingList, verbose_name=_(u'Related mailing lists'), blank=True)
 
         class Meta:
             app_label = 'creme_core'

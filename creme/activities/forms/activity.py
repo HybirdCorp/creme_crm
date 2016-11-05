@@ -32,11 +32,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, CalendarWidget
+from creme.creme_core.forms.widgets import CalendarWidget  # UnorderedMultipleChoiceWidget
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.utils.dates import make_aware_dt
-
-# from creme.creme_config.forms.fields import CreatorModelChoiceField TODO
 
 from creme.persons import get_contact_model
 
@@ -229,7 +227,8 @@ class ActivityEditForm(_ActivityForm):
 class _ActivityCreateForm(_ActivityForm):
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
                                                    queryset=get_user_model().objects.filter(is_staff=False),
-                                                   required=False, widget=UnorderedMultipleChoiceWidget,
+                                                   required=False,
+                                                   # widget=UnorderedMultipleChoiceWidget,
                                                   )
 
     # TODO: factorise with ParticipantCreateForm
@@ -459,7 +458,7 @@ class CalendarActivityCreateForm(ActivityCreateForm):
 class IndisponibilityCreateForm(_ActivityCreateForm):
     type_selector = ModelChoiceField(label=_('Indisponibility type'), required=False,
                                      queryset=ActivitySubType.objects.filter(type=ACTIVITYTYPE_INDISPO),
-                                    )  # TODO: CreatorModelChoiceField
+                                    )
 
     class Meta(_ActivityCreateForm.Meta):
         exclude = _ActivityCreateForm.Meta.exclude + (

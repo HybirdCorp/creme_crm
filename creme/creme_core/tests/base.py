@@ -11,6 +11,7 @@ from django.test import TestCase, TransactionTestCase
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.utils.timezone import utc, get_current_timezone, make_aware
 
@@ -385,6 +386,11 @@ class _CremeTestCase(object):
         self.assertEqual(qs1.query.get_compiler('default').as_sql(),
                          qs2.query.get_compiler('default').as_sql()
                         )
+
+    def assertQEqual(self, q1, q2):
+        self.assertIsInstance(q1, Q)
+        self.assertIsInstance(q2, Q)
+        self.assertEqual(unicode(q1), unicode(q2))
 
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
         self.assertEqual(count,

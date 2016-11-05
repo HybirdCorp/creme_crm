@@ -819,9 +819,9 @@ class BulkEditTestCase(_BulkEditTestCase):
                       baddr_choices
                      )
 
-        fisrt_name = 'Marioooo'
-        self.assertNoFormError(self.client.post(url, data={'field_value': fisrt_name}))
-        self.assertEqual(fisrt_name, self.refresh(mario).first_name)
+        first_name = 'Marioooo'
+        self.assertNoFormError(self.client.post(url, data={'field_value': first_name}))
+        self.assertEqual(first_name, self.refresh(mario).first_name)
 
     def test_regular_field02(self):
         self.login()

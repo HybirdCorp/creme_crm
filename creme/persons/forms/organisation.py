@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,20 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+# from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CreatorEntityField
+# from creme.creme_core.forms import CreatorEntityField
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
 
 from .. import get_organisation_model
 from .base import _BasePersonForm
 
 
-# TODO: these 2 fields should be generated automatically...
 class OrganisationForm(_BasePersonForm):
 #     creation_date = CremeDateTimeField(label=_(u"Creation date"), required=False)
-    image         = CreatorEntityField(label=_(u"Logo"), required=False, model=Image)
+#     image         = CreatorEntityField(label=_(u"Logo"), required=False, model=Image)
 
     class Meta(_BasePersonForm.Meta):
         model = get_organisation_model()

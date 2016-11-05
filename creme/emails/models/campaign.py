@@ -30,16 +30,16 @@ from .recipient import EmailRecipient
 
 class AbstractEmailCampaign(CremeEntity):
     name          = CharField(_(u'Name of the campaign'), max_length=100, blank=False, null=False)
-    mailing_lists = ManyToManyField(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing lists'))
+    mailing_lists = ManyToManyField(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing lists'), blank=True)
 
     creation_label = _('Add an emailing campaign')
     save_label     = _('Save the emailing campaign')
 
     class Meta:
         abstract = True
-        app_label = "emails"
-        verbose_name = _(u"Emailing campaign")
-        verbose_name_plural = _(u"Emailing campaigns")
+        app_label = 'emails'
+        verbose_name = _(u'Emailing campaign')
+        verbose_name_plural = _(u'Emailing campaigns')
         ordering = ('name',)
 
     def __unicode__(self):

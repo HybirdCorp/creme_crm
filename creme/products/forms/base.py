@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,7 @@ class _BaseForm(CremeEntityForm):
 
 
 class _BaseCreateForm(_BaseForm):
-    images = MultiCreatorEntityField(label=_(u'Images'), model=Image, required=False)
+    # images = MultiCreatorEntityField(label=_(u'Images'), model=Image, required=False)
 
     def clean_images(self):
         return validate_linkable_entities(self.cleaned_data['images'], self.user)
@@ -69,9 +69,10 @@ class AddImagesForm(CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super(AddImagesForm, self).__init__(*args, **kwargs)
         self.entity = entity
-        self.fields['images'].q_filter = {'~id__in': list(entity.images.values_list('id', flat=True))}
 
-        self.fields['images'].force_creation = True  # TODO: in constructor
+        images_f = self.fields['images']
+        images_f.q_filter = {'~id__in': list(entity.images.values_list('id', flat=True))}
+        images_f.force_creation = True  # TODO: in constructor ?
 
     def clean_images(self):
         return validate_linkable_entities(self.cleaned_data['images'], self.user)

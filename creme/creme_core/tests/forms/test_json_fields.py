@@ -5,6 +5,7 @@ try:
     from django.db.models.query import Q, QuerySet
     from django.utils.translation import ugettext as _
 
+    from .. import fake_forms
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeImage as Document)
     from .base import FieldTestCase
@@ -793,7 +794,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
         subject_ptype, object_ptype = self.create_property_types()
         rtype = self.create_loves_rtype(subject_ptype=subject_ptype, object_ptype=object_ptype)[0]
-        contact = self.create_contact(ptype=object_ptype) # <= has the property
+        contact = self.create_contact(ptype=object_ptype)  # <= has the property
 
         field = RelationEntityField(allowed_rtypes=[rtype.pk])
         self.assertEqual((rtype, contact),
@@ -840,10 +841,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     FMT    = '[{"rtype":"%s", "ctype":"%s","entity":"%s"}]'
     FMT_2x = '[{"rtype":"%s", "ctype":"%s", "entity":"%s"},' \
-                    ' {"rtype":"%s", "ctype":"%s", "entity":"%s"}]'
+             ' {"rtype":"%s", "ctype":"%s", "entity":"%s"}]'
     FMT_3x = '[{"rtype":"%s", "ctype":"%s", "entity":"%s"},' \
-                    ' {"rtype":"%s", "ctype":"%s", "entity":"%s"},' \
-                    ' {"rtype":"%s", "ctype":"%s", "entity":"%s"}]'
+              ' {"rtype":"%s", "ctype":"%s", "entity":"%s"},' \
+              ' {"rtype":"%s", "ctype":"%s", "entity":"%s"}]'
 
     def test_rtypes(self):
         rtype1 = self.create_loves_rtype()[0]
@@ -899,7 +900,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertIn(rtype1.id, rtypes_ids)
 
     def test_default_rtypes(self):
-        self.populate('creme_core')
+        # self.populate('creme_core')
         self.assertEqual([RelationType.objects.get(pk=REL_SUB_HAS)],
                          list(MultiRelationEntityField()._get_allowed_rtypes_objects())
                         )
@@ -1247,13 +1248,32 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertIsNotNone(field.q_filter_query)
         self.assertEqual(field.create_action_url, action_url)
 
-    def test_format_object_with_qfilter(self):
+    def test_format_object_with_qfilter01(self):
+        "qfilter is a dict"
         self.login()
         contact = self.create_contact()
         field = CreatorEntityField(Contact, q_filter={'~pk': contact.pk})
 
         jsonified = str(contact.pk)
+        self.assertEqual(jsonified, field.from_python(jsonified))
+        self.assertEqual(jsonified, field.from_python(contact))
 
+        with self.assertRaises(ValueError) as error:
+            field.from_python(contact.pk)
+
+        self.assertIn(str(error.exception),
+                      ("No such entity with id %d." % contact.pk,
+                       "No such entity with id %dL." % contact.pk,
+                      )
+                     )
+
+    def test_format_object_with_qfilter02(self):
+        "qfilter is a callable returning a dict"
+        self.login()
+        contact = self.create_contact()
+        field = CreatorEntityField(Contact, q_filter=lambda: {'~pk': contact.pk})
+
+        jsonified = str(contact.pk)
         self.assertEqual(jsonified, field.from_python(jsonified))
         self.assertEqual(jsonified, field.from_python(contact))
 
@@ -1463,6 +1483,30 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field.q_filter = {'pk': contact.pk}
         self.assertEqual(contact, field.clean(str(contact.pk)))
+
+    def test_hook(self):
+        user = self.login()
+
+        form = fake_forms.FakeContactForm(user=user)
+
+        with self.assertNoException():
+            image_f = form.fields['image']
+
+        self.assertIsInstance(image_f, CreatorEntityField)
+        self.assertEqual(_(u'Photograph'), image_f.label)
+        self.assertFalse(image_f.required)
+        self.assertFalse(image_f.q_filter)
+
+        # -----
+        form = fake_forms.FakeOrganisationForm(user=user)
+
+        with self.assertNoException():
+            image_f = form.fields['image']
+
+        self.assertIsInstance(image_f, CreatorEntityField)
+        self.assertEqual(_(u'Logo'), image_f.label)
+        self.assertTrue(callable(image_f.q_filter))
+        self.assertQEqual(Q(user__is_staff=False), image_f.q_filter_query)
 
 
 class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
@@ -1685,6 +1729,29 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field.q_filter = {'pk': contact.pk}
         self.assertEqual([contact], field.clean('[%d]' % contact.pk))
+
+    def test_hook(self):
+        user = self.login()
+
+        form = fake_forms.FakeEmailCampaignForm(user=user)
+
+        with self.assertNoException():
+            mlists_f = form.fields['mailing_lists']
+
+        self.assertIsInstance(mlists_f, MultiCreatorEntityField)
+        self.assertEqual(_(u'Related mailing lists'), mlists_f.label)
+        self.assertFalse(mlists_f.required)
+        self.assertFalse(mlists_f.q_filter)
+
+        # -----
+        form = fake_forms.FakeProductForm(user=user)
+
+        with self.assertNoException():
+            images_f = form.fields['images']
+
+        self.assertIsInstance(images_f, CreatorEntityField)
+        self.assertEqual(_(u'Images'), images_f.label)
+        self.assertEqual({'user__is_active': True}, images_f.q_filter)
 
 
 class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):

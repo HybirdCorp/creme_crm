@@ -85,7 +85,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
                            )
     body_html   = UnsafeHTMLField(_(u'Body (HTML)'))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
-    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
+    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'), blank=True)
 
     creation_label = _('Add an email')
     save_label     = _('Save the email')
@@ -93,7 +93,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
     class Meta:
         abstract = True
-        app_label = "emails"
+        app_label = 'emails'
         verbose_name = _(u'Email')
         verbose_name_plural = _(u'Emails')
         ordering = ('-sending_date',)
