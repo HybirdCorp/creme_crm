@@ -9,6 +9,7 @@ else:
 
     from django.core.exceptions import ValidationError
     from django.db import models
+    from django.db.models.query_utils import Q
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
     from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
@@ -246,10 +247,13 @@ else:
                                        ).set_tags(optional=True)
         sector      = models.ForeignKey(FakeSector, verbose_name=_(u'Line of business'),
                                         blank=True, null=True, on_delete=models.SET_NULL,
+                                        limit_choices_to=lambda: ~Q(title='[INVALID]'),
                                        ).set_tags(optional=True)
         email       = models.EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
         url_site    = models.URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
-        languages   = models.ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True)
+        languages   = models.ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True,
+                                             limit_choices_to=~Q(name__contains='[deprecated]'),
+                                            )
         address     = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
                                         blank=True, null=True,  editable=False,
                                         related_name='+',
@@ -337,6 +341,7 @@ else:
         subject_to_vat  = models.BooleanField(_(u'Subject to VAT'), default=True)
         legal_form      = models.ForeignKey(FakeLegalForm, verbose_name=_(u'Legal form'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
+                                            limit_choices_to={'title__endswith': '[OK]'},
                                            )
         address         = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
                                             blank=True, null=True, editable=False,
@@ -346,6 +351,7 @@ else:
         creation_date   = models.DateField(_(u'Date of creation'), blank=True, null=True)
         image           = models.ForeignKey(FakeImage, verbose_name=_(u'Logo'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
+                                            limit_choices_to=lambda: {'user__is_staff': False},
                                            )
 
         function_fields = CremeEntity.function_fields.new(_GetFakeTodos())
@@ -527,3 +533,25 @@ else:
 
         def get_related_entity(self):  # For generic views & delete
             return self.invoice
+
+
+    class FakeProduct(CremeEntity):
+        name   = models.CharField(_(u'Name'), max_length=100)
+        images = models.ManyToManyField(FakeImage, blank=True, verbose_name=_(u'Images'),
+                                        limit_choices_to={'user__is_active': True},
+                                        # related_name='products',
+                                       )
+
+        # creation_label = _('Add a product')
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = u'Test Product'
+            verbose_name_plural = u'Test Products'
+            ordering = ('name',)
+
+        def __unicode__(self):
+            return self.name
+
+        # def get_absolute_url(self):
+        #     return '/tests/product/%s' % self.id

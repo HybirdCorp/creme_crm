@@ -10,12 +10,12 @@ try:
     from django.forms.models import ModelMultipleChoiceField
     from django.utils.translation import ugettext as _
 
-    from ..base import CremeTestCase # skipIfNotInstalled
+    from ..base import CremeTestCase
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeAddress as Address,
-            FakeCivility as Civility,
+            FakeCivility as Civility, FakeLegalForm, FakeSector,
             FakeImageCategory as ImageCategory,
-            FakeImage as Image, FakeActivity,
+            FakeImage as Image, FakeActivity, FakeProduct,
             FakeEmailCampaign as EmailCampaign)
 
     from creme.creme_config.forms.fields import CreatorModelChoiceField
@@ -23,7 +23,7 @@ try:
     from creme.creme_core.forms.fields import CreatorEntityField, MultiCreatorEntityField
     from creme.creme_core.forms.bulk import BulkDefaultEditForm
     from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry, FieldNotAllowed
-    from creme.creme_core.models.custom_field import CustomField
+    from creme.creme_core.models import CustomField, Language
     from creme.creme_core.utils.unicode_collation import collator
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -35,17 +35,17 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.bulk_update_registry = _BulkUpdateRegistry()
         self.maxDiff = None
 
-    def tearDown(self):
-        self.remove_field_attr(Contact, 'image', 'limit_choices_to')
-        self.remove_field_attr(Contact, 'civility', 'limit_choices_to')
-        self.remove_field_attr(Image, 'categories', 'limit_choices_to')
-        self.remove_field_attr(EmailCampaign, 'mailing_lists', 'limit_choices_to')
+    # def tearDown(self):
+    #     self.remove_field_attr(Contact, 'image', 'limit_choices_to')
+    #     self.remove_field_attr(Contact, 'civility', 'limit_choices_to')
+    #     self.remove_field_attr(Image, 'categories', 'limit_choices_to')
+    #     self.remove_field_attr(EmailCampaign, 'mailing_lists', 'limit_choices_to')
 
-    def remove_field_attr(self, model, fieldname, attr):
-        field = model._meta.get_field(fieldname)
-
-        if hasattr(field, attr):
-            delattr(field, attr)
+    # def remove_field_attr(self, model, fieldname, attr):
+    #     field = model._meta.get_field(fieldname)
+    #
+    #     if hasattr(field, attr):
+    #         delattr(field, attr)
 
     def sortFields(self, fields):
         sort_key = collator.sort_key
@@ -74,6 +74,17 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable(field_name='modified'))
         self.assertFalse(is_bulk_updatable(field_name='address'))
         self.assertFalse(is_bulk_updatable(field_name='is_deleted'))
+
+    def test_bulk_update_registry03(self):
+        "Unique field"
+        registry = self.bulk_update_registry
+        registry.register(FakeActivity)
+
+        # 'title' is an unique field which means that its not bulk updatable if
+        # the registry manage the unique and it is if not.
+        is_bulk_updatable = partial(registry.is_updatable, model=FakeActivity)
+        self.assertTrue(is_bulk_updatable(field_name='title', exclude_unique=False))
+        self.assertFalse(is_bulk_updatable(field_name='title'))
 
     def test_is_updatable_many2many(self):
         bulk_update_registry = self.bulk_update_registry
@@ -414,165 +425,144 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
                                             (user=user, entities=[contact])
         self.assertIsInstance(form, BulkDefaultEditForm)
 
-    def test_fk_innerform(self):
+    def test_fk_innerform01(self):
         user = self.login()
-
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(Contact)
 
         civility_field = Contact._meta.get_field('civility')
-        self.assertFalse(hasattr(civility_field, 'limit_choices_to'))
+        self.assertFalse(civility_field.rel.limit_choices_to)
 
         contact = Contact.objects.create(first_name='A', last_name='B', user=user)
 
         form = BulkDefaultEditForm(Contact, civility_field, user, [contact])
-        self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
-        self.assertQuerysetSQLEqual(Civility.objects.all(), form.fields['field_value'].queryset)
+        field_value_f = form.fields['field_value']
+        self.assertIsInstance(field_value_f, CreatorModelChoiceField)
+        self.assertQuerysetSQLEqual(Civility.objects.all(), field_value_f.queryset)
 
-        civility_field.limit_choices_to = {'title': _('Mister')}
-
-        form = BulkDefaultEditForm(Contact, civility_field, user, [contact])
-        self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
-        self.assertQuerysetSQLEqual(Civility.objects.filter(title=_('Mister')),
-                                    form.fields['field_value'].queryset
-                                   )
-
-        civility_field.limit_choices_to = ~Q(**{'title': _('Mister')})
-
-        form = BulkDefaultEditForm(Contact, civility_field, user, [contact])
-        self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
-        self.assertQuerysetSQLEqual(Civility.objects.exclude(title=_('Mister')),
-                                    form.fields['field_value'].queryset
-                                   )
-
-        civility_field.limit_choices_to = lambda: {'title': _('Miss')}
-
-        form = BulkDefaultEditForm(Contact, civility_field, user, [contact])
-        self.assertIsInstance(form.fields['field_value'], CreatorModelChoiceField)
-        self.assertQuerysetSQLEqual(Civility.objects.filter(title=_('Miss')),
-                                    form.fields['field_value'].queryset
-                                   )
-
-    def test_fk_entity_innerform(self):
+    def test_fk_innerform02(self):
+        "limit_choices_to: dict"
         user = self.login()
 
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(Contact)
+        lform_field = Organisation._meta.get_field('legal_form')
+        self.assertEqual({'title__endswith': '[OK]'}, lform_field.rel.limit_choices_to)
+
+        orga = Organisation.objects.create(user=user, name='A')
+
+        form = BulkDefaultEditForm(Contact, lform_field, user, [orga])
+        self.assertQuerysetSQLEqual(FakeLegalForm.objects.filter(title__endswith='[OK]'),
+                                    form.fields['field_value'].queryset
+                                   )
+
+    def test_fk_innerform03(self):
+        "limit_choices_to: callable yielding Q"
+        user = self.login()
+
+        sector_field = Contact._meta.get_field('sector')
+        # NB: limit_choices_to=lambda: ~Q(title='[INVALID]')
+        self.assertTrue(callable(sector_field.rel.limit_choices_to))
+
+        contact = Contact.objects.create(first_name='A', last_name='B', user=user)
+
+        form = BulkDefaultEditForm(Contact, sector_field, user, [contact])
+        self.assertQuerysetSQLEqual(FakeSector.objects.exclude(title='[INVALID]'),
+                                    form.fields['field_value'].queryset
+                                   )
+
+    def test_fk_entity_innerform01(self):
+        user = self.login()
 
         image_field = Contact._meta.get_field('image')
-        self.assertFalse(hasattr(image_field, 'limit_choices_to'))
+        self.assertFalse(image_field.rel.limit_choices_to)
 
         contact = Contact.objects.create(first_name='A', last_name='B', user=user)
 
         form = BulkDefaultEditForm(Contact, image_field, user, [contact])
         self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
-        self.assertIsNone(form.fields['field_value'].q_filter)
+        # self.assertIsNone(form.fields['field_value'].q_filter)
+        self.assertFalse(form.fields['field_value'].q_filter)
 
-        image_field.limit_choices_to = {'name': 'A'}
-
-        form = BulkDefaultEditForm(Contact, image_field, user, [contact])
-        self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
-        self.assertDictEqual({'name': 'A'}, form.fields['field_value'].q_filter)
-
-        image_field.limit_choices_to = ~Q(**{'name': 'B'})
-
-        with self.assertRaises(ValueError) as err:
-            BulkDefaultEditForm(Contact, image_field, user, [contact])
-
-        self.assertEqual(str(err.exception),
-                         'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.'
-                        )
-
-        today = datetime.today()
-        image_field.limit_choices_to = lambda: {'created__lte': today}
-
-        form = BulkDefaultEditForm(Contact, image_field, user, [contact])
-        self.assertIsInstance(form.fields['field_value'], CreatorEntityField)
-        self.assertDictEqual({'created__lte': today}, form.fields['field_value'].q_filter)
-
-    def test_manytomany_innerform(self):
+    def test_fk_entity_innerform02(self):
+        "limit_choices_to"
         user = self.login()
 
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(Image)
+        image_field = Organisation._meta.get_field('image')
+        # NB: limit_choices_to=lambda: {'user__is_staff': False}
+        self.assertTrue(callable(image_field.rel.limit_choices_to))
+
+        orga = Organisation.objects.create(user=user, name='A')
+
+        form = BulkDefaultEditForm(Organisation, image_field, user, [orga])
+        self.assertEqual({'user__is_staff': False}, form.fields['field_value'].q_filter)
+
+        # TODO: test Q as limit_choices_to
+        # with self.assertRaises(ValueError) as err:
+        #     BulkDefaultEditForm(Contact, image_field, user, [contact])
+        #
+        # self.assertEqual(str(err.exception),
+        #                  'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.'
+        #                 )
+
+    def test_manytomany_innerform01(self):
+        user = self.login()
 
         categories_field = Image._meta.get_field('categories')
-        self.assertFalse(hasattr(categories_field, 'limit_choices_to'))
+        # self.assertFalse(hasattr(categories_field, 'limit_choices_to'))
+        self.assertFalse(categories_field.rel.limit_choices_to)
 
         image = Image.objects.create(name='A', user=user)
-
         form = BulkDefaultEditForm(Image, categories_field, user, [image])
-        self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
+
+        field_value_f = form.fields['field_value']
+        self.assertIsInstance(field_value_f, ModelMultipleChoiceField)
         self.assertQuerysetSQLEqual(ImageCategory.objects.all(),
-                                    form.fields['field_value'].queryset
+                                    field_value_f.queryset
                                    )
 
-        categories_field.limit_choices_to = {'name': 'A'}
-
-        form = BulkDefaultEditForm(Image, categories_field, user, [image])
-        self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
-        self.assertQuerysetSQLEqual(ImageCategory.objects.filter(name='A'),
-                                    form.fields['field_value'].queryset
-                                   )
-
-        categories_field.limit_choices_to = ~Q(**{'name': 'A'})
-
-        form = BulkDefaultEditForm(Image, categories_field, user, [image])
-        self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
-        self.assertQuerysetSQLEqual(ImageCategory.objects.exclude(name='A'),
-                                    form.fields['field_value'].queryset
-                                   )
-
-        categories_field.limit_choices_to = lambda: {'name': 'B'}
-
-        form = BulkDefaultEditForm(Image, categories_field, user, [image])
-        self.assertIsInstance(form.fields['field_value'], ModelMultipleChoiceField)
-        self.assertQuerysetSQLEqual(ImageCategory.objects.filter(name='B'),
-                                    form.fields['field_value'].queryset
-                                   )
-
-    def test_manytomany_entity_innerform(self):
+    def test_manytomany_innerform02(self):
+        "limit_choices_to"
         user = self.login()
 
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(EmailCampaign)
+        languages_field = Contact._meta.get_field('languages')
+        # NB: limit_choices_to=~Q(name__contains='[deprecated]')
+        self.assertIsInstance(languages_field.rel.limit_choices_to, Q)
+
+        contact = Contact.objects.create(user=user, first_name='A', last_name='B')
+
+        form = BulkDefaultEditForm(Image, languages_field, user, [contact])
+        self.assertQuerysetSQLEqual(Language.objects.exclude(name__contains='[deprecated]'),
+                                    form.fields['field_value'].queryset
+                                   )
+
+    def test_manytomany_entity_innerform01(self):
+        user = self.login()
 
         mailing_lists_field = EmailCampaign._meta.get_field('mailing_lists')
-        self.assertFalse(hasattr(mailing_lists_field, 'limit_choices_to'))
+        self.assertFalse(mailing_lists_field.rel.limit_choices_to)
 
         campaign = EmailCampaign.objects.create(name='A', user=user)
 
         form = BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
-        self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
-        self.assertIsNone(form.fields['field_value'].q_filter)
 
-        mailing_lists_field.limit_choices_to = {'name': 'A'}
+        field_value_f = form.fields['field_value']
+        self.assertIsInstance(field_value_f, MultiCreatorEntityField)
+        # self.assertIsNone(field_value_f.q_filter)
+        self.assertFalse(field_value_f.q_filter)
 
-        form = BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
-        self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
-        self.assertDictEqual({'name': 'A'}, form.fields['field_value'].q_filter)
+    def test_manytomany_entity_innerform02(self):
+        "limit_choices_to"
+        user = self.login()
 
-        mailing_lists_field.limit_choices_to = ~Q(**{'name': 'A'})
+        images_field = FakeProduct._meta.get_field('images')
+        self.assertEqual({'user__is_active': True}, images_field.rel.limit_choices_to)
 
-        with self.assertRaises(ValueError) as err:
-            BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
+        product = FakeProduct.objects.create(user=user, name='P1')
 
-        self.assertEqual(str(err.exception), 'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
+        form = BulkDefaultEditForm(EmailCampaign, images_field, user, [product])
+        self.assertEqual({'user__is_active': True}, form.fields['field_value'].q_filter)
 
-        today = datetime.today()
-        mailing_lists_field.limit_choices_to = lambda: {'created__lte': today}
-
-        form = BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
-        self.assertIsInstance(form.fields['field_value'], MultiCreatorEntityField)
-        self.assertDictEqual({'created__lte': today}, form.fields['field_value'].q_filter)
-
-    def test_bulk_update_registry06(self):
-        "Unique field"
-        registry = self.bulk_update_registry
-        registry.register(FakeActivity)
-
-        # 'title' is an unique field which means that its not bulk updatable if
-        # the registry manage the unique and it is if not.
-        is_bulk_updatable = partial(registry.is_updatable, model=FakeActivity)
-        self.assertTrue(is_bulk_updatable(field_name='title', exclude_unique=False))
-        self.assertFalse(is_bulk_updatable(field_name='title'))
+        # TODO: test Q as limit_choices_to
+        # with self.assertRaises(ValueError) as err:
+        #     BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
+        #
+        # self.assertEqual(str(err.exception),
+        #                  'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.'
+        #                 )
