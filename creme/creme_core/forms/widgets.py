@@ -28,6 +28,7 @@ from types import GeneratorType
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.query import Q
 from django.forms.utils import flatatt
 from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
         TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer, DateTimeInput)
@@ -533,7 +534,17 @@ class EntitySelector(TextInput):
         value = self.from_python(value) if self.from_python is not None else value
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
+        # TODO: manage Q instance (not managed in field yet).
         qfilter = attrs.pop('qfilter', None)
+        if callable(qfilter):
+            qfilter = qfilter()
+        if isinstance(qfilter, Q):
+            raise TypeError('<%s>: "Q" instance for qfilter is not (yet) supported (notice that it '
+                            'can be generated from the "limit_choices_to" in a field related '
+                            'to CremeEntity of one of your models).\n'
+                            ' -> Use a dict (or a callable which returns a dict)' %
+                                self.__class__.__name__
+                           )
         context['qfilter'] = escape(json_dump(qfilter)) if qfilter else ''
 
         return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" '
@@ -932,7 +943,7 @@ class UnorderedMultipleChoiceWidget(SelectMultiple, EnhancedSelectOptions):
         count = self._choice_count()
         attrs = self.build_attrs(attrs, name=name)
         filtertype = self._build_filtertype(count)
-        input = SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'}, choices);
+        input = SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'}, choices)
 
         context = widget_render_context('ui-creme-checklistselect', attrs,
                                         body=self._render_body(attrs, filtertype),
@@ -940,7 +951,8 @@ class UnorderedMultipleChoiceWidget(SelectMultiple, EnhancedSelectOptions):
                                         counter=self._render_counter(attrs, filtertype),
                                         viewless=self._render_viewless(attrs, self.viewless),
                                         footer=self._render_footer(attrs, self.viewless),
-                                        input=input)
+                                        input=input,
+                                       )
 
         return mark_safe(
 u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
@@ -1006,7 +1018,7 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
 
     def _render_body(self, attrs, filtertype):
         return '<div class="checklist-body"><ul class="checklist-content %s %s"></ul></div>' % (
-                    filtertype or '', self.columntype
+                    filtertype or '', self.columntype,
                 )
 
 
@@ -1035,7 +1047,7 @@ u"""<tr name="oms_row_%(i)s">
             'value':    opt_value,
             'checked':  'checked' if order else '',
             'order':    order,
-            })
+           })
 
         output.append(
 u"""</tbody></table>

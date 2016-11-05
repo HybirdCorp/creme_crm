@@ -30,7 +30,7 @@ import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
-from django.db.models.query import QuerySet
+from django.db.models.query import QuerySet, Q
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
         ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
 from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField, CallableChoiceIterator
@@ -714,10 +714,22 @@ class CreatorEntityField(JSONField):
         super(CreatorEntityField, self).__init__(*args, **kwargs)
         widget = self.widget
         self._model = widget.model = model
+
+        self._check_qfilter(q_filter)
         self._q_filter = widget.q_filter = q_filter
+
         self._create_action_url = widget.creation_url = create_action_url
         self._force_creation = force_creation
         self.user = user
+
+    def _check_qfilter(self, q_filter):
+        if isinstance(q_filter, Q):
+            raise TypeError('<%s>: "Q" instance for q_filter is not (yet) supported (notice that it '
+                            'can be generated from the "limit_choices_to" in a field related '
+                            'to CremeEntity of one of your models).\n'
+                            ' -> Use a dict (or a callable which returns a dict)' %
+                                self.__class__.__name__
+                           )
 
     @property
     def force_creation(self):
@@ -744,6 +756,12 @@ class CreatorEntityField(JSONField):
 
     @q_filter.setter
     def q_filter(self, q_filter):
+        """
+        @param q_filter: Allow to filter the selection ; it's a dictionary (eg: {'user__is_staff': False})
+                         or a callable which returns a dictionary. 'None' means not filtering.
+        """
+        self._check_qfilter(q_filter)
+
         self._q_filter = q_filter
 
         self.widget.q_filter = q_filter
@@ -752,10 +770,23 @@ class CreatorEntityField(JSONField):
     @property
     def q_filter_query(self):
         q_filter = self._q_filter
-        try:
-            return get_q_from_dict(q_filter) if q_filter is not None else None
-        except:
-            raise ValueError('Invalid q_filter %s' % q_filter)
+        # try:
+        #     return get_q_from_dict(q_filter) if q_filter is not None else None
+        # except:
+        #     raise ValueError('Invalid q_filter %s' % q_filter)
+        q = None
+
+        if q_filter is not None:
+            if callable(q_filter):
+                q_filter = q_filter()
+                self._check_qfilter(q_filter)
+
+            try:
+                q = get_q_from_dict(q_filter)
+            except:
+                raise ValueError('Invalid q_filter %s' % q_filter)
+
+        return q
 
     @property
     def create_action_url(self):

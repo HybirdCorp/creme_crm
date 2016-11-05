@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the campaign')),
                 #('lists', models.ManyToManyField(to='sms.MessagingList', verbose_name='Related messaging lists')),
-                ('lists', models.ManyToManyField(to=settings.SMS_MLIST_MODEL, verbose_name='Related messaging lists')),
+                ('lists', models.ManyToManyField(to=settings.SMS_MLIST_MODEL, verbose_name='Related messaging lists', blank=True)),
             ],
             options={
                 'swappable': 'SMS_CAMPAIGN_MODEL',

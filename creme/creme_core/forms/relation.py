@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,14 +29,15 @@ from ..utils import entities2unicode
 from .base import CremeForm, FieldBlockManager
 from .fields import MultiRelationEntityField
 from .validators import validate_linkable_entities
-from .widgets import Label, UnorderedMultipleChoiceWidget
+from .widgets import Label  # UnorderedMultipleChoiceWidget
 
 
 class _RelationsCreateForm(CremeForm):
     relations        = MultiRelationEntityField(label=_(u'Relationships'), required=False, autocomplete=True)
     semifixed_rtypes = ModelMultipleChoiceField(label=_(u'Semi-fixed types of relationship'),
                                                 queryset=SemiFixedRelationType.objects.none(),
-                                                required=False, widget=UnorderedMultipleChoiceWidget,
+                                                required=False,
+                                                # widget=UnorderedMultipleChoiceWidget,
                                                )
 
     error_messages = {

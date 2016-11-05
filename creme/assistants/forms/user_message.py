@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,16 +23,18 @@ from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from ..models import UserMessage
 
 
 class UserMessageForm(CremeModelForm):
     users = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
-                                    label=_(u"Recipients"),
-                                     widget=UnorderedMultipleChoiceWidget,
-                                     help_text=_(u'Each time a team is selected, a message is sent to each teammate (do not worry, there can not be any duplicate).'),
+                                     label=_(u'Recipients'),
+                                     # widget=UnorderedMultipleChoiceWidget,
+                                     help_text=_(u'Each time a team is selected, a message is sent to each teammate '
+                                                 u'(do not worry, there can not be any duplicate).'
+                                                ),
                                     )
 
     class Meta:
@@ -43,11 +45,11 @@ class UserMessageForm(CremeModelForm):
         super(UserMessageForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
-        self.fields['priority'].empty_label = None #TODO: generalise this behavior to all forms ???
+        self.fields['priority'].empty_label = None  # TODO: generalise this behavior to all forms ???
 
     def save(self, *args, **kwargs):
-        #NB: we do not call super() because we create several instances
+        # NB: we do not call super() because we create several instances
         cdata  = self.cleaned_data
         UserMessage.create_messages(cdata['users'], cdata['title'], cdata['body'],
-                                    cdata['priority'].id, self.user, self.entity
+                                    cdata['priority'].id, self.user, self.entity,
                                    )

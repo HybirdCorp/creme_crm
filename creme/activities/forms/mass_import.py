@@ -34,7 +34,7 @@ from django.utils.translation import ugettext as _, ugettext_lazy
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, ExtractorWidget
 from creme.creme_core.forms.validators import validate_linkable_entities
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
 
@@ -583,7 +583,8 @@ def get_massimport_form_builder(header_dict, choices):
 
         participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
                                                        queryset=get_user_model().objects.filter(is_staff=False),
-                                                       required=False, widget=UnorderedMultipleChoiceWidget,
+                                                       required=False,
+                                                       # widget=UnorderedMultipleChoiceWidget,
                                                       )
         participants        = ParticipantsExtractorField(choices, label=_('Participants'), required=False)
 

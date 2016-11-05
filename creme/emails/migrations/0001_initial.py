@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the campaign')),
                 #('mailing_lists', models.ManyToManyField(to='emails.MailingList', verbose_name='Related mailing lists')),
-                ('mailing_lists', models.ManyToManyField(to=settings.EMAILS_MLIST_MODEL, verbose_name='Related mailing lists')),
+                ('mailing_lists', models.ManyToManyField(to=settings.EMAILS_MLIST_MODEL, verbose_name='Related mailing lists', blank=True)),
             ],
             options={
                 'swappable': 'EMAILS_CAMPAIGN_MODEL',
@@ -137,7 +137,7 @@ class Migration(migrations.Migration):
                 # ('body_html', models.TextField(verbose_name='Body (HTML)')),
                 ('body_html', creme.creme_core.models.fields.UnsafeHTMLField(verbose_name='Body (HTML)')),
                 #('attachments', models.ManyToManyField(to='documents.Document', verbose_name='Attachments')),
-                ('attachments', models.ManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Attachments')),
+                ('attachments', models.ManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Attachments', blank=True)),
                 ('signature', models.ForeignKey(verbose_name='Signature', blank=True, to='emails.EmailSignature', null=True)),
             ],
             options={

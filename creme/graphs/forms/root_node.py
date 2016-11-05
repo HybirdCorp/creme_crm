@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import RelationType
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import MultiGenericEntityField
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from ..models import RootNode
 
@@ -39,7 +39,7 @@ class AddRootNodesForm(CremeForm):
     entities       = MultiGenericEntityField(label=_(u'Root entities'))
     relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
                                                      queryset=RelationType.objects.all(),
-                                                     widget=UnorderedMultipleChoiceWidget,
+                                                     # widget=UnorderedMultipleChoiceWidget,
                                                     )
 
     def __init__(self, entity, *args, **kwargs):
@@ -63,13 +63,13 @@ class AddRootNodesForm(CremeForm):
 class EditRootNodeForm(CremeModelForm):
     relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
                                                      queryset=RelationType.objects.all(),
-                                                     widget=UnorderedMultipleChoiceWidget,
+                                                     # widget=UnorderedMultipleChoiceWidget,
                                                     )
 
     class Meta:
         model = RootNode
         exclude = ()
 
-    def __init__(self, entity, *args, **kwargs): # NB only useful for the generic view edit_related_to_entity()
+    def __init__(self, entity, *args, **kwargs):  # NB only useful for the generic view edit_related_to_entity()
         super(EditRootNodeForm, self).__init__(*args, **kwargs)
         self.graph = entity

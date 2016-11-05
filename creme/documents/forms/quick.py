@@ -24,7 +24,7 @@ from creme.creme_core.forms.base import CremeModelWithUserForm
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from .. import get_document_model
+from .. import get_document_model, get_folder_model
 from ..utils import get_csv_folder_or_create
 
 
@@ -35,6 +35,17 @@ class DocumentQuickForm(CremeModelWithUserForm):
     class Meta:
         model = Document
         fields = ('user', 'filedata', 'folder')
+
+    def __init__(self, *args, **kwargs):
+        super(DocumentQuickForm, self).__init__(*args, **kwargs)
+
+        folder_f = self.fields.get('folder')
+
+        if folder_f:
+            folder = get_folder_model().objects.filter(title='Creme').first()
+
+            if folder is not None and self.user.has_perm_to_view(folder):
+                self.fields['folder'].initial = folder
 
     # def clean_filedata(self):
     #     # todo : return tuple with a pretty name for uploaded file

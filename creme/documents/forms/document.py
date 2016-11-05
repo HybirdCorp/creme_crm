@@ -21,11 +21,11 @@
 import logging
 from os.path import basename
 
-from django.utils.translation import ugettext_lazy as _
+# from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.fields import CreatorEntityField
+# from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
@@ -72,11 +72,13 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseF
 
 
 class DocumentCreateForm(_DocumentBaseForm):
-    folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
+    # folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
+    pass
 
 
 class DocumentEditForm(CremeEntityForm):
-    folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
+    # folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
+    pass
 
     class Meta(CremeEntityForm.Meta):
         model = Document

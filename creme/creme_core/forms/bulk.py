@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,32 +23,28 @@ import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models.fields.related import ForeignKey, RelatedField, ManyToManyField
-from django.db.models.query_utils import Q
+from django.db.models.fields.related import RelatedField, ManyToManyField  # ForeignKey
+# from django.db.models.query_utils import Q
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
-from django.forms.models import ModelMultipleChoiceField
+# from django.forms.models import ModelMultipleChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_config.forms.fields import CreatorModelChoiceField
+# from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from ..gui.bulk_update import bulk_update_registry
 from ..models import CremeEntity
 from ..models.custom_field import CustomField, CustomFieldValue
 
 from .base import CremeForm
-from .fields import CreatorEntityField, MultiCreatorEntityField
-from .widgets import UnorderedMultipleChoiceWidget
+# from .fields import CreatorEntityField, MultiCreatorEntityField
+# from .widgets import UnorderedMultipleChoiceWidget
 
 
-# TODO : should remove this list and use some hooks in model fields or in bulk registry to retrieve bulk widgets
-_BULK_FIELD_WIDGETS = {
-#     models.DateField:                 CalendarWidget(),
-#     models.DateTimeField:             DateTimeWidget(),
-#     fields.CreationDateTimeField:     DateTimeWidget(),
-#     fields.ModificationDateTimeField: DateTimeWidget(),
-}
+# _BULK_FIELD_WIDGETS = {
+#
+# }
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
 _CUSTOMFIELD_FORMAT = 'customfield-%d'
@@ -105,7 +101,7 @@ class BulkForm(CremeForm):
         return self.bulk_url % {
                     'ct': ContentType.objects.get_for_model(model).pk,
                     'field': fieldname,
-                    'entities': ','.join(str(e.pk) for e in entities)
+                    'entities': ','.join(str(e.pk) for e in entities),
                }
 
     def _bulk_formfield(self, user, instance=None):
@@ -135,7 +131,7 @@ class BulkForm(CremeForm):
                                   )
 
         if custom_fields:
-            choices.append((ugettext(u"Custom fields"),
+            choices.append((ugettext(u'Custom fields'),
                             [(url % (_CUSTOMFIELD_FORMAT % field.id), field.name)
                                 for field in custom_fields
                             ]
@@ -150,63 +146,69 @@ class BulkForm(CremeForm):
 
         return model_field.get_formfield(None)
 
-    def _bulk_related_formfield(self, model_field, user, instance=None):
-        form_field = model_field.formfield()
-        related_to = model_field.rel.to
-        # q_filter = None
-        #
-        # if hasattr(model_field, 'limit_choices_to'):
-        #     related_filter = model_field.limit_choices_to
-        #     q_filter = related_filter() if callable(related_filter) else related_filter
-
-        q_filter = model_field.rel.limit_choices_to
-        if callable(q_filter):
-            q_filter = q_filter()
-
-        if issubclass(related_to, CremeEntity):
-            if isinstance(q_filter, Q):
-                raise ValueError('Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
-
-            if isinstance(model_field, ForeignKey):
-                form_field = CreatorEntityField(model=related_to, label=form_field.label,
-                                                required=form_field.required,
-                                                q_filter=q_filter,
-                                               )
-            elif isinstance(model_field, ManyToManyField):
-                form_field = MultiCreatorEntityField(model=related_to,
-                                                     label=form_field.label,
-                                                     required=form_field.required,
-                                                     q_filter=q_filter,
-                                                    )
-        else:
-            if isinstance(q_filter, Q):
-                choices = related_to.objects.filter(q_filter)
-            elif q_filter:
-                choices = related_to.objects.filter(**q_filter)
-            else:
-                choices = related_to.objects.all()
-
-            if isinstance(model_field, ForeignKey):
-                form_field = CreatorModelChoiceField(queryset=choices,
-                                                     label=form_field.label,
-                                                     required=form_field.required,
-                                                    )
-            elif isinstance(model_field, ManyToManyField):
-                form_field = ModelMultipleChoiceField(label=form_field.label,
-                                                      queryset=choices,
-                                                      required=form_field.required,
-                                                      widget=UnorderedMultipleChoiceWidget,
-                                                     )
-
-        return form_field
+    # def _bulk_related_formfield(self, model_field, user, instance=None):
+    #     form_field = model_field.formfield()
+    #     related_to = model_field.rel.to
+    #     # q_filter = None
+    #     #
+    #     # if hasattr(model_field, 'limit_choices_to'):
+    #     #     related_filter = model_field.limit_choices_to
+    #     #     q_filter = related_filter() if callable(related_filter) else related_filter
+    #
+    #     q_filter = model_field.rel.limit_choices_to
+    #     if callable(q_filter):
+    #         q_filter = q_filter()
+    #
+    #     if issubclass(related_to, CremeEntity):
+    #         if isinstance(q_filter, Q):
+    #             raise ValueError('Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
+    #
+    #         if isinstance(model_field, ForeignKey):
+    #             form_field = CreatorEntityField(model=related_to, label=form_field.label,
+    #                                             required=form_field.required,
+    #                                             q_filter=q_filter,
+    #                                            )
+    #         elif isinstance(model_field, ManyToManyField):
+    #             form_field = MultiCreatorEntityField(model=related_to,
+    #                                                  label=form_field.label,
+    #                                                  required=form_field.required,
+    #                                                  q_filter=q_filter,
+    #                                                 )
+    #     else:
+    #         if isinstance(q_filter, Q):
+    #             choices = related_to.objects.filter(q_filter)
+    #         elif q_filter:
+    #             choices = related_to.objects.filter(**q_filter)
+    #         else:
+    #             choices = related_to.objects.all()
+    #
+    #         if isinstance(model_field, ForeignKey):
+    #             form_field = CreatorModelChoiceField(queryset=choices,
+    #                                                  label=form_field.label,
+    #                                                  required=form_field.required,
+    #                                                 )
+    #         elif isinstance(model_field, ManyToManyField):
+    #             form_field = ModelMultipleChoiceField(label=form_field.label,
+    #                                                   queryset=choices,
+    #                                                   required=form_field.required,
+    #                                                   widget=UnorderedMultipleChoiceWidget,
+    #                                                  )
+    #
+    #     return form_field
 
     def _bulk_updatable_formfield(self, model_field, user, instance=None):
-        if isinstance(model_field, RelatedField):
-            form_field = self._bulk_related_formfield(model_field, user, instance)
-        else:
-            form_field = model_field.formfield()
-            # TODO : should remove this list and use some hooks in model fields in bulk registry to retrieve widgets
-            form_field.widget = _BULK_FIELD_WIDGETS.get(model_field.__class__) or form_field.widget
+        # if isinstance(model_field, RelatedField):
+        #     form_field = self._bulk_related_formfield(model_field, user, instance)
+        # else:
+        #     form_field = model_field.formfield()
+        #     form_field.widget = _BULK_FIELD_WIDGETS.get(model_field.__class__) or form_field.widget
+        form_field = model_field.formfield()
+
+        if hasattr(form_field, 'get_limit_choices_to'):
+            q_filter = form_field.get_limit_choices_to()
+
+            if q_filter is not None:
+                form_field.queryset = form_field.queryset.complex_filter(q_filter)
 
         form_field.user = user
 
@@ -277,7 +279,7 @@ class BulkForm(CremeForm):
         # In bulk mode get all entities, only the first one elsewhere
         entities = self.entities if self.is_bulk else self.entities[:1]
 
-        # Skip model clean step for customfields
+        # Skip model clean step for custom-fields
         if self.is_custom:
             self.bulk_cleaned_entities = entities
             self.bulk_invalid_entities = []

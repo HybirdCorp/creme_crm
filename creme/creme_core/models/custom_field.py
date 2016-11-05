@@ -313,12 +313,14 @@ class CustomFieldEnum(CustomFieldValue):
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
-        return cls.objects.filter(custom_field__in=cfields, entity__in=entities).select_related('value')
+        return cls.objects.filter(custom_field__in=cfields, entity__in=entities) \
+                          .select_related('value')
 
     @staticmethod
     def _build_formfield(custom_field, formfield):
         choices = [('', '-------')]
-        choices += CustomFieldEnumValue.objects.filter(custom_field=custom_field).values_list('id', 'value')
+        choices += CustomFieldEnumValue.objects.filter(custom_field=custom_field) \
+                                               .values_list('id', 'value')
         formfield.choices = choices
 
     def _set_formfield_value(self, field):
@@ -346,8 +348,9 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-        return forms.MultipleChoiceField(widget=UnorderedMultipleChoiceWidget, **kwargs)
+        # from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+        # return forms.MultipleChoiceField(widget=UnorderedMultipleChoiceWidget, **kwargs)
+        return forms.MultipleChoiceField(**kwargs)
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
@@ -357,7 +360,8 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     @staticmethod
     def _build_formfield(custom_field, formfield):
-        formfield.choices = CustomFieldEnumValue.objects.filter(custom_field=custom_field).values_list('id', 'value')
+        formfield.choices = CustomFieldEnumValue.objects.filter(custom_field=custom_field) \
+                                                        .values_list('id', 'value')
 
     def get_enumvalues(self):
         if self._enumvalues is None:

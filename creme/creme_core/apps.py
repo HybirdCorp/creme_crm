@@ -216,7 +216,9 @@ class CremeCoreConfig(CremeAppConfig):
 
         checks.register(Tags.settings)(check_uninstalled_apps)  # Crashes in migrate mode.
         self.hook_fk_formfield()
-        self.hook_datetime_widget()
+        self.hook_m2m_formfield()
+        self.hook_datetime_widgets()
+        self.hook_multiselection_widgets()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('creme_core', _(u'Core'), '/')
@@ -253,15 +255,26 @@ class CremeCoreConfig(CremeAppConfig):
                                       currency_symbol_key,
                                      )
 
-    # TODO: move to creme_config ??
-    def hook_fk_formfield(self):
+    # TODO: better API + move some code to creme_config ??
+    @staticmethod
+    def hook_fk_formfield():
         from django.db.models import ForeignKey
+
+        from .forms.fields import CreatorEntityField
+        from .models import CremeEntity
 
         from creme.creme_config.forms.fields import CreatorModelChoiceField
 
         original_fk_formfield = ForeignKey.formfield
 
         def new_fk_formfield(self, **kwargs):
+            if issubclass(self.rel.to, CremeEntity):
+                return CreatorEntityField(label=self.verbose_name,
+                                          model=self.rel.to,
+                                          required=not self.blank,
+                                          q_filter=self.rel.limit_choices_to,
+                                         )
+
             defaults = {'form_class': CreatorModelChoiceField}
             defaults.update(kwargs)
 
@@ -269,10 +282,44 @@ class CremeCoreConfig(CremeAppConfig):
 
         ForeignKey.formfield = new_fk_formfield
 
-    def hook_datetime_widget(self):
+    # TODO: see hook_fk_formfield()
+    @staticmethod
+    def hook_m2m_formfield():
+        from django.db.models import ManyToManyField
+
+        from .forms.fields import MultiCreatorEntityField
+        from .models import CremeEntity
+
+        original_m2m_formfield = ManyToManyField.formfield
+
+        def new_m2m_formfield(self, **kwargs):
+            if issubclass(self.rel.to, CremeEntity):
+                return MultiCreatorEntityField(label=self.verbose_name,
+                                               model=self.rel.to,
+                                               required=not self.blank,
+                                               q_filter=self.rel.limit_choices_to,
+                                              )
+
+            # TODO: creme_config MultiCreatorModelChoiceField
+
+            return original_m2m_formfield(self, **kwargs)
+
+        ManyToManyField.formfield = new_m2m_formfield
+
+    @staticmethod
+    def hook_datetime_widgets():
         from django.forms.fields import DateField, DateTimeField, TimeField
+
         from creme.creme_core.forms.widgets import CalendarWidget, DateTimeWidget, TimeWidget
 
         DateField.widget = CalendarWidget
         DateTimeField.widget = DateTimeWidget
         TimeField.widget = TimeWidget
+
+    @staticmethod
+    def hook_multiselection_widgets():
+        from django.forms import MultipleChoiceField, ModelMultipleChoiceField
+
+        from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+
+        MultipleChoiceField.widget = ModelMultipleChoiceField.widget = UnorderedMultipleChoiceWidget

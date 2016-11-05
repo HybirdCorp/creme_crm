@@ -30,7 +30,7 @@ from .recipient import Recipient
 
 class AbstractSMSCampaign(CremeEntity):
     name  = CharField(_(u'Name of the campaign'), max_length=100)
-    lists = ManyToManyField(settings.SMS_MLIST_MODEL, verbose_name=_(u'Related messaging lists'))
+    lists = ManyToManyField(settings.SMS_MLIST_MODEL, verbose_name=_(u'Related messaging lists'), blank=True)
 
     # TODO: pgettext (BUT beware because PreferredMenuItem does not manage context currently...)
     creation_label = _('Add a campaign')

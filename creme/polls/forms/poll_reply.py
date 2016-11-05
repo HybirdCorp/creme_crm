@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -54,10 +54,10 @@ class PollRepliesCreateForm(CremeForm):
                                  )
     number   = IntegerField(label=_(u'Number of replies'), initial=1, min_value=1, required=False)
     persons  = MultiGenericEntityField(label=_(u'Persons who filled'), required=False,
-                                        models=[Organisation, Contact],
-                                        help_text=_(u'Each reply will be linked to a person '
-                                                     '(and "Number of replies" will be ignored)'
-                                                   )
+                                       models=[Organisation, Contact],
+                                       help_text=_(u'Each reply will be linked to a person '
+                                                   u'(and "Number of replies" will be ignored)'
+                                                  ),
                                       )
     pform    = CreatorEntityField(label=_(u'Related form'), model=get_pollform_model())
 
@@ -142,19 +142,18 @@ class PollRepliesCreateForm(CremeForm):
             instance.save()
             duplicate_tree(instance, self.pform_lines)
         else:
-            self.instance = instance 
+            self.instance = instance
 
 
 class PollReplyEditForm(CremeEntityForm):
-    # TODO: improve the model in order to get these right fields/widgets automatically
-    campaign = CreatorEntityField(label=pgettext_lazy('polls', u'Related campaign'),
-                                  model=PollCampaign, required=False,
-                                 )
+    # campaign = CreatorEntityField(label=pgettext_lazy('polls', u'Related campaign'),
+    #                               model=PollCampaign, required=False,
+    #                              )
     # TODO: rename it 'person' when initial works well + remove from exclude + remove save()
-    related_person   = GenericEntityField(label=_(u'Person who filled'),
-                                          required=False,
-                                          models=[Organisation, Contact],
-                                         )
+    related_person = GenericEntityField(label=_(u'Person who filled'),
+                                        required=False,
+                                        models=[Organisation, Contact],
+                                       )
 
     class Meta:
         model = PollReply

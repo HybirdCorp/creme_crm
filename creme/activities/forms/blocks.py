@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,17 +24,15 @@ import logging
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.forms import BooleanField, ModelChoiceField, ModelMultipleChoiceField
-#from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _, ungettext # ugettext
 
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import RelationType, Relation
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from ..constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
 from ..models import Calendar
@@ -55,7 +53,8 @@ class ParticipantCreateForm(CremeForm):
                                           )
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
                                                    queryset=get_user_model().objects.filter(is_staff=False),
-                                                   required=False, widget=UnorderedMultipleChoiceWidget,
+                                                   required=False,
+                                                   # widget=UnorderedMultipleChoiceWidget,
                                                   )
     participants        = MultiCreatorEntityField(label=_(u'Participants'), model=Contact, required=False)
 
@@ -78,10 +77,7 @@ class ParticipantCreateForm(CremeForm):
         participants_field.q_filter = {'~pk__in': [c.id for c in existing],
                                        'is_user__isnull': True,
                                       }
-#        # hack : This weird line forces a value in 'creation_action_url' in order re-enable creation button.
-#        #        (see ActivityCreateForm)
-#        participants_field.create_action_url = participants_field.create_action_url
-        participants_field.force_creation = True # TODO: in constructor
+        participants_field.force_creation = True  # TODO: in constructor ?
 
         if entity.is_auto_orga_subject_enabled():
             participants_field.help_text = _('The organisations of the participants will '
@@ -101,7 +97,7 @@ class ParticipantCreateForm(CremeForm):
             del fields['my_participation']
             del fields['my_calendar']
         else:
-            #TODO: refactor this with a smart widget that manages dependencies
+            # TODO: refactor this with a smart widget that manages dependencies
             fields['my_participation'].widget.attrs['onclick'] = \
                 "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
@@ -113,9 +109,6 @@ class ParticipantCreateForm(CremeForm):
         return validate_linkable_entities(self.cleaned_data['participants'], self.user)
 
     def clean_participating_users(self):
-#        return validate_linkable_entities(Contact.objects.filter(is_user__in=self.cleaned_data['participating_users']),
-#                                          self.user,
-#                                         )
         users = set()
 
         for user in self.cleaned_data['participating_users']:
@@ -128,13 +121,12 @@ class ParticipantCreateForm(CremeForm):
                                           self.user,
                                          )
 
-    #TODO: factorise with ActivityCreateForm
+    # TODO: factorise with ActivityCreateForm
     def clean_my_participation(self):
         my_participation = self.cleaned_data.get('my_participation', False)
 
         if my_participation:
             user = self.user
-#            self.participants.append(validate_linkable_entity(user.linked_contact, user))
             self.participants.add(validate_linkable_entity(user.linked_contact, user))
 
         return my_participation
@@ -144,14 +136,12 @@ class ParticipantCreateForm(CremeForm):
 
         if not self._errors:
             activity = self.activity
-#            extend_participants = self.participants.extend
             extend_participants = self.participants.update
             extend_participants(cleaned_data['participating_users'])
             extend_participants(cleaned_data['participants'])
 
             if cleaned_data.get('my_participation') and not cleaned_data.get('my_calendar'):
-#                self.errors['my_calendar'] = ErrorList([ugettext(u"If you participate, you have to choose one of your calendars.")])
-                self.add_error('my_calendar', _(u"If you participate, you have to choose one of your calendars."))
+                self.add_error('my_calendar', _(u'If you participate, you have to choose one of your calendars.'))
 
             collisions = check_activity_collisions(activity.start, activity.end,
                                                    self.participants, busy=activity.busy,
@@ -166,7 +156,7 @@ class ParticipantCreateForm(CremeForm):
         activity = self.activity
 
         create_relation = partial(Relation.objects.create, object_entity=activity,
-                                  type_id=REL_SUB_PART_2_ACTIVITY, user=activity.user
+                                  type_id=REL_SUB_PART_2_ACTIVITY, user=activity.user,
                                  )
 
         for participant in self.participants:
@@ -180,7 +170,8 @@ class ParticipantCreateForm(CremeForm):
 
 
 class SubjectCreateForm(CremeForm):
-    subjects = MultiGenericEntityField(label=_(u'Subjects')) #TODO: qfilter to exclude current subjects, see MultiGenericEntityField
+    # TODO: qfilter to exclude current subjects, see MultiGenericEntityField
+    subjects = MultiGenericEntityField(label=_(u'Subjects'))
 
     def __init__(self, entity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
@@ -194,7 +185,7 @@ class SubjectCreateForm(CremeForm):
     def clean_subjects(self):
         subjects = self.cleaned_data['subjects']
 
-        #TODO: remove when the field manage 'qfilter'
+        # TODO: remove when the field manage 'qfilter'
         already_subjects = {r.object_entity_id
                                 for r in self.activity.get_subject_relations(real_entities=False)
                            }

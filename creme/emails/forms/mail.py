@@ -60,7 +60,7 @@ class EntityEmailForm(CremeEntityForm):
     c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__gt': ''})
     o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''})
 
-    attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
+    # attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
     send_me     = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
 
     error_messages = {
@@ -75,7 +75,7 @@ class EntityEmailForm(CremeEntityForm):
 
     class Meta:
         model  = EntityEmail
-        fields = ('sender', 'subject', 'body', 'body_html', 'signature')  # 'attachments'
+        fields = ('sender', 'subject', 'body', 'body_html', 'signature', 'attachments')
 
     def __init__(self, entity, *args, **kwargs):
         super(EntityEmailForm, self).__init__(*args, **kwargs)
@@ -103,7 +103,7 @@ class EntityEmailForm(CremeEntityForm):
                         label=self.fields[name].label,
                         required=False, widget=Label,
                         initial=ugettext(u'Beware: the field «Email address» is hidden ;'
-                                          ' please contact your administrator.'
+                                         u' please contact your administrator.'
                                         ),
                     )
 

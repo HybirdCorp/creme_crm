@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,6 @@ from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 
 from .. import get_smscampaign_model, get_messaginglist_model
-#from ..models import SMSCampaign, MessagingList
 
 
 SMSCampaign   = get_smscampaign_model()
@@ -33,9 +32,9 @@ MessagingList = get_messaginglist_model()
 
 
 class CampaignCreateForm(CremeEntityForm):
-    lists = MultiCreatorEntityField(label=_(u'Related messaging lists'),
-                                    required=False, model=MessagingList,
-                                   )
+    # lists = MultiCreatorEntityField(label=_(u'Related messaging lists'),
+    #                                 required=False, model=MessagingList,
+    #                                )
 
     class Meta(CremeEntityForm.Meta):
         model = SMSCampaign
@@ -60,7 +59,7 @@ class CampaignAddListForm(CremeForm):
         super(CampaignAddListForm, self).__init__(*args, **kwargs)
         self.campaign = entity
 
-    #in fact duplicate is not a problem with django's m2m
+    # In fact duplicate is not a problem with django's m2m
     def clean_lists(self):
         messaging_lists = self.cleaned_data['messaging_lists']
         current_lists   = frozenset(self.campaign.lists.values_list('pk', flat=True))
