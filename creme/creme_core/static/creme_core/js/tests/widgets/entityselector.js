@@ -127,14 +127,15 @@ test('creme.widget.EntitySelector.create (empty, invalid label url, auto)', func
 });
 
 test('creme.widget.EntitySelector.create (not empty, invalid label url, auto)', function() {
-    var element = mock_entityselector_create({labelURL:'mock/label/unknown'});
+    var element = mock_entityselector_create({labelURL: 'mock/label/unknown'});
     creme.widget.input(element).val('1');
 
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    equal("select a mock", $('button', element).text());
+//    equal("select a mock", $('button', element).text());
+    equal($('button', element).text(), gettext('Entity #%s (not viewable)').format('1'));
     equal("1", element.creme().widget().val());
     equal("", element.creme().widget().options().popupURL);
     equal("mock/label/unknown", element.creme().widget().options().labelURL);
@@ -162,7 +163,8 @@ test('creme.widget.EntitySelector.val', function() {
     equal("1", element.creme().widget().val());
 
     element.creme().widget().val('unknown');
-    equal("select a mock", $('button', element).text());
+//    equal("select a mock", $('button', element).text());
+    equal($('button', element).text(), gettext('Entity #%s (not viewable)').format('unknown'));
     equal("unknown", element.creme().widget().val());
 });
 
