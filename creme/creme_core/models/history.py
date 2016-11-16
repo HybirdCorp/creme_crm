@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -490,12 +490,12 @@ class _HLTAuxDeletion(_HLTAuxCreation):
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
     entity_ctype = CTypeForeignKey()  # We do not use entity.entity_type because
-                                     #  we keep history of the deleted entities.
-    entity_owner = CremeUserForeignKey() # We do not use entity.user because we keep history of the deleted entities
+                                      # we keep history of the deleted entities.
+    entity_owner = CremeUserForeignKey()  # We do not use entity.user because we keep history of the deleted entities
     username     = CharField(max_length=30)  # Not a Fk to a User object because we want to
                                              # keep the same line after the deletion of a User.
     date         = CreationDateTimeField()
-    type         = PositiveSmallIntegerField() # See TYPE_*
+    type         = PositiveSmallIntegerField()  # See TYPE_*
     value        = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
     ENABLED = True  # False means that no new HistoryLines are created.

@@ -644,3 +644,8 @@ span.ack-errors {
     display: block;
     background-color: #f08080;
 }
+
+img.entity-summary {
+    height: 64px;
+    width: 64px;
+}

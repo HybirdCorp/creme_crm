@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,19 +19,23 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CharField, TextField, ManyToManyField, ForeignKey
+from django.db.models import CharField, TextField, ForeignKey  # ManyToManyField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents.models.fields import ImageEntityManyToManyField
 
 
 class EmailSignature(CremeModel):
     name   = CharField(_(u'Name'), max_length=100)
     user   = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
     body   = TextField(_(u'Body'))
-    images = ManyToManyField(Image, verbose_name=_(u'Images'), blank=True)
+    # images = ManyToManyField(Image, verbose_name=_(u'Images'), blank=True)
+    images = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True,
+                                        help_text=_(u'Images embedded in emails (but not as attached).'),
+                                       )
 
     creation_label = pgettext_lazy('emails', 'Add a signature')
     save_label     = pgettext_lazy('emails', 'Save the signature')

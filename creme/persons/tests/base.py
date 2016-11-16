@@ -9,12 +9,17 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.documents import get_document_model
+    from creme.documents.tests.base import _DocumentsTestCase
+
     from .. import (address_model_is_custom, contact_model_is_custom, organisation_model_is_custom,
             get_address_model, get_contact_model, get_organisation_model)
 
     skip_address_tests = address_model_is_custom()
     skip_contact_tests = contact_model_is_custom()
     skip_organisation_tests = organisation_model_is_custom()
+
+    Document = get_document_model()
 
     Address = get_address_model()
     Contact = get_contact_model()
@@ -35,7 +40,8 @@ def skipIfCustomOrganisation(test_func):
     return skipIf(skip_organisation_tests, 'Custom Organisation model in use')(test_func)
 
 
-class _BaseTestCase(CremeTestCase):
+# class _BaseTestCase(CremeTestCase):
+class _BaseTestCase(_DocumentsTestCase):
     def login(self, is_superuser=True, **kwargs):
         return super(_BaseTestCase, self).login(is_superuser, allowed_apps=['persons'], **kwargs)
 

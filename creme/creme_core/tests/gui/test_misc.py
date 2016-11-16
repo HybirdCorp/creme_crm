@@ -23,8 +23,7 @@ try:
             FakeInvoice, FakeInvoiceLine)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import (_FieldPrintersRegistry,
-            FKPrinter, print_fk_null_html, simple_print_html,
-            print_foreignkey_html, print_fk_entity_html)  # field_printers_registry
+            FKPrinter, simple_print_html, print_foreignkey_html)  # field_printers_registry
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.models import CremeEntity, SetCredentials, Language
 except Exception as e:
@@ -109,10 +108,10 @@ class GuiTestCase(CremeTestCase):
     def test_field_printers01(self):
         user = self.login()
 
-        print_foreignkey_html = FKPrinter(none_printer=print_fk_null_html,
+        print_foreignkey_html = FKPrinter(none_printer=FKPrinter.print_fk_null_html,
                                           default_printer=simple_print_html,
                                          )
-        print_foreignkey_html.register(CremeEntity, print_fk_entity_html)
+        print_foreignkey_html.register(CremeEntity, FKPrinter.print_fk_entity_html)
 
         field_printers_registry = _FieldPrintersRegistry()
         field_printers_registry.register(models.ForeignKey, print_foreignkey_html)

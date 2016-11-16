@@ -17,10 +17,11 @@ try:
     from creme.creme_core.gui.quick_forms import quickforms_registry
     from creme.creme_core.models import RelationType, Relation, SetCredentials, FieldsConfig
 
-    from creme.media_managers.models import Image
+    # from creme.media_managers.models import Image
+    from creme.documents.tests.base import skipIfCustomDocument
 
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
-            skipIfCustomOrganisation, Contact, Organisation, Address)
+            skipIfCustomOrganisation, Contact, Organisation, Address, Document)
     from ..models import Position, Civility, Sector
     from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 except Exception as e:
@@ -522,11 +523,13 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertGET200(self._build_addrelated_uri(orga.id, rtype1.id))
 
         rtype2 = create_rtype(('persons-subject_test_badrtype1', u'Bad RType #1',     [Organisation]),
-                              ('persons-object_test_badrtype1',  u'Bad RType sym #1', [Image]),  # <==
+                              # ('persons-object_test_badrtype1',  u'Bad RType sym #1', [Image]),  # <==
+                              ('persons-object_test_badrtype1',  u'Bad RType sym #1', [Document]),  # <==
                              )[0]
         self.assertGET409(self._build_addrelated_uri(orga.id, rtype2.id))
 
-        rtype3 = create_rtype(('persons-subject_test_badrtype2', u'Bad RType #2',     [Image]),  # <==
+        # rtype3 = create_rtype(('persons-subject_test_badrtype2', u'Bad RType #2',     [Image]),  # <==
+        rtype3 = create_rtype(('persons-subject_test_badrtype2', u'Bad RType #2',     [Document]),  # <==
                               ('persons-object_test_badrtype2',  u'Bad RType sym #2', [Contact]),
                              )[0]
         self.assertGET409(self._build_addrelated_uri(orga.id, rtype3.id))
@@ -1473,25 +1476,27 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
         self.assertIsNone(harlock.sector)
 
+    @skipIfCustomDocument
     def test_delete_image(self):
         "Set to null"
         user = self.login()
 
-        path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
+        # path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
+        #
+        # image_name = 'My image'
+        # self.client.post('/media_managers/image/add', follow=True,
+        #                  data={'user':        user.pk,
+        #                        'name':        image_name,
+        #                        'description': 'Blabala',
+        #                        'image':       open(path, 'rb'),
+        #                       }
+        #                 )
+        #
+        # with self.assertNoException():
+        #     image = Image.objects.get(name=image_name)
+        image = self._create_image()
 
-        image_name = 'My image'
-        self.client.post('/media_managers/image/add', follow=True,
-                         data={'user':        user.pk,
-                               'name':        image_name,
-                               'description': 'Blabala',
-                               'image':       open(path, 'rb'),
-                              }
-                        )
-
-        with self.assertNoException():
-            image = Image.objects.get(name=image_name)
-
-        harlock = Contact.objects.create(user=self.user, last_name='Matsumoto', image=image)
+        harlock = Contact.objects.create(user=user, last_name='Matsumoto', image=image)
 
         image.delete()
 

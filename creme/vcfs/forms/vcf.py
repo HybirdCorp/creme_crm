@@ -21,7 +21,8 @@
 import base64
 from itertools import chain
 import logging
-import os
+# import os
+from os import path
 from urllib import urlretrieve
 from urllib2 import urlopen
 
@@ -40,7 +41,9 @@ from creme.creme_core.models import RelationType, Relation, FieldsConfig
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents import get_document_model, get_folder_model
+from creme.documents.utils import get_image_format
 
 from creme.persons import get_contact_model, get_organisation_model, get_address_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
@@ -50,11 +53,17 @@ from ..vcf_lib import readOne as read_vcf
 
 
 logger = logging.getLogger(__name__)
-URL_START = ('http://', 'https://', 'www.')
-IMG_UPLOAD_PATH = Image._meta.get_field('image').upload_to
+
+Document = get_document_model()
+Folder = get_folder_model()
+
 Contact = get_contact_model()
 Organisation = get_organisation_model()
 Address = get_address_model()
+
+URL_START = ('http://', 'https://', 'www.')
+# IMG_UPLOAD_PATH = Image._meta.get_field('image').upload_to
+IMG_UPLOAD_PATH = Document._meta.get_field('filedata').upload_to
 
 
 class VcfForm(CremeForm):
@@ -450,41 +459,64 @@ class VcfImportForm(CremeModelWithUserForm):
 
         if image_encoded:
             img_name = secure_filename(u'%s_%s_%s' % (contact.last_name, contact.first_name, contact.id))
-            img_path = ''
+            # img_path = ''
+            img_path = None
 
             if image_encoded.startswith(URL_START):
                 try:
                     if int(urlopen(image_encoded).info()['content-length']) <= settings.VCF_IMAGE_MAX_SIZE:
-                        os_path = os.path
-                        img_name = ''.join([img_name, os_path.splitext(image_encoded)[1]])
+                        # os_path = os.path
+                        # img_name = ''.join([img_name, os_path.splitext(image_encoded)[1]])
 
-                        img_path = os_path.join(IMG_UPLOAD_PATH, img_name)
-                        img_path = os_path.normpath(img_path)
+                        # img_path = os_path.join(IMG_UPLOAD_PATH, img_name)
+                        # img_path = os_path.normpath(img_path)
+                        tmp_img_path = path.normpath(path.join(IMG_UPLOAD_PATH, img_name))
 
-                        path = os_path.join(settings.MEDIA_ROOT, img_path)
-                        path = os_path.normpath(path)
-
-                        urlretrieve(image_encoded, path)
+                        # path = os_path.join(settings.MEDIA_ROOT, img_path)
+                        # path = os_path.normpath(path)
+                        # urlretrieve(image_encoded, path)
+                        urlretrieve(image_encoded, path.normpath(path.join(settings.MEDIA_ROOT, tmp_img_path)))
                 except:
                     logger.exception('Error with image')
-                    img_path = ''
+                    # img_path = ''
+                else:
+                    img_path = tmp_img_path
             else:  # TODO: manage urls encoded in base64 ??
                 try:
                     # TODO: factorise with activesync ??
-                    image_format = Image.get_image_format(image_encoded)
-                    img_path     = handle_uploaded_file(ContentFile(base64.decodestring(image_encoded)),
-                                                        path=[IMG_UPLOAD_PATH],
-                                                        name='%s.%s' % (img_name, image_format),
-                                                       )
+                    # image_format = Image.get_image_format(image_encoded)
+                    # img_path     = handle_uploaded_file(ContentFile(base64.decodestring(image_encoded)),
+                    #                                     path=[IMG_UPLOAD_PATH],
+                    #                                     name='%s.%s' % (img_name, image_format),
+                    #                                    )
+                    img_data = base64.decodestring(image_encoded)
+                    img_path = handle_uploaded_file(ContentFile(img_data),
+                                                    path=IMG_UPLOAD_PATH.split('/'),
+                                                    name='%s.%s' % (img_name,
+                                                                    get_image_format(img_data),
+                                                                   ),
+                                                   )
                 except Exception:
                     logger.exception('VcfImportForm.save()')
-                    img_path = ''
+                    # img_path = ''
 
             if img_path:
-                return Image.objects.create(user=cleaned_data['user'],
-                                            name=ugettext(u'Image of %s') % contact,
-                                            image=img_path,
-                                           )
+                # return Image.objects.create(user=cleaned_data['user'],
+                #                             name=ugettext(u'Image of %s') % contact,
+                #                             image=img_path,
+                #                            )
+                user = cleaned_data['user']
+                return Document.objects.create(user=user,
+                                               title=ugettext(u'Image of %s') % contact,
+                                               filedata=img_path,
+                                               folder=Folder.objects.get_or_create(title=ugettext('Images'),
+                                                                                   parent_folder=None,
+                                                                                   defaults={
+                                                                                       'user': user,
+                                                                                   },
+                                                                                  )[0],
+                                               description=ugettext('Imported by VCFs'),
+                                              )
 
     def _create_orga(self, contact):
         cleaned_data = self.cleaned_data

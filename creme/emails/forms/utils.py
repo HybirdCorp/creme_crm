@@ -18,28 +18,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.exceptions import ValidationError, PermissionDenied
-from django.utils.translation import ugettext as _
-
-from creme.emails.utils import get_images_from_html, ImageFromHTMLError
-
-
-def create_image_validation_error(filename):
-    return ValidationError(_(u"The image «%s» no longer exists or isn't valid.") % filename)
-
-def validate_images_in_html(html, user):
-    try:
-        images = get_images_from_html(html)
-    except ImageFromHTMLError as e:
-        raise create_image_validation_error(e.filename)
-
-    for filename, (image, src) in images.iteritems():
-        if image is None:
-            raise create_image_validation_error(filename)
-
-        try:
-            user.has_perm_to_view_or_die(image)
-        except PermissionDenied as pde:
-            raise ValidationError(pde)
-
-    return images
+# from django.core.exceptions import ValidationError, PermissionDenied
+# from django.utils.translation import ugettext as _
+#
+# from creme.emails.utils import get_images_from_html, ImageFromHTMLError
+#
+#
+# def create_image_validation_error(filename):
+#     return ValidationError(_(u"The image «%s» no longer exists or isn't valid.") % filename)
+#
+# def validate_images_in_html(html, user):
+#     try:
+#         images = get_images_from_html(html)
+#     except ImageFromHTMLError as e:
+#         raise create_image_validation_error(e.filename)
+#
+#     for filename, (image, src) in images.iteritems():
+#         if image is None:
+#             raise create_image_validation_error(filename)
+#
+#         try:
+#             user.has_perm_to_view_or_die(image)
+#         except PermissionDenied as pde:
+#             raise ValidationError(pde)
+#
+#     return images

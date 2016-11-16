@@ -18,14 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from mimetypes import guess_type
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import CharField, TextField, FileField, ForeignKey, PROTECT
+from django.db.models import CharField, TextField, FileField, ForeignKey, ManyToManyField, PROTECT
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
 
 from ..constants import REL_SUB_RELATED_2_DOC
+from .other_models import DocumentCategory, MimeType
 
 
 class AbstractDocument(CremeEntity):
@@ -35,6 +39,14 @@ class AbstractDocument(CremeEntity):
     folder      = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
                              verbose_name=_(u'Folder'), on_delete=PROTECT,
                             )
+    mime_type   = ForeignKey(MimeType, verbose_name=_(u'MIME type'),
+                             editable=False, on_delete=PROTECT,
+                             null=True,
+                            )
+    categories  = ManyToManyField(DocumentCategory, verbose_name=_(u'Categories'),
+                                  # related_name='+',
+                                  blank=True,
+                                 ).set_tags(optional=True)
 
     creation_label = _('Add a document')
     save_label     = _('Save the document')
@@ -66,6 +78,33 @@ class AbstractDocument(CremeEntity):
     @staticmethod
     def get_linkeddoc_relations(entity):
         return Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC)
+
+    def get_dl_url(self):
+        import os
+
+        return settings.MEDIA_URL + unicode(self.filedata).replace(os.sep, '/')
+
+    def get_entity_summary(self, user):
+        if not user.has_perm_to_view(self):
+            return self.allowed_unicode(user)
+
+        if self.mime_type.is_image:
+            return mark_safe(u'<img class="entity-summary" src="%(url)s" alt="%(name)s" title="%(name)s"/>' % {
+                                    'url':  self.get_dl_url(),
+                                    'name': self.title,
+                                }
+                            )
+
+        return super(AbstractDocument, self).get_entity_summary(user)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Creation
+            mime_name = guess_type(self.filedata.name)[0]
+
+            if mime_name is not None:
+                self.mime_type = MimeType.objects.get_or_create(name=mime_name)[0]
+
+        super(AbstractDocument, self).save(*args, **kwargs)
 
 
 class Document(AbstractDocument):

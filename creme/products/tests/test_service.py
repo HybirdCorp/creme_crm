@@ -10,7 +10,8 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials
 
-    from creme.media_managers.tests import create_image
+    # from creme.media_managers.tests import create_image
+    from creme.documents import get_document_model
 
     from .base import _ProductsTestCase, skipIfCustomService
     from .. import get_service_model
@@ -19,6 +20,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+Document = get_document_model()
 Service = get_service_model()
 
 
@@ -158,9 +160,12 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertEqual(cat,     service.category)
 
     def test_add_images(self):
-        #TODO: factorise
-        user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
-                          creatable_models=[Service],
+        # TODO: factorise
+        # user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
+        #                   creatable_models=[Service],
+        #                  )
+        user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
+                          creatable_models=[Service, Document],
                          )
 
         SetCredentials.objects.create(role=self.role,
@@ -180,10 +185,7 @@ class ServiceTestCase(_ProductsTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-#        img_1 = self.create_image(ident=1, user=user)
-#        img_2 = self.create_image(ident=2, user=user)
-#        img_3 = self.create_image(ident=3, user=user)
-#        img_4 = self.create_image(ident=4, user=self.other_user)
+        create_image = self._create_image
         img_1 = create_image(ident=1, user=user)
         img_2 = create_image(ident=2, user=user)
         img_3 = create_image(ident=3, user=user)
@@ -218,8 +220,7 @@ class ServiceTestCase(_ProductsTestCase):
     def test_remove_image(self):
         user = self.login()
 
-#        img_1 = self.create_image(ident=1, user=user)
-#        img_2 = self.create_image(ident=2, user=user)
+        create_image = self._create_image
         img_1 = create_image(ident=1, user=user)
         img_2 = create_image(ident=2, user=user)
 

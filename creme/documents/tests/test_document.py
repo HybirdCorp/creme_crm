@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 
 try:
+    import filecmp
     from functools import partial
     from json import dumps as json_dump
+    from os.path import join, exists
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
+    from django.test import override_settings
 
-    from creme.creme_core.tests.fake_models import FakeOrganisation as Organisation
-    from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.gui.field_printers import field_printers_registry
+    from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
+    from creme.creme_core.tests.fake_models import FakeOrganisation as Organisation
+
+    from creme.persons.tests.base import skipIfCustomContact
+    from creme.persons import get_contact_model
 
     from .base import (_DocumentsTestCase, skipIfCustomDocument,
             skipIfCustomFolder, Folder, Document)
-    from ..models import FolderCategory
+    from ..models import FolderCategory, DocumentCategory
     from ..constants import REL_SUB_RELATED_2_DOC
     from ..utils import get_csv_folder_or_create
 except Exception as e:
@@ -38,11 +45,13 @@ class DocumentTestCase(_DocumentsTestCase):
 
         self.assertTrue(Folder.objects.exists())
         self.assertTrue(FolderCategory.objects.exists())
+        self.assertTrue(DocumentCategory.objects.exists())
 
     def test_portal(self):
         self.login()
         self.assertGET200('/documents/')
 
+    @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
     def test_createview01(self):
         self.login()
 
@@ -51,15 +60,16 @@ class DocumentTestCase(_DocumentsTestCase):
         url = self.ADD_DOC_URL
         self.assertGET200(url)
 
-        ALLOWED_EXTENSIONS = settings.ALLOWED_EXTENSIONS
-        self.assertTrue(ALLOWED_EXTENSIONS)
-        ext = ALLOWED_EXTENSIONS[0]
+        # ALLOWED_EXTENSIONS = settings.ALLOWED_EXTENSIONS
+        # self.assertTrue(ALLOWED_EXTENSIONS)
+        # ext = ALLOWED_EXTENSIONS[0]
+        ext = settings.ALLOWED_EXTENSIONS[0]
 
         title = 'Test doc'
         description = 'Test description'
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
         file_obj, file_name = self._build_filedata(content, suffix='.%s' % ext)
-        folder   = Folder.objects.all()[0]
+        folder = Folder.objects.all()[0]
         response = self.client.post(self.ADD_DOC_URL, follow=True,
                                     data={'user':     self.user.pk,
                                           'title':    title,
@@ -77,6 +87,9 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
         self.assertEqual(folder,      doc.folder)
+
+        mime_type = doc.mime_type
+        self.assertIsNotNone(mime_type)
 
         self.assertRedirects(response, doc.get_absolute_url())
 
@@ -216,8 +229,10 @@ class DocumentTestCase(_DocumentsTestCase):
     def test_add_related_document01(self):
         user = self.login()
 
-        folders = Folder.objects.all()
-        self.assertEqual(1, len(folders))
+        # folders = Folder.objects.all()
+        folders = Folder.objects.order_by('id')
+        # self.assertEqual(1, len(folders))
+        self.assertEqual(2, len(folders))
         root_folder = folders[0]
 
         entity = CremeEntity.objects.create(user=user)
@@ -421,6 +436,77 @@ class DocumentTestCase(_DocumentsTestCase):
         folder = self.get_object_or_fail(Folder, pk=folder.pk)
         self.assertIsNone(folder.category)
 
+    @skipIfCustomContact
+    def test_field_printers01(self):
+        "Field printer with FK on Image"
+        user = self.login()
+
+        image = self._create_image()
+        summary = image.get_entity_summary(user)
+        self.assertHTMLEqual('<img class="entity-summary" src="%(url)s" alt="%(name)s" title="%(name)s"/>' % {
+                                    'url':  image.get_dl_url(),
+                                    'name': image.title,
+                                },
+                             summary
+                            )
+
+        casca = get_contact_model().objects.create(user=user, image=image,
+                                                   first_name='Casca', last_name='Mylove',
+                                                  )
+        self.assertHTMLEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
+                                    image.get_dl_url(),
+                                    summary,
+                                ),
+                             field_printers_registry.get_html_field_value(casca, 'image', user)
+                            )
+        self.assertEqual(unicode(casca.image),
+                         field_printers_registry.get_csv_field_value(casca, 'image', user)
+                        )
+
+    @skipIfCustomContact
+    def test_field_printers02(self):
+        "Field printer with FK on Image + credentials"
+        Contact = get_contact_model()
+
+        user = self.login(allowed_apps=['creme_core', 'persons', 'documents'])
+        other_user = self.other_user
+
+        self.role.exportable_ctypes = [ContentType.objects.get_for_model(Contact)]
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        create_img = self._create_image
+        casca_face = create_img(title='Casca face', user=user,       description="Casca's selfie")
+        judo_face  = create_img(title='Judo face',  user=other_user, description="Judo's selfie")
+
+        self.assertTrue(other_user.has_perm_to_view(judo_face))
+        self.assertFalse(other_user.has_perm_to_view(casca_face))
+
+        create_contact = partial(Contact.objects.create, user=other_user)
+        casca = create_contact(first_name='Casca', last_name='Mylove', image=casca_face)
+        judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
+
+        get_html_val = field_printers_registry.get_html_field_value
+        self.assertEqual(u'<a onclick="creme.dialogs.image(\'%s\').open();">%s</a>' % (
+                                judo_face.get_dl_url(),
+                                judo_face.get_entity_summary(other_user)
+                            ),
+                         get_html_val(judo, 'image', other_user)
+                        )
+        self.assertEqual('<p>Judo&#39;s selfie</p>',
+                         get_html_val(judo, 'image__description', other_user)
+                        )
+
+        HIDDEN_VALUE = settings.HIDDEN_VALUE
+        self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image', other_user))
+        self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image__description', other_user))
+
     # TODO: (block not yet injected in all apps)
     # def test_orga_block(self):
     #     self.login()
@@ -481,8 +567,10 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
-    def test_add_from_widget(self):
+# class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
+class DocumentQuickWidgetTestCase(_DocumentsTestCase):
+    # def test_add_from_widget(self):
+    def test_add_csv_doc(self):
         user = self.login()
 
         self.assertFalse(Document.objects.exists())
@@ -491,7 +579,8 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         url = reverse('documents__create_document_from_widget', args=(1,))
         self.assertGET200(url)
 
-        content = 'Content (CSVDocumentQuickWidgetTestCase.test_add_from_widget)'
+        # content = 'Content (CSVDocumentQuickWidgetTestCase.test_add_from_widget)'
+        content = 'Content (DocumentQuickWidgetTestCase.test_add_csv_doc)'
         file_obj, file_name = self._build_filedata(content)
         response = self.client.post(url, follow=True,
                                     data={'user':     user.pk,
@@ -520,3 +609,63 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         filedata = doc.filedata
         filedata.open()
         self.assertEqual([content], filedata.readlines())
+
+    @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
+    def test_add_image_doc01(self):
+        user = self.login()
+
+        url = reverse('documents__create_image_popup')
+        self.assertGET200(url)
+
+        path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
+        self.assertTrue(exists(path))
+
+        folder = Folder.objects.all()[0]
+        image_file = open(path, 'rb')
+        response = self.client.post(url, follow=True,
+                                    data={'user':   user.pk,
+                                          'image':  image_file,
+                                          'folder': folder.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        docs = Document.objects.all()
+        self.assertEqual(1, len(docs))
+
+        doc = docs[0]
+        self.assertEqual('creme_22.png', doc.title)
+        self.assertEqual('',             doc.description)
+        self.assertEqual(folder,         doc.folder)
+        self.assertTrue('image/png',     doc.mime_type.name)
+
+        self.assertTrue(filecmp.cmp(path, doc.filedata.path))
+
+        self.assertEqual(u'<json>%s</json>' % json_dump({
+                                'added': [[doc.id, unicode(doc)]],
+                                'value': doc.id,
+                            }),
+                         response.content
+                        )
+
+    @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
+    def test_add_image_doc02(self):
+        "Not an image file"
+        user = self.login()
+
+        folder = Folder.objects.all()[0]
+        content = '<xml>Content (DocumentQuickWidgetTestCase.test_add_image_doc02)</xml>'
+        file_obj, file_name = self._build_filedata(content, suffix='.xml')
+        response = self.assertPOST200(reverse('documents__create_image_popup'),
+                                      follow=True,
+                                      data={'user':   user.pk,
+                                            'image':  file_obj,
+                                            'folder': folder.id,
+                                           },
+                                     )
+        self.assertFormError(response, 'form', 'image',
+                             _('Upload a valid image. '
+                               'The file you uploaded was either not an image or a corrupted image.'
+                              )
+                            )
+

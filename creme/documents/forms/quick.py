@@ -20,6 +20,9 @@
 
 from os.path import basename
 
+from django.utils.translation import ugettext as _
+from django.forms import ImageField
+
 from creme.creme_core.forms.base import CremeModelWithUserForm
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
@@ -84,6 +87,7 @@ class DocumentWidgetQuickForm(DocumentQuickForm):
         return super(DocumentWidgetQuickForm, self).save(*args, **kwargs)
 
 
+# TODO: check Mimetype of the uploaded file ?
 class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
     def __init__(self, user=None, *args, **kwargs):
         super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
@@ -91,3 +95,28 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
     def clean(self):
         self.folder = get_csv_folder_or_create(self.user)
         return super(CSVDocumentWidgetQuickForm, self).clean()
+
+
+# TODO: factorise
+class ImageQuickForm(CremeModelWithUserForm):
+    image = ImageField(label=_('Image file'), max_length=Document._meta.get_field('filedata').max_length)
+
+    class Meta:
+        model = Document
+        fields = ('user', 'image', 'folder')
+
+    def __init__(self, *args, **kwargs):
+        super(ImageQuickForm, self).__init__(*args, **kwargs)
+        self.fields['folder'].initial = get_folder_model().objects.filter(title=_(u'Images')).first()
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+
+        instance.filedata = fpath = handle_uploaded_file(
+                self.cleaned_data['image'],
+                path=['upload', 'documents'],
+                max_length=Document._meta.get_field('filedata').max_length,
+            )
+        assign_2_charfield(instance, 'title', basename(fpath))
+
+        return super(ImageQuickForm, self).save(*args, **kwargs)

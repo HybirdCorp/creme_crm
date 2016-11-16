@@ -26,7 +26,7 @@ from creme.creme_core.views.generic import inner_popup
 from creme.creme_core.views.quick_forms import json_quickform_response
 
 from .. import get_document_model
-from ..forms.quick import CSVDocumentWidgetQuickForm
+from ..forms.quick import CSVDocumentWidgetQuickForm, ImageQuickForm
 
 
 Document = get_document_model()
@@ -36,6 +36,7 @@ Document = get_document_model()
 def abstract_add_doc_from_widget(request, count, form=CSVDocumentWidgetQuickForm,
                                  template='creme_core/generics/form/add_innerpopup.html',
                                  submit_label=_('Save the document'),
+                                 title=Document.creation_label,
                                 ):
     user = request.user
 
@@ -59,7 +60,8 @@ def abstract_add_doc_from_widget(request, count, form=CSVDocumentWidgetQuickForm
 
     return inner_popup(request, template,
                        {'form':         form_instance,
-                        'title':        Document.creation_label,
+                        # 'title':        Document.creation_label,
+                        'title':        title,
                         'submit_label': submit_label,
                        },
                        is_valid=form_instance.is_valid(),
@@ -71,3 +73,12 @@ def abstract_add_doc_from_widget(request, count, form=CSVDocumentWidgetQuickForm
 @login_required
 def add_csv_from_widget(request, count):
     return abstract_add_doc_from_widget(request, count)
+
+
+@login_required
+def add_image(request):
+    return abstract_add_doc_from_widget(request, count=1,
+                                        form=ImageQuickForm,
+                                        submit_label=_('Save the image'),
+                                        title=_('Add an image'),
+                                       )

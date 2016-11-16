@@ -645,7 +645,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_view_xsl05(self):
         "Deeper with Many2Many"
         languages = Language.objects.all()
-        self.populate('creme_core')
+        # self.populate('creme_core')
         self.assertTrue(languages)
 
         d_ns = {'xsl': '{http://www.w3.org/1999/XSL/Transform}',
@@ -663,7 +663,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          node_vb.text
                         )
 
-        target_node =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/div' % d_ns)
+        target_node = xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/div' % d_ns)
         self.assertIsNotNone(target_node)
 
         input_nodes = target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input' % d_ns)

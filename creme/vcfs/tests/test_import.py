@@ -13,7 +13,8 @@ try:
     from creme.creme_core.models import FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.media_managers.models import Image
+    # from creme.media_managers.models import Image
+    from creme.documents import get_document_model
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
@@ -28,6 +29,7 @@ except Exception as e:
 
 
 # TODO: factorise ?
+Document = get_document_model()
 Address = get_address_model()
 Contact = get_contact_model()
 Organisation = get_organisation_model()
@@ -1115,7 +1117,8 @@ END:VCARD""" % name
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
-        image_count   = Image.objects.count()
+        # image_count   = Image.objects.count()
+        image_count   = Document.objects.count()
         address_count = Address.objects.count()
 
         content = """BEGIN:VCARD
@@ -1165,7 +1168,8 @@ PHOTO:""" \
                         )
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(image_count,       Image.objects.count())
+        # self.assertEqual(image_count,       Image.objects.count())
+        self.assertEqual(image_count,       Document.objects.count())
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
 
@@ -1222,7 +1226,8 @@ PHOTO:""" \
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
-        image_count   = Image.objects.count()
+        # image_count   = Image.objects.count()
+        image_count   = Document.objects.count()
         address_count = Address.objects.count()
 
         content = """BEGIN:VCARD
@@ -1261,14 +1266,17 @@ PHOTO;TYPE=JPEG:""" \
                               }
                         )
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(image_count + 1,   Image.objects.count())
+        # self.assertEqual(image_count + 1,   Image.objects.count())
+        self.assertEqual(image_count + 1,   Document.objects.count())
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertTrue(contact.image)
-        self.assertEqual(_(u'Image of %s') % contact, contact.image.name)
-        contact.image.image.delete()
+        # self.assertEqual(_(u'Image of %s') % contact, contact.image.name)
+        self.assertEqual(_(u'Image of %s') % contact, contact.image.title)
+        # contact.image.image.delete()
+        contact.image.filedata.delete()
 
     @skipIfCustomContact
     def test_add_contact_vcf15(self):
@@ -1281,7 +1289,8 @@ PHOTO;TYPE=JPEG:""" \
         path = 'file:///' + os_path.normpath(path_base)
 
         contact_count = Contact.objects.count()
-        self.assertEqual(0, Image.objects.count())
+        # self.assertEqual(0, Image.objects.count())
+        self.assertEqual(0, Document.objects.count())
 
         content  = """BEGIN:VCARD
 FN:Ayaka YUKIHIRO
@@ -1301,12 +1310,14 @@ END:VCARD""" % path
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
-        images = Image.objects.all()
+        # images = Image.objects.all()
+        images = Document.objects.all()
         self.assertEqual(1, len(images))
 
         image = images[0]
-        self.assertEqual(image,                       contact.image)
-        self.assertEqual(_(u'Image of %s') % contact, image.name)
+        self.assertEqual(image, contact.image)
+        # self.assertEqual(_(u'Image of %s') % contact, image.name)
+        self.assertEqual(_(u'Image of %s') % contact, image.title)
         image.delete()
 
     @skipIfCustomContact
@@ -1314,7 +1325,8 @@ END:VCARD""" % path
         self.login()
 
         contact_count = Contact.objects.count()
-        image_count   = Image.objects.count()
+        # image_count   = Image.objects.count()
+        image_count   = Document.objects.count()
 
         content = u"""BEGIN:VCARD
 FN:Kaede NAGASE
@@ -1329,7 +1341,8 @@ END:VCARD"""
                         )
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(image_count,       Image.objects.count())
+        # self.assertEqual(image_count,       Image.objects.count())
+        self.assertEqual(image_count,       Document.objects.count())
 
     @skipIfCustomContact
     @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
@@ -1339,7 +1352,8 @@ END:VCARD"""
         vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
 
         contact_count = Contact.objects.count()
-        image_count   = Image.objects.count()
+        # image_count   = Image.objects.count()
+        image_count   = Document.objects.count()
         content  = """BEGIN:VCARD
 FN:Satomi HAKASE
 PHOTO;VALUE=URL:file:///%s
@@ -1352,7 +1366,8 @@ END:VCARD""" % os_path.normpath(os_path.join(settings.CREME_ROOT, 'static', 'ima
                               }
                         )
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(image_count,       Image.objects.count())
+        # self.assertEqual(image_count,       Image.objects.count())
+        self.assertEqual(image_count,       Document.objects.count())
 
     @skipIfCustomContact
     def test_fields_config01(self):

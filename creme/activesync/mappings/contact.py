@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,9 @@ from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.meta import get_instance_field_info
 from creme.creme_core.views.file_handling import handle_uploaded_file, MAXINT
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents import get_document_model, get_folder_model
+from creme.documents.utils import get_image_format
 
 from creme.persons import get_organisation_model, get_contact_model, get_address_model
 from creme.persons.models import Position, Civility #Organisation, Contact
@@ -43,6 +45,8 @@ from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
 from ..utils import get_b64encoded_img_of_max_weight
 
+Document = get_document_model()
+Folder = get_folder_model()
 
 Organisation = get_organisation_model()
 Contact = get_contact_model()
@@ -226,12 +230,23 @@ def create_image_from_b64(contact, d, user):
 
         if contact_has_img:
             img_entity = contact.image
-            img_entity.image.delete()#Deleting the old file
+            img_entity.image.delete()  # Deleting the old file
         else:
-            img_entity = Image()
+            # img_entity = Image()
+            img_entity = Document()
 
-        image_format = Image.get_image_format(image_b64)
-        img_entity.image = handle_uploaded_file(ContentFile(base64.decodestring(image_b64)), path=['upload','images'], name='file_%08x.%s' % (randint(0, MAXINT), image_format))
+        image_data = base64.decodestring(image_b64)
+        image_format = get_image_format(image_data)
+        # img_entity.image = handle_uploaded_file(ContentFile(base64.decodestring(image_b64)), path=['upload','images'], name='file_%08x.%s' % (randint(0, MAXINT), image_format))
+        img_entity.image = handle_uploaded_file(ContentFile(image_data),
+                                                path=['upload', 'documents'],
+                                                name='file_%08x.%s' % (randint(0, MAXINT), image_format),
+                                               )
+        img_entity.folder = Folder.objects.get_or_create(title=_('Images'),
+                                                         parent_folder=None,
+                                                         defaults={'user': user},
+                                                        )[0]
+        img_entity.description = _('Imported by activesync')
         img_entity.user = user
         img_entity.save()
         contact.image = img_entity

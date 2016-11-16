@@ -19,6 +19,7 @@
 ################################################################################
 
 from itertools import chain
+from os.path import splitext
 import warnings
 
 from django.conf import settings
@@ -88,6 +89,18 @@ def print_image(entity, fval, user, field):
                   DeprecationWarning
                  )
     return print_image_html(entity, fval, user, field)
+
+
+def print_file_html(entity, fval, user, field):
+    if fval:
+        ext = splitext(fval.path)[1]
+        if ext:
+            ext = ext[1:]  # remove '.'
+
+        if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
+            return print_image_html(entity, fval, user, field)
+
+    return simple_print_html(entity, fval, user, field)
 
 
 def print_image_html(entity, fval, user, field):
@@ -176,6 +189,15 @@ def print_foreignkey(entity, fval, user, field):
 #
 #     return escape(unicode(fval))
 class FKPrinter(object):
+    @staticmethod
+    def print_fk_null_html(entity, user, field):
+        null_label = field.get_null_label()
+        return u'<em>%s</em>' % null_label if null_label else ''
+
+    @staticmethod
+    def print_fk_entity_html(entity, fval, user, field):
+        return widget_entity_hyperlink(fval, user)
+
     def __init__(self, none_printer, default_printer):
         self.none_printer = none_printer
         self._sub_printers = ClassKeyedMap(default=default_printer)
@@ -189,18 +211,9 @@ class FKPrinter(object):
         return self
 
 
-def print_fk_null_html(entity, user, field):
-    null_label = field.get_null_label()
-    return u'<em>%s</em>' % null_label if null_label else ''
-
-
-def print_fk_entity_html(entity, fval, user, field):
-    return widget_entity_hyperlink(fval, user)
-
-
-print_foreignkey_html = FKPrinter(none_printer=print_fk_null_html,
+print_foreignkey_html = FKPrinter(none_printer=FKPrinter.print_fk_null_html,
                                   default_printer=simple_print_html,
-                                 ).register(CremeEntity, print_fk_entity_html)
+                                 ).register(CremeEntity, FKPrinter.print_fk_entity_html)
 
 
 # TODO: FKPrinter() ?
@@ -356,6 +369,8 @@ class _FieldPrintersRegistry(object):
                     (models.TextField,          print_text_html),
                     (models.EmailField,         print_email_html),
                     (models.URLField,           print_url_html),
+
+                    (models.FileField,          print_file_html),
                     (models.ImageField,         print_image_html),
 
                     (models.ForeignKey,         print_foreignkey_html),
