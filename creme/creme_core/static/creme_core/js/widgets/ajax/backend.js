@@ -18,9 +18,9 @@
 
 creme.ajax.Backend = function(options) {
     this.options = $.extend({
-        dataType:'html',
-        sync:false,
-        debug:false
+        dataType: 'html',
+        sync: false,
+        debug: false
     }, options || {});
 }
 

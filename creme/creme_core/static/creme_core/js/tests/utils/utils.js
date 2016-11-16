@@ -140,3 +140,10 @@ test('creme.utils.comparator (multiple keys)', function() {
     equal(-1, compare({value: 12, index: 0}, {value: 12, index: 1}));
     equal(-1, compare({value: 12, index: 1}, {value: 13, index: 0}));
 });
+
+test('creme.utils.isHTMLDataType', function() {
+    equal(creme.utils.isHTMLDataType('html'), true);
+    equal(creme.utils.isHTMLDataType('text/html'), true);
+    equal(creme.utils.isHTMLDataType('HTML'), true);
+    equal(creme.utils.isHTMLDataType('json'), false);
+});

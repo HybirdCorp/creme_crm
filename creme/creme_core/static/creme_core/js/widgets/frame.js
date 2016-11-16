@@ -19,7 +19,7 @@
 creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
 
     options: {
-        backend:        new creme.ajax.Backend({dataType:'html'}),
+        backend:        new creme.ajax.Backend({dataType: 'html'}),
         url:            undefined,
         overlay_delay:  100
     },
