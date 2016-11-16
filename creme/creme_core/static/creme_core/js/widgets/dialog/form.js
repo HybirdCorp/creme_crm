@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2016  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
+
+/*
+ * Requires : creme.utils
+ */
 
 creme.dialog = creme.dialog || {};
 
@@ -64,19 +68,23 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     },
 
     _defaultValidator: function(data, statusText, dataType) {
-        return dataType !== 'text/html' || data.match(/<form[^>]*>/) === null;
+//        return dataType !== 'text/html' || data.match(/<form[^>]*>/) === null;
+        return !creme.utils.isHTMLDataType(dataType) || data.match(/<form[^>]*>/) === null;
     },
 
     _compatibleValidator: function(data, statusText, dataType)
     {
-        if (Object.isEmpty(data) || dataType !== 'text/html')
+//        if (Object.isEmpty(data) || dataType !== 'text/html') {
+        if (Object.isEmpty(data) || !creme.utils.isHTMLDataType(dataType)) {
             return true;
+        }
 
         if (data.match(/^<div[^>]+class="in-popup"[^>]*>/)) {
-            if (data.match(/^<div[^>]+closing="true"[^>]*>/))
+            if (data.match(/^<div[^>]+closing="true"[^>]*>/)) {
                 return true;
+            }
 
-            return (data.match(/<form[^>]*>/) === null)
+            return (data.match(/<form[^>]*>/) === null);
         }
 
         return false;

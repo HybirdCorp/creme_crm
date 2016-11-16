@@ -92,7 +92,7 @@ def json_quickform_response(instance):
 
 
 @login_required
-def add_from_widget(request, ct_id, count):
+def add_from_widget(request, ct_id, count):  # TODO: remove 'count'
     model = get_ct_or_404(ct_id).model_class()
     model_name = model._meta.verbose_name
     user = request.user
@@ -116,6 +116,7 @@ def add_from_widget(request, ct_id, count):
     else:
         form = form_class(user=user, initial=None)
 
+    # TODO: 'creme_core/generics/blockform/add_popup2.html' ??
     return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
                        {'form':   form,
                         'title':  model.creation_label,

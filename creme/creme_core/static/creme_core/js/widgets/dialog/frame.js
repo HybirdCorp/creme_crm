@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2016  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
+
+/*
+ * Requires : creme.utils
+ */
 
 creme.dialog = creme.dialog || {};
 
@@ -81,7 +85,8 @@ creme.dialog.Frame = creme.component.Component.sub({
         if (Object.isType(response, 'string')) {
             return this._cleanJSONResponse(response) || {content: response, type: dataType || 'text/html'};
         } else if (Object.isType(response, 'object')) {
-            if (response.type == 'text/html') {
+//            if (response.type == 'text/html') {
+            if (creme.utils.isHTMLDataType(response.type)) {
                 return response;
             } else {
                 return {content: response, type: Object.getPrototypeOf(response).jquery ? 'object/jquery' : 'object'};
@@ -117,9 +122,12 @@ creme.dialog.Frame = creme.component.Component.sub({
         var data = this._cleanResponse(data);
         var delegate = this._delegate;
         var overlay = this._overlay;
+        var dataType = data.type;
 
-        if (['text/html', 'object/jquery'].indexOf(data.type) === -1)
+//        if (['text/html', 'object/jquery'].indexOf(data.type) === -1) {
+        if (!creme.utils.isHTMLDataType(dataType) && dataType !== 'object/jquery') {
             return this;
+        }
 
         try {
             overlay.unbind(delegate).update(false);
