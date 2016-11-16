@@ -93,7 +93,7 @@ class _CurrentUserVariable(EntityFilterVariable):
         if isinstance(value, basestring) and value == EntityFilterVariable.CURRENT_USER:
             return
 
-        field.formfield().clean(value)
+        return field.formfield().clean(value)
 
 
 class EntityFilter(Model):  # CremeModel ???
@@ -101,7 +101,7 @@ class EntityFilter(Model):  # CremeModel ???
     They are principally used in the list views.
     Conditions can be :
      - On regular fields (eg: CharField, IntegerField) with a special behaviour for date fields.
-     - On related fields (throught ForeignKey or Many2Many).
+     - On related fields (through ForeignKey or Many2Many).
      - On CustomFields (with a special behaviour for CustomFields with DATE type).
      - An other EntityFilter
      - The existence (or the not existence) of a kind of Relationship.
@@ -126,7 +126,7 @@ class EntityFilter(Model):  # CremeModel ???
     _subfilter_conditions_cache = None
 
     _VARIABLE_MAP = {
-            EntityFilterVariable.CURRENT_USER: _CurrentUserVariable()
+            EntityFilterVariable.CURRENT_USER: _CurrentUserVariable(),
         }
 
     class Meta:
