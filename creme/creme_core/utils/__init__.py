@@ -21,8 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+#
 ################################################################################
-
 
 import logging
 import warnings
@@ -45,12 +45,18 @@ logger = logging.getLogger(__name__)
 
 
 def creme_entity_content_types():
+    "Generator which yields ContentType instances corresponding to registered entity models."
     from ..registry import creme_registry
     get_for_model = ContentType.objects.get_for_model
     return (get_for_model(model) for model in creme_registry.iter_entity_models())
 
 
 def get_ct_or_404(ct_id):
+    """Retrieve a ContentType by its ID.
+    @param ct_id: ID of the wanted ContentType instance (int or string).
+    @return: ContentType instance.
+    @raise: Http404 Exception if the ContentType does not exist.
+    """
     try:
         ct = ContentType.objects.get_for_id(ct_id)
     except ContentType.DoesNotExist:
@@ -60,6 +66,11 @@ def get_ct_or_404(ct_id):
 
 
 def build_ct_choices(ctypes):
+    """ Build a choices list (useful for form ChoiceField for example) for ContentTypes.
+    Labels are localized, & choices are sorted by labels.
+    @param ctypes: Iterable of ContentTypes.
+    @return: A list of tuples.
+    """
     from .unicode_collation import collator
     choices = [(ct.id, unicode(ct)) for ct in ctypes]
 
@@ -307,9 +318,20 @@ def int_2_roman(i):
     return ''.join(result)
 
 
-def truncate_str(str, max_length, suffix=""):
+def truncate_str(str, max_length, suffix=''):
+    """Truncate a suffixed string to a maximum length ; priority is given to keep the whole suffix,
+     excepted when this one is too long.
+
+    @param str: The original string (a basestring instance).
+    @param max_length: The maximum length (integer).
+    @param suffix: A basestring instance.
+    @return: The truncated string (a basestring instance).
+
+    >> truncate_str('my_entity_with_a_long_name', 24, suffix='#2')
+    'my_entity_with_a_long_#2'
+    """
     if max_length <= 0:
-        return ""
+        return ''
 
     len_str = len(str)
     if len_str <= max_length and not suffix:
@@ -321,7 +343,8 @@ def truncate_str(str, max_length, suffix=""):
     elif total == 0:
         return suffix
     else:
-        return str[:total]
+        # return str[:total]
+        return str[:max_length]
 
 
 def ellipsis(s, length):
@@ -332,6 +355,16 @@ def ellipsis(s, length):
 
 
 def ellipsis_multi(strings, length):
+    """Return (potentially) shorter strings in order to the global length does not exceed a given value.
+    Strings are shorten in a way which tends to make them of the same length.
+
+    @param strings: Iterable of basestring instances.
+    @param length: Global (maximum) length (ie: integer).
+    @return: A list of basestring instances.
+
+    >> ellipsis_multi(['123456', '12', '12'], 9)
+    [u'1234…', '12', '12']
+    """
     str_2_truncate = [[len(s), s] for s in strings]
     total_len = sum(elt[0] for elt in str_2_truncate)
 
@@ -355,7 +388,7 @@ def prefixed_truncate(s, prefix, length):
 
     @param s: A basestring instance.
     @param prefix: An object which can be "stringified" ; eg: a string, a ugettext_lazy instance.
-    @param length: An integer
+    @param length: An integer.
     @return: A basestring.
     """
     if len(s) <= length:
