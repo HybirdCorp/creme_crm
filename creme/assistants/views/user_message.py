@@ -41,7 +41,7 @@ def add(request):
     else:
         message_form = UserMessageForm(entity=None, user=request.user)
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form':   message_form,
                         'title':  _(u'New message'),
                         'submit_label': _('Save the message'),

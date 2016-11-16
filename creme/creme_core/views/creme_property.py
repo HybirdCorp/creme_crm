@@ -70,7 +70,7 @@ def add_properties_bulk(request, ct_id):
                                      forbidden_entities=filtered[False],
                                     )
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form':  form,
                         'title': _(u'Multiple adding of properties'),
                         'submit_label': _('Add the properties'),

@@ -111,7 +111,7 @@ def add_to_catalog(request, line_id):
     else:
         form = AddToCatalogForm(request.user, line, related_item_class=related_item_class)
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form': form,
                         'title': _(u'Add this on the fly item to your catalog'),
                         'submit_label': _('Add to the catalog'),

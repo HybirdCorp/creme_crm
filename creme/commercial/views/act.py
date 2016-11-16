@@ -89,7 +89,7 @@ def abstract_view_objective_pattern(request, objpattern_id,
 
 
 def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
-                             template='creme_core/generics/blockform/add_popup2.html',
+                             template='creme_core/generics/blockform/add_popup.html',
                              title=_(u'Add a linked opportunity'),
                              # submit_label=_(u'Save the opportunity'),
                              submit_label=Opportunity.save_label,
@@ -224,7 +224,7 @@ def _add_subpattern_component(request, component_id, form_class, title):
     else:
         form = form_class(related_comp, user=user)
 
-    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                                {'form':  form,
                                 'title': title % related_comp,
                                 'submit_label': _('Save the objective'),
@@ -309,7 +309,7 @@ def create_objective_entity(request, objective_id):
     else:  # return page on GET request
         form = form_class(user=user)
 
-    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                                {'form':  form,
                                 'title': model.creation_label,
                                 'submit_label': model.save_label,

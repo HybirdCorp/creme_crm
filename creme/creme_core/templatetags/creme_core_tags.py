@@ -104,6 +104,20 @@ def get_viewable_fields(context, instance):
            ]
 
 
+_log_levels = {
+    'CRITICAL': logging.CRITICAL,
+    'ERROR':    logging.ERROR,
+    'WARN':     logging.WARNING,
+    'INFO':     logging.INFO,
+    'DEBUG':    logging.DEBUG,
+}
+
+@register.simple_tag
+def log(msg, level='INFO'):
+    logger.log(_log_levels.get(level, logging.INFO), msg)
+    return ''
+
+
 @register.filter
 def is_none(obj):
     return obj is None
@@ -252,6 +266,7 @@ def get_entity_html_attrs(context, entity):
     return u' '.join(u'%s="%s"' % item for item in entity.get_html_attrs(context).iteritems())
 
 
+# TODO: move to a creme_history.py ?
 @register.filter
 def verbose_modifications(history_line, user):
     return history_line.get_verbose_modifications(user)

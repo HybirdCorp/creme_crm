@@ -59,7 +59,7 @@ def _add_generic(request, form, task_id, title):
     else:
         form_obj = form(task, user=user)
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form':  form_obj,
                         'title': title,
                         # TODO 'submit_label': _('Save the ...'),
