@@ -42,7 +42,7 @@ class AbstractProjectTask(CremeEntity):
     start        = DateTimeField(_(u'Start'), blank=True, null=True)
     end          = DateTimeField(_(u'End'), blank=True, null=True)
     duration     = PositiveIntegerField(_(u'Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
-    description  = TextField(_(u'Description'), blank=True, null=True)
+    description  = TextField(_(u'Description'), blank=True)
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
 
     creation_label = _('Add a task')
