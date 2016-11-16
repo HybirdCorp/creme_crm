@@ -134,7 +134,7 @@ def link_report(request, field_id):
     else:
         link_form = LinkFieldToReportForm(rfield, ctypes, user=user)
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form': link_form,
                         'title': ugettext(u'Link of the column «%s»') % rfield,
                         'submit_label': _('Link'),

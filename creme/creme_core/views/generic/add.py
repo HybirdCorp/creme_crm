@@ -73,7 +73,7 @@ def add_entity(request, form_class, url_redirect='',
 
 
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
-                  template='creme_core/generics/blockform/add_popup2.html',
+                  template='creme_core/generics/blockform/add_popup.html',
                   link_perm=False, submit_label=_('Save')):
     """ Add models related to one CremeEntity (eg: a CremeProperty)
     @param entity_id Id of a CremeEntity.
@@ -114,7 +114,7 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
 
 
 def add_model_with_popup(request, form_class, title=None, initial=None,
-                         template='creme_core/generics/blockform/add_popup2.html',
+                         template='creme_core/generics/blockform/add_popup.html',
                          # submit_label=_('Save')):
                          submit_label=None):
     """

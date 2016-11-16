@@ -102,7 +102,7 @@ def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
 def abstract_create_from_template_n_send(request, entity_id,
                                          selection_form=TemplateSelectionForm,
                                          email_form=EntityEmailFromTemplateForm,
-                                         template='creme_core/generics/blockform/add_popup2.html',
+                                         template='creme_core/generics/blockform/add_popup.html',
                                         ):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     user = request.user
