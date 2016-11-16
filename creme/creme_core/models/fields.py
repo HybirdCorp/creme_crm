@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -125,8 +125,9 @@ class CTypeForeignKey(ForeignKey):
         # TODO: accept model directly + get_for_model() ??
         setattr(instance, self.attname, value.id if value else value)
 
-    def contribute_to_class(self, cls, name):
-        super(CTypeForeignKey, self).contribute_to_class(cls, name)
+    # def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls, name, **kwargs):
+        super(CTypeForeignKey, self).contribute_to_class(cls, name, **kwargs)
 
         # Connect self as the descriptor for this field (thx to GenericForeignKey code)
         setattr(cls, name, self)
@@ -177,8 +178,9 @@ class CTypeOneToOneField(OneToOneField):
         # TODO: accept model directly + get_for_model() ??
         setattr(instance, self.attname, value.id if value else value)
 
-    def contribute_to_class(self, cls, name):
-        super(CTypeOneToOneField, self).contribute_to_class(cls, name)
+    # def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls, name, **kwargs):
+        super(CTypeOneToOneField, self).contribute_to_class(cls, name, **kwargs)
 
         # Connect self as the descriptor for this field (thx to GenericForeignKey code)
         setattr(cls, name, self)

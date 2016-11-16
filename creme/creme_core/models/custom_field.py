@@ -294,9 +294,10 @@ class CustomFieldEnumValue(CremeModel):
     def __unicode__(self):
         return self.value
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, using=None):
         CustomFieldEnum.objects.filter(custom_field=self.custom_field_id, value=str(self.id)).delete()
-        super(CustomFieldEnumValue, self).delete()
+        super(CustomFieldEnumValue, self).delete(using=using)
 
 
 class CustomFieldEnum(CustomFieldValue):

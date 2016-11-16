@@ -78,11 +78,12 @@ class RelationType(CremeModel):
         self.subject_ctypes.add(*cts)
         self.symmetric_type.object_ctypes.add(*cts)
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, using=None):
         sym_type = self.symmetric_type
 
-        super(RelationType, sym_type).delete()
-        super(RelationType, self).delete()
+        super(RelationType, sym_type).delete(using=using)
+        super(RelationType, self).delete(using=using)
 
     @staticmethod
     def get_compatible_ones(ct, include_internals=False):
@@ -212,12 +213,18 @@ class Relation(CremeAbstractEntity):
                                     symmetric_relation=self,
                                     subject_entity=self.object_entity,
                                     object_entity=self.subject_entity,
-                                    )
+                                   )
 
         return sym_relation
 
     @atomic
-    def save(self, using='default', force_insert=False):
+    # def save(self, using='default', force_insert=False):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        """See django.db.models.Model.save()
+
+        @param force_update: Not used.
+        @param update_fields: Not used.
+        """
         update = bool(self.pk)
 
         super(Relation, self).save(using=using, force_insert=force_insert)
