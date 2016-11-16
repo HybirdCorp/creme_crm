@@ -127,7 +127,17 @@ class UserRole(Model):
 
     def _build_apps_verbose(self, app_names):
         get_app = creme_registry.get_app
-        apps = [get_app(app_name).verbose_name for app_name in app_names]
+        # apps = [get_app(app_name).verbose_name for app_name in app_names]
+        apps = []
+
+        for app_name in app_names:
+            try:
+                app = get_app(app_name)
+            except NotRegistered:
+                logger.warn('The app "%s" seems not registered (from UserRole "%s").', app_name, self)
+            else:
+                apps.append(app.verbose_name)
+
         apps.sort(key=collator.sort_key)
 
         return apps
