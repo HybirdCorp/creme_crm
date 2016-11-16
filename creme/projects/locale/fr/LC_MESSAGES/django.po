@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PROJECTS' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
@@ -446,7 +446,7 @@ msgid "Information"
 msgstr "Informations"
 
 #: templates/projects/templatetags/block_project_extra_info.html:10
-msgid "Total cost of the projet (€)"
+msgid "Total cost of the project (€)"
 msgstr "Coût total du projet (€)"
 
 #: templates/projects/templatetags/block_project_extra_info.html:14
