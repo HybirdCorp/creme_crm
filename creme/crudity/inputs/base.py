@@ -20,11 +20,11 @@
 
 
 class CrudityInput(object):
-    name   = u""
-    method = u""
+    name   = u''
+    method = u''
 
-    verbose_name   = u""
-    verbose_method = u""
+    verbose_name   = u''
+    verbose_method = u''
 
     def __init__(self):
         self.backends = {}
@@ -44,8 +44,12 @@ class CrudityInput(object):
         """Call the method of the Input defined in subclasses
          @return: True if data were used else False
         """
-        if hasattr(self, self.method): #TODO: use getattr only
-            return getattr(self, self.method)(data)
+        # if hasattr(self, self.method):
+        #     return getattr(self, self.method)(data)
+        fun = getattr(self, self.method, None)
+        if fun:
+            return fun(data)
+
         return False
 
     def register_buttons(self, *buttons):
