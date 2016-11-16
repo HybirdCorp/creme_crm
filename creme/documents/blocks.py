@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import Relation
-from creme.creme_core.gui.block import QuerysetBlock
+from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock
 
 from . import get_document_model, get_folder_model
 from .constants import REL_SUB_RELATED_2_DOC
@@ -33,6 +33,10 @@ from .constants import REL_SUB_RELATED_2_DOC
 Folder   = get_folder_model()
 Document = get_document_model()
 # _CT_DOC = ContentType.objects.get_for_model(Document)
+
+
+class DocumentBlock(SimpleBlock):
+    template_name = 'documents/templatetags/block_document.html'
 
 
 class FolderDocsBlock(QuerysetBlock):

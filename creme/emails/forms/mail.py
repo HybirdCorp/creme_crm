@@ -40,7 +40,7 @@ from creme.persons import get_contact_model, get_organisation_model
 from .. import get_entityemail_model, get_emailtemplate_model
 from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, MAIL_STATUS_SENDINGERROR
 from ..creme_jobs import entity_emails_send_type
-from ..forms.utils import validate_images_in_html
+# from ..forms.utils import validate_images_in_html
 
 
 logger = logging.getLogger(__name__)
@@ -135,13 +135,13 @@ class EntityEmailForm(CremeEntityForm):
 
         return recipients
 
-    def clean_body_html(self):
-        body = self.cleaned_data['body_html']
-        images = validate_images_in_html(body, self.user)
-
-        logger.debug('EntityEmail will be created with images: %s', images)
-
-        return body
+    # def clean_body_html(self):
+    #     body = self.cleaned_data['body_html']
+    #     images = validate_images_in_html(body, self.user)
+    #
+    #     logger.debug('EntityEmail will be created with images: %s', images)
+    #
+    #     return body
 
     def clean_c_recipients(self):
         return self._clean_recipients('c_recipients')

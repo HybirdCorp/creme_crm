@@ -8,6 +8,8 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.documents.tests.base import _DocumentsTestCase
+
     from .. import product_model_is_custom, service_model_is_custom
 
     skip_product_tests = product_model_is_custom()
@@ -24,7 +26,8 @@ def skipIfCustomService(test_func):
     return skipIf(skip_service_tests, 'Custom Service model in use')(test_func)
 
 
-class _ProductsTestCase(CremeTestCase):
+# class _ProductsTestCase(CremeTestCase):
+class _ProductsTestCase(_DocumentsTestCase):
     # @classmethod
     # def setUpClass(cls):
     #     CremeTestCase.setUpClass()

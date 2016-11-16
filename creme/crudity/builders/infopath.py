@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from functools import partial
 from itertools import chain
+import logging
 import os
 import sys
 import shutil
@@ -40,12 +41,17 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import fields
 from creme.creme_core.utils.meta import is_date_field
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents import get_document_model
+from creme.documents.models import fields as doc_fields
 
 from ..backends.models import CrudityBackend
 from ..utils import generate_guid_for_field
 
 # Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
+
+logger = logging.getLogger(__name__)
+Document = get_document_model()
 
 INFOPATH_LANGUAGES_CODES = {
 # http://support.microsoft.com/kb/12739/fr
@@ -55,8 +61,13 @@ INFOPATH_LANGUAGES_CODES = {
 }
 
 get_none = lambda x: None
-get_element_template = lambda element_type, template_name: "crudity/infopath/create_template/frags/%s/element/%s" % (element_type, template_name)
 
+
+def get_element_template(element_type, template_name):
+    return "crudity/infopath/create_template/frags/%s/element/%s" % (element_type, template_name)
+
+# TODO: use functools.partial
+# TODO: use ClassKeyedMap
 _ELEMENT_TEMPLATE = {
     models.AutoField:                  get_none,
     models.BooleanField:               lambda element_type: get_element_template(element_type, "boolean_field.xml"),
@@ -89,10 +100,14 @@ _ELEMENT_TEMPLATE = {
     fields.ModificationDateTimeField:  lambda element_type: get_element_template(element_type, "datetime_field.xml"),
     fields.CreationDateTimeField:      lambda element_type: get_element_template(element_type, "datetime_field.xml"),
     fields.CremeUserForeignKey:        lambda element_type: get_element_template(element_type, "integer_field.xml"),
+
+    # TODO: remove when ClassKeyedMap is used
+    doc_fields.ImageEntityForeignKey:      lambda element_type: get_element_template(element_type, "foreignkey_field.xml"),
+    doc_fields.ImageEntityManyToManyField: lambda element_type: get_element_template(element_type, "m2m_field.xml"),
 }
 
 XSL_VIEW_FIELDS_TEMPLATES_PATH = "crudity/infopath/create_template/frags/xsl/view/%s.xml"
-_TEMPLATE_NILLABLE_TYPES = ( # Types which could be nil="true" in template.xml
+_TEMPLATE_NILLABLE_TYPES = (  # Types which could be nil="true" in template.xml
     models.DecimalField,
     models.IntegerField,
     models.TimeField,
@@ -129,7 +144,19 @@ class InfopathFormField(object):
             raise e
 
     def _get_element(self, element_type):
-        template_name = _ELEMENT_TEMPLATE.get(self.model_field.__class__)(element_type)
+        # template_name = _ELEMENT_TEMPLATE.get(self.model_field.__class__)(element_type)
+        # return render_to_string(template_name, {'field': self}, request=self.request) \
+        #        if template_name is not None else None
+        model_field = self.model_field
+        field_type  = model_field.__class__
+
+        element_builder = _ELEMENT_TEMPLATE.get(field_type)
+        if element_builder is None:
+            logger.warn('The field "%s" has a type which is not managed (%s)', model_field, field_type)
+            return None
+
+        template_name = element_builder(element_type)
+
         return render_to_string(template_name, {'field': self}, request=self.request) \
                if template_name is not None else None
 
@@ -164,8 +191,10 @@ class InfopathFormField(object):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_EXTENSIONS})
             template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
 
+        # elif isinstance(model_field, models.ImageField) or \
+        #   (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Image)):
         elif isinstance(model_field, models.ImageField) or \
-          (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Image)):
+            (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Document)):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_IMAGES_EXTENSIONS})
             template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
 
@@ -206,7 +235,8 @@ class InfopathFormField(object):
         model_field = self.model_field
         return issubclass(model_field.__class__, models.FileField) \
                or (isinstance(model_field, models.ForeignKey) and
-                   issubclass(model_field.rel.to, Image)
+                   # issubclass(model_field.rel.to, Image)
+                   issubclass(model_field.rel.to, Document)
                   )
 
     @property

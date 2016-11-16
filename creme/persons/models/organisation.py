@@ -20,6 +20,7 @@
 
 # from future_builtins import filter
 
+# from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
         BooleanField, DateField, EmailField, URLField, SET_NULL)
@@ -30,7 +31,8 @@ from creme.creme_core.global_info import get_per_request_cache
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import PhoneField
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents.models.fields import ImageEntityForeignKey
 
 from .. import get_contact_model, get_organisation_model
 from ..constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
@@ -76,8 +78,11 @@ class AbstractOrganisation(CremeEntity, PersonWithAddressesMixin):
     creation_date = DateField(_(u'Date of creation of the organisation'),
                               blank=True, null=True,
                              ).set_tags(optional=True)
-    image         = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True, on_delete=SET_NULL)\
-                              .set_tags(optional=True)
+    # image         = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True, on_delete=SET_NULL)\
+    #                           .set_tags(optional=True)
+    image         = ImageEntityForeignKey(verbose_name=_(u'Logo'),
+                                          blank=True, null=True, on_delete=SET_NULL,
+                                         ).set_tags(optional=True)
 
     # Needed because we expand it's function fields in other apps (ie. billing)
     # TODO: refactor

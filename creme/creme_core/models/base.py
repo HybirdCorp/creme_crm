@@ -130,7 +130,7 @@ class CremeAbstractEntity(CremeModel):
         ordering = ('id',)
 
     def __init__ (self, *args , **kwargs):
-        super(CremeAbstractEntity, self).__init__(*args , **kwargs)
+        super(CremeAbstractEntity, self).__init__(*args, **kwargs)
 
         if self.pk is None:
             has_arg = kwargs.has_key

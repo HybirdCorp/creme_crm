@@ -540,39 +540,39 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(EntityEmail, recipient=recipient)
 
-    @skipIfCustomEmailTemplate
-    @skipIfCustomContact
-    def test_create_from_template02(self):  # TODO: test better (credentials....)
-        user = self.login()
-        body = 'Hi , nice to meet you !'
-
-        image_filename = '13_myimg.png'
-        body_html = 'Hi <img src="%(media_url)supload/images/%(name)s">, nice to meet you !' % {
-                            'media_url': settings.MEDIA_URL,
-                            'name':      image_filename,
-                        }
-
-        template = EmailTemplate.objects.create(user=user, name='My template',
-                                                subject='I am da subject',
-                                                body=body, body_html=body_html,
-                                               )
-        contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law',
-                                         email='vincent.law@city.mosk'
-                                        )
-
-        response = self.assertPOST200(self._build_send_from_template_url(contact),
-                                      data={'step':         2,
-                                            'user':         user.id,
-                                            'sender':       user.linked_contact.email,
-                                            'c_recipients': '[%d]' % contact.id,
-                                            'subject':      template.subject,
-                                            'body':         template.body,
-                                            'body_html':    template.body_html,
-                                            }
-                                     )
-        self.assertFormError(response, 'form', 'body_html',
-                             _(u"The image «%s» no longer exists or isn't valid.") % image_filename
-                            )
+    # @skipIfCustomEmailTemplate
+    # @skipIfCustomContact
+    # def test_create_from_template02(self):
+    #     user = self.login()
+    #     body = 'Hi , nice to meet you !'
+    #
+    #     image_filename = '13_myimg.png'
+    #     body_html = 'Hi <img src="%(media_url)supload/images/%(name)s">, nice to meet you !' % {
+    #                         'media_url': settings.MEDIA_URL,
+    #                         'name':      image_filename,
+    #                     }
+    #
+    #     template = EmailTemplate.objects.create(user=user, name='My template',
+    #                                             subject='I am da subject',
+    #                                             body=body, body_html=body_html,
+    #                                            )
+    #     contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law',
+    #                                      email='vincent.law@city.mosk'
+    #                                     )
+    #
+    #     response = self.assertPOST200(self._build_send_from_template_url(contact),
+    #                                   data={'step':         2,
+    #                                         'user':         user.id,
+    #                                         'sender':       user.linked_contact.email,
+    #                                         'c_recipients': '[%d]' % contact.id,
+    #                                         'subject':      template.subject,
+    #                                         'body':         template.body,
+    #                                         'body_html':    template.body_html,
+    #                                         }
+    #                                  )
+    #     self.assertFormError(response, 'form', 'body_html',
+    #                          _(u"The image «%s» no longer exists or isn't valid.") % image_filename
+    #                         )
 
     def test_listview01(self):
         self.login()

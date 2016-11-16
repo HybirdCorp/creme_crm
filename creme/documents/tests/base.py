@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from os.path import basename
+from os.path import basename, join
 from tempfile import NamedTemporaryFile
 from unittest import skipIf
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -51,10 +53,11 @@ class _DocumentsTestCase(CremeTestCase):
 
         return open(name, 'rb'), basename(name)
 
-    def _create_doc(self, title, file_obj=None, folder=None, description=None):
+    def _create_doc(self, title, file_obj=None, folder=None, description=None, user=None):
         file_obj = file_obj or self._build_filedata('%s : Content' % title)[0]
         folder = folder or Folder.objects.all()[0]
-        data = {'user':     self.user.pk,
+        user = user or self.user
+        data = {'user':     user.pk,
                 'title':    title,
                 'filedata': file_obj,
                 'folder':   folder.id,
@@ -67,3 +70,24 @@ class _DocumentsTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Document, title=title)
+
+    def _create_image(self, ident=1, user=None, title=None, folder=None, description=None):
+        IMAGE_PATHS = {
+            1: 'creme_22.png',
+            2: 'add_16.png',
+            3: 'edit_16.png',
+            4: 'delete_16.png',
+            5: 'memo_16.png',
+            6: 'info_16.png',
+            7: 'refresh_16.png',
+        }
+
+        name = IMAGE_PATHS[ident]
+        image_file = open(join(settings.CREME_ROOT, 'static', 'chantilly', 'images', name), 'rb')
+
+        return self._create_doc(title=title or name,
+                                file_obj=image_file,
+                                folder=folder or Folder.objects.get(title=_('Images')),
+                                description=description,
+                                user=user,
+                               )

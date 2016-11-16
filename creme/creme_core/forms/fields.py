@@ -762,9 +762,7 @@ class CreatorEntityField(JSONField):
         """
         self._check_qfilter(q_filter)
 
-        self._q_filter = q_filter
-
-        self.widget.q_filter = q_filter
+        self.widget.q_filter = self._q_filter = q_filter
         self._update_creation_info()
 
     @property

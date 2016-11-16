@@ -54,6 +54,7 @@ class Populator(BasePopulator):
 
         Activity = get_activity_model()
 
+        # ---------------------------
         create_rtype = RelationType.create
         create_rtype((constants.REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),
                      (constants.REL_OBJ_LINKED_2_ACTIVITY, _(u"(activity) related to"),    [Activity])
@@ -68,14 +69,14 @@ class Populator(BasePopulator):
                          is_internal=True
                         )[1]
 
-
+        # ---------------------------
         create_if_needed(Status, {'pk': constants.STATUS_PLANNED},     name=pgettext('activities-status', 'Planned'),     description=pgettext('activities-status', 'Planned'),     is_custom=False)
         create_if_needed(Status, {'pk': constants.STATUS_IN_PROGRESS}, name=pgettext('activities-status', 'In progress'), description=pgettext('activities-status', 'In progress'), is_custom=False)
         create_if_needed(Status, {'pk': constants.STATUS_DONE},        name=pgettext('activities-status', 'Done'),        description=pgettext('activities-status', 'Done'),        is_custom=False)
         create_if_needed(Status, {'pk': constants.STATUS_DELAYED},     name=pgettext('activities-status', 'Delayed'),     description=pgettext('activities-status', 'Delayed'),     is_custom=False)
         create_if_needed(Status, {'pk': constants.STATUS_CANCELLED},   name=pgettext('activities-status', 'Cancelled'),   description=pgettext('activities-status', 'Cancelled'),   is_custom=False)
 
-
+        # ---------------------------
         create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_TASK},      name=_(u"Task"),            default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         meeting_type = \
         create_if_needed(ActivityType, {'pk': constants.ACTIVITYTYPE_MEETING},   name=_(u"Meeting"),         default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
@@ -97,7 +98,7 @@ class Populator(BasePopulator):
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE}, name=_('Conference'),        type=phone_call_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_FAILED},     name=_('Outgoing - Failed'), type=phone_call_type, is_custom=False)
 
-
+        # ---------------------------
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_ACTIVITY, name=_(u'Activity view'), model=Activity,
                             cells_desc=[(EntityCellRegularField, {'name': 'start'}),
                                         (EntityCellRegularField, {'name': 'title'}),
@@ -109,6 +110,7 @@ class Populator(BasePopulator):
                                        ]
                            )
 
+        # ---------------------------
         for pk, name, atype_id in ((constants.EFILTER_MEETINGS,   _(u'Meetings'),    constants.ACTIVITYTYPE_MEETING),
                                    (constants.EFILTER_PHONECALLS, _(u'Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
                                    (constants.EFILTER_TASKS,      _(u'Tasks'),       constants.ACTIVITYTYPE_TASK),
@@ -122,7 +124,7 @@ class Populator(BasePopulator):
                                            ],
                                 )
 
-
+        # ---------------------------
         if not already_populated:
             LEFT = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
@@ -161,20 +163,21 @@ class Populator(BasePopulator):
             BlockPortalLocation.create(app_name='creme_core', block_id=future_id, order=20)
             BlockPortalLocation.create(app_name='creme_core', block_id=past_id,   order=21)
 
-
+            # ---------------------------
             create_button = ButtonMenuItem.create_if_needed
             create_button('activities-add_activity_button',  model=None, button=buttons.add_activity_button,  order=10)
             create_button('activities-add_meeting_button',   model=None, button=buttons.add_meeting_button,   order=11)
             create_button('activities-add_phonecall_button', model=None, button=buttons.add_phonecall_button, order=12)
             create_button('activities-add_task_button',      model=None, button=buttons.add_task_button,      order=13)
 
-
+        # ---------------------------
         SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
 
-
+        # ---------------------------
         for user in get_user_model().objects.all():
             Calendar.get_user_default_calendar(user)
 
+        # ---------------------------
         # create_svalue = SettingValue.create_if_needed
         # create_svalue(key=setting_keys.review_key,        user=None, value=True)
         # create_svalue(key=setting_keys.auto_subjects_key, user=None, value=True)

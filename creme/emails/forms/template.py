@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+# import logging
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
@@ -32,14 +32,12 @@ from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.widgets import TinyMCEEditor
 
 from creme.documents import get_document_model
-#from creme.documents.models import Document
 
 from .. import get_emailtemplate_model
-#from ..models import EmailTemplate
-from .utils import validate_images_in_html
+# from .utils import validate_images_in_html
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 Document = get_document_model()
 
 TEMPLATES_VARS = {'last_name', 'first_name', 'civility', 'name'}
@@ -57,7 +55,6 @@ class EmailTemplateForm(CremeEntityForm):
     }
 
     class Meta(CremeEntityForm.Meta):
-#        model = EmailTemplate
         model = get_emailtemplate_model()
 
     def _clean_body(self, body):
@@ -85,9 +82,8 @@ class EmailTemplateForm(CremeEntityForm):
 
         self._clean_body(body)
 
-        #TODO: Add and handle a M2M for embedded images after Document & Image merge
-        images = validate_images_in_html(body, self.user)
-        logger.debug('EmailTemplate will be created with images: %s', images)
+        # images = validate_images_in_html(body, self.user)
+        # logger.debug('EmailTemplate will be created with images: %s', images)
 
         return body
 

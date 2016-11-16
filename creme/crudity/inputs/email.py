@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents import get_document_model
 
 from ..backends.models import CrudityBackend
 from ..buttons import infopath_create_form_button, email_template_create_button
@@ -37,6 +38,8 @@ from ..models import WaitingAction
 from ..utils import strip_html, strip_html_, decode_b64binary
 from .base import CrudityInput
 
+
+Document = get_document_model()
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)', flags=re.IGNORECASE)
 re_html_br     = re.compile(r'<br[/\s]*>')
@@ -180,7 +183,7 @@ remove_pattern = re.compile('[\t\n\r\f\v]')
 
 
 class CreateInfopathInput(CreateEmailInput):
-    name   = "infopath"
+    name         = 'infopath'
     verbose_name = _(u"Email - Infopath")
 
     MIME_TYPES = ['application/x-microsoft-infopathform']
@@ -194,9 +197,12 @@ class CreateInfopathInput(CreateEmailInput):
             except FieldDoesNotExist:
                 continue
 
+            # if field_value is not None \
+            #    and (isinstance(field, ForeignKey) and issubclass(field.rel.to, Image)) \
+            #    or issubclass(field.__class__, FileField):
             if field_value is not None \
-               and (isinstance(field, ForeignKey) and issubclass(field.rel.to, Image)) \
-               or issubclass(field.__class__, FileField):
+               and (isinstance(field, ForeignKey) and issubclass(field.rel.to, Document)) \
+               or isinstance(field, FileField):
                 data[field_name] = decode_b64binary(field_value)  # (filename, image_blob)
 
     def create(self, email):

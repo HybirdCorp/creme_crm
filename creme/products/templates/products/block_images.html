@@ -14,10 +14,15 @@
             {% if images %}
                 <tr class="content">
                     {% for image_entity in images %}{% has_perm_to view image_entity as view_perm %}
-                        <td class="block_line_light td_info">
+                        <td class="block_line_light td_info {% if image_entity.is_deleted %}td_error{% endif %}">
                             {% if view_perm %}
+{% comment %}
                                 <a href="/download_file/{{image_entity.image}}" alt="{{image_entity.image}}">
                                     <img src="{{image_entity.get_image_url}}" />
+                                </a>
+{% endcomment %}
+                                <a href="{{image_entity.get_absolute_url}}" alt="{{image_entity.title}}">
+                                    <img src="{{image_entity.get_dl_url}}" />
                                 </a>
                             {% else %}
                                 {% trans "Viewing is not allowed" %}

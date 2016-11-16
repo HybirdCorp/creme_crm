@@ -33,7 +33,8 @@ from creme.creme_core.models import CremeEntity, Language  # CremeEntityManager
 from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.utils import update_model_instance
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents.models.fields import ImageEntityForeignKey
 
 from ..import get_contact_model, get_organisation_model
 from ..constants import REL_OBJ_EMPLOYED_BY
@@ -83,9 +84,12 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                          .set_null_label(pgettext_lazy('persons-is_user', u'None'))
 
     birthday = DateField(_(u'Birthday'), blank=True, null=True).set_tags(optional=True)
-    image    = ForeignKey(Image, verbose_name=_(u'Photograph'),
-                          blank=True, null=True, on_delete=SET_NULL,
-                         ).set_tags(optional=True)
+    # image    = ForeignKey(Image, verbose_name=_(u'Photograph'),
+    #                       blank=True, null=True, on_delete=SET_NULL,
+    #                      ).set_tags(optional=True)
+    image    = ImageEntityForeignKey(verbose_name=_(u'Photograph'),
+                                     blank=True, null=True, on_delete=SET_NULL,
+                                    ).set_tags(optional=True)
 
     # objects = CremeEntityManager()
 
@@ -98,7 +102,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     class Meta:
         abstract = True
-        app_label = "persons"
+        app_label = 'persons'
         ordering = ('last_name', 'first_name')
         verbose_name = _(u'Contact')
         verbose_name_plural = _(u'Contacts')

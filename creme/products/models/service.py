@@ -18,14 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, ForeignKey, BooleanField, IntegerField,
-        DecimalField, ManyToManyField, PROTECT)
+        DecimalField, PROTECT)  # ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents.models.fields import ImageEntityManyToManyField
 
 from .other_models import Category, SubCategory
 
@@ -47,10 +49,11 @@ class AbstractService(CremeEntity):
                                     .set_tags(optional=True)
     unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
     web_site          = CharField(_(u'Web Site'), max_length=100, blank=True).set_tags(optional=True)
-    images            = ManyToManyField(Image, blank=True,
-                                        verbose_name=_(u'Images'),
-                                        related_name='ServiceImages_set',
-                                       )
+    # images            = ManyToManyField(Image, blank=True,
+    #                                     verbose_name=_(u'Images'),
+    #                                     related_name='ServiceImages_set',
+    #                                    )
+    images = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True)
 
     creation_label = _('Add a service')
     save_label     = _('Save the service')

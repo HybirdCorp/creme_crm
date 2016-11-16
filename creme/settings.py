@@ -255,7 +255,7 @@ INSTALLED_CREME_APPS = (
     # CREME CORE APPS
     'creme.creme_core',
     'creme.creme_config',
-    'creme.media_managers',
+    'creme.media_managers',  # NB: will be removed in Creme 1.8
     'creme.documents',
     'creme.assistants',
     'creme.activities',

@@ -37,4 +37,7 @@ if not document_model_is_custom():
         url(r'^quickforms/from_widget/document/csv/add/(?P<count>\d)$',
             quick_forms.add_csv_from_widget, name='documents__create_document_from_widget',
            ),
+        url(r'^quickforms/image$',
+            quick_forms.add_image, name='documents__create_image_popup',
+           ),
     ]

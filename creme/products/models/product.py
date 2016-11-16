@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import (CharField, IntegerField, DecimalField, ForeignKey,
-        ManyToManyField, PROTECT)
+from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, PROTECT  # ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents.models.fields import ImageEntityManyToManyField
 
 from .other_models import Category, SubCategory
 
@@ -48,17 +49,18 @@ class AbstractProduct(CremeEntity):
     sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
                                    on_delete=PROTECT,
                                   )
-    images            = ManyToManyField(Image, blank=True,
-                                        verbose_name=_(u'Images'),
-                                        related_name='ProductImages_set',
-                                       )
+    # images            = ManyToManyField(Image, blank=True,
+    #                                     verbose_name=_(u'Images'),
+    #                                     related_name='ProductImages_set',
+    #                                    )
+    images = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True)
 
     creation_label = _('Add a product')
     save_label     = _('Save the product')
 
     class Meta:
         abstract = True
-        app_label    = 'products'
+        app_label = 'products'
         verbose_name = _(u'Product')
         verbose_name_plural = _(u'Products')
         ordering = ('name',)

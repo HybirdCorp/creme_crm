@@ -100,6 +100,7 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         return validate_linkable_model(Document, self.user, owner=self.cleaned_data['user'])
 
     def save(self):
+        instance = self.instance
         entity = self.related_entity.get_real_entity()
         user   = self.cleaned_data['user']
         entity_folder = None
@@ -120,18 +121,18 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
                                        parent_folder=model_folder,
                                        category=category,
                                        defaults={'user': user},
-                                      ) [0]
+                                      )[0]
         except (Folder.DoesNotExist, FolderCategory.DoesNotExist) as e:
-            logger.debug("Populate.py had not been run ?! : %s", e)
-            # TODO: continue !?
+            logger.warn("Populate.py had not been run ?! : %s", e)
+        else:
+            instance.folder = entity_folder
 
-        self.instance.folder = entity_folder
         super(RelatedDocumentCreateForm, self).save()
 
         Relation.objects.create(subject_entity=entity,
                                 type_id=REL_SUB_RELATED_2_DOC,
-                                object_entity=self.instance,
-                                user=user
+                                object_entity=instance,
+                                user=user,
                                )
 
-        return self.instance
+        return instance

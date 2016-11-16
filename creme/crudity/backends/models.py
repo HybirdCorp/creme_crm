@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,19 +23,21 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from django.db import IntegrityError
 from django.db.models import (FieldDoesNotExist, TextField, BooleanField,
         DateField, DateTimeField, FileField, ForeignKey, ManyToManyField)
-from django.db import IntegrityError
 from django.db.transaction import atomic
 from django.template.context import Context
-from django.utils.translation import ugettext_lazy as _ #TODO: lazy ??
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import SettingValue
+from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.utils.dates import get_dt_from_str, get_date_from_str
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 # TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
-from creme.media_managers.models import Image
+# from creme.media_managers.models import Image
+from creme.documents import get_document_model, get_folder_model
 
 from ..models import History
 from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
@@ -43,6 +45,9 @@ from ..exceptions import ImproperlyConfiguredBackend
 
 
 logger = logging.getLogger(__name__)
+
+Folder = get_folder_model()
+Document = get_document_model()
 
 
 class CrudityBackend(object):
@@ -174,9 +179,11 @@ class CrudityBackend(object):
                     elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
                         data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
 
-                    elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Image):
-                        filename, blob = field_value #should be pre-processed by the input
-                        upload_path = field.rel.to._meta.get_field('image').upload_to.split('/')#TODO: 'image' bof bof...
+                    # elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Image):
+                    elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Document):
+                        filename, blob = field_value  # Should be pre-processed by the input
+                        # upload_path = field.rel.to._meta.get_field('image').upload_to.split('/')
+                        upload_path = Document._meta.get_field('filedata').upload_to.split('/')
 
                         if user is None:
                             shift_user_id = data.get('user_id')
@@ -191,11 +198,24 @@ class CrudityBackend(object):
                         else:
                             shift_user_id = user.id
 
-                        img_entity = Image() #TODO:  Image.objects.create() ??
-                        img_entity.image = handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename)
-                        img_entity.user_id  = shift_user_id
-                        img_entity.save()
-                        setattr(instance, field_name, img_entity)
+                        # img_entity = Image()
+                        # img_entity.image = handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename)
+                        # img_entity.user_id  = shift_user_id
+                        # img_entity.save()
+                        doc_entity = Document(
+                                user_id=shift_user_id,
+                                filedata=handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename),
+                                folder=Folder.objects.get_or_create(title=_('External data'),
+                                                                    parent_folder=None,
+                                                                    defaults={'user_id': shift_user_id},
+                                                                   )[0],
+                                description=_('Imported from external data.'),
+                            )
+                        assign_2_charfield(doc_entity, 'title', filename)
+                        doc_entity.save()
+
+                        # setattr(instance, field_name, img_entity)
+                        setattr(instance, field_name, doc_entity)
                         data.pop(field_name)
                         continue
 

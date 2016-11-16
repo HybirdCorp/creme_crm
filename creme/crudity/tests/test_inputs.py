@@ -685,7 +685,7 @@ description3=[[<br>]]
     @skipIfCustomActivity
     def test_create_activity01(self):
         "Datetimes with or without timezone"
-        self.populate('activities')
+        # self.populate('activities')
 
         title = 'My Meeting'
         self.assertFalse(Activity.objects.filter(title=title))
@@ -750,7 +750,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         return self._get_input(CreateInfopathInput, backend, **backend_cfg)
 
     def test_create01(self):
-        "Unallowed user"
+        "Unauthorized user"
         infopath_input = self._get_infopath_input(ContactFakeBackend, 
                                                   limit_froms=('creme@cremecrm.com',)
                                                  )
@@ -776,7 +776,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(0, WaitingAction.objects.count())
 
     def test_create03(self):
-        "Allowed password, subject but attachment content_type is unallowed"
+        "Allowed password, subject but attachment content_type is not allowed"
         user = self.user
         infopath_input = self._get_infopath_input(ContactFakeBackend, 
                                                   password='creme', 
@@ -874,7 +874,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                          },
                          wa.get_data()
                         )
-        self.assertIsNone(wa.user)#Sandbox is not by user
+        self.assertIsNone(wa.user) # Sandbox is not by user
 
     def test_create07(self):
         "Allowed with valid but weird xml"
@@ -950,7 +950,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                                                   body_map={'user_id':     user.id,
                                                             'created':     '',
                                                             'description': '',
-                                                           }
+                                                           },
                                                  )
 
         self.assertEqual(0, WaitingAction.objects.count())
@@ -1163,7 +1163,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
 #        filename, blob = decode_b64binary(img_content)
 
-        self.assertEqual(blob, contact.image.image.read())
+        # self.assertEqual(blob, contact.image.image.read())
+        self.assertEqual(blob, contact.image.filedata.read())
 
     def _get_languages(self):
         # Language.objects.all().delete()

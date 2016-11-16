@@ -18,12 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.conf import settings
+# NB: This app will be removed in Creme 1.8
+
+# from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
 
-from .models import Image
+# from .models import Image
 
 
 class MediaManagersConfig(CremeAppConfig):
@@ -31,54 +33,54 @@ class MediaManagersConfig(CremeAppConfig):
     verbose_name = _(u'Media managers')
     dependencies = ['creme.creme_core']
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('media_managers', _(u'Media managers'), '/media')
-
-    def register_entity_models(self, creme_registry):
-        creme_registry.register_entity_models(Image)
-
-    def register_blocks(self, block_registry):
-        from .blocks import ImageBlock, last_images_block, image_view_block
-
-        block_registry.register_4_model(Image, ImageBlock())
-        block_registry.register(last_images_block, image_view_block)
-
-    def register_bulk_update(self, bulk_update_registry):
-        bulk_update_registry.register(Image, exclude=['image'])
-
-    def register_field_printers(self, field_printers_registry):
-        from creme.creme_core.gui.field_printers import print_foreignkey_html, print_many2many_html
-
-        def print_fk_image_html(entity, fval, user, field):
-            return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
-                    fval.get_image_url(),
-                    ' class="is_deleted"' if fval.is_deleted else u'',
-                    fval.get_entity_summary(user)
-                ) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
-
-        def print_image_summary_html(instance, related_entity, fval, user, field):
-            return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
-                        instance.get_image_url(),
-                        ' class="is_deleted"' if instance.is_deleted else u'',
-                        instance.get_entity_summary(user),
-                    ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
-
-        print_foreignkey_html.register(Image, print_fk_image_html)
-        print_many2many_html.register(Image,
-                                      printer=print_image_summary_html,
-                                      enumerator=print_many2many_html.enumerator_entity,
-                                     )
-
-    def register_icons(self, icon_registry):
-        icon_registry.register(Image, 'images/image_%(size)s.png')
-
-    def register_menu(self, creme_menu):
-        reg_item = creme_menu.register_app('media_managers', '/media_managers/').register_item
-        reg_item('/media_managers/',          _(u'Portal of media managers'), 'media_managers')
-        reg_item('/media_managers/image/add', Image.creation_label,           'media_managers.add_image')
-        reg_item('/media_managers/images',    _(u'All images'),               'media_managers')
-
-    def register_quickforms(self, quickforms_registry):
-        from .forms.quick import ImageQuickForm
-
-        quickforms_registry.register(Image, ImageQuickForm)
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('media_managers', _(u'Media managers'), '/media')
+    #
+    # def register_entity_models(self, creme_registry):
+    #     creme_registry.register_entity_models(Image)
+    #
+    # def register_blocks(self, block_registry):
+    #     from .blocks import ImageBlock, last_images_block, image_view_block
+    #
+    #     block_registry.register_4_model(Image, ImageBlock())
+    #     block_registry.register(last_images_block, image_view_block)
+    #
+    # def register_bulk_update(self, bulk_update_registry):
+    #     bulk_update_registry.register(Image, exclude=['image'])
+    #
+    # def register_field_printers(self, field_printers_registry):
+    #     from creme.creme_core.gui.field_printers import print_foreignkey_html, print_many2many_html
+    #
+    #     def print_fk_image_html(entity, fval, user, field):
+    #         return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
+    #                 fval.get_image_url(),
+    #                 ' class="is_deleted"' if fval.is_deleted else u'',
+    #                 fval.get_entity_summary(user)
+    #             ) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+    #
+    #     def print_image_summary_html(instance, related_entity, fval, user, field):
+    #         return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
+    #                     instance.get_image_url(),
+    #                     ' class="is_deleted"' if instance.is_deleted else u'',
+    #                     instance.get_entity_summary(user),
+    #                 ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
+    #
+    #     print_foreignkey_html.register(Image, print_fk_image_html)
+    #     print_many2many_html.register(Image,
+    #                                   printer=print_image_summary_html,
+    #                                   enumerator=print_many2many_html.enumerator_entity,
+    #                                  )
+    #
+    # def register_icons(self, icon_registry):
+    #     icon_registry.register(Image, 'images/image_%(size)s.png')
+    #
+    # def register_menu(self, creme_menu):
+    #     reg_item = creme_menu.register_app('media_managers', '/media_managers/').register_item
+    #     reg_item('/media_managers/',          _(u'Portal of media managers'), 'media_managers')
+    #     reg_item('/media_managers/image/add', Image.creation_label,           'media_managers.add_image')
+    #     reg_item('/media_managers/images',    _(u'All images'),               'media_managers')
+    #
+    # def register_quickforms(self, quickforms_registry):
+    #     from .forms.quick import ImageQuickForm
+    #
+    #     quickforms_registry.register(Image, ImageQuickForm)
