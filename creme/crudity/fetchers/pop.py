@@ -34,13 +34,13 @@ from .base import CrudityFetcher
 
 logger = logging.getLogger(__name__)
 
-CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
-CREME_GET_EMAIL_USERNAME     = settings.CREME_GET_EMAIL_USERNAME
-CREME_GET_EMAIL_PASSWORD     = settings.CREME_GET_EMAIL_PASSWORD
-CREME_GET_EMAIL_PORT         = settings.CREME_GET_EMAIL_PORT
-CREME_GET_EMAIL_SSL          = settings.CREME_GET_EMAIL_SSL
-CREME_GET_EMAIL_SSL_KEYFILE  = settings.CREME_GET_EMAIL_SSL_KEYFILE
-CREME_GET_EMAIL_SSL_CERTFILE = settings.CREME_GET_EMAIL_SSL_CERTFILE
+# CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
+# CREME_GET_EMAIL_USERNAME     = settings.CREME_GET_EMAIL_USERNAME
+# CREME_GET_EMAIL_PASSWORD     = settings.CREME_GET_EMAIL_PASSWORD
+# CREME_GET_EMAIL_PORT         = settings.CREME_GET_EMAIL_PORT
+# CREME_GET_EMAIL_SSL          = settings.CREME_GET_EMAIL_SSL
+# CREME_GET_EMAIL_SSL_KEYFILE  = settings.CREME_GET_EMAIL_SSL_KEYFILE
+# CREME_GET_EMAIL_SSL_CERTFILE = settings.CREME_GET_EMAIL_SSL_CERTFILE
 
 
 class PopEmail(object):
@@ -57,43 +57,53 @@ class PopEmail(object):
 
 
 class PopFetcher(CrudityFetcher):
-    server       = CREME_GET_EMAIL_SERVER
-    username     = CREME_GET_EMAIL_USERNAME
-    password     = CREME_GET_EMAIL_PASSWORD
-    port         = CREME_GET_EMAIL_PORT
-    is_ssl       = CREME_GET_EMAIL_SSL,
-    ssl_keyfile  = CREME_GET_EMAIL_SSL_KEYFILE,
-    ssl_certfile = CREME_GET_EMAIL_SSL_CERTFILE
+    # server       = CREME_GET_EMAIL_SERVER
+    # username     = CREME_GET_EMAIL_USERNAME
+    # password     = CREME_GET_EMAIL_PASSWORD
+    # port         = CREME_GET_EMAIL_PORT
+    # is_ssl       = CREME_GET_EMAIL_SSL,
+    # ssl_keyfile  = CREME_GET_EMAIL_SSL_KEYFILE,
+    # ssl_certfile = CREME_GET_EMAIL_SSL_CERTFILE
 
     def fetch(self, delete=True):
         client = None
-        message_count = mailbox_size = 0
-        response = messages = total_size = ""
+        # message_count = mailbox_size = 0
+        # response = messages = total_size = ''
         emails = []
 
+        CREME_GET_EMAIL_SERVER = settings.CREME_GET_EMAIL_SERVER
+        CREME_GET_EMAIL_PORT   = settings.CREME_GET_EMAIL_PORT
+
         try:
-            if CREME_GET_EMAIL_SSL:
-                client = poplib.POP3_SSL(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT, CREME_GET_EMAIL_SSL_KEYFILE, CREME_GET_EMAIL_SSL_CERTFILE)
+            if settings.CREME_GET_EMAIL_SSL:
+                client = poplib.POP3_SSL(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT,
+                                         settings.CREME_GET_EMAIL_SSL_KEYFILE,
+                                         settings.CREME_GET_EMAIL_SSL_CERTFILE,
+                                        )
             else:
                 client = poplib.POP3(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT)
-            client.user(CREME_GET_EMAIL_USERNAME)
-            client.pass_(CREME_GET_EMAIL_PASSWORD)
 
-            message_count, mailbox_size = client.stat()
+            client.user(settings.CREME_GET_EMAIL_USERNAME)
+            client.pass_(settings.CREME_GET_EMAIL_PASSWORD)
+
+            # message_count, mailbox_size = client.stat()
+            client.stat()  # TODO: useful ?
             response, messages, total_size = client.list()
         except Exception:  # TODO: Define better exception
             logger.exception("PopFetcher.fetch: POP connection error")
+
             if client is not None:
                 client.quit()
+
             return []
 
         getaddresses = email.utils.getaddresses
         parsedate    = email.utils.parsedate
 
-        for msg_infos in messages:
+        for msg_info in messages:
             attachments = []
 
-            message_number, message_size = msg_infos.split(' ')
+            message_number, message_size = msg_info.split(' ')
             r, raw_message_lines, message_size = client.retr(message_number)
 
             out_str = '\n'.join(raw_message_lines)
@@ -130,8 +140,11 @@ class PopFetcher(CrudityFetcher):
             # CONTENT HTML / PLAIN
             if email_message.is_multipart():
                 for part in email_message.walk():
-                    encodings = set(part.get_charsets()) - {None}  # TODO: use discard() ?
-                    payload   = part.get_payload(decode=True)
+                    # encodings = set(part.get_charsets()) - {None}
+                    encodings = set(part.get_charsets())
+                    encodings.discard(None)
+
+                    payload = part.get_payload(decode=True)
 
                     mct = part.get_content_maintype()
                     cst = part.get_content_subtype()
@@ -141,8 +154,12 @@ class PopFetcher(CrudityFetcher):
 
                     filename = part.get_filename()
 
-                    if mct != 'text' or (mct=='text' and filename is not None):
-                        attachments.append((filename, SimpleUploadedFile(filename, payload, content_type=part.get_content_type())))
+                    if mct != 'text' or (mct == 'text' and filename is not None):
+                        attachments.append((filename, SimpleUploadedFile(filename, payload,
+                                                                         content_type=part.get_content_type(),
+                                                                        )
+                                           )
+                                          )
 
                     else:
                         content = safe_unicode(payload, encodings)
@@ -150,8 +167,11 @@ class PopFetcher(CrudityFetcher):
                             body_html = content
                         elif cst == 'plain':
                             body = content
+                        # else:  TODO ??
             else:
-                encodings = set(email_message.get_charsets()) - {None}  # TODO: use  discard() ?
+                # encodings = set(email_message.get_charsets()) - {None}
+                encodings = set(email_message.get_charsets())
+                encodings.discard(None)
 
                 cst = email_message.get_content_subtype()
                 content = safe_unicode(email_message.get_payload(decode=True), encodings)

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    import poplib
+
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.test.utils import override_settings
@@ -47,9 +49,70 @@ FAKE_CRUDITY_BACKENDS = [{'fetcher':     'swallow',
                         ]
 
 
+class FakePOP3(object):
+    instances = []
+
+    def __init__(self, host, port=None, timeout=None):
+        self._host = host
+        self._port = port
+        self._timeout = timeout
+        self._user = None
+        self._pswd = None
+
+        self._quitted = False
+
+        FakePOP3.instances.append(self)
+
+    def quit(self):
+        self._quitted = True
+        # TODO: return code
+
+    def user(self, user):
+        self._user = user
+
+    def pass_(self, pswd):
+        self._pswd = pswd
+
+    def stat(self):
+        pass
+
+    def list(self, which=None):
+        # response, messages, total_size
+        return None, [], 0  # TODO: complete
+
+
+class FakePOP3_SSL(FakePOP3):
+    def __init__(self, host, port=None, keyfile=None, certfile=None):
+        # self.host = host
+        # self.port = port
+        super(FakePOP3_SSL, self).__init__(host=host, port=port)
+        self._keyfile = keyfile
+        self._certfile = certfile
+
+
 class CrudityViewsTestCase(CrudityTestCase):
     _original_fetchers = None
     _original_backends = None
+
+    _original_POP3 = None
+    _original_POP3_SSL = None
+
+    @classmethod
+    def setUpClass(cls):
+        CrudityTestCase.setUpClass()
+
+        cls._original_POP3 = poplib.POP3
+        cls._original_POP3_SSL = poplib.POP3_SSL
+
+        poplib.POP3 = FakePOP3
+        poplib.POP3_SSL = FakePOP3_SSL
+
+    @classmethod
+    def tearDownClass(cls):
+        CrudityTestCase.tearDownClass()
+
+        poplib.POP3     = cls._original_POP3
+        poplib.POP3_SSL = cls._original_POP3_SSL
 
     def tearDown(self):
         super(CrudityViewsTestCase, self).tearDown()
@@ -57,6 +120,8 @@ class CrudityViewsTestCase(CrudityTestCase):
         if self._original_fetchers is not None:
             crudity_registry._fetchers = self._original_fetchers
             crudity_registry._backends = self._original_backends
+
+        FakePOP3.instances[:] = ()
 
     def _build_test_registry(self):
         self._original_fetchers = crudity_registry._fetchers
@@ -164,7 +229,15 @@ class CrudityViewsTestCase(CrudityTestCase):
                                           'body_map': {},
                                           'subject': '*',
                                          },
-                                        ])
+                                        ],
+                       CREME_GET_EMAIL_SSL=True,
+                       CREME_GET_EMAIL_SERVER='pop.test.org',
+                       CREME_GET_EMAIL_PORT=123,
+                       CREME_GET_EMAIL_SSL_KEYFILE='key.pem',
+                       CREME_GET_EMAIL_SSL_CERTFILE='cert.pem',
+                       CREME_GET_EMAIL_USERNAME='William',
+                       CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
+                      )
     def test_actions_fetch01(self):
         # crudity_registry.autodiscover()
         # crudity_registry.dispatch()
@@ -172,6 +245,21 @@ class CrudityViewsTestCase(CrudityTestCase):
         response = self.assertGET200('/crudity/waiting_actions')
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization.html')
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization_spam.html')
+
+        pop_instances = FakePOP3.instances
+        self.assertEqual(1, len(pop_instances))
+
+        pop_instance = pop_instances[0]
+        self.assertIsInstance(pop_instance, FakePOP3_SSL)  # Because CREME_GET_EMAIL_SSL=True
+        self.assertEqual('pop.test.org', pop_instance._host)
+        self.assertEqual(123,            pop_instance._port)
+        self.assertEqual('key.pem',      pop_instance._keyfile)
+        self.assertEqual('cert.pem',     pop_instance._certfile)
+        self.assertEqual('William',      pop_instance._user)
+        self.assertEqual('p4$$w0rD',     pop_instance._pswd)
+        self.assertTrue(pop_instance._quitted)
+
+        # TODO: complete (FakePOP3.list() => not empty)
 
     # @override_settings(CRUDITY_BACKENDS=[{'fetcher':    'swallow',
     #                                       'input':      'swallow',

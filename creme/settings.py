@@ -834,14 +834,14 @@ CREME_SAMOUSSA_PASSWORD = ''
 
 # CRUDITY -----------------------------------------------------------------------
 # EMail parameters to sync external emails in Creme
-CREME_GET_EMAIL              = ""  # Creme gets email. e.g : creme@cremecrm.org
-CREME_GET_EMAIL_SERVER       = ""  # Creme gets server. e.g : pop.cremecrm.org (only pop supported for now)
-CREME_GET_EMAIL_USERNAME     = ""
-CREME_GET_EMAIL_PASSWORD     = ""
+CREME_GET_EMAIL              = ''  # Creme gets email. e.g : creme@cremecrm.org
+CREME_GET_EMAIL_SERVER       = ''  # Creme gets server. e.g : pop.cremecrm.org (only pop supported for now)
+CREME_GET_EMAIL_USERNAME     = ''
+CREME_GET_EMAIL_PASSWORD     = ''
 CREME_GET_EMAIL_PORT         = 110
-CREME_GET_EMAIL_SSL          = False  # True or False #Not used for the moment
-CREME_GET_EMAIL_SSL_KEYFILE  = ""  # Not used for the moment
-CREME_GET_EMAIL_SSL_CERTFILE = ""  # Not used for the moment
+CREME_GET_EMAIL_SSL          = False  # True or False
+CREME_GET_EMAIL_SSL_KEYFILE  = ''  # PEM formatted file that contains your private key (only used if CREME_GET_EMAIL_SSL is True).
+CREME_GET_EMAIL_SSL_CERTFILE = ''  # PEM formatted certificate chain file (only used if CREME_GET_EMAIL_SSL is True).
 
 # Only for job. Default user id which will handle the synchronization
 # User used to synchronize mails with management command.

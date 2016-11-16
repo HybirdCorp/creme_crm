@@ -1166,14 +1166,24 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(blob, contact.image.image.read())
 
     def _get_languages(self):
-        Language.objects.all().delete()
+        # Language.objects.all().delete()
+        #
+        # create = Language.objects.create
+        #
+        # return [create(code=u'en', name=u'English'),
+        #         create(code=u'fr', name=u'French'),
+        #         create(code=u'es', name=u'Spanish'),
+        #        ]
+        languages = list(Language.objects.all())
+        length = len(languages)
 
-        create = Language.objects.create
+        if length < 3:
+            create = Language.objects.create
 
-        return [create(code=u'en', name=u'English'),
-                create(code=u'fr', name=u'French'),
-                create(code=u'es', name=u'Spanish'),
-               ]
+            for i in xrange(1, 4 - length):
+                create(code=u'c%s' % i, name=u'Langues #%s' % i)
+
+        return languages
 
     def test_create_contact02(self):
         "Sandboxed with m2m"
@@ -1211,8 +1221,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                                                             'url_site':    '',
                                                             'language':    ''
                                                            },
-                                                   model=Contact
-                                                  )
+                                                  model=Contact,
+                                                 )
 
         q_contact_existing_ids = self._get_existing_q(Contact)
         self.assertEqual(0, WaitingAction.objects.count())
@@ -1226,7 +1236,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(1, len(wactions))
 
         wa = wactions[0]
-        expected_data = {'user_id': '%s'  % user.id, 'created': '2003-02-01', 'last_name': 'Bros',
+        expected_data = {'user_id': str(user.id), 'created': '2003-02-01', 'last_name': 'Bros',
                          'first_name': 'Mario', 'email': 'mario@bros.com', 'url_site': 'http://mario.com',
                          'is_actived': True, 'birthday': '02/08/1987', 'description': 'A plumber',
                          'language': '\n%s\n%s' % (languages[0].id, languages[1].id),
@@ -1245,7 +1255,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertIs(contact.is_actived, True)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
-        self.assertEqual(set(languages[:2]), set(contact.language.all()))
+        # self.assertEqual(set(languages[:2]), set(contact.language.all()))
+        self.assertEqual({languages[0], languages[1]}, set(contact.language.all()))
 
     def test_create_contact03(self):
         "Unsandboxed with m2m"
