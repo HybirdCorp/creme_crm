@@ -24,39 +24,25 @@ if (!creme.reports) creme.reports = {};
 
 
 creme.reports.load = function(options) {
-    if(!options || options == undefined) return;
+    if (!options || options == undefined) return;
 
     var ct_id = $(options.ct).val();
-//     if(!ct_id || ct_id =="") {
-//         $(options.show_after_ct).hide();
-//         return;
-//     }
-
     var $hf = $(options.hf);
     this.loadHeaderFilters(ct_id, $hf);
 
     var $filter = $(options.filter);
     this.loadFilters(ct_id, $filter);
-
-//     this.loadRegularFields(ct_id, options);
-//     this.loadRelatedFields(ct_id, options);
-//     this.loadCf(ct_id, options);
-//     this.loadRelations(ct_id,  options);
-//     this.loadFunctions(ct_id,  options);
-//     this.loadAggregates(ct_id, options);
-// 
-//     $(options.show_after_ct).show();
 }
 
 //TODO: Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
 creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
-    if($target_select.size() != 1) return;
+    if ($target_select.size() != 1) return;
 
     var params = $.extend({
-        'err_label' : gettext("None available"),
-        'always_option': null,//Always the 1st option in non-empty success cases
-        'empty_option' : null,
-        'error_option' : null
+        'err_label':     gettext("None available"),
+        'always_option': null, // Always the 1st option in non-empty success cases
+        'empty_option':  null,
+        'error_option':  null
     }, parameters);
 
     var $def_option = $('<option value="">' + params.err_label + '</option>');
@@ -164,7 +150,7 @@ creme.reports.setSelected = function(checkbox, field_id, block_url) {
 };
 
 creme.reports.toggleDisableOthers = function(me, others) {
-    var is_checked = me.checked;//More generic with all node types ?
+    var is_checked = me.checked; // More generic with all node types ?
     $.each(others, function(i, n) {
         $(n).attr('disabled', is_checked);
     });
@@ -216,9 +202,7 @@ creme.reports.exportReport = function(link, report_id, title) {
                  .open({width:1024});
 }
 
-// creme.reports.openGraphEdition = function(graph_id, reload_uri) {
 creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
-//     creme.blocks.form('/reports/graph/edit/%s'.format(graph_id), {blockReloadUrl: reload_uri})
     creme.blocks.form(edition_url, {blockReloadUrl: reload_uri})
                 .onFormSuccess(function() {
                      $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();

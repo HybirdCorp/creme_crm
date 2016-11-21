@@ -22,7 +22,7 @@
 
 creme.persons = {};
 
-//Copy only in the same order
+// Copy only in the same order
 creme.persons.copyTo = function (from_id, to_id) {
     var $from = $('#' + from_id);
     var $to = $('#' + to_id);
@@ -44,10 +44,10 @@ creme.persons.become = function(url, organisations) {
         creme.dialogs.choice(gettext('Select the concerned organisation.'), 
                              {choices: organisations, title: gettext('Organisation')})
                      .onOk(function(event, orga_id) {
-                          creme.utils.ajaxQuery(url, {action:'post', reloadOnSuccess:true, warnOnFail:true}, {id: orga_id}).start();
+                          creme.utils.ajaxQuery(url, {action: 'post', reloadOnSuccess: true, warnOnFail: true}, {id: orga_id}).start();
                       })
                      .open();
     } else {
-        creme.utils.ajaxQuery(url, {action:'post', reloadOnSuccess:true, warnOnFail:true}, {id: organisations[0].value}).start();
+        creme.utils.ajaxQuery(url, {action: 'post', reloadOnSuccess: true, warnOnFail: true}, {id: organisations[0].value}).start();
     }
 }

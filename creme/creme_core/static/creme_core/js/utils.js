@@ -61,7 +61,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
     overlay.update(visible, null, visible ? 100 : 0);
 }
 
-// TODO : deprecated, only used by creme.utils.showInnerPopup.
+// TODO : deprecate it ? (only used by creme.utils.showInnerPopup)
 creme.utils.showDialog = function(text, options, div_id) {
     var $div = $('#' + div_id);
 
@@ -81,8 +81,6 @@ creme.utils.showDialog = function(text, options, div_id) {
                  }
         ],
         closeOnEscape: false,
-        /*hide: 'slide',
-        show: 'slide',*/
         title: '',
         modal: true,
         width:'auto',
@@ -91,16 +89,6 @@ creme.utils.showDialog = function(text, options, div_id) {
                 $(this).remove();
         }
     }, options));
-
-    /*if(typeof(options['help_text'])!="undefined")
-    {
-        $('a.ui-dialog-titlebar-close').clone(true)
-                                       .appendTo($('a.ui-dialog-titlebar-close').parent())
-                                       .children('span')
-                                       .removeClass('ui-icon-closethick')
-                                       .addClass('ui-icon-info')
-                                       .css('margin-right','1em')
-    }*/
 }
 
 // TODO : only used by menu, so refactor it when horizontal menu will replace old one.
@@ -112,14 +100,13 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factor
                                    url: url,
                                    data: {},
                                    success: function(data, status, req) {
-                                       creme.utils.reload(); //TODO: reload listview content instead (so rename the function)
+                                       creme.utils.reload(); //TODO: reload list-view content instead (so rename the function)
                                    },
                                    error: function(req, status, error) {
                                        creme.dialogs.warning(req.responseText || gettext("Error")).open();
                                    },
                                    complete: function(request, textStatus) {},
                                    sync: false,
-                                   //method: "GET",
                                    parameters : undefined
                                }, ajax_options)
                        );
@@ -136,7 +123,8 @@ creme.utils.confirmSubmit = function(atag, msg) {
                  .open();
 }
 
-if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [];//Avoid the re-declaration in case of reload of creme_utils.js
+// Avoid the re-declaration in case of reload of creme_utils.js
+if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [];
 
 creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload) {
     var reload_on_close = creme.object.isTrue(reload);
@@ -236,7 +224,6 @@ creme.utils.handleDialogSubmit = function(dialog) {
     $.ajax({
           type: $form.attr('method'),
           url: post_url,
-//          data : post_data,
           data: data,
           beforeSend: function(request) {
               creme.utils.loading('loading', false, {});
@@ -294,15 +281,15 @@ creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url) {
 
     creme.utils.stackedPopups.pop();//Remove dial from opened dialog array
 
-//     if (beforeReloadCb != undefined && $.isFunction(beforeReloadCb)) {
     if ($.isFunction(beforeReloadCb))
         beforeReloadCb();
 
-    // add by Jonathan 20/05/2010 in order to have a different callback url for inner popup if needs
+    // Added by Jonathan 20/05/2010 in order to have a different callback url for inner popup if needs
     if (callback_url != undefined) {
         document.location = callback_url;
     } else if(reload) {
-        creme.utils.reloadDialog(creme.utils.stackedPopups[creme.utils.stackedPopups.length-1] || window);//Get the dial's parent dialog or window
+        // Get the dial's parent dialog or window
+        creme.utils.reloadDialog(creme.utils.stackedPopups[creme.utils.stackedPopups.length-1] || window);
     }
 }
 
@@ -315,6 +302,7 @@ creme.utils.reloadDialog = function(dial) {
     var reload_url = $(dial).find('[name=inner_header_from_url]').val();
     var div_id     = $(dial).find('[name=whoami]').val();
 
+    // TODO: a jquery function which does that probably already exists
     reload_url += (reload_url.indexOf('?') != -1) ? '&whoami=' + div_id:
                                                     '?whoami=' + div_id;
 
@@ -344,8 +332,9 @@ creme.utils.appendInUrl = function(url, strToAppend) {
     return url + anchor;
 }
 
-//TODO: move to a block.py ???
 creme.utils.innerPopupNReload = function(url, reload_url) {
+    console.warn('creme.utils.innerPopupNReload() is deprecated ; use creme.blocks.form() instead.');
+
     creme.utils.showInnerPopup(url, {
         beforeClose: function(event, ui, dial) {
             creme.blocks.reload(reload_url);
@@ -357,7 +346,7 @@ creme.utils.decorateSearchResult = function(research) {
     var research = research.toLowerCase();
 
     var mark = function(results) {
-        // highlight the word that we are searching
+        // Highlight the word that we are searching
         results.addClass('marked');
 
         var _wrap = function() {
@@ -384,7 +373,7 @@ creme.utils.decorateSearchResult = function(research) {
             mark(block.find('.search_result:not(.marked)'));
         });
 
-        // we update the title ; this is done on client side because pagination is done in the template rendering
+        // We update the title ; this is done on client side because pagination is done in the template rendering
         // and we want to avoid making the count() queries twice.
         var total = 0;
         root.find('[search-count]').each(function() {
@@ -490,7 +479,7 @@ creme.utils.confirmAjaxQuery = function(url, options, data) {
 }
 
 creme.utils.ajaxQuery = function(url, options, data) {
-    var options = $.extend({action: 'get', warnOnFail:true}, options || {});
+    var options = $.extend({action: 'get', warnOnFail: true}, options || {});
     var query = creme.ajax.query(url, options, data);
 
     if (options.warnOnFail) {
@@ -508,8 +497,7 @@ creme.utils.ajaxQuery = function(url, options, data) {
         query.onFail(function(event, data) {creme.utils.reload();});
     }
 
-    if (options.messageOnSuccess)
-    {
+    if (options.messageOnSuccess) {
         query.onDone(function(event, data) {
                   creme.dialogs.html('<p>%s</p>'.format(options.messageOnSuccess))
                                .onClose(function() {
@@ -550,8 +538,7 @@ creme.utils.innerPopupFormAction = function(url, options, data) {
                                            try {
                                                var submitdata = options.submit.apply(this, arguments);
 
-                                               if (submitdata && Object.isFunc(options.validator) && options.validator(submitdata))
-                                               {
+                                               if (submitdata && Object.isFunc(options.validator) && options.validator(submitdata)) {
                                                    self.done(submitdata);
                                                    creme.utils.closeDialog(dialog, options.reloadOnSuccess);
                                                }
