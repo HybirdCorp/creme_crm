@@ -37,7 +37,7 @@ from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWi
 from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import CremeEntity, HeaderFilter, EntityFilter
-from creme.creme_core.registry import export_backend_registry
+from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 
 from .. import get_report_model
