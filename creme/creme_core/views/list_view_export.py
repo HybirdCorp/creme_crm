@@ -25,10 +25,10 @@ from django.http import Http404
 from django.utils.encoding import smart_str
 
 from ..auth.decorators import login_required
+from ..backends import export_backend_registry
 from ..core.paginator import FlowPaginator
 from ..gui.listview import ListViewState
 from ..models import EntityFilter, EntityCredentials, HeaderFilter
-from ..registry import export_backend_registry
 from ..utils import get_ct_or_404
 # from ..utils.chunktools import iter_as_slices
 

@@ -42,11 +42,11 @@ from django.utils.html import escape
 
 from creme.documents import get_document_model
 
+from ..backends import import_backend_registry
 from ..gui.mass_import import import_form_registry
 from ..models import (CremePropertyType, CremeProperty,
         RelationType, Relation, CremeEntity, EntityCredentials, FieldsConfig,
         CustomField, CustomFieldValue, CustomFieldEnumValue, MassImportJobResult)
-from ..registry import import_backend_registry
 from ..utils.meta import ModelFieldEnumerator
 # from ..utils.collections import LimitedList
 from .base import CremeForm, CremeModelForm, FieldBlockManager, _CUSTOM_NAME

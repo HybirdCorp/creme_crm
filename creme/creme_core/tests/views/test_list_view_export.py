@@ -27,8 +27,9 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 try:
+    from creme.creme_core.backends import export_backend_registry
     from creme.creme_core.utils.xlrd_utils import XlrdReader
-    from creme.creme_core.registry import export_backend_registry
+
     XlsMissing = 'xls' not in export_backend_registry.iterkeys()
 except Exception:
     XlsMissing = True

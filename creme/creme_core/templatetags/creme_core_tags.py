@@ -31,12 +31,12 @@ from django.template.defaulttags import TemplateLiteral
 
 from mediagenerator.generators.bundles.utils import _render_include_media
 
+from ..backends import import_backend_registry, export_backend_registry
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
-from ..registry import export_backend_registry, import_backend_registry
 from ..utils import safe_unicode, bool_as_html
 from ..utils.currency_format import currency
-from ..utils.media import get_creme_media_url, get_current_theme
+from ..utils.media import get_creme_media_url  # get_current_theme
 from ..utils.meta import FieldInfo
 from ..utils.unicode_collation import collator
 
