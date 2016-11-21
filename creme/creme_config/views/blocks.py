@@ -29,7 +29,7 @@ from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.gui import block_registry
-from creme.creme_core.gui.block import SpecificRelationsBlock
+# from creme.creme_core.gui.block import SpecificRelationsBlock
 from creme.creme_core.models.block import (CremeEntity, UserRole,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
@@ -39,11 +39,7 @@ from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
-from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLocationsEditForm,
-        BlockPortalLocationsAddForm, BlockPortalLocationsEditForm,
-        BlockMypageLocationsForm,
-        RelationBlockAddForm, RelationBlockItemAddCtypesForm, RelationBlockItemEditCtypeForm,
-        CustomBlockConfigItemCreateForm, CustomBlockConfigItemEditForm)
+from ..forms import blocks
 
 
 def _get_configurable_ctype(ctype_id):
@@ -54,7 +50,7 @@ def _get_configurable_ctype(ctype_id):
         raise Http404('This model is not a CremeEntity.')
 
     if block_registry.is_model_invalid(model):
-        raise Http404('This model cannot have a detailview configuration.')
+        raise Http404('This model cannot have a detail-view configuration.')
 
     return ctype
 
@@ -64,7 +60,7 @@ def _get_configurable_ctype(ctype_id):
 def add_detailview(request, ct_id):
     ctype = _get_configurable_ctype(ct_id)
 
-    return add_model_with_popup(request, BlockDetailviewLocationsAddForm,
+    return add_model_with_popup(request, blocks.BlockDetailviewLocationsAddForm,
                                 title=ugettext(u'New block configuration for «%s»') % ctype,
                                 submit_label=_('Save the configuration'),
                                 initial={'content_type': ctype},
@@ -79,17 +75,17 @@ def add_portal(request):
                   DeprecationWarning
                  )
 
-    return add_model_with_popup(request, BlockPortalLocationsAddForm,
+    return add_model_with_popup(request, blocks.BlockPortalLocationsAddForm,
                                 _(u'New blocks configuration'),
                                 submit_label=_('Save the configuration'),
                                )  # TODO: title portal ???
 
 
 class PortalBlockWizard(PopupWizardMixin, SessionWizardView):
-    class _RelationStep(BlockPortalLocationsAddForm):
+    class _RelationStep(blocks.BlockPortalLocationsAddForm):
         step_submit_label = _('Select')
 
-    class _ConfigStep(BlockPortalLocationsEditForm):
+    class _ConfigStep(blocks.BlockPortalLocationsEditForm):
         step_prev_label = _('Previous step')
         step_submit_label = _('Save the configuration')
 
@@ -104,7 +100,7 @@ class PortalBlockWizard(PopupWizardMixin, SessionWizardView):
         # with atomic():
         conf_step.save()
 
-        return HttpResponse('', content_type='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     def get_form_kwargs(self, step):
         kwargs = super(PortalBlockWizard, self).get_form_kwargs(step)
@@ -120,45 +116,45 @@ class PortalBlockWizard(PopupWizardMixin, SessionWizardView):
 @login_required
 @permission_required('creme_core.can_admin')
 def add_relation_block(request):
-    warnings.warn("creme_config/blocks/relation_block/add is now deprecated. "
-                  "Use creme_config/blocks/relation_block/wizard view instead.",
-                  DeprecationWarning
-                 )
+    # warnings.warn("creme_config/blocks/relation_block/add is now deprecated. "
+    #               "Use creme_config/blocks/relation_block/wizard view instead.",
+    #               DeprecationWarning
+    #              )
 
-    return add_model_with_popup(request, RelationBlockAddForm,
+    return add_model_with_popup(request, blocks.RelationBlockAddForm,
                                 _(u'New type of block'),
                                 submit_label=_('Save the block'),
                                )
 
 
-class RelationBlockWizard(PopupWizardMixin, SessionWizardView):
-    class _RelationStep(RelationBlockAddForm):
-        step_submit_label = _('Select')
-
-    class _ContentTypeStep(RelationBlockItemAddCtypesForm):
-        step_prev_label = _('Previous step')
-        step_submit_label = _('Save the block')
-
-    form_list = (_RelationStep, _ContentTypeStep)
-    wizard_title = _('New type of block')
-    template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    permission = 'creme_core.can_admin'
-
-    def done(self, form_list, **kwargs):
-        ctype_step = form_list[1]
-
-        # with atomic():
-        ctype_step.save()
-
-        return HttpResponse('', content_type='text/javascript')
-
-    def get_form_instance(self, step):
-        if step == '1':
-            cleaned_data = self.get_cleaned_data_for_step('0')
-            relation_type = cleaned_data['relation_type']
-
-            block_id = SpecificRelationsBlock.generate_id('creme_config', relation_type.id)
-            return RelationBlockItem(block_id=block_id, relation_type=relation_type)
+# class RelationBlockWizard(PopupWizardMixin, SessionWizardView):
+#     class _RelationStep(RelationBlockAddForm):
+#         step_submit_label = _('Select')
+#
+#     class _ContentTypeStep(RelationBlockItemAddCtypesForm):
+#         step_prev_label = _('Previous step')
+#         step_submit_label = _('Save the block')
+#
+#     form_list = (_RelationStep, _ContentTypeStep)
+#     wizard_title = _('New type of block')
+#     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
+#     permission = 'creme_core.can_admin'
+#
+#     def done(self, form_list, **kwargs):
+#         ctype_step = form_list[1]
+#
+#         # with atomic():
+#         ctype_step.save()
+#
+#         return HttpResponse(content_type='text/javascript')
+#
+#     def get_form_instance(self, step):
+#         if step == '1':
+#             cleaned_data = self.get_cleaned_data_for_step('0')
+#             relation_type = cleaned_data['relation_type']
+#
+#             block_id = SpecificRelationsBlock.generate_id('creme_config', relation_type.id)
+#             return RelationBlockItem(block_id=block_id, relation_type=relation_type)
 
 
 @login_required
@@ -169,18 +165,18 @@ def add_custom_block(request):
                   DeprecationWarning
                  )
 
-    return add_model_with_popup(request, CustomBlockConfigItemCreateForm,
+    return add_model_with_popup(request, blocks.CustomBlockConfigItemCreateForm,
                                 _(u'New custom block'),
                                 submit_label=_('Save the block'),
                                )
 
 
 class CustomBlockWizard(PopupWizardMixin, SessionWizardView):
-    class _ResourceStep(CustomBlockConfigItemCreateForm):
+    class _ResourceStep(blocks.CustomBlockConfigItemCreateForm):
         step_submit_label = _('Select')
 
-    class _ConfigStep(CustomBlockConfigItemEditForm):
-        class Meta(CustomBlockConfigItemEditForm.Meta):
+    class _ConfigStep(blocks.CustomBlockConfigItemEditForm):
+        class Meta(blocks.CustomBlockConfigItemEditForm.Meta):
             exclude = ('name',)
 
         step_prev_label = _('Previous step')
@@ -198,13 +194,14 @@ class CustomBlockWizard(PopupWizardMixin, SessionWizardView):
             conf_step.instance = resource_step.save()
             conf_step.save()
 
-        return HttpResponse('', content_type='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     def get_form_instance(self, step):
         if step == '1':
             cleaned_data = self.get_cleaned_data_for_step('0')
             return CustomBlockConfigItem(name=cleaned_data['name'],
-                                         content_type=cleaned_data['ctype'])
+                                         content_type=cleaned_data['ctype'],
+                                        )
 
 
 @login_required
@@ -251,7 +248,7 @@ def edit_detailview(request, ct_id, role):
         ct = None
         title = _(u'Edit default configuration')
 
-    return add_model_with_popup(request, BlockDetailviewLocationsEditForm,
+    return add_model_with_popup(request, blocks.BlockDetailviewLocationsEditForm,
                                 initial={'content_type': ct,
                                          'role': role_obj, 'superuser': superuser,
                                         },
@@ -283,12 +280,14 @@ def edit_portal(request, app_name):
         raise Http404('This configuration does not exist (any more ?)')
 
     if request.method == 'POST':
-        locs_form = BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user, data=request.POST)
+        locs_form = blocks.BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user,
+                                                        data=request.POST,
+                                                       )
 
         if locs_form.is_valid():
             locs_form.save()
     else:
-        locs_form = BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user)
+        locs_form = blocks.BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user)
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
@@ -304,12 +303,12 @@ def edit_portal(request, app_name):
 
 def _edit_mypage(request, title, user=None):
     if request.method == 'POST':
-        locs_form = BlockMypageLocationsForm(owner=user, user=request.user, data=request.POST)
+        locs_form = blocks.BlockMypageLocationsForm(owner=user, user=request.user, data=request.POST)
 
         if locs_form.is_valid():
             locs_form.save()
     else:
-        locs_form = BlockMypageLocationsForm(owner=user, user=request.user)
+        locs_form = blocks.BlockMypageLocationsForm(owner=user, user=request.user)
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
@@ -337,10 +336,51 @@ def edit_mypage(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def add_ctypes_2_relation_block(request, rbi_id):
+    warnings.warn("creme_config/blocks/relation_block/add_ctypes/{{rbi_id}} is now deprecated. "
+                  "Use creme_config/blocks/relation_block/{{rbi_id}}/wizard view instead.",
+                  DeprecationWarning
+                 )
+
     return edit_model_with_popup(request, {'id': rbi_id}, RelationBlockItem,
-                                 RelationBlockItemAddCtypesForm,
+                                 blocks.RelationBlockItemAddCtypesForm,
                                  ugettext(u'New customised types for «%s»'),
                                 )
+
+
+class RelationCTypeBlockWizard(PopupWizardMixin, SessionWizardView):
+    class _ContentTypeStep(blocks.RelationBlockItemAddCtypeForm):
+        step_submit_label = _('Select')
+
+    class _FieldsStep(blocks.RelationBlockItemEditCtypeForm):
+        step_prev_label = _('Previous step')
+        step_submit_label = _('Save the configuration')
+
+    form_list = (_ContentTypeStep, _FieldsStep)
+    wizard_title = 'New customised type'  # Overridden by get_context_data()
+    template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
+    permission = 'creme_core.can_admin'
+
+    def done(self, form_list, **kwargs):
+        form_list[1].save()
+
+        return HttpResponse(content_type='text/javascript')
+
+    def get_context_data(self, form, **kwargs):
+        context = super(RelationCTypeBlockWizard, self).get_context_data(form, **kwargs)
+        context['title'] = ugettext(u'New customised type for «%s»') % form.instance
+
+        return context
+
+    def get_form_instance(self, step):
+        return get_object_or_404(RelationBlockItem, id=self.kwargs['rbi_id'])
+
+    def get_form_kwargs(self, step):
+        kwargs = super(RelationCTypeBlockWizard, self).get_form_kwargs(step)
+
+        if step == '1':
+            kwargs['ctype'] = self.get_cleaned_data_for_step('0')['ctype']
+
+        return kwargs
 
 
 @login_required
@@ -353,14 +393,14 @@ def edit_ctype_of_relation_block(request, rbi_id, ct_id):
         raise Http404('This ContentType is not set in the RelationBlockItem')
 
     if request.method == 'POST':
-        form = RelationBlockItemEditCtypeForm(user=request.user, data=request.POST,
-                                              instance=rbi, ctype=ctype,
-                                             )
+        form = blocks.RelationBlockItemEditCtypeForm(user=request.user, data=request.POST,
+                                                     instance=rbi, ctype=ctype,
+                                                    )
 
         if form.is_valid():
             form.save()
     else:
-        form = RelationBlockItemEditCtypeForm(user=request.user, instance=rbi, ctype=ctype)
+        form = blocks.RelationBlockItemEditCtypeForm(user=request.user, instance=rbi, ctype=ctype)
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
@@ -395,7 +435,7 @@ def delete_ctype_of_relation_block(request, rbi_id):
 @permission_required('creme_core.can_admin')
 def edit_custom_block(request, cbci_id):
     return edit_model_with_popup(request, {'id': cbci_id}, CustomBlockConfigItem,
-                                 CustomBlockConfigItemEditForm,
+                                 blocks.CustomBlockConfigItemEditForm,
                                  ugettext(u'Edit the block «%s»'),
                                 )
 
@@ -476,8 +516,9 @@ def delete_relation_block(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_instance_block(request):
-    block_id = get_from_POST_or_404(request.POST, 'id')
-    get_object_or_404(InstanceBlockConfigItem, pk=block_id).delete()
+    get_object_or_404(InstanceBlockConfigItem,
+                      pk=get_from_POST_or_404(request.POST, 'id'),
+                     ).delete()
 
     return HttpResponse()
 

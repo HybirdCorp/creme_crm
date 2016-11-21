@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from itertools import chain
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
@@ -43,7 +44,9 @@ from creme.creme_core.utils.unicode_collation import collator
 __all__ = ('BlockDetailviewLocationsAddForm', 'BlockDetailviewLocationsEditForm',
            'BlockPortalLocationsAddForm', 'BlockPortalLocationsEditForm',
            'BlockMypageLocationsForm',
-           'RelationBlockAddForm', 'RelationBlockItemAddCtypesForm', 'RelationBlockItemEditCtypeForm',
+           'RelationBlockAddForm',
+           'RelationBlockItemAddCtypesForm', 'RelationBlockItemAddCtypeForm',
+           'RelationBlockItemEditCtypeForm',
            'CustomBlockConfigItemCreateForm', 'CustomBlockConfigItemEditForm',
           )
 
@@ -323,6 +326,8 @@ class RelationBlockItemAddCtypesForm(CremeModelForm):
         exclude = ('relation_type',)
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('RelationBlockItemAddCtypesForm is now deprecated.', DeprecationWarning)
+
         super(RelationBlockItemAddCtypesForm, self).__init__(*args, **kwargs)
         instance = self.instance
         ct_field = self.fields['ctypes']
@@ -343,6 +348,33 @@ class RelationBlockItemAddCtypesForm(CremeModelForm):
         return super(RelationBlockItemAddCtypesForm, self).save(*args, **kwargs)
 
 
+class RelationBlockItemAddCtypeForm(CremeModelForm):
+    ctype = EntityCTypeChoiceField(label=_(u'Customised resource'),
+                                   widget=DynamicSelect({'autocomplete': True}),
+                                  )
+
+    class Meta:
+        model = RelationBlockItem
+        exclude = ('relation_type',)
+
+    def __init__(self, *args, **kwargs):
+        super(RelationBlockItemAddCtypeForm, self).__init__(*args, **kwargs)
+        instance = self.instance
+        ct_field = self.fields['ctype']
+        compatible_ctypes = instance.relation_type.object_ctypes.all()
+
+        if compatible_ctypes:
+            ct_field.ctypes = compatible_ctypes
+
+        used_ct_ids = frozenset(ct.id for ct, cells in instance.iter_cells())  # TODO: iter_ctypes() ??
+        ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
+
+    def save(self, *args, **kwargs):
+        self.instance.set_cells(self.cleaned_data['ctype'], ())
+
+        return super(RelationBlockItemAddCtypeForm, self).save(*args, **kwargs)
+
+
 class RelationBlockItemEditCtypeForm(CremeModelForm):
     cells = EntityCellsField(label=_(u'Columns'))
 
@@ -360,7 +392,7 @@ class RelationBlockItemEditCtypeForm(CremeModelForm):
 
         cells_f = self.fields['cells']
         cells = self.instance.get_cells(ctype)
-        cells_f.non_hiddable_cells = cells
+        cells_f.non_hiddable_cells = cells or ()
         cells_f.content_type = ctype
         cells_f.initial = cells
 
