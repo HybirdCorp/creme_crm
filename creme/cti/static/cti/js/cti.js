@@ -22,17 +22,13 @@
 
 creme.cti = {};
 
-// creme.cti.phoneCall = function(url, number, entity_id) {
 creme.cti.phoneCall = function(external_url, creme_url, number, entity_id) {
     creme.ajax.get({
-//                    url:   url,
                     url:   external_url,
                     data:  {n_tel: number},
                     error: function() {}
                    });
-
     creme.ajax.post({ //TODO: creme.ajax.json.post ???
-//                        url:      '/cti/add_phonecall',
                         url:      creme_url,
                         data:     {entity_id: entity_id},
                         dataType: "json",

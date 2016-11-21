@@ -140,7 +140,7 @@ creme.billing.initializeForm = function(element) {
         element.removeAttr('form_modified');
     });
 
-    // bind twice because of double init of blocks, seems to not cause a problem
+    // Bind twice because of double init of blocks, seems to not cause a problem
     creme.billing.inputs(element).bind('change', function() {
         var item = creme.billing.serializeInput($(this), false);
         var changed = item !== undefined && ('' + item.value !== $(this).attr('initial'));
@@ -164,13 +164,13 @@ creme.billing.initializeForms = function(element) {
 
 creme.billing.hideEmptyForm = function(ct_id, formset_prefix, line_count) {
     $('.empty_form_' + ct_id).attr('style', 'display:none');
-    // update total forms count
+    // Update total forms count
     var form_count_hidden_input = $('#id_' + formset_prefix + '-TOTAL_FORMS');
     form_count_hidden_input.val(parseInt(form_count_hidden_input.val()) - 1);
     // console.log('TOTAL FORMS = ' + form_count_hidden_input.val());
     $('.add_on_the_fly_' + ct_id).removeClass('forbidden');
 
-    // hide empty msg if there is not any line
+    // Hide empty msg if there is not any line
     if (line_count === 0) {
         $('.empty_msg_' + ct_id).attr('style', 'display:table-row');
     }
@@ -184,7 +184,7 @@ creme.billing.showEmptyForm = function(btn, ct_id, prefix, line_count) {
     var form_count_hidden_input = $('#id_' + prefix + '-TOTAL_FORMS');
     var td_inputs = $('.empty_form_inputs_' + ct_id);
 
-    // replace __prefix__ by form number
+    // Replace __prefix__ by form number
     var formCount = parseInt(form_count_hidden_input.val());
     $('input,select,textarea', td_inputs).each(function(index) {
         $(this).removeClass('td_error');
@@ -196,47 +196,33 @@ creme.billing.showEmptyForm = function(btn, ct_id, prefix, line_count) {
         if ($(this).attr('name')) {
             $(this).attr('name', $(this).attr('name').replace('__prefix__', formCount));
         }
-        // clean empty form with initial model values
+        // Clean empty form with initial model values
         creme.billing.restoreValue($(this));
     });
 
-    // update total forms count
+    // Update total forms count
     form_count_hidden_input.val(formCount + 1);
 
-    // set related form as modified
+    // Set related form as modified
     var tbodyform = $('tbody[id^="form_id_' + ct_id + '"]');
     tbodyform.addClass('form_modified');
 
-    // show empty_form
+    // Show empty_form
     $('.empty_form_' + ct_id).attr('style', 'display:table-row');
 
-    // hide empty msg and empty tr if there is not any line
+    // Hide empty msg and empty tr if there is not any line
     if (line_count === 0) {
         $('.space_line_' + ct_id).attr('style', 'display:none');
         $('.empty_msg_' + ct_id).attr('style', 'display:none');
     }
 }
 
-// TODO use this if we want to try to send form errors
-//creme.billing.submitBlock = function(block, url) {
-//    creme.ajax.post({
-//                'url': url,
-//                'success': function(data, status) {
-//                      creme.blocks.fill(block, data);
-//                }
-//    });
-//}
-
 creme.billing.restoreValue = function(input) {
     var initial_value = input.attr('initial');
 
     if (input.attr('type') === 'checkbox') {
         input.get().checked = !Object.isNone(initial_value);
-    }
-    // TODO : remove this unused code
-    /* else if (input.attr('o2m')) { // TODO hack to retrieve the creme entity widget
-        creme.lv_widget.handleSelection(initial_value || [], input.attr('id'));
-    }*/ else {
+    } else {
         input.val(initial_value);
     }
 
@@ -384,10 +370,7 @@ creme.billing.serializeForm = function(form) {
     return data;
 }
 
-//creme.billing.multi_save_lines = function (document_id) {
 creme.billing.multiSaveLines = function (document_id) {
-//     creme.dialogs.confirm(gettext("Do you really want to save all the modifications done on the lines of this document ?"))
-//                  .onOk(function() {
     var forms = $('tbody[id^=form_id_]');
     var forms_data = {};
     var url = '/billing/%s/multi_save_lines'.format(document_id);
@@ -429,7 +412,7 @@ creme.billing.updateBlockTotals = function(currency) {
 
 creme.billing.EXPORT_FORMATS = [
    //{value:'odt', label: gettext("Document open-office (ODT)")},
-   {value:'pdf', label: gettext("Pdf file (PDF)")}
+   {value: 'pdf', label: gettext("Pdf file (PDF)")}
 ];
 
 creme.billing.exportAs = function(url, formats) {
@@ -453,18 +436,13 @@ creme.billing.convertAs = function (billing_id, type) {
                       .start();
 }
 
-// creme.billing.generateInvoiceNumber = function(billing_id) {
-//     return creme.utils.ajaxQuery('/billing/invoice/generate_number/%s'.format(billing_id),
-//                                  {action: 'post', warnOnFail: true, reloadOnSuccess: true})
-//                       .start();
-// }
 creme.billing.generateInvoiceNumber = function(url) {
     return creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, reloadOnSuccess: true})
                       .start();
 }
 
 //creme.billing.linkToDocument = function(url, organisations) {
-//    console.warn('This functions is deprecated.');
+//    console.warn('This function is deprecated.');
 //    if (Object.isEmpty(organisations))
 //        return;
 //

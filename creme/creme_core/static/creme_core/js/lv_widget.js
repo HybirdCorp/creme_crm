@@ -33,7 +33,7 @@ creme.lv_widget.openFilterView = function(ct_id, q_filter) {
                                               click: function() {
                                                          $(this).dialog("close");
                                                      }
-                                             }],
+                                             }]
                                });
 }
 
@@ -287,14 +287,6 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
         var multiple = element.is('[multiple]') || options.multiple
 
         creme.lv_widget.initialize({multiple: multiple}, dialog);
-
-        /* TODO : remove it, "default-action" class is no longer used in templates.
-        $('.list_view_actions .default-action', element).hover(
-             function() {$(this).addClass('ui-state-hover');},
-             function() {$(this).removeClass('ui-state-hover');}
-        );
-        */
-
         element.addClass('widget-ready');
     }
 });
