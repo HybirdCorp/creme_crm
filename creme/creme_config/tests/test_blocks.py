@@ -27,6 +27,7 @@ try:
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
+
 # Test Blocks ------------------------------------------------------------------
 class CompleteBlock(Block):
     id_           = Block.generate_id('creme_config', 'testblockconfig_complete')
@@ -125,7 +126,7 @@ class PortalInstanceBlock(Block):
 # Test case --------------------------------------------------------------------
 class BlocksConfigTestCase(CremeTestCase):
     DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'
-    RELATION_WIZARD_URL = '/creme_config/blocks/relation_block/wizard'
+    # RELATION_WIZARD_URL = '/creme_config/blocks/relation_block/wizard'
     PORTAL_WIZARD_URL = '/creme_config/blocks/portal/wizard'
     CUSTOM_WIZARD_URL = '/creme_config/blocks/custom/wizard'
 
@@ -196,6 +197,9 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def _build_rblock_addctypes_url(self, rbi):
         return '/creme_config/blocks/relation_block/add_ctypes/%s' % rbi.id
+
+    def _build_rblock_addctypes_wizard_url(self, rbi):
+        return '/creme_config/blocks/relation_block/%s/wizard' % rbi.id
 
     def _build_rblock_editctype_url(self, rbi, model):
         return '/creme_config/blocks/relation_block/%s/edit_ctype/%s' % (
@@ -1053,11 +1057,12 @@ class BlocksConfigTestCase(CremeTestCase):
         block_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
         self.assertIn('block_creme_core-history', block_ids)
 
-        # return to first step
-        response = self.assertPOST(200, self.PORTAL_WIZARD_URL,
-                                   {'portal_block_wizard-current_step': '1',
-                                    'wizard_goto_step': '0'
-                                   })
+        # Return to first step
+        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+                                      {'portal_block_wizard-current_step': '1',
+                                       'wizard_goto_step': '0',
+                                      }
+                                     )
         self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
 
     def test_delete_home(self):
@@ -1224,10 +1229,10 @@ class BlocksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['ctypes'].ctypes
 
-        self.assertIn(get_ct(Activity),        choices) # compatible & not used
-        self.assertNotIn(get_ct(Image),        choices) # still not compatible
-        self.assertNotIn(get_ct(Contact),      choices) # used
-        self.assertNotIn(get_ct(Organisation), choices) # used
+        self.assertIn(get_ct(Activity),        choices)  # Compatible & not used
+        self.assertNotIn(get_ct(Image),        choices)  # Still not compatible
+        self.assertNotIn(get_ct(Contact),      choices)  # Used
+        self.assertNotIn(get_ct(Organisation), choices)  # Used
 
     def test_add_relationblock_ctypes02(self):
         "All ContentTypes allowed"
@@ -1251,7 +1256,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertIn(get_ct(Organisation), choices)
         self.assertIn(get_ct(Activity),     choices)
 
-        self.assertNoFormError(self.client.post( url, data={'ctypes': [get_ct(Contact).id]}))
+        self.assertNoFormError(self.client.post(url, data={'ctypes': [get_ct(Contact).id]}))
 
         rb_item = self.refresh(rb_item)
         self.assertIsNone(rb_item.get_cells(get_ct(Organisation)))
@@ -1263,8 +1268,152 @@ class BlocksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['ctypes'].ctypes
 
-        self.assertNotIn(get_ct(Contact),   choices) # used
-        self.assertIn(get_ct(Organisation), choices) # not used
+        self.assertNotIn(get_ct(Contact),   choices)  # Used
+        self.assertIn(get_ct(Organisation), choices)  # Not used
+
+    def test_add_relationblock_ctypes_wizard01(self):
+        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                  ('test-objfoo', 'object_predicate', [Contact, Organisation, Activity]),
+                                )[0]
+
+        rb_item = RelationBlockItem.objects.create(
+                        block_id='specificblock_creme_config-test-subfoo',
+                        relation_type=rt,
+                    )
+
+        url = self._build_rblock_addctypes_wizard_url(rb_item)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['ctype'].ctypes
+
+        get_ct = ContentType.objects.get_for_model
+        ct_contact  = get_ct(Contact)
+        ct_activity = get_ct(Activity)
+        ct_image    = get_ct(Image)
+        self.assertIn(ct_contact,           choices)
+        self.assertIn(get_ct(Organisation), choices)
+        self.assertIn(ct_activity,          choices)
+        self.assertNotIn(ct_image,          choices)
+
+        response = self.assertPOST200(url,
+                                      {'relation_c_type_block_wizard-current_step': '0',
+                                       '0-ctype': ct_contact.pk,
+                                      }
+                                     )
+
+        # Last step is not submitted so nothing yet in database
+        rb_item = self.refresh(rb_item)
+        self.assertIsNone(rb_item.get_cells(ct_contact))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('cells', fields)
+
+        funcfield = Contact.function_fields.get('get_pretty_properties')
+        field_fname = 'first_name'
+        field_lname = 'last_name'
+        response = self.client.post(
+                url,
+                data={'relation_c_type_block_wizard-current_step': '1',
+                      '1-cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,function_field-%(ffield)s' % {
+                                         'rfield1': field_fname,
+                                         'rfield2': field_lname,
+                                         'ffield':  funcfield.name,
+                                    },
+                     },
+            )
+        self.assertNoFormError(response)
+
+        rb_item = self.refresh(rb_item)
+        self.assertIsNone(rb_item.get_cells(ct_activity))
+
+        cells = rb_item.get_cells(ct_contact)
+        self.assertIsInstance(cells, list)
+        self.assertEqual(3, len(cells))
+
+        cell = cells[0]
+        self.assertIsInstance(cell, EntityCellRegularField)
+        self.assertEqual(field_fname, cell.value)
+
+        self.assertEqual(field_lname, cells[1].value)
+
+        cell = cells[2]
+        self.assertIsInstance(cell, EntityCellFunctionField)
+        self.assertEqual(funcfield.name, cell.value)
+
+        # Used CTypes should not be proposed
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['ctype'].ctypes
+
+        self.assertIn(ct_activity,   choices)  # Compatible & not used
+        self.assertNotIn(ct_image,   choices)  # Still not compatible
+        self.assertNotIn(ct_contact, choices)  # Used
+
+    def test_add_relationblock_ctypes_wizard02(self):
+        "ContentType constraint"
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate', [Contact]),
+                                    ('test-objfoo', 'object_predicate',  [Organisation]),
+                                   )[0]
+        rb_item = RelationBlockItem.objects.create(
+                        block_id='specificblock_creme_config-test-subfoo',
+                        relation_type=rtype,
+                    )
+
+        url = self._build_rblock_addctypes_wizard_url(rb_item)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['ctype'].ctypes
+
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+        self.assertIn(get_ct(Organisation), choices)
+        self.assertNotIn(ct_contact,        choices)
+        self.assertNotIn(get_ct(Activity),  choices)
+
+        response = self.client.post(url,
+                                    {'relation_c_type_block_wizard-current_step': '0',
+                                     '0-ctype': ct_contact.pk,
+                                    }
+                                   )
+        self.assertFormError(response, 'form', 'ctype',
+                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                            )
+
+    def test_add_relationblock_ctypes_wizard03(self):
+        "Go back"
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate', [Organisation]),
+                                    ('test-objfoo', 'object_predicate',  [Contact]),
+                                   )[0]
+        rb_item = RelationBlockItem.objects.create(
+                        block_id='specificblock_creme_config-test-subfoo',
+                        relation_type=rtype,
+                    )
+
+        url = self._build_rblock_addctypes_wizard_url(rb_item)
+
+        ct_contact  = ContentType.objects.get_for_model(Contact)
+        self.assertPOST200(url,
+                           {'relation_c_type_block_wizard-current_step': '0',
+                            '0-ctype': ct_contact.pk,
+                           }
+                          )
+
+        # Return to first step
+        response = self.assertPOST200(url,
+                                      {'relation_c_type_block_wizard-current_step': '1',
+                                       'wizard_goto_step': '0',
+                                      }
+                                     )
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['ctype'].ctypes
+
+        self.assertIn(ct_contact, choices)
 
     def test_edit_relationblock_ctypes01(self):
         ct = ContentType.objects.get_for_model(Contact)
@@ -1489,117 +1638,117 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertDoesNotExist(rbi)
         self.assertDoesNotExist(loc)
 
-    def test_relationblock_wizard_relation_step(self):
-        get_ct = ContentType.objects.get_for_model
-        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                    ('test-objfoo', 'object_predicate'),
-                                   )[0]
+    # def test_relationblock_wizard_relation_step(self):
+    #     get_ct = ContentType.objects.get_for_model
+    #     rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+    #                                 ('test-objfoo', 'object_predicate'),
+    #                                )[0]
+    #
+    #     self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+    #
+    #     response = self.assertGET200(self.RELATION_WIZARD_URL)
+    #     self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+    #
+    #     response = self.assertPOST200(self.RELATION_WIZARD_URL,
+    #                                   {'relation_block_wizard-current_step': '0',
+    #                                    '0-relation_type': rtype.pk,
+    #                                   }
+    #                                  )
+    #     ctypes = response.context['form'].fields['ctypes'].ctypes
+    #     self.assertIn(get_ct(Contact),      ctypes)
+    #     self.assertIn(get_ct(Organisation), ctypes)
+    #     self.assertIn(get_ct(Activity),     ctypes)
+    #
+    #     # last step is not submitted so nothing yet in database
+    #     self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
 
-        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+    # def test_relationblock_wizard_relation_step_invalid(self):
+    #     rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+    #                                 ('test-objfoo', 'object_predicate'),
+    #                                )[0]
+    #
+    #     self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+    #
+    #     response = self.assertGET200(self.RELATION_WIZARD_URL)
+    #     self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+    #
+    #     response = self.assertPOST200(self.RELATION_WIZARD_URL,
+    #                                   {'relation_block_wizard-current_step': '0',
+    #                                    '0-relation_type': 'unknown',
+    #                                   }
+    #                                  )
+    #
+    #     self.assertFormError(response, 'form', 'relation_type',
+    #                          _(u'Select a valid choice. That choice is not one of the available choices.')
+    #                         )
 
-        response = self.assertGET200(self.RELATION_WIZARD_URL)
-        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+    # def test_relationblock_wizard_model_step(self):
+    #     get_ct = ContentType.objects.get_for_model
+    #     contact_ct = get_ct(Contact)
+    #     orga_ct = get_ct(Organisation)
+    #     activity_ct = get_ct(Activity)
+    #
+    #     rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+    #                                 ('test-objfoo', 'object_predicate'),
+    #                                )[0]
+    #
+    #     self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+    #
+    #     response = self.assertGET200(self.RELATION_WIZARD_URL)
+    #     self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+    #
+    #     response = self.assertPOST200(self.RELATION_WIZARD_URL,
+    #                                   {'relation_block_wizard-current_step': '0',
+    #                                    '0-relation_type': rtype.pk,
+    #                                   }
+    #                                  )
+    #     ctypes = response.context['form'].fields['ctypes'].ctypes
+    #     self.assertIn(get_ct(Contact),      ctypes)
+    #     self.assertIn(get_ct(Organisation), ctypes)
+    #     self.assertIn(get_ct(Activity),     ctypes)
+    #
+    #     response = self.client.post(self.RELATION_WIZARD_URL,
+    #                                 {'relation_block_wizard-current_step': '1',
+    #                                  '1-ctypes': [contact_ct.pk, activity_ct.pk],
+    #                                 }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     block = RelationBlockItem.objects.get(block_id='specificblock_creme_config-test-subfoo',
+    #                                           relation_type=rtype,
+    #                                          )
+    #
+    #     self.assertIsNotNone(block.get_cells(contact_ct))
+    #     self.assertIsNone(block.get_cells(orga_ct))
+    #     self.assertIsNotNone(block.get_cells(activity_ct))
 
-        response = self.assertPOST200(self.RELATION_WIZARD_URL,
-                                      {'relation_block_wizard-current_step': '0',
-                                       '0-relation_type': rtype.pk,
-                                      }
-                                     )
-        ctypes = response.context['form'].fields['ctypes'].ctypes
-        self.assertIn(get_ct(Contact),      ctypes)
-        self.assertIn(get_ct(Organisation), ctypes)
-        self.assertIn(get_ct(Activity),     ctypes)
-
-        # last step is not submitted so nothing yet in database
-        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
-
-    def test_relationblock_wizard_relation_step_invalid(self):
-        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                    ('test-objfoo', 'object_predicate'),
-                                   )[0]
-
-        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
-
-        response = self.assertGET200(self.RELATION_WIZARD_URL)
-        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
-
-        response = self.assertPOST200(self.RELATION_WIZARD_URL,
-                                      {'relation_block_wizard-current_step': '0',
-                                       '0-relation_type': 'unknown',
-                                      }
-                                     )
-
-        self.assertFormError(response, 'form', 'relation_type',
-                             _(u'Select a valid choice. That choice is not one of the available choices.')
-                            )
-
-    def test_relationblock_wizard_model_step(self):
-        get_ct = ContentType.objects.get_for_model
-        contact_ct = get_ct(Contact)
-        orga_ct = get_ct(Organisation)
-        activity_ct = get_ct(Activity)
-
-        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                    ('test-objfoo', 'object_predicate'),
-                                   )[0]
-
-        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
-
-        response = self.assertGET200(self.RELATION_WIZARD_URL)
-        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
-
-        response = self.assertPOST200(self.RELATION_WIZARD_URL,
-                                      {'relation_block_wizard-current_step': '0',
-                                       '0-relation_type': rtype.pk,
-                                      }
-                                     )
-        ctypes = response.context['form'].fields['ctypes'].ctypes
-        self.assertIn(get_ct(Contact),      ctypes)
-        self.assertIn(get_ct(Organisation), ctypes)
-        self.assertIn(get_ct(Activity),     ctypes)
-
-        response = self.client.post(self.RELATION_WIZARD_URL,
-                                    {'relation_block_wizard-current_step': '1',
-                                     '1-ctypes': [contact_ct.pk, activity_ct.pk],
-                                    }
-                                   )
-        self.assertNoFormError(response)
-
-        block = RelationBlockItem.objects.get(block_id='specificblock_creme_config-test-subfoo',
-                                              relation_type=rtype,
-                                             )
-
-        self.assertIsNotNone(block.get_cells(contact_ct))
-        self.assertIsNone(block.get_cells(orga_ct))
-        self.assertIsNotNone(block.get_cells(activity_ct))
-
-    def test_relationblock_wizard_go_back(self):
-        get_ct = ContentType.objects.get_for_model
-        rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                    ('test-objfoo', 'object_predicate'),
-                                   )[0]
-
-        self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
-
-        response = self.assertGET200(self.RELATION_WIZARD_URL)
-        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
-
-        response = self.assertPOST200(self.RELATION_WIZARD_URL,
-                                      {'relation_block_wizard-current_step': '0',
-                                       '0-relation_type': rtype.pk,
-                                      }
-                                     )
-        ctypes = response.context['form'].fields['ctypes'].ctypes
-        self.assertIn(get_ct(Contact),      ctypes)
-        self.assertIn(get_ct(Organisation), ctypes)
-        self.assertIn(get_ct(Activity),     ctypes)
-
-        # return to first step
-        response = self.assertPOST(200, self.RELATION_WIZARD_URL,
-                                   {'relation_block_wizard-current_step': '1',
-                                    'wizard_goto_step': '0'
-                                   })
-        self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+    # def test_relationblock_wizard_go_back(self):
+    #     get_ct = ContentType.objects.get_for_model
+    #     rtype = RelationType.create(('test-subfoo', 'subject_predicate'),
+    #                                 ('test-objfoo', 'object_predicate'),
+    #                                )[0]
+    #
+    #     self.assertFalse(RelationBlockItem.objects.filter(relation_type=rtype).exists())
+    #
+    #     response = self.assertGET200(self.RELATION_WIZARD_URL)
+    #     self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
+    #
+    #     response = self.assertPOST200(self.RELATION_WIZARD_URL,
+    #                                   {'relation_block_wizard-current_step': '0',
+    #                                    '0-relation_type': rtype.pk,
+    #                                   }
+    #                                  )
+    #     ctypes = response.context['form'].fields['ctypes'].ctypes
+    #     self.assertIn(get_ct(Contact),      ctypes)
+    #     self.assertIn(get_ct(Organisation), ctypes)
+    #     self.assertIn(get_ct(Activity),     ctypes)
+    #
+    #     # return to first step
+    #     response = self.assertPOST(200, self.RELATION_WIZARD_URL,
+    #                                {'relation_block_wizard-current_step': '1',
+    #                                 'wizard_goto_step': '0'
+    #                                })
+    #     self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
 
     def test_delete_instanceblock(self):
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')

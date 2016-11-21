@@ -94,8 +94,9 @@ blocks_patterns = [
     url(r'^mypage/default/delete$', blocks.delete_default_mypage),
     url(r'^mypage/delete$',         blocks.delete_mypage),
 
-    url(r'^relation_block/wizard[/]*$',                                blocks.RelationBlockWizard.as_view()),
+    # url(r'^relation_block/wizard[/]*$',                                blocks.RelationBlockWizard.as_view()),
     url(r'^relation_block/add/$',                                      blocks.add_relation_block),
+    url(r'^relation_block/(?P<rbi_id>\d+)/wizard[/]*$',                blocks.RelationCTypeBlockWizard.as_view()),
     url(r'^relation_block/add_ctypes/(?P<rbi_id>\d+)$',                blocks.add_ctypes_2_relation_block),
     url(r'^relation_block/(?P<rbi_id>\d+)/edit_ctype/(?P<ct_id>\d+)$', blocks.edit_ctype_of_relation_block),
     url(r'^relation_block/(?P<rbi_id>\d+)/delete_ctype$',              blocks.delete_ctype_of_relation_block),
