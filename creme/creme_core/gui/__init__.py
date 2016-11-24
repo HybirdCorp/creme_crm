@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from .menu import creme_menu
-from .button_menu import button_registry
-from .block import block_registry
-from .fields_config import fields_config_registry
-from .field_printers import field_printers_registry
-from .icon_registry import icon_registry
-from .quick_forms import quickforms_registry
-from .listview import smart_columns_registry
-from .mass_import import import_form_registry
-from .bulk_update import bulk_update_registry
-from .merge import merge_form_registry
+from .menu import creme_menu  # NOQA
+from .button_menu import button_registry  # NOQA
+from .block import block_registry  # NOQA
+from .fields_config import fields_config_registry  # NOQA
+from .field_printers import field_printers_registry  # NOQA
+from .icon_registry import icon_registry  # NOQA
+from .quick_forms import quickforms_registry  # NOQA
+from .listview import smart_columns_registry  # NOQA
+from .mass_import import import_form_registry  # NOQA
+from .bulk_update import bulk_update_registry  # NOQA
+from .merge import merge_form_registry  # NOQA
