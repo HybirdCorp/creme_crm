@@ -20,8 +20,10 @@
 
 from django.apps import apps
 from django.conf import settings
-from django.core.checks import register, Error, Warning
+from django.core.checks import register, Error, Warning, Tags as CoreTags
 from django.db.utils import OperationalError
+
+from .models import CremeEntity
 
 
 class Tags(object):
@@ -107,3 +109,24 @@ def check_uninstalled_apps(**kwargs):
 #                          )
 #
 #     return errors
+
+
+@register(CoreTags.models)
+def check_entity_ordering(**kwargs):
+    errors = []
+
+    for model in apps.get_models():
+        if not issubclass(model, CremeEntity):
+            continue
+
+        ordering = model._meta.ordering
+
+        if not ordering or (len(ordering) == 1 and 'id' in ordering[0]):
+            errors.append(Error('"%s" should have a Meta.ordering different from "id" like all CremeEntities' % model,
+                                hint='Change the "ordering" attribute in the Meta class of your model.',
+                                obj='creme.creme_core',
+                                id='creme.E005',
+                               )
+                         )
+
+    return errors
