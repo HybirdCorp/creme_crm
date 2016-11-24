@@ -18,20 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter, map
+
+import warnings
+
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.forms.fields import MultipleChoiceField, CharField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import CTypeChoiceField
 from creme.creme_core.forms.widgets import DynamicSelect, Label  # UnorderedMultipleChoiceWidget
-from creme.creme_core.gui.fields_config import fields_config_registry
+# from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import FieldsConfig
-from creme.creme_core.utils.meta import ModelFieldEnumerator
+# from creme.creme_core.utils.meta import ModelFieldEnumerator
 
 
 def _get_fields_enum(ctype):
-    return ModelFieldEnumerator(ctype.model_class(), deep=0, only_leafs=False)\
-                               .filter(viewable=True, optional=True)
+    # return ModelFieldEnumerator(ctype.model_class(), deep=0, only_leafs=False)\
+    #                            .filter(viewable=True, optional=True)
+    warnings.warn("_get_fields_enum() is deprecated ; use FieldsConfig.field_enumerator() instead.",
+                  DeprecationWarning
+                 )
+
+    return FieldsConfig.field_enumerator(ctype.model_class())
 
 
 class FieldsConfigAddForm(CremeForm):
@@ -45,8 +56,13 @@ class FieldsConfigAddForm(CremeForm):
     def __init__(self, *args, **kwargs):
         super(FieldsConfigAddForm, self).__init__(*args, **kwargs)
         used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
-        self.ctypes = ctypes = [ct for ct in fields_config_registry.ctypes
-                                    if ct.id not in used_ct_ids and any(_get_fields_enum(ct))
+        # self.ctypes = ctypes = [ct for ct in fields_config_registry.ctypes
+        #                             if ct.id not in used_ct_ids and any(_get_fields_enum(ct))
+        #                        ]
+        self.ctypes = ctypes = [ct for ct in map(ContentType.objects.get_for_model,
+                                                 filter(FieldsConfig.is_model_valid, apps.get_models())
+                                                )
+                                        if ct.id not in used_ct_ids
                                ]
 
         if ctypes:
@@ -79,7 +95,8 @@ class FieldsConfigEditForm(CremeModelForm):
         super(FieldsConfigEditForm, self).__init__(*args, **kwargs)
         instance = self.instance
         hidden_f = self.fields['hidden']
-        hidden_f.choices = _get_fields_enum(instance.content_type).choices()
+        # hidden_f.choices = _get_fields_enum(instance.content_type).choices()
+        hidden_f.choices = FieldsConfig.field_enumerator(instance.content_type.model_class()).choices()
 
         if instance.pk:
             hidden_f.initial = [f.name for f in instance.hidden_fields]

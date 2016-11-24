@@ -11,15 +11,15 @@ def ready():
 
     already_run = True
 
-    from ..gui import (block_registry, fields_config_registry, import_form_registry,
-            merge_form_registry, quickforms_registry, smart_columns_registry)
+    from ..gui import (block_registry, import_form_registry,
+            merge_form_registry, quickforms_registry, smart_columns_registry)  # fields_config_registry
     from ..registry import creme_registry
 
     from .fake_forms import (FakeContactQuickForm, FakeOrganisationQuickForm,
             get_csv_form_builder, get_merge_form_builder)
     from .fake_constants import FAKE_REL_SUB_EMPLOYED_BY
-    from .fake_models import (FakeContact, FakeOrganisation, FakeAddress, FakeImage,
-            FakeActivity, FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
+    from .fake_models import (FakeContact, FakeOrganisation, FakeImage,
+            FakeActivity, FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)  # FakeAddress
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 
@@ -36,7 +36,7 @@ def ready():
 
     block_registry.register_invalid_models(FakeInvoiceLine)  # See creme_config tests
 
-    fields_config_registry.register(FakeAddress)
+    # fields_config_registry.register(FakeAddress)
 
     reg_qform = quickforms_registry.register
     reg_qform(FakeContact,      FakeContactQuickForm)

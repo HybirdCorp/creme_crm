@@ -63,8 +63,8 @@ class PersonsConfig(CremeAppConfig):
 
         button_registry.register(*button_list)
 
-    def register_fields_config(self, fields_config_registry):
-        fields_config_registry.register(self.Address)
+    # def register_fields_config(self, fields_config_registry):
+    #     fields_config_registry.register(self.Address)
 
     def register_field_printers(self, field_printers_registry):
         from django.contrib.auth import get_user_model

@@ -22,6 +22,7 @@ from future_builtins import filter
 
 from collections import defaultdict
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -30,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, block_registry
-from creme.creme_core.gui.fields_config import fields_config_registry
+# from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
         CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
         CustomField, CustomFieldEnumValue,
@@ -192,20 +193,24 @@ class FieldsConfigsBlock(PaginatedBlock):
     configurable  = False
 
     def detailview_display(self, context):
-        from .forms.fields_config import _get_fields_enum  # TODO: move to FieldsConfig ?
+        # from .forms.fields_config import _get_fields_enum
 
         # TODO: exclude CTs that user cannot see ? (should probably done everywhere in creme_config...)
         fconfigs = list(FieldsConfig.objects.all())
         sort_key = collator.sort_key
         fconfigs.sort(key=lambda fconf: sort_key(unicode(fconf.content_type)))
 
-        used_ctypes = {fconf.content_type for fconf in fconfigs}
+        # used_ctypes = {fconf.content_type for fconf in fconfigs}
+        used_models = {fconf.content_type.model_class() for fconf in fconfigs}
         btc = self.get_block_template_context(
                     context, fconfigs,
                     update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    display_add_button=any(ct not in used_ctypes and any(_get_fields_enum(ct))
-                                                for ct in fields_config_registry.ctypes
-                                           ),
+                    # display_add_button=any(ct not in used_ctypes and any(_get_fields_enum(ct))
+                    #                             for ct in fields_config_registry.ctypes
+                    #                       ),
+                    display_add_button=any(model not in used_models
+                                                for model in filter(FieldsConfig.is_model_valid, apps.get_models())
+                                          ),
                 )
 
         for fconf in btc['page'].object_list:
