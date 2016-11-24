@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ import logging
 from django.conf import settings
 
 from ..models import CremeEntity
-from creme.creme_core.utils.dates import get_dt_from_json_str, dt_to_json_str
+from creme.creme_core.utils.dates import dt_from_ISO8601, dt_to_ISO8601
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class LastViewedItem(object):
         return {'pk':       self.pk,
                 'url':      self.url,
                 'name':     self.name,
-                'modified': dt_to_json_str(self.modified),
+                'modified': dt_to_ISO8601(self.modified),
                }
 
     @staticmethod
@@ -56,7 +56,7 @@ class LastViewedItem(object):
         for attr in ('pk', 'url', 'name'):
             setattr(instance, attr, data[attr])
 
-        instance.modified = get_dt_from_json_str(data['modified'])
+        instance.modified = dt_from_ISO8601(data['modified'])
 
         return instance
 

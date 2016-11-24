@@ -359,7 +359,10 @@ class _FieldPrintersRegistry(object):
     def __init__(self):
         self._printers = ClassKeyedMap([
                     (models.IntegerField,       print_integer),
+
+                    (models.FloatField,         print_decimal),
                     (models.DecimalField,       print_decimal),
+
                     (models.BooleanField,       print_boolean_html),
                     (models.NullBooleanField,   print_boolean_html),
 
@@ -386,7 +389,10 @@ class _FieldPrintersRegistry(object):
             )
         self._csv_printers = ClassKeyedMap([
                     (models.IntegerField,       print_integer),
+
+                    (models.FloatField,         print_decimal),
                     (models.DecimalField,       print_decimal),
+
                     (models.BooleanField,       print_boolean_csv),
                     (models.NullBooleanField,   print_boolean_csv),
 

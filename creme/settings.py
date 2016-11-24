@@ -141,7 +141,7 @@ DATETIME_INPUT_FORMATS  = (
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
     '%Y-%m-%dT%H:%M:%S.%fZ',  # DO NOT REMOVE ! Needed by the core (eg: to store queries in session) (+for some activesync servers)
-    "%Y-%m-%dT%H:%M:%S",  # Needed for infopath
+    '%Y-%m-%dT%H:%M:%S',  # Needed for infopath
 )
 
 # I18N / L10N [END]#############################################################

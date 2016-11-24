@@ -23,7 +23,7 @@ from xml.sax.saxutils import escape
 
 from django.db import models
 
-from creme.creme_core.utils.dates import get_dt_to_iso8601_str #get_utc_dt_from_creme_dt
+from creme.creme_core.utils.dates import get_dt_to_iso8601_str
 from creme.creme_core.utils.meta import get_instance_field_info
 
 from ..models import EntityASData
@@ -41,8 +41,8 @@ def _format_value_for_AS(field_class, field_value):
 
         if issubclass(field_class, (models.DateTimeField, models.DateField)):
             if field_value:
-                #field_value = get_utc_dt_from_creme_dt(field_value)
                 return get_dt_to_iso8601_str(field_value)
+
             return None
 
     return field_value
@@ -93,7 +93,7 @@ def serialize_entity(entity, mapping):
                            {
                             'prefix': '%s:' % prefix if prefix else '',
                             'tag': xml_field,
-                            'value': value #Problems with unicode
+                            'value': value,  # Problems with unicode
                             }
                            )
     return "".join(xml)

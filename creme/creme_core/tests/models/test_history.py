@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date
+    from datetime import date, time
     from decimal import Decimal
     from time import sleep
 
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.formats import date_format, number_format
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from ..base import CremeTestCase # skipIfNotInstalled
+    from ..base import CremeTestCase
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
-    from ..fake_models import (FakeContact as Contact, FakeImage as Image,
-            FakeOrganisation as Organisation, FakeAddress as Address,
-            FakeSector as Sector, FakeLegalForm as LegalForm,
-            FakeInvoice as Invoice, FakeInvoiceLine as InvoiceLine)
+    from ..fake_models import (FakeContact, FakeImage, FakeOrganisation, FakeAddress,
+            FakeSector, FakeLegalForm, FakeInvoice, FakeInvoiceLine, FakeActivity, FakeActivityType)
     from creme.creme_core.models import (CremeProperty, CremePropertyType,
             Relation, RelationType, HistoryLine, HistoryConfigItem)
     from creme.creme_core.models.history import (TYPE_CREATION, TYPE_EDITION, TYPE_DELETION,
             TYPE_AUX_CREATION, TYPE_AUX_EDITION, TYPE_AUX_DELETION,
             TYPE_RELATED, TYPE_PROP_ADD, TYPE_PROP_DEL,
             TYPE_RELATION, TYPE_SYM_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL)
+    from creme.creme_core.utils.dates import dt_to_ISO8601, to_utc
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -54,18 +54,19 @@ class HistoryTestCase(CremeTestCase):
 
         self.assertNoFormError(self.client.post('/tests/organisation/add', follow=True, data=data))
 
-        return self.get_object_or_fail(Organisation, name=name)
+        return self.get_object_or_fail(FakeOrganisation, name=name)
 
-    def _build_contact(self, first_name, last_name, extra_args=None, **kwargs):
+    # def _build_contact(self, first_name, last_name, extra_args=None, **kwargs):
+    def _build_contact(self, first_name, last_name, **kwargs):
         data = {'first_name': first_name, 'last_name': last_name}
         data.update(kwargs)
 
-        if extra_args:
-            data.update(extra_args)
+        # if extra_args:
+        #     data.update(extra_args)
 
         self.assertNoFormError(self.client.post('/tests/contact/add', follow=True, data=data))
 
-        return self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        return self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
 
     def assertBetweenDates(self, hline):
         now_value = now()
@@ -96,8 +97,8 @@ class HistoryTestCase(CremeTestCase):
     def test_creation_n_aux(self):
         "Address is auxiliary + double save() because of addresses caused problems"
         old_count = HistoryLine.objects.count()
-        gainax = Organisation.objects.create(user=self.other_user, name='Gainax')
-        gainax.address = address = Address.objects.create(entity=gainax, country='Japan')
+        gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
+        gainax.address = address = FakeAddress.objects.create(entity=gainax, country='Japan')
         gainax.save()
 
         hlines = self._get_hlines()
@@ -159,11 +160,11 @@ class HistoryTestCase(CremeTestCase):
     def test_edition02(self):
         old_count = HistoryLine.objects.count()
 
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         sector01 = create_sector(title='Studio')
         sector02 = create_sector(title='Animation studio')
 
-        lform = LegalForm.objects.create(title='Society [OK]')
+        lform = FakeLegalForm.objects.create(title='Society [OK]')
 
         name = 'Gainax'
         old_phone = '7070707'
@@ -181,6 +182,7 @@ about this fantastic animation studio."""
         email = 'contact@gainax.jp'
         description += 'In this studio were created lots of excellent animes ' \
                        'like "Evangelion" or "Fushigi no umi no Nadia".'
+        creation_date = date(year=1984, month=12, day=24)
         response = self.client.post(gainax.get_edit_absolute_url(), follow=True,
                                     data={'user':          self.user.id,
                                           'name':          name,
@@ -188,7 +190,8 @@ about this fantastic animation studio."""
                                           'email':         email,
                                           'description':   description,
                                           'sector':        sector02.id,
-                                          'creation_date': '1984-12-24',
+                                          # 'creation_date': '1984-12-24',
+                                          'creation_date': creation_date,
                                           'subject_to_vat': True,
                                          }
                                    )
@@ -202,7 +205,7 @@ about this fantastic animation studio."""
         self.assertIn(['email', email], modifs)
         self.assertIn(['description'], modifs)
         self.assertIn(['sector', sector01.id, sector02.id], modifs)
-        self.assertIn(['creation_date'], modifs)
+        self.assertIn(['creation_date', '1984-12-24'], modifs)
         self.assertIn(['subject_to_vat', True], modifs, modifs)
         self.assertIn(['legal_form', lform.id, None], modifs, modifs)
 
@@ -227,11 +230,16 @@ about this fantastic animation studio."""
                                               },
                       vmodifs
                      )
-        self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation')},
+        # self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation')},
+        #               vmodifs
+        #              )
+        self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Date of creation'),
+                                               'value': date_format(creation_date, 'DATE_FORMAT'),
+                                              },
                       vmodifs
                      )
         self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
-                                               'value': _('True'),
+                                               'value': _('Yes'),
                                               },
                       vmodifs
                      )
@@ -262,7 +270,7 @@ about this fantastic animation studio."""
         "Ignore the changes : None -> ''."
         name = 'gainax'
         old_capital = 12000
-        gainax = Organisation.objects.create(user=self.user, name=name, capital=old_capital)
+        gainax = FakeOrganisation.objects.create(user=self.user, name=name, capital=old_capital)
 
         capital = old_capital * 2
         response = self.client.post(gainax.get_edit_absolute_url(), follow=True,
@@ -282,7 +290,7 @@ about this fantastic animation studio."""
     def test_edition05(self):
         "Type coercion"
         capital = 12000
-        gainax = Organisation.objects.create(user=self.user, name='Gainax', capital=capital)
+        gainax = FakeOrganisation.objects.create(user=self.user, name='Gainax', capital=capital)
         old_count = HistoryLine.objects.count()
 
         gainax = self.refresh(gainax)
@@ -295,7 +303,7 @@ about this fantastic animation studio."""
         "FK to CremeEntity"
         user = self.user
         hayao = self._build_contact(user=user.id, first_name='Hayao', last_name='Miyazaki')
-        img = Image.objects.create(user=user, name="Grumpy Hayao")
+        img = FakeImage.objects.create(user=user, name="Grumpy Hayao")
 
         hayao.image = img
         hayao.save()
@@ -315,7 +323,7 @@ about this fantastic animation studio."""
     def test_edition07(self):
         "New value is None: verbose prints ''"
         old_capital = 1000
-        gainax = Organisation.objects.create(user=self.user, name='Gainax', capital=old_capital)
+        gainax = FakeOrganisation.objects.create(user=self.user, name='Gainax', capital=old_capital)
         old_count = HistoryLine.objects.count()
 
         gainax = self.refresh(gainax)
@@ -339,9 +347,66 @@ about this fantastic animation studio."""
                          vmodifs[0]
                         )
 
+    def test_edition08(self):
+        "DateTimeField"
+        create_dt = self.create_datetime
+        old_start = create_dt(year=2016, month=11, day=22, hour=16, minute=10)
+        meeting = FakeActivity.objects.create(user=self.user, title='Meeting with Seele',
+                                              start=old_start,
+                                              type=FakeActivityType.objects.all()[0],
+                                             )
+        old_count = HistoryLine.objects.count()
+
+        meeting = self.refresh(meeting)
+        meeting.start = start = create_dt(year=2016, month=11, day=22, hour=16, minute=15)
+        meeting.end = end = create_dt(year=2016, month=11, day=22, hour=18, minute=30)
+        meeting.save()
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(meeting.id,  hline.entity.id)
+        self.assertEqual(TYPE_EDITION, hline.type)
+        self.assertEqual([['start', dt_to_ISO8601(to_utc(old_start)), dt_to_ISO8601(to_utc(start))],
+                          ['end', dt_to_ISO8601(to_utc(end))],
+                         ],
+                         hline.modifications
+                        )
+
+        vmodifs = hline.get_verbose_modifications(self.user)
+        self.assertEqual(2, len(vmodifs))
+        self.assertEqual(self.FSTRING_3_VALUES % {'field':    _(u'Start'),
+                                                  'oldvalue': date_format(old_start, 'DATETIME_FORMAT'),
+                                                  'value':    date_format(start, 'DATETIME_FORMAT'),
+                                                 },
+                         vmodifs[0]
+                        )
+
+    def test_edition09(self):
+        "Other fields: TimeField, SlugField, FloatField"
+        # TODO: use true fields in a fake model
+
+        from creme.creme_core.models.history import _JSONEncoder, _PRINTERS
+
+        encode = _JSONEncoder().encode
+
+        self.assertEqual('"17:23:00.000000"', encode(time(hour=17, minute=23)))
+        self.assertNotIn('TimeField', _PRINTERS)
+
+        self.assertNotIn('SlugField', _PRINTERS)
+
+        n = 3.14
+        self.assertEqual('3.14', encode(n))
+        float_printer = _PRINTERS.get('FloatField')
+        self.assertIsNotNone(float_printer)
+        self.assertEqual(number_format(n, use_l10n=True),
+                         float_printer(field=None, user=self.user, val=n)
+                        )
+
     def test_deletion01(self):
         old_count = HistoryLine.objects.count()
-        gainax = Organisation.objects.create(user=self.other_user, name='Gainax')
+        gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
         entity_repr = unicode(gainax)
 
         self.assertEqual(old_count + 1, HistoryLine.objects.count())
@@ -372,8 +437,8 @@ about this fantastic animation studio."""
 
     def test_deletion02(self):
         "With auxiliary models"
-        gainax = Organisation.objects.create(user=self.user, name='Gainax')
-        Address.objects.create(entity=gainax, city='Tokyo')
+        gainax = FakeOrganisation.objects.create(user=self.user, name='Gainax')
+        FakeAddress.objects.create(entity=gainax, city='Tokyo')
         old_count = HistoryLine.objects.count()
 
         gainax.delete()
@@ -460,7 +525,7 @@ about this fantastic animation studio."""
 
     def test_add_property01(self):
         user = self.user
-        gainax = Organisation.objects.create(user=user, name='Gainax')
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
 
         sleep(1)  # Ensure that 'modified' field is not 'now()'
@@ -488,7 +553,7 @@ about this fantastic animation studio."""
 
     def test_delete_property01(self):
         user = self.user
-        gainax = Organisation.objects.create(user=user, name='Gainax')
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
         sleep(1)  # Ensure that 'modified' field is not 'now()'
 
@@ -519,8 +584,8 @@ about this fantastic animation studio."""
 
     def test_add_relation01(self):
         user = self.user
-        nerv = Organisation.objects.create(user=user, name='Nerv')
-        rei  = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        rei  = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         old_count = HistoryLine.objects.count()
 
         sleep(1)  # Ensure than relation is younger than entities
@@ -565,8 +630,8 @@ about this fantastic animation studio."""
     def test_add_relation02(self):
         "Create the relation using the 'object' relation type"
         user = self.user
-        nerv = Organisation.objects.create(user=user, name='Nerv')
-        rei  = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        rei  = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         olds_ids = list(HistoryLine.objects.values_list('id', flat=True))
 
         rtype, srtype = RelationType.create(('test-subject_works5', 'is employed'),
@@ -591,8 +656,8 @@ about this fantastic animation studio."""
 
     def test_delete_relation(self):
         user = self.user
-        nerv = Organisation.objects.create(user=user, name='Nerv')
-        rei  = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        rei  = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         old_count = HistoryLine.objects.count()
 
         rtype, srtype = RelationType.create(('test-subject_works4', 'is employed'),
@@ -633,7 +698,7 @@ about this fantastic animation studio."""
     def test_add_auxiliary(self):
         "Auxiliary: Address"
         user = self.user
-        nerv = Organisation.objects.create(user=user, name='Nerv')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         old_count = HistoryLine.objects.count()
 
         city = 'Tokyo'
@@ -642,7 +707,7 @@ about this fantastic animation studio."""
                                    )
         self.assertNoFormError(response)
 
-        self.get_object_or_fail(Address, entity=nerv, city=city)
+        self.get_object_or_fail(FakeAddress, entity=nerv, city=city)
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
@@ -658,7 +723,7 @@ about this fantastic animation studio."""
         country = 'Japan'
         old_city = 'MITAKA'
         gainax = self._build_organisation(user=self.other_user.id, name='Gainax')
-        address = Address.objects.create(entity=gainax, country=country, city=old_city)
+        address = FakeAddress.objects.create(entity=gainax, country=country, city=old_city)
 
         old_count = HistoryLine.objects.count()
         city = old_city.title()
@@ -721,14 +786,14 @@ about this fantastic animation studio."""
         - field with choices.
         """
         user = self.user
-        invoice = Invoice.objects.create(user=user, name='Invoice',
-                                         expiration_date=date(year=2012, month=12, day=15),
-                                        )
+        invoice = FakeInvoice.objects.create(user=user, name='Invoice',
+                                             expiration_date=date(year=2012, month=12, day=15),
+                                            )
         old_count = HistoryLine.objects.count()
-        pline = InvoiceLine.objects.create(item='DeathNote', user=user,
-                                          invoice=invoice, quantity=Decimal('1'),
-                                          discount_unit=FAKE_AMOUNT_UNIT,
-                                         )
+        pline = FakeInvoiceLine.objects.create(item='DeathNote', user=user,
+                                               invoice=invoice, quantity=Decimal('1'),
+                                               discount_unit=FAKE_AMOUNT_UNIT,
+                                              )
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1,     len(hlines))
@@ -764,8 +829,8 @@ about this fantastic animation studio."""
     def test_delete_auxiliary(self):
         "Auxiliary: Address"
         user = self.user
-        nerv = Organisation.objects.create(user=user, name='Nerv')
-        address = Address.objects.create(entity=nerv, city='Tokyo')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        address = FakeAddress.objects.create(entity=nerv, city='Tokyo')
         old_count = HistoryLine.objects.count()
 
         address.delete()
@@ -790,7 +855,7 @@ about this fantastic animation studio."""
         old_last_name = 'Ayami'
         new_last_name = 'Ayanami'
 
-        rei = Contact.objects.create(user=self.user, first_name='Rei', last_name=old_last_name)
+        rei = FakeContact.objects.create(user=self.user, first_name='Rei', last_name=old_last_name)
         self.assertEqual(1, HistoryLine.objects.filter(entity=rei.id).count())
 
         rei.last_name = new_last_name
@@ -805,7 +870,7 @@ about this fantastic animation studio."""
         old_last_name  = 'Ayami'; new_last_name  = 'Ayanami'
         old_first_name = 'Rey';   new_first_name = 'Rei'
 
-        rei = Contact.objects.create(user=self.user, first_name=old_first_name, last_name=old_last_name)
+        rei = FakeContact.objects.create(user=self.user, first_name=old_first_name, last_name=old_last_name)
         self.assertEqual(1, HistoryLine.objects.filter(entity=rei.id).count())
 
         rei = self.refresh(rei)  # Force internal backup, we can begin our edition stuffs
@@ -841,7 +906,7 @@ about this fantastic animation studio."""
 
     def test_invalid_field(self):
         user = self.user
-        nerv = Organisation.objects.create(user=user, name='Nerv')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         nerv = self.refresh(nerv)  # Force internal backup
 
         nerv.name = nerv.name.upper()
@@ -871,7 +936,7 @@ about this fantastic animation studio."""
     def test_disable01(self):
         "CremeEntity creation, edition & deletion"
         old_count = HistoryLine.objects.count()
-        nerv = Organisation(user=self.user, name='nerv')
+        nerv = FakeOrganisation(user=self.user, name='nerv')
 
         HistoryLine.disable(nerv)
         nerv.save()
@@ -895,8 +960,8 @@ about this fantastic animation studio."""
     def test_disable02(self):
         "Relationship creation & deletion"
         user = self.user
-        hayao = Contact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
-        ghibli = Organisation.objects.create(user=user, name='Ghibli')
+        hayao = FakeContact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
+        ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
         rtype = RelationType.create(('test-subject_employed', 'is employed'),
                                     ('test-object_employed', 'employs')
                                    )[0]
@@ -918,7 +983,7 @@ about this fantastic animation studio."""
     def test_disable03(self):
         "Property creation & deletion"
         user = self.user
-        hayao = Contact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
+        hayao = FakeContact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
 
         ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='Make animes')
         old_count = HistoryLine.objects.count()
@@ -938,9 +1003,9 @@ about this fantastic animation studio."""
     def test_disable04(self):
         "Auxiliary creation, edition & deletion"
         user = self.user
-        nerv = Organisation.objects.create(user=user, name='Nerv')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         old_count = HistoryLine.objects.count()
-        address = Address(entity=nerv, city='tokyo')
+        address = FakeAddress(entity=nerv, city='tokyo')
 
         HistoryLine.disable(address)
         address.save()
@@ -966,20 +1031,20 @@ about this fantastic animation studio."""
 
         HistoryLine.ENABLED = False
 
-        nerv = Organisation.objects.create(user=self.user, name='nerv')
+        nerv = FakeOrganisation.objects.create(user=self.user, name='nerv')
         self.assertEqual(old_count, HistoryLine.objects.count())
 
         nerv.name = nerv.name.title()
         nerv.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        Address.objects.create(entity=nerv, city='Tokyo')
+        FakeAddress.objects.create(entity=nerv, city='Tokyo')
         self.assertEqual(old_count, HistoryLine.objects.count())
 
     def test_delete_lines(self):
         user = self.user
-        hayao = Contact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
-        ghibli = Organisation.objects.create(user=user, name='Ghibli')
+        hayao = FakeContact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
+        ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
 
         rtype = RelationType.create(('test-subject_delline_works', 'is employed'),
                                     ('test-object_delline_works',  'employs')

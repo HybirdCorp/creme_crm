@@ -32,7 +32,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import SettingValue
 from creme.creme_core.models.utils import assign_2_charfield
-from creme.creme_core.utils.dates import get_dt_from_str, get_date_from_str
+from creme.creme_core.utils.dates import dt_from_str, date_from_str
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 # TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
@@ -172,9 +172,9 @@ class CrudityBackend(object):
                         data[field_name] = field_value = field_value.replace('\n', ' ')
 
                     if isinstance(field, DateTimeField):
-                        data[field_name] = field_value = get_dt_from_str(field_value.strip())
+                        data[field_name] = field_value = dt_from_str(field_value.strip())
                     elif isinstance(field, DateField):
-                        data[field_name] = field_value = get_date_from_str(field_value.strip())
+                        data[field_name] = field_value = date_from_str(field_value.strip())
 
                     elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
                         data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'

@@ -35,7 +35,7 @@ from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
 from ..models import RelationType, Relation, CustomField
 from ..utils import find_first
 from ..utils.date_range import CustomRange
-from ..utils.dates import get_dt_from_str
+from ..utils.dates import dt_from_str
 from ..utils.db import get_indexed_ordering
 from ..utils.queries import QSerializer
 
@@ -161,7 +161,7 @@ class ListViewState(object):
 
     def _date_or_None(self, value, index):
         try:
-            return get_dt_from_str(value[index]).date()
+            return dt_from_str(value[index]).date()
         except (IndexError, AttributeError):
             pass
 
