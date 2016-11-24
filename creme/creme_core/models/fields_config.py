@@ -134,9 +134,10 @@ class FieldsConfig(CremeModel):
 
     @classmethod
     def create(cls, model, descriptions=()):  # TODO: in a manager ?
-        from ..gui.fields_config import fields_config_registry
+        # from ..gui.fields_config import fields_config_registry
 
-        if not fields_config_registry.is_model_valid(model):
+        # if not fields_config_registry.is_model_valid(model):
+        if not cls.is_model_valid(model):
             raise cls.InvalidModel("This model cannot have a FieldsConfig")
 
         return FieldsConfig.objects.create(content_type=ContentType.objects.get_for_model(model),
@@ -200,6 +201,12 @@ class FieldsConfig(CremeModel):
 
         return excluded
 
+    @staticmethod
+    def field_enumerator(model):
+        from ..utils.meta import ModelFieldEnumerator
+
+        return ModelFieldEnumerator(model, deep=0, only_leafs=False).filter(viewable=True, optional=True)
+
     @classmethod
     def filter_cells(cls, model, cells):
         """Yields not hidden cells.
@@ -219,9 +226,11 @@ class FieldsConfig(CremeModel):
         return cls.get_4_models((model,))[model]
 
     # TODO: in a manager ?
-    @staticmethod
-    def get_4_models(models):
-        from ..gui.fields_config import fields_config_registry
+    # @staticmethod
+    # def get_4_models(models):
+    @classmethod
+    def get_4_models(cls, models):
+        # from ..gui.fields_config import fields_config_registry
 
         result = {}
         get_ct = ContentType.objects.get_for_model
@@ -240,7 +249,8 @@ class FieldsConfig(CremeModel):
             fc = cache.get(cache_key_fmt % ct.id)
 
             if fc is None:
-                if fields_config_registry.is_model_valid(model):  # Avoid useless queries
+                # if fields_config_registry.is_model_valid(model):  # Avoid useless queries
+                if cls.is_model_valid(model):  # Avoid useless queries
                     not_cached_ctypes.append(ct)
             else:
                 result[model] = fc
@@ -277,6 +287,10 @@ class FieldsConfig(CremeModel):
             return True
 
         return self.is_field_hidden(field)
+
+    @classmethod
+    def is_model_valid(cls, model):
+        return any(cls.field_enumerator(model))
 
     def update_form_fields(self, form_fields):
         for field_name in self._get_hidden_field_names():

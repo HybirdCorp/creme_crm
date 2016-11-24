@@ -3,6 +3,7 @@
 try:
     from json import loads as jsonloads
 
+    from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
@@ -10,9 +11,9 @@ try:
     from creme.creme_core.tests.fake_models import (FakeContact, FakeAddress,
             FakeCivility, FakeEmailCampaign)
     from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.gui.fields_config import fields_config_registry
+    # from creme.creme_core.gui.fields_config import fields_config_registry
     from creme.creme_core.models import FieldsConfig
-    from creme.creme_core.registry import creme_registry
+    # from creme.creme_core.registry import creme_registry
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -28,8 +29,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
-        # TODO: unregister in tearDownClass ?? move to fake app.ready() ?
-        fields_config_registry.register(FakeAddress)
+        # fields_config_registry.register(FakeAddress)
 
     def _build_edit_url(self, fconf):
         return '/creme_config/fields/edit/%s' % fconf.pk
@@ -41,9 +41,16 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def _configure_all_models(self):
         used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
+        # FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct, descriptions=())
+        #                                     for ct in fields_config_registry.ctypes
+        #                                         if ct.id not in used_ct_ids
+        #                                  ]
+        #                                 )
         FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct, descriptions=())
-                                            for ct in fields_config_registry.ctypes
-                                                if ct.id not in used_ct_ids
+                                              for ct in map(ContentType.objects.get_for_model,
+                                                            filter(FieldsConfig.is_model_valid, apps.get_models())
+                                                           )
+                                                  if ct.id not in used_ct_ids
                                          ]
                                         )
 
@@ -76,7 +83,8 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertIn(ct, ctypes)
 
-        self.assertIn(FakeEmailCampaign, creme_registry.iter_entity_models())
+        # self.assertIn(FakeEmailCampaign, creme_registry.iter_entity_models())
+        self.assertFalse(FieldsConfig.is_model_valid(FakeEmailCampaign))
         self.assertNotIn(ContentType.objects.get_for_model(FakeEmailCampaign), ctypes)
 
         fconf = self._create_fconf()

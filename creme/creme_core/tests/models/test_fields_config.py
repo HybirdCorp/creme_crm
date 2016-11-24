@@ -7,10 +7,10 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_forms import FakeContactForm
-    from ..fake_models import FakeContact, FakeOrganisation, FakeCivility, FakeAddress
+    from ..fake_models import FakeContact, FakeOrganisation, FakeCivility, FakeAddress, FakeEmailCampaign
 
     from creme.creme_core.global_info import set_global_info
-    from creme.creme_core.gui.fields_config import fields_config_registry
+    # from creme.creme_core.gui.fields_config import fields_config_registry
     from creme.creme_core.models import CremeEntity, FieldsConfig
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -82,12 +82,20 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def test_create_errors_05(self):
         "Invalid model"
-        is_valid = fields_config_registry.is_model_valid
-        self.assertTrue(is_valid(FakeContact))      # Registered CremeEntity
-        self.assertTrue(is_valid(FakeOrganisation))  # Idem
-        self.assertFalse(is_valid(CremeEntity))     # Not registered
-        self.assertFalse(is_valid(FakeCivility))    # Not a CremeEntity
-        self.assertTrue(is_valid(FakeAddress))      # Registered extra model
+        # is_valid = fields_config_registry.is_model_valid
+        # self.assertTrue(is_valid(FakeContact))      # Registered CremeEntity
+        # self.assertTrue(is_valid(FakeOrganisation))  # Idem
+        # self.assertFalse(is_valid(CremeEntity))     # Not registered
+        # self.assertFalse(is_valid(FakeCivility))    # Not a CremeEntity
+        # self.assertTrue(is_valid(FakeAddress))      # Registered extra model
+
+        is_valid = FieldsConfig.is_model_valid
+        self.assertTrue(is_valid(FakeContact))
+        self.assertTrue(is_valid(FakeOrganisation))
+        self.assertTrue(is_valid(FakeAddress))
+        self.assertFalse(is_valid(CremeEntity))       # No optional field
+        self.assertFalse(is_valid(FakeEmailCampaign)) # Idem
+        self.assertFalse(is_valid(FakeCivility))      # Idem
 
         create_fc = FieldsConfig.create
 
