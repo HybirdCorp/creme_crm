@@ -95,13 +95,13 @@ class CremeRegistry(object):
                                )
                 continue
 
-            ordering = model._meta.ordering
-            if not ordering or ordering[0] == 'id':
-                logger.warn('CremeRegistry.register_entity_models: "%s" should'
-                            ' have a Meta.ordering different from "id", so we'
-                            ' give it a default one', model,
-                           )
-                model._meta.ordering = ('header_filter_search_field',)
+            # ordering = model._meta.ordering
+            # if not ordering or ordering[0] == 'id':
+            #     logger.warn('CremeRegistry.register_entity_models: "%s" should'
+            #                 ' have a Meta.ordering different from "id", so we'
+            #                 ' give it a default one', model,
+            #                )
+            #     model._meta.ordering = ('header_filter_search_field',)
 
             entity_models.add(model)
 
