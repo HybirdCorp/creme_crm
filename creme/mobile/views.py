@@ -38,7 +38,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, Relation, EntityCredentials
 from creme.creme_core.utils import (get_from_GET_or_404, get_from_POST_or_404,
         jsonify, split_filter)
-from creme.creme_core.utils.dates import make_aware_dt, get_dt_from_json_str
+from creme.creme_core.utils.dates import make_aware_dt, dt_from_ISO8601
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_entity
 
@@ -377,7 +377,7 @@ def activities_portal(request):
 
 def _build_date_or_404(date_str):
     try:
-        return get_dt_from_json_str(date_str)
+        return dt_from_ISO8601(date_str)
     except ValueError as e:
         raise Http404(e)
 
@@ -403,7 +403,7 @@ def phonecall_panel(request):
     if pcall_id is not None:
         context['phone_call'] = pcall = get_object_or_404(Activity, id=pcall_id,
                                                           type_id=ACTIVITYTYPE_PHONECALL,
-                                                        )
+                                                         )
         user.has_perm_to_view_or_die(pcall)
 
         context['participant_contacts'] = [r.object_entity.get_real_entity()

@@ -25,57 +25,59 @@ from django.utils.timezone import now, make_aware, localtime, utc
 
 from creme.creme_core.models import Relation
 from creme.creme_core.utils.dates import get_dt_to_iso8601_str, get_dt_from_iso8601_str
-                                         #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt, get_utc_now, get_naive_dt_from_tzdate
 
 from creme.activities import get_activity_model
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
-from creme.activities.models import Calendar #Activity
+from creme.activities.models import Calendar
 
 from ..models import AS_Folder, EntityASData
 from ..utils import generate_guid, encode_AS_timezone
 
 
-ALL_DAY_EVENT = 1#An item marked as an all day event is understood to begin on midnight of the current day and to end on midnight of the next day.
+# An item marked as an all day event is understood to begin on midnight of the current day
+# and to end on midnight of the next day.
+ALL_DAY_EVENT = 1
 
 ONE_DAY_TD = timedelta(days=1)
 
-#Busy statuses
+# Busy statuses
 AS_BUSY_STATUSES = {
-    0 : False,#Free
-    1 : False,#Tentative
-    2 : True, #Busy
-    3 : True, #Out of Office
+    0: False,  # Free
+    1: False,  # Tentative
+    2: True,   # Busy
+    3: True,   # Out of Office
 }
 
-#Sensitivity values
-#0 Normal
-#1 Personal
-#2 Private
-#3 Confidential
+# Sensitivity values
+# 0 Normal
+# 1 Personal
+# 2 Private
+# 3 Confidential
+
 
 def get_start_date(activity=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return 'start'
 
     if activity.start:
-        #return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.start))
         return get_dt_to_iso8601_str(activity.start)
+
 
 def get_end_date(activity=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return 'end'
 
     if activity.end:
-        #return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.end))
         return get_dt_to_iso8601_str(activity.end)
+
 
 def get_modified_date(activity=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return 'modified'
 
     if activity.end:
-        #return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.modified))
         return get_dt_to_iso8601_str(activity.modified)
+
 
 def handle_uid(entity=None, needs_attr=False, value=None, *args, **kwargs):
     if needs_attr:
@@ -87,7 +89,7 @@ def handle_uid(entity=None, needs_attr=False, value=None, *args, **kwargs):
         return EntityASData.objects.create(entity=entity, field_name='UID', field_value=generate_guid()).field_value
 
 
-#1 == Can be ghosted
+# 1 == Can be ghosted
 CREME_ACTIVITY_MAPPING = {
     "Calendar:":{
         'title': 'Subject',#1
@@ -105,7 +107,7 @@ CREME_ACTIVITY_MAPPING = {
 #        :'Reminder',#1 In minutes before the notification TODO:make the function on creme side
 #        :'MeetingStatus',#1
 
-        #TODO: Handle attendees, Recurrence, Exceptions(need to?)
+        # TODO: Handle attendees, Recurrence, Exceptions(need to?)
 
 #        'UID': 'UID',#Keep the same name for data that are not in Creme
         handle_uid: 'UID',#Keep the same name for data that are not in Creme
@@ -131,6 +133,7 @@ CREME_MEETING_MAPPING = {
 }
 CREME_MEETING_MAPPING['Calendar:'].update(CREME_ACTIVITY_MAPPING['Calendar:'])#Meeting is a subclass of Activity
 
+
 def handle_AS_data(entity, name, value):
     if value is not None:
         esd = EntityASData.objects.get_or_create(entity=entity, field_name=name)[0]
@@ -144,6 +147,7 @@ def create_calendar_n_update_folder(folder, user):
         folder.save()
         return cal
 
+
 def get_calendar(folder, user):
     if folder.entity_id is not None:
         try:
@@ -156,6 +160,7 @@ def get_calendar(folder, user):
             return create_calendar_n_update_folder(folder, user)
     else:
         return create_calendar_n_update_folder(folder, user)
+
 
 def _set_meeting_from_data(meeting, data, user, folder):
     data_pop = data.pop
@@ -184,11 +189,9 @@ def _set_meeting_from_data(meeting, data, user, folder):
     except (ValueError, TypeError):
         pass
 
-#    else:
-    #is_all_day or not if a meeting hasn't a start and/or end it last one day
+    # is_all_day or not if a meeting hasn't a start and/or end it last one day
     if meeting.start is None and meeting.end is None:
-        #meeting.start = meeting.end = get_utc_now()#Don't use meeting.handle_all_day AS semantic is different
-        meeting.start = meeting.end = now()#Don't use meeting.handle_all_day AS semantic is different
+        meeting.start = meeting.end = now()  # Don't use meeting.handle_all_day AS semantic is different
         meeting.end  += ONE_DAY_TD
 
     elif meeting.start is None and meeting.end is not None:
@@ -204,10 +207,6 @@ def _set_meeting_from_data(meeting, data, user, folder):
     except (ValueError, TypeError):
         pass
 
-    #meeting.start    = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.start))
-    #meeting.end      = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.end))
-    #meeting.modified = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.modified))
-
     meeting.title = data_pop('title', "")
     meeting.place = data_pop('place', "")
 
@@ -219,11 +218,10 @@ def _set_meeting_from_data(meeting, data, user, folder):
     for ns, fields in CREME_MEETING_MAPPING_copy.iteritems():
         for c_field, x_field in fields.iteritems():
             if callable(c_field):
-                val=CREME_MEETING_MAPPING_copy[ns][c_field]
+                val = CREME_MEETING_MAPPING_copy[ns][c_field]
                 del CREME_MEETING_MAPPING_copy[ns][c_field]
                 CREME_MEETING_MAPPING_copy[ns][c_field(needs_attr=True)] = val
 
-                
     for name, value in data.iteritems():
         for ns, fields in CREME_MEETING_MAPPING_copy.iteritems():
             field_name = fields.get(name)
@@ -243,7 +241,7 @@ def save_meeting(data, user, folder, *args, **kwargs):
     meeting.calendars.add(calendar)
     meeting.save()
 
-    #TODO is the except really usefull (can be the related contact deleted?)
+    # TODO is the except really usefull (can be the related contact deleted?)
     try :
         Relation.objects.create(object_entity=meeting, type_id=REL_SUB_PART_2_ACTIVITY,
                                 subject_entity=meeting.user.related_contact.all()[0], user=meeting.user)
@@ -263,13 +261,13 @@ def update_meeting(meeting, data, user, history, folder, *args, **kwargs):
                      .exclude(id=folder.id)\
                      .update(entity_id=None)
 
-    #We remove other AS synced calendars from the meeting. A meeting has to be present in only one synced calendar
+    # We remove other AS synced calendars from the meeting. A meeting has to be present in only one synced calendar
     for cal_id in AS_Folder.objects.filter(entity_id__isnull=False, client__user=user).values_list('pk', flat=True):
         meeting.calendars.remove(cal_id)
 
     meeting.calendars.add(calendar)
     meeting.save()
-    #TODO: Fill the history
+    # TODO: Fill the history
     return meeting
 
 
@@ -278,4 +276,4 @@ def pre_serialize_meeting(value, c_field, xml_field, f_class, entity):
         return value
 
     if c_field == "Timezone":
-        return encode_AS_timezone(settings.TIME_ZONE) #In case of adding from Creme
+        return encode_AS_timezone(settings.TIME_ZONE)  # In case of adding from Creme

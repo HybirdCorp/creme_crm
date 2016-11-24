@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import date, time, datetime
 from decimal import Decimal
 from functools import partial
 from json import loads as jsonloads, JSONEncoder
@@ -30,18 +31,22 @@ from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextF
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.db.transaction import atomic
 from django.dispatch import receiver
+from django.utils.formats import date_format, number_format
+from django.utils.timezone import make_naive, utc, localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..global_info import get_global_info, set_global_info
+from ..utils.dates import dt_to_ISO8601, dt_from_ISO8601, date_from_ISO8601, date_to_ISO8601
 from .entity import CremeEntity
 from .relation import RelationType, Relation
 from .creme_property import CremePropertyType, CremeProperty
 from .fields import CreationDateTimeField, CremeUserForeignKey, CTypeForeignKey
 
-
 logger = logging.getLogger(__name__)
 _get_ct = ContentType.objects.get_for_model
-_EXCLUDED_FIELDS = ('modified',)  # frozenset(('modified',)) #TODO: add a 'historisable' tag instead ??
+# TODO: add a 'historisable' tag instead ??
+#       or ClassKeyedMap + ModificationDateTimeField excluded
+_EXCLUDED_FIELDS = ('modified',)
 # TODO: ClassKeyedMap ??
 _SERIALISABLE_FIELDS = frozenset(('CharField',
 
@@ -51,31 +56,45 @@ _SERIALISABLE_FIELDS = frozenset(('CharField',
                                   'BooleanField', 'NullBooleanField',
 
                                   'DecimalField',
+                                  'FloatField',
+
+                                  'DateField',
+                                  'DateTimeField',
+                                  'TimeField',
 
                                   'ForeignKey',
 
-    # Display has to be improved (and value has to be 'jsonified')
-        # 'DateField'
-        # 'DateTimeField'
-        # 'TimeField'
+    # What about ?
+        # BigIntegerField
+        # CommaSeparatedIntegerField
+        # GenericIPAddressField
+        # UUIDField
+        # BinaryField
 
-    # To be tested
-        # 'FloatField'
-        # 'IPAddressField'
-        # 'SlugField'
-
-    # Excluded
+    # Excluded:
         # 'FilePathField' => not useful
         # 'TextField' => too long
         # 'FileField' => not serialisable
                                 ))
 
+_TIME_FMT = '%H:%M:%S.%f'
 
 # TODO: in creme_core.utils ??
 class _JSONEncoder(JSONEncoder):
-    def default(self, o): # TODO: manage datetime here
+    def default(self, o):
+        # TODO: remove when json standard lib handles Decimal
         if isinstance(o, Decimal):
             return unicode(o)
+
+        if isinstance(o, datetime):
+            # TODO: if is_aware ?
+            return dt_to_ISO8601(make_naive(o, timezone=utc))
+
+        if isinstance(o, date):
+            return date_to_ISO8601(o)
+
+        if isinstance(o, time):
+            return o.strftime(_TIME_FMT)
 
         return JSONEncoder.default(self, o)
 
@@ -111,8 +130,17 @@ def _fk_printer(field, val, user):
 
 # TODO: ClassKeyedMap ?
 _PRINTERS = {
-        'BooleanField': (lambda field, val, user: ugettext(u'True') if val else ugettext(u'False')),
-        'ForeignKey':   _fk_printer,
+        'BooleanField': (lambda field, val, user: ugettext(u'Yes') if val else ugettext(u'No')),
+
+        'ForeignKey': _fk_printer,
+
+        'DateField':     lambda field, val, user: date_format(date_from_ISO8601(val), 'DATE_FORMAT'),
+        'DateTimeField': lambda field, val, user: date_format(localtime(dt_from_ISO8601(val)),
+                                                              'DATETIME_FORMAT',
+                                                             ),
+
+        # TODO remove 'use_l10n' when settings.USE_L10N == True
+        'FloatField': lambda field, val, user: number_format(val, use_l10n=True),
     }
 
 
@@ -235,7 +263,7 @@ class _HistoryLineType(object):
                                         'field': field_vname,
                                         'value': self._get_printer(field)(field, modif[1], user),
                                        }
-                else:  #length == 3
+                else:  # length == 3
                     printer = self._get_printer(field)
                     vmodif = ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
                                             'field':    field_vname,
@@ -577,7 +605,7 @@ class HistoryLine(Model):
         try:
             attrs = encode(value + list(modifs))
         except TypeError as e:
-            logger.warn('HistoryLine: %s', e)
+            logger.warn('HistoryLine._encode_attrs(): %s', e)
             attrs = encode(value)
 
         return attrs
