@@ -11,6 +11,8 @@ else:
     from creme.creme_core.models import CremeEntity
     from creme.creme_core.tests.fake_models import FakeContact
 
+    __all__ = ('FakeReportsFolder', 'FakeReportsDocument', 'Guild')
+
 
     class FakeReportsFolder(CremeEntity):
         title       = CharField(_(u'Title'), max_length=100, unique=True)

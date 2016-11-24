@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .action import Action
-from .alert import Alert
-from .memo import Memo
-from .todo import ToDo
-from .user_message import UserMessage, UserMessagePriority
+from .action import Action  # NOQA
+from .alert import Alert  # NOQA
+from .memo import Memo  # NOQA
+from .todo import ToDo  # NOQA
+from .user_message import UserMessage, UserMessagePriority  # NOQA

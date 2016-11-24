@@ -18,6 +18,12 @@ else:
 
     from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
 
+    __all__ = ('FakeFolderCategory', 'FakeFolder', 'FakeDocument', 'FakeFileComponent',
+               'FakeImageCategory', 'FakeImage', 'FakeCivility', 'FakePosition', 'FakeSector', 'FakeAddress',
+               'FakeContact', 'FakeLegalForm', 'FakeOrganisation', 'FakeActivityType', 'FakeActivity',
+               'FakeMailingList', 'FakeEmailCampaign', 'FakeInvoice', 'FakeInvoiceLine', 'FakeProduct',
+              )
+
 
     class FakeFolderCategory(CremeModel):
         name = models.CharField(_(u'Category name'), max_length=100, unique=True)
