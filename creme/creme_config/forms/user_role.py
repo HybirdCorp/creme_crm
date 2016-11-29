@@ -24,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
+from creme.creme_core.apps import creme_app_configs, extended_app_configs, CremeAppConfig
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import (CremeForm, CremeModelForm, FieldBlockManager,
         EntityCTypeChoiceField, MultiEntityCTypeChoiceField)
@@ -33,19 +34,26 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.unicode_collation import collator
 
 
-def filtered_entity_ctypes(app_names):  # TODO: move to creme_core.utils ??
-    get_ext_apps = creme_registry.get_extending_apps
-    app_labels = {ext_app.name
-                    for app_name in app_names
-                        for ext_app in get_ext_apps(app_name)
-                 }
-    app_labels.update(app_names)
-
-    get_for_model = ContentType.objects.get_for_model
+# def filtered_entity_ctypes(app_names):
+#     get_ext_apps = creme_registry.get_extending_apps
+#     app_labels = {ext_app.name
+#                     for app_name in app_names
+#                         for ext_app in get_ext_apps(app_name)
+#                  }
+#     app_labels.update(app_names)
+#
+#     get_for_model = ContentType.objects.get_for_model
+#
+#     for model in creme_registry.iter_entity_models():
+#         if model._meta.app_label in app_labels:
+#             yield get_for_model(model)
+def filtered_entity_ctypes(app_labels):  # TODO: move to creme_core.utils ??
+    ext_app_labels = {app_config.label for app_config in extended_app_configs(app_labels)}
+    get_ct = ContentType.objects.get_for_model
 
     for model in creme_registry.iter_entity_models():
-        if model._meta.app_label in app_labels:
-            yield get_for_model(model)
+        if model._meta.app_label in ext_app_labels:
+            yield get_ct(model)
 
 
 # def EmptyMultipleChoiceField(required=False, widget=UnorderedMultipleChoiceWidget, *args, **kwargs):
@@ -72,15 +80,30 @@ class UserRoleCreateForm(CremeModelForm):
         super(UserRoleCreateForm, self).__init__(*args, **kwargs)
         fields = self.fields
 
-        iter_apps    = creme_registry.iter_apps
-        CRED_REGULAR = creme_registry.CRED_REGULAR
-        fields['allowed_apps'].choices = self.app_choices(app for app in iter_apps()
-                                                            if app.credentials & CRED_REGULAR
-                                                         )
-        CRED_ADMIN   = creme_registry.CRED_ADMIN
-        fields['admin_4_apps'].choices = self.app_choices(app for app in iter_apps()
-                                                            if app.credentials & CRED_ADMIN
-                                                         )
+        # iter_apps    = creme_registry.iter_apps
+        # CRED_REGULAR = creme_registry.CRED_REGULAR
+        # fields['allowed_apps'].choices = self.app_choices(app for app in iter_apps()
+        #                                                     if app.credentials & CRED_REGULAR
+        #                                                  )
+        # CRED_ADMIN   = creme_registry.CRED_ADMIN
+        # fields['admin_4_apps'].choices = self.app_choices(app for app in iter_apps()
+        #                                                     if app.credentials & CRED_ADMIN
+        #                                                  )
+        def app_choices(apps):
+            sort_key = collator.sort_key
+
+            return sorted(((app.label, unicode(app.verbose_name)) for app in apps),
+                          key=lambda t: sort_key(t[1])
+                         )
+
+        CRED_REGULAR = CremeAppConfig.CRED_REGULAR
+        fields['allowed_apps'].choices = app_choices(app for app in creme_app_configs()
+                                                       if app.credentials & CRED_REGULAR
+                                                    )
+        CRED_ADMIN = CremeAppConfig.CRED_ADMIN
+        fields['admin_4_apps'].choices = app_choices(app for app in creme_app_configs()
+                                                       if app.credentials & CRED_ADMIN
+                                                    )
 
     @staticmethod
     def app_choices(apps):
@@ -220,8 +243,11 @@ class _UserRoleWizardFormStep(CremeModelForm):
     def app_choices(apps):
         sort_key = collator.sort_key
 
-        return sorted(((app.name, unicode(app.verbose_name)) for app in apps),
-                      key=lambda t: sort_key(t[1])
+        # return sorted(((app.name, unicode(app.verbose_name)) for app in apps),
+        #               key=lambda t: sort_key(t[1])
+        #              )
+        return sorted(((app.label, unicode(app.verbose_name)) for app in apps),
+                          key=lambda t: sort_key(t[1])
                      )
 
     def partial_save(self):
@@ -243,10 +269,14 @@ class UserRoleAppsStep(_UserRoleWizardFormStep):
     def __init__(self, *args, **kwargs):
         super(UserRoleAppsStep, self).__init__(*args, **kwargs)
 
-        CRED_REGULAR = creme_registry.CRED_REGULAR
+        # CRED_REGULAR = creme_registry.CRED_REGULAR
+        CRED_REGULAR = CremeAppConfig.CRED_REGULAR
         allowed_apps_f = self.fields['allowed_apps']
-        allowed_apps_f.choices = self.app_choices(app for app in creme_registry.iter_apps()
-                                                        if app.credentials & CRED_REGULAR
+        # allowed_apps_f.choices = self.app_choices(app for app in creme_registry.iter_apps()
+        #                                                 if app.credentials & CRED_REGULAR
+        #                                          )
+        allowed_apps_f.choices = self.app_choices(app for app in creme_app_configs()
+                                                       if app.credentials & CRED_REGULAR
                                                  )
         allowed_apps_f.initial = self.instance.allowed_apps
 
@@ -263,11 +293,17 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
     def __init__(self, allowed_app_names, *args, **kwargs):
         super(UserRoleAdminAppsStep, self).__init__(*args, **kwargs)
 
-        CRED_ADMIN = creme_registry.CRED_ADMIN
-        names = set(allowed_app_names)
+        # CRED_ADMIN = creme_registry.CRED_ADMIN
+        CRED_ADMIN = CremeAppConfig.CRED_ADMIN
+        # names = set(allowed_app_names)
+        labels = set(allowed_app_names)
         admin_4_apps_f = self.fields['admin_4_apps']
-        admin_4_apps_f.choices = self.app_choices(app for app in creme_registry.iter_apps()
-                                                        if app.name in names and
+        # admin_4_apps_f.choices = self.app_choices(app for app in creme_registry.iter_apps()
+        #                                                 if app.name in names and
+        #                                                    app.credentials & CRED_ADMIN
+        #                                          )
+        admin_4_apps_f.choices = self.app_choices(app for app in creme_app_configs()
+                                                        if app.label in labels and
                                                            app.credentials & CRED_ADMIN
                                                  )
         admin_4_apps_f.initial = self.instance.admin_4_apps

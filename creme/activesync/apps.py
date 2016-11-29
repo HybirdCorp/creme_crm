@@ -46,8 +46,8 @@ class ActivesyncConfig(CremeAppConfig):
 
         from . import signals
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('activesync', _(u'Mobile synchronization'), None)
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('activesync', _(u'Mobile synchronization'), None)
 
     def register_blocks(self, block_registry):
         from .blocks import (user_mobile_sync_config_block, mobile_sync_config_block,

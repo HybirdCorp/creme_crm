@@ -20,6 +20,7 @@
 
 import warnings
 
+from django.apps import apps
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -33,7 +34,7 @@ from creme.creme_core.gui import block_registry
 from creme.creme_core.models.block import (CremeEntity, UserRole,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
-from creme.creme_core.registry import creme_registry, NotRegistered
+# from creme.creme_core.registry import creme_registry, NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
@@ -268,11 +269,14 @@ def edit_portal(request, app_name):
         title = _(u'Edit home configuration')
     else:
         try:
-            app = creme_registry.get_app(app_name)
-        except NotRegistered as e:
+            # app = creme_registry.get_app(app_name)
+            app_config = apps.get_app_config(app_name)
+        # except NotRegistered as e:
+        except LookupError as e:
             raise Http404(str(e))
 
-        title = ugettext(u'Edit portal configuration for «%s»') % app.verbose_name
+        # title = ugettext(u'Edit portal configuration for «%s»') % app.verbose_name
+        title = ugettext(u'Edit portal configuration for «%s»') % app_config.verbose_name
 
     b_locs = BlockPortalLocation.objects.filter(app_name=app_name).order_by('order')
 

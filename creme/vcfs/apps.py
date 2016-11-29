@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,11 +27,12 @@ class VCFsConfig(CremeAppConfig):
     name = 'creme.vcfs'
     verbose_name = _(u'Vcfs')
     dependencies = ['creme.persons']
+    credentials = CremeAppConfig.CRED_NONE
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('vcfs', _(u'Vcfs'),
-                                    credentials=creme_registry.CRED_NONE,
-                                   )
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('vcfs', _(u'Vcfs'),
+    #                                 credentials=creme_registry.CRED_NONE,
+    #                                )
 
     def register_buttons(self, button_registry):
         from .buttons import generate_vcf_button

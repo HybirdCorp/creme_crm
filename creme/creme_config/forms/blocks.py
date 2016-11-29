@@ -26,6 +26,7 @@ from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
 from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.apps import creme_app_configs
 from creme.creme_core.constants import MODELBLOCK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
@@ -249,9 +250,13 @@ class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
         excluded_apps.add('creme_core')
         excluded_apps.add('creme_config')
 
-        self.fields['app_name'].choices = [(app.name, app.verbose_name)
-                                               for app in creme_registry.iter_apps()
-                                                   if not app.name in excluded_apps
+        # self.fields['app_name'].choices = [(app.name, app.verbose_name)
+        #                                        for app in creme_registry.iter_apps()
+        #                                            if not app.name in excluded_apps
+        #                                   ]
+        self.fields['app_name'].choices = [(app_config.label, app_config.verbose_name)
+                                               for app_config in creme_app_configs()
+                                                   if not app_config.label in excluded_apps
                                           ]
 
     def save(self, *args, **kwargs):

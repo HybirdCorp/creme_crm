@@ -53,7 +53,7 @@
             {% endif %}
             {% for job in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
-                    <td class="{{row_color}}">{{job.type.app.verbose_name}}</td>
+                    <td class="{{row_color}}">{{job.type.app_config.verbose_name}}</td>
                     <td class="{{row_color}}">{{job.type}}</td>
                     <td class="{{row_color}}">{{job.user|default:''}}</td>
                     <td class="{{row_color}}">

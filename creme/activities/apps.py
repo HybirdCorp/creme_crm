@@ -36,8 +36,8 @@ class ActivitiesConfig(CremeAppConfig):
 
         from . import signals
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('activities', _(u'Activities'), '/activities')
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('activities', _(u'Activities'), '/activities')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Activity)

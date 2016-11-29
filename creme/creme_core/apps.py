@@ -38,6 +38,30 @@ from .registry import creme_registry
 logger = logging.getLogger(__name__)
 
 
+# Hooking of AppConfig ------------------
+
+AppConfig.creme_app = False
+AppConfig.extended_app = None  # If you extend an app by swapping its models. Eg: 'persons'
+AppConfig._extending_app_configs = None
+
+def __get_extending_app_configs(self):
+    ext_app_configs = self._extending_app_configs
+
+    if ext_app_configs is None:
+        name = self.name
+        ext_app_configs = self._extending_app_configs = [
+            app_config
+                for app_config in apps.get_app_configs()
+                    if app_config.extended_app == name
+            ]
+
+    return ext_app_configs
+
+AppConfig.get_extending_app_configs = __get_extending_app_configs
+
+# Hooking of AppConfig [end] ------------
+
+
 # TODO: remove when MediaGenerator is not used
 class MediaGeneratorConfig(AppConfig):
     name = 'mediagenerator'
@@ -48,8 +72,6 @@ class MediaGeneratorConfig(AppConfig):
         self._fix_i18n_filter()
 
     def _build_MEDIA_BUNDLES(self):
-        # from django.conf import settings
-
         is_installed = apps.is_installed
         MEDIA_BUNDLES = (settings.CREME_I18N_JS,
                          settings.CREME_CORE_JS + tuple(js for app, js in settings.CREME_OPT_JS if is_installed(app))
@@ -113,7 +135,14 @@ class MediaGeneratorConfig(AppConfig):
 
 
 class CremeAppConfig(AppConfig):
+    creme_app = True   # True => App can be used by some services
+                       #        (urls.py automatically used, 'creme_populate command' etc...)
     dependencies = ()  # Overload ; eg: ['creme.persons']
+
+    CRED_NONE    = 0b00
+    CRED_REGULAR = 0b01
+    CRED_ADMIN   = 0b10
+    credentials = CRED_REGULAR|CRED_ADMIN
 
     # Lots of problems with ContentType table which can be not created yet.
     # MIGRATION_MODE = ('migrate' in argv)
@@ -122,6 +151,7 @@ class CremeAppConfig(AppConfig):
     def ready(self):
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
         # because we get an error from django [AttributeError: 'instancemethod' object has no attribute 'tags']
+        @checks.register(Tags.settings)
         def check_deps(**kwargs):
             return [checks.Error("depends on the app '%s' which is not installed." % dep,
                                  hint='Check the INSTALLED_CREME_APPS setting in your'
@@ -133,11 +163,38 @@ class CremeAppConfig(AppConfig):
                             if not apps.is_installed(dep)
                    ]
 
-        checks.register(Tags.settings)(check_deps)
+        @checks.register(Tags.settings)
+        def check_extended_app(**kwargs):
+            errors = []
+            app_name = self.extended_app
+
+            if app_name is not None:
+                if not apps.is_installed(app_name):
+                    errors.append(checks.Error("extends the app '%s' which is not installed." % app_name,
+                                               hint='Check the INSTALLED_CREME_APPS setting in your'
+                                                    ' local_settings.py/project_settings.py',
+                                               obj=self.name,
+                                               id='creme.E006',
+                                              )
+                                 )
+
+                if self.credentials != self.CRED_NONE:
+                    errors.append(checks.Error("The app '%s' is an extending app & "
+                                               "so it cannot have its own credentials." % self.name,
+                                               hint='Set "credentials = CremeAppConfig.CRED_NONE" in the AppConfig.',
+                                               obj=self.name,
+                                               id='creme.E007',
+                                              )
+                                 )
+
+            return errors
 
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
-            self.register_creme_app(creme_registry)
+            # self.register_creme_app(creme_registry)
+            if hasattr(self, 'register_creme_app'):
+                logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
+
             self.register_entity_models(creme_registry)
 
             self.register_blocks(block_registry)
@@ -155,8 +212,8 @@ class CremeAppConfig(AppConfig):
             self.register_user_setting_keys(user_setting_key_registry)
             self.register_smart_columns(smart_columns_registry)
 
-    def register_creme_app(self, creme_registry):
-        pass
+    # def register_creme_app(self, creme_registry):
+    #     pass
 
     def register_entity_models(self, creme_registry):
         pass
@@ -220,8 +277,8 @@ class CremeCoreConfig(CremeAppConfig):
         self.hook_datetime_widgets()
         self.hook_multiselection_widgets()
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('creme_core', _(u'Core'), '/')
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('creme_core', _(u'Core'), '/')
 
     def register_menu(self, creme_menu):
         reg_app = creme_menu.register_app
@@ -308,18 +365,45 @@ class CremeCoreConfig(CremeAppConfig):
 
     @staticmethod
     def hook_datetime_widgets():
-        from django.forms.fields import DateField, DateTimeField, TimeField
+        from django import forms
 
-        from creme.creme_core.forms.widgets import CalendarWidget, DateTimeWidget, TimeWidget
+        from creme.creme_core.forms import widgets
 
-        DateField.widget = CalendarWidget
-        DateTimeField.widget = DateTimeWidget
-        TimeField.widget = TimeWidget
+        forms.DateField.widget     = widgets.CalendarWidget
+        forms.DateTimeField.widget = widgets.DateTimeWidget
+        forms.TimeField.widget     = widgets.TimeWidget
 
     @staticmethod
     def hook_multiselection_widgets():
-        from django.forms import MultipleChoiceField, ModelMultipleChoiceField
+        from django import forms
 
-        from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+        from creme.creme_core.forms import widgets
 
-        MultipleChoiceField.widget = ModelMultipleChoiceField.widget = UnorderedMultipleChoiceWidget
+        forms.MultipleChoiceField.widget = forms.ModelMultipleChoiceField.widget = \
+             widgets.UnorderedMultipleChoiceWidget
+
+
+def creme_app_configs():
+    for app_config in apps.get_app_configs():
+        if app_config.creme_app:
+            yield app_config
+
+
+def extended_app_configs(app_labels):
+    """Get the AppConfigs corresponding to given labels, & their extending AppConfigs.
+    @param app_labels: Iterable of app labels (eg: ['persons', documents']).
+    @return: Set of AppConfig instances.
+    """
+    get_app_config = apps.get_app_config
+    app_configs = set()
+
+    for label in app_labels:
+        try:
+            app_config = get_app_config(label)
+        except LookupError:
+            logger.warn('The app "%s" seems not installed.', label)
+        else:
+            app_configs.add(app_config)
+            app_configs.update(app_config.get_extending_app_configs())
+
+    return app_configs

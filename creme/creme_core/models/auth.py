@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
+# from itertools import chain
 import logging
 from operator import or_ as or_op
 from re import compile as re_compile
 
 import pytz
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, _user_has_perm
 from django.contrib.contenttypes.models import ContentType
@@ -37,7 +38,7 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..auth.entity_credentials import EntityCredentials
-from ..registry import creme_registry, NotRegistered
+# from ..registry import creme_registry, NotRegistered
 from ..utils import split_filter
 from ..utils.unicode_collation import collator
 from .fields import CTypeForeignKey
@@ -98,12 +99,15 @@ class UserRole(Model):
         self.raw_allowed_apps = '\n'.join(apps)
 
     def _build_extended_apps(self, apps):
-        ext_apps = (ext_app
-                        for app in apps
-                            for ext_app in creme_registry.get_extending_apps(app)
-                   )
-
-        return set(chain(apps, ext_apps))
+        # ext_apps = (ext_app
+        #                 for app in apps
+        #                     for ext_app in creme_registry.get_extending_apps(app)
+        #            )
+        #
+        # return set(chain(apps, ext_apps))
+        from ..apps import extended_app_configs
+        # return {app_config.label for app_config in extended_app_configs(apps, extending_apps=True)}
+        return {app_config.label for app_config in extended_app_configs(apps)}
 
     @property
     def extended_admin_4_apps(self):
@@ -125,22 +129,36 @@ class UserRole(Model):
     def is_app_allowed_or_administrable(self, app_name):
         return (app_name in self.extended_allowed_apps) or self.is_app_administrable(app_name)
 
-    def _build_apps_verbose(self, app_names):
-        get_app = creme_registry.get_app
-        # apps = [get_app(app_name).verbose_name for app_name in app_names]
-        apps = []
+    def _build_apps_verbose(self, app_names):   # TODO: rename app_labels
+        # get_app = creme_registry.get_app
+        # # apps = [get_app(app_name).verbose_name for app_name in app_names]
+        # apps = []
+        #
+        # for app_label in app_names:
+        #     try:
+        #         app = get_app(app_name)
+        #     except NotRegistered:
+        #         logger.warn('The app "%s" seems not registered (from UserRole "%s").', app_name, self)
+        #     else:
+        #         apps.append(app.verbose_name)
+        #
+        # apps.sort(key=collator.sort_key)
+        #
+        # return apps
+        verbose_names = []
+        get_app = apps.get_app_config
 
-        for app_name in app_names:
+        for app_label in app_names:
             try:
-                app = get_app(app_name)
-            except NotRegistered:
-                logger.warn('The app "%s" seems not registered (from UserRole "%s").', app_name, self)
+                app = get_app(app_label)
+            except LookupError:
+                logger.warn('The app "%s" seems not registered (from UserRole "%s").', app_label, self)
             else:
-                apps.append(app.verbose_name)
+                verbose_names.append(app.verbose_name)
 
-        apps.sort(key=collator.sort_key)
+        verbose_names.sort(key=collator.sort_key)
 
-        return apps
+        return verbose_names
 
     def get_admin_4_apps_verbose(self):  # For templates
         return self._build_apps_verbose(self.admin_4_apps)
@@ -694,11 +712,15 @@ class CremeUser(AbstractBaseUser):
     def has_perm_to_admin(self, app_name):
         return self.is_superuser or self.role.is_app_administrable(app_name)
 
-    def has_perm_to_admin_or_die(self, app_name):
+    def has_perm_to_admin_or_die(self, app_name):  # TODO: rename 'app_label'
         if not self.has_perm_to_admin(app_name):
+            # try:
+            #     verbose_name = creme_registry.get_app(app_name).verbose_name
+            # except NotRegistered:
+            #     verbose_name = ugettext('Invalid app "%s"') % app_name
             try:
-                verbose_name = creme_registry.get_app(app_name).verbose_name
-            except NotRegistered:
+                verbose_name = apps.get_app_config(app_name).verbose_name
+            except LookupError:
                 verbose_name = ugettext('Invalid app "%s"') % app_name
 
             raise PermissionDenied(ugettext('You are not allowed to configure this app: %s') %

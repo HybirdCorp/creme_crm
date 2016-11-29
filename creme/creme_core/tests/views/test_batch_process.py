@@ -123,7 +123,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIsNone(job.error)
         self.assertFalse(EntityJobResult.objects.filter(job=job))
         self.assertIsNone(job.last_run)
-        self.assertEqual(_('Core'), job.type.app.verbose_name)
+        self.assertEqual(_('Core'), job.type.app_config.verbose_name)
 
         # Properties
         self.assertIs(batch_process_type, job.type)

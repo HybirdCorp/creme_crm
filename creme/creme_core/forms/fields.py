@@ -28,6 +28,7 @@ from json import loads as json_load, dumps as json_dump
 from re import compile as compile_re
 import warnings
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
@@ -46,7 +47,7 @@ from ..utils.collections import OrderedSet
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
-from .widgets import UnorderedMultipleChoiceWidget
+# from .widgets import UnorderedMultipleChoiceWidget
 from . import widgets as core_widgets
 
 
@@ -1406,18 +1407,20 @@ class CTypeChoiceField(Field):
 
 
 class MultiCTypeChoiceField(CTypeChoiceField):
-    widget = UnorderedMultipleChoiceWidget  # Beware: use Choice inner class
+    widget = core_widgets.UnorderedMultipleChoiceWidget  # Beware: use Choice inner class
 
     def _build_ctype_choices(self, ctypes):
         from ..utils.unicode_collation import collator
-        from ..registry import creme_registry
+        # from ..registry import creme_registry
 
         Choice = self.widget.Choice
-        get_app = creme_registry.get_app
+        # get_app = creme_registry.get_app
+        get_app_conf = apps.get_app_config
 
-        choices = [(Choice(ct.id, help=_(get_app(ct.app_label).verbose_name)),
-                           unicode(ct)
-                          ) for ct in ctypes
+        # choices = [(Choice(ct.id, help=_(get_app(ct.app_label).verbose_name)),
+        choices = [(Choice(ct.id, help=get_app_conf(ct.app_label).verbose_name),
+                    unicode(ct),
+                   ) for ct in ctypes
                   ]
         sort_key = collator.sort_key
         choices.sort(key=lambda k: sort_key(k[1]))

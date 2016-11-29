@@ -29,7 +29,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.registry import NotRegistered
+# from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.decorators import POST_only
@@ -47,7 +47,8 @@ def _get_appconf(user, app_name):
 
     try:
         app_config = config_registry.get_app(app_name)
-    except NotRegistered:
+    # except NotRegistered:
+    except LookupError:
         raise Http404('Unknown app')
 
     return app_config
