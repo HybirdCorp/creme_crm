@@ -6,7 +6,7 @@
         <th class="label">{% get_basic_block_header _("Images") 'image_48.png' _('Images') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/products/{{object_type}}/{{object.id}}/add_images' with_label _("Add from existing images") with_perms edit_perm %}
+                {% get_line_linker at_url '/products/{{object_type}}/{{object.id}}/add_images' with_label _("Add images") with_perms edit_perm %}
             </div>
         </th>
     {% end_get_block_header %}

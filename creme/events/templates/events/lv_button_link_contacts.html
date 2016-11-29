@@ -1,0 +1,5 @@
+{% load i18n creme_core_tags %}
+{% has_perm_to change event_entity as edit_perm %}
+<a {% if edit_perm %}href="/events/event/{{event_entity.id}}/link_contacts"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+    {% trans "Link contacts" as label %}<img border="0" src="{% creme_media_url 'images/link_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
+</a>&nbsp;

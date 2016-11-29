@@ -35,7 +35,7 @@ class AbstractInvoice(Base):
                               blank=True, null=True, on_delete=SET_NULL,
                              ).set_tags(optional=True)
 
-    creation_label = _('Add an invoice')
+    creation_label = _('Create an invoice')
     save_label     = _('Save the invoice')
 
     generate_number_in_create = False

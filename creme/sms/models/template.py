@@ -30,7 +30,7 @@ class AbstractMessageTemplate(CremeEntity):
     subject = CharField(_(u'Subject'), max_length=100)
     body    = TextField(_(u'Body'))
 
-    creation_label = _('Add a message template')
+    creation_label = _('Create a message template')
 
     class Meta:
         abstract = True

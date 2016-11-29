@@ -90,7 +90,7 @@ def abstract_view_objective_pattern(request, objpattern_id,
 
 def abstract_add_opportunity(request, act_id, form=OpportunityCreateForm,
                              template='creme_core/generics/blockform/add_popup.html',
-                             title=_(u'Add a linked opportunity'),
+                             title=_(u'Create a linked opportunity'),
                              # submit_label=_(u'Save the opportunity'),
                              submit_label=Opportunity.save_label,
                             ):

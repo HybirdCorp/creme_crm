@@ -36,8 +36,8 @@ class AddRelatedActivityButton(Button):
     template_name = 'activities/templatetags/button_add_related.html'
     permission    = cperm(Activity)
 #    verbose_name  = Activity.creation_label
-    verbose_name  = _(u'Add a related activity')
-    activity_type = None #None means type is not fixed
+    verbose_name  = _(u'Create a related activity')
+    activity_type = None  # None means type is not fixed
 
     def render(self, context):
 #        atype =
@@ -49,19 +49,19 @@ class AddRelatedActivityButton(Button):
 
 class AddMeetingButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_meeting')
-    verbose_name  = _(u'Add a related meeting')
+    verbose_name  = _(u'Create a related meeting')
     activity_type = ACTIVITYTYPE_MEETING
 
 
 class AddPhoneCallButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_phonecall')
-    verbose_name  = _(u'Add a related phone call')
+    verbose_name  = _(u'Create a related phone call')
     activity_type = ACTIVITYTYPE_PHONECALL
 
 
 class AddTaskButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_task')
-    verbose_name  = _(u'Add a related task')
+    verbose_name  = _(u'Create a related task')
     activity_type = ACTIVITYTYPE_TASK
 
 

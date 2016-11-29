@@ -49,7 +49,7 @@ class AbstractFolder(CremeEntity):
 
     allowed_related = CremeEntity.allowed_related | {'document'}
 
-    creation_label = _('Add a folder')
+    creation_label = _('Create a folder')
     save_label     = _('Save the folder')
 
     class Meta:

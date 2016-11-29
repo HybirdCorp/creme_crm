@@ -48,7 +48,7 @@ class AbstractDocument(CremeEntity):
                                   blank=True,
                                  ).set_tags(optional=True)
 
-    creation_label = _('Add a document')
+    creation_label = _('Create a document')
     save_label     = _('Save the document')
 
     class Meta:

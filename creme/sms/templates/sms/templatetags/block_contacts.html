@@ -7,7 +7,7 @@
         <th class="label">{% get_block_title _('%s Contact recipient') _('%s Contacts recipients') 'contact_48.png' _('Contacts') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/sms/messaging_list/{{object.pk}}/contact/add' with_label _("Add from existing contacts") with_perms has_perm %}
+                {% get_line_linker at_url '/sms/messaging_list/{{object.pk}}/contact/add' with_label _("Add contacts") with_perms has_perm %}
                 {% get_line_linker at_url '/sms/messaging_list/{{object.pk}}/contact/add_from_filter' with_label _("Add from a filter") with_perms has_perm %}
             </div>
         </th>

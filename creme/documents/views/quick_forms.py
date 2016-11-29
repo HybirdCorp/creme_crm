@@ -80,5 +80,5 @@ def add_image(request):
     return abstract_add_doc_from_widget(request, count=1,
                                         form=ImageQuickForm,
                                         submit_label=_('Save the image'),
-                                        title=_('Add an image'),
+                                        title=_('Create an image'),
                                        )

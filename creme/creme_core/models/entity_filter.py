@@ -118,7 +118,7 @@ class EntityFilter(Model):  # CremeModel ???
 
     use_or = BooleanField(verbose_name=_(u'Use "OR"'), default=False).set_tags(viewable=False)
 
-    creation_label = _('Add a filter')
+    creation_label = _('Create a filter')
     save_label     = _('Save the filter')
 
     _conditions_cache = None

@@ -91,7 +91,7 @@ class EmailSending(CremeModel):
                                   verbose_name=_(u'Attachments'), editable=False,
                                  )
 
-    creation_label = pgettext_lazy('emails', 'Add a sending')
+    creation_label = pgettext_lazy('emails', 'Create a sending')
     save_label     = pgettext_lazy('emails', 'Save the sending')
 
     class Meta:

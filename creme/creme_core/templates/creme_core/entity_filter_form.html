@@ -5,7 +5,7 @@
 
 {% block content %}
     {% if not form.instance.pk %}
-        {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance.entity_type|format:_('Add a filter for «%s»') %}
+        {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance.entity_type|format:_('Create a filter for «%s»') %}
     {% else %}
         {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance|format:_('Edit the filter «%s»') %}
     {% endif %}

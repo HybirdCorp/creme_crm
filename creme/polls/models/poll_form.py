@@ -38,7 +38,7 @@ class AbstractPollForm(CremeEntity):
     name = CharField(_(u'Name'), max_length=220)
     type = ForeignKey(PollType, verbose_name=_(u'Type'), null=True, blank=True, on_delete=SET_NULL)
 
-    creation_label = _('Add a form')
+    creation_label = _('Create a form')
     save_label     = _('Save the form of poll')
 
     class Meta:
@@ -151,7 +151,7 @@ class PollFormSection(CremeModel):
     name   = CharField(_(u'Name'), max_length=250)
     body   = TextField(_(u'Section body'), blank=True)
 
-    creation_label = _('Add a section')
+    creation_label = _('Create a section')
     save_label     = _('Save the section')
 
     class Meta:
@@ -204,7 +204,7 @@ class PollFormLine(CremeModel, _PollLine):
 
     question     = TextField(_(u'Question'))
 
-    creation_label = _('Add a question')
+    creation_label = _('Create a question')
     save_label     = _('Save the question')
 
     class Meta:

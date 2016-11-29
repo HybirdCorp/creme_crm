@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-12 11:52+0100\n"
+"POT-Creation-Date: 2016-11-24 15:04+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -684,8 +684,8 @@ msgid "%s Attachments"
 msgstr "%s Fichiers attachés"
 
 #: templates/emails/templatetags/block_attachments.html:9
-msgid "Add existing documents"
-msgstr "Ajouter des documents existants"
+msgid "Add documents"
+msgstr "Ajouter des documents"
 
 #: templates/emails/templatetags/block_attachments.html:17
 #: templates/emails/templatetags/block_child_lists.html:17

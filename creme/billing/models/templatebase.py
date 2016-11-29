@@ -51,7 +51,7 @@ class AbstractTemplateBase(Base):
 
     function_fields = Base.function_fields.new(_VerboseStatusField())
     # XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
-    creation_label = pgettext_lazy('billing', u'Add a template')
+    creation_label = pgettext_lazy('billing', u'Create a template')
     save_label     = pgettext_lazy('billing', u'Save the template')
 
     _verbose_status_cache = None

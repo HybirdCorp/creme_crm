@@ -115,7 +115,7 @@ def build_get_actions(event, entity):
                 'others':  [EntityAction(reverse('events__create_related_opportunity',
                                                  args=(event.id, entity.id),
                                                 ),
-                                         ugettext(u"Create an opportunity"),
+                                         ugettext(u'Create an opportunity'),
                                          user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
                                          icon="images/opportunity_16.png",
                                         ),
@@ -234,7 +234,10 @@ def list_contacts(request, event_id):
 
     return list_view(request, Contact,
                      extra_dict={'list_title': _(u'List of contacts related to «%s»') % event,
-                                 'add_url':    '/events/event/%s/link_contacts' % event_id,
+                                 # 'add_url':    '/events/event/%s/link_contacts' % event_id,
+                                 'add_url':    '',
+                                 'event_entity': event,  # For ID & to check perm (see 'lv_button_link_contacts.html')
+                                 'extra_bt_templates': ('events/lv_button_link_contacts.html',),
                                 },
                      extra_q=Q(relations__type__in=_FILTER_RELATIONTYPES),
                      post_process=ListViewPostProcessor(event),

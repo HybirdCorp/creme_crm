@@ -35,10 +35,10 @@ class AbstractGraph(CremeEntity):
     name                   = CharField(pgettext_lazy('graphs', u'Name of the graph'), max_length=100)
     orbital_relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types of the peripheral relations'))
 
-    # creation_label = pgettext_lazy('graphs', u'Add a graph')
-    creation_label = _('Add a graph')  # TODO: we do not use context because creme_core.PreferedMenuItem
-                                       #       doesn't know them  so the label remains untranslated in
-                                       #       the PreferedMenu bar.
+    # creation_label = pgettext_lazy('graphs', u'Create a graph')
+    creation_label = _('Create a graph')  # TODO: we do not use context because creme_core.PreferedMenuItem
+                                          #       doesn't know them  so the label remains untranslated in
+                                          #       the PreferedMenu bar.
     save_label = pgettext_lazy('graphs', 'Save the graph')
 
     class GraphException(Exception):

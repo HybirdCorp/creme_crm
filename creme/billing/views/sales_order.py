@@ -46,7 +46,7 @@ def abstract_add_salesorder(request, form=SalesOrderCreateForm,
 
 def abstract_add_related_salesorder(request, target_id,
                                     form=SalesOrderCreateForm, initial_status=1,
-                                    title=_(u'Add a sales order for «%s»'),
+                                    title=_(u'Create a salesorder for «%s»'),
                                     # submit_label=_('Save the sales order'),
                                     submit_label=SalesOrder.save_label,
                                    ):

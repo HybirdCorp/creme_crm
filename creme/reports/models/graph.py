@@ -43,7 +43,7 @@ class AbstractReportGraph(CremeEntity):
     is_count = BooleanField(_(u'Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
     chart    = CharField(_(u'Chart type'), max_length=100, null=True)
 
-    creation_label = _("Add a report's graph")
+    creation_label = _("Create a report's graph")
     save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
 
     _hand = None

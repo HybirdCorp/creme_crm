@@ -5,7 +5,7 @@
 
 {% block content %}
     {% if not form.instance.pk %}
-        {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance.entity_type|format:_('Add a view of list for «%s»') %}
+        {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance.entity_type|format:_('Create a view of list for «%s»') %}
     {% else %}
         {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance|format:_('Edit the view of list «%s»') %}
     {% endif %}

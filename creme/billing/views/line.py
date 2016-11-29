@@ -44,7 +44,7 @@ ServiceLine = get_service_line_model()
 
 def abstract_add_multiple_product_line(request, document_id,
                                        form=ProductLineMultipleAddForm,
-                                       title=_(u"Add one or more product to «%s»"),
+                                       title=_(u'Add one or more product to «%s»'),
                                        submit_label=_('Save the lines'),
                                       ):
     return add_to_entity(request, document_id, form, title,
@@ -54,7 +54,7 @@ def abstract_add_multiple_product_line(request, document_id,
 
 def abstract_add_multiple_service_line(request, document_id,
                                        form=ServiceLineMultipleAddForm,
-                                       title=_(u"Add one or more service to «%s»"),
+                                       title=_(u'Add one or more service to «%s»'),
                                        submit_label=_('Save the lines'),
                                       ):
     return add_to_entity(request, document_id, form, title,

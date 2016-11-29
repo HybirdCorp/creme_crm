@@ -54,7 +54,7 @@ def abstract_add_invoice(request, form=InvoiceCreateForm,
 
 def abstract_add_related_invoice(request, target_id, form=InvoiceCreateForm,
                                  initial_status=DEFAULT_DRAFT_INVOICE_STATUS,
-                                 title=_(u'Add an invoice for «%s»'),
+                                 title=_(u'Create an invoice for «%s»'),
                                  # submit_label=_(u'Save the invoice'),
                                  submit_label=Invoice.save_label,
                                 ):

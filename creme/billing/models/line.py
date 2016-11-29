@@ -56,7 +56,7 @@ class Line(CremeEntity):
     total_discount  = BooleanField(_('Total discount ?'), editable=False, default=False)
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT)  # TODO null=False
 
-    creation_label = _('Add a line')
+    creation_label = _('Create a line')
 
     _related_document = False
     _related_item = None

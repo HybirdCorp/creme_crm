@@ -36,7 +36,7 @@ class Resource(CremeEntity):
                                 editable=False,
                                )
 
-    creation_label = _('Add a resource')
+    creation_label = _('Create a resource')
 
     class Meta:
         app_label = 'projects'

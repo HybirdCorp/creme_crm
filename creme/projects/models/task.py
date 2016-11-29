@@ -45,7 +45,7 @@ class AbstractProjectTask(CremeEntity):
     description  = TextField(_(u'Description'), blank=True)
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
 
-    creation_label = _('Add a task')
+    creation_label = _('Create a task')
     save_label     = _('Save the task')
 
     class Meta:
