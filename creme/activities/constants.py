@@ -53,9 +53,10 @@ NARROW          = 1
 FLOATING_TIME   = 2
 FLOATING        = 3
 
-EFILTER_MEETINGS   = 'activities-meetings'
-EFILTER_PHONECALLS = 'activities-phonecalls'
-EFILTER_TASKS      = 'activities-tasks'
+EFILTER_MEETINGS    = 'activities-meetings'
+EFILTER_PHONECALLS  = 'activities-phonecalls'
+EFILTER_TASKS       = 'activities-tasks'
+EFILTER_PARTICIPATE = 'activities-participate'
 
 DEFAULT_HFILTER_ACTIVITY = 'activities-hf_activity'
 

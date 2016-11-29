@@ -33,6 +33,7 @@ from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigI
         HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
 
+from creme.persons.constants import FILTER_CONTACT_ME
 from creme.persons import get_contact_model, get_organisation_model
 
 from . import get_activity_model
@@ -111,18 +112,29 @@ class Populator(BasePopulator):
                            )
 
         # ---------------------------
+        create_efilter = EntityFilter.create
+
         for pk, name, atype_id in ((constants.EFILTER_MEETINGS,   _(u'Meetings'),    constants.ACTIVITYTYPE_MEETING),
                                    (constants.EFILTER_PHONECALLS, _(u'Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
                                    (constants.EFILTER_TASKS,      _(u'Tasks'),       constants.ACTIVITYTYPE_TASK),
                                   ):
-            EntityFilter.create(pk, name=name, model=Activity, is_custom=False, user='admin',
-                                conditions=[EntityFilterCondition.build_4_field(model=Activity,
-                                                  operator=EntityFilterCondition.EQUALS,
-                                                  name='type',
-                                                  values=[atype_id],
-                                              ),
-                                           ],
-                                )
+            create_efilter(pk, name=name, model=Activity, is_custom=False, user='admin',
+                           conditions=[EntityFilterCondition.build_4_field(model=Activity,
+                                             operator=EntityFilterCondition.EQUALS,
+                                             name='type',
+                                             values=[atype_id],
+                                         ),
+                                      ],
+                          )
+
+        create_efilter(constants.EFILTER_PARTICIPATE, name=_(u'In which I participate'),
+                       model=Activity, is_custom=False, user='admin',
+                       conditions=[EntityFilterCondition.build_4_relation_subfilter(
+                                         rtype=rt_obj_part_2_activity,
+                                         subfilter=EntityFilter.get_latest_version(FILTER_CONTACT_ME)
+                                     ),
+                                  ],
+                      )
 
         # ---------------------------
         if not already_populated:
