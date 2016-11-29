@@ -20,9 +20,11 @@
 
 from os.path import basename
 
-from django.utils.translation import ugettext as _
+from django.conf import settings
 from django.forms import ImageField
+from django.utils.translation import ugettext as _
 
+from creme.creme_core.backends import import_backend_registry
 from creme.creme_core.forms.base import CremeModelWithUserForm
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
@@ -91,6 +93,10 @@ class DocumentWidgetQuickForm(DocumentQuickForm):
 class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
     def __init__(self, user=None, *args, **kwargs):
         super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
+        self.fields['filedata'].widget.attrs = {'accept': ','.join('.' + ext
+                                                                       for ext in import_backend_registry.iterkeys()
+                                                                  ),
+                                               }
 
     def clean(self):
         self.folder = get_csv_folder_or_create(self.user)
@@ -107,7 +113,10 @@ class ImageQuickForm(CremeModelWithUserForm):
 
     def __init__(self, *args, **kwargs):
         super(ImageQuickForm, self).__init__(*args, **kwargs)
-        self.fields['folder'].initial = get_folder_model().objects.filter(title=_(u'Images')).first()
+        fields = self.fields
+        fields['folder'].initial = get_folder_model().objects.filter(title=_(u'Images')).first()
+        # TODO: hook django (create or own widget and set it on ImageField ?)
+        fields['image'].widget.attrs = {'accept': ','.join('.' + ext for ext in settings.ALLOWED_IMAGES_EXTENSIONS)}
 
     def save(self, *args, **kwargs):
         instance = self.instance
