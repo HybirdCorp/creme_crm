@@ -31,6 +31,7 @@ from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core import models as core_models
+from creme.creme_core.models import EntityFilter, EntityFilterCondition, EntityFilterVariable
 from creme.creme_core.utils import create_if_needed
 
 from . import get_contact_model, get_organisation_model
@@ -85,13 +86,23 @@ class Populator(BasePopulator):
             rt_map[sym_rt.id] = sym_rt
 
         # ---------------------------
-        core_models.EntityFilter.create(constants.FILTER_MANAGED_ORGA, name=_(u'Managed by creme'),
-                                        model=Organisation, user='admin',
-                                        conditions=[core_models.EntityFilterCondition.build_4_property(
-                                                          ptype=managed_by_creme, has=True,
-                                                      ),
-                                                   ],
-                                       )
+        EntityFilter.create(constants.FILTER_MANAGED_ORGA, name=_(u'Managed by creme'),
+                            model=Organisation, user='admin',
+                            conditions=[EntityFilterCondition.build_4_property(
+                                              ptype=managed_by_creme, has=True,
+                                          ),
+                                       ],
+                           )
+        EntityFilter.create(constants.FILTER_CONTACT_ME, name=_(u'Me'),
+                            model=Contact, user='admin',
+                            conditions=[EntityFilterCondition.build_4_field(
+                                              model=Contact,
+                                              operator=EntityFilterCondition.EQUALS,
+                                              name='is_user',
+                                              values=[EntityFilterVariable.CURRENT_USER],
+                                          ),
+                                       ],
+                           )
 
         # ---------------------------
         create_hf = core_models.HeaderFilter.create

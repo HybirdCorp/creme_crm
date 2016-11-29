@@ -28,6 +28,7 @@ REL_SUB_COMPETITOR = 'persons-subject_competitor'
 REL_OBJ_COMPETITOR = 'persons-object_competitor'
 
 FILTER_MANAGED_ORGA = 'persons-managed_organisations'
+FILTER_CONTACT_ME   = 'persons-contact_me'
 
 DEFAULT_HFILTER_CONTACT = 'persons-hf_contact'
 DEFAULT_HFILTER_ORGA    = 'persons-hf_organisation'
