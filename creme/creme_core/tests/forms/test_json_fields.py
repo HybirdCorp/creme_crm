@@ -134,7 +134,8 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
-    QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
+    # QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
+    QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/'
     DATA_FORMAT = '{"ctype": {"create": "%s", "id": %s, "create_label": "%s"}, "entity": %s}'
     CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s, "create_label": "%s"}, "entity": %s}'
 
@@ -307,7 +308,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
-    QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
+    # QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
+    QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/'
     DATA_FORMAT = '{"ctype": {"create": "%s", "id": %s, "create_label": "%s"}, "entity": %s}'
     CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s, "create_label": "%s"}, "entity": %s}'
 
@@ -1223,7 +1225,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
         contact = self.create_contact()
         qfilter = {'~pk': contact.pk}
-        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        # action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        action_url = '/persons/quickforms/from_widget/%s/' % contact.entity_type_id
 
         field = CreatorEntityField(Contact)
         self.assertIsNone(field.q_filter)
@@ -1308,7 +1311,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_invalid_qfilter(self):
         self.login()
         contact = self.create_contact()
-        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        # action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        action_url = '/persons/quickforms/from_widget/%s/' % contact.entity_type_id
 
         field = CreatorEntityField(Contact)
         qfilter_errors = ("Invalid q_filter ['~pk', %d]" % contact.pk,
@@ -1423,12 +1427,15 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
 
         field = CreatorEntityField(Contact)
-        self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
+        # self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
+        self.assertEqual('/creme_core/quickforms/from_widget/%s/add/' % ContentType.objects.get_for_model(Contact).pk,
                          field.create_action_url
                         )
 
-        field.create_action_url = '/persons/quickforms/from_widget/contact/add/1'
-        self.assertEqual('/persons/quickforms/from_widget/contact/add/1', field.create_action_url)
+        # field.create_action_url = '/persons/quickforms/from_widget/contact/add/1'
+        # self.assertEqual('/persons/quickforms/from_widget/contact/add/1', field.create_action_url)
+        field.create_action_url = '/persons/quickforms/from_widget/contact/add/'
+        self.assertEqual('/persons/quickforms/from_widget/contact/add/', field.create_action_url)
 
     def test_clean_empty_required(self):
         clean = CreatorEntityField(Contact, required=True).clean
@@ -1560,7 +1567,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
         contact = self.create_contact()
         qfilter = {'~pk': contact.pk}
-        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        # action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        action_url = '/persons/quickforms/from_widget/%s/' % contact.entity_type_id
 
         field = MultiCreatorEntityField(Contact)
         self.assertIsNone(field.q_filter)
@@ -1625,7 +1633,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_invalid_qfilter(self):
         self.login()
         contact = self.create_contact()
-        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        # action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+        action_url = '/persons/quickforms/from_widget/%s/' % contact.entity_type_id
 
         field = MultiCreatorEntityField(Contact)
         qfilter_errors = ("Invalid q_filter ['~pk', %d]" % contact.pk,
@@ -1651,12 +1660,15 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
 
         field = MultiCreatorEntityField(Contact)
-        self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
+        # self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
+        self.assertEqual('/creme_core/quickforms/from_widget/%s/add/' % ContentType.objects.get_for_model(Contact).pk,
                          field.create_action_url
                         )
 
-        field.create_action_url = '/persons/quickforms/from_widget/contact/add/1'
-        self.assertEqual('/persons/quickforms/from_widget/contact/add/1', field.create_action_url)
+        # field.create_action_url = '/persons/quickforms/from_widget/contact/add/1'
+        # self.assertEqual('/persons/quickforms/from_widget/contact/add/1', field.create_action_url)
+        field.create_action_url = '/persons/quickforms/from_widget/contact/add/'
+        self.assertEqual('/persons/quickforms/from_widget/contact/add/', field.create_action_url)
 
     def test_clean_empty_required(self):
         clean = MultiCreatorEntityField(Contact, required=True).clean

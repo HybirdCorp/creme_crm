@@ -313,7 +313,8 @@ class GenericEntityField(JSONField):
         model = ctype.model_class()
 
         if self._has_quickform(model) and user is not None and user.has_perm_to_create(model):
-            return '/creme_core/quickforms/from_widget/%s/add/1' % ctype.pk
+            # return '/creme_core/quickforms/from_widget/%s/add/1' % ctype.pk
+            return '/creme_core/quickforms/from_widget/%s/add/' % ctype.pk
 
         return ''
 
@@ -795,7 +796,8 @@ class CreatorEntityField(JSONField):
         model = self._model
 
         return None if model is None else (
-               '/creme_core/quickforms/from_widget/%s/add/1' %
+               # '/creme_core/quickforms/from_widget/%s/add/1' %
+               '/creme_core/quickforms/from_widget/%s/add/' %
                     ContentType.objects.get_for_model(model).id)
 
     @create_action_url.setter

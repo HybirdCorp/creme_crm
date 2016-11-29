@@ -94,7 +94,8 @@ def get_header(filedata, has_header):
 class UploadForm(CremeForm):
     step       = IntegerField(widget=HiddenInput)
     document   = CreatorEntityField(label=_(u'File to import'), model=Document,
-                                    create_action_url=reverse('documents__create_document_from_widget', args=(1,)),
+                                    # create_action_url=reverse('documents__create_document_from_widget', args=(1,)),
+                                    create_action_url=reverse('documents__create_document_from_widget'),
                                    )
     has_header = BooleanField(label=_(u'Header present ?'), required=False,
                               help_text=_(u'Does the first line of the line contain '
@@ -114,9 +115,9 @@ class UploadForm(CremeForm):
         document = self.fields['document']
         document.user = self.user
         document.help_text = mark_safe(u"<ul>%s</ul>" %
-                                        u''.join(u"<li>%s: %s</li>" % (be.verbose_name, be.help_text)
+                                       u''.join(u'<li>%s: %s</li>' % (be.verbose_name, be.help_text)
                                                     for be in import_backend_registry.iterbackends()
-                                                )
+                                               )
                                       )
 
     @property
