@@ -266,8 +266,6 @@ class LwMailsHistoryBlock(QuerysetBlock):
                                                            ))
 
 
-
-
 class SignaturesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'signatures')
     dependencies  = (EmailSignature,)
@@ -277,12 +275,38 @@ class SignaturesBlock(QuerysetBlock):
     target_apps   = ('emails',)
 
     def portal_display(self, context, ct_ids):
-        if not context['user'].has_perm('emails'):
+        user = context['user']
+
+        if not user.has_perm('emails'):
             raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
 
-        return self._render(self.get_block_template_context(context, EmailSignature.objects.filter(user=context['user']),
-                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                                context, EmailSignature.objects.filter(user=user),
+                                update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                has_app_perm=True,  # We've just checked it.
+                           ))
+
+
+class MySignaturesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'my_signatures')
+    dependencies  = (EmailSignature,)
+    order_by      = 'name'
+    verbose_name  = 'My Email signatures'
+    template_name = 'emails/templatetags/block_signatures.html'
+    configurable  = False
+    # NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'.
+    #     The block must be visible by all users ; we check permissions in the render to disabled only forbidden things.
+    permission    = None
+
+    def detailview_display(self, context):
+        user = context['user']
+
+        return self._render(self.get_block_template_context(
+                                context,
+                                EmailSignature.objects.filter(user=user),
+                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                has_app_perm=user.has_perm('emails'),
+                           ))
 
 
 email_html_body_block    = EmailHTMLBodyBlock()
@@ -298,6 +322,7 @@ sendings_block          = SendingsBlock()
 mails_block             = MailsBlock()
 mails_history_block     = MailsHistoryBlock()
 signatures_block        = SignaturesBlock()
+my_signatures_block     = MySignaturesBlock()
 
 blocks_list = (
         email_html_body_block,
@@ -314,6 +339,7 @@ blocks_list = (
         mails_history_block,
         LwMailsHistoryBlock(),
         signatures_block,
+        my_signatures_block,
     )
 
 
