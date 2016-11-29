@@ -60,9 +60,11 @@ class Populator(BasePopulator):
         Contact = get_contact_model()
         Organisation = get_organisation_model()
 
+        # ---------------------------
         # SettingValue.create_if_needed(key=emailcampaign_sender, user=None, value="")
         SettingValue.objects.get_or_create(key_id=emailcampaign_sender.id, defaults={'value': ''})
 
+        # ---------------------------
         RelationType.create((constants.REL_SUB_MAIL_RECEIVED, _(u"(email) received by"),  [EntityEmail]),
                             (constants.REL_OBJ_MAIL_RECEIVED, _(u"received the email"),   [Organisation, Contact]))
         RelationType.create((constants.REL_SUB_MAIL_SENDED,   _(u"(email) sended"),       [EntityEmail]),
@@ -70,6 +72,7 @@ class Populator(BasePopulator):
         RelationType.create((constants.REL_SUB_RELATED_TO,    _(u'(email) related to'),   [EntityEmail]),
                             (constants.REL_OBJ_RELATED_TO,    _(u'related to the email'), []))
 
+        # ---------------------------
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_MAILINGLIST,
                   model=MailingList,
@@ -97,12 +100,14 @@ class Populator(BasePopulator):
                              ],
                  )
 
+        # ---------------------------
         create_searchconf = SearchConfigItem.create_if_needed
         create_searchconf(EmailCampaign, ['name', 'mailing_lists__name'])
         create_searchconf(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])
         create_searchconf(EmailTemplate, ['name', 'subject', 'body', 'attachments__title'])
         create_searchconf(EntityEmail,   ['sender', 'recipient', 'subject'])
 
+        # ---------------------------
         create_job = Job.objects.get_or_create
         create_job(type_id=entity_emails_send_type.id,
                    defaults={'language': settings.LANGUAGE_CODE,
@@ -115,6 +120,7 @@ class Populator(BasePopulator):
                             }
                   )
 
+        # ---------------------------
         if not already_populated:
             get_ct = ContentType.objects.get_for_model
             create_cbci = CustomBlockConfigItem.objects.create
@@ -209,4 +215,12 @@ class Populator(BasePopulator):
                 BlockPortalLocation.create(app_name='emails', block_id=alerts_block.id_,   order=200)
                 BlockPortalLocation.create(app_name='emails', block_id=messages_block.id_, order=300)
 
+            if apps.is_installed('creme.documents'):
+                # logger.info("Documents app is installed => we use the documents block on EmailCampaign's detail view")
+
+                from creme.documents.blocks import linked_docs_block
+
+                create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=EmailCampaign)
+
+            # ---------------------------
             ButtonMenuItem.create_if_needed(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,19 +70,19 @@ class Populator(BasePopulator):
                              ],
                  )
 
-
+        # ---------------------------
         create_searchconf = SearchConfigItem.create_if_needed
         create_searchconf(PollForm,     ['name'])
         create_searchconf(PollReply,    ['name'])
         create_searchconf(PollCampaign, ['name'])
 
-
+        # ---------------------------
         if not PollType.objects.exists():  # NB: no straightforward way to test that this populate script has not been already run
             create_if_needed(PollType, {'pk': 1}, name=_(u'Survey'))
             create_if_needed(PollType, {'pk': 2}, name=_(u'Monitoring'))
             create_if_needed(PollType, {'pk': 3}, name=_(u'Assessment'))
 
-
+        # ---------------------------
         if not BlockDetailviewLocation.config_exists(PollForm): # NB: no straightforward way to test that this populate script has not been already run
             TOP   = BlockDetailviewLocation.TOP
             LEFT  = BlockDetailviewLocation.LEFT
@@ -122,7 +122,15 @@ class Populator(BasePopulator):
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
                 for model in (PollForm, PollReply, PollCampaign):
-                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                    create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)
+
+            if apps.is_installed('creme.documents'):
+                # logger.info('Documents app is installed => we use the documents block on detail views')
+
+                from creme.documents.blocks import linked_docs_block
+
+                for model in (PollForm, PollReply, PollCampaign):
+                    create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=model)

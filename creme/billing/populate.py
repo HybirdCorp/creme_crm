@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -101,14 +101,13 @@ class Populator(BasePopulator):
             RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT) \
                                 .add_subject_ctypes(Invoice, Quote, SalesOrder)
 
-
-
+        # ---------------------------
         create_if_needed(PaymentTerms, {'pk': 1}, name=_('Deposit'),
                          description=_(ur'20% deposit will be required'),
                          is_custom=False,
                         )
 
-
+        # ---------------------------
         # NB: pk=1 + is_custom=False --> default status (used when a quote is converted in invoice for example)
         create_if_needed(SalesOrderStatus, {'pk': 1}, name=pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False) # Default status
         if not already_populated:
@@ -116,7 +115,7 @@ class Populator(BasePopulator):
             create_if_needed(SalesOrderStatus, {'pk': 3}, name=pgettext('billing-salesorder', 'Rejected'), order=4)
             create_if_needed(SalesOrderStatus, {'pk': 4}, name=pgettext('billing-salesorder', 'Created'),  order=2)
 
-
+        # ---------------------------
         def create_invoice_status(pk, name, order, **kwargs):
             create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
 
@@ -130,14 +129,14 @@ class Populator(BasePopulator):
             create_invoice_status(7, _('Resulted collection'),                       order=6)
             create_invoice_status(8, pgettext('billing-invoice', 'Canceled'),        order=8)
 
-
+        # ---------------------------
         create_if_needed(CreditNoteStatus, {'pk': 1}, name=pgettext('billing-creditnote', 'Draft'), order=1, is_custom=False)
         if not already_populated:
             create_if_needed(CreditNoteStatus, {'pk': 2}, name=pgettext('billing-creditnote', 'Issued'),      order=2)
             create_if_needed(CreditNoteStatus, {'pk': 3}, name=pgettext('billing-creditnote', 'Consumed'),    order=3)
             create_if_needed(CreditNoteStatus, {'pk': 4}, name=pgettext('billing-creditnote', 'Out of date'), order=4)
 
-
+        # ---------------------------
         EntityFilter.create(
                 'billing-invoices_unpaid', name=_(u"Invoices unpaid"),
                 model=Invoice, user='admin',
@@ -187,7 +186,7 @@ class Populator(BasePopulator):
                            ],
             )
 
-
+        # ---------------------------
         def create_hf(hf_pk, name, model, status=True):
             HeaderFilter.create(pk=hf_pk, name=name, model=model,
                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
@@ -206,7 +205,6 @@ class Populator(BasePopulator):
         create_hf(constants.DEFAULT_HFILTER_CNOTE,    _(u'Credit note view'), CreditNote)
         create_hf(constants.DEFAULT_HFILTER_TEMPLATE, _(u'Template view'),    TemplateBase, status=False)
 
-
         def create_hf_lines(hf_pk, name, model):
             build_cell = EntityCellRegularField.build
             HeaderFilter.create(pk=hf_pk, name=name, model=model,
@@ -219,36 +217,37 @@ class Populator(BasePopulator):
         create_hf_lines('billing-hg_product_lines', _(u"Product lines view"), ProductLine)
         create_hf_lines('billing-hg_service_lines', _(u"Service lines view"), ServiceLine)
 
-
+        # ---------------------------
         for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create_if_needed(model, ['name', 'number', 'status__name'])
 
         for model in (ProductLine, ServiceLine):
             SearchConfigItem.create_if_needed(model, [], disabled=True)
 
+        # ---------------------------
         # SettingValue.create_if_needed(key=setting_keys.payment_info_key, user=None, value=True)
         SettingValue.objects.get_or_create(key_id=setting_keys.payment_info_key.id, defaults={'value': True})
 
-
+        # ---------------------------
         if not already_populated:
             create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', "Pending"),  order=2)  # Default status
             create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', "Accepted"), order=3, won=True)
             create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', "Rejected"), order=4)
             create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', "Created"),  order=1)
 
-
+            # ---------------------------
             create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
             create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
             create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
             create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
             create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
 
-
+            # ---------------------------
             create_if_needed(AdditionalInformation, {'pk': 1}, name=_('Trainer accreditation'),
                              description=_('being certified trainer courses could be supported by your OPCA')
                             )
 
-
+            # ---------------------------
             create_bmi = ButtonMenuItem.create_if_needed
             create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=buttons.generate_invoice_number_button, order=0)
 
@@ -260,7 +259,7 @@ class Populator(BasePopulator):
             create_bmi(pk='billing-salesorder_contact_button', model=Contact, button=buttons.add_related_salesorder, order=101)
             create_bmi(pk='billing-invoice_contact_button',    model=Contact, button=buttons.add_related_invoice,    order=102)
 
-
+            # ---------------------------
             get_ct = ContentType.objects.get_for_model
             create_cbci = CustomBlockConfigItem.objects.create
             build_cell = EntityCellRegularField.build
@@ -356,11 +355,19 @@ class Populator(BasePopulator):
                     create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
                     create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)
 
+            if apps.is_installed('creme.documents'):
+                # logger.info('Documents app is installed => we use the documents block on detail views')
+
+                from creme.documents.blocks import linked_docs_block
+
+                for t in models_4_blocks:
+                    create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=t[0])
+
             create_bdl(block_id=blocks.payment_information_block.id_, order=300, zone=LEFT,  model=Organisation)
             create_bdl(block_id=blocks.received_invoices_block.id_,   order=14,  zone=RIGHT, model=Organisation)
             create_bdl(block_id=blocks.received_quotes_block.id_,     order=18,  zone=RIGHT, model=Organisation)
 
-
+            # ---------------------------
             if apps.is_installed('creme.reports'):
                 logger.info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')
                 self.create_reports(rt_sub_bill_received,
@@ -376,7 +383,6 @@ class Populator(BasePopulator):
 
         from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH
         from creme.reports.models import Report, Field, ReportGraph
-
 
         admin = get_user_model().objects.get_admin()
 
