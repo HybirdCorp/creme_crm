@@ -141,14 +141,21 @@ class Populator(BasePopulator):
             create_bdl(block_id=history_block.id_,                 order=20,  zone=RIGHT, model=Activity)
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the activities blocks on detail views')
+                logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
                 create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=Activity)
                 create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=Activity)
                 create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=Activity)
-                create_bdl(block_id=messages_block.id_, order=500, zone=RIGHT, model=Activity)
+                create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=Activity)
+
+            if apps.is_installed('creme.documents'):
+                # logger.info('Documents app is installed => we use the documents block on detail views')
+
+                from creme.documents.blocks import linked_docs_block
+
+                create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=Activity)
 
             future_id = blocks.future_activities_block.id_
             past_id   = blocks.past_activities_block.id_

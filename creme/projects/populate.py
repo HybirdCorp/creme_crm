@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 import logging
 
 from django.apps import apps
-#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import (properties_block, relations_block,
@@ -68,13 +67,13 @@ class Populator(BasePopulator):
                      is_internal=True,
                     )
 
-
+        # ---------------------------
         for pk, statusdesc in constants.TASK_STATUS.iteritems():
             create_if_needed(TaskStatus, {'pk': pk}, name=unicode(statusdesc.name), order=pk,
                              description=unicode(statusdesc.verbose_name), is_custom=False,
                             )
 
-
+        # ---------------------------
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_PROJECT,
                   model=Project,
@@ -98,26 +97,26 @@ class Populator(BasePopulator):
                              ],
                  )
 
-
+        # ---------------------------
         create_searchconf = SearchConfigItem.create_if_needed
         create_searchconf(Project,     ['name', 'description', 'status__name'])
         create_searchconf(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
         create_searchconf(ProjectTask, ['project__name', 'duration', 'tstatus__name'])
 
-
+        # ---------------------------
         if not already_populated:
-            create_if_needed(ProjectStatus, {'pk': 1}, name=_(u"Invitation to tender"),  order=1, description=_(u"Response to an invitation to tender"))
-            create_if_needed(ProjectStatus, {'pk': 2}, name=_(u"Initialization"),        order=2, description=_(u"The project is starting"))
-            create_if_needed(ProjectStatus, {'pk': 3}, name=_(u"Preliminary phase"),     order=3, description=_(u"The project is in the process of analysis and design"))
-            create_if_needed(ProjectStatus, {'pk': 4}, name=_(u"Achievement"),           order=4, description=_(u"The project is being implemented"))
-            create_if_needed(ProjectStatus, {'pk': 5}, name=_(u"Tests"),                 order=5, description=_(u"The project is in the testing process (unit / integration / functional)"))
-            create_if_needed(ProjectStatus, {'pk': 6}, name=_(u"User acceptance tests"), order=6, description=_(u"The project is in the user acceptance testing process"))
-            create_if_needed(ProjectStatus, {'pk': 7}, name=_(u"Finished"),              order=7, description=_(u"The project is finished"))
+            create_if_needed(ProjectStatus, {'pk': 1}, name=_(u'Invitation to tender'),  order=1, description=_(u'Response to an invitation to tender'))
+            create_if_needed(ProjectStatus, {'pk': 2}, name=_(u'Initialization'),        order=2, description=_(u'The project is starting'))
+            create_if_needed(ProjectStatus, {'pk': 3}, name=_(u'Preliminary phase'),     order=3, description=_(u'The project is in the process of analysis and design'))
+            create_if_needed(ProjectStatus, {'pk': 4}, name=_(u'Achievement'),           order=4, description=_(u'The project is being implemented'))
+            create_if_needed(ProjectStatus, {'pk': 5}, name=_(u'Tests'),                 order=5, description=_(u'The project is in the testing process (unit / integration / functional)'))
+            create_if_needed(ProjectStatus, {'pk': 6}, name=_(u'User acceptance tests'), order=6, description=_(u'The project is in the user acceptance testing process'))
+            create_if_needed(ProjectStatus, {'pk': 7}, name=_(u'Finished'),              order=7, description=_(u'The project is finished'))
 
-
+            # ---------------------------
             create_bdl = BlockDetailviewLocation.create
-            TOP = BlockDetailviewLocation.TOP
-            LEFT = BlockDetailviewLocation.LEFT
+            TOP   = BlockDetailviewLocation.TOP
+            LEFT  = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
             create_bdl(block_id=blocks.project_tasks_block.id_, order=2,   zone=TOP,   model=Project)
@@ -148,3 +147,11 @@ class Populator(BasePopulator):
                     create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=model)
                     create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
                     create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)
+
+            if apps.is_installed('creme.documents'):
+                # logger.info('Documents app is installed => we use the documents block on detail views')
+
+                from creme.documents.blocks import linked_docs_block
+
+                for model in (Project, ProjectTask):
+                    create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=model)

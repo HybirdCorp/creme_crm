@@ -61,19 +61,19 @@ class Populator(BasePopulator):
         RelationType.create((constants.REL_SUB_COMPLETE_GOAL, _(u'completes a goal of the commercial action')),
                             (constants.REL_OBJ_COMPLETE_GOAL, _(u'is completed thanks to'), [Act]))
 
-
+        # ---------------------------
         CremePropertyType.create(constants.PROP_IS_A_SALESMAN, _(u'is a salesman'), [Contact])
 
-
+        # ---------------------------
         MarketSegment.objects.get_or_create(property_type=None,
                                             defaults={'name': _(u'All the organisations')},
                                            )
 
-
+        # ---------------------------
         for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
             create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
 
-
+        # ---------------------------
         create_hf = HeaderFilter.create
         create_hf(pk=constants.DEFAULT_HFILTER_ACT, model=Act,
                   name=_(u'Com Action view'),
@@ -93,18 +93,18 @@ class Populator(BasePopulator):
                              ]
                  )
 
-
+        # ---------------------------
         create_searchconf = SearchConfigItem.create_if_needed
         create_searchconf(Act, ['name', 'expected_sales', 'cost', 'goal'])
         create_searchconf(Strategy, ['name'])
         create_searchconf(ActObjectivePattern, [], disabled=True)
 
-
+        # ---------------------------
         # create_svalue = SettingValue.create_if_needed
         # create_svalue(key=setting_keys.orga_approaches_key, user=None, value=True)
         SettingValue.objects.get_or_create(key_id=setting_keys.orga_approaches_key.id, defaults={'value': True})
 
-
+        # ---------------------------
         Job.objects.get_or_create(type_id=com_approaches_emails_send_type.id,
                                   defaults={'language':    settings.LANGUAGE_CODE,
                                             'periodicity': date_period_registry.get_period('days', 1),
@@ -112,6 +112,7 @@ class Populator(BasePopulator):
                                            }
                                  )
 
+        # ---------------------------
         if not already_populated:
             ButtonMenuItem.create_if_needed(pk='commercial-complete_goal_button',
                                             model=None, button=buttons.complete_goal_button, order=60,
@@ -162,3 +163,10 @@ class Populator(BasePopulator):
                     create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
                     create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)
 
+            if apps.is_installed('creme.documents'):
+                # logger.info("Documents app is installed => we use the documents blocks on Strategy's detail views")
+
+                from creme.documents.blocks import linked_docs_block
+
+                for model in (Act, ActObjectivePattern, Strategy):
+                    create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=model)

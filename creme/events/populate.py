@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -80,7 +80,7 @@ class Populator(BasePopulator):
                      is_internal=True,
                     )
 
-
+        # ---------------------------
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_EVENT, name=_(u'Event view'), model=Event,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                         (EntityCellRegularField, {'name': 'type'}),
@@ -89,29 +89,38 @@ class Populator(BasePopulator):
                                        ],
                            )
 
-
+        # ---------------------------
         SearchConfigItem.create_if_needed(Event, ['name', 'description', 'type__name'])
 
-
+        # ---------------------------
         if not already_populated:
             for i, name in enumerate([_('Show'), _('Conference'), _('Breakfast'), _('Brunch')], start=1):
                 create_if_needed(EventType, {'pk': i}, name=name)
 
-
-            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Event)
             create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Event)
-            create_bdl(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Event)
-            create_bdl(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Event)
-            create_bdl(block_id=resuts_block.id_,       order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
-            create_bdl(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
+            LEFT  = BlockDetailviewLocation.LEFT
+            RIGHT = BlockDetailviewLocation.RIGHT
+
+            BlockDetailviewLocation.create_4_model_block(order=5,  zone=LEFT,  model=Event)
+            create_bdl(block_id=customfields_block.id_, order=40,  zone=LEFT,  model=Event)
+            create_bdl(block_id=properties_block.id_,   order=450, zone=LEFT,  model=Event)
+            create_bdl(block_id=relations_block.id_,    order=500, zone=LEFT,  model=Event)
+            create_bdl(block_id=resuts_block.id_,       order=2,   zone=RIGHT, model=Event)
+            create_bdl(block_id=history_block.id_,      order=20,  zone=RIGHT, model=Event)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
-                create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Event)
-                create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Event)
-                create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Event)
-                create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Event)
+                create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=Event)
+                create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=Event)
+                create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=Event)
+                create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=Event)
+
+            if apps.is_installed('creme.documents'):
+                # logger.info('Documents app is installed => we use the Documents blocks on detail view')
+
+                from creme.documents.blocks import linked_docs_block
+
+                create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=Event)

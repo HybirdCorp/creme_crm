@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,11 +60,11 @@ class Populator(BasePopulator):
 
             RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT).add_subject_ctypes(Ticket)
 
-
+        # ---------------------------
         for pk, name in BASE_STATUS:
             create_if_needed(Status, {'pk': pk}, name=unicode(name), is_custom=False, order=pk)
 
-
+        # ---------------------------
         create_hf = HeaderFilter.create
         create_hf(pk=DEFAULT_HFILTER_TICKET,
                   model=Ticket,
@@ -87,14 +87,14 @@ class Populator(BasePopulator):
                              ],
                  )
 
-
+        # ---------------------------
         SearchConfigItem.create_if_needed(Ticket,
                                           ['title', 'number', 'description',
                                            'status__name', 'priority__name', 'criticity__name',
                                           ]
                                          )
 
-
+        # ---------------------------
         if not already_populated:
             for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
                 create_if_needed(Priority, {'pk': i}, name=name, order=i)
@@ -102,29 +102,38 @@ class Populator(BasePopulator):
             for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
                 create_if_needed(Criticity, {'pk': i}, name=name, order=i)
 
-
+            # ---------------------------
             rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
 
-            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Ticket)
             create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Ticket)
-            create_bdl(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
-            create_bdl(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
-            create_bdl(block_id=rbi.block_id,           order=1,   zone=BlockDetailviewLocation.RIGHT, model=Ticket)
-            create_bdl(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+            LEFT  = BlockDetailviewLocation.LEFT
+            RIGHT = BlockDetailviewLocation.RIGHT
 
+            BlockDetailviewLocation.create_4_model_block(order=5,  zone=LEFT, model=Ticket)
+            create_bdl(block_id=customfields_block.id_, order=40,  zone=LEFT,  model=Ticket)
+            create_bdl(block_id=properties_block.id_,   order=450, zone=LEFT,  model=Ticket)
+            create_bdl(block_id=relations_block.id_,    order=500, zone=LEFT,  model=Ticket)
+            create_bdl(block_id=rbi.block_id,           order=1,   zone=RIGHT, model=Ticket)
+            create_bdl(block_id=history_block.id_,      order=20,  zone=RIGHT, model=Ticket)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
-                create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
-                create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
-                create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
-                create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+                create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=Ticket)
+                create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=Ticket)
+                create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=Ticket)
+                create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=Ticket)
 
+            if apps.is_installed('creme.documents'):
+                # logger.info("Documents app is installed => we use the documents block on Ticket's detail views")
 
+                from creme.documents.blocks import linked_docs_block
+
+                create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=Ticket)
+
+            # ---------------------------
             if apps.is_installed('creme.persons'):
                 try:
                     from creme.persons import get_contact_model, get_organisation_model
