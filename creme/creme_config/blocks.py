@@ -42,6 +42,7 @@ from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingV
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.core.setting_key import user_setting_key_registry
 from creme.creme_core.utils import creme_entity_content_types
+from creme.creme_core.utils.translation import get_model_verbose_name
 from creme.creme_core.utils.unicode_collation import collator
 
 
@@ -78,16 +79,25 @@ class GenericModelsBlock(QuerysetBlock):
         if any(field.name == 'is_custom' for field in fields):
             colspan -= 1
 
-        return self._render(self.get_block_template_context(
-                                context, model.objects.order_by(order_by),
-                                update_url='/creme_config/models/%s/reload/' % ContentType.objects.get_for_model(model).id,
-                                model=model,
-                                model_name=context['model_name'],
-                                app_name=context['app_name'],
-                                fields=meta.fields,
-                                many_to_many=many_to_many,
-                                colspan=colspan,
-                           ))
+        btc = self.get_block_template_context(
+                    context, model.objects.order_by(order_by),
+                    update_url='/creme_config/models/%s/reload/' % ContentType.objects.get_for_model(model).id,
+                    model=model,
+                    model_name=context['model_name'],
+                    app_name=context['app_name'],
+                    fields=meta.fields,
+                    many_to_many=many_to_many,
+                    colspan=colspan,
+               )
+
+        # TODO: factorise with TaggedEntitiesBlock
+        count = btc['page'].paginator.count
+        btc['title'] = ugettext(u'%(count)s %(model)s') % {
+                            'count': count,
+                            'model': get_model_verbose_name(model, count),
+                        }
+
+        return self._render(btc)
 
 
 class SettingsBlock(QuerysetBlock):

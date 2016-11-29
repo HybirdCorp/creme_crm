@@ -38,6 +38,7 @@ from ..utils import safe_unicode, bool_as_html
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url  # get_current_theme
 from ..utils.meta import FieldInfo
+# from ..utils.translation import get_model_verbose_name
 from ..utils.unicode_collation import collator
 
 
@@ -92,6 +93,12 @@ def get_field_verbose_name(model_or_entity, field_name):
     except FieldDoesNotExist as e:
         logger.debug('Exception in get_field_verbose_name(): %s', e)
         return 'INVALID FIELD'
+
+
+# TODO: ?
+# @register.assignment_tag(name='get_model_verbose_name')
+# def get_model_vname(model, count):
+#     return get_model_verbose_name(model, count)
 
 
 @register.assignment_tag(takes_context=True)
