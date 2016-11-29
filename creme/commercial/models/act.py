@@ -61,7 +61,7 @@ class AbstractAct(CremeEntity):
     act_type       = ForeignKey(ActType, verbose_name=_(u'Type'), on_delete=PROTECT)
     segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'), on_delete=PROTECT)
 
-    creation_label = _('Add a commercial action')
+    creation_label = _('Create a commercial action')
     save_label     = _('Save the commercial action')
 
     _related_opportunities = None
@@ -200,7 +200,7 @@ class AbstractActObjectivePattern(CremeEntity):
     average_sales = PositiveIntegerField(_(u'Average sales'))
     segment       = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
 
-    creation_label = _('Add an objective pattern')
+    creation_label = _('Create an objective pattern')
     save_label     = _('Save the objective pattern')
 
     _components_cache = None

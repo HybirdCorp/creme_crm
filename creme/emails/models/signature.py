@@ -37,7 +37,7 @@ class EmailSignature(CremeModel):
                                         help_text=_(u'Images embedded in emails (but not as attached).'),
                                        )
 
-    creation_label = pgettext_lazy('emails', 'Add a signature')
+    creation_label = pgettext_lazy('emails', 'Create a signature')
     save_label     = pgettext_lazy('emails', 'Save the signature')
 
     def __unicode__(self):

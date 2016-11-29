@@ -50,7 +50,7 @@
 #                                   blank=True,
 #                                  )
 #
-#     creation_label = _('Add an image')
+#     creation_label = _('Create an image')
 #
 #     encodings = {
 #         "base64": lambda x: base64.b64encode(x),

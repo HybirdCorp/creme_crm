@@ -47,7 +47,7 @@ def abstract_add_quote(request, form=QuoteCreateForm,
 
 def abstract_add_related_quote(request, target_id, form=QuoteCreateForm,
                                initial_status=1,
-                               title=_(u"Add a quote for «%s»"),
+                               title=_(u'Create a quote for «%s»'),
                                # submit_label=_(u'Save the quote')
                                submit_label=Quote.save_label,
                               ):

@@ -36,7 +36,7 @@ class CremePropertyType(CremeModel):
     # If True, the properties with this type can be copied (ie: when cloning or converting an entity).
     is_copiable    = BooleanField(default=True)
 
-    creation_label = _('Add a type of property')
+    creation_label = _('Create a type of property')
     save_label     = _('Save the type of property')
 
     class Meta:

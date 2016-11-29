@@ -87,7 +87,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'), blank=True)
 
-    creation_label = _('Add an email')
+    creation_label = _('Create an email')
     save_label     = _('Save the email')
     sending_label  = _('Send the email')
 

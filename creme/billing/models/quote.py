@@ -31,7 +31,7 @@ class AbstractQuote(Base):
     acceptation_date = DateField(_(u"Acceptation date"), blank=True, null=True) \
                                 .set_tags(clonable=False, optional=True)
 
-    creation_label = _('Add a quote')
+    creation_label = _('Create a quote')
     save_label     = _('Save the quote')
 
     def get_absolute_url(self):

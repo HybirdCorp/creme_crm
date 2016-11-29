@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PRODUCTS' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 1.6\n"
+"Project-Id-Version: Creme Products 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-07 10:57+0200\n"
+"POT-Creation-Date: 2016-11-24 14:53+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -25,6 +25,7 @@ msgid "Portal of products and services"
 msgstr "Portail des produits et services"
 
 #: apps.py:75
+#: apps.py:75Ad
 msgid "All products"
 msgstr "Lister les produits"
 
@@ -297,8 +298,8 @@ msgid "Kids"
 msgstr "Enfants"
 
 #: templates/products/block_images.html:9
-msgid "Add from existing images"
-msgstr "Ajouter depuis des images existantes"
+msgid "Add images"
+msgstr "Ajouter des images"
 
 #: templates/products/block_images.html:23
 msgid "Viewing is not allowed"

@@ -32,7 +32,7 @@ class AbstractMessagingList(CremeEntity):
                                verbose_name=_(u'Contacts recipients'),
                               )
 
-    creation_label = _('Add a messaging list')
+    creation_label = _('Create a messaging list')
     save_label     = _('Save the messaging list')
 
     class Meta:

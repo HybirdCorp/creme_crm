@@ -33,7 +33,7 @@ class AbstractSMSCampaign(CremeEntity):
     lists = ManyToManyField(settings.SMS_MLIST_MODEL, verbose_name=_(u'Related messaging lists'), blank=True)
 
     # TODO: pgettext (BUT beware because PreferredMenuItem does not manage context currently...)
-    creation_label = _('Add a campaign')
+    creation_label = _('Create a campaign')
     save_label     = _('Save the SMS campaign')
 
     class Meta:

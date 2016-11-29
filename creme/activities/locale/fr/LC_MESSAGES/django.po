@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'ACTIVITIES' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2016 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activities 1.6\n"
+"Project-Id-Version: Creme Activities 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 14:51+0200\n"
+"POT-Creation-Date: 2016-11-24 14:54+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -846,8 +846,8 @@ msgid "%s Subjects"
 msgstr "%s Sujets"
 
 #: templates/activities/templatetags/block_subjects.html:9
-msgid "Add from existing entities"
-msgstr "Ajouter depuis des fiches existantes"
+msgid "Add entities"
+msgstr "Ajouter des fiches"
 
 #: templates/activities/templatetags/block_subjects.html:28
 msgid "No subject for the moment"

@@ -38,7 +38,7 @@ class AbstractPollCampaign(CremeEntity):
                                )
     expected_count = PositiveIntegerField(_('Expected replies number'), default=1)
 
-    creation_label = _('Add a campaign')  # TODO: ugettext_lazy  (when no old menu anymore)
+    creation_label = _('Create a campaign')  # TODO: ugettext_lazy  (when no old menu anymore)
     save_label     = pgettext_lazy('polls', 'Save the campaign of polls')
 
     class Meta:

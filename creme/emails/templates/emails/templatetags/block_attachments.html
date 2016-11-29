@@ -6,7 +6,7 @@
         <th class="label">{% get_block_title _('%s Attachment') _('%s Attachments') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/emails/template/{{object.pk}}/attachment/add' with_label _("Add existing documents") with_perms has_perm %}
+                {% get_line_linker at_url '/emails/template/{{object.pk}}/attachment/add' with_label _("Add documents") with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}

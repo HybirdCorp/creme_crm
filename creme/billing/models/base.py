@@ -93,7 +93,7 @@ class Base(CremeEntity):
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
                                  ).set_tags(optional=True)
 
-    creation_label = _('Add an accounting document')
+    creation_label = _('Create an accounting document')
 
     generate_number_in_create = True # TODO: use settings instead ???
 

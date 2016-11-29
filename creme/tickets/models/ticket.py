@@ -81,7 +81,7 @@ class AbstractTicket(TicketMixin):
 
     function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
 
-    creation_label = _('Add a ticket')
+    creation_label = _('Create a ticket')
     save_label     = _('Save the ticket')
 
     class Meta:
@@ -152,7 +152,7 @@ class Ticket(AbstractTicket):
 
 class AbstractTicketTemplate(TicketMixin):
     """Used by 'recurrents' app if it is installed"""
-    creation_label = _('Add a ticket template')
+    creation_label = _('Create a ticket template')
     save_label     = _('Save the ticket template')
 
     class Meta:

@@ -109,7 +109,7 @@ class BecomeSupplierButton(CrmButton):
 
 class AddLinkedContactButton(Button):
     id_           = Button.generate_id('persons', 'add_linked_contact')
-    verbose_name  = _(u'Add a related contact')
+    verbose_name  = _(u'Create a related contact')
     template_name = 'persons/templatetags/button_add_linked_contact.html'
     permission    = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
 

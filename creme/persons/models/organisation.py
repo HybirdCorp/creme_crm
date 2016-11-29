@@ -88,7 +88,7 @@ class AbstractOrganisation(CremeEntity, PersonWithAddressesMixin):
     # TODO: refactor
     function_fields = CremeEntity.function_fields.new()
 
-    creation_label = _('Add an organisation')
+    creation_label = _('Create an organisation')
     save_label = _('Save the organisation')
 
     class Meta:

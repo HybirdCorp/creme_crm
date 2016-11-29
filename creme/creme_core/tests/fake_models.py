@@ -52,7 +52,7 @@ else:
                                      )
 
 #        allowed_related = CremeEntity.allowed_related | {'document'}
-#        creation_label = _('Add a folder')
+#        creation_label = _('Create a folder')
 
         class Meta:
             app_label = 'creme_core'
@@ -71,7 +71,7 @@ else:
         filedata    = models.FileField(_(u'File'), max_length=100, upload_to='upload/creme_core-tests')
         folder      = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
 
-#        creation_label = _('Add a document')
+#        creation_label = _('Create a document')
 
         class Meta:
             app_label = 'creme_core'
@@ -134,7 +134,7 @@ else:
         exif_date   = models.DateField(_(u"Exif date"), blank=True, null=True)\
                             .set_tags(optional=True)
 
-#        creation_label = _('Add an image')
+#        creation_label = _('Create an image')
 
         class Meta:
             app_label = 'creme_core'
@@ -276,7 +276,7 @@ else:
                                         blank=True, null=True, on_delete=models.SET_NULL,
                                        ).set_tags(optional=True)
 
-#        creation_label = _('Add a contact')
+#        creation_label = _('Create a contact')
 
         class Meta:
             app_label = 'creme_core'
@@ -362,7 +362,7 @@ else:
 
         function_fields = CremeEntity.function_fields.new(_GetFakeTodos())
 
-#        creation_label = _('Add an organisation')
+#        creation_label = _('Create an organisation')
 
         class Meta:
             app_label = 'creme_core'
@@ -404,7 +404,7 @@ else:
                                   on_delete=models.PROTECT,  # editable=False,
                                  )
 
-#        creation_label = _('Add an activity')
+#        creation_label = _('Create an activity')
 
         class Meta:
             app_label = 'creme_core'
@@ -548,7 +548,7 @@ else:
                                         # related_name='products',
                                        )
 
-        # creation_label = _('Add a product')
+        # creation_label = _('Create a product')
 
         class Meta:
             app_label = 'creme_core'

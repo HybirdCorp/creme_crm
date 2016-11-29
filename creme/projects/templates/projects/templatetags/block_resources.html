@@ -7,7 +7,7 @@
         <th class="actions">
             <div class="buttons">
                 {% if object.is_alive %}
-                    {% get_line_adder at_url '/projects/task/{{object.id}}/resource/add' with_label _("Add a resource") with_perms task_change_perm %}
+                    {% get_line_adder at_url '/projects/task/{{object.id}}/resource/add' with_label _("Create a resource") with_perms task_change_perm %}
                 {% endif %}
             </div>
         </th>

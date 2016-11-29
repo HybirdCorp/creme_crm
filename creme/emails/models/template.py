@@ -37,7 +37,7 @@ class AbstractEmailTemplate(CremeEntity):
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=SET_NULL)
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
 
-    creation_label = _('Add an email template')
+    creation_label = _('Create an email template')
     save_label     = _('Save the email template')
 
     class Meta:

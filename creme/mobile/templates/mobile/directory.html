@@ -41,10 +41,10 @@ if (navigator.userAgent.match(/Android/i)) {
     {% if contact_creation_perm or orga_creation_perm %}
       <div class='create-actions'>
         {% if contact_creation_perm %}
-          <a href='{% url 'mobile__create_contact' %}' class='button'>{% trans 'Add a contact' %}</a>
+          <a href='{% url 'mobile__create_contact' %}' class='button'>{% trans 'Create a contact' %}</a>
         {% endif %}
         {% if orga_creation_perm %}
-          <a href='{% url 'mobile__create_organisation' %}' class='button'>{% trans 'Add an organisation' %}</a>
+          <a href='{% url 'mobile__create_organisation' %}' class='button'>{% trans 'Create an organisation' %}</a>
         {% endif %}
       </div>
     {% endif %}

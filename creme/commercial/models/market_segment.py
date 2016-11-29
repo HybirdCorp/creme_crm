@@ -28,7 +28,7 @@ class MarketSegment(CremeModel):
     name          = CharField(_(u"Name"), max_length=100)  # TODO: unique ?
     property_type = ForeignKey(CremePropertyType, null=True, editable=False).set_tags(viewable=False)
 
-    creation_label = _('Add a market segment')
+    creation_label = _('Create a market segment')
     save_label     = _('Save the market segment')
 
     class Meta:

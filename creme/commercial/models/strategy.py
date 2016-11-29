@@ -52,7 +52,7 @@ class AbstractStrategy(CremeEntity):
                                       editable=False,
                                      )
 
-    creation_label = _('Add a strategy')
+    creation_label = _('Create a strategy')
     save_label     = _('Save the strategy')
 
     class Meta:
@@ -362,7 +362,7 @@ class CommercialAsset(CremeModel):
     name     = CharField(_(u'Name'), max_length=100)
     strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets', editable=False)
 
-    creation_label = _('Add a commercial asset')
+    creation_label = _('Create a commercial asset')
     save_label     = _('Save the commercial asset')
 
     class Meta:
@@ -398,7 +398,7 @@ class MarketSegmentCharm(CremeModel):
     name     = CharField(_(u'Name'), max_length=100)
     strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms', editable=False)
 
-    creation_label = _('Add a segment charm')
+    creation_label = _('Create a segment charm')
     save_label     = _('Save the segment charm')
 
     class Meta:

@@ -47,7 +47,7 @@ ProjectTask = get_task_model()
 
 
 def abstract_add_ptask(request, project_id, form=TaskCreateForm,
-                       title=_(u'Add a task to «%s»'),
+                       title=_(u'Create a task for «%s»'),
                        # submit_label=_('Save the task'),
                        submit_label=ProjectTask.save_label,
                       ):

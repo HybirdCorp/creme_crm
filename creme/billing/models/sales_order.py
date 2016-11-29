@@ -30,8 +30,8 @@ from .other_models import SalesOrderStatus
 class AbstractSalesOrder(Base):
     status = ForeignKey(SalesOrderStatus, verbose_name=_(u'Status of salesorder'), on_delete=PROTECT)
 
-    creation_label = _('Add a sales order')
-    save_label     = _('Save the sales order')
+    creation_label = _('Create a salesorder')
+    save_label     = _('Save the salesorder')
 
     class Meta(Base.Meta):
         abstract = True

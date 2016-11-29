@@ -71,7 +71,7 @@ class _AddBillingDocumentButton(Button):
 class AddInvoiceButton(_AddBillingDocumentButton):
     model_to_create = Invoice
     id_          = Button.generate_id('billing', 'add_invoice')
-    verbose_name = _(u'Add a related invoice')
+    verbose_name = _(u'Create a related invoice')
     permission   = cperm(Invoice)
     url_name     = 'billing__create_related_invoice'
 
@@ -79,7 +79,7 @@ class AddInvoiceButton(_AddBillingDocumentButton):
 class AddSalesOrderButton(_AddBillingDocumentButton):
     model_to_create = SalesOrder
     id_             = Button.generate_id('billing', 'add_salesorder')
-    verbose_name    = _(u'Add a related sales order')
+    verbose_name    = _(u'Create a related salesorder')
     permission      = cperm(SalesOrder)
     url_name        = 'billing__create_related_order'
 
@@ -87,7 +87,7 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
 class AddQuoteButton(_AddBillingDocumentButton):
     model_to_create = Quote
     id_             = Button.generate_id('billing', 'add_quote')
-    verbose_name    = _(u'Add a related quote')
+    verbose_name    = _(u'Create a related quote')
     permission      = cperm(Quote)
     url_name        = 'billing__create_related_quote'
 

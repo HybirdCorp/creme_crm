@@ -59,7 +59,7 @@ class RelationType(CremeModel):
     predicate      = CharField(_(u'Predicate'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
 
-    creation_label = _(u'Add a type of relationship')
+    creation_label = _(u'Create a type of relationship')
     save_label     = _(u'Save the type')
 
     class Meta:

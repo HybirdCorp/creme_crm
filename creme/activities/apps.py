@@ -81,16 +81,16 @@ class ActivitiesConfig(CremeAppConfig):
         Activity = self.Activity
         creation_perm = build_creation_perm(Activity)
         reg_item = creme_menu.register_app('activities', '/activities/').register_item
-        reg_item('/activities/',                                              _(u"Portal of activities"),   'activities')
-        reg_item('/activities/calendar/user',                                 _(u'Calendar'),               'activities')
-        reg_item(reverse('activities__create_activity'),                      Activity.creation_label,      creation_perm)
-        reg_item(reverse('activities__create_activity', args=('meeting',)),   _(u'Add a meeting'),          creation_perm)
-        reg_item(reverse('activities__create_activity', args=('phonecall',)), _(u'Add a phone call'),       creation_perm)
-        reg_item(reverse('activities__create_activity', args=('task',)),      _(u'Add a task'),             creation_perm)
-        reg_item(reverse('activities__create_indispo'),                       _(u'Add an indisponibility'), creation_perm)
-        reg_item(reverse('activities__list_activities'),                      _(u'All activities'),         'activities')
-        reg_item(reverse('activities__list_phone_calls'),                     _(u'All phone calls'),        'activities')
-        reg_item(reverse('activities__list_meetings'),                        _(u'All meetings'),           'activities')
+        reg_item('/activities/',                                              _(u'Portal of activities'),     'activities')
+        reg_item('/activities/calendar/user',                                 _(u'Calendar'),                 'activities')
+        reg_item(reverse('activities__create_activity'),                      Activity.creation_label,        creation_perm)
+        reg_item(reverse('activities__create_activity', args=('meeting',)),   _(u'Create a meeting'),         creation_perm)
+        reg_item(reverse('activities__create_activity', args=('phonecall',)), _(u'Create a phone call'),      creation_perm)
+        reg_item(reverse('activities__create_activity', args=('task',)),      _(u'Create a task'),            creation_perm)
+        reg_item(reverse('activities__create_indispo'),                       _(u'Create an unavailability'), creation_perm)
+        reg_item(reverse('activities__list_activities'),                      _(u'All activities'),           'activities')
+        reg_item(reverse('activities__list_phone_calls'),                     _(u'All phone calls'),          'activities')
+        reg_item(reverse('activities__list_meetings'),                        _(u'All meetings'),             'activities')
 
     def register_smart_columns(self, smart_columns_registry):
         from .constants import REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT

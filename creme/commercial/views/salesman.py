@@ -42,7 +42,7 @@ def abstract_add_salesman(request, form=SalesManCreateForm,
                          ):
     # return abstract_add_contact(request, form=form, submit_label=submit_label)
     return add_entity(request, form, template=template,
-                      extra_template_dict={'title': _(u'Add a salesman'),
+                      extra_template_dict={'title': _(u'Create a salesman'),
                                            'submit_label': submit_label,
                                           },
                      )

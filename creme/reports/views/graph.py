@@ -43,7 +43,7 @@ ReportGraph = get_rgraph_model()
 
 
 def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
-                        title=_(u'Add a graph for «%s»'),
+                        title=_(u'Create a graph for «%s»'),
                         # submit_label=pgettext_lazy('reports-graphs', 'Save the graph'),
                         submit_label=ReportGraph.save_label,
                        ):
