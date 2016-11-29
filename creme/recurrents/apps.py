@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,17 +28,15 @@ class RecurrentsConfig(CremeAppConfig):
     verbose_name = _(u'Recurrent documents')
     dependencies = ['creme.creme_core']
 
-#    def ready(self):
     def all_apps_ready(self):
         from . import get_rgenerator_model
 
         self.RecurrentGenerator = get_rgenerator_model()
 
-#        super(RecurrentsConfig, self).ready()
         super(RecurrentsConfig, self).all_apps_ready()
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('recurrents', _(u'Recurrent documents'), '/recurrents')
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('recurrents', _(u'Recurrent documents'), '/recurrents')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.RecurrentGenerator)

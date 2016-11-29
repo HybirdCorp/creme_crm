@@ -29,17 +29,15 @@ class ProductsConfig(CremeAppConfig):
     # dependencies = ['creme.media_managers']
     dependencies = ['creme.documents']
 
-#    def ready(self):
     def all_apps_ready(self):
         from . import get_product_model, get_service_model
 
         self.Product = get_product_model()
         self.Service = get_service_model()
-#        super(ProductsConfig, self).ready()
         super(ProductsConfig, self).all_apps_ready()
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('products', _(u'Products and services'), '/products')
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('products', _(u'Products and services'), '/products')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Product, self.Service)

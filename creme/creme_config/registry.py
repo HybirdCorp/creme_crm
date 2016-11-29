@@ -22,6 +22,7 @@ import logging
 # import warnings
 import re
 
+from django.apps import apps
 # from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist  # Max
 from django.forms.models import modelform_factory
@@ -30,7 +31,7 @@ from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.block import block_registry
 # from creme.creme_core.models.fields import BasicAutoField
-from creme.creme_core.registry import creme_registry
+# from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.imports import find_n_import
 
 from creme.creme_config.utils import generate_portal_url
@@ -162,19 +163,29 @@ class _ConfigRegistry(object):
             _apps[app_label] = self._build_app_conf_registry(self._get_app_name(app_label))
 
     def _build_app_conf_registry(self, app_name):
-        return AppConfigRegistry(app_name, creme_registry.get_app(app_name).verbose_name)
+        # return AppConfigRegistry(app_name, creme_registry.get_app(app_name).verbose_name)
+        return AppConfigRegistry(app_name, apps.get_app_config(app_name).verbose_name)
 
     def get_app(self, app_label):
         return self._apps[self._get_app_name(app_label)]
 
     def _get_app_name(self, app_label):
-        """app_label is the key of the app in creme_registry/django apps registry
+        # """app_label is the key of the app in creme_registry/django apps registry
+        """app_label is the key of the app in django apps registry
         app_name corresponds to the app_label for an app, excepted when this app
         'extends' (see creme_registry) another app. In this case, the app_name
         is the app_label of the extended app.
         So we get only one AppConfigRegistry for an app & all its extending apps.
         """
-        return creme_registry.get_app(app_label).extended_app or app_label
+        # return creme_registry.get_app(app_label).extended_app or app_label
+        ext_app_name = apps.get_app_config(app_label).extended_app
+
+        if ext_app_name is not None:
+            for app_config in apps.app_configs.itervalues():
+                if app_config.name == ext_app_name:
+                    return app_config.label
+
+        return app_label
 
     def register(self, *to_register):
         """

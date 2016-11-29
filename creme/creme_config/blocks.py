@@ -21,6 +21,7 @@
 from future_builtins import filter
 
 from collections import defaultdict
+import logging
 
 from django.apps import apps
 from django.conf import settings
@@ -46,6 +47,7 @@ from creme.creme_core.utils.unicode_collation import collator
 
 _PAGE_SIZE = 20
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class GenericModelsBlock(QuerysetBlock):
@@ -403,21 +405,35 @@ class BlockPortalLocationsBlock(PaginatedBlock):
     configurable  = False
 
     def detailview_display(self, context):
-        get_app = creme_registry.get_app
-        apps = list(filter(None,
-                           (get_app(name, silent_fail=True)
-                                for name in BlockPortalLocation.objects.exclude(app_name='creme_core')
-                                                               .order_by('app_name')  # In order that distinct() works correctly
-                                                               .distinct()
-                                                               .values_list('app_name', flat=True)
-                                       if name
-                           )
-                   ))
+        # get_app = creme_registry.get_app
+        # apps = list(filter(None,
+        #                    (get_app(name, silent_fail=True)
+        #                         for name in BlockPortalLocation.objects.exclude(app_name='creme_core')
+        #                                                        .order_by('app_name')  # In order that distinct() works correctly
+        #                                                        .distinct()
+        #                                                        .values_list('app_name', flat=True)
+        #                                if name
+        #                    )
+        #            ))
+        app_configs = []
+
+        for label in (BlockPortalLocation.objects.exclude(app_name='creme_core')
+                                                 .order_by('app_name')  # In order that distinct() works correctly
+                                                 .distinct()
+                                                 .values_list('app_name', flat=True)):
+            try:
+                app_configs.append(apps.get_app_config(label))
+            except LookupError:
+                logger.warn('BlockPortalLocationsBlock: the app "%s" is not installed')
+
         sort_key = collator.sort_key
-        apps.sort(key=lambda app: sort_key(app.verbose_name))
+        # apps.sort(key=lambda app: sort_key(app.verbose_name))
+        app_configs.sort(key=lambda app: sort_key(app.verbose_name))
 
         return self._render(self.get_block_template_context(
-                                context, apps,
+                                context,
+                                # apps,
+                                app_configs,
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
 
@@ -668,7 +684,8 @@ class UserSettingValuesBlock(Block):
         # NB: credentials OK: user can only view his own settings
         settings = context['user'].settings
         sv_info_per_app = defaultdict(list)
-        get_app = creme_registry.get_app
+        # get_app = creme_registry.get_app
+        get_app_config = apps.get_app_config
         count = 0
 
         for skey in user_setting_key_registry:
@@ -692,7 +709,8 @@ class UserSettingValuesBlock(Block):
                                 context,
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                 values_per_app=[
-                                    (get_app(app_label, silent_fail=True).verbose_name, svalues)
+                                    # (get_app(app_label, silent_fail=True).verbose_name, svalues)
+                                    (get_app_config(app_label).verbose_name, svalues)
                                         for app_label, svalues in sv_info_per_app.iteritems()
                                 ],
                                 count=count,

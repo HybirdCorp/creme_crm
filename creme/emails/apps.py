@@ -40,8 +40,8 @@ class EmailsConfig(CremeAppConfig):
 
         from . import signals
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('emails', _(u'Emails'), '/emails')
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('emails', _(u'Emails'), '/emails')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.EmailCampaign,

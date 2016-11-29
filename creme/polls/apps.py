@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,18 +28,16 @@ class PollsConfig(CremeAppConfig):
     verbose_name = _(u'Polls')
     dependencies = ['creme.persons', 'creme.commercial']
 
-#    def ready(self):
     def all_apps_ready(self):
         from . import get_pollform_model, get_pollreply_model, get_pollcampaign_model
 
         self.PollCampaign = get_pollcampaign_model()
         self.PollForm     = get_pollform_model()
         self.PollReply    = get_pollreply_model()
-#        super(PollsConfig, self).ready()
         super(PollsConfig, self).all_apps_ready()
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('polls', _(u'Polls'), '/polls')
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('polls', _(u'Polls'), '/polls')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.PollForm, self.PollReply, self.PollCampaign)

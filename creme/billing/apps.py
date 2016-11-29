@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,8 +50,8 @@ class BillingConfig(CremeAppConfig):
 
         hook_organisation()
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('billing', _(u'Billing'), '/billing')
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('billing', _(u'Billing'), '/billing')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Invoice, self.Quote,

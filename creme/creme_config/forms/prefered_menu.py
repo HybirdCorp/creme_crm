@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.apps import apps
 from django.forms import MultipleChoiceField
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_unicode
 
-from creme.creme_core.registry import creme_registry
+# from creme.creme_core.registry import creme_registry
 from creme.creme_core.models import PreferedMenuItem
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
@@ -37,10 +38,12 @@ class PreferedMenuForm(CremeForm):
         super(PreferedMenuForm, self).__init__(*args, **kwargs)
         self.user2edit = user2edit
 
-        get_app  = creme_registry.get_app
+        # get_app = creme_registry.get_app
+        get_app_config = apps.get_app_config
         has_perm = user2edit.has_perm if user2edit else lambda perm_label: True
         menu_entries = self.fields['menu_entries']
-        menu_entries.choices = sorted(((item.url, u'%s - %s' % (get_app(appitem.app_name).verbose_name, item.name))
+        # menu_entries.choices = sorted(((item.url, u'%s - %s' % (get_app(appitem.app_name).verbose_name, item.name))
+        menu_entries.choices = sorted(((item.url, u'%s - %s' % (get_app_config(appitem.app_name).verbose_name, item.name))
                                             for appitem in creme_menu
                                                 if has_perm(appitem.app_name)
                                                     for item in appitem.items
@@ -60,10 +63,10 @@ class PreferedMenuForm(CremeForm):
         create_item   = PreferedMenuItem.objects.create
         get_item_name = creme_menu.get_item_name
 
-        #NB: the default PreferedMenuItem items (user==None) will be before other ones.
+        # NB: the default PreferedMenuItem items (user==None) will be before other ones.
         offset = 100 if user else 1
 
-        #NB: the technic used to retrieve translation key is the one used by Meta classes (verbose_name_raw) (can be improved ??)
+        # NB: the technic used to retrieve translation key is the one used by Meta classes (verbose_name_raw) (can be improved ??)
         lang = translation.get_language()
         translation.deactivate_all()
 

@@ -28,7 +28,8 @@ from django.core.management.color import no_style
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models.signals import pre_save
 
-from creme.creme_core.registry import creme_registry
+from creme.creme_core.apps import creme_app_configs
+# from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.dependence_sort import dependence_sort
 
@@ -94,7 +95,8 @@ class Command(BaseCommand):
         verbosity = options.get('verbosity')
 
         # eg: 'persons', 'creme_core'...
-        all_apps = OrderedSet(creme_app.name for creme_app in creme_registry.iter_apps())
+        # all_apps = OrderedSet(creme_app.name for creme_app in creme_registry.iter_apps())
+        all_apps = OrderedSet(app_config.label for app_config in creme_app_configs())
 
         apps_2_populate = all_apps if not app_names else \
                           [_checked_app_label(app, all_apps) for app in app_names]

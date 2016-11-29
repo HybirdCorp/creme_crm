@@ -27,12 +27,13 @@ class CremeConfigConfig(CremeAppConfig):
     name = 'creme.creme_config'
     verbose_name = _(u'General configuration')
     dependencies = ['creme.creme_core']
+    credentials = CremeAppConfig.CRED_REGULAR
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('creme_config', _(u'General configuration'),
-                                    '/creme_config',
-                                    credentials=creme_registry.CRED_REGULAR,
-                                   )
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('creme_config', _(u'General configuration'),
+    #                                 '/creme_config',
+    #                                 credentials=creme_registry.CRED_REGULAR,
+    #                                )
 
     def register_blocks(self, block_registry):
         from .blocks import blocks_list

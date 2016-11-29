@@ -21,17 +21,19 @@
 # NB: This app will be removed in Creme 1.8
 
 # from django.conf import settings
+from django.apps import AppConfig
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.apps import CremeAppConfig
+# from creme.creme_core.apps import CremeAppConfig
 
 # from .models import Image
 
 
-class MediaManagersConfig(CremeAppConfig):
+# class MediaManagersConfig(CremeAppConfig):
+class MediaManagersConfig(AppConfig):
     name = 'creme.media_managers'
     verbose_name = _(u'Media managers')
-    dependencies = ['creme.creme_core']
+    # dependencies = ['creme.creme_core']
 
     # def register_creme_app(self, creme_registry):
     #     creme_registry.register_app('media_managers', _(u'Media managers'), '/media')

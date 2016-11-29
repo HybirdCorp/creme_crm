@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,10 @@
 
 import logging
 
+from django.apps import apps
 from django.utils.encoding import smart_str, smart_unicode
 
-from ..registry import creme_registry
+# from ..registry import creme_registry
 
 # TODO: merge the 2 menu api (idea: use tags ?)
 # TODO: refactor code.....
@@ -50,7 +51,8 @@ class MenuAppItem(object):
         """@param force_order Order of the item in the menu ; None if the verbose_name is use as key."""
         self.app_name = app_name
         self.app_url = app_url
-        self.name = verbose_name or creme_registry.get_app(app_name).verbose_name
+        # self.name = verbose_name or creme_registry.get_app(app_name).verbose_name
+        self.name = verbose_name or apps.get_app_config(app_name).verbose_name
         self.force_order = force_order
         self._items = []
 
@@ -64,7 +66,7 @@ class MenuAppItem(object):
 
     def register_item(self, url, name, perm):
         """
-        @param name Label used in the GUI ; using ugettext_lazy reurned object is advised.
+        @param name Label used in the GUI ; using ugettext_lazy returned object is advised.
         @param perm Permission string ; eg:'persons.add_organisation'
         """
         self.items.append(MenuItem(url, name, perm))

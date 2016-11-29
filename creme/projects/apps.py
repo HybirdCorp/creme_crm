@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,17 +28,15 @@ class ProjectsConfig(CremeAppConfig):
     verbose_name = _(u'Projects')
     dependencies = ['creme.persons', 'creme.activities']
 
-#    def ready(self):
     def all_apps_ready(self):
         from . import get_project_model, get_task_model
 
         self.Project     = get_project_model()
         self.ProjectTask = get_task_model()
-#        super(ProjectsConfig, self).ready()
         super(ProjectsConfig, self).all_apps_ready()
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('projects', _(u'Projects'), '/projects')
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('projects', _(u'Projects'), '/projects')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Project, self.ProjectTask)

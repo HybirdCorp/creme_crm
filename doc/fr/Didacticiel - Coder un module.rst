@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 14-09-2016 pour la version 1.7 de Creme
+:Version: 26-11-2016 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -257,25 +257,18 @@ Tout d'abord, créons un nouveau fichier ``beavers/apps.py`` qui contient : ::
         verbose_name = _(u'Beavers management')
         dependencies = ['creme.creme_core']
 
-        def register_creme_app(self, creme_registry):
-            creme_registry.register_app('beavers', _(u'Beavers management'), '/beavers')
-
         def register_entity_models(self, creme_registry):
             from .models import Beaver
 
             creme_registry.register_entity_models(Beaver)
 
 
-Explications :
 
-- Le singleton ``creme_registry`` permet d'enregistrer les modèles dérivants de
-  ``CremeEntity`` (appel à ``creme_registry.register_entity_models()``) et que
-  l'on veut disposer sur eux des services tels que la recherche globale, la
-  configuration des boutons et des blocs par exemple. C'est le cas la plupart du
-  temps où l'on dérive de ``CremeEntity``.
-- On enregistre ensuite notre app (appel à ``creme_registry.register_app()``). Il
-  faut en effet avoir enregistré notre app auprès de Creme avant de pouvoir insérer
-  l'entrée de notre app dans le menu principal (voir en dessous) par exemple.
+Le singleton ``creme_registry`` permet d'enregistrer les modèles dérivants de
+``CremeEntity`` (appel à ``creme_registry.register_entity_models()``) et que
+l'on veut disposer sur eux des services tels que la recherche globale, la
+configuration des boutons et des blocs par exemple. C'est le cas la plupart du
+temps où l'on dérive de ``CremeEntity``.
 
 
 Nous venons de définir la configuration de notre app pour Django ; mais afin qu'il
@@ -1410,8 +1403,7 @@ utiliser ce champ ; cet exercice est laissé au lecteur) : ::
 
             ContactForm.add_post_init_callback(add_my_field)
 
-        def register_creme_app(self, creme_registry):
-            [...]
+        [...]
 
 
 **Note technique** : ``all_apps_ready()`` est un ajout de Creme à Django qui ne
@@ -1511,7 +1503,7 @@ Exemple d'utilisation (avec 2 tags configurés en même temps) : ::
     [...]
 
     class Beaver(CremeEntity):
-        [..]
+        [...]
         internal_data = CharField('Data', max_length=100).set_tags(viewable=False, clonable=False)
 
 
@@ -1588,7 +1580,7 @@ De base, les entités peuvent être clonées. Si vous souhaitez qu'un modèle ne
 puisse pas l'être, définissez lui la méthode suivante : ::
 
     class Beaver(CremeEntity):
-        [..]
+        [...]
 
         @staticmethod
         def get_clone_absolute_url():
@@ -1794,12 +1786,8 @@ Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
         name = 'creme.my_tickets'
         verbose_name = _(u'Tickets')
         dependencies = ['creme.tickets']
-
-        def register_creme_app(self, creme_registry):
-            creme_registry.register_app('my_tickets',
-                                        _(u'Tickets'),
-                                        extended_app='tickets',  # <= ICI !!
-                                       )
+        extended_app = 'creme.tickets'  # <= ICI !!
+        credentials  = CremeAppConfig.CRED_NONE  # <= et ICI !!
 
 
 Dans le ``models.py``, il faut déclarer un modèle qui va se substituer à

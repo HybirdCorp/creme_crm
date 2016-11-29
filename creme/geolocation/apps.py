@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,25 +27,24 @@ class GeolocationConfig(CremeAppConfig):
     name = 'creme.geolocation'
     verbose_name = _(u'Geolocation')
     dependencies = ['creme.persons']
+    credentials = CremeAppConfig.CRED_NONE
 
-#    def ready(self):
-#        super(GeolocationConfig, self).ready()
     def all_apps_ready(self):
         super(GeolocationConfig, self).all_apps_ready()
 
         from . import signals
 
-    def register_creme_app(self, creme_registry):
-        creme_registry.register_app('geolocation', _(u'Geolocation'),
-                                    '/geolocation', credentials=creme_registry.CRED_NONE,
-                                   )
+    # def register_creme_app(self, creme_registry):
+    #     creme_registry.register_app('geolocation', _(u'Geolocation'),
+    #                                 '/geolocation', credentials=creme_registry.CRED_NONE,
+    #                                )
 
     def register_blocks(self, block_registry):
-        from .blocks import block_list
+        from . import blocks
 
-        block_registry.register(*block_list)
+        block_registry.register(*blocks.block_list)
 
     def register_setting_key(self, setting_key_registry):
-        from .setting_keys import NEIGHBOURHOOD_DISTANCE
+        from . import setting_keys
 
-        setting_key_registry.register(NEIGHBOURHOOD_DISTANCE)
+        setting_key_registry.register(setting_keys.NEIGHBOURHOOD_DISTANCE)

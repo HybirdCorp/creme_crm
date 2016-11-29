@@ -20,10 +20,11 @@
 
 import logging
 
+from django.apps import apps
 from django.utils.timezone import now
 
 from ..models import Job, JobResult
-from ..registry import creme_registry
+# from ..registry import creme_registry
 
 
 logger = logging.getLogger(__name__)
@@ -60,8 +61,10 @@ class JobType(object):
         raise NotImplementedError
 
     @property
-    def app(self):
-        return creme_registry.get_app(self.id[:self.id.find('-')])
+    # def app(self):
+    def app_config(self):
+        # return creme_registry.get_app(self.id[:self.id.find('-')])
+        return apps.get_app_config(self.id[:self.id.find('-')])
 
     @property
     def results_blocks(self):
@@ -95,8 +98,8 @@ class JobType(object):
         JobManagerQueue.get_main_queue().end_job(job)
 
     @staticmethod
-    def generate_id(app_name, name):
-        return u'%s-%s' % (app_name, name)
+    def generate_id(app_label, name):
+        return u'%s-%s' % (app_label, name)
 
     def get_description(self, job):
         """Get a humanized description, as a list of strings.
