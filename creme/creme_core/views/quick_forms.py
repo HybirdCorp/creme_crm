@@ -19,6 +19,7 @@
 ################################################################################
 
 from json import dumps as json_dump
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.forms.formsets import formset_factory
@@ -92,7 +93,11 @@ def json_quickform_response(instance):
 
 
 @login_required
-def add_from_widget(request, ct_id, count):  # TODO: remove 'count'
+def add_from_widget(request, ct_id, count=None):
+# def add_from_widget(request, ct_id):  TODO: in creme 1.8
+    if count is not None:
+        warnings.warn('add_from_widget(): the argument "count" is deprecated.', DeprecationWarning)
+
     model = get_ct_or_404(ct_id).model_class()
     model_name = model._meta.verbose_name
     user = request.user

@@ -181,7 +181,8 @@ class QuickFormTestCase(CremeTestCase):
 
         last_name = 'Kirika'
         email = 'admin@hello.com'
-        response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/1' %
+        # response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/1' %
+        response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/' %
                                         ContentType.objects.get_for_model(Contact).pk,
                                       data={'last_name': last_name,
                                             'email':     email,

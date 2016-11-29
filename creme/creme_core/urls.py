@@ -138,7 +138,8 @@ creme_core_patterns = [
     url(r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)$', search.reload_block),
 
     url(r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)$',                 quick_forms.add),
-    url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)$', quick_forms.add_from_widget),
+    # url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)$', quick_forms.add_from_widget),
+    url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)*$', quick_forms.add_from_widget),  # TODO: remove 'count' in creme1.8
 ]
 
 urlpatterns = [

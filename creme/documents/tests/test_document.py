@@ -576,7 +576,8 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
 
-        url = reverse('documents__create_document_from_widget', args=(1,))
+        # url = reverse('documents__create_document_from_widget', args=(1,))
+        url = reverse('documents__create_document_from_widget')
         self.assertGET200(url)
 
         # content = 'Content (CSVDocumentQuickWidgetTestCase.test_add_from_widget)'
