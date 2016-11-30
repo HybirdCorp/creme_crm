@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from datetime import timedelta
 
 from django.db.models import CharField, IntegerField, TextField, ForeignKey, BooleanField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import DurationField
@@ -42,8 +42,8 @@ class ActivityType(CremeModel):
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u"Type of activity")
-        verbose_name_plural = _(u"Types of activity")
+        verbose_name = _(u'Type of activity')
+        verbose_name_plural = _(u'Types of activity')
         ordering = ('name',)
 
     def as_timedelta(self):
@@ -60,7 +60,7 @@ class ActivitySubType(CremeModel):
     name      = CharField(_(u'Name'), max_length=100)
     type      = ForeignKey(ActivityType, verbose_name=_(u'Type of activity'))\
                           .set_tags(viewable=False)
-    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False) # Used by creme_config
+    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -75,13 +75,13 @@ class ActivitySubType(CremeModel):
 class Status(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
     description = TextField(_(u'Description'))
-    is_custom   = BooleanField(default=True).set_tags(viewable=False) # Used by creme_config
+    is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Status of activity')
-        verbose_name_plural = _(u'Statuses of activity')
+        verbose_name = pgettext_lazy('activities-singular', u'Status of activity')
+        verbose_name_plural = pgettext_lazy('activities-plural', u'Status of activity')
         ordering = ('name',)

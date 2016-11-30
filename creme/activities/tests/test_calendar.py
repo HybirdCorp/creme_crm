@@ -5,6 +5,7 @@ try:
     from functools import partial
     from json import loads as jsonloads, dumps as jsondumps
 
+    from django.core.exceptions import ValidationError
     from django.core.urlresolvers import reverse
     from django.utils.encoding import force_unicode
     from django.utils.html import escape
@@ -229,13 +230,20 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertGET200(url)
 
         name = 'My pretty calendar'
-        self.assertNoFormError(self.client.post(url, data={'name': name}))
+        color = '009900'
+        self.assertNoFormError(self.client.post(url,
+                                                data={'name':  name,
+                                                      'color': color,
+                                                     }
+                                               )
+                              )
 
         cals = Calendar.objects.filter(user=user)
         self.assertEqual(1, len(cals))
 
         cal = cals[0]
         self.assertEqual(name, cal.name)
+        self.assertEqual(color, cal.color)
         self.assertIs(cal.is_default, True)
         self.assertIs(cal.is_public, False)
         self.assertIs(cal.is_custom, True)
@@ -250,6 +258,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                                                 data={'name': name,
                                                       'is_default': True,
                                                       'is_public': True,
+                                                      'color': 'FF0000',
                                                      }
                                                )
                               )
@@ -262,12 +271,21 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_edit_user_calendar01(self):
         user = self.login()
         cal = Calendar.get_user_default_calendar(user)
-        name = 'My calendar'
         url = '/activities/calendar/%s/edit' % cal.id
         self.assertGET200(url)
 
-        self.assertNoFormError(self.client.post(url, data={'name': name}))
-        self.assertEqual(name, self.refresh(cal).name)
+        name = 'My calendar'
+        color = '0000FF'
+        self.assertNoFormError(self.client.post(url,
+                                                data={'name':  name,
+                                                      'color': color,
+                                                     },
+                                               )
+                              )
+
+        cal = self.refresh(cal)
+        self.assertEqual(name,  cal.name)
+        self.assertEqual(color, cal.color)
 
     def test_delete_calendar01(self):
         "Not custom -> error"
@@ -655,13 +673,16 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertGET200(url)
 
         name = 'My Cal'
+        color = '998877'
         self.assertNoFormError(self.client.post(url, data={'name': name,
                                                            'user': user.id,
+                                                           'color': color,
                                                           }
                                                )
                               )
 
         cal = self.get_object_or_fail(Calendar, name=name, user=user)
+        self.assertEqual(color, cal.color)
         self.assertTrue(cal.is_default)
         self.assertTrue(cal.is_custom)
         self.assertFalse(cal.is_public)
@@ -677,6 +698,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                                                       'user': user.id,
                                                       'is_default': True,
                                                       'is_public': True,
+                                                      'color': '0000FF',
                                                      }
                                                )
                               )
@@ -715,20 +737,34 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertNotIn('user', fields)
 
         name = name.title()
+        color = '0000FF'
         self.assertNoFormError(self.client.post(url,
                                                 data={'name': name,
                                                       'is_default': True,
                                                       'is_public': True,
+                                                      'color': color,
                                                      }
                                                )
                               )
 
         cal2 = self.refresh(cal2)
-        self.assertEqual(name, cal2.name)
+        self.assertEqual(name,  cal2.name)
+        self.assertEqual(color, cal2.color)
         self.assertTrue(cal2.is_default)
         self.assertTrue(cal2.is_public)
 
         self.assertFalse(self.refresh(cal1).is_default)
+
+    def test_colorfield(self):
+        user = self.login()
+        cal = Calendar.get_user_default_calendar(user)
+
+        cal.color = 'FF0000'
+        with self.assertNoException():
+            cal.full_clean()
+
+        cal.color = 'ZZ0000'
+        self.assertRaises(ValidationError, cal.full_clean)
 
     def test_delete_user(self):
         """The User who receives the Calendars from the deleted User should keep

@@ -84,6 +84,10 @@ def simple_print_csv(entity, fval, user, field):
     return unicode(fval) if fval is not None else ""
 
 
+def print_color_html(entity, fval, user, field):
+    return '''<span style="background:#{0};">{0}</span>'''.format(fval) if fval else ''
+
+
 def print_image(entity, fval, user, field):
     warnings.warn('print_image() is deprecated ; use print_image_html() instead.',
                   DeprecationWarning
@@ -382,6 +386,8 @@ class _FieldPrintersRegistry(object):
 
                     (fields.DurationField,      print_duration),
                     (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
+
+                    (fields.ColorField,         print_color_html),
 
                     (fields.UnsafeHTMLField,    print_unsafehtml_html),
                 ],

@@ -22,7 +22,7 @@ from django.db.models import CharField, BooleanField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel
-from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.models.fields import CremeUserForeignKey, ColorField
 
 from ..constants import COLOR_POOL, DEFAULT_CALENDAR_COLOR
 
@@ -33,7 +33,8 @@ class Calendar(CremeModel):
     is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
     user        = CremeUserForeignKey(verbose_name=_(u'Calendar owner'))
-    color       = CharField(_(u'Color'), max_length=100)  # TODO: ColorField ?
+    # color       = CharField(_(u'Color'), max_length=100)
+    color       = ColorField(_(u'Color'))
 
     _enable_default_checking = True
 
