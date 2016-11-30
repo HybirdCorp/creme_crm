@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('name',),
                 'verbose_name': 'Status of activity',
-                'verbose_name_plural': 'Statuses of activity',
+                'verbose_name_plural': 'Status of activity',
             },
             bases=(models.Model,),
         ),

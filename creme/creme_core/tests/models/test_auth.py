@@ -17,7 +17,7 @@ try:
            FakeInvoice, FakeInvoiceLine)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremeUser
-    from creme.creme_core.models import(CremeEntity, CremePropertyType,
+    from creme.creme_core.models import (CremeEntity, CremePropertyType,
             CremeProperty, Relation, UserRole, SetCredentials)
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
@@ -40,7 +40,7 @@ class CredentialsTestCase(CremeTestCase):
                                               password='uselesspw',
                                              )  # TODO: remove from here ??
 
-        create_contact = Contact.objects.create 
+        create_contact = Contact.objects.create
         self.contact1 = create_contact(user=user,  first_name='Musashi', last_name='Miyamoto')
         self.contact2 = create_contact(user=other, first_name='Kojiro',  last_name='Sasaki')
 

@@ -79,6 +79,9 @@ class Populator(BasePopulator):
                   model=Project,
                   name=_(u'Project view'),
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'start_date'}),
+                              (EntityCellRegularField, {'name': 'end_date'}),
+                              (EntityCellRegularField, {'name': 'status'}),
                               (EntityCellRegularField, {'name': 'description'}),
                              ],
                  )

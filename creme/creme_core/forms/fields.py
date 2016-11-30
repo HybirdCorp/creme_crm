@@ -25,7 +25,7 @@ from copy import deepcopy
 from functools import partial
 from itertools import chain
 from json import loads as json_load, dumps as json_dump
-from re import compile as compile_re
+# from re import compile as compile_re
 import warnings
 
 from django.apps import apps
@@ -34,13 +34,14 @@ from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
         ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
-from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField, CallableChoiceIterator
+from django.forms.fields import EMPTY_VALUES, MultiValueField, CallableChoiceIterator  # RegexField
 from django.forms.utils import ValidationError
 from django.forms.widgets import Select, Textarea
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from ..constants import REL_SUB_HAS
+from ..core import validators
 from ..models import RelationType, CremeEntity, EntityFilter
 from ..utils import creme_entity_content_types, build_ct_choices, find_first
 from ..utils.collections import OrderedSet
@@ -1244,16 +1245,19 @@ class DateRangeField(MultiValueField):
         return {'render_as': self.render_as}
 
 
-class ColorField(RegexField):
-    """A Field which handle html colors (e.g: #F2FAB3) without '#' """
-    regex  = compile_re(r'^([0-9a-fA-F]){6}$')
+# class ColorField(RegexField):
+class ColorField(CharField):
+    """A Field which handles HTML colors (e.g: #F2FAB3) without '#' """
+    # regex  = compile_re(r'^([0-9a-fA-F]){6}$')
+    default_validators = [validators.validate_color]
     widget = core_widgets.ColorPickerWidget
     default_error_messages = {
         'invalid': _(u'Enter a valid value (eg: DF8177).'),
     }
 
     def __init__(self, *args, **kwargs):
-        super(ColorField, self).__init__(self.regex, max_length=6, min_length=6, *args, **kwargs)
+        # super(ColorField, self).__init__(self.regex, max_length=6, min_length=6, *args, **kwargs)
+        super(ColorField, self).__init__(max_length=6, min_length=6, *args, **kwargs)
 
     def clean(self, value):
         return super(ColorField, self).clean(value).upper()

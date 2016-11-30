@@ -19,15 +19,16 @@
 ################################################################################
 
 from django.db.models import CharField, TextField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
-from creme.creme_core.models.fields import BasicAutoField
+from creme.creme_core.models.fields import BasicAutoField, ColorField
 
 
 class ProjectStatus(CremeModel):
     name        = CharField(_('Name'), max_length=100)
-    color_code  = CharField(_('Color'), max_length=100, blank=True)
+    # color_code  = CharField(_('Color'), max_length=100, blank=True)
+    color_code  = ColorField(_('Color'), blank=True)
     description = TextField(_('Description'))
     order       = BasicAutoField(_('Order'))  # Used by creme_config
 
@@ -36,6 +37,6 @@ class ProjectStatus(CremeModel):
 
     class Meta:
         app_label = 'projects'
-        verbose_name = _(u'Status of project')
-        verbose_name_plural = _(u'Status of project')
+        verbose_name = pgettext_lazy('projects-singular', u'Status of project')
+        verbose_name_plural = pgettext_lazy('projects-plural', u'Status of project')
         ordering = ('order',)

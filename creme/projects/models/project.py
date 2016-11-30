@@ -73,9 +73,15 @@ class AbstractProject(CremeEntity):
     def get_lv_absolute_url():
         return reverse('projects__list_projects')
 
-    ##### ------------------ #####
-    ##### Business functions #####
-    ##### ------------------ #####
+    def get_html_attrs(self, context):
+        attrs = super(AbstractProject, self).get_html_attrs(context)
+
+        # NB: if 'status' if not in the HeaderFilter, it will cause an extra query...
+        color = self.status.color_code
+        if color:
+            attrs['style'] = 'background-color:#%s;' % color
+
+        return attrs
 
     def clean(self):
         super(AbstractProject, self).clean()

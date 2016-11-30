@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,30 +23,39 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.forms.base import CremeModelForm, CremeForm
-from creme.creme_core.forms.fields import ColorField
+from creme.creme_core.forms import base
+# from creme.creme_core.forms.fields import ColorField
 
 from ..models import Calendar
 
 
-class CalendarForm(CremeModelForm):
-    color = ColorField(label=_(u'Color'), required=False)
+class CalendarForm(base.CremeModelForm):
+    # color = ColorField(label=_(u'Color'), required=False)
 
     class Meta:
         model = Calendar
         exclude = ('user',)
 
+    def __init__(self, *args, **kwargs):
+        super(CalendarForm, self).__init__(*args, **kwargs)
+
+        if not self.instance.pk:
+            self.fields['color'].initial = Calendar.new_color()
+
     def get_user(self):
         return self.user
 
-    def save(self):
+    # def save(self):
+    def save(self, *args, **kwargs):
         self.instance.user = self.get_user()
-        return super(CalendarForm, self).save()
+        # return super(CalendarForm, self).save()
+        return super(CalendarForm, self).save(*args, **kwargs)
 
 
 class CalendarConfigForm(CalendarForm):
     def __init__(self, *args, **kwargs):
-        super(CalendarForm, self).__init__(*args, **kwargs)
+        super(CalendarConfigForm, self).__init__(*args, **kwargs)
+
         if not self.instance.pk:
             self.fields['user'] = ModelChoiceField(label=_('User'),
                                                    queryset=get_user_model().objects.filter(is_staff=False),
@@ -59,7 +68,7 @@ class CalendarConfigForm(CalendarForm):
 
 
 # TODO: manage multi-calendar better
-class ActivityCalendarLinkerForm(CremeForm):
+class ActivityCalendarLinkerForm(base.CremeForm):
     calendar = ModelChoiceField(label=_('Calendar'), queryset=None, empty_label=None)
 
     def __init__(self, instance, *args, **kwargs):

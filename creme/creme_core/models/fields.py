@@ -25,7 +25,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
         PositiveIntegerField, OneToOneField, ForeignKey, SET, Max)
 from django.utils.timezone import now
+from django.utils.translation import ugettext_lazy as _
 
+from ..core import validators
 from ..utils.date_period import date_period_registry, DatePeriod
 
 
@@ -42,6 +44,23 @@ class DurationField(CharField):
 
 class UnsafeHTMLField(TextField):
     pass
+
+
+class ColorField(CharField):
+    default_validators = [validators.validate_color]
+    description = _('HTML Color')
+
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 6
+        super(ColorField, self).__init__(*args, **kwargs)
+
+    def formfield(self, **kwargs):
+        from ..forms.fields import ColorField as ColorFormField  # Lazy loading
+
+        defaults = {'form_class': ColorFormField}
+        defaults.update(kwargs)
+
+        return super(CharField, self).formfield(**defaults)
 
 
 class DatePeriodField(TextField):  # TODO: inherit from a JSONField

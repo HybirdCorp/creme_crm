@@ -252,7 +252,7 @@ def update_activity_date(request):
 @permission_required('activities')
 def add_user_calendar(request):
     return add_model_with_popup(request, CalendarForm, title=_(u'Create a calendar'),
-                                initial={'color': Calendar.new_color()},
+                                # initial={'color': Calendar.new_color()},
                                 submit_label=_('Save the calendar'),
                                )
 
