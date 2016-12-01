@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from os.path import exists
     from decimal import Decimal
     from functools import partial
+    from os.path import exists
 
     from django.core.files.base import ContentFile
     from django.contrib.contenttypes.models import ContentType
+    from django.db import IntegrityError
     from django.db.models.deletion import ProtectedError
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact as Contact, FakeOrganisation as Organisation,
-            FakeCivility as Civility, FakeSector as Sector,
-            FakeImage as Image, FakeImageCategory as MediaCategory, FakeFileComponent)
+    from ..fake_models import (FakeContact, FakeOrganisation, FakeCivility, FakeSector,
+           FakeImage, FakeImageCategory, FakeFileComponent)
+    from creme.creme_core.core.field_tags import InvalidFieldTag
+    from creme.creme_core.core.function_field import (FunctionField,
+            FunctionFieldResult, FunctionFieldResultsList)
     from creme.creme_core.models import (CremeEntity, CremePropertyType, CremeProperty,
             RelationType, Relation, Language, CustomField, CustomFieldEnumValue,
             CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean, CustomFieldString,
             CustomFieldDateTime, CustomFieldEnum, CustomFieldMultiEnum)
-    from creme.creme_core.core.function_field import (FunctionField,
-            FunctionFieldResult, FunctionFieldResultsList)
-    from creme.creme_core.core.field_tags import InvalidFieldTag
+
 
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -48,13 +49,13 @@ class EntityTestCase(CremeTestCase):
         "Ordering NULL values as 'low'"
         # NB: we should not use NULL & '' values at the same time, because they are
         # separated by the ordering, but they are equal for the users.
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=self.user)
         c1 = create_contact(first_name='Naruto',  last_name='Uzumaki', email='n.uzumaki@konoha.jp')
         c2 = create_contact(first_name='Sasuke',  last_name='Uchiwa')
         c3 = create_contact(first_name='Sakura',  last_name='Haruno', email='')
         c4 = create_contact(first_name='Kakashi', last_name='Hatake', email='k.hatake@konoha.jp')
 
-        qs = Contact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
+        qs = FakeContact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
         expected = [c2, c3, c4, c1]
         self.assertEqual(expected,
                          list(qs.order_by('email', 'last_name'))
@@ -65,17 +66,17 @@ class EntityTestCase(CremeTestCase):
 
     def test_manager02(self):
         "Ordering NULL values as 'low' (FK)"
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         s1 = create_sector(title='Hatake')
         s2 = create_sector(title='Uzumaki')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=self.user)
         c1 = create_contact(first_name='Naruto',  last_name='Uzumaki', sector=s2)
         c2 = create_contact(first_name='Sasuke',  last_name='Uchiwa')
         c3 = create_contact(first_name='Sakura',  last_name='Haruno')
         c4 = create_contact(first_name='Kakashi', last_name='Hatake', sector=s1)
 
-        qs = Contact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
+        qs = FakeContact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
         expected = [c3, c2, c4, c1]
         self.assertEqual(expected,
                          list(qs.order_by('sector', 'last_name'))
@@ -84,7 +85,7 @@ class EntityTestCase(CremeTestCase):
                          list(qs.order_by('-sector', '-last_name'))
                         )
 
-    def test_property01(self):  # TODO: create a test case for CremeProperty ???
+    def test_property(self):  # TODO: create a test case for CremeProperty ???
         text = 'TEXT'
 
         with self.assertNoException():
@@ -94,6 +95,10 @@ class EntityTestCase(CremeTestCase):
 
         self.assertEqual(text, ptype.text)
 
+        # Uniqueness
+        with self.assertRaises(IntegrityError):
+            CremeProperty.objects.create(type=ptype, creme_entity=entity)
+
     def _build_rtypes_n_ptypes(self):
         create_rtype = RelationType.create
         self.rtype1, self.rtype2 = create_rtype(('test-subject_loving', 'is loving'),
@@ -101,7 +106,7 @@ class EntityTestCase(CremeTestCase):
                                                )
         self.rtype3, self.rtype4 = create_rtype(('test-subject_hating', 'is hating'),
                                                 ('test-object_hating',  'is hated by'),
-                                                is_internal=True
+                                                is_internal=True,
                                                )
 
         create_ptype = CremePropertyType.create
@@ -109,7 +114,7 @@ class EntityTestCase(CremeTestCase):
         self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
     def test_fieldtags_clonable(self):
-        naruto = Contact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        naruto = FakeContact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
         get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('created').get_tag('clonable'))
@@ -125,7 +130,7 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(InvalidFieldTag, field.set_tags, stuff=True)
 
     def test_fieldtags_viewable(self):
-        naruto = Contact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        naruto = FakeContact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
         get_field = naruto._meta.get_field
 
         self.assertTrue(get_field('modified').get_tag('viewable'))
@@ -135,7 +140,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('cremeentity_ptr').get_tag('viewable'))
 
     def test_fieldtags_optional(self):
-        naruto = Contact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        naruto = FakeContact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
         get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('modified').get_tag('optional'))
@@ -195,20 +200,20 @@ class EntityTestCase(CremeTestCase):
         user = self.user
         self._build_rtypes_n_ptypes()
 
-        civility = Civility.objects.all()[0]
+        civility = FakeCivility.objects.all()[0]
         language = Language.objects.all()[0]
         sasuke  = CremeEntity.objects.create(user=self.user)
         sakura  = CremeEntity.objects.create(user=self.user)
 
-        image = Image.objects.create(user=user, name='Naruto selfie')
+        image = FakeImage.objects.create(user=user, name='Naruto selfie')
 
-        naruto = Contact.objects.create(user=user, civility=civility,
-                                        first_name=u'Naruto', last_name=u'Uzumaki',
-                                        description=u"Ninja", birthday=now(),
-                                        phone='123456', mobile=u"+81 0 0 0 00 01",
-                                        email=u"naruto.uzumaki@konoha.jp",
-                                        image=image,
-                                       )
+        naruto = FakeContact.objects.create(user=user, civility=civility,
+                                            first_name=u'Naruto', last_name=u'Uzumaki',
+                                            description=u"Ninja", birthday=now(),
+                                            phone='123456', mobile=u"+81 0 0 0 00 01",
+                                            email=u"naruto.uzumaki@konoha.jp",
+                                            image=image,
+                                            )
         naruto.language = [language]
 
         CremeProperty.objects.create(type=self.ptype01, creme_entity=naruto)
@@ -217,9 +222,9 @@ class EntityTestCase(CremeTestCase):
         create_rel(type=self.rtype1, object_entity=sasuke)
         create_rel(type=self.rtype2, object_entity=sakura)
 
-        count = Contact.objects.count()
+        count = FakeContact.objects.count()
         kage_bunshin = naruto.clone()
-        self.assertEqual(count + 1, Contact.objects.count())
+        self.assertEqual(count + 1, FakeContact.objects.count())
 
         self.assertNotEqual(kage_bunshin.pk, naruto.pk)
         self.assertSameRelationsNProperties(naruto, kage_bunshin)
@@ -232,8 +237,8 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone03(self):
         create_cf = partial(CustomField.objects.create,
-                            content_type=ContentType.objects.get_for_model(Organisation),
-                           )
+                            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+                            )
         cf_int        = create_cf(name='int',        field_type=CustomField.INT)
         cf_float      = create_cf(name='float',      field_type=CustomField.FLOAT)
         cf_bool       = create_cf(name='bool',       field_type=CustomField.BOOL)
@@ -247,7 +252,7 @@ class EntityTestCase(CremeTestCase):
         m_enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum1')
         m_enum2 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum2')
 
-        orga = Organisation.objects.create(name='Konoha', user=self.user)
+        orga = FakeOrganisation.objects.create(name='Konoha', user=self.user)
 
         CustomFieldInteger.objects.create(custom_field=cf_int, entity=orga, value=50)
         CustomFieldFloat.objects.create(custom_field=cf_float, entity=orga, value=Decimal('10.5'))
@@ -277,8 +282,8 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone04(self):
         "ManyToMany"
-        image1 = Image.objects.create(user=self.user, name='Konoha by night')
-        image1.categories = categories = list(MediaCategory.objects.all())
+        image1 = FakeImage.objects.create(user=self.user, name='Konoha by night')
+        image1.categories = categories = list(FakeImageCategory.objects.all())
         self.assertTrue(categories)
 
         image2 = image1.clone()
@@ -406,13 +411,13 @@ class EntityTestCase(CremeTestCase):
 
     def test_customfield_value(self):
         create_field = partial(CustomField.objects.create,
-                               content_type=ContentType.objects.get_for_model(Organisation),
-                              )
+                               content_type=ContentType.objects.get_for_model(FakeOrganisation),
+                               )
         field_A = create_field(name='A', field_type=CustomField.INT)
         field_B = create_field(name='B', field_type=CustomField.INT)
         field_C = create_field(name='C', field_type=CustomField.INT)
 
-        orga = Organisation.objects.create(name='Konoha', user=self.user)
+        orga = FakeOrganisation.objects.create(name='Konoha', user=self.user)
 
         create_cf = CustomFieldInteger.objects.create
         value_A = create_cf(custom_field=field_A, entity=orga, value=50)
@@ -438,4 +443,3 @@ class EntityTestCase(CremeTestCase):
                               field_C.pk: None,
                              }
                             )
-

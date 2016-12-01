@@ -94,12 +94,13 @@ class CremePropertyType(CremeModel):
 
 class CremeProperty(CremeModel):
     type         = ForeignKey(CremePropertyType)
-    creme_entity = ForeignKey(CremeEntity, related_name="properties")  # related_name="creme_property_set" ??
+    creme_entity = ForeignKey(CremeEntity, related_name='properties')
 
     class Meta:
         app_label = 'creme_core'
         verbose_name = _(u'Property')
         verbose_name_plural = _(u'Properties')
+        unique_together = ('type', 'creme_entity')
 
     def __unicode__(self):
         return unicode(self.type)
