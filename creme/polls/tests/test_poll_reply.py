@@ -786,6 +786,80 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertEqual(camp,  preply.campaign)
         self.assertEqual(leina, preply.person.get_real_entity())
 
+    @skipIfCustomPollCampaign
+    @skipIfCustomContact
+    def test_editview03(self):
+        "Permissions for new related person"
+        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        create_contact = partial(Contact.objects.create, last_name='Vance')
+        leina     = create_contact(user=user,            first_name='Leina')
+        claudette = create_contact(user=self.other_user, first_name='Claudette')
+        erina     = create_contact(user=user,            first_name='Erina')
+
+        pform = PollForm.objects.create(user=user, name='Form#1')
+        preply = PollReply.objects.create(user=user, name='Reply#1', pform=pform, person=leina)
+
+        def post(contact):
+            return self.client.post(preply.get_edit_absolute_url(), follow=True,
+                                    data={'user':           user.id,
+                                          'name':           preply.name,
+                                          'related_person': '{"ctype": {"id": %s}, "entity": %s}' % (
+                                                                    contact.entity_type_id, contact.id,
+                                                                )
+                                         }
+                                   )
+        response = post(claudette)
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'related_person',
+                             _(u'You are not allowed to link this entity: %s') % (
+                                     _(u'Entity #%s (not viewable)') % claudette.id
+                                )
+                            )
+
+        self.assertNoFormError(post(erina))
+        self.assertEqual(erina, self.refresh(preply).person.get_real_entity())
+
+    @skipIfCustomPollCampaign
+    @skipIfCustomContact
+    def test_editview04(self):
+        "No permissions checking on related person when not changed"
+        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        leina = Contact.objects.create(user=self.other_user, first_name='Leina', last_name='Vance')
+
+        pform = PollForm.objects.create(user=user, name='Form#1')
+        preply = PollReply.objects.create(user=user, name='Reply#1', pform=pform, person=leina)
+
+        name = preply.name.upper()
+        response = self.client.post(preply.get_edit_absolute_url(), follow=True,
+                                    data={'user':           user.id,
+                                          'name':           name,
+                                          'related_person': '{"ctype": {"id": %s}, "entity": %s}' % (
+                                                                    leina.entity_type_id, leina.id,
+                                                                )
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        preply = self.refresh(preply)
+        self.assertEqual(name, preply.name)
+        self.assertEqual(leina, preply.person.get_real_entity())
+
     def test_inneredit01(self):
         user = self.login()
         pform  = PollForm.objects.create(user=user, name='Form#1')
@@ -839,6 +913,59 @@ class PollRepliesTestCase(_PollsTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(leina, self.refresh(preply).person.get_real_entity())
+
+    @skipIfCustomContact
+    def test_inneredit04(self):
+        "Inner edition: 'person' field + not super user"
+        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+        create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
+                        EntityCredentials.CHANGE | EntityCredentials.UNLINK,  # Not LINK
+                  set_type=SetCredentials.ESET_ALL,
+                 )
+
+        pform  = PollForm.objects.create(user=user, name='Form#1')
+        preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
+
+        url = self.build_inneredit_url(preply, 'person')
+
+        create_contact = Contact.objects.create
+        leina = create_contact(user=self.other_user, first_name='Leina', last_name='Vance')
+        response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
+                                               'field_value':  '{"ctype": {"id": %s}, "entity": %s}' % (
+                                                                    leina.entity_type_id, leina.id,
+                                                                ),
+                                              },
+                                   )
+        self.assertFormError(response, 'form', 'field_value',
+                             _(u'You are not allowed to link this entity: %s') % leina
+                            )
+
+        # ----
+        claudette = create_contact(user=user, first_name='Claudette', last_name='Vance')
+        response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
+                                               'field_value':  '{"ctype": {"id": %s}, "entity": %s}' % (
+                                                                    claudette.entity_type_id, claudette.id,
+                                                                ),
+                                              },
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(claudette, self.refresh(preply).person.get_real_entity())
+
+    @skipIfCustomContact
+    def test_inneredit05(self):
+        "Inner edition: 'person' field (set None)"
+        user = self.login()
+
+        leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
+        pform = PollForm.objects.create(user=user, name='Form#1')
+        preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform, person=leina)
+
+        response = self.client.post(self.build_inneredit_url(preply, 'person'))
+        self.assertNoFormError(response)
+        self.assertIsNone(self.refresh(preply).person)
 
     def test_listview(self):
         user = self.login()

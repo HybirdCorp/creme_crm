@@ -21,8 +21,7 @@
 from django.forms.fields import BooleanField
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.fields import CreatorEntityField
+from creme.creme_core.forms import CremeEntityForm, CreatorEntityField
 from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model

@@ -127,8 +127,8 @@ class _BillingTestCaseMixin(object):
 
         return invoice
 
-    def create_orgas(self):
-        create_orga = partial(Organisation.objects.create, user=self.user)
+    def create_orgas(self, user=None):
+        create_orga = partial(Organisation.objects.create, user=user or self.user)
         return create_orga(name='Source Orga'), create_orga(name='Target Orga')
 
     def create_invoice_n_orgas(self, name, user=None, discount=Decimal(), currency=None):

@@ -24,8 +24,7 @@ from django.forms import BooleanField, ValidationError  # DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.forms import CremeForm, CremeEntityForm
-from creme.creme_core.forms.fields import CreatorEntityField, MultiCreatorEntityField
+from creme.creme_core.forms import CremeForm, CremeEntityForm, CreatorEntityField, MultiCreatorEntityField
 # from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import ellipsis_multi

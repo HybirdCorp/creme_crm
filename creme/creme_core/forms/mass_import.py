@@ -51,7 +51,7 @@ from ..utils.meta import ModelFieldEnumerator
 # from ..utils.collections import LimitedList
 from .base import CremeForm, CremeModelForm, FieldBlockManager, _CUSTOM_NAME
 from .fields import MultiRelationEntityField, CreatorEntityField
-from .validators import validate_linkable_entities
+# from .validators import validate_linkable_entities
 from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 
 
@@ -96,6 +96,7 @@ class UploadForm(CremeForm):
     document   = CreatorEntityField(label=_(u'File to import'), model=Document,
                                     # create_action_url=reverse('documents__create_document_from_widget', args=(1,)),
                                     create_action_url=reverse('documents__create_document_from_widget'),
+                                    credentials=EntityCredentials.VIEW,
                                    )
     has_header = BooleanField(label=_(u'Header present ?'), required=False,
                               help_text=_(u'Does the first line of the line contain '
@@ -1249,8 +1250,7 @@ class ImportForm4CremeEntity(ImportForm):
         super(ImportForm4CremeEntity, self).__init__(*args, **kwargs)
 
         fields = self.fields
-        ct     = ContentType.objects.get_for_model(self._meta.model)
-
+        ct = ContentType.objects.get_for_model(self._meta.model)
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) |
                                                                              Q(subject_ctypes__isnull=True)
                                                                             )
@@ -1273,14 +1273,14 @@ class ImportForm4CremeEntity(ImportForm):
                                                     initial={'selected_column': get_col(slugify(cfield.name), 0)},
                                                 )
 
-    def clean_fixed_relations(self):
-        relations = self.cleaned_data['fixed_relations']
-        user = self.user
-
-        # TODO: self._check_duplicates(relations, user) #see RelationCreateForm
-        validate_linkable_entities([entity for rt_id, entity in relations], user)
-
-        return relations
+    # def clean_fixed_relations(self):
+    #     relations = self.cleaned_data['fixed_relations']
+    #     user = self.user
+    #
+    #     # TODO: self._check_duplicates(relations, user) #see RelationCreateForm
+    #     validate_linkable_entities([entity for rt_id, entity in relations], user)
+    #
+    #     return relations
 
     def clean_dyn_relations(self):  # TODO: move this validation in RelationExtractorField.clean()
         extractors = self.cleaned_data['dyn_relations']

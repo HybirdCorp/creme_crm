@@ -6,7 +6,6 @@ try:
     from functools import partial
 
     from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.db.models.deletion import ProtectedError
     from django.utils.translation import ugettext as _
@@ -122,19 +121,18 @@ class InvoiceTestCase(_BillingTestCase):
 
     def test_createview03(self):
         "Credentials errors with Organisation"
-        user = self.login(is_superuser=False)
-        role = user.role
-        create_sc = partial(SetCredentials.objects.create, role=role)
+        user = self.login(is_superuser=False, creatable_models=[Invoice])
+        # role = user.role
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                        EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
-                  set_type=SetCredentials.ESET_ALL
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
+                  set_type=SetCredentials.ESET_ALL,
                  )
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.LINK |
                         EntityCredentials.UNLINK,
-                  set_type=SetCredentials.ESET_OWN
+                  set_type=SetCredentials.ESET_OWN,
                  )
-        role.creatable_ctypes = [ContentType.objects.get_for_model(Invoice)]
 
         source = Organisation.objects.create(user=self.other_user, name='Source Orga')
         self.assertFalse(user.has_perm_to_link(source))

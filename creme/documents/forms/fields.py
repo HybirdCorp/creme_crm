@@ -20,7 +20,7 @@
 
 from django.core.urlresolvers import reverse_lazy
 
-from creme.creme_core.forms import CreatorEntityField, MultiCreatorEntityField
+from creme.creme_core import forms
 
 from .. import get_document_model
 from ..constants import MIMETYPE_PREFIX_IMG
@@ -32,7 +32,7 @@ class ImageFieldMixin(object):
         return reverse_lazy('documents__create_image_popup')
 
     def build_q_filter(self, q_filter):
-        basic_filter = {'mime_type__name__startswith': MIMETYPE_PREFIX_IMG}  # TODO: constants
+        basic_filter = {'mime_type__name__startswith': MIMETYPE_PREFIX_IMG}
 
         q_filter = dict(q_filter) if q_filter else {}
         q_filter.update(basic_filter)
@@ -70,7 +70,7 @@ class ImageFieldMixin(object):
         self._update_creation_info()
 
 
-class ImageEntityField(ImageFieldMixin, CreatorEntityField):
+class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
     def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
@@ -87,7 +87,7 @@ class ImageEntityField(ImageFieldMixin, CreatorEntityField):
             )
 
 
-class MultiImageEntityField(ImageFieldMixin, MultiCreatorEntityField):
+class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
     def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 

@@ -5,9 +5,13 @@ skip_service_tests = False
 
 try:
     from unittest import skipIf
+    from functools import partial
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import SetCredentials
 
+    from creme.documents import get_document_model
     from creme.documents.tests.base import _DocumentsTestCase
 
     from .. import product_model_is_custom, service_model_is_custom
@@ -35,3 +39,23 @@ class _ProductsTestCase(_DocumentsTestCase):
 
     def _cat_field(self, category, sub_category):
         return '{"category": %s, "subcategory": %s}' % (category.id, sub_category.id)
+
+    def login_as_basic_user(self, creatable_model):
+        user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
+                          creatable_models=[creatable_model, get_document_model()],
+                         )
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE |
+                        EntityCredentials.LINK   | EntityCredentials.UNLINK,
+                  set_type=SetCredentials.ESET_OWN,
+                 )
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE |
+                        # EntityCredentials.LINK   |
+                        EntityCredentials.UNLINK,
+                  set_type=SetCredentials.ESET_ALL,
+                 )
+
+        return user

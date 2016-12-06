@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 # from creme.creme_core.forms.fields import MultiCreatorEntityField
-from creme.creme_core.forms.validators import validate_linkable_entities
+# from creme.creme_core.forms.validators import validate_linkable_entities
 
 from creme.documents.forms.fields import MultiImageEntityField
 # from creme.media_managers.models import Image
@@ -47,11 +47,12 @@ class _BaseForm(CremeEntityForm):
         return super(_BaseForm, self).save(*args, **kwargs)
 
 
-class _BaseCreateForm(_BaseForm):
+class _BaseCreateForm(_BaseForm):  # TODO: remove
+    pass
     # images = MultiCreatorEntityField(label=_(u'Images'), model=Image, required=False)
 
-    def clean_images(self):
-        return validate_linkable_entities(self.cleaned_data['images'], self.user)
+    # def clean_images(self):
+    #     return validate_linkable_entities(self.cleaned_data['images'], self.user)
 
 
 class _BaseEditForm(_BaseForm):
@@ -76,8 +77,8 @@ class AddImagesForm(CremeForm):
         images_f.q_filter = {'~id__in': list(entity.images.values_list('id', flat=True))}
         images_f.force_creation = True
 
-    def clean_images(self):
-        return validate_linkable_entities(self.cleaned_data['images'], self.user)
+    # def clean_images(self):
+    #     return validate_linkable_entities(self.cleaned_data['images'], self.user)
 
     def save(self):
         add_image = self.entity.images.add

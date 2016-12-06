@@ -96,7 +96,7 @@ class MailingListsTestCase(_EmailsTestCase):
         mlist03 = create_ml(name='Ml03')
         response = post(mlist01, mlist03)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'mailing_lists', _("This entity doesn't exist."))
+        self.assertFormError(response, 'form', 'mailing_lists', _('This entity does not exist.'))
 
         # Delete ----------------------
         self.assertPOST200('/emails/campaign/%s/mailing_list/delete' % campaign.id,

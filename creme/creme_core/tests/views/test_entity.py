@@ -938,7 +938,10 @@ class BulkEditTestCase(_BulkEditTestCase):
         url = self._build_contact_url('image', mario.id, luigi.id)
         response = self.assertPOST200(url, data={'field_value': unallowed.id})
         self.assertFormError(response, 'form', 'field_value',
-                             _(u"You can't view this value, so you can't set it.")
+                             # _(u"You can't view this value, so you can't set it.")
+                             _(u'You are not allowed to link this entity: %s') % (
+                                    _(u'Entity #%s (not viewable)') % unallowed.id,
+                                )
                             )
 
         self.client.post(url, data={'field_value': allowed.id,})
@@ -1429,7 +1432,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                                 }
                                      )
         self.assertFormError(response, 'form', 'field_value',
-                             _(u"You can't view this value, so you can't set it.")
+                             # _(u"You can't view this value, so you can't set it.")
+                             _(u'You are not allowed to link this entity: %s') % (
+                                    _(u'Entity #%s (not viewable)') % unallowed.id,
+                                )
                             )
 
         self.client.post(url, data={'field_value': allowed.id,
@@ -1653,7 +1659,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                             )
         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_date.id)
 
-        # This weird format have few chances to be present in settings
+        # This weird format have few chances to be present in settings  " TODO: use @override_settings
         settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",)
 
         # Date
@@ -1702,7 +1708,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         # Enum empty
         response = self.client.post(url, data={'field_value': '',
-                                               'entities': [mario.pk, luigi.pk]
+                                               'entities': [mario.pk, luigi.pk],
                                               }
                                    )
         self.assertNoFormError(response)
@@ -1728,7 +1734,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         # Multi-Enum
         self.assertNoFormError(self.client.post(url, data={'field_value': [m_enum1.id, m_enum3.id],
-                                                           'entities': [mario.pk, luigi.pk]
+                                                           'entities': [mario.pk, luigi.pk],
                                                           }
                                                )
                               )
@@ -1745,7 +1751,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         # Multi-Enum empty
         self.assertNoFormError(self.client.post(url, data={'field_value': [],
-                                                           'entities': [mario.pk, luigi.pk]
+                                                           'entities': [mario.pk, luigi.pk],
                                                           }
                                                )
                               )
@@ -1763,23 +1769,25 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         create_contact = partial(Contact.objects.create, user=user, first_name='', last_name='')
         empty_contact1 = create_contact(is_user=empty_user1)
         empty_contact2 = create_contact(is_user=empty_user2)
-        mario          = create_contact(first_name="Mario", last_name="Bros")
+        mario          = create_contact(first_name='Mario', last_name='Bros')
 
         url = self._build_update_url('last_name')
         self.assertGET200(url)
 
         response = self.client.post(url, data={'field_value': 'Bros',
-                                               'entities': [empty_contact1.id, empty_contact2.id, mario.id]})
+                                               'entities': [empty_contact1.id, empty_contact2.id, mario.id],
+                                              }
+                                   )
         self.assertNoFormError(response)
         self.assertContains(response, _('This Contact is related to a user and must have a first name.'), 2)
 
 
 class InnerEditTestCase(_BulkEditTestCase):
     def create_contact(self):
-        return Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        return Contact.objects.create(user=self.user, first_name='Mario', last_name='Bros')
 
     def create_orga(self):
-        return Organisation.objects.create(user=self.user, name="Organisation")
+        return Organisation.objects.create(user=self.user, name='Mushroom kingdom')
 
     def test_regular_field_01(self):
         self.login()
@@ -1809,7 +1817,7 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_regular_field_03(self):
         "No permission"
-        self.login(is_superuser=False, creatable_models=[Contact], allowed_apps='documents')
+        self.login(is_superuser=False, creatable_models=[Contact], allowed_apps=['documents'])
         self._set_all_creds_except_one(EntityCredentials.CHANGE)
 
         mario = self.create_contact()
@@ -1973,7 +1981,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_manytomany_field(self):
         "Edition of a manytomany field (needs a special hack with initial values for this case)"
         user = self.login()
-        image = Image.objects.create(user=user, name='Konoha by nigth')
+        image = Image.objects.create(user=user, name='Konoha by night')
 
         url = self.build_inneredit_url(image, 'categories')
         self.assertGET(200, url)
@@ -1985,8 +1993,8 @@ class InnerEditTestCase(_BulkEditTestCase):
                                                           last_name='',
                                                           email='',
                                                          )
-        empty_contact = Contact.objects.create(user=user, first_name="",
-                                               last_name="", is_user=empty_user,
+        empty_contact = Contact.objects.create(user=user, first_name='',
+                                               last_name='', is_user=empty_user,
                                               )
 
         url = self.build_inneredit_url(empty_contact, 'last_name')

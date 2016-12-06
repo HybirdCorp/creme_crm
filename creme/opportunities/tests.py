@@ -23,7 +23,6 @@ try:
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
 
     from creme.documents import get_document_model
-#    from creme.documents.models import Document
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
@@ -36,7 +35,7 @@ try:
     if apps.is_installed('creme.billing'):
         from creme.billing import (get_invoice_model, get_quote_model,
                 get_sales_order_model, get_service_line_model, quote_model_is_custom)
-        from creme.billing.models import QuoteStatus  # Quote, SalesOrder, Invoice, ServiceLine
+        from creme.billing.models import QuoteStatus
         from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
         skip_billing = False
@@ -448,16 +447,17 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         salesphase = SalesPhase.objects.all()[0]
         name = 'Opportunity linked to %s' % target
-        response = self.client.post(url, data={'user':         user.pk,
-                                               'name':         name,
-                                               'sales_phase':  salesphase.id,
-                                               'closing_date': '2011-03-12',
-                                               'target':       self._genericfield_format_entity(target),
-                                               'emitter':      emitter.id,
-                                               'currency':     DEFAULT_CURRENCY_PK,
-                                              }
+        response = self.client.post(url, follow=True,
+                                    data={'user':         user.pk,
+                                          'name':         name,
+                                          'sales_phase':  salesphase.id,
+                                          'closing_date': '2011-03-12',
+                                          'target':       self._genericfield_format_entity(target),
+                                          'emitter':      emitter.id,
+                                          'currency':     DEFAULT_CURRENCY_PK,
+                                         }
                                    )
-        self.assertNoFormError(response, status=302)
+        self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)

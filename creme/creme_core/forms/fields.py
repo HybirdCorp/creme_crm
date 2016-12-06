@@ -32,14 +32,14 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
-from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
-        ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
+from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField,
+        DateField, TimeField, DateTimeField, IntegerField, ValidationError)
 from django.forms.fields import EMPTY_VALUES, MultiValueField, CallableChoiceIterator  # RegexField
-from django.forms.utils import ValidationError
-from django.forms.widgets import Select, Textarea
+from django.forms import widgets
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
+from ..auth.entity_credentials import EntityCredentials
 from ..constants import REL_SUB_HAS
 from ..core import validators
 from ..models import RelationType, CremeEntity, EntityFilter
@@ -49,6 +49,7 @@ from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
 # from .widgets import UnorderedMultipleChoiceWidget
+from . import validators as f_validators
 from . import widgets as core_widgets
 
 
@@ -67,20 +68,34 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
 
 class JSONField(CharField):
     default_error_messages = {
-        'invalidformat': _(u'Invalid format'),
-        'invalidtype': _(u'Invalid type'),
-        'doesnotexist': _(u"This entity doesn't exist."),
+        'invalidformat':    _(u'Invalid format'),
+        'invalidtype':      _(u'Invalid type'),
+        'doesnotexist':     _(u'This entity does not exist.'),
+
+        # Used by child classes
+        'entityrequired':   _(u'The entity is required.'),
+        'ctyperequired':    _(u'The content type is required.'),
+        'ctypenotallowed':  _(u'This content type is not allowed.'),
     }
     value_type = None  # Overload this: type of the value returned by the field.
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user=None, *args, **kwargs):
         super(JSONField, self).__init__(*args, **kwargs)
+        self._user = user
         self.widget.from_python = self.from_python
 
     def __deepcopy__(self, memo):
         obj = super(JSONField, self).__deepcopy__(memo)
         obj.widget.from_python = obj.from_python
         return obj
+
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
 
     def _build_empty_value(self):
         "Value returned by not-required fields, when value is empty."
@@ -240,14 +255,66 @@ class JSONField(CharField):
         return value
 
 
-class GenericEntityField(JSONField):
+class EntityCredsJSONField(JSONField):
+    "Base field which checks the permission for the retrieved entities"
+    CREDS_VALIDATORS = [
+        (EntityCredentials.VIEW,   f_validators.validate_viewable_entity, f_validators.validate_viewable_entities),
+        (EntityCredentials.CHANGE, f_validators.validate_editable_entity, f_validators.validate_editable_entities),
+        (EntityCredentials.LINK,   f_validators.validate_linkable_entity, f_validators.validate_linkable_entities),
+    ]
+
+    def __init__(self, credentials=EntityCredentials.LINK, *args, **kwargs):
+        """Constructor.
+        @param credentials: Binary combination of EntityCredentials.{VIEW, CHANGE, LINK}.
+                            Default value is EntityCredentials.LINK.
+        """
+        super(EntityCredsJSONField, self).__init__(*args, **kwargs)
+        self._credentials = credentials
+
+    def _check_entity_perms(self, entity, *args):
+        user = self._user
+        assert user is not None
+
+        credentials = args[0] if args else self._credentials
+
+        # We do not check permission if the initial related entity has not changed
+        # (in order to allow the edition of an instance even if we do not have
+        # the permissions for the already set related entity).
+        initial = self.initial
+
+        def get_initial_id():
+            return initial.id if isinstance(initial, CremeEntity) else initial
+
+        # NB: we compare ID to avoid problem with real/not real entities.
+        if entity is not None and (not initial or (get_initial_id() != entity.id)):
+            for cred, validator, validator_multi in self.CREDS_VALIDATORS:
+                if credentials & cred:
+                    validator(entity, user)
+
+        return entity
+
+    def _check_entities_perms(self, entities, *args):
+        user = self._user
+        assert user is not None
+
+        credentials = args[0] if args else self._credentials
+
+        for cred, validator, validator_multi in self.CREDS_VALIDATORS:
+            if credentials & cred:
+                validator_multi(entities, user)
+
+        return entities
+
+
+# class GenericEntityField(JSONField):
+class GenericEntityField(EntityCredsJSONField):
     widget = core_widgets.CTEntitySelector
-    default_error_messages = {
-        'ctypenotallowed': _(u"This content type is not allowed."),
-        'ctyperequired':   _(u"The content type is required."),
-        'doesnotexist':    _(u"This entity doesn't exist."),
-        'entityrequired':  _(u"The entity is required."),
-    }
+    # default_error_messages = {
+    #     'ctypenotallowed': _(u'This content type is not allowed.'),
+    #     'ctyperequired':   _(u'The content type is required.'),
+    #     'doesnotexist':    _(u'This entity does not exist.'),
+    #     'entityrequired':  _(u'The entity is required.'),
+    # }
     value_type = dict
 
     def __init__(self, models=(), autocomplete=False, creator=True, user=None, *args, **kwargs):
@@ -273,11 +340,12 @@ class GenericEntityField(JSONField):
         self._allowed_models = list(allowed)
         self._update_wigets_choices()
 
-    @property
-    def user(self):
-        return self._user
+    # @property
+    # def user(self):
+    #     return self._user
 
-    @user.setter
+    # @user.setter
+    @EntityCredsJSONField.user.setter
     def user(self, user):
         self._user = user
         self._update_wigets_choices()
@@ -344,14 +412,17 @@ class GenericEntityField(JSONField):
         # Compatibility with older format.
         if data and isinstance(data.get('ctype'), dict):
             ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
-            ctype_pk  = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
+            ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
         else:
             warnings.warn('GenericEntityField: old format "ctype": id entry is deprecated.')
-            ctype_pk  = clean_value(data, 'ctype', int, required, 'ctyperequired')
+            ctype_pk = clean_value(data, 'ctype', int, required, 'ctyperequired')
 
         entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
 
-        return self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
+        # return self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
+        entity = self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
+
+        return self._check_entity_perms(entity)
 
     def _clean_ctype(self, ctype_pk):
         # Check ctype in allowed ones
@@ -388,7 +459,10 @@ class MultiGenericEntityField(GenericEntityField):
     value_type = list
 
     def __init__(self, models=(), autocomplete=False, unique=True, creator=True, user=None, *args, **kwargs):
-        super(MultiGenericEntityField, self).__init__(models, autocomplete, creator, user, *args, **kwargs)
+        super(MultiGenericEntityField, self).__init__(models=models, autocomplete=autocomplete,
+                                                      creator=creator, user=user,
+                                                      *args, **kwargs
+                                                     )
         self.unique = unique
 
     def widget_attrs(self, widget):
@@ -429,7 +503,7 @@ class MultiGenericEntityField(GenericEntityField):
             entities_pks_append(entity_pk)
             entities_by_ctype[ctype_pk].append(entity_pk)
 
-        entities = {}
+        entities_map = {}
 
         # Build the list of entities (ignore invalid entries)
         for ct_id, ctype_entity_pks in entities_by_ctype.iteritems():
@@ -443,12 +517,13 @@ class MultiGenericEntityField(GenericEntityField):
                                       code='doesnotexist',
                                      )
 
-            entities.update(ctype_entities)
+            entities_map.update(ctype_entities)
 
-        if not entities:
+        if not entities_map:
             return self._return_list_or_raise(self.required)
 
-        return [entities[pk] for pk in entities_pks]
+        # return [entities_map[pk] for pk in entities_pks]
+        return self._check_entities_perms([entities_map[pk] for pk in entities_pks])
 
 
 class ChoiceModelIterator(object):
@@ -465,16 +540,17 @@ class ChoiceModelIterator(object):
         return len(self.queryset)
 
 
-class RelationEntityField(JSONField):
+# class RelationEntityField(JSONField):
+class RelationEntityField(EntityCredsJSONField):
     widget = core_widgets.RelationSelector
     default_error_messages = {
-        'rtypedoesnotexist': _(u"This type of relationship doesn't exist."),
-        'rtypenotallowed':   _(u"This type of relationship causes a constraint error."),
-        'ctyperequired':     _(u"The content type is required."),
-        'ctypenotallowed':   _(u"This content type cause constraint error with the type of relationship."),
-        'entityrequired':    _(u"The entity is required."),
-        'doesnotexist':      _(u"This entity doesn't exist."),
-        'nopropertymatch':   _(u"This entity has no property that matches the constraints of the type of relationship."),
+        'rtypedoesnotexist': _(u'This type of relationship does not exist.'),
+        'rtypenotallowed':   _(u'This type of relationship causes a constraint error.'),
+        # 'ctyperequired':     _(u'The content type is required.'),
+        'ctypenotallowed':   _(u'This content type cause constraint error with the type of relationship.'),
+        # 'entityrequired':    _(u'The entity is required.'),
+        # 'doesnotexist':      _(u"This entity doesn't exist."),
+        'nopropertymatch':   _(u'This entity has no property that matches the constraints of the type of relationship.'),
     }
     value_type = dict
 
@@ -527,6 +603,7 @@ class RelationEntityField(JSONField):
         self._validate_ctype_constraints(rtype, ctype_pk)
 
         entity = self._clean_entity(ctype_pk, entity_pk)
+        self._check_entity_perms(entity)
         self._validate_properties_constraints(rtype, entity)
 
         return rtype, entity
@@ -562,7 +639,7 @@ class RelationEntityField(JSONField):
                                   params={'rtype': rtype_pk}, code='rtypedoesnotexist',
                                  )
 
-    def _get_options(self): # TODO: inline
+    def _get_options(self):  # TODO: inline
         return ChoiceModelIterator(self._allowed_rtypes)
 
     def _get_allowed_rtypes_objects(self):
@@ -678,6 +755,8 @@ class MultiRelationEntityField(RelationEntityField):
 
             entities_cache.update(ctype_entities)
 
+        self._check_entities_perms(entities_cache.values())
+
         relations = []
 
         # Build cache for validation of properties constraint between relationtypes and entities
@@ -702,13 +781,14 @@ class MultiRelationEntityField(RelationEntityField):
         return relations
 
 
-class CreatorEntityField(JSONField):
+# class CreatorEntityField(JSONField):
+class CreatorEntityField(EntityCredsJSONField):
     widget = core_widgets.EntityCreatorWidget  # The following attributes are set:
                                                # model, q_filter, creation_url, creation_allowed
-    default_error_messages = {
-        'doesnotexist':    _(u"This entity doesn't exist."),
-        'entityrequired':  _(u"The entity is required."),
-    }
+    # default_error_messages = {
+    #     'doesnotexist':    _(u"This entity doesn't exist."),
+    #     'entityrequired':  _(u"The entity is required."),
+    # }
     value_type = int
 
     def __init__(self, model=None, q_filter=None, create_action_url=None,
@@ -807,11 +887,12 @@ class CreatorEntityField(JSONField):
 
         self._update_creation_info()
 
-    @property
-    def user(self):
-        return self._user
+    # @property
+    # def user(self):
+    #     return self._user
 
-    @user.setter
+    # @user.setter
+    @EntityCredsJSONField.user.setter
     def user(self, user):
         self._user = user
         self._update_creation_info()
@@ -854,7 +935,10 @@ class CreatorEntityField(JSONField):
 
             return None
 
-        return self._clean_entity_from_model(model, data, self.q_filter_query)
+        # return self._clean_entity_from_model(model, data, self.q_filter_query)
+        entity = self._clean_entity_from_model(model, data, self.q_filter_query)
+
+        return self._check_entity_perms(entity)
 
 
 class MultiCreatorEntityField(CreatorEntityField):
@@ -897,25 +981,27 @@ class MultiCreatorEntityField(CreatorEntityField):
         elif self.required:
             raise ValidationError(self.error_messages['required'], code='required')
 
-        return entities
+        # return entities
+        return self._check_entities_perms(entities)
 
 
 class FilteredEntityTypeField(JSONField):
     widget = core_widgets.FilteredEntityTypeWidget
     default_error_messages = {
-        'ctyperequired':   _(u'The content type is required.'),
-        'ctypenotallowed': _(u'This content type is not allowed.'), # TODO: factorise
+        # 'ctyperequired':   _(u'The content type is required.'),
+        # 'ctypenotallowed': _(u'This content type is not allowed.'),
         'invalidefilter':  _(u'This filter is invalid.'),
     }
     value_type = dict
 
-    def __init__(self, ctypes=creme_entity_content_types, empty_label=None, user=None, *args, **kwargs):
+    # def __init__(self, ctypes=creme_entity_content_types, empty_label=None, user=None, *args, **kwargs):
+    def __init__(self, ctypes=creme_entity_content_types, empty_label=None, *args, **kwargs):
         """Constructor.
         @param ctypes Allowed types.
                         - A callable which returns an iterable of ContentType IDs / instances.
                         - Sequence of ContentType IDs / instances.
         """
-        self.user = user
+        # self.user = user
         super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
         self._empty_label = empty_label
         self.ctypes = ctypes
@@ -988,7 +1074,7 @@ class FilteredEntityTypeField(JSONField):
                 #                  )
                 #
                 #     efilter = EntityFilter.objects.get(entity_type=ct, pk=efilter_pk)
-                efilter = EntityFilter.get_for_user(self.user, ct).get(pk=efilter_pk)
+                efilter = EntityFilter.get_for_user(self._user, ct).get(pk=efilter_pk)
             except EntityFilter.DoesNotExist:
                 raise ValidationError(self.error_messages['invalidefilter'],
                                       code='invalidefilter',
@@ -1133,7 +1219,7 @@ class CremeDateTimeField(DateTimeField):
 
 class MultiEmailField(Field):
     # Original code at http://docs.djangoproject.com/en/1.3/ref/forms/validation/#form-field-default-cleaning
-    widget = Textarea
+    widget = widgets.Textarea
 
     def __init__(self, sep="\n", *args, **kwargs):
         super(MultiEmailField, self).__init__(*args, **kwargs)
@@ -1346,14 +1432,14 @@ class ChoiceOrCharField(MultiValueField):
 
 class CTypeChoiceField(Field):
     "A ChoiceField whose choices are a ContentType instances."
-    widget = Select
+    widget = widgets.Select
     default_error_messages = {
         'invalid_choice': _(u'Select a valid choice. That choice is not one of'
                             u' the available choices.'),
     }
 
     # TODO: ctypes_or_models ??
-    def __init__(self, ctypes=(), empty_label=u"---------",
+    def __init__(self, ctypes=(), empty_label=u'---------',
                  required=True, widget=None, label=None, initial=None,
                  help_text=None,
                  to_field_name=None, limit_choices_to=None,  # TODO: manage ?

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,20 +23,20 @@ from datetime import datetime, time
 import logging
 from pickle import dumps
 
-from django.forms import IntegerField, EmailField, DateTimeField
-from django.forms.utils import ValidationError
+from django.forms import IntegerField, EmailField, DateTimeField, ValidationError
 from django.template.base import Template, VariableNode
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _ # ugettext
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
+from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import CremeModelForm, CreatorEntityField
 from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.models import SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
-from ..constants import SETTING_EMAILCAMPAIGN_SENDER  # MAIL_STATUS_NOTSENT
-from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPE_DEFERRED # SENDING_TYPES SENDING_STATE_PLANNED
+from ..constants import SETTING_EMAILCAMPAIGN_SENDER
+from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPE_DEFERRED  # SENDING_STATE_PLANNED
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,9 @@ logger = logging.getLogger(__name__)
 
 class SendingCreateForm(CremeModelForm):
     sender       = EmailField(label=_(u'Sender address'))
-    template     = CreatorEntityField(label=_(u'Email template'), model=get_emailtemplate_model())
+    template     = CreatorEntityField(label=_(u'Email template'), model=get_emailtemplate_model(),
+                                      credentials=EntityCredentials.VIEW,
+                                     )
     sending_date = DateTimeField(label=_(u'Sending date'), required=False, widget=CalendarWidget,
                                  help_text=_(u'Required only of the sending is deferred.'))
     hour         = IntegerField(label=_(u'Sending hour'), required=False, min_value=0, max_value=23)

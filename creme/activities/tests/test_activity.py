@@ -5,7 +5,6 @@ try:
     from functools import partial
     from json import loads as json_loads
 
-    #from django.contrib.auth.models import User
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
@@ -20,10 +19,8 @@ try:
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
              EntityFilter, SettingValue)
-    #from creme.creme_core.utils import create_or_update
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.assistants.models import Alert
@@ -586,7 +583,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                         }
                                      )
         self.assertFormError(response, 'form', 'other_participants',
-                             _(u"This entity doesn't exist.")
+                             _(u'This entity does not exist.')
                             )
 
     def test_createview_alert01(self):
@@ -2063,11 +2060,6 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_detete_activity_type01(self):
         self.login()
 
-#        atype = create_or_update(ActivityType, 'activities-activity_custom_1',
-#                                 name='Karate session',
-#                                 default_day_duration=0, default_hour_duration="00:15:00",
-#                                 is_custom=True,
-#                                )
         atype = ActivityType.objects.update_or_create(id='activities-activity_custom_1',
                                                       defaults={'name':                 'Karate session',
                                                                 'default_day_duration':  0,
@@ -2082,11 +2074,6 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_detete_activity_type02(self):
         user = self.login()
 
-#        atype = create_or_update(ActivityType, 'activities-activity_custom_1',
-#                                 name='Karate session',
-#                                 default_day_duration=0, default_hour_duration="00:15:00",
-#                                 is_custom=True,
-#                                )
         atype = ActivityType.objects.update_or_create(id='activities-activity_custom_1',
                                                       defaults={'name':                 'Karate session',
                                                                 'default_day_duration':  0,
@@ -2130,8 +2117,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         initial_end = end_f.initial
         self.assertIsNone(initial_end)
-        #self.assertIsInstance(initial_end, datetime)
-        #self.assertEqual(initial_end - initial_start, timedelta(hours=1))
 
         title = "meeting activity popup 1"
         response = self.client.post(url, data={'user':          user.pk,
@@ -2224,9 +2209,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         my_calendar = Calendar.get_user_default_calendar(user)
 
         constants.ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
-#        create_or_update(ActivityType, constants.ACTIVITYTYPE_ACTIVITY, name='Karate session',
-#                         default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
-#                        )
         ActivityType.objects.update_or_create(id=constants.ACTIVITYTYPE_ACTIVITY,
                                               defaults={'name':                 'Karate session',
                                                         'default_day_duration':  0,

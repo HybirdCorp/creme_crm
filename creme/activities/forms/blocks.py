@@ -26,15 +26,14 @@ from django.contrib.auth import get_user_model
 from django.forms import BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _, ungettext # ugettext
 
-from creme.creme_core.forms import CremeForm
-from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
+from creme.creme_core.forms import CremeForm, MultiCreatorEntityField, MultiGenericEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 # from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import RelationType, Relation
 
 from creme.persons import get_contact_model
 
-from ..constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
+from .. import constants
 from ..models import Calendar
 from ..utils import check_activity_collisions
 
@@ -45,11 +44,11 @@ Contact = get_contact_model()
 
 class ParticipantCreateForm(CremeForm):
     my_participation    = BooleanField(required=False, initial=False,
-                                       label=_(u"Do I participate to this activity?"),
+                                       label=_(u'Do I participate to this activity?'),
                                       )
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(),
                                            required=False, empty_label=None,
-                                           label=_(u"On which of my calendar this activity will appear?"),
+                                           label=_(u'On which of my calendar this activity will appear?'),
                                           )
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
                                                    queryset=get_user_model().objects.filter(is_staff=False),
@@ -60,16 +59,14 @@ class ParticipantCreateForm(CremeForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(ParticipantCreateForm, self).__init__(*args, **kwargs)
-
         self.activity = entity
-#        self.participants = []
         self.participants = set()
 
         user = self.user
         user_pk = user.pk
         fields = self.fields
 
-        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY,
+        existing = Contact.objects.filter(relations__type=constants.REL_SUB_PART_2_ACTIVITY,
                                           relations__object_entity=entity.id,
                                          )
 
@@ -103,10 +100,10 @@ class ParticipantCreateForm(CremeForm):
 
             my_calendar_field = fields['my_calendar']
             my_calendar_field.queryset = Calendar.objects.filter(user=user)
-            my_calendar_field.widget.attrs['disabled'] = True #TODO: remove when dependencies system is OK
+            my_calendar_field.widget.attrs['disabled'] = True  # TODO: remove when dependencies system is OK
 
-    def clean_participants(self):
-        return validate_linkable_entities(self.cleaned_data['participants'], self.user)
+    # def clean_participants(self):
+    #     return validate_linkable_entities(self.cleaned_data['participants'], self.user)
 
     def clean_participating_users(self):
         users = set()
@@ -156,7 +153,7 @@ class ParticipantCreateForm(CremeForm):
         activity = self.activity
 
         create_relation = partial(Relation.objects.create, object_entity=activity,
-                                  type_id=REL_SUB_PART_2_ACTIVITY, user=activity.user,
+                                  type_id=constants.REL_SUB_PART_2_ACTIVITY, user=activity.user,
                                  )
 
         for participant in self.participants:
@@ -176,7 +173,7 @@ class SubjectCreateForm(CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
         self.activity = entity
-        self.rtype = rtype = RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT)
+        self.rtype = rtype = RelationType.objects.get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
         ctypes = rtype.subject_ctypes.all()
         subjects_f = self.fields['subjects']
         subjects_f.allowed_models = [ct.model_class() for ct in ctypes]
@@ -199,7 +196,8 @@ class SubjectCreateForm(CremeForm):
                                   params={'duplicates': u', '.join(unicode(e) for e in duplicates)},
                                  )
 
-        return validate_linkable_entities(subjects, self.user)
+        # return validate_linkable_entities(subjects, self.user)
+        return subjects
 
     def save(self):
         create_relation = partial(Relation.objects.create, type=self.rtype,

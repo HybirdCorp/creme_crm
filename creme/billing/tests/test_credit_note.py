@@ -265,7 +265,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post(url, follow=True, data={'credit_notes': '[%s]' % credit_note.id})
-        self.assertFormError(response, 'form', 'credit_notes', [_(u"This entity doesn't exist.")])
+        self.assertFormError(response, 'form', 'credit_notes', _(u'This entity does not exist.'))
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
@@ -303,7 +303,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 250)
 
         response = self.client.post(url, follow=True, data={'credit_notes': '[%s]' % credit_note.id})
-        self.assertFormError(response, 'form', 'credit_notes', [_(u"This entity doesn't exist.")])
+        self.assertFormError(response, 'form', 'credit_notes', _(u'This entity does not exist.'))
 
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 250)
@@ -334,7 +334,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post(url, follow=True, data={'credit_notes': '[%s]' % credit_note.id})
-        self.assertFormError(response, 'form', 'credit_notes', [_(u"This entity doesn't exist.")])
+        self.assertFormError(response, 'form', 'credit_notes', _(u'This entity does not exist.'))
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)

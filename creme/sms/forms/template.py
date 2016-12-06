@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,21 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import CharField
-from django.forms.utils import ValidationError
-from django.forms.widgets import Textarea
+from django.forms import CharField, ValidationError, Textarea
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 
 from .. import get_messagetemplate_model
 from ..encoding import gsm_encoded_content, SMS_MAX_LENGTH
-#from ..models import MessageTemplate
 
 
-_FORBIDEN = u"^ { } \\ [ ~ ] | €" #TODO: given by the backend ??
+_FORBIDDEN = u"^ { } \\ [ ~ ] | €"  # TODO: given by the backend ??
 _HELP = _(u"""Message with a maximum of 160 characters.
- Beware, the header matters (+ 3 characters) and the following characters count double: %s""") % _FORBIDEN
+ Beware, the header matters (+ 3 characters) and the following characters count double: %s""") % _FORBIDDEN
 MessageTemplate = get_messagetemplate_model()
 
 
@@ -67,5 +64,3 @@ class TemplateCreateForm(CremeEntityForm):
 
 class TemplateEditForm(TemplateCreateForm):
     pass
-    #class Meta:
-        #model   = MessageTemplate

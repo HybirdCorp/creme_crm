@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,9 +23,8 @@ import logging
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import (CremeEntityForm,
-        GenericEntityField, CreatorEntityField)
-from creme.creme_core.forms.validators import validate_linkable_entity
+from creme.creme_core.forms import CremeEntityForm, GenericEntityField, CreatorEntityField
+# from creme.creme_core.forms.validators import validate_linkable_entity
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first
 
@@ -54,8 +53,8 @@ def first_managed_orga_id():
 
 
 class BaseEditForm(CremeEntityForm):
-    source = CreatorEntityField(label=_(u"Source organisation"), model=get_organisation_model())
-    target = GenericEntityField(label=_(u"Target"),
+    source = CreatorEntityField(label=_(u'Source organisation'), model=get_organisation_model())
+    target = GenericEntityField(label=_(u'Target'),
                                 models=[get_organisation_model(), get_contact_model()],
                                )
 
@@ -68,7 +67,7 @@ class BaseEditForm(CremeEntityForm):
             }
 
     blocks = CremeEntityForm.blocks.new(
-                ('orga_n_address', _(u'Organisations'), ['source', 'target']), #TODO: rename
+                ('orga_n_address', _(u'Organisations'), ['source', 'target']),  # TODO: rename
             )
 
     def __init__(self, *args, **kwargs):
@@ -93,11 +92,11 @@ class BaseEditForm(CremeEntityForm):
                 self.received_relation = received_relation
                 self.fields['target'].initial = received_relation.object_entity
 
-    def clean_source(self):
-        return validate_linkable_entity(self.cleaned_data['source'], self.user)
-
-    def clean_target(self):
-        return validate_linkable_entity(self.cleaned_data['target'], self.user)
+    # def clean_source(self):
+    #     return validate_linkable_entity(self.cleaned_data['source'], self.user)
+    #
+    # def clean_target(self):
+    #     return validate_linkable_entity(self.cleaned_data['target'], self.user)
 
     def _manage_relation(self, existing_relation, type_id, related_entity):
         if existing_relation:

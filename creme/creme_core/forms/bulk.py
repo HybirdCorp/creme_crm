@@ -23,7 +23,7 @@ import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models.fields.related import RelatedField, ManyToManyField  # ForeignKey
+from django.db.models.fields.related import ManyToManyField  # RelatedField ForeignKey
 # from django.db.models.query_utils import Q
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
@@ -34,8 +34,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 # from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from ..gui.bulk_update import bulk_update_registry
-from ..models import CremeEntity
-from ..models.custom_field import CustomField, CustomFieldValue
+# from ..models import CremeEntity
+from ..models import custom_field
 
 from .base import CremeForm
 # from .fields import CreatorEntityField, MultiCreatorEntityField
@@ -62,7 +62,7 @@ class BulkForm(CremeForm):
         super(BulkForm, self).__init__(user, **kwargs)
         self.is_bulk = is_bulk
         self.is_subfield = parent_field is not None
-        self.is_custom = is_custom = isinstance(field, CustomField)
+        self.is_custom = is_custom = isinstance(field, custom_field.CustomField)
 
         self.field_name = field.name if not is_custom else _CUSTOMFIELD_FORMAT % field.pk
         self.model = model
@@ -302,14 +302,13 @@ class BulkDefaultEditForm(BulkForm):
 
         self.fields['field_value'] = form_field
 
-    def clean_field_value(self):
-        field_value = self.cleaned_data.get('field_value')
-
-        # TODO : CreatorEntityField doesn't check permission.
-        if isinstance(field_value, CremeEntity) and not self.user.has_perm_to_view(field_value):
-            raise ValidationError(ugettext(u"You can't view this value, so you can't set it."))
-
-        return field_value
+    # def clean_field_value(self):
+    #     field_value = self.cleaned_data.get('field_value')
+    #
+    #     if isinstance(field_value, CremeEntity) and not self.user.has_perm_to_view(field_value):
+    #         raise ValidationError(ugettext(u"You can't view this value, so you can't set it."))
+    #
+    #     return field_value
 
     def clean(self):
         cleaned_data = super(BulkDefaultEditForm, self).clean()
@@ -326,7 +325,7 @@ class BulkDefaultEditForm(BulkForm):
         field_value = self.cleaned_data['field_value']
 
         if self.is_custom and entities:
-            CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)
+            custom_field.CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)
         else:
             for entity in entities:
                 entity.save()

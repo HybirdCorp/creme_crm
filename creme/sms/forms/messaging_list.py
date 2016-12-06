@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,10 +27,8 @@ from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.models import EntityFilter
 
 from creme.persons import get_contact_model
-#from creme.persons.models import Contact
 
 from .. import get_messaginglist_model
-#from ..models import MessagingList
 
 
 Contact = get_contact_model()
@@ -38,7 +36,6 @@ Contact = get_contact_model()
 
 class MessagingListForm(CremeEntityForm):
     class Meta:
-#        model = MessagingList
         model = get_messaginglist_model()
         fields = ('user', 'name')
 
@@ -60,24 +57,23 @@ class AddContactsForm(CremeForm):
             contacts.add(contact)
 
 
-class AddPersonsFromFilterForm(CremeForm): #private class ???
+class AddPersonsFromFilterForm(CremeForm):  # private class ???
     filters = ModelChoiceField(label=_(u'Filters'), queryset=EntityFilter.objects.none(), empty_label=_(u'All'), required=False)
 
-    person_model = None #Contact/Organisation
+    person_model = None  # Contact/Organisation
 
     def __init__(self, entity, *args, **kwargs):
         super(AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
         self.messaging_list = entity
 
         ct = ContentType.objects.get_for_model(self.person_model)
-        #self.fields['filters'].queryset = EntityFilter.objects.filter(entity_type=ct)
         self.fields['filters'].queryset = EntityFilter.get_for_user(self.user, ct)
 
     def get_persons_m2m(self):
         raise NotImplementedError
 
     def save(self):
-        persons   = self.get_persons_m2m()
+        persons = self.get_persons_m2m()
         efilter = self.cleaned_data['filters']
         new_persons = self.person_model.objects.all()
 

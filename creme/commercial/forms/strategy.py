@@ -153,7 +153,7 @@ class SegmentCreateForm(_SegmentForm):
 
 
 class AddOrganisationForm(CremeForm):
-    organisations = MultiCreatorEntityField(label=_(u"Organisations"), model=get_organisation_model())
+    organisations = MultiCreatorEntityField(label=_(u'Organisations'), model=get_organisation_model())
 
     def __init__(self, entity, *args, **kwargs):
         super(AddOrganisationForm, self).__init__(*args, **kwargs)

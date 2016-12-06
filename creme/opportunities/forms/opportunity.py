@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,9 +39,9 @@ class OpportunityEditForm(CremeEntityForm):
 #     expected_closing_date = CremeDateTimeField(label=_(u'Expected closing date'), required=False)
 #     closing_date          = CremeDateTimeField(label=_(u'Actual closing date'), required=False)
 #     first_action_date     = CremeDateTimeField(label=_(u'Date of the first action'), required=False)
-    target                = GenericEntityField(label=_(u"Target organisation / contact"),
-                                               models=[Organisation, Contact]
-                                              )
+    target = GenericEntityField(label=_(u'Target organisation / contact'),
+                                models=[Organisation, Contact],
+                               )
 
     class Meta(CremeEntityForm.Meta):
         model = Opportunity
@@ -53,15 +53,16 @@ class OpportunityEditForm(CremeEntityForm):
             self.fields['target'].initial = self.instance.target
 
     def clean_target(self):
-        self.instance.target = target = validate_linkable_entity(self.cleaned_data['target'], self.user)
+        # self.instance.target = target = validate_linkable_entity(self.cleaned_data['target'], self.user)
+        self.instance.target = target = self.cleaned_data['target']
 
         return target
 
 
 class OpportunityCreateForm(OpportunityEditForm):
-    emitter = ModelChoiceField(label=_(u"Concerned organisation"),
+    emitter = ModelChoiceField(label=_(u'Concerned organisation'),
                                queryset=Organisation.get_all_managed_by_creme(),
-                               empty_label=None
+                               empty_label=None,
                               )
 
     def clean_emitter(self):

@@ -7,11 +7,8 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials
-
     # from creme.media_managers.tests import create_image
-    from creme.documents import get_document_model
+    from creme.documents import get_document_model, get_folder_model
 
     from .base import _ProductsTestCase, skipIfCustomService
     from .. import get_service_model
@@ -91,7 +88,7 @@ class ServiceTestCase(_ProductsTestCase):
                                           'description':  service.description,
                                           'unit_price':   unit_price,
                                           'sub_category': self._cat_field(service.category,
-                                                                          service.sub_category
+                                                                          service.sub_category,
                                                                          ),
                                           'unit':         service.unit,
                                          }
@@ -160,35 +157,18 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertEqual(cat,     service.category)
 
     def test_add_images(self):
-        # TODO: factorise
         # user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
         #                   creatable_models=[Service],
         #                  )
-        user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
-                          creatable_models=[Service, Document],
-                         )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            #EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        user = self.login_as_basic_user(Service)
 
-        create_image = self._create_image
-        img_1 = create_image(ident=1, user=user)
-        img_2 = create_image(ident=2, user=user)
-        img_3 = create_image(ident=3, user=user)
+        create_image = partial(self._create_image, user=user,
+                               folder=get_folder_model().objects.create(user=user, title=_('My Images')),
+                              )
+        img_1 = create_image(ident=1)
+        img_2 = create_image(ident=2)
+        img_3 = create_image(ident=3)
         img_4 = create_image(ident=4, user=self.other_user)
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_4))
@@ -211,7 +191,7 @@ class ServiceTestCase(_ProductsTestCase):
 
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _(u"Some entities are not linkable: %s") % img_4)
+        self.assertFormError(response, 'form', 'images', _(u'Some entities are not linkable: %s') % img_4)
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)

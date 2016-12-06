@@ -20,8 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme.creme_core.forms.fields import MultiCreatorEntityField
+from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager, MultiCreatorEntityField
 
 from .. import get_emailcampaign_model, get_mailinglist_model
 
