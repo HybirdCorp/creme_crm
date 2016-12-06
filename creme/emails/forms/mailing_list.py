@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,7 +71,7 @@ class AddOrganisationsForm(CremeForm):  # TODO: factorise
     def save(self):
         organisations = self.ml.organisations
 
-        #TODO: check if email if ok ????
+        # TODO: check if email if ok ????
         for organisation in self.cleaned_data['recipients']:
             organisations.add(organisation)
 
@@ -125,7 +125,7 @@ class AddOrganisationsFromFilterForm(_AddPersonsFromFilterForm):
 
 
 class AddChildForm(CremeForm):
-    child = CreatorEntityField(label=_(u'List'), required=True, model=MailingList)
+    child = CreatorEntityField(label=_(u'List'), model=MailingList)
 
     error_messages = {
         'own_child': _(u"A list can't be its own child"),

@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import FileField
-from django.forms.widgets import Textarea
+from django.forms import FileField, Textarea
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.utils import chunktools
@@ -83,7 +82,7 @@ class MessagingListAddCSVForm(CremeForm):
             return
 
         messaging_list = self.messaging_list
-        create  = Recipient.objects.create
+        create = Recipient.objects.create
         duplicates = frozenset(Recipient.objects.filter(phone__in=numbers,
                                                         messaging_list=messaging_list,
                                                        )

@@ -27,9 +27,10 @@ from django.forms.fields import EmailField, BooleanField, IntegerField, CharFiel
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
+from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
-from creme.creme_core.forms.validators import validate_linkable_entities
+# from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation, FieldsConfig
 
@@ -115,9 +116,9 @@ class EntityEmailForm(CremeEntityForm):
             return []
 
         recipients = self.cleaned_data.get(field_name) or []
-        user = self.user
+        # user = self.user
 
-        validate_linkable_entities(recipients, user)
+        # validate_linkable_entities(recipients, user)
 
         bad_entities = []
 
@@ -129,6 +130,7 @@ class EntityEmailForm(CremeEntityForm):
 
         if bad_entities:
             msg_format = ugettext(u'The email address for %s is invalid')
+            user = self.user
 
             for entity in bad_entities:
                 self.add_error(field_name, msg_format % entity.allowed_unicode(user))
@@ -202,7 +204,9 @@ class EntityEmailForm(CremeEntityForm):
 
 class TemplateSelectionForm(CremeForm):
     step     = IntegerField(widget=HiddenInput, initial=1)
-    template = CreatorEntityField(label=pgettext_lazy('emails', u'Template'), model=EmailTemplate)
+    template = CreatorEntityField(label=pgettext_lazy('emails', u'Template'), model=EmailTemplate,
+                                  credentials=EntityCredentials.VIEW,
+                                 )
 
 
 class EntityEmailFromTemplateForm(EntityEmailForm):

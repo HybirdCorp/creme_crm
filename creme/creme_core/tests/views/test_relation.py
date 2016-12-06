@@ -9,8 +9,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
-    from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeActivity, FakeImage)
+    from ..fake_models import FakeContact, FakeOrganisation, FakeActivity, FakeImage
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, SemiFixedRelationType,
             Relation, CremeEntity, CremePropertyType, CremeProperty)
@@ -44,8 +43,8 @@ class RelationViewsTestCase(ViewsTestCase):
         'No sort'
         self.login()
 
-        rtype = RelationType.create(('test-subject__JSP01_3', u'is a customer of', [Contact]),
-                                    ('test-object__JSP01_4',  u'is a supplier of', [Contact, Organisation]),
+        rtype = RelationType.create(('test-subject__JSP01_3', u'is a customer of', [FakeContact]),
+                                    ('test-object__JSP01_4',  u'is a supplier of', [FakeContact, FakeOrganisation]),
                                    )[0]
 
         response = self.assertGET200(self._build_get_ctypes_url(rtype.id),
@@ -57,8 +56,8 @@ class RelationViewsTestCase(ViewsTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertIsInstance(json_data, list)
         self.assertEqual(2, len(json_data))
-        self.assertIn([get_ct(Contact).id,      unicode(Contact._meta.verbose_name)],      json_data)
-        self.assertIn([get_ct(Organisation).id, unicode(Organisation._meta.verbose_name)], json_data)
+        self.assertIn([get_ct(FakeContact).id, unicode(FakeContact._meta.verbose_name)], json_data)
+        self.assertIn([get_ct(FakeOrganisation).id, unicode(FakeOrganisation._meta.verbose_name)], json_data)
 
     def test_get_ctypes_of_relation02(self):
         self.login()
@@ -73,8 +72,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         json_data = load_json(response.content)
         get_ct = ContentType.objects.get_for_model
-        self.assertIn([get_ct(Contact).id], json_data)
-        self.assertIn([get_ct(Organisation).id], json_data)
+        self.assertIn([get_ct(FakeContact).id], json_data)
+        self.assertIn([get_ct(FakeOrganisation).id], json_data)
         self.assertIn([get_ct(FakeActivity).id], json_data)
 
     def test_get_ctypes_of_relation03(self):
@@ -82,7 +81,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.login()
 
         rtype = RelationType.create(('test-subject_foobar', 'foo'),
-                                    ('test-object_foobar',  'bar', [FakeImage, Contact])
+                                    ('test-object_foobar',  'bar', [FakeImage, FakeContact])
                                    )[0]
 
         response = self.assertGET200(self._build_get_ctypes_url(rtype.id),
@@ -91,11 +90,11 @@ class RelationViewsTestCase(ViewsTestCase):
                                           },
                                     )
 
-        c_vname = unicode(Contact._meta.verbose_name)
+        c_vname = unicode(FakeContact._meta.verbose_name)
         i_vname = unicode(FakeImage._meta.verbose_name)
         get_ct = ContentType.objects.get_for_model
 
-        expected = [[get_ct(Contact).id, c_vname]]
+        expected = [[get_ct(FakeContact).id, c_vname]]
         expected.insert(0 if i_vname < c_vname else 1,
                         [get_ct(FakeImage).id,  i_vname]
                        )
@@ -104,11 +103,11 @@ class RelationViewsTestCase(ViewsTestCase):
     def _aux_test_add_relations(self, is_superuser=True):
         user = self.login(is_superuser)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         self.subject01 = create_contact(first_name='Laharl', last_name='Overlord')
         self.subject02 = create_contact(first_name='Etna',   last_name='Devil')
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         self.object01 = create_orga(name='orga01')
         self.object02 = create_orga(name='orga02')
 
@@ -259,10 +258,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
         # Constraint OK & KO
         create_rtype = RelationType.create
-        rtype03 = create_rtype(('test-subject_foobar3', 'rules',       [Contact], [ptype01, ptype03]),
+        rtype03 = create_rtype(('test-subject_foobar3', 'rules', [FakeContact], [ptype01, ptype03]),
                                ('test-object_foobar3',  'is ruled by'),
                               )[0]
-        rtype04 = create_rtype(('test-subject_foobar4', 'is the hero of',     [Contact], [ptype02]),
+        rtype04 = create_rtype(('test-subject_foobar4', 'is the hero of', [FakeContact], [ptype02]),
                                ('test-object_foobar4',  'has a hero which is'),
                               )[0]
 
@@ -272,7 +271,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                             rtype03.id, self.ct_id, self.object01.id
                                                         ),
                                          }
-                                      )
+                                     )
         self.assertFormError(response, 'form', 'relations',
                              _(u'«%(subject)s» must have a property in «%(properties)s» '
                                u'in order to use the relationship «%(predicate)s»') % {
@@ -299,10 +298,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
         # Constraint OK & KO
         create_rtype = RelationType.create
-        rtype03 = create_rtype(('test-subject_foobar3', 'is hating orga',     [Contact]),
-                               ('test-object_foobar3',  '(orga) is hated by', [Organisation]),
+        rtype03 = create_rtype(('test-subject_foobar3', 'is hating orga',     [FakeContact]),
+                               ('test-object_foobar3',  '(orga) is hated by', [FakeOrganisation]),
                               )[0]
-        rtype04 = create_rtype(('test-subject_foobar4', 'has fired', [Organisation]),  # The subject cannot be a Contact
+        rtype04 = create_rtype(('test-subject_foobar4', 'has fired', [FakeOrganisation]),  # The subject cannot be a Contact
                                ('test-object_foobar4',  'has been fired by')
                               )[0]
 
@@ -449,10 +448,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
         # Constraint OK & KO
         create_rtype = RelationType.create
-        rtype03 = create_rtype(('test-subject_foobar3', 'rules',       [Contact], [ptype01]),
+        rtype03 = create_rtype(('test-subject_foobar3', 'rules', [FakeContact], [ptype01]),
                                ('test-object_foobar3',  'is ruled by'),
                               )[0]
-        rtype04 = create_rtype(('test-subject_foobar4', 'is the hero of',     [Contact], [ptype02]),
+        rtype04 = create_rtype(('test-subject_foobar4', 'is the hero of', [FakeContact], [ptype02]),
                                ('test-object_foobar4',  'has a hero which is'),
                               )[0]
 
@@ -760,17 +759,17 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.subject   = CremeEntity.objects.create(user=user)
 
-        create_user = partial(Contact.objects.create, user=user)
+        create_user = partial(FakeContact.objects.create, user=user)
         self.contact01 = create_user(first_name='Laharl', last_name='Overlord')
         self.contact02 = create_user(first_name='Etna',   last_name='Devil')
         self.contact03 = create_user(first_name='Flone',  last_name='Angel')
 
-        self.orga01 = Organisation.objects.create(user=user, name='Earth Defense Force')
+        self.orga01 = FakeOrganisation.objects.create(user=user, name='Earth Defense Force')
 
-        self.ct_contact = ContentType.objects.get_for_model(Contact)
+        self.ct_contact = ContentType.objects.get_for_model(FakeContact)
 
-        self.rtype = RelationType.create(('test-subject_foobar', 'is loving',   [Contact]),
-                                         ('test-object_foobar',  'is loved by', [Contact])
+        self.rtype = RelationType.create(('test-subject_foobar', 'is loving',   [FakeContact]),
+                                         ('test-object_foobar',  'is loved by', [FakeContact])
                                         )[0]
 
     def _build_selection_url(self, rtype, subject, ct):
@@ -792,7 +791,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         contacts = entities.object_list
         self.assertEqual(3, len(contacts))
-        self.assertTrue(all(isinstance(c, Contact) for c in contacts))
+        self.assertTrue(all(isinstance(c, FakeContact) for c in contacts))
         self.assertEqual({self.contact01, self.contact02, self.contact03}, set(contacts))
 
     def test_objects_to_link_selection02(self):
@@ -816,7 +815,7 @@ class RelationViewsTestCase(ViewsTestCase):
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is lovable')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is a girl')
 
-        contact04 = Contact.objects.create(user=self.user, first_name='Flonne', last_name='Angel')
+        contact04 = FakeContact.objects.create(user=self.user, first_name='Flonne', last_name='Angel')
 
         # 'contact02' will not be proposed by the listview
         create_property = CremeProperty.objects.create
@@ -825,8 +824,8 @@ class RelationViewsTestCase(ViewsTestCase):
         create_property(type=ptype01, creme_entity=contact04)
         create_property(type=ptype02, creme_entity=contact04)
 
-        rtype, sym_rtype = RelationType.create(('test-subject_loving', 'is loving',   [Contact]),
-                                               ('test-object_loving',  'is loved by', [Contact], [ptype01, ptype02])
+        rtype, sym_rtype = RelationType.create(('test-subject_loving', 'is loving',   [FakeContact]),
+                                               ('test-object_loving',  'is loved by', [FakeContact], [ptype01, ptype02])
                                               )
 
         response = self.assertGET200(self._build_selection_url(rtype, self.subject, self.ct_contact))
@@ -839,9 +838,9 @@ class RelationViewsTestCase(ViewsTestCase):
         self.login()
 
         subject = CremeEntity.objects.create(user=self.user)
-        ct = ContentType.objects.get_for_model(Contact)
-        rtype = RelationType.create(('test-subject_foobar', 'is loving',   [Contact]),
-                                    ('test-object_foobar',  'is loved by', [Contact]),
+        ct = ContentType.objects.get_for_model(FakeContact)
+        rtype = RelationType.create(('test-subject_foobar', 'is loving',   [FakeContact]),
+                                    ('test-object_foobar',  'is loved by', [FakeContact]),
                                     is_internal=True
                                    )[0]
 
@@ -950,7 +949,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                  'predicate_id': rtype.id,
                                  'entities':     [forbidden.id, allowed02.id, 1024],
                                 }
-                        )
+                          )
         relations = Relation.objects.filter(type=rtype)
         self.assertEqual(1, len(relations))
 
@@ -962,16 +961,16 @@ class RelationViewsTestCase(ViewsTestCase):
         "ContentType constraint errors"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='orga01')
         orga02 = create_orga(name='orga02')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='John', last_name='Doe')
         contact02 = create_contact(first_name='Joe',  last_name='Gohn')
 
-        rtype = RelationType.create(('test-subject_foobar', 'manages',       [Contact]),
-                                    ('test-object_foobar',  'is managed by', [Organisation])
+        rtype = RelationType.create(('test-subject_foobar', 'manages',       [FakeContact]),
+                                    ('test-object_foobar',  'is managed by', [FakeOrganisation])
                                    )[0]
 
         self.assertPOST(409, self.ADD_FROM_PRED_URL,
@@ -979,7 +978,7 @@ class RelationViewsTestCase(ViewsTestCase):
                               'predicate_id': rtype.id,
                               'entities':     [orga02.id],
                              }
-                        )
+                       )
         self.assertFalse(Relation.objects.filter(type=rtype.id))
 
         self.assertPOST(409, self.ADD_FROM_PRED_URL,
@@ -1018,7 +1017,7 @@ class RelationViewsTestCase(ViewsTestCase):
                               'predicate_id': rtype.id,
                               'entities':     [good_object.id],
                              }
-                        )
+                       )
         self.assertFalse(Relation.objects.filter(type=rtype))
 
         self.assertPOST(409, self.ADD_FROM_PRED_URL,
@@ -1026,7 +1025,7 @@ class RelationViewsTestCase(ViewsTestCase):
                               'predicate_id': rtype.id,
                               'entities':     [good_object.id, bad_object.id],
                              }
-                        )
+                       )
         relations = Relation.objects.filter(type=rtype)
         self.assertEqual(1,              len(relations))
         self.assertEqual(good_object.id, relations[0].object_entity_id)
@@ -1103,7 +1102,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving'),
                                                ('test-object_foobar',  'is loved by'),
-                                               is_internal=True
+                                               is_internal=True,
                                               )
         self.assertTrue(rtype.is_internal)
         self.assertTrue(sym_rtype.is_internal)
@@ -1248,10 +1247,11 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(0, Relation.objects.count())
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
                                              ('test-object_foobar',  'is loved by'),
-                                             is_copiable=False)
+                                             is_copiable=False,
+                                            )
         rtype3, rtype4 = RelationType.create(('test-subject_foobar_copiable', 'is loving'),
                                              ('test-object_foobar_copiable',  'is loved by'),
-                                             )
+                                            )
 
         create_entity = CremeEntity.objects.create
         entity1 = create_entity(user=user)
@@ -1273,15 +1273,20 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_not_copiable_relations02(self):
         user = self.login()
         self.assertEqual(0, Relation.objects.count())
-        rtype1, rtype2 = RelationType.create(('test-subject_foobar_copiable', 'is loving', (Contact, Organisation)),
-                                             ('test-object_foobar_copiable',  'is loved by', (Contact,)))
-        rtype3, rtype4 = RelationType.create(('test-subject_foobar', 'is loving', (Contact,)),
-                                             ('test-object_foobar',  'is loved by', (Organisation,)),
-                                             )
 
-        contact1 = Contact.objects.create(user=user, last_name="Toto")
-        contact2 = Contact.objects.create(user=user, last_name="Titi")
-        orga = Organisation.objects.create(user=user, name="Toto CORP")
+        create_rtype = RelationType.create
+        rtype1, rtype2 = create_rtype(('test-subject_foobar_copiable', 'is loving',   [FakeContact, FakeOrganisation]),
+                                      ('test-object_foobar_copiable',  'is loved by', [FakeContact]),
+                                     )
+        rtype3, rtype4 = create_rtype(('test-subject_foobar', 'is loving',   [FakeContact]),
+                                      ('test-object_foobar',  'is loved by', [FakeOrganisation]),
+                                     )
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact1 = create_contact(last_name='Toto')
+        contact2 = create_contact(last_name='Titi')
+
+        orga = FakeOrganisation.objects.create(user=user, name='Toto CORP')
 
         # Contact1 <------> Orga
         Relation.objects.create(user=user, type=rtype1,
@@ -1303,18 +1308,18 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_json_entity_rtypes01(self):
         user = self.login()
 
-        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
 
         create_rtype = RelationType.create
         rtype1, rtype2 = create_rtype(('test-subject_JSP01_1', 'Predicate#1'),
                                       ('test-object_JSP01_2',  'Predicate#2'),
-                                      is_internal=True
+                                      is_internal=True,
                                      )
-        rtype3, rtype4 = create_rtype(('test-subject__JSP01_3', 'Predicate#3', [Contact, Organisation]),
+        rtype3, rtype4 = create_rtype(('test-subject__JSP01_3', 'Predicate#3', [FakeContact, FakeOrganisation]),
                                       ('test-object__JSP01_4',  'Predicate#4', [FakeActivity]),
                                      )
         rtype5, rtype6 = create_rtype(('test-subject__JSP01_5', 'Predicate#5'),
-                                      ('test-object__JSP01_6',  'Predicate#6', [Contact]),
+                                      ('test-object__JSP01_6',  'Predicate#6', [FakeContact]),
                                      )
 
         url = self._build_predicates_json_url(rei)
@@ -1331,7 +1336,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertNotIn([rtype1.id], json_data)  # Internal
         self.assertNotIn([rtype4.id], json_data)  # CT constraint
 
-        nerv = Organisation.objects.create(user=user, name='Nerv')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         response = self.assertGET200(self._build_predicates_json_url(nerv),
                                      data={'fields': ['id', 'unicode']}
                                     )
@@ -1341,7 +1346,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_json_entity_rtypes02(self):
         user = self.login(is_superuser=False, allowed_apps=['documents'])
-        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         self.assertGET403(self._build_predicates_json_url(rei),
                           data={'fields': ['id']},
                          )

@@ -472,10 +472,10 @@ class EntityEmailTestCase(_EmailsTestCase):
                                            }
                                       )
         self.assertFormError(response, 'form', 'c_recipients',
-                             _(u"This entity doesn't exist.")
+                             _(u'This entity does not exist.')
                             )
         self.assertFormError(response, 'form', 'o_recipients',
-                             _(u"This entity doesn't exist.")
+                             _(u'This entity does not exist.')
                             )
 
     @skipIfCustomEmailTemplate

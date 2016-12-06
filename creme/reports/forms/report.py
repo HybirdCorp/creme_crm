@@ -43,7 +43,7 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 from .. import get_report_model
 from ..constants import (RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION,
         RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
-from ..models import Field # Report
+from ..models import Field
 from ..report_aggregation_registry import field_aggregation_registry
 
 
@@ -156,7 +156,7 @@ class ReportEditForm(CremeEntityForm):
 
 
 class LinkFieldToReportForm(CremeForm):
-    report = CreatorEntityField(label=_(u"Sub-report linked to the column"), model=Report)
+    report = CreatorEntityField(label=_(u'Sub-report linked to the column'), model=Report)
 
     def __init__(self, field, ctypes, *args, **kwargs):
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms.fields import RegexField
-from django.forms.utils import ValidationError
+from django.forms import RegexField, ValidationError
 
 
 PHONE_REGEX = '^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*$'
@@ -47,13 +46,13 @@ class PhoneListField(RegexField):
     def __init__(self, max_length=None, min_length=None, error_message=None, separator='\n', *args, **kwargs):
         regex = PHONE_LIST_REGEX % separator
         self.separator = separator
-        
+
         super(PhoneListField, self).__init__(regex, max_length, min_length, error_message, *args, **kwargs)
-    
+
     def clean(self, value):
         value = super(RegexField, self).clean(value)
-        
+
         if value and not self.regex.search(value):
             raise ValidationError(self.error_messages['invalid'])
-        
+
         return [PhoneField.filternumbers(number) for number in value.split(self.separator)]

@@ -341,14 +341,15 @@ class ActivityCreateForm(_ActivityCreateForm):
 
     def clean_other_participants(self):
         participants = self.cleaned_data['other_participants']
-        self.participants.update(validate_linkable_entities(participants, self.user))
+        # self.participants.update(validate_linkable_entities(participants, self.user))
+        self.participants.update(participants)
         return participants
 
-    def clean_subjects(self):
-        return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
+    # def clean_subjects(self):
+    #     return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
 
-    def clean_linked_entities(self):
-        return validate_linkable_entities(self.cleaned_data['linked_entities'], self.user)
+    # def clean_linked_entities(self):
+    #     return validate_linkable_entities(self.cleaned_data['linked_entities'], self.user)
 
     def clean(self):
         if not self._errors:

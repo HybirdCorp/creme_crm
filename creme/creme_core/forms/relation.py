@@ -28,7 +28,7 @@ from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
 from ..utils import entities2unicode
 from .base import CremeForm, FieldBlockManager
 from .fields import MultiRelationEntityField
-from .validators import validate_linkable_entities
+# from .validators import validate_linkable_entities
 from .widgets import Label  # UnorderedMultipleChoiceWidget
 
 
@@ -167,11 +167,12 @@ class _RelationsCreateForm(CremeForm):
 
     def clean_relations(self):
         relations = self.cleaned_data['relations']
-        user = self.user
+        # user = self.user
 
-        self._check_duplicates(relations, user)
+        # self._check_duplicates(relations, user)
+        self._check_duplicates(relations, self.user)
         self._check_loops(relations)
-        validate_linkable_entities([entity for rt_id, entity in relations], user)
+        # validate_linkable_entities([entity for rt_id, entity in relations], user)
         self._check_properties([rtype for rtype, e_ in relations])
 
         return relations
@@ -257,7 +258,7 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
         fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
 
         if forbidden_subjects:
-            fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unlinkable entities"),
+            fields['bad_entities_lbl'] = CharField(label=ugettext(u'Unlinkable entities'),
                                                    widget=Label,
                                                    initial=entities2unicode(forbidden_subjects, user),
                                                   )

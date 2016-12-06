@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,40 +25,72 @@ from django.utils.translation import ugettext as _
 from ..utils import entities2unicode
 
 
-def validate_editable_entities(entities, user):
-    has_perm = user.has_perm_to_change
-    uneditable = entities2unicode((e for e in entities if not has_perm(e)), user)
-
-    if uneditable:
-        raise ValidationError(_(u"Some entities are not editable: %s") % uneditable)
-
-    return entities
-
-
-# TODO: factorise ??
-def validate_linkable_entities(entities, user):
-    has_perm = user.has_perm_to_link
-    unlinkable = entities2unicode((e for e in entities if not has_perm(e)), user)
-
-    if unlinkable:
-        raise ValidationError(_(u"Some entities are not linkable: %s") % unlinkable)
-
-    return entities
-
-
-def validate_linkable_entity(entity, user):
+# TODO: factorise
+# VIEW ----------------------
+def validate_viewable_entity(entity, user, code='viewnotallowed'):
     try:
-        user.has_perm_to_link_or_die(entity)
+        user.has_perm_to_view_or_die(entity)
     except PermissionDenied as e:
-        raise ValidationError(unicode(e))
+        raise ValidationError(unicode(e), code=code)
 
     return entity
 
 
-def validate_linkable_model(model, user, owner):
+def validate_viewable_entities(entities, user, code='viewnotallowed'):
+    has_perm = user.has_perm_to_view
+    unviewable = entities2unicode((e for e in entities if not has_perm(e)), user)
+
+    if unviewable:
+        raise ValidationError(_(u'Some entities are not viewable: %s') % unviewable, code=code)
+
+    return entities
+
+
+# CHANGE ----------------------
+def validate_editable_entity(entity, user, code='changenotallowed'):
+    try:
+        user.has_perm_to_change_or_die(entity)
+    except PermissionDenied as e:
+        raise ValidationError(unicode(e), code=code)
+
+    return entity
+
+
+def validate_editable_entities(entities, user, code='changenotallowed'):
+    has_perm = user.has_perm_to_change
+    uneditable = entities2unicode((e for e in entities if not has_perm(e)), user)
+
+    if uneditable:
+        raise ValidationError(_(u'Some entities are not editable: %s') % uneditable, code=code)
+
+    return entities
+
+
+# LINK ----------------------
+def validate_linkable_entity(entity, user, code='linknotallowed'):
+    try:
+        user.has_perm_to_link_or_die(entity)
+    except PermissionDenied as e:
+        raise ValidationError(unicode(e), code=code)
+
+    return entity
+
+
+def validate_linkable_entities(entities, user, code='linknotallowed'):
+    has_perm = user.has_perm_to_link
+    unlinkable = entities2unicode((e for e in entities if not has_perm(e)), user)
+
+    if unlinkable:
+        raise ValidationError(_(u'Some entities are not linkable: %s') % unlinkable, code=code)
+
+    return entities
+
+
+def validate_linkable_model(model, user, owner, code='linknotallowed'):
     if not user.has_perm_to_link(model, owner=owner):
         raise ValidationError(_(u'You are not allowed to link with the «%s» of this user.') %
-                                    model._meta.verbose_name_plural
+                                    model._meta.verbose_name_plural,
+                              code=code,
                              )
 
     return owner

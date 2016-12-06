@@ -370,7 +370,7 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'parent_tasks',
-                             _(u"This entity doesn't exist.")
+                             _(u'This entity does not exist.')
                             )
 
     @skipIfCustomTask
@@ -467,7 +467,7 @@ class ProjectsTestCase(CremeTestCase):
         #Error: already parent
         self.assertFormError(self.client.post(url, data={'parents': '[%d]' % task02.id}),
                              'form', 'parents',
-                             _(u"This entity doesn't exist.")
+                             _(u'This entity does not exist.')
                             )
 
     @skipIfCustomTask
@@ -485,7 +485,7 @@ class ProjectsTestCase(CremeTestCase):
                                     data={'parents': '[%d]' % task01.id}
                                    )
         self.assertFormError(response, 'form', 'parents',
-                             _(u"This entity doesn't exist.")
+                             _(u'This entity does not exist.')
                             )
 
     @skipIfCustomTask
@@ -509,7 +509,7 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.client.post(url % task01.id, data={'parents': '[%d]' % task03.id})
         self.assertFormError(response, 'form', 'parents',
-                             _(u"This entity doesn't exist.")
+                             _(u'This entity does not exist.')
                             )
 
     @skipIfCustomTask
@@ -824,7 +824,7 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'resource',
-                             _(u"This entity doesn't exist.")
+                             _(u'This entity does not exist.')
                             )
 
     @skipIfCustomActivity

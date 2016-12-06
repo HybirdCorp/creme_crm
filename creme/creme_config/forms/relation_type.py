@@ -24,6 +24,7 @@ from django.core.exceptions import ValidationError
 from django.forms import CharField, ModelMultipleChoiceField, BooleanField
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import (CremeForm, CremeModelForm,
         FieldBlockManager, RelationEntityField, MultiEntityCTypeChoiceField)
 # from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
@@ -97,7 +98,7 @@ class RelationTypeEditForm(RelationTypeCreateForm):
         fields['subject_is_copiable'].initial = instance.is_copiable
         fields['object_is_copiable'].initial = instance.symmetric_type.is_copiable
 
-    def save(self,  *args, **kwargs):
+    def save(self, *args, **kwargs):
         instance = self.instance
 
         return super(RelationTypeEditForm, self).save(pk_subject=instance.id, 
@@ -109,6 +110,7 @@ class RelationTypeEditForm(RelationTypeCreateForm):
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
     semi_relation = RelationEntityField(label=_('Type and object'), autocomplete=True,
                                         allowed_rtypes=RelationType.objects.filter(is_internal=False),
+                                        credentials=EntityCredentials.VIEW,
                                        )
 
     class Meta:

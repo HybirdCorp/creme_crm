@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, FieldBlockManager, CremeModelWithUserForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField
-from creme.creme_core.forms.validators import validate_linkable_entities
+# from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.models import Relation, Vat
 
 from creme.products import get_service_model, get_product_model
@@ -43,7 +43,7 @@ ServiceLine = get_service_line_model()
 
 
 class _LineMultipleAddForm(CremeForm):
-    quantity       = DecimalField(label=_(u"Quantity"), min_value=DEFAULT_DECIMAL,
+    quantity       = DecimalField(label=_(u'Quantity'), min_value=DEFAULT_DECIMAL,
                                   initial=DEFAULT_QUANTITY, decimal_places=2,
                                  )
     discount_value = DecimalField(label=_(u"Discount"),
@@ -51,7 +51,7 @@ class _LineMultipleAddForm(CremeForm):
                                   initial=DEFAULT_DECIMAL, decimal_places=2,
                                   help_text=_(u'Percentage applied on the unit price'),
                                  )
-    vat            = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
+    vat            = ModelChoiceField(label=_(u'Vat'), queryset=Vat.objects.all(),
                                       empty_label=None,
                                      )
 
@@ -63,8 +63,8 @@ class _LineMultipleAddForm(CremeForm):
         self.billing_document = entity
         self.fields['vat'].initial = Vat.get_default_vat()  # Not in field declaration because default value can change
 
-    def clean_items(self):
-        return validate_linkable_entities(self.cleaned_data['items'], self.user)
+    # def clean_items(self):
+    #     return validate_linkable_entities(self.cleaned_data['items'], self.user)
 
     def save(self):
         cleaned_data = self.cleaned_data

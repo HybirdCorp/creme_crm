@@ -24,7 +24,7 @@ from django.forms import ModelChoiceField, ValidationError  # DateTimeField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
-from creme.creme_core.forms.validators import validate_linkable_entities
+# from creme.creme_core.forms.validators import validate_linkable_entities
 # from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first
@@ -94,7 +94,7 @@ class AddContactsToEventForm(CremeForm):
 
             contacts_set.add(contact.id)
 
-        validate_linkable_entities([contact for relationtype, contact in related_contacts], self.user)
+        # validate_linkable_entities([contact for relationtype, contact in related_contacts], self.user)
 
         return related_contacts
 

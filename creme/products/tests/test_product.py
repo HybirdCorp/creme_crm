@@ -8,12 +8,10 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials
     from creme.creme_core.tests.fake_models import FakeContact
 
     # from creme.media_managers.tests import create_image
-    from creme.documents import get_document_model
+    from creme.documents import get_folder_model
 
     from .base import _ProductsTestCase, skipIfCustomProduct
     from .. import get_product_model
@@ -22,7 +20,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-Document = get_document_model()
 Product = get_product_model()
 
 
@@ -101,30 +98,13 @@ class ProductTestCase(_ProductsTestCase):
         # user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
         #                   creatable_models=[Product],
         #                  )
-        user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
-                          creatable_models=[Product, Document],
-                         )
+        user = self.login_as_basic_user(Product)
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            # EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
-
-        create_image = self._create_image
-        img_1 = create_image(ident=1, user=user)
-        img_2 = create_image(ident=2, user=user)
+        create_image = partial(self._create_image, user=user,
+                               folder=get_folder_model().objects.create(user=user, title=_('My Images')),
+                              )
+        img_1 = create_image(ident=1)
+        img_2 = create_image(ident=2)
         img_3 = create_image(ident=3, user=self.other_user)
 
         self.assertTrue(user.has_perm_to_link(img_1))
@@ -149,7 +129,7 @@ class ProductTestCase(_ProductsTestCase):
         response = post(img_1, img_3)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'images',
-                             _(u"Some entities are not linkable: %s") % img_3,
+                             _(u'Some entities are not linkable: %s') % img_3,
                             )
 
         response = post(img_1, img_2)
@@ -185,7 +165,7 @@ class ProductTestCase(_ProductsTestCase):
                                           'code':         product.code,
                                           'description':  product.description,
                                           'unit_price':   unit_price,
-                                          'unit':         "anything",
+                                          'unit':         'anything',
                                           'sub_category': self._cat_field(product.category,
                                                                           product.sub_category
                                                                          ),
@@ -199,10 +179,10 @@ class ProductTestCase(_ProductsTestCase):
 
     @skipIfCustomProduct
     def test_listview(self):
-        self.login()
+        user = self.login()
 
         cat = Category.objects.all()[0]
-        create_prod = partial(Product.objects.create, user=self.user, 
+        create_prod = partial(Product.objects.create, user=user,
                               description='A fake god', unit_price=Decimal('1.23'),
                               category=cat, sub_category=SubCategory.objects.all()[0],
                              )
@@ -465,35 +445,17 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(sub_cat.category, product2.category)
 
     def test_add_images(self):
-        # TODO: factorise
         # user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
         #                   creatable_models=[Product],
         #                  )
-        user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
-                          creatable_models=[Product, Document],
-                         )
+        user = self.login_as_basic_user(Product)
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   |
-                                            EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE |
-                                            # EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
-
-        create_image = self._create_image
-        img_1 = create_image(ident=1, user=user)
-        img_2 = create_image(ident=2, user=user)
-        img_3 = create_image(ident=3, user=user)
+        create_image = partial(self._create_image, user=user,
+                               folder=get_folder_model().objects.create(user=user, title=_('My Images')),
+                              )
+        img_1 = create_image(ident=1)
+        img_2 = create_image(ident=2)
+        img_3 = create_image(ident=3)
         img_4 = create_image(ident=4, user=self.other_user)
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_4))
@@ -517,7 +479,7 @@ class ProductTestCase(_ProductsTestCase):
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'images',
-                             _(u"Some entities are not linkable: %s") % img_4,
+                             _(u'Some entities are not linkable: %s') % img_4,
                             )
 
         response = post(img_1, img_2)
@@ -528,7 +490,7 @@ class ProductTestCase(_ProductsTestCase):
         img_5 = create_image(ident=5, user=user)
         response = post(img_1, img_5)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _("This entity doesn't exist.")) 
+        self.assertFormError(response, 'form', 'images', _('This entity does not exist.'))
 
     def test_remove_image(self):
         user = self.login()

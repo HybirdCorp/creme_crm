@@ -27,8 +27,7 @@ from django.template.base import Template, VariableNode
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme.creme_core.forms.fields import MultiCreatorEntityField
+from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager, MultiCreatorEntityField
 from creme.creme_core.forms.widgets import TinyMCEEditor
 
 from creme.documents import get_document_model
