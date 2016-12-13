@@ -98,6 +98,15 @@ class OpportunitiesConfig(CremeAppConfig):
                               .register_field('sales_phase') \
                               .register_relationtype(REL_SUB_TARGETS)
 
+    def register_statistics(self, statistics_registry):
+        Opportunity = self.Opportunity
+
+        statistics_registry.register(
+            id='opportunities', label=Opportunity._meta.verbose_name_plural,
+            func=lambda: [Opportunity.objects.count()],
+            perm='opportunities', priority=10,
+        )
+
     def register_billing(self):
         from creme.creme_core.models import RelationType
 

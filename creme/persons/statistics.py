@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,24 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import Count
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.views.generic.portal import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from .. import get_activity_model, constants
+from .constants import REL_OBJ_CUSTOMER_SUPPLIER
 
 
-def portal(request):
-    Activity = get_activity_model()
-    act_filter = Activity.objects.filter
-    stats = ((_(u'Activities count'),  Activity.objects.count()),
-             (_(u'Meetings count'),    act_filter(type=constants.ACTIVITYTYPE_MEETING).count()),
-             (_(u'Phone calls count'), act_filter(type=constants.ACTIVITYTYPE_PHONECALL).count()),
-             (_(u'Tasks count'),       act_filter(type=constants.ACTIVITYTYPE_TASK).count()),
-            )
+class CustomersStatistics(object):
+    def __init__(self, orga_model):
+        self.orga_model = orga_model
 
-    return app_portal(request, 'activity', 'activities/portal.html', Activity,
-                      stats, config_url=generate_portal_url('activities'),
-                     )
+    def __call__(self):
+        data = self.orga_model.get_all_managed_by_creme() \
+                              .filter(relations__type=REL_OBJ_CUSTOMER_SUPPLIER) \
+                              .annotate(customers_count=Count('relations')) \
+                              .values('name', 'customers_count')
+
+        if data:
+            msg = _(u'For %(name)s: %(customers_count)s')
+            return [msg % ctxt for ctxt in data]
+
+        return []

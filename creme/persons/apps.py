@@ -24,6 +24,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
 
+from .statistics import CustomersStatistics
+
 
 class PersonsConfig(CremeAppConfig):
     name = 'creme.persons'
@@ -134,13 +136,28 @@ class PersonsConfig(CremeAppConfig):
                                    .register_field('billing_address__city') \
                                    .register_relationtype(REL_OBJ_EMPLOYED_BY)
 
+    def register_statistics(self, statistics_registry):
+        Contact = self.Contact
+        Organisation = self.Organisation
+        statistics_registry.register(id='persons-contacts', label=Contact._meta.verbose_name_plural,
+                                     func=lambda: [Contact.objects.count()],
+                                     perm='persons', priority=3,
+                                    ) \
+                           .register(id='persons-organisations', label=Organisation._meta.verbose_name_plural,
+                                     func=lambda: [Organisation.objects.count()],
+                                     perm='persons', priority=5,
+                                    ) \
+                           .register(id='persons-customers', label=_(u'Customers'),
+                                     func=CustomersStatistics(Organisation),
+                                     perm='persons', priority=7,
+                                    )
+
     def hook_user(self):
         from django.contrib.auth import get_user_model
 
         from .models.contact import _get_linked_contact
 
         get_user_model().linked_contact = property(_get_linked_contact)
-
 
     def hook_user_form(self):
         from creme.creme_config.forms.user import UserAddForm
@@ -166,7 +183,7 @@ class PersonsConfig(CremeAppConfig):
                                                                          is_internal=False,
                                                                         ),
                                     empty_label=None,
-                                    widget=DynamicSelect(attrs={'autocomplete':True}),
+                                    widget=DynamicSelect(attrs={'autocomplete': True}),
                                  )
             fields['first_name'].required = True
             fields['last_name'].required = True

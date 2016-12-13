@@ -11,3 +11,4 @@ from .listview import smart_columns_registry  # NOQA
 from .mass_import import import_form_registry  # NOQA
 from .bulk_update import bulk_update_registry  # NOQA
 from .merge import merge_form_registry  # NOQA
+from .statistics import statistics_registry  # NOQA

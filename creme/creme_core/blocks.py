@@ -27,6 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .creme_jobs.base import JobType
 from .gui.block import Block, SimpleBlock, QuerysetBlock, BlocksManager, list4url
+from .gui.statistics import statistics_registry
 from .models import (CremeEntity, Relation, CremeProperty, Job, JobResult,
         MassImportJobResult, EntityJobResult)
 from .models.history import HistoryLine, TYPE_SYM_RELATION, TYPE_SYM_REL_DEL
@@ -206,6 +207,26 @@ class TrashBlock(QuerysetBlock):
         return self._render(btc)
 
 
+class StatisticsBlock(Block):
+    id_           = Block.generate_id('creme_core', 'statistics')
+    verbose_name  = _(u'Statistics')
+    template_name = 'creme_core/templatetags/block_statistics.html'
+    target_apps   = ('creme_core',)
+
+    def home_display(self, context):
+        has_perm = context['user'].has_perm
+
+        return self._render(self.get_block_template_context(
+                                context,
+                                items=[item
+                                        for item in statistics_registry
+                                            if not item.perm or has_perm(item.perm)
+                                      ],
+                                update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                               )
+                           )
+
+
 class JobBlock(Block):
     id_           = Block.generate_id('creme_core', 'job')
     dependencies  = (Job,)
@@ -313,6 +334,7 @@ relations_block    = RelationsBlock()
 customfields_block = CustomFieldsBlock()
 history_block      = HistoryBlock()
 trash_block        = TrashBlock()
+statistics_block   = StatisticsBlock()
 job_block          = JobBlock()
 
 # Not registered (never get by the registry, used in specific views only)
@@ -327,6 +349,7 @@ block_list = (
         customfields_block,
         history_block,
         trash_block,
+        statistics_block,
         job_block,
         JobsBlock(),
     )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,8 +25,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
-from . import constants
-from .blocks import properties_block, relations_block, customfields_block, history_block
+from . import blocks, constants
 from .creme_jobs import reminder_type
 from .management.commands.creme_populate import BasePopulator
 from .models import (RelationType, CremePropertyType, SettingValue, Currency, Language, Vat, Job,
@@ -73,6 +72,7 @@ class Populator(BasePopulator):
                 root.is_staff = False
                 root.save()
 
+        # ---------------------------
         # SettingValue.create_if_needed(key=block_opening_key,   user=None, value=True)
         # SettingValue.create_if_needed(key=block_showempty_key, user=None, value=True)
         # SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
@@ -81,8 +81,10 @@ class Populator(BasePopulator):
         create_svalue(key_id=block_showempty_key.id, defaults={'value': True})
         create_svalue(key_id=currency_symbol_key.id, defaults={'value': True})
 
+        # ---------------------------
         create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
 
+        # ---------------------------
         Job.objects.get_or_create(type_id=reminder_type.id,
                                   defaults={'language': settings.LANGUAGE_CODE,
                                             'status':   Job.STATUS_OK,
@@ -95,21 +97,29 @@ class Populator(BasePopulator):
             create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
             create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
 
-            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT)
-            BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT)
-            BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT)
-            BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT)
-            BlockDetailviewLocation.create(block_id=history_block.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
+            # ---------------------------
+            LEFT = BlockDetailviewLocation.LEFT
 
-            BlockPortalLocation.create(block_id=history_block.id_, order=8)
-            BlockPortalLocation.create(block_id=history_block.id_, order=8, app_name='creme_core')
+            create_bdl = BlockDetailviewLocation.create
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=LEFT)
+            create_bdl(block_id=blocks.customfields_block.id_, order=40,  zone=LEFT)
+            create_bdl(block_id=blocks.properties_block.id_,   order=450, zone=LEFT)
+            create_bdl(block_id=blocks.relations_block.id_,    order=500, zone=LEFT)
+            create_bdl(block_id=blocks.history_block.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
 
-            BlockMypageLocation.create(block_id=history_block.id_, order=8)
-            BlockMypageLocation.create(block_id=history_block.id_, order=8, user=root)
+            BlockPortalLocation.create(block_id=blocks.history_block.id_, order=8)
 
+            BlockPortalLocation.create(block_id=blocks.statistics_block.id_, order=8,  app_name='creme_core')
+            BlockPortalLocation.create(block_id=blocks.history_block.id_,    order=10, app_name='creme_core')
+
+            BlockMypageLocation.create(block_id=blocks.history_block.id_, order=8)
+            BlockMypageLocation.create(block_id=blocks.history_block.id_, order=8, user=root)
+
+            # ---------------------------
             if not ButtonMenuItem.objects.filter(content_type=None).exists():
                 ButtonMenuItem.objects.create(pk='creme_core-void', content_type=None, button_id='', order=1)
 
+            # ---------------------------
             values = {Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60', '20.0', '21.20']}
             values.add(constants.DEFAULT_VAT)
 
