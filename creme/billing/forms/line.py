@@ -19,6 +19,7 @@
 ################################################################################
 
 from decimal import Decimal
+from functools import partial
 
 from django.db.transaction import atomic
 from django.forms import (ModelChoiceField, TypedChoiceField, DecimalField,
@@ -30,23 +31,23 @@ from creme.creme_core.forms.fields import MultiCreatorEntityField
 # from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.models import Relation, Vat
 
-from creme.products import get_service_model, get_product_model
+from creme import products
 from creme.products.forms.fields import CategoryField
 
-from .. import get_service_line_model, get_product_line_model
+from creme import billing
 from ..constants import (REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY,
         DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
 
 
-ProductLine = get_product_line_model()
-ServiceLine = get_service_line_model()
+ProductLine = billing.get_product_line_model()
+ServiceLine = billing.get_service_line_model()
 
 
 class _LineMultipleAddForm(CremeForm):
     quantity       = DecimalField(label=_(u'Quantity'), min_value=DEFAULT_DECIMAL,
                                   initial=DEFAULT_QUANTITY, decimal_places=2,
                                  )
-    discount_value = DecimalField(label=_(u"Discount"),
+    discount_value = DecimalField(label=_(u'Discount'),
                                   min_value=DEFAULT_DECIMAL, max_value=Decimal('100'),
                                   initial=DEFAULT_DECIMAL, decimal_places=2,
                                   help_text=_(u'Percentage applied on the unit price'),
@@ -67,25 +68,27 @@ class _LineMultipleAddForm(CremeForm):
     #     return validate_linkable_entities(self.cleaned_data['items'], self.user)
 
     def save(self):
-        cleaned_data = self.cleaned_data
+        cdata = self.cleaned_data
+        create_item = partial(self._get_line_class().objects.create,
+                              related_document=self.billing_document,
+                              quantity=cdata['quantity'],
+                              discount=cdata['discount_value'],
+                              vat_value=cdata['vat'],
+                             )
 
-        for item in cleaned_data['items']:
-            self._get_line_class().objects.create(related_item=item,
-                                                  related_document=self.billing_document,
-                                                  unit_price=item.unit_price,
-                                                  unit=item.unit,
-                                                  quantity=cleaned_data['quantity'],
-                                                  discount=cleaned_data['discount_value'],
-                                                  vat_value=cleaned_data['vat'],
-                                                 )
+        for item in cdata['items']:
+            create_item(related_item=item,
+                        unit_price=item.unit_price,
+                        unit=item.unit,
+                       )
 
 
 class ProductLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCreatorEntityField(label=_(u'Products'), model=get_product_model())
+    items = MultiCreatorEntityField(label=_(u'Products'), model=products.get_product_model())
 
     blocks = FieldBlockManager(
-        ('general',     _(u'Products choice'), ['items']),
-        ('additionnal', _(u'Optional global information applied to your selected products'), ['quantity', 'vat', 'discount_value'])
+        ('general',    _(u'Products choice'), ['items']),
+        ('additional', _(u'Optional global information applied to your selected products'), ['quantity', 'vat', 'discount_value'])
     )
 
     def _get_line_class(self):
@@ -93,11 +96,11 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
 
 
 class ServiceLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCreatorEntityField(label=_(u'Services'), model=get_service_model())
+    items = MultiCreatorEntityField(label=_(u'Services'), model=products.get_service_model())
 
     blocks = FieldBlockManager(
-        ('general',     _(u'Services choice'), ['items']),
-        ('additionnal', _(u'Optional global information applied to your selected services'), ['quantity', 'vat', 'discount_value'])
+        ('general',    _(u'Services choice'), ['items']),
+        ('additional', _(u'Optional global information applied to your selected services'), ['quantity', 'vat', 'discount_value'])
     )
 
     def _get_line_class(self):
