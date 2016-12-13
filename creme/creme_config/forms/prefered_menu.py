@@ -29,6 +29,7 @@ from creme.creme_core.models import PreferedMenuItem
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.gui.menu import creme_menu
+from creme.creme_core.utils.unicode_collation import collator
 
 
 class PreferedMenuForm(CremeForm):
@@ -42,15 +43,26 @@ class PreferedMenuForm(CremeForm):
         get_app_config = apps.get_app_config
         has_perm = user2edit.has_perm if user2edit else lambda perm_label: True
         menu_entries = self.fields['menu_entries']
-        # menu_entries.choices = sorted(((item.url, u'%s - %s' % (get_app(appitem.app_name).verbose_name, item.name))
-        menu_entries.choices = sorted(((item.url, u'%s - %s' % (get_app_config(appitem.app_name).verbose_name, item.name))
-                                            for appitem in creme_menu
-                                                if has_perm(appitem.app_name)
-                                                    for item in appitem.items
-                                                        if has_perm(item.perm)
-                                      ),
-                                      key=lambda t: t[1]
-                                     )
+        # # menu_entries.choices = sorted(((item.url, u'%s - %s' % (get_app(appitem.app_name).verbose_name, item.name))
+        # menu_entries.choices = sorted(((item.url, u'%s - %s' % (get_app_config(appitem.app_name).verbose_name, item.name))
+        #                                     for appitem in creme_menu
+        #                                         if has_perm(appitem.app_name)
+        #                                             for item in appitem.items
+        #                                                 if has_perm(item.perm)
+        #                               ),
+        #                               key=lambda t: t[1]
+        #                              )
+        choices = [(item.url, u'%s - %s' % (get_app_config(app_item.app_name).verbose_name, item.name))
+                        for app_item in creme_menu
+                            if has_perm(app_item.app_name)
+                                for item in app_item.items
+                                    if has_perm(item.perm)
+                  ]
+
+        sort_key = collator.sort_key
+        choices.sort(key=lambda c: sort_key(c[1]))
+
+        menu_entries.choices = choices
         menu_entries.initial = PreferedMenuItem.objects.filter(user=user2edit) \
                                                        .order_by('order') \
                                                        .values_list('url', flat=True)
