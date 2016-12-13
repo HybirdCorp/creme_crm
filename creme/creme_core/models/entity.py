@@ -92,7 +92,7 @@ class CremeEntity(CremeAbstractEntity):
         self._properties = None
         self._cvalues_map = {}
 
-    def delete(self):
+    def delete(self, using=None):
         from .history import _get_deleted_entity_ids
 
         # Pre-delete signal is sent to auxiliary _before_, then sent to the entity
@@ -101,12 +101,12 @@ class CremeEntity(CremeAbstractEntity):
         _get_deleted_entity_ids().add(self.id)
 
         for relation in self.relations.exclude(type__is_internal=True):
-            relation.delete()
+            relation.delete(using=using)
 
         for prop in self.properties.all():
-            prop.delete()
+            prop.delete(using=using)
 
-        super(CremeEntity, self).delete()
+        super(CremeEntity, self).delete(using=using)
 
     def __unicode__(self):
         real_entity = self.get_real_entity()
