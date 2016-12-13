@@ -61,7 +61,7 @@ class AbstractEvent(CremeEntity):
                                blank=True, null=True,
                               ).set_tags(optional=True)
 
-    creation_label = _('Create an event')  # TODO: pgettext_lazy('events', 'Create an event') when new menu only
+    creation_label = pgettext_lazy('events', 'Create an event')
     save_label     = pgettext_lazy('events', 'Save the event')
 
     class Meta:
