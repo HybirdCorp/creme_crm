@@ -11,7 +11,7 @@ JAVASCRIPT_DEBUG = DEBUG
 TESTS_ON = len(argv) > 1 and argv[1] == 'test'
 FORCE_JS_TESTVIEW = False
 
-# Commands which does not need to perform SQL queries (so the apps do not need to be totally initialized)
+# Commands which do not need to perform SQL queries (so the apps do not need to be totally initialized)
 NO_SQL_COMMANDS = ('help', 'version', '--help', '--version', '-h',
                    'compilemessages', 'makemessages',
                    'startapp', 'startproject',
@@ -162,7 +162,7 @@ LOGOUT_URL = '/creme_logout/'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = join(CREME_ROOT, "media")
+MEDIA_ROOT = join(CREME_ROOT, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -288,26 +288,26 @@ ALLOWED_IMAGES_EXTENSIONS = (
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga', 'svg',
 )
 ALLOWED_EXTENSIONS = (
-                      'pdf', 'rtf', 'xps', 'eml',
-                      'psd',
-                      'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'torrent', 'tgz', 'bz2',
-                      '7z', 'txt', 'c', 'cpp', 'hpp', 'diz', 'csv', 'ini', 'log', 'js',
-                      'xml', 'xls', 'xlsx', 'xlsm', 'xlsb', 'doc', 'docx', 'docm', 'dot',
-                      'dotx', 'dotm', 'pdf', 'ai', 'ps', 'ppt', 'pptx', 'pptm', 'odg',
-                      'odp', 'ods', 'odt', 'rtf', 'rm', 'ram', 'wma', 'wmv', 'swf', 'mov',
-                      'm4v', 'm4a', 'mp4', '3gp', '3g2', 'qt', 'avi', 'mpeg', 'mpg', 'mp3',
-                      'ogg', 'ogm',
-                      ) + ALLOWED_IMAGES_EXTENSIONS
+    'pdf', 'rtf', 'xps', 'eml',
+    'psd',
+    'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'torrent', 'tgz', 'bz2',
+    '7z', 'txt', 'c', 'cpp', 'hpp', 'diz', 'csv', 'ini', 'log', 'js',
+    'xml', 'xls', 'xlsx', 'xlsm', 'xlsb', 'doc', 'docx', 'docm', 'dot',
+    'dotx', 'dotm', 'pdf', 'ai', 'ps', 'ppt', 'pptx', 'pptm', 'odg',
+    'odp', 'ods', 'odt', 'rtf', 'rm', 'ram', 'wma', 'wmv', 'swf', 'mov',
+    'm4v', 'm4a', 'mp4', '3gp', '3g2', 'qt', 'avi', 'mpeg', 'mpg', 'mp3',
+    'ogg', 'ogm',
+) + ALLOWED_IMAGES_EXTENSIONS
 
 IMPORT_BACKENDS = (
-                   'creme.creme_core.backends.csv_import.CSVImportBackend',
-                   'creme.creme_core.backends.xls_import.XLSImportBackend',  # You need to install xlwt and xlrd
-                   'creme.creme_core.backends.xls_import.XLSXImportBackend',  # You need to install xlwt and xlrd
+    'creme.creme_core.backends.csv_import.CSVImportBackend',
+    'creme.creme_core.backends.xls_import.XLSImportBackend',  # You need to install xlwt and xlrd
+    'creme.creme_core.backends.xls_import.XLSXImportBackend',  # You need to install xlwt and xlrd
 )
 EXPORT_BACKENDS = (
-                   'creme.creme_core.backends.csv_export.CSVExportBackend',
-                   'creme.creme_core.backends.csv_export.SemiCSVExportBackend',
-                   'creme.creme_core.backends.xls_export.XLSExportBackend',  # You need to install xlwt and xlrd
+    'creme.creme_core.backends.csv_export.CSVExportBackend',
+    'creme.creme_core.backends.csv_export.SemiCSVExportBackend',
+    'creme.creme_core.backends.xls_export.XLSExportBackend',  # You need to install xlwt and xlrd
 )
 
 # EMAILS [internal] ############################################################
@@ -396,7 +396,7 @@ import warnings
 
 # Warnings behavior choices (see Python doc):
 # "error" "ignore" "always" "default" "module" "once"
-warnings.simplefilter("once")
+warnings.simplefilter('once')
 
 # LOGS [END]####################################################################
 
@@ -781,9 +781,9 @@ BILLING_TEMPLATE_BASE_FORCE_NOT_CUSTOM = False
 
 # Prefixes used to generate the numbers of the billing documents
 # (with the 'vanilla' number generator)
-QUOTE_NUMBER_PREFIX = "DE"
-INVOICE_NUMBER_PREFIX = "FA"
-SALESORDER_NUMBER_PREFIX = "BC"
+QUOTE_NUMBER_PREFIX = 'DE'
+INVOICE_NUMBER_PREFIX = 'FA'
+SALESORDER_NUMBER_PREFIX = 'BC'
 
 # OPPORTUNITIES ----------------------------------------------------------------
 OPPORTUNITIES_OPPORTUNITY_MODEL = 'opportunities.Opportunity'
@@ -874,15 +874,15 @@ CREME_GET_EMAIL_JOB_USER_ID = 1
 #]
 CRUDITY_BACKENDS = [
     {
-        "fetcher": "email",
-        "input": "raw",
-        "method": "create",
-        "model": "emails.entityemail",
-        "password": "",
-        "limit_froms": (),
-        "in_sandbox": True,
-        "body_map": {},
-        "subject": u"*",
+        'fetcher': 'email',
+        'input': 'raw',
+        'method': 'create',
+        'model': 'emails.entityemail',
+        'password': '',
+        'limit_froms': (),
+        'in_sandbox': True,
+        'body_map': {},
+        'subject': u'*',
     },
 ]
 
@@ -950,10 +950,9 @@ NON_MOBILE_SITE_DOMAIN = ''
 # GEOLOCATION ------------------------------------------------------------------
 # Files containing towns with their location.
 # It can be an URL or a local file ; zip files are also supported.
-GEOLOCATION_TOWNS = ((join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'),
-                      {'country': 'France'},
-                     ),
-                    )
+GEOLOCATION_TOWNS = (
+    (join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'), {'country': 'France'}),
+)
 
 
 # APPS CONFIGURATION [END]######################################################
