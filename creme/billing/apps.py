@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext, npgettext
 
 from creme.creme_core.apps import CremeAppConfig
 
@@ -150,3 +150,27 @@ class BillingConfig(CremeAppConfig):
                                   .register_field('number') \
                                   .register_field('status') \
                                   .register_relationtype(REL_SUB_BILL_RECEIVED)
+
+    def register_statistics(self, statistics_registry):
+        Invoice = self.Invoice
+        Quote = self.Quote
+        SalesOrder = self.SalesOrder
+
+        def won_quotes():
+            count = Quote.objects.filter(status__won=True).count()
+            return npgettext('billing-quote_stats', '%s won', '%s won', count) % count
+
+        statistics_registry.register(id='billing-invoices', label=Invoice._meta.verbose_name_plural,
+                                     func=lambda: [Invoice.objects.count()],
+                                     perm='billing', priority=20,
+                                    ) \
+                           .register(id='billing-quotes', label=Quote._meta.verbose_name_plural,
+                                     func=lambda: [won_quotes(),
+                                                   pgettext('billing-quote_stats', u'%s in all') % Quote.objects.count(),
+                                                  ],
+                                     perm='billing', priority=22,
+                                    ) \
+                           .register(id='billing-orders', label=SalesOrder._meta.verbose_name_plural,
+                                     func=lambda: [SalesOrder.objects.count()],
+                                     perm='billing', priority=24,
+                                    )

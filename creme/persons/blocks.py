@@ -26,14 +26,9 @@ from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, lis
 from creme.creme_core.models import Relation
 from creme.creme_core.utils.db import populate_related
 
-from creme.activities import get_activity_model
-from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
-        REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY)
+from creme.activities import get_activity_model, constants as act_constants
 
-from . import get_address_model, get_contact_model, get_organisation_model
-from .constants import (REL_SUB_MANAGES, REL_OBJ_MANAGES,
-        REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY, REL_SUB_CUSTOMER_SUPPLIER,
-        REL_SUB_PROSPECT, REL_SUB_INACTIVE)
+from . import get_address_model, get_contact_model, get_organisation_model, constants
 
 
 Address = get_address_model()
@@ -69,7 +64,7 @@ Activity = get_activity_model()
 class ManagersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'managers')
     dependencies  = (Relation, Contact)
-    relation_type_deps = (REL_OBJ_MANAGES, )
+    relation_type_deps = (constants.REL_OBJ_MANAGES, )
     verbose_name  = _(u"Organisation managers")
     template_name = 'persons/templatetags/block_managers.html'
     target_ctypes = (Organisation,)
@@ -100,7 +95,7 @@ class ManagersBlock(QuerysetBlock):
 
 class EmployeesBlock(ManagersBlock):
     id_           = QuerysetBlock.generate_id('persons', 'employees')
-    relation_type_deps = (REL_OBJ_EMPLOYED_BY, )
+    relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
     verbose_name  = _(u"Organisation employees")
     template_name = 'persons/templatetags/block_employees.html'
 
@@ -112,22 +107,25 @@ class EmployeesBlock(ManagersBlock):
 
 
 class NeglectedOrganisationsBlock(PaginatedBlock):
-    """Customers/propsects organisations that have no Activity in the future."""
+    """Customers/prospects organisations that have no Activity in the future."""
     id_           = PaginatedBlock.generate_id('persons', 'neglected_orgas')
     dependencies  = (Activity,)
-    verbose_name  = _(u"Neglected organisations")
+    verbose_name  = _(u'Neglected organisations')
     template_name = 'persons/templatetags/block_neglected_orgas.html'
-    target_apps   = ('persons',)
+    target_apps   = ('persons', 'creme_core')
 
-    _RTYPE_IDS_CUSTOMERS = (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT)
-    _RTYPE_IDS_ORGA_N_ACT = (REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
-    _RTYPE_IDS_EMPLOYEES = (REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
-    _RTYPE_IDS_CONTACT_N_ACT = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
+    _RTYPE_IDS_CUSTOMERS = (constants.REL_SUB_CUSTOMER_SUPPLIER, constants.REL_SUB_PROSPECT)
+    _RTYPE_IDS_ORGA_N_ACT = (act_constants.REL_SUB_ACTIVITY_SUBJECT, act_constants.REL_SUB_LINKED_2_ACTIVITY)
+    _RTYPE_IDS_EMPLOYEES = (constants.REL_SUB_MANAGES, constants.REL_SUB_EMPLOYED_BY)
+    _RTYPE_IDS_CONTACT_N_ACT = (act_constants.REL_SUB_PART_2_ACTIVITY,
+                                act_constants.REL_SUB_ACTIVITY_SUBJECT,
+                                act_constants.REL_SUB_LINKED_2_ACTIVITY,
+                               )
 
     def _get_neglected(self, now):
         user_contacts     = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
         future_activities = list(Activity.objects.filter(start__gte=now,
-                                                         relations__type=REL_OBJ_PART_2_ACTIVITY,
+                                                         relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
                                                          relations__object_entity__in=user_contacts,
                                                         )
                                                  .values_list('id', flat=True)
@@ -136,11 +134,11 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                                                          relations__type__in=self._RTYPE_IDS_CUSTOMERS,
                                                          relations__object_entity__in=Organisation.get_all_managed_by_creme(),
                                                         ) \
-                                                 .exclude(relations__type=REL_SUB_INACTIVE) \
+                                                 .exclude(relations__type=constants.REL_SUB_INACTIVE) \
                                                  .distinct()
 
         if not future_activities:
-            return neglected_orgas_qs  # No need to rerieve it & transform into a list (good idea ??)
+            return neglected_orgas_qs  # No need to retrieve it & transform into a list (good idea ??)
 
         neglected_orgas = list(neglected_orgas_qs.exclude(relations__object_entity__in=future_activities,
                                                           relations__type__in=self._RTYPE_IDS_ORGA_N_ACT,
@@ -179,15 +177,24 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                                )
                            )
 
+    def home_display(self, context):
+        # We do not check the 'persons' permission, because it's only statistics for people who cannot see Organisations
+        return self._render(self.get_block_template_context(
+                                context,
+                                self._get_neglected(context['today']),
+                                update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                               )
+                           )
+
 
 # TODO: factorise (see CSV import) ? (exclue param in info_field_names())
 def _get_address_field_names():
     field_names = list(Address.info_field_names())
 
     try:
-       field_names.remove('name')
+        field_names.remove('name')
     except ValueError:
-       pass
+        pass
 
     return field_names
 

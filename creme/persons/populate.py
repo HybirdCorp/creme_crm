@@ -307,6 +307,8 @@ class Populator(BasePopulator):
             create_bpl(app_name='persons', block_id=blocks.neglected_orgas_block.id_, order=10)
             create_bpl(app_name='persons', block_id=core_blocks.history_block.id_,    order=30)
 
+            create_bpl(app_name='creme_core', block_id=blocks.neglected_orgas_block.id_, order=15)
+
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 

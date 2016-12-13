@@ -270,3 +270,9 @@ table.collapsed {
     margin: 2px 0;
     padding-left: 15px;
 }
+
+.table_detail_view#block_creme_core-statistics tr.content ul {
+    list-style: outside none none;
+    margin: 2px;
+    padding: 0;
+}

@@ -230,10 +230,10 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', "Pending"),  order=2)  # Default status
-            create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', "Accepted"), order=3, won=True)
-            create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', "Rejected"), order=4)
-            create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', "Created"),  order=1)
+            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', 'Pending'),  order=2)  # Default status
+            create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', 'Accepted'), order=3, won=True)
+            create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', 'Rejected'), order=4)
+            create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', 'Created'),  order=1)
 
             # ---------------------------
             create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))

@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext, ungettext
 
 from creme.creme_core.apps import CremeAppConfig
+
+from .constants import ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL
 
 
 class ActivitiesConfig(CremeAppConfig):
@@ -105,3 +107,24 @@ class ActivitiesConfig(CremeAppConfig):
         from .setting_keys import review_key, auto_subjects_key
 
         setting_key_registry.register(review_key, auto_subjects_key)
+
+    def register_statistics(self, statistics_registry):
+        Activity = self.Activity
+        act_filter = Activity.objects.filter
+
+        def meetings_count():
+            count = act_filter(type=ACTIVITYTYPE_MEETING).count()
+            return ungettext(u'%s meeting', u'%s meetings', count) % count
+
+        def phone_calls_count():
+            count = act_filter(type=ACTIVITYTYPE_PHONECALL).count()
+            return ungettext(u'%s phone call', u'%s phone calls', count) % count
+
+        statistics_registry.register(
+            id='activities', label=Activity._meta.verbose_name_plural,
+            func=lambda: [pgettext('activities-stats', u'%s in all') % Activity.objects.count(),
+                          meetings_count(),
+                          phone_calls_count(),
+                         ],
+            perm='activities', priority=30,
+        )
