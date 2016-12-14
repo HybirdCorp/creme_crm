@@ -261,7 +261,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     json_q_filter, extra_filter = _build_extrafilter(request, extra_q)
 
     entities, count = _build_entity_queryset(request, model, current_lvs, extra_filter, efilter, hf)
-    fast_mode = (count >= settings.FAST_QUERY_MODE_THESHOLD)
+    fast_mode = (count >= settings.FAST_QUERY_MODE_THRESHOLD)
     ordering = current_lvs.set_sort(model, cells,
                                     cell_key=POST_get('sort_field', current_lvs.sort_field),
                                     order=POST_get('sort_order', current_lvs.sort_order),
