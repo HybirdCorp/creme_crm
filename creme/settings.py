@@ -54,7 +54,7 @@ MIGRATION_MODULES = {
 # Currently, this fast-mode involves the following optimisations in list-views:
 # - the main SQL query uses less complex ORDER BY instructions.
 # - the paginator only allows to go to the next & the previous pages (& the main query is faster).
-FAST_QUERY_MODE_THESHOLD = 100000
+FAST_QUERY_MODE_THRESHOLD = 100000
 
 # JOBS #########################################################################
 # Maximum number of jobs each user can have at the same time. When this number
