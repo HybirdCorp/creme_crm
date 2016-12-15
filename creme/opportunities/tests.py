@@ -10,6 +10,7 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
+    from django.core.exceptions import ValidationError
     from django.core.urlresolvers import reverse
     from django.db.models import Max
     from django.utils.formats import number_format
@@ -67,46 +68,46 @@ def skipIfCustomOpportunity(test_func):
 
 @skipIfCustomOpportunity
 class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
+    lvimport_data = {'step': 1,
+                     # 'document': doc.id,
+                     # has_header
+
+                     # 'user':    user.id,
+                     # 'emitter': emitter1.id,
+
+                     # 'name_colselect':            1,
+                     # 'estimated_sales_colselect': 3,
+                     # 'made_sales_colselect':      4,
+
+                     # 'sales_phase_colselect': 2,
+                     # 'sales_phase_create':    True,
+                     # 'sales_phase_defval':    sp5.pk,
+
+                     # 'target_persons_organisation_colselect': 5,
+                     # 'target_persons_organisation_create':    True,
+                     # 'target_persons_contact_colselect':      6,
+                     # 'target_persons_contact_create':         True,
+
+                     'currency_colselect': 0,
+                     'currency_defval':    DEFAULT_CURRENCY_PK,
+
+                     'reference_colselect':              0,
+                     'chance_to_win_colselect':          0,
+                     'expected_closing_date_colselect':  0,
+                     'closing_date_colselect':           0,
+                     'origin_colselect':                 0,
+                     'description_colselect':            0,
+                     'first_action_date_colselect':      0,
+
+                     # 'property_types',
+                     # 'fixed_relations',
+                     # 'dyn_relations',
+                    }
+
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         # cls.populate('opportunities', 'documents') #'commercial'
-
-        cls.lvimport_data = {'step':     1,
-                             # 'document': doc.id,
-                             # has_header
-
-                             # 'user':    user.id,
-                             # 'emitter': emitter1.id,
-
-                             # 'name_colselect':            1,
-                             # 'estimated_sales_colselect': 3,
-                             # 'made_sales_colselect':      4,
-
-                             # 'sales_phase_colselect': 2,
-                             # 'sales_phase_create':    True,
-                             # 'sales_phase_defval':    sp5.pk,
-
-                             # 'target_persons_organisation_colselect': 5,
-                             # 'target_persons_organisation_create':    True,
-                             # 'target_persons_contact_colselect':      6,
-                             # 'target_persons_contact_create':         True,
-
-                             'currency_colselect': 0,
-                             'currency_defval':    DEFAULT_CURRENCY_PK,
-
-                             'reference_colselect':              0,
-                             'chance_to_win_colselect':          0,
-                             'expected_closing_date_colselect':  0,
-                             'closing_date_colselect':           0,
-                             'origin_colselect':                 0,
-                             'description_colselect':            0,
-                             'first_action_date_colselect':      0,
-
-                             # 'property_types',
-                             # 'fixed_relations',
-                             # 'dyn_relations',
-                            }
 
         try:
             cls.ADD_URL = reverse('opportunities__create_opportunity')
@@ -1550,6 +1551,12 @@ class SalesPhaseTestCase(CremeTestCase):
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
         self.assertEqual(sp, opp.sales_phase)
+
+    def test_full_clean(self):
+        sp = SalesPhase(name='Forthcoming', won=True, lost=True)
+
+        with self.assertRaises(ValidationError):
+            sp.full_clean()
 
 
 class OriginTestCase(CremeTestCase):

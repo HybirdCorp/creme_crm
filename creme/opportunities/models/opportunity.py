@@ -48,7 +48,7 @@ from .. import constants
 
 class _TurnoverField(FunctionField):
     name         = 'get_weighted_sales'
-    verbose_name = _(u"Weighted sales")
+    verbose_name = _(u'Weighted sales')
     result_type  = FunctionFieldDecimal
 
     # @classmethod
@@ -60,18 +60,25 @@ class _TurnoverField(FunctionField):
 
 
 class SalesPhase(CremeModel):
-    name  = CharField(_(u"Name"), max_length=100, blank=False, null=False)
+    name  = CharField(_(u'Name'), max_length=100, blank=False, null=False)
     order = BasicAutoField(_('Order'))
-    won   = BooleanField(pgettext_lazy('opportunities-sales_phase', u"Won"), default=False)
+    won   = BooleanField(pgettext_lazy('opportunities-sales_phase', u'Won'), default=False)
+    lost  = BooleanField(pgettext_lazy('opportunities-sales_phase', u'Lost'), default=False)
 
     def __unicode__(self):
         return self.name
 
     class Meta:
-        app_label = "opportunities"
-        verbose_name = _(u"Sale phase")
+        app_label = 'opportunities'
+        verbose_name = _(u'Sale phase')
         verbose_name_plural = _(u'Sale phases')
         ordering = ('order',)
+
+    def clean(self):
+        super(SalesPhase, self).clean()
+
+        if self.won and self.lost:
+            raise ValidationError(ugettext('A phase can not be won and lost at the same time.'))
 
 
 class Origin(CremeModel):
@@ -81,14 +88,14 @@ class Origin(CremeModel):
         return self.name
 
     class Meta:
-        app_label = "opportunities"
-        verbose_name = _(u"Origin of opportunity")
-        verbose_name_plural = _(u"Origins of opportunity")
+        app_label = 'opportunities'
+        verbose_name = _(u'Origin of opportunity')
+        verbose_name_plural = _(u'Origins of opportunity')
         ordering = ('name',)
 
 
 class AbstractOpportunity(CremeEntity):
-    name                  = CharField(_(u"Name of the opportunity"), max_length=100)
+    name                  = CharField(_(u'Name of the opportunity'), max_length=100)
     reference             = CharField(_(u'Reference'), max_length=100, blank=True)\
                                      .set_tags(optional=True)
     estimated_sales       = PositiveIntegerField(_(u'Estimated sales'),
@@ -102,7 +109,7 @@ class AbstractOpportunity(CremeEntity):
     sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'),
                                        on_delete=PROTECT,
                                       )
-    chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"),
+    chance_to_win         = PositiveIntegerField(_(ur'% of chance to win'),
                                                  blank=True, null=True,
                                                 ).set_tags(optional=True)
     expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)\
@@ -129,7 +136,7 @@ class AbstractOpportunity(CremeEntity):
 
     class Meta:
         abstract = True
-        app_label = "opportunities"
+        app_label = 'opportunities'
         verbose_name = _(u'Opportunity')
         verbose_name_plural = _(u'Opportunities')
         ordering = ('name',)

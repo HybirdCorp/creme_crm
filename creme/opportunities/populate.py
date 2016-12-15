@@ -24,19 +24,16 @@ from functools import partial
 from django.apps import apps
 from django.utils.translation import ugettext as _, pgettext
 
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core import blocks as core_blocks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
         BlockDetailviewLocation, BlockPortalLocation, ButtonMenuItem,
         HeaderFilter, EntityFilterCondition, EntityFilter)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons, products
 
-from creme.products import get_product_model, get_service_model
-
-from . import get_opportunity_model
-from . import blocks, constants
+from . import get_opportunity_model, blocks, constants
 from .buttons import linked_opportunity_button
 from .models import SalesPhase, Origin
 from .setting_keys import quote_key
@@ -52,10 +49,10 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()
 
-        Contact = get_contact_model()
-        Organisation = get_organisation_model()
-        Product = get_product_model()
-        Service = get_service_model()
+        Contact = persons.get_contact_model()
+        Organisation = persons.get_organisation_model()
+        Product = products.get_product_model()
+        Service = products.get_service_model()
 
         create_rtype = RelationType.create
         rt_sub_targets = create_rtype((constants.REL_SUB_TARGETS, _(u'targets the organisation/contact'), [Opportunity]),
@@ -105,6 +102,38 @@ class Populator(BasePopulator):
         SettingValue.objects.get_or_create(key_id=quote_key.id, defaults={'value': False})
 
         # ---------------------------
+        create_efilter = partial(EntityFilter.create, model=Opportunity, user='admin')
+        create_cond    = partial(EntityFilterCondition.build_4_field, model=Opportunity)
+        create_efilter('opportunities-opportunities_won',
+                       name=_(u'Opportunities won'),
+                       conditions=[create_cond(operator=EntityFilterCondition.EQUALS,
+                                               name='sales_phase__won',
+                                               values=[True],
+                                              ),
+                                  ],
+                      )
+        create_efilter('opportunities-opportunities_lost',
+                       name=_(u'Opportunities lost'),
+                       conditions=[create_cond(operator=EntityFilterCondition.EQUALS,
+                                               name='sales_phase__lost',
+                                               values=[True],
+                                              ),
+                                  ],
+                      )
+        create_efilter('opportunities-neither_won_nor_lost_opportunities',
+                       name=_(u'Neither won nor lost opportunities'),
+                       conditions=[create_cond(operator=EntityFilterCondition.EQUALS_NOT,
+                                               name='sales_phase__won',
+                                               values=[True],
+                                              ),
+                                   create_cond(operator=EntityFilterCondition.EQUALS_NOT,
+                                               name='sales_phase__lost',
+                                               values=[True],
+                                              )
+                                  ],
+                      )
+
+        # ---------------------------
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=Opportunity,
                             name=_(u'Opportunity view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
@@ -124,79 +153,81 @@ class Populator(BasePopulator):
             create_sphase = SalesPhase.objects.create
             create_sphase(name=_(u'Forthcoming'),       order=1)
             create_sphase(name=pgettext('opportunities-sales_phase', u'Abandoned'),   order=4)
-            won  = create_sphase(name=pgettext('opportunities-sales_phase', u'Won'),  order=5, won=True)
-            lost = create_sphase(name=pgettext('opportunities-sales_phase', u'Lost'), order=6)
+            # won  =
+            create_sphase(name=pgettext('opportunities-sales_phase', u'Won'),  order=5, won=True)
+            # lost =
+            create_sphase(name=pgettext('opportunities-sales_phase', u'Lost'), order=6, lost=True)
             create_sphase(name=_(u'Under negotiation'), order=3)
             create_sphase(name=_(u'In progress'),       order=2)
 
             # ---------------------------
             create_origin = Origin.objects.create
-            create_origin(name=_(u'None'))
+            create_origin(name=pgettext('opportunities-origin', u'None'))
             create_origin(name=_(u'Web site'))
             create_origin(name=_(u'Mouth'))
             create_origin(name=_(u'Show'))
             create_origin(name=_(u'Direct email'))
-            create_origin(name=_(u'Direct phonecall'))
+            create_origin(name=_(u'Direct phone call'))
             create_origin(name=_(u'Employee'))
             create_origin(name=_(u'Partner'))
-            create_origin(name=_(u'Other'))
+            create_origin(name=pgettext('opportunities-origin', u'Other'))
 
             # ---------------------------
-            EntityFilter.create('opportunities-opportunities_won',
-                                name=_(u'Opportunities won'),
-                                model=Opportunity, user='admin',
-                                conditions=[EntityFilterCondition.build_4_field(
-                                                  model=Opportunity,
-                                                  operator=EntityFilterCondition.EQUALS,
-                                                  name='sales_phase',
-                                                  values=[won.pk],
-                                              ),
-                                           ],
-                               )
-            EntityFilter.create('opportunities-opportunities_lost',
-                                name=_(u'Opportunities lost'),
-                                model=Opportunity, user='admin',
-                                conditions=[EntityFilterCondition.build_4_field(
-                                                  model=Opportunity,
-                                                  operator=EntityFilterCondition.EQUALS,
-                                                  name='sales_phase',
-                                                  values=[lost.pk],
-                                              ),
-                                           ]
-                               )
-            EntityFilter.create('opportunities-neither_won_nor_lost_opportunities',
-                                name=_(u'Neither won nor lost opportunities'),
-                                model=Opportunity, user='admin',
-                                conditions=[EntityFilterCondition.build_4_field(
-                                                  model=Opportunity,
-                                                  operator=EntityFilterCondition.EQUALS_NOT,
-                                                  name='sales_phase',
-                                                  values=[won.pk, lost.pk],
-                                              )
-                                           ],
-                               )
+            # EntityFilter.create('opportunities-opportunities_won',
+            #                     name=_(u'Opportunities won'),
+            #                     model=Opportunity, user='admin',
+            #                     conditions=[EntityFilterCondition.build_4_field(
+            #                                       model=Opportunity,
+            #                                       operator=EntityFilterCondition.EQUALS,
+            #                                       name='sales_phase',
+            #                                       values=[won.pk],
+            #                                   ),
+            #                                ],
+            #                    )
+            # EntityFilter.create('opportunities-opportunities_lost',
+            #                     name=_(u'Opportunities lost'),
+            #                     model=Opportunity, user='admin',
+            #                     conditions=[EntityFilterCondition.build_4_field(
+            #                                       model=Opportunity,
+            #                                       operator=EntityFilterCondition.EQUALS,
+            #                                       name='sales_phase',
+            #                                       values=[lost.pk],
+            #                                   ),
+            #                                ]
+            #                    )
+            # EntityFilter.create('opportunities-neither_won_nor_lost_opportunities',
+            #                     name=_(u'Neither won nor lost opportunities'),
+            #                     model=Opportunity, user='admin',
+            #                     conditions=[EntityFilterCondition.build_4_field(
+            #                                       model=Opportunity,
+            #                                       operator=EntityFilterCondition.EQUALS_NOT,
+            #                                       name='sales_phase',
+            #                                       values=[won.pk, lost.pk],
+            #                                   )
+            #                                ],
+            #                    )
 
             # ---------------------------
-            create_button_item = ButtonMenuItem.create_if_needed
-            create_button_item(pk='opportunities-linked_opp_button',         model=Organisation, button=linked_opportunity_button, order=30)  # TODO: This pk is kept for compatibility
-            create_button_item(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
+            create_button = ButtonMenuItem.create_if_needed
+            create_button(pk='opportunities-linked_opp_button',         model=Organisation, button=linked_opportunity_button, order=30)  # TODO: This pk is kept for compatibility
+            create_button(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
 
             # ---------------------------
             create_bdl = BlockDetailviewLocation.create
             LEFT = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
-            BlockDetailviewLocation.create_4_model_block(         order=5,   zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=customfields_block.id_,           order=40,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=blocks.responsibles_block.id_,    order=60,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=blocks.linked_contacts_block.id_, order=62,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=blocks.linked_products_block.id_, order=64,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=blocks.linked_services_block.id_, order=66,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=properties_block.id_,             order=450, zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=relations_block.id_,              order=500, zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=blocks.target_block.id_,          order=1,   zone=RIGHT, model=Opportunity)
-            create_bdl(block_id=blocks.total_block.id_,           order=2,   zone=RIGHT, model=Opportunity)
-            create_bdl(block_id=history_block.id_,                order=20,  zone=RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create_4_model_block(           order=5,   zone=LEFT,  model=Opportunity)
+            create_bdl(block_id=core_blocks.customfields_block.id_, order=40,  zone=LEFT,  model=Opportunity)
+            create_bdl(block_id=blocks.responsibles_block.id_,      order=60,  zone=LEFT,  model=Opportunity)
+            create_bdl(block_id=blocks.linked_contacts_block.id_,   order=62,  zone=LEFT,  model=Opportunity)
+            create_bdl(block_id=blocks.linked_products_block.id_,   order=64,  zone=LEFT,  model=Opportunity)
+            create_bdl(block_id=blocks.linked_services_block.id_,   order=66,  zone=LEFT,  model=Opportunity)
+            create_bdl(block_id=core_blocks.properties_block.id_,   order=450, zone=LEFT,  model=Opportunity)
+            create_bdl(block_id=core_blocks.relations_block.id_,    order=500, zone=LEFT,  model=Opportunity)
+            create_bdl(block_id=blocks.target_block.id_,            order=1,   zone=RIGHT, model=Opportunity)
+            create_bdl(block_id=blocks.total_block.id_,             order=2,   zone=RIGHT, model=Opportunity)
+            create_bdl(block_id=core_blocks.history_block.id_,      order=20,  zone=RIGHT, model=Opportunity)
 
             if apps.is_installed('creme.activities'):
                 logger.info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
@@ -256,7 +287,7 @@ class Populator(BasePopulator):
 
         from creme.creme_core.utils.meta import FieldInfo
 
-        from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_RANGE
+        from creme.reports import constants as rep_constants
         from creme.reports.models import Report, Field, ReportGraph
 
         admin = get_user_model().objects.get_admin()
@@ -267,12 +298,12 @@ class Populator(BasePopulator):
                                       )
 
         # TODO: helper method(s) (see EntityFilterCondition)
-        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+        create_field = partial(Field.objects.create, report=report, type=rep_constants.RFT_FIELD)
         create_field(name='name',              order=1)
         create_field(name='estimated_sales',   order=2)
         create_field(name='made_sales',        order=3)
         create_field(name='sales_phase__name', order=4)
-        create_field(name=rt_obj_emit_orga.id, order=5, type=RFT_RELATION)
+        create_field(name=rt_obj_emit_orga.id, order=5, type=rep_constants.RFT_RELATION)
 
         # Create 2 graphs -----------------------------------------------------
         # TODO: helper method ('sum' => is_count=False, range only on DateFields etc...)
@@ -284,13 +315,13 @@ class Populator(BasePopulator):
                                     'estimated_sales': esales_vname,
                                     'sales_phase':     FieldInfo(Opportunity, 'sales_phase').verbose_name,
                                 },
-                               abscissa='sales_phase', type=RGT_FK,
+                               abscissa='sales_phase', type=rep_constants.RGT_FK,
                               )
         rgraph2 = create_graph(name=_(u'Sum %(estimated_sales)s / Quarter (90 days on %(closing_date)s)') % {
                                     'estimated_sales': esales_vname,
                                     'closing_date':    FieldInfo(Opportunity, 'closing_date').verbose_name,
                                 },
-                               abscissa='closing_date', type=RGT_RANGE, days=90,
+                               abscissa='closing_date', type=rep_constants.RGT_RANGE, days=90,
                               )
 
         # Create 2 instance block items for the 2 graphs ----------------------
