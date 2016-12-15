@@ -791,7 +791,9 @@ class CreatorEntityField(EntityCredsJSONField):
     # }
     value_type = int
 
-    def __init__(self, model=None, q_filter=None, create_action_url=None,
+    def __init__(self, model=None, q_filter=None,
+                 # create_action_url=None,
+                 create_action_url='',
                  user=None, force_creation=False, *args, **kwargs
                 ):
         super(CreatorEntityField, self).__init__(*args, **kwargs)
@@ -871,15 +873,22 @@ class CreatorEntityField(EntityCredsJSONField):
 
     @property
     def create_action_url(self):
-        if self._create_action_url is not None:
+        # if self._create_action_url is not None:
+        if self._create_action_url:
             return self._create_action_url
 
         model = self._model
 
-        return None if model is None else (
-               # '/creme_core/quickforms/from_widget/%s/add/1' %
-               '/creme_core/quickforms/from_widget/%s/add/' %
-                    ContentType.objects.get_for_model(model).id)
+        # return None if model is None else (
+        #        # '/creme_core/quickforms/from_widget/%s/add/1' %
+        #        '/creme_core/quickforms/from_widget/%s/add/' %
+        #             ContentType.objects.get_for_model(model).id)
+        if model is not None and self._has_quickform(model):
+            return '/creme_core/quickforms/from_widget/{}/add/'.format(
+                ContentType.objects.get_for_model(model).id
+            )
+
+        return ''
 
     @create_action_url.setter
     def create_action_url(self, url):
@@ -904,9 +913,12 @@ class CreatorEntityField(EntityCredsJSONField):
 
         if user and model:
             widget.creation_allowed = user.has_perm_to_create(model)
+            # widget.creation_url = self.create_action_url \
+            #                       if self._has_quickform(model) and (
+            #                           not self._q_filter or self._force_creation) \
+            #                       else ''
             widget.creation_url = self.create_action_url \
-                                  if self._has_quickform(model) and (
-                                      not self._q_filter or self._force_creation) \
+                                  if not self._q_filter or self._force_creation \
                                   else ''
         else:
             widget.creation_allowed = False
