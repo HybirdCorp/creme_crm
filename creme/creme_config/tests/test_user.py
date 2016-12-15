@@ -973,55 +973,59 @@ class UserSettingsTestCase(CremeTestCase):
             inner['called']       = True
             inner['activated_tz'] = tz
 
+        original_activate = django_tz.activate
         django_tz.activate = fake_activate
 
-        self.client.get('/')
-        self.assertFalse(inner['called'])
-
-        url = '/creme_config/my_settings/set_timezone/'
-
-        def assertSelected(selected_tz):
-            response = self.assertGET200(url)
-
-            with self.assertNoException():
-                form_str = jsonloads(response.content)['form']
-
-            for line in form_str.split('\n'):
-                if selected_tz in line:
-                    option = line
-                    break
-            else:
-                self.fail('Option not found')
-
-            self.assertEqual(1, option.count('<option '))
-            self.assertIn('selected', option)
-
-        def change_tz(tz):
-            self.assertPOST200(url, data={'time_zone': tz})
-
-            # svalues = SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE)
-            # self.assertEqual(1, len(svalues))
-            # self.assertEqual(tz, svalues[0].value)
-            self.assertEqual(tz, self.refresh(user).time_zone)
-
+        try:
             self.client.get('/')
-            self.assertTrue(inner['called'])
-            self.assertEqual(tz, inner['activated_tz'])
+            self.assertFalse(inner['called'])
 
-            inner['called'] = False
+            url = '/creme_config/my_settings/set_timezone/'
 
-        TIME_ZONE = settings.TIME_ZONE
-        time_zones = [tz for tz in ('Asia/Tokyo', 'US/Eastern', 'Europe/Paris')
-                        if tz != TIME_ZONE
-                     ]
+            def assertSelected(selected_tz):
+                response = self.assertGET200(url)
 
-        assertSelected(TIME_ZONE)
+                with self.assertNoException():
+                    form_str = jsonloads(response.content)['form']
 
-        tz = time_zones[0]
-        change_tz(tz)
-        assertSelected(tz)
+                for line in form_str.split('\n'):
+                    if selected_tz in line:
+                        option = line
+                        break
+                else:
+                    self.fail('Option not found')
 
-        change_tz(time_zones[1])
+                self.assertEqual(1, option.count('<option '))
+                self.assertIn('selected', option)
+
+            def change_tz(tz):
+                self.assertPOST200(url, data={'time_zone': tz})
+
+                # svalues = SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE)
+                # self.assertEqual(1, len(svalues))
+                # self.assertEqual(tz, svalues[0].value)
+                self.assertEqual(tz, self.refresh(user).time_zone)
+
+                self.client.get('/')
+                self.assertTrue(inner['called'])
+                self.assertEqual(tz, inner['activated_tz'])
+
+                inner['called'] = False
+
+            TIME_ZONE = settings.TIME_ZONE
+            time_zones = [tz for tz in ('Asia/Tokyo', 'US/Eastern', 'Europe/Paris')
+                            if tz != TIME_ZONE
+                         ]
+
+            assertSelected(TIME_ZONE)
+
+            tz = time_zones[0]
+            change_tz(tz)
+            assertSelected(tz)
+
+            change_tz(time_zones[1])
+        finally:
+            django_tz.activate = original_activate
 
     def _build_edit_user_svalue_url(self, setting_key):
         return '/creme_config/my_settings/edit_value/%s' % setting_key.id
