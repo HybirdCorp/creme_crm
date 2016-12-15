@@ -303,7 +303,7 @@ about this fantastic animation studio."""
         "FK to CremeEntity"
         user = self.user
         hayao = self._build_contact(user=user.id, first_name='Hayao', last_name='Miyazaki')
-        img = FakeImage.objects.create(user=user, name="Grumpy Hayao")
+        img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
 
         hayao.image = img
         hayao.save()
@@ -323,11 +323,16 @@ about this fantastic animation studio."""
     def test_edition07(self):
         "New value is None: verbose prints ''"
         old_capital = 1000
-        gainax = FakeOrganisation.objects.create(user=self.user, name='Gainax', capital=old_capital)
+        old_date    = date(year=1928, month=5, day=3)
+        gainax = FakeOrganisation.objects.create(user=self.user, name='Gainax',
+                                                 capital=old_capital,
+                                                 creation_date=old_date,
+                                                )
         old_count = HistoryLine.objects.count()
 
         gainax = self.refresh(gainax)
         gainax.capital = None
+        gainax.creation_date = None
         gainax.save()
 
         hlines = self._get_hlines()
@@ -336,15 +341,27 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(gainax.id,    hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
-        self.assertEqual([['capital', old_capital, None]], hline.modifications)
+        self.assertEqual([['capital',        old_capital,   None],
+                          [u'creation_date', u'1928-05-03', None],
+                         ],
+                         hline.modifications
+                        )
 
         vmodifs = hline.get_verbose_modifications(self.user)
-        self.assertEqual(1, len(vmodifs))
-        self.assertEqual(self.FSTRING_3_VALUES % {'field':    _(u'Capital'),
-                                                  'oldvalue': old_capital,
-                                                  'value':    '',  # <== not None
-                                                 },
+        self.assertEqual(2, len(vmodifs))
+
+        fmt = self.FSTRING_3_VALUES
+        self.assertEqual(fmt % {'field':    _(u'Capital'),
+                                'oldvalue': old_capital,
+                                'value':    '',  # <== not None
+                               },
                          vmodifs[0]
+                        )
+        self.assertEqual(fmt % {'field':    _(u'Date of creation'),
+                                'oldvalue': date_format(old_date, 'DATE_FORMAT'),
+                                'value':    '',  # <== not None
+                               },
+                         vmodifs[1]
                         )
 
     def test_edition08(self):
@@ -383,8 +400,22 @@ about this fantastic animation studio."""
                          vmodifs[0]
                         )
 
+        # Set None -------------------------
+        # meeting = self.refresh(meeting)
+        meeting.end = None
+        meeting.save()
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 2, len(hlines))
+        self.assertEqual(self.FSTRING_3_VALUES % {'field':    _(u'End'),
+                                                  'oldvalue': date_format(end, 'DATETIME_FORMAT'),
+                                                  'value':    '',
+                                                 },
+                         hlines[-1].get_verbose_modifications(self.user)[0]
+                        )
+
     def test_edition09(self):
-        "Other fields: TimeField, SlugField, FloatField"
+        "Other fields: TimeField, SlugField, FloatField, NullBooleanField"
         # TODO: use true fields in a fake model
 
         from creme.creme_core.models.history import _JSONEncoder, _PRINTERS
@@ -396,6 +427,7 @@ about this fantastic animation studio."""
 
         self.assertNotIn('SlugField', _PRINTERS)
 
+        # ------
         n = 3.14
         self.assertEqual('3.14', encode(n))
         float_printer = _PRINTERS.get('FloatField')
@@ -403,6 +435,14 @@ about this fantastic animation studio."""
         self.assertEqual(number_format(n, use_l10n=True),
                          float_printer(field=None, user=self.user, val=n)
                         )
+        self.assertEqual('', float_printer(field=None, user=self.user, val=None))
+
+        # ------
+        nbool_printer = _PRINTERS.get('NullBooleanField')
+        self.assertIsNotNone(nbool_printer)
+        self.assertEqual(_('Yes'),  nbool_printer(field=None, user=self.user, val=True))
+        self.assertEqual(_('No'),   nbool_printer(field=None, user=self.user, val=False))
+        self.assertEqual(_('N/A'),  nbool_printer(field=None, user=self.user, val=None))
 
     def test_deletion01(self):
         old_count = HistoryLine.objects.count()
