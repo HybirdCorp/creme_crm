@@ -27,7 +27,7 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
-        ForeignKey, OneToOneField, SET_NULL, FieldDoesNotExist) #DateTimeField
+        ForeignKey, OneToOneField, SET_NULL, FieldDoesNotExist)
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.db.transaction import atomic
 from django.dispatch import receiver
@@ -131,16 +131,20 @@ def _fk_printer(field, val, user):
 # TODO: ClassKeyedMap ?
 _PRINTERS = {
         'BooleanField': (lambda field, val, user: ugettext(u'Yes') if val else ugettext(u'No')),
+        'NullBooleanField': (lambda field, val, user: ugettext(u'Yes') if val else
+                                                      ugettext(u'No') if val is False else
+                                                      ugettext(u'N/A')
+                            ),
 
         'ForeignKey': _fk_printer,
 
-        'DateField':     lambda field, val, user: date_format(date_from_ISO8601(val), 'DATE_FORMAT'),
+        'DateField':     lambda field, val, user: date_format(date_from_ISO8601(val), 'DATE_FORMAT') if val else '',
         'DateTimeField': lambda field, val, user: date_format(localtime(dt_from_ISO8601(val)),
                                                               'DATETIME_FORMAT',
-                                                             ),
+                                                             ) if val else '',
 
         # TODO remove 'use_l10n' when settings.USE_L10N == True
-        'FloatField': lambda field, val, user: number_format(val, use_l10n=True),
+        'FloatField': lambda field, val, user: number_format(val, use_l10n=True) if val is not None else '',
     }
 
 
