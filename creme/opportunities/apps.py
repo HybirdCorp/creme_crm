@@ -20,7 +20,7 @@
 
 import logging
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext, npgettext
 
 from creme.creme_core.apps import CremeAppConfig
 
@@ -101,9 +101,15 @@ class OpportunitiesConfig(CremeAppConfig):
     def register_statistics(self, statistics_registry):
         Opportunity = self.Opportunity
 
+        def won_opportunities():
+            count = Opportunity.objects.filter(sales_phase__won=True).count()
+            return npgettext('opportunities-stats', u'%s won', u'%s won', count) % count
+
         statistics_registry.register(
             id='opportunities', label=Opportunity._meta.verbose_name_plural,
-            func=lambda: [Opportunity.objects.count()],
+            func=lambda: [won_opportunities(),
+                          pgettext('opportunities-stats', u'%s in all') % Opportunity.objects.count(),
+                         ],
             perm='opportunities', priority=10,
         )
 
