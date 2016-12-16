@@ -276,7 +276,7 @@ INSTALLED_CREME_APPS = (
     'creme.projects',
     'creme.tickets',
     # 'creme.cti',
-    'creme.activesync',
+    # 'creme.activesync',  # DEPRECATED
     'creme.vcfs',
     # 'creme.polls',  # Need 'commercial'
     # 'creme.mobile',
