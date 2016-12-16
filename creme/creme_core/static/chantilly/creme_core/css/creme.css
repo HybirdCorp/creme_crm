@@ -684,7 +684,7 @@ a img:hover {
     cursor: pointer;
 }
 
-/* DualColumnMultiSelect (dcms) (move to creme-ui ??)*/
+/* DualColumnMultiSelect (dcms) (move to creme-ui.css or forms.css ??) */
 .dcms_div li.dcms_focused {
     background: #f7b5ad none repeat scroll 0 0;
 }
@@ -697,6 +697,7 @@ a img:hover {
     list-style-type: none;
     padding: 0;
     background: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .dcms_div ul {
