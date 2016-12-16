@@ -18,7 +18,7 @@ try:
             EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue) #Relation
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.tests.base import skipIfCustomOrganisation
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
 
@@ -72,6 +72,7 @@ class UserTestCase(CremeTestCase):
         self._aux_test_portal()
 
     @skipIfNotCremeUser
+    @skipIfCustomContact
     def test_create01(self):
         self.login()
 
@@ -120,6 +121,7 @@ class UserTestCase(CremeTestCase):
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
     @skipIfNotCremeUser
+    @skipIfCustomContact
     def test_create02(self):
         "Not superuser ; special chars in username"
         self.login()
@@ -295,6 +297,7 @@ class UserTestCase(CremeTestCase):
                             )
 
     @skipIfNotCremeUser
+    @skipIfCustomContact
     def test_create09(self):
         "Internal relationships are forbidden."
         user = self.login()
@@ -324,6 +327,7 @@ class UserTestCase(CremeTestCase):
                             )
 
     @skipIfNotCremeUser
+    @skipIfCustomContact
     def test_edit01(self):
         user = self.login()
 
@@ -391,6 +395,7 @@ class UserTestCase(CremeTestCase):
         self.assertPOST404(url)
 
     @skipIfNotCremeUser
+    @skipIfCustomContact
     def test_edit03(self):
         "Logged as regular user"
         user = self.login_not_as_superuser()
@@ -530,6 +535,7 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(self.refresh(other_user).is_active)
 
     @skipIfNotCremeUser
+    @skipIfCustomContact
     def test_team_create01(self):
         self.login()
 
