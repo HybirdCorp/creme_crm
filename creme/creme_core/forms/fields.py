@@ -59,6 +59,7 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
            'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
+           'ChoiceOrCharField',
            'CTypeChoiceField', 'EntityCTypeChoiceField',
            'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
           )
