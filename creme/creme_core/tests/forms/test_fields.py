@@ -49,6 +49,15 @@ class DatePeriodFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(DatePeriodField, 'required', clean, ['', ''])
         self.assertFieldValidationError(DatePeriodField, 'required', clean, None)
 
+    def test_not_required(self):
+        clean = DatePeriodField(required=False).clean
+        self.assertIsNone(clean(['', '']))
+        self.assertIsNone(clean(['']))
+        self.assertIsNone(clean([]))
+        self.assertIsNone(clean(['days', '']))
+        self.assertIsNone(clean(['days']))
+        self.assertIsNone(clean(['', 2]))
+
     def test_empty(self):
         self.assertIsNone(DatePeriodField(required=False).clean(None))
 
