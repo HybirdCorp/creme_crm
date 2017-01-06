@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,8 @@ class ProjectStatus(CremeModel):
     color_code  = ColorField(_('Color'), blank=True)
     description = TextField(_('Description'))
     order       = BasicAutoField(_('Order'))  # Used by creme_config
+
+    creation_label = pgettext_lazy('projects-project_status', u'Create a status')
 
     def __unicode__(self):
         return self.name

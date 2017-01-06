@@ -459,38 +459,41 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertTrue(ctypes)
 
     def test_format_object(self):
-        self.login()
+        user = self.login()
+
         contact = self.create_contact()
         orga    = self.create_orga()
 
+        contact_ct_id = contact.entity_type_id
+        orga_ct_id    = orga.entity_type_id
+
+        contact_label = FakeContact.creation_label
+        orga_label    = FakeOrganisation.creation_label
+
         url_fmt = self.QUICKFORM_URL
-        label = _('Add')
+        build_entry = self.build_field_entry_data
         field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
-        self.assertEqual('[' + ', '.join((self.build_field_entry_data(12, 1),
-                                          self.build_field_entry_data(14, 5))) + ']',
+        self.assertEqual('[%s, %s]' % (build_entry(contact_ct_id, 1), build_entry(orga_ct_id, 5)),
                          field.from_python(
-                             [{'ctype': {'id': 12, 'create': url_fmt % 12, 'create_label': label}, 'entity': 1},
-                              {'ctype': {'id': 14, 'create': url_fmt % 14, 'create_label': label}, 'entity': 5},
+                             [{'ctype': {'id': contact_ct_id, 'create': url_fmt % contact_ct_id, 'create_label': unicode(contact_label)}, 'entity': 1},
+                              {'ctype': {'id': orga_ct_id,    'create': url_fmt % orga_ct_id,    'create_label': unicode(orga_label)},    'entity': 5},
                              ]
                          )
                         )
 
         # No user
         fmt = self.DATA_FORMAT
-        self.assertEqual('['
-                         + ', '.join((fmt % ('', contact.entity_type_id, FakeContact.creation_label, contact.pk),
-                                      fmt % ('', orga.entity_type_id, FakeOrganisation.creation_label, orga.pk),
-                                     )
-                                    )
-                         + ']',
+        self.assertEqual('[%s, %s]' % (fmt % ('', contact_ct_id, contact_label, contact.pk),
+                                       fmt % ('', orga_ct_id,    orga_label,    orga.pk),
+                                      ),
                          field.from_python([contact, orga])
                         )
 
-        field.user = self.user
-
         # With user
-        self.assertEqual('[' + ', '.join((self.build_field_entry_data(contact.entity_type_id, contact.pk),
-                                          self.build_field_entry_data(orga.entity_type_id, orga.pk))) + ']',
+        field.user = user
+        self.assertEqual('[%s, %s]' % (build_entry(contact_ct_id, contact.pk),
+                                       build_entry(orga_ct_id,    orga.pk),
+                                      ),
                          field.from_python([contact, orga])
                         )
 

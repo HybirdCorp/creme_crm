@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from .models import UserMessagePriority
+from . import models
 
-to_register = ((UserMessagePriority, 'message_priority'),)
+to_register = ((models.UserMessagePriority, 'message_priority'),)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, ForeignKey
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
@@ -27,6 +27,8 @@ from creme.creme_core.models import CremeModel
 class Category(CremeModel):
     name        = CharField(_(u'Name of the category'), max_length=100)
     description = CharField(_(u'Description'), max_length=100)
+
+    creation_label = pgettext_lazy('products-category', u'Create a category')
 
     def __unicode__(self):
         return self.name
@@ -36,8 +38,8 @@ class Category(CremeModel):
 
     class Meta:
         app_label = 'products'
-        verbose_name = _(u'Category')
-        verbose_name_plural = _(u'Categories')
+        verbose_name = pgettext_lazy('products-category', u'Category')
+        verbose_name_plural = pgettext_lazy('products-category', u'Categories')
         ordering = ('name',)
 
 
@@ -46,12 +48,13 @@ class SubCategory(CremeModel):
     description = CharField(_(u'Description'), max_length=100)
     category    = ForeignKey(Category, verbose_name=_(u'Parent category')).set_tags(viewable=False)
 
+    creation_label = pgettext_lazy('products-sub_category', u'Create a sub-category')
+
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'products'
-        verbose_name = _(u'Sub-category')
-        verbose_name_plural = _(u'Sub-categories')
+        verbose_name = pgettext_lazy('products-sub_category', u'Sub-category')
+        verbose_name_plural = pgettext_lazy('products-sub_category', u'Sub-categories')
         ordering = ('name',)
-

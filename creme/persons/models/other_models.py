@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,11 +32,13 @@ class Civility(CremeModel):
     title    = CharField(pgettext_lazy('persons-civility', u'Title'), max_length=100)
     shortcut = CharField(_(u'Shortcut'), max_length=100)
 
+    creation_label = _('Create a civility')
+
     def __unicode__(self):
         return self.title
 
     class Meta:
-        app_label = "persons"
+        app_label = 'persons'
         verbose_name = _(u'Civility')
         verbose_name_plural = _(u'Civilities')
         ordering = ('title',)
@@ -45,11 +47,13 @@ class Civility(CremeModel):
 class Position(CremeModel):
     title = CharField(pgettext_lazy('persons-position', u'Title'), max_length=100)
 
+    creation_label = pgettext_lazy('persons-position', u'Create a position')
+
     def __unicode__(self):
         return self.title
 
     class Meta:
-        app_label = "persons"
+        app_label = 'persons'
         verbose_name = _(u'People position')
         verbose_name_plural = _(u'People positions')
         ordering = ('title',)
@@ -58,11 +62,13 @@ class Position(CremeModel):
 class Sector(CremeModel):
     title = CharField(pgettext_lazy('persons-sector', u'Title'), max_length=100)
 
+    creation_label = pgettext_lazy('persons-sector', u'Create a sector')
+
     def __unicode__(self):
         return self.title
 
     class Meta:
-        app_label = "persons"
+        app_label = 'persons'
         verbose_name = _(u"Line of business")
         verbose_name_plural = _(u"Lines of business")
         ordering = ('title',)
@@ -71,11 +77,13 @@ class Sector(CremeModel):
 class LegalForm(CremeModel):
     title = CharField(pgettext_lazy('persons-legalform', u'Title'), max_length=100)
 
+    creation_label = _(u'Create a legal form')
+
     def __unicode__(self):
         return self.title
 
     class Meta:
-        app_label = "persons"
+        app_label = 'persons'
         verbose_name = _(u'Legal form')
         verbose_name_plural = _(u'Legal forms')
         ordering = ('title',)
@@ -85,11 +93,13 @@ class StaffSize(CremeModel):
     size  = CharField(_(u'Size'), max_length=100)
     order = BasicAutoField(_('Order'))  # Used by creme_config
 
+    creation_label = _('Create a staff size')
+
     def __unicode__(self):
         return self.size
 
     class Meta:
-        app_label = "persons"
-        verbose_name = _(u"Organisation staff size")
-        verbose_name_plural = _(u"Organisation staff sizes")
+        app_label = 'persons'
+        verbose_name = _(u'Organisation staff size')
+        verbose_name_plural = _(u'Organisation staff sizes')
         ordering = ('order',)

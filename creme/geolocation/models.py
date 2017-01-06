@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,25 +42,27 @@ class GeoAddress(Model):
     COMPLETE   = 3
 
     STATUS_LABELS = {
-        UNDEFINED: _('Not localized'),
-        MANUAL:    _("Manual location"),
-        PARTIAL:   _("Partially matching location"),
+        UNDEFINED: _(u'Not localized'),
+        MANUAL:    _(u'Manual location'),
+        PARTIAL:   _(u'Partially matching location'),
         COMPLETE:  '',
     }
 
-    address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u"Address"), primary_key=True)
-    latitude  = FloatField(verbose_name=_(u"Latitude"), null=True, blank=True)  # min_value=-90, max_value=90
-    longitude = FloatField(verbose_name=_(u"Longitude"), null=True, blank=True)  # min_value=-180, max_value=180
+    address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Address'), primary_key=True)
+    latitude  = FloatField(verbose_name=_(u'Latitude'), null=True, blank=True)  # min_value=-90, max_value=90
+    longitude = FloatField(verbose_name=_(u'Longitude'), null=True, blank=True)  # min_value=-180, max_value=180
     draggable = BooleanField(verbose_name=_(u'Is this marker draggable in maps ?'), default=True)
     geocoded  = BooleanField(verbose_name=_(u'Geocoded from address ?'), default=False)
     status    = SmallIntegerField(verbose_name=pgettext_lazy('geolocation', u'Status'),
                                   choices=STATUS_LABELS.items(), default=UNDEFINED,
                                  )
 
+    creation_label = pgettext_lazy('geolocation-address', u'Create an address')
+
     class Meta:
         app_label = 'geolocation'
-        verbose_name = _(u'Address')
-        verbose_name_plural = _(u'Addresses')
+        verbose_name = pgettext_lazy('geolocation-address', u'Address')
+        verbose_name_plural = pgettext_lazy('geolocation-address', u'Addresses')
 
     def __init__(self, *args, **kwargs):
         super(GeoAddress, self).__init__(*args, **kwargs)
@@ -162,10 +164,12 @@ class GeoAddress(Model):
 class Town(Model):
     name      = CharField(_(u'Name of the town'), max_length=100, blank=False, null=False)
     slug      = SlugField(_(u'Slugified name of the town'), max_length=100, blank=False, null=False)
-    zipcode   = CharField(_(u"Zip code"), max_length=100, blank=True)
-    country   = CharField(_(u"Country"), max_length=40, blank=True)
-    latitude  = FloatField(verbose_name=_(u"Latitude"))
-    longitude = FloatField(verbose_name=_(u"Longitude"))
+    zipcode   = CharField(_(u'Zip code'), max_length=100, blank=True)
+    country   = CharField(_(u'Country'), max_length=40, blank=True)
+    latitude  = FloatField(verbose_name=_(u'Latitude'))
+    longitude = FloatField(verbose_name=_(u'Longitude'))
+
+    creation_label = _('Create a town')
 
     class Meta:
         app_label = 'geolocation'

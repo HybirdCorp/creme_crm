@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from .models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
-        PaymentTerms, AdditionalInformation, SettlementTerms)
+from . import models
 
 
-to_register = ((InvoiceStatus,         'invoice_status'),
-               (QuoteStatus,           'quote_status'),
-               (CreditNoteStatus,      'credit_note_status'),
-               (SalesOrderStatus,      'sales_order_status'),
-               (AdditionalInformation, 'additional_information'),
-               (PaymentTerms,          'payment_terms'),
-               (SettlementTerms,       'invoice_payment_type'),
+to_register = ((models.InvoiceStatus,         'invoice_status'),
+               (models.QuoteStatus,           'quote_status'),
+               (models.CreditNoteStatus,      'credit_note_status'),
+               (models.SalesOrderStatus,      'sales_order_status'),
+               (models.AdditionalInformation, 'additional_information'),
+               (models.PaymentTerms,          'payment_terms'),
+               (models.SettlementTerms,       'invoice_payment_type'),
               )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,16 +19,17 @@
 ################################################################################
 
 from django.forms.widgets import Select
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms.widgets import ActionButtonList, DynamicSelect
 
 
 class CreatorModelChoiceWidget(Select):
-    def __init__(self, creation_url='', creation_allowed=False, *args, **kwargs):
+    def __init__(self, creation_url='', creation_allowed=False, creation_label=_(u'Create'), *args, **kwargs):
         super(CreatorModelChoiceWidget, self).__init__(*args, **kwargs)
         self.creation_url = creation_url
         self.creation_allowed = creation_allowed
+        self.creation_label = creation_label
 
     def render(self, name, value, attrs=None, choices=()):
         url = self.creation_url
@@ -41,8 +42,9 @@ class CreatorModelChoiceWidget(Select):
                                  )
 
         allowed = self.creation_allowed
-        widget.add_action('create', _(u'Add'), enabled=allowed, popupUrl=url,
-                          title=_(u'Add') if allowed else _(u"Can't add"),
+        label = unicode(self.creation_label)
+        widget.add_action('create', label, enabled=allowed, popupUrl=url,
+                          title=label if allowed else ugettext(u'Cannot create'),
                          )
 
         return widget.render(name, value, attrs)  # TODO: choices ?

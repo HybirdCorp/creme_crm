@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,8 +42,10 @@ BASE_STATUS = ((OPEN_PK,        pgettext_lazy('tickets-status', u'Open')),
 class Status(CremeModel):
     "Status of a ticket: open, closed, invalid..."
     name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
-    is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+    is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
     order     = BasicAutoField(_('Order'))  # Used by creme_config
+
+    creation_label = pgettext_lazy('tickets-status', u'Create a status')
 
     def __unicode__(self):
         return self.name

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .models import Origin, SalesPhase
+from . import models
 
-to_register = ((Origin,     'origin'),
-               (SalesPhase, 'sales_phase'),
+to_register = ((models.Origin,     'origin'),
+               (models.SalesPhase, 'sales_phase'),
               )

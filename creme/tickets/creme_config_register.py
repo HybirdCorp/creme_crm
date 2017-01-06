@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .models import Status, Priority, Criticity
+from . import models
 
-to_register = ((Status,    'status'),
-               (Priority,  'priority'),
-               (Criticity, 'criticity'),
+to_register = ((models.Status,    'status'),
+               (models.Priority,  'priority'),
+               (models.Criticity, 'criticity'),
               )

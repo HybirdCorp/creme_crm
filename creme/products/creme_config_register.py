@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .models import Category, SubCategory
+from . import models
 
 
-to_register = ((Category,    'category'),
-               (SubCategory, 'subcategory'),
+to_register = ((models.Category,    'category'),
+               (models.SubCategory, 'subcategory'),
               )

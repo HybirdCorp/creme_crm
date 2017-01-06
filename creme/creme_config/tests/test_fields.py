@@ -59,12 +59,12 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 #                         field.widget.actions
 #                        )
         render_str = field.widget.render('position', None)
-        self.assertIn(_(u"Can't add"), render_str)
+        self.assertIn(_(u'Cannot create'), render_str)
 
         field.user = None
 #        self.assertFalse(hasattr(field.widget, 'actions'))
         render_str = field.widget.render('position', None)
-        self.assertNotIn(_(u"Can't add"), render_str)
+        self.assertNotIn(_(u'Cannot create'), render_str)
 
     def test_actions_admin(self):
         field = CreatorModelChoiceField(queryset=Position.objects.all())
@@ -91,7 +91,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
         render_str = field.widget.render('position', None)
         self.assertIn(self.ADD_URL, render_str)
-        self.assertIn(_(u'Add'), render_str)
+        self.assertIn(_(u'Create'), render_str)
 
         field.user = None
         # self.assertFalse(hasattr(field.widget, 'actions'))

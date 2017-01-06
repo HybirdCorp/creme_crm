@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .models import EventType
+from . import models
 
 
-to_register = ((EventType, 'event_type'),)
+to_register = ((models.EventType, 'event_type'),)

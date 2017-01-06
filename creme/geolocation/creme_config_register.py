@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .models import Town, GeoAddress
+from . import models
 
 
-to_register = ((Town,       'town'),
-               (GeoAddress, 'geoaddress'),
+to_register = ((models.Town,       'town'),
+               (models.GeoAddress, 'geoaddress'),
               )
