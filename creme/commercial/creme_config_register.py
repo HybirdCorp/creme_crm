@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .models import ActType
+from . import models
 
-to_register = ((ActType,    'act_type'),
+to_register = ((models.ActType,    'act_type'),
               )

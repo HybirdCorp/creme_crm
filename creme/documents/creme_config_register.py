@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .models import FolderCategory
+from . import models
 
-to_register = ((FolderCategory, 'category'),)
+to_register = ((models.FolderCategory, 'category'),
+               (models.Document,       'doc_category'),
+              )

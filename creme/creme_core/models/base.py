@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class CremeModel(Model):
     _delete_files = True  # Delegate the deletion of the file on system
                           # when a model has one or more FileField sub-classes.
-    creation_label = _('Add')
+    creation_label = _('Create')
     save_label     = _('Save')
     # TODO : do a complete refactor for _CremeModel.selection_label
     # selection_label = _('Select')

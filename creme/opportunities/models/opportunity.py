@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,6 +65,8 @@ class SalesPhase(CremeModel):
     won   = BooleanField(pgettext_lazy('opportunities-sales_phase', u'Won'), default=False)
     lost  = BooleanField(pgettext_lazy('opportunities-sales_phase', u'Lost'), default=False)
 
+    creation_label = pgettext_lazy('opportunities-sales_phase', 'Create a phase')
+
     def __unicode__(self):
         return self.name
 
@@ -83,6 +85,8 @@ class SalesPhase(CremeModel):
 
 class Origin(CremeModel):
     name = CharField(_(u'Origin'), max_length=100, blank=False, null=False)
+
+    creation_label = pgettext_lazy('opportunities-origin', 'Create an origin')
 
     def __unicode__(self):
         return self.name

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2014  Hybird
+#    Copyright (C) 2012-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,15 @@
 ################################################################################
 
 from django.db.models import CharField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
 
 class PollType(CremeModel):
     name = CharField(_(u'Name'), max_length=80)
+
+    creation_label = pgettext_lazy('polls-poll_type', u'Create a type')
 
     class Meta:
         app_label = 'polls'

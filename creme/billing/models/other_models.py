@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,13 +30,15 @@ from creme.creme_core.models.fields import BasicAutoField
 class SettlementTerms(CremeModel):
     name = CharField(_(u'Settlement terms'), max_length=100)
 
+    creation_label = _('Create settlement terms')
+
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Settlement terms')
-        verbose_name_plural = _(u'Settlement terms')
+        verbose_name        = pgettext_lazy('billing-singular', u'Settlement terms')
+        verbose_name_plural = pgettext_lazy('billing-plural',   u'Settlement terms')
         ordering = ('name',)
 
 
@@ -44,6 +46,8 @@ class AbstractStatus(CremeModel):
     name      = CharField(_(u'Name'), max_length=100)
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
     order     = BasicAutoField(_('Order'))  # Used by creme_config
+
+    creation_label = pgettext_lazy('billing-status', 'Create a status')
 
     def __unicode__(self):
         return self.name
@@ -88,31 +92,35 @@ class CreditNoteStatus(AbstractStatus):
 
 class AdditionalInformation(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
-    description = TextField(verbose_name=_(u"Description"), blank=True)
+    description = TextField(verbose_name=_(u'Description'), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+
+    creation_label = pgettext_lazy('billing-additional_info', 'Create information')
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'billing'
-        verbose_name        = pgettext_lazy('billing-singular', u"Additional information")
-        verbose_name_plural = pgettext_lazy('billing-plural',   u"Additional information")
+        verbose_name        = pgettext_lazy('billing-singular', u'Additional information')
+        verbose_name_plural = pgettext_lazy('billing-plural',   u'Additional information')
         ordering = ('name',)
 
 
 class PaymentTerms(CremeModel):
     name        = CharField(_(u'Payment terms'), max_length=100)
-    description = TextField(verbose_name=_(u"Description"), blank=True)
+    description = TextField(verbose_name=_(u'Description'), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+
+    creation_label = _('Create payment terms')
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Payment terms')
-        verbose_name_plural = _(u'Payments terms')
+        verbose_name        = pgettext_lazy('billing-singular', u'Payment terms')
+        verbose_name_plural = pgettext_lazy('billing-plural',   u'Payment terms')
         ordering = ('name',)
 
 

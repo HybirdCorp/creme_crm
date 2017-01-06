@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
         ForeignKey, PositiveIntegerField, PROTECT)
 from django.db.transaction import atomic
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, JobResult  # CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey
@@ -39,6 +39,8 @@ logger = logging.getLogger(__name__)
 class UserMessagePriority(CremeModel):
     title     = CharField(_(u'Title'), max_length=200)
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+
+    creation_label = pgettext_lazy('assistants-messaqe_priority', u'Create a priority')
 
     class Meta:
         app_label = 'assistants'

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .models import ProjectStatus, TaskStatus
+from . import models
 
 
-to_register = ((ProjectStatus, 'projectstatus'),
-               (TaskStatus,    'taskstatus'),
+to_register = ((models.ProjectStatus, 'projectstatus'),
+               (models.TaskStatus,    'taskstatus'),
               )

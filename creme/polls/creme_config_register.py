@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .models import PollType
+from . import models
 
 
-to_register = ((PollType, 'poll_type'),
+to_register = ((models.PollType, 'poll_type'),
               )
