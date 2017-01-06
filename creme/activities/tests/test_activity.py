@@ -619,11 +619,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
 
-                                          'alert_day':        '2010-2-10',
-                                          'alert_start_time': '10:05',
+                                          # 'alert_day':        '2010-2-10',
+                                          # 'alert_start_time': '10:05',
+                                          'alert_start': '2010-2-10 10:05',
 
-                                          'alert_trigger_number': 2,
-                                          'alert_trigger_unit':   'days',
+                                          # 'alert_trigger_number': 2,
+                                          # 'alert_trigger_unit':   'days',
+                                          'alert_period_0': 'days',
+                                          'alert_period_1': 2,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -646,7 +649,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfNotInstalled('creme.assistants')
     def test_createview_alert02(self):
-        "Unit is missing"
+        # "Unit is missing"
+        "Period value is missing: no alert created"
         user = self.login()
 
         title = 'Meeting01'
@@ -665,14 +669,16 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
 
-                                          'alert_trigger_number': 2,
+                                          # 'alert_trigger_number': 2,
+                                          'alert_period_0': 'days',
                                          }
                                    )
         self.assertNoFormError(response)
 
         act = self.get_object_or_fail(Activity, title=title)
-        alert = self.get_object_or_fail(Alert, entity_id=act.id)
-        self.assertEqual(self.create_datetime(2013, 3, 28, 17, 28), alert.trigger_date)
+        # alert = self.get_object_or_fail(Alert, entity_id=act.id)
+        # self.assertEqual(self.create_datetime(2013, 3, 28, 17, 28), alert.trigger_date)
+        self.assertFalse(Alert.objects.filter(entity_id=act.id))
 
     @skipIfNotInstalled('creme.assistants')
     @skipIfCustomContact
