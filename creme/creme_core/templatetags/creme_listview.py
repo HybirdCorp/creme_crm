@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,7 @@ from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
 from ..core.paginator import FlowPaginator
 from ..gui.listview import NULL_FK
 from ..gui.mass_import import import_form_registry
+from ..gui.merge import merge_form_registry
 from ..models import CustomField
 from ..models.fields import EntityCTypeForeignKey
 from ..utils import creme_entity_content_types, build_ct_choices
@@ -194,6 +195,7 @@ def get_listview_columns_header(context):
         cell.widget_ctx = widget_ctx
 
     context['NULL_FK'] = NULL_FK
+    context['can_merge_entities'] = merge_form_registry.get(context['model']) is not None
 
     return context
 
