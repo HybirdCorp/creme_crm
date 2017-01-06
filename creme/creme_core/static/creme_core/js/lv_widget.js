@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -162,17 +162,28 @@ creme.lv_widget.editSelectedLines = function(list, url) {
                   summary.text(content.format(selection.length));
               }
           })
-          .open({width:800});
+          .open({width: 800});
 
     return dialog;
+}
+
+creme.lv_widget.mergeSelectedLines = function(list) {
+    var selection = creme.lv_widget.selectedLines(list);
+
+    if (selection.length !== 2) {
+        creme.dialogs.warning(gettext("Please select 2 entities.")).open();
+        return;
+    }
+
+    window.location.href = '/creme_core/entity/merge/' + selection[0] + ',' + selection[1];
 }
 
 creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, input, callback) {
     var $sort_field = $(sort_field);
     var $sort_order = $(sort_order);
 
-    if($sort_field.val() == new_sort_field) {
-        if($sort_order.val() == "") {
+    if ($sort_field.val() == new_sort_field) {
+        if ($sort_order.val() == "") {
             $sort_order.val("-");
         } else {
             $sort_order.val("");
