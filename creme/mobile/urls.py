@@ -3,7 +3,7 @@
 from django.conf.urls import url
 from django.contrib.auth import REDIRECT_FIELD_NAME, views as auth_views
 
-from creme.persons import contact_model_is_custom, organisation_model_is_custom
+from creme import persons
 
 from creme.activities import activity_model_is_custom
 
@@ -39,12 +39,12 @@ urlpatterns = [
     url(r'^logout/$', auth_views.logout_then_login),
 ]
 
-if not contact_model_is_custom():
+if not persons.contact_model_is_custom():
     urlpatterns += [
         url(r'^contact/add$', views.create_contact, name='mobile__create_contact'),
     ]
 
-if not organisation_model_is_custom():
+if not persons.organisation_model_is_custom():
     urlpatterns += [
         url(r'^organisation/add$', views.create_organisation, name='mobile__create_organisation'),
     ]

@@ -21,14 +21,14 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from creme.activities  import get_activity_model
+    from creme.activities import get_activity_model
     from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
             REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
             STATUS_PLANNED, STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED,
             ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK,
             ACTIVITYTYPE_PHONECALL,
             ACTIVITYSUBTYPE_PHONECALL_OUTGOING, ACTIVITYSUBTYPE_PHONECALL_FAILED)
-    from creme.activities.models import Calendar  # Activity
+    from creme.activities.models import Calendar
     from creme.activities.tests.base import skipIfCustomActivity
 
     from creme.mobile.models import MobileFavorite
@@ -61,9 +61,13 @@ class MobileTestCase(CremeTestCase):
         cls.WF_LASTED5MIN_URL = reverse('mobile__pcall_wf_lasted_5_minutes')
         cls.WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
-    def login(self, is_superuser=True, other_is_owner=False):
-        return super(MobileTestCase, self).login(is_superuser,
-                                                 allowed_apps=['activities', 'persons'],
+    # def login(self, is_superuser=True, other_is_owner=False):
+    def login(self, is_superuser=True, is_staff=False, allowed_apps=('activities', 'persons'), *args, **kwargs):
+        return super(MobileTestCase, self).login(is_superuser=is_superuser,
+                                                 is_staff=is_staff,
+                                                 # allowed_apps=['activities', 'persons'],
+                                                 allowed_apps=allowed_apps,
+                                                 *args, **kwargs
                                                 )  # 'creme_core'
 
     def _build_start_url(self, activity):

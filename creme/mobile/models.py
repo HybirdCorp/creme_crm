@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,14 +19,14 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import Model, ForeignKey
+from django.db import models
 
 from creme.creme_core.models import CremeEntity
 
 
-class MobileFavorite(Model):
-    entity = ForeignKey(CremeEntity, related_name='mobile_favorite')
-    user   = ForeignKey(settings.AUTH_USER_MODEL, related_name='mobile_favorite')
+class MobileFavorite(models.Model):
+    entity = models.ForeignKey(CremeEntity, related_name='mobile_favorite')
+    user   = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mobile_favorite')
 
     class Meta:
         app_label = 'mobile'
