@@ -37,15 +37,12 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import EntityCredentials
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.utils.dates import make_aware_dt
-from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.views import decorators, generic
 
 from creme.persons import get_contact_model
 
-from .. import get_activity_model
-from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
-        REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
-from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
+from .. import get_activity_model, constants
+from ..forms import calendar as calendar_forms
 from ..models import Calendar
 from ..utils import get_last_day_of_a_month, check_activity_collisions
 
@@ -61,7 +58,7 @@ def _activity_2_dict(activity, user):
     end   = make_naive(activity.end, tz)
 
     # TODO: hack to hide start time of floating time activities, only way to do that without change js calendar api
-    is_all_day = activity.is_all_day or activity.floating_type == FLOATING_TIME
+    is_all_day = activity.is_all_day or activity.floating_type == constants.FLOATING_TIME
 
     if start == end and not is_all_day:
         end += timedelta(seconds=1)
@@ -71,7 +68,7 @@ def _activity_2_dict(activity, user):
             'start':        start.isoformat(),
             'end':          end.isoformat(),
             'url':          reverse('activities__view_activity_popup', args=(activity.pk,)),
-            'calendar_color': "#%s" % (activity.calendar.get_color or DEFAULT_CALENDAR_COLOR),
+            'calendar_color': "#%s" % (activity.calendar.get_color or constants.DEFAULT_CALENDAR_COLOR),
             'allDay' :      is_all_day,
             'editable':     user.has_perm_to_change(activity),
             'calendar':     activity.calendar.id,
@@ -144,8 +141,8 @@ def user_calendar(request):
         creme_calendars_by_user[filter_key].append({'name': calendar.name,
                                                     'id': calendar.id})
 
-    floating_activities = Activity.objects.filter(floating_type=FLOATING,
-                                                  relations__type=REL_OBJ_PART_2_ACTIVITY,
+    floating_activities = Activity.objects.filter(floating_type=constants.FLOATING,
+                                                  relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
                                                   relations__object_entity=user.linked_contact.id,
                                                   is_deleted=False,
                                                  )
@@ -156,7 +153,7 @@ def user_calendar(request):
     return render(request, 'activities/calendar.html',
                   {'user_username':           user.username,
                    'events_url':              '/activities/calendar/users_activities/',
-                   'max_element_search':      MAX_ELEMENT_SEARCH,
+                   'max_element_search':      constants.MAX_ELEMENT_SEARCH,
                    'my_calendars':            Calendar.objects.filter(user=user),
                    'others_calendars':        dict(others_calendars),
                    'n_others_calendars':      len(calendars),
@@ -192,8 +189,8 @@ def get_users_activities(request, calendar_ids):
                                                 Q(end__gt=start, start__lt=end)
                                                )
                                         .filter(Q(calendars__pk__in=users_cal_ids) |
-                                                Q(type=ACTIVITYTYPE_INDISPO,
-                                                  relations__type=REL_OBJ_PART_2_ACTIVITY,
+                                                Q(type=constants.ACTIVITYTYPE_INDISPO,
+                                                  relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
                                                   relations__object_entity__in=contacts,
                                                  )
                                                ).distinct()
@@ -207,7 +204,7 @@ def get_users_activities(request, calendar_ids):
 @login_required
 @permission_required('activities')
 @jsonify
-@POST_only
+@decorators.POST_only
 def update_activity_date(request):
     POST = request.POST
 
@@ -224,14 +221,14 @@ def update_activity_date(request):
     # This view is used when drag and dropping event comming from calendar
     # or external events (floating events).
     # Dropping a floating event on the calendar fixes it.
-    if activity.floating_type == FLOATING:
-        activity.floating_type = NARROW
+    if activity.floating_type == constants.FLOATING:
+        activity.floating_type = constants.NARROW
 
     # TODO: factorise (_time_from_JS() function ??)
     activity.start = _js_timestamp_to_datetime(start_timestamp)
     activity.end   = _js_timestamp_to_datetime(end_timestamp)
 
-    if is_all_day is not None and activity.floating_type != FLOATING_TIME:
+    if is_all_day is not None and activity.floating_type != constants.FLOATING_TIME:
         activity.is_all_day = is_all_day
         activity.handle_all_day()
 
@@ -251,19 +248,19 @@ def update_activity_date(request):
 @login_required
 @permission_required('activities')
 def add_user_calendar(request):
-    return add_model_with_popup(request, CalendarForm, title=_(u'Create a calendar'),
-                                # initial={'color': Calendar.new_color()},
-                                submit_label=_('Save the calendar'),
-                               )
+    return generic.add_model_with_popup(request, calendar_forms.CalendarForm, title=_(u'Create a calendar'),
+                                        # initial={'color': Calendar.new_color()},
+                                        submit_label=_('Save the calendar'),
+                                       )
 
 
 @login_required
 @permission_required('activities')
 def edit_user_calendar(request, calendar_id):
-    return edit_model_with_popup(request, query_dict={'pk': calendar_id},
-                                 model=Calendar, form_class=CalendarForm,
-                                 can_change=lambda calendar, user: calendar.user == user,  # TODO: and superuser ??
-                                )
+    return generic.edit_model_with_popup(request, query_dict={'pk': calendar_id},
+                                         model=Calendar, form_class=calendar_forms.CalendarForm,
+                                         can_change=lambda calendar, user: calendar.user == user,  # TODO: and superuser ??
+                                        )
 
 
 @login_required
@@ -289,9 +286,9 @@ def delete_user_calendar(request):
 @login_required
 @permission_required('activities')
 def link_user_calendar(request, activity_id):
-    return edit_model_with_popup(request, query_dict={'pk': activity_id},
-                                 model=Activity, form_class=ActivityCalendarLinkerForm,
-                                 title_format=_(u"Change calendar of «%s»"),
-                                 # can_change=lambda activity, user: user.has_perm_to_link(activity),
-                                 can_change=lambda activity, user: True,
-                                )
+    return generic.edit_model_with_popup(request, query_dict={'pk': activity_id},
+                                         model=Activity, form_class=calendar_forms.ActivityCalendarLinkerForm,
+                                         title_format=_(u'Change calendar of «%s»'),
+                                         # can_change=lambda activity, user: user.has_perm_to_link(activity),
+                                         can_change=lambda activity, user: True,
+                                        )

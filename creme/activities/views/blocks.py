@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, redirect
+from django import shortcuts, http
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -27,33 +26,32 @@ from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import add_to_entity
 
-from .. import get_activity_model
-from ..constants import (REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY,
-        REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
-from ..forms.blocks import ParticipantCreateForm, SubjectCreateForm
-#from ..models import Activity
+from .. import get_activity_model, constants
+from ..forms import blocks as blocks_forms
 
 
 Activity = get_activity_model()
 
+
 @login_required
 @permission_required('activities')
 def add_participant(request, activity_id):
-    return add_to_entity(request, activity_id, ParticipantCreateForm,
+    return add_to_entity(request, activity_id, blocks_forms.ParticipantCreateForm,
                          _(u'Adding participants to activity «%s»'),
                          entity_class=Activity, link_perm=True,
                          submit_label=_(u'Add the participants'),
                         )
 
+
 @login_required
 @permission_required('activities')
 def delete_participant(request):
-    relation = get_object_or_404(Relation,
-                                 pk=get_from_POST_or_404(request.POST, 'id'),
-                                 type=REL_OBJ_PART_2_ACTIVITY,
-                                )
-    subject  = relation.subject_entity
-    user     = request.user
+    relation = shortcuts.get_object_or_404(Relation,
+                                           pk=get_from_POST_or_404(request.POST, 'id'),
+                                           type=constants.REL_OBJ_PART_2_ACTIVITY,
+                                          )
+    subject = relation.subject_entity
+    user    = request.user
 
     has_perm = user.has_perm_to_unlink_or_die
     has_perm(subject)
@@ -61,16 +59,18 @@ def delete_participant(request):
 
     relation.delete()
 
-    return redirect(subject.get_real_entity())
+    return shortcuts.redirect(subject.get_real_entity())
+
 
 @login_required
 @permission_required('activities')
 def add_subject(request, activity_id):
-    return add_to_entity(request, activity_id, SubjectCreateForm,
+    return add_to_entity(request, activity_id, blocks_forms.SubjectCreateForm,
                          _(u'Adding subjects to activity «%s»'),
                          entity_class=Activity, link_perm=True,
                          submit_label=_(u'Add the subjects'),
                         )
+
 
 @login_required
 @permission_required('activities')
@@ -81,17 +81,20 @@ def unlink_activity(request):
     entities = list(CremeEntity.objects.filter(pk__in=[activity_id, entity_id]))
 
     if len(entities) != 2:
-        raise Http404(ugettext('One entity does not exist any more.'))
+        raise http.Http404(ugettext('One entity does not exist any more.'))
 
     has_perm = request.user.has_perm_to_unlink_or_die
 
     for entity in entities:
         has_perm(entity)
 
-    types = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
+    types = (constants.REL_SUB_PART_2_ACTIVITY,
+             constants.REL_SUB_ACTIVITY_SUBJECT,
+             constants.REL_SUB_LINKED_2_ACTIVITY,
+            )
     for relation in Relation.objects.filter(subject_entity=entity_id,
                                             type__in=types,
                                             object_entity=activity_id):
         relation.delete()
 
-    return HttpResponse('')
+    return http.HttpResponse()

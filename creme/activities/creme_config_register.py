@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from .blocks import user_calendars_block
-from .forms.activity_type import ActivityTypeForm, ActivitySubTypeForm
+from . import models, blocks
+from .forms import activity_type as type_forms
 from .forms.calendar import CalendarConfigForm
-from .models import ActivityType, ActivitySubType, Status, Calendar
 
 
-to_register = ((ActivityType,    'activity_type',     ActivityTypeForm),
-               (ActivitySubType, 'activity_sub_type', ActivitySubTypeForm),
-               (Status,          'status'),
-               (Calendar,        'calendar',          CalendarConfigForm),
+to_register = ((models.ActivityType,    'activity_type',     type_forms.ActivityTypeForm),
+               (models.ActivitySubType, 'activity_sub_type', type_forms.ActivitySubTypeForm),
+               (models.Status,          'status'),
+               (models.Calendar,        'calendar',          CalendarConfigForm),
               )
 
-userblocks_to_register = (user_calendars_block,)
+userblocks_to_register = (blocks.user_calendars_block,)

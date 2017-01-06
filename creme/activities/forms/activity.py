@@ -22,6 +22,7 @@ from datetime import datetime, time, timedelta
 from functools import partial
 import logging
 
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField, DateField
 from django.forms.fields import ChoiceField, TimeField
@@ -33,16 +34,14 @@ from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 from creme.creme_core.forms.widgets import CalendarWidget  # UnorderedMultipleChoiceWidget
-from creme.creme_core.models import RelationType, Relation
+from creme.creme_core.models import RelationType, Relation, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from creme.persons import get_contact_model
 
-from creme.assistants.models import Alert
-
 from .. import get_activity_model
 from ..models import ActivityType, Calendar, ActivitySubType
-from ..constants import (ACTIVITYTYPE_INDISPO, FLOATING, NARROW, FLOATING_TIME,
+from ..constants import (ACTIVITYTYPE_INDISPO, FLOATING, NARROW, FLOATING_TIME, SETTING_FORM_USERS_MSG,
         REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..utils import check_activity_collisions
 from .activity_type import ActivityTypeField
@@ -260,6 +259,7 @@ class _ActivityCreateForm(_ActivityForm):
 
 MINUTES = 'minutes'
 
+
 class ActivityCreateForm(_ActivityCreateForm):
     my_participation    = BooleanField(required=False, label=_(u'Do I participate to this activity?'), initial=True)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False,
@@ -270,18 +270,18 @@ class ActivityCreateForm(_ActivityCreateForm):
     subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
     linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
 
-    alert_day            = DateField(label=_(u'Alert day'), required=False)
-    alert_start_time     = TimeField(label=_(u"Alert time"), required=False)
-    alert_trigger_number = IntegerField(label=_(u'Value'), required=False,
-                                        help_text=_(u'Your alert will be raised X units (X = Value) before the start of the activity'),
-                                       )
-    alert_trigger_unit   = ChoiceField(label=_(u'Unit'), required=False,
-                                       choices=[(MINUTES, _(u'Minute')),
-                                                ('hours', _(u'Hour')),
-                                                ('days',  _(u'Day',)),
-                                                ('weeks', _(u'Week')),
-                                               ],
-                                      )
+    # alert_day            = DateField(label=_(u'Alert day'), required=False)
+    # alert_start_time     = TimeField(label=_(u"Alert time"), required=False)
+    # alert_trigger_number = IntegerField(label=_(u'Value'), required=False,
+    #                                     help_text=_(u'Your alert will be raised X units (X = Value) before the start of the activity'),
+    #                                    )
+    # alert_trigger_unit   = ChoiceField(label=_(u'Unit'), required=False,
+    #                                    choices=[(MINUTES, _(u'Minute')),
+    #                                             ('hours', _(u'Hour')),
+    #                                             ('days',  _(u'Day',)),
+    #                                             ('weeks', _(u'Week')),
+    #                                            ],
+    #                                   )
 
     error_messages = dict(_ActivityCreateForm.error_messages,
                           no_participant=_('No participant'),
@@ -294,6 +294,7 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                 'other_participants', 'subjects', 'linked_entities']),
         ('alert_datetime', _(u'Generate an alert on a specific date'), ['alert_day', 'alert_start_time']),
         ('alert_period',   _(u'Generate an alert in a while'),         ['alert_trigger_number', 'alert_trigger_unit']),
+        ('informed_users', _(u'Users to keep informed'),               ['informed_users']),
     )
 
     def __init__(self, activity_type_id=None, *args, **kwargs):
@@ -320,7 +321,7 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                                   .subject_ctypes.all()
                                         ]
         if self.instance.is_auto_orga_subject_enabled():
-            subjects_field.help_text = ugettext('The organisations of the participants will be automatically added as subjects')
+            subjects_field.help_text = _('The organisations of the participants will be automatically added as subjects')
 
         fields['participating_users'].queryset = get_user_model().objects.filter(is_staff=False) \
                                                                          .exclude(pk=user.id)
@@ -329,6 +330,48 @@ class ActivityCreateForm(_ActivityCreateForm):
         other_f.q_filter = {'is_user__isnull': True}
         # The creation view cannot create a Contact with a non-null 'is_user'.
         other_f.force_creation = True  # TODO: in constructor
+
+        if apps.is_installed('creme.assistants'):
+            self._add_specified_alert_fields(fields)
+            self._add_duration_alert_fields(fields)
+            self._add_informed_users_fields(fields)
+
+    @staticmethod
+    def _add_specified_alert_fields(fields):
+        fields['alert_day'] = DateField(label=_(u'Alert day'), required=False)
+        fields['alert_start_time'] = TimeField(label=_(u'Alert time'), required=False)
+
+    @staticmethod
+    def _add_duration_alert_fields(fields):
+        # TODO: merge these too fields
+        fields['alert_trigger_number'] = IntegerField(label=_(u'Value'), required=False,
+                                                      help_text=_(u'Your alert will be raised X units '
+                                                                  u'(X = Value) before the start of the activity'
+                                                                 ),
+                                                    )
+        fields['alert_trigger_unit'] = ChoiceField(label=_(u'Unit'), required=False,
+                                                   choices=[(MINUTES, _(u'Minute')),
+                                                            ('hours', _(u'Hour')),
+                                                            ('days',  _(u'Day',)),
+                                                            ('weeks', _(u'Week')),
+                                                           ],
+                                                  )
+
+    @staticmethod
+    def _add_informed_users_fields(fields):
+        try:
+            sv = SettingValue.objects.get(key_id=SETTING_FORM_USERS_MSG)
+        except SettingValue.DoesNotExist:
+                            logger.critical('SettingValue with key=%s cannot be found !'
+                                            ' ("creme_populate" command has not been run correctly)',
+                                            SETTING_FORM_USERS_MSG
+                                           )
+        else:
+            if sv.value:
+                fields['informed_users'] = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
+                                                                    required=False,
+                                                                    label=_(u'Users to keep informed'),
+                                                                   )
 
     def clean_my_participation(self):
         my_participation = self.cleaned_data.get('my_participation', False)
@@ -362,7 +405,9 @@ class ActivityCreateForm(_ActivityCreateForm):
                 raise ValidationError(self.error_messages['no_participant'], code='no_participant')
 
             if cdata.get('alert_day') and cdata.get('alert_start_time') is None:
-                raise ValidationError(self.error_messages['no_alert_start'], code='no_alert_start') #TODO: not global error
+                self.add_error('alert_start_time',
+                               ValidationError(self.error_messages['no_alert_start'], code='no_alert_start'),
+                              )
 
         return super(ActivityCreateForm, self).clean()
 
@@ -370,6 +415,7 @@ class ActivityCreateForm(_ActivityCreateForm):
         instance = super(ActivityCreateForm, self).save(*args, **kwargs)
 
         self._generate_alerts()
+        self._generate_user_messages()
 
         cdata = self.cleaned_data
 
@@ -389,7 +435,10 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         return instance
 
-    def _create_alert(self, activity, trigger_date):
+    @staticmethod
+    def _create_alert(activity, trigger_date):
+        from creme.assistants.models import Alert
+
         Alert.objects.create(user=activity.user,
                              trigger_date=trigger_date,
                              creme_entity=activity,
@@ -419,6 +468,33 @@ class ActivityCreateForm(_ActivityCreateForm):
                                activity.start - timedelta(**{get('alert_trigger_unit') or MINUTES: amount})
                               )
 
+    def _generate_user_messages(self):
+        cdata = self.cleaned_data
+        raw_users = cdata.get('informed_users')
+
+        if raw_users:
+            from creme.assistants.models import UserMessage
+            from creme.assistants.constants import PRIO_NOT_IMP_PK
+
+            activity = self.instance
+            title = ugettext(u'[Creme] Activity created: %s') % activity
+            body = ugettext(u"""A new activity has been created: %(activity)s.
+    Description: %(description)s.
+    Start: %(start)s.
+    End: %(end)s.
+    Subjects: %(subjects)s.
+    Participants: %(participants)s.""") % {
+                    'activity':     activity,
+                    'description':  activity.description,
+                    'start':        activity.start or ugettext('not specified'),
+                    'end':          activity.end or ugettext('not specified'),
+                    'subjects':     u' / '.join(unicode(e) for e in cdata['subjects']),
+                    'participants': u' / '.join(unicode(c) for c in self.participants),
+                }
+
+            # TODO: sender = the real user that created the activity ???
+            UserMessage.create_messages(raw_users, title, body, PRIO_NOT_IMP_PK, activity.user, activity)
+
 
 class RelatedActivityCreateForm(ActivityCreateForm):
     def __init__(self, related_entity, relation_type_id, *args, **kwargs):
@@ -444,10 +520,11 @@ class CalendarActivityCreateForm(ActivityCreateForm):
 
     def __init__(self, start=None, *args, **kwargs):
         super(CalendarActivityCreateForm, self).__init__(*args, **kwargs)
-        fields = self.fields
-        fields['participating_users'].widget.attrs = {'reduced': 'true'}
+        # fields = self.fields
+        # fields['participating_users'].widget.attrs = {'reduced': 'true'}
 
         if start:  # Normally there's always a start_date for this kind of add
+            fields = self.fields
             fields['start'].initial = start
             hour = start.hour
             minute = start.minute
@@ -457,7 +534,7 @@ class CalendarActivityCreateForm(ActivityCreateForm):
 
 
 class IndisponibilityCreateForm(_ActivityCreateForm):
-    type_selector = ModelChoiceField(label=_('Indisponibility type'), required=False,
+    type_selector = ModelChoiceField(label=_('Unavailability type'), required=False,
                                      queryset=ActivitySubType.objects.filter(type=ACTIVITYTYPE_INDISPO),
                                     )
 
@@ -465,7 +542,7 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
         exclude = _ActivityCreateForm.Meta.exclude + (
                         'place', 'description', 'minutes', 'busy', 'status',
                         'duration',
-                    )  #'sub_type' #TODO: test
+                    )  # 'sub_type' #TODO: test
 
     blocks = _ActivityCreateForm.blocks.new(
         ('datetime',     _(u'When'),         ['is_all_day', 'start', 'start_time', 'end', 'end_time']),

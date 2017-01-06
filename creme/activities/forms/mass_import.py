@@ -38,18 +38,17 @@ from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 from creme.persons.models import Civility
 
-from ..constants import (ACTIVITYTYPE_INDISPO, NARROW, FLOATING, FLOATING_TIME,
-        REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT)
+from .. import constants
 from ..models import ActivityType, Calendar
 from .activity_type import ActivityTypeField
 
 
 logger = logging.getLogger(__name__)
-Contact      = get_contact_model()
-Organisation = get_organisation_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 MODE_MULTICOLUMNS   = 1
 MODE_SPLITTEDCOLUMN = 2
@@ -423,7 +422,7 @@ class SubjectsExtractor(RelatedExtractor):
         self._column_index = column_index - 1
         self._separator = separator
         self._models = [ct.model_class() for ct in RelationType.objects
-                                                               .get(pk=REL_SUB_ACTIVITY_SUBJECT)
+                                                               .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
                                                                .subject_ctypes.all()
                        ]
 
@@ -570,7 +569,7 @@ class SubjectsExtractorField(Field):
 def get_massimport_form_builder(header_dict, choices):
     class ActivityMassImportForm(ImportForm4CremeEntity):
         type_selector = ActivityTypeField(label=_(u'Type'),
-                                          types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO)
+                                          types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
                                          )
 
         my_participation = BooleanField(required=False, initial=True,
@@ -636,21 +635,21 @@ def get_massimport_form_builder(header_dict, choices):
 
         def _pre_instance_save(self, instance, line):
             instance.type, instance.sub_type = self.cleaned_data['type_selector']
-            instance.floating_type = NARROW
+            instance.floating_type = constants.NARROW
             start = instance.start
             end = instance.end
 
             if start:
                 if not start.time() and (not end or not end.time()):
                     instance.end = make_aware_dt(datetime.combine(start, time(hour=23, minute=59)))
-                    instance.floating_type = FLOATING_TIME
+                    instance.floating_type = constants.FLOATING_TIME
                 elif not end:
                     instance.end = start + instance.type.as_timedelta()
                 elif start > instance.end:
                     instance.end = start + instance.type.as_timedelta()
                     self.append_error(line, _('End time is before start time'), instance)
             else:
-                instance.floating_type = FLOATING
+                instance.floating_type = constants.FLOATING
 
         def _post_instance_creation(self, instance, line, updated):
             super(ActivityMassImportForm, self)._post_instance_creation(instance, line, updated)
@@ -661,24 +660,24 @@ def get_massimport_form_builder(header_dict, choices):
 
             if updated:
                 # TODO: improve get_participant_relations() (not retrieve real entities)
-                participant_ids.update(Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY,
+                participant_ids.update(Relation.objects.filter(type=constants.REL_SUB_PART_2_ACTIVITY,
                                                                object_entity=instance.id,
                                                               )
                                                        .values_list('subject_entity', flat=True)
                                       )
                 create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
-                                         type_id=REL_SUB_ACTIVITY_SUBJECT,
+                                         type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
                                          defaults={'user': user},
                                         )
             else:
                 create_sub_rel = partial(Relation.objects.create, object_entity=instance,
-                                         type_id=REL_SUB_ACTIVITY_SUBJECT, user=user,
+                                         type_id=constants.REL_SUB_ACTIVITY_SUBJECT, user=user,
                                         )
 
             def add_participant(participant):
                 if participant.id not in participant_ids:
                     Relation.objects.create(subject_entity=participant,
-                                            type_id=REL_SUB_PART_2_ACTIVITY,
+                                            type_id=constants.REL_SUB_PART_2_ACTIVITY,
                                             object_entity=instance, user=user,
                                            )
                     participant_ids.add(participant.id)
