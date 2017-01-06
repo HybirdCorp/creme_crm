@@ -31,17 +31,13 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_from_GET_or_404, jsonify
-from creme.creme_core.views.generic import list_view, inner_popup, edit_entity, view_entity
+from creme.creme_core.views import generic
 from creme.creme_core.views.utils import build_cancel_path
 
 from creme.persons import get_contact_model
 
-from .. import get_activity_model
-from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING,
-        ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK, DEFAULT_HFILTER_ACTIVITY,
-        REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
-from ..forms.activity import (ActivityCreateForm, IndisponibilityCreateForm,
-        RelatedActivityCreateForm, CalendarActivityCreateForm, ActivityEditForm)
+from .. import get_activity_model, constants
+from ..forms import activity as act_forms
 from ..models import ActivityType, ActivitySubType
 from ..utils import get_ical
 
@@ -81,13 +77,13 @@ def _add_activity(request, form_class,
 
 
 _TYPES_MAP = {
-        'meeting':   ACTIVITYTYPE_MEETING,
-        'phonecall': ACTIVITYTYPE_PHONECALL,
-        'task':      ACTIVITYTYPE_TASK,
+        'meeting':   constants.ACTIVITYTYPE_MEETING,
+        'phonecall': constants.ACTIVITYTYPE_PHONECALL,
+        'task':      constants.ACTIVITYTYPE_TASK,
     }
 
 
-def abstract_add_activity(request, act_type=None, form=ActivityCreateForm):
+def abstract_add_activity(request, act_type=None, form=act_forms.ActivityCreateForm):
     if act_type is None:
         type_id = None
     else:
@@ -99,15 +95,15 @@ def abstract_add_activity(request, act_type=None, form=ActivityCreateForm):
     return _add_activity(request, form, type_id=type_id)
 
 
-def abstract_add_unavailability(request, form=IndisponibilityCreateForm,
+def abstract_add_unavailability(request, form=act_forms.IndisponibilityCreateForm,
                                 content='activities/frags/indispo_form_content.html',
                                ):
     return _add_activity(request, form, content_template=content,
-                         type_id=ACTIVITYTYPE_INDISPO,
+                         type_id=constants.ACTIVITYTYPE_INDISPO,
                         )
 
 
-def abstract_add_related_activity(request, entity_id, form=RelatedActivityCreateForm):
+def abstract_add_related_activity(request, entity_id, form=act_forms.RelatedActivityCreateForm):
     act_type_id = request.GET.get('activity_type')
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
@@ -117,14 +113,14 @@ def abstract_add_related_activity(request, entity_id, form=RelatedActivityCreate
     request.user.has_perm_to_link_or_die(entity)
 
     if isinstance(entity, get_contact_model()):
-        rtype_id = REL_SUB_PART_2_ACTIVITY
+        rtype_id = constants.REL_SUB_PART_2_ACTIVITY
     else:
-        rtype = RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT)
+        rtype = RelationType.objects.get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
 
         if rtype.is_compatible(entity.entity_type_id):
-            rtype_id = REL_SUB_ACTIVITY_SUBJECT
+            rtype_id = constants.REL_SUB_ACTIVITY_SUBJECT
         else:
-            rtype_id = REL_SUB_LINKED_2_ACTIVITY  # Not custom, & all ContentTypes should be accepted
+            rtype_id = constants.REL_SUB_LINKED_2_ACTIVITY  # Not custom, & all ContentTypes should be accepted
 
     return _add_activity(request, form,
                          related_entity=entity,
@@ -133,7 +129,7 @@ def abstract_add_related_activity(request, entity_id, form=RelatedActivityCreate
                         )
 
 
-def abstract_add_activity_popup(request, form=CalendarActivityCreateForm,
+def abstract_add_activity_popup(request, form=act_forms.CalendarActivityCreateForm,
                                 template='activities/add_popup_activity_form.html',
                                 title=_(u'New activity'),
                                 # submit_label=_('Save the activity'),
@@ -157,32 +153,32 @@ def abstract_add_activity_popup(request, form=CalendarActivityCreateForm,
                              )
         form_instance = form(start=start_date, user=request.user)
 
-    return inner_popup(request, template,
-                       {'form': form_instance,
-                        'title': title,
-                        'submit_label': submit_label,
-                        # TODO: content_template ?? (see template)
-                       },
-                       is_valid=form_instance.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(request, template,
+                               {'form': form_instance,
+                                'title': title,
+                                'submit_label': submit_label,
+                                # TODO: content_template ?? (see template)
+                               },
+                               is_valid=form_instance.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
+                              )
 
 
-def abstract_edit_activity(request, activity_id, model=Activity, form=ActivityEditForm):
-    return edit_entity(request, activity_id, model, form)
+def abstract_edit_activity(request, activity_id, model=Activity, form=act_forms.ActivityEditForm):
+    return generic.edit_entity(request, activity_id, model, form)
 
 
 def abstract_view_activity(request, activity_id,
                            template='activities/view_activity.html',
                           ):
-    return view_entity(request, activity_id, model=Activity, template=template)
+    return generic.view_entity(request, activity_id, model=Activity, template=template)
 
 
 def abstract_view_activity_popup(request, activity_id,
                                  template='activities/view_activity_popup.html',
                                 ):
-    return view_entity(request, activity_id, model=Activity, template=template)
+    return generic.view_entity(request, activity_id, model=Activity, template=template)
 
 
 @login_required
@@ -236,10 +232,10 @@ def listview(request, type_id=None):
         # TODO: change 'add' button too ??
         kwargs['extra_q'] = Q(type=type_id)
 
-    return list_view(request, Activity, hf_pk=DEFAULT_HFILTER_ACTIVITY,
-                     extra_dict={'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )},
-                     **kwargs
-                    )
+    return generic.list_view(request, Activity, hf_pk=constants.DEFAULT_HFILTER_ACTIVITY,
+                             extra_dict={'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )},
+                             **kwargs
+                            )
 
 
 @login_required
@@ -249,8 +245,8 @@ def download_ical(request, ids):
     activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
                                           user=request.user,
                                          )
-    response = HttpResponse(get_ical(activities), content_type="text/calendar")
-    response['Content-Disposition'] = "attachment; filename=Calendar.ics"
+    response = HttpResponse(get_ical(activities), content_type='text/calendar')
+    response['Content-Disposition'] = 'attachment; filename=Calendar.ics'
 
     return response
 

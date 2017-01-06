@@ -511,17 +511,20 @@ class _CremeTestCase(object):
                         )
         return pt
 
-    def refresh(self, obj):
+    @staticmethod
+    def refresh(obj):
         return obj.__class__.objects.get(pk=obj.pk)
 
-    def build_inneredit_url(self, entity, fieldname):
+    @staticmethod
+    def build_inneredit_url(entity, fieldname):
         return '/creme_core/entity/edit/inner/%d/%d/field/%s' % (
                     ContentType.objects.get_for_model(entity).pk,
                     entity.pk,
                     fieldname,
                 )
 
-    def build_bulkedit_url(self, entities, fieldname=None):
+    @staticmethod
+    def build_bulkedit_url(entities, fieldname=None):
         url = '/creme_core/entity/edit/bulk/%d/%s' % (
                     ContentType.objects.get_for_model(entities[0]).pk,
                     ','.join(str(e.pk) for e in entities),
@@ -532,7 +535,8 @@ class _CremeTestCase(object):
 
         return url
 
-    def build_bulkupdate_url(self, model, fieldname=None):
+    @staticmethod
+    def build_bulkupdate_url(model, fieldname=None):
         ct = ContentType.objects.get_for_model(model)
         url = '/creme_core/entity/update/bulk/%s' % ct.id
 

@@ -24,8 +24,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _, pgettext
 
-from creme.creme_core.blocks import (properties_block, relations_block,
-        customfields_block, history_block)
+from creme.creme_core import blocks as core_blocks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigItem,
@@ -33,11 +32,10 @@ from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigI
         HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
 
+from creme import persons
 from creme.persons.constants import FILTER_CONTACT_ME
-from creme.persons import get_contact_model, get_organisation_model
 
-from . import get_activity_model
-from . import blocks, buttons, constants, setting_keys
+from . import get_activity_model, blocks, buttons, constants, setting_keys
 from .models import ActivityType, ActivitySubType, Status, Calendar
 
 
@@ -50,8 +48,8 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=constants.REL_SUB_LINKED_2_ACTIVITY).exists()
 
-        Contact      = get_contact_model()
-        Organisation = get_organisation_model()
+        Contact      = persons.get_contact_model()
+        Organisation = persons.get_organisation_model()
 
         Activity = get_activity_model()
 
@@ -137,6 +135,22 @@ class Populator(BasePopulator):
                       )
 
         # ---------------------------
+        SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
+
+        # ---------------------------
+        for user in get_user_model().objects.all():
+            Calendar.get_user_default_calendar(user)
+
+        # ---------------------------
+        # create_svalue = SettingValue.create_if_needed
+        # create_svalue(key=setting_keys.review_key,        user=None, value=True)
+        # create_svalue(key=setting_keys.auto_subjects_key, user=None, value=True)
+        create_svalue = SettingValue.objects.get_or_create
+        create_svalue(key_id=setting_keys.review_key.id,             defaults={'value': True})
+        create_svalue(key_id=setting_keys.auto_subjects_key.id,      defaults={'value': True})
+        create_svalue(key_id=setting_keys.form_user_messages_key.id, defaults={'value': False})
+
+        # ---------------------------
         if not already_populated:
             LEFT = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
@@ -144,23 +158,23 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Activity)
 
             create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=customfields_block.id_,            order=40,  zone=LEFT,  model=Activity)
-            create_bdl(block_id=blocks.related_calendar_block.id_, order=90,  zone=LEFT,  model=Activity)
-            create_bdl(block_id=blocks.participants_block.id_,     order=100, zone=LEFT,  model=Activity)
-            create_bdl(block_id=blocks.subjects_block.id_,         order=120, zone=LEFT,  model=Activity)
-            create_bdl(block_id=properties_block.id_,              order=450, zone=LEFT,  model=Activity)
-            create_bdl(block_id=relations_block.id_,               order=500, zone=LEFT,  model=Activity)
-            create_bdl(block_id=history_block.id_,                 order=20,  zone=RIGHT, model=Activity)
+            create_bdl(block_id=core_blocks.customfields_block.id_, order=40,  zone=LEFT,  model=Activity)
+            create_bdl(block_id=blocks.related_calendar_block.id_,  order=90,  zone=LEFT,  model=Activity)
+            create_bdl(block_id=blocks.participants_block.id_,      order=100, zone=LEFT,  model=Activity)
+            create_bdl(block_id=blocks.subjects_block.id_,          order=120, zone=LEFT,  model=Activity)
+            create_bdl(block_id=core_blocks.properties_block.id_,   order=450, zone=LEFT,  model=Activity)
+            create_bdl(block_id=core_blocks.relations_block.id_,    order=500, zone=LEFT,  model=Activity)
+            create_bdl(block_id=core_blocks.history_block.id_,      order=20,  zone=RIGHT, model=Activity)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
-                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+                from creme.assistants import blocks as a_blocks
 
-                create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=Activity)
-                create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=Activity)
-                create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=Activity)
-                create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=Activity)
+                create_bdl(block_id=a_blocks.todos_block.id_,    order=100, zone=RIGHT, model=Activity)
+                create_bdl(block_id=a_blocks.memos_block.id_,    order=200, zone=RIGHT, model=Activity)
+                create_bdl(block_id=a_blocks.alerts_block.id_,   order=300, zone=RIGHT, model=Activity)
+                create_bdl(block_id=a_blocks.messages_block.id_, order=400, zone=RIGHT, model=Activity)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
@@ -188,18 +202,3 @@ class Populator(BasePopulator):
             create_button('activities-add_meeting_button',   model=None, button=buttons.add_meeting_button,   order=11)
             create_button('activities-add_phonecall_button', model=None, button=buttons.add_phonecall_button, order=12)
             create_button('activities-add_task_button',      model=None, button=buttons.add_task_button,      order=13)
-
-        # ---------------------------
-        SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
-
-        # ---------------------------
-        for user in get_user_model().objects.all():
-            Calendar.get_user_default_calendar(user)
-
-        # ---------------------------
-        # create_svalue = SettingValue.create_if_needed
-        # create_svalue(key=setting_keys.review_key,        user=None, value=True)
-        # create_svalue(key=setting_keys.auto_subjects_key, user=None, value=True)
-        create_svalue = SettingValue.objects.get_or_create
-        create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
-        create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})

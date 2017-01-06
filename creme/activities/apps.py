@@ -28,7 +28,7 @@ from .constants import ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL
 class ActivitiesConfig(CremeAppConfig):
     name = 'creme.activities'
     verbose_name = _(u'Activities')
-    dependencies = ['creme.persons', 'creme.assistants']
+    dependencies = ['creme.persons']  # 'creme.assistants' is optional
 
     def all_apps_ready(self):
         from . import get_activity_model
@@ -104,9 +104,12 @@ class ActivitiesConfig(CremeAppConfig):
                               .register_relationtype(REL_OBJ_ACTIVITY_SUBJECT)
 
     def register_setting_key(self, setting_key_registry):
-        from .setting_keys import review_key, auto_subjects_key
+        from . import setting_keys
 
-        setting_key_registry.register(review_key, auto_subjects_key)
+        setting_key_registry.register(setting_keys.review_key,
+                                      setting_keys.auto_subjects_key,
+                                      setting_keys.form_user_messages_key,
+                                     )
 
     def register_statistics(self, statistics_registry):
         Activity = self.Activity

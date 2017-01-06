@@ -247,7 +247,7 @@ END:VEVENT
                 logger.critical('SettingValue with key=%s cannot be found !'
                                 ' ("creme_populate" command has not been run correctly)',
                                 SETTING_AUTO_ORGA_SUBJECTS
-                                )
+                               )
                 enabled = False
             else:
                 enabled = sv.value

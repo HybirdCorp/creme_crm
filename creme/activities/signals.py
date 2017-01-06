@@ -21,14 +21,13 @@
 from functools import partial
 
 from django.conf import settings
-from django.db.models.signals import pre_delete, post_delete, post_save
+from django.db.models import signals
 from django.dispatch import receiver
 
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.models import Relation
 
-from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
-#from creme.persons.models import Organisation
+from creme.persons import constants as persons_constants
 from creme.persons import get_organisation_model
 
 from .constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
@@ -38,7 +37,7 @@ from .models import Calendar
 Organisation = get_organisation_model()
 
 
-@receiver(post_delete, sender=Relation)
+@receiver(signals.post_delete, sender=Relation)
 def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
     type_id = instance.type_id
 
@@ -57,13 +56,14 @@ def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
         for calendar_id in activity.calendars.filter(user=contact.is_user).values_list('id', flat=True): 
             activity.calendars.remove(calendar_id)
 
-@receiver(post_save, sender=Relation)
+
+@receiver(signals.post_save, sender=Relation)
 def _set_orga_as_subject(sender, instance, **kwargs):
     if instance.type_id != REL_SUB_PART_2_ACTIVITY:
         return
 
-    #NB: when a Relation is created, it is saved twice in order to set the link
-    #    with its symmetric instance
+    # NB: when a Relation is created, it is saved twice in order to set the link
+    #     with its symmetric instance
     if instance.symmetric_relation_id is None:
         return
 
@@ -78,7 +78,9 @@ def _set_orga_as_subject(sender, instance, **kwargs):
                          defaults={'user': instance.user},
                         )
 
-    for orga in Organisation.objects.filter(relations__type__in=(REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES),
+    for orga in Organisation.objects.filter(relations__type__in=(persons_constants.REL_OBJ_EMPLOYED_BY,
+                                                                 persons_constants.REL_OBJ_MANAGES,
+                                                                ),
                                             relations__object_entity=instance.subject_entity_id,
                                            ) \
                                     .exclude(is_deleted=False,
@@ -86,8 +88,8 @@ def _set_orga_as_subject(sender, instance, **kwargs):
                                             ):
         create_rel(subject_entity=orga)
 
-#@receiver(pre_delete, sender=User)
-@receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
+
+@receiver(signals.pre_delete, sender=settings.AUTH_USER_MODEL)
 def _transfer_default_calendar(sender, instance, **kwargs):
     # NB: when a User is deleted, his Calendars are given to another User, who
     #     has at this moment 2 default Calendars. When get_user_default_calendar()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,18 +25,19 @@ from django.utils.html import escape
 from creme.creme_core.constants import ICON_SIZE_MAP
 from creme.creme_core.utils.media import creme_media_themed_url
 
-from ..constants import *
+from .. import constants
 from ..models import ActivityType
 
 
 register = template.Library()
 
-_ICON_MAP = {ACTIVITYTYPE_MEETING:      'meeting',
-             ACTIVITYTYPE_PHONECALL:    'phone',
-             ACTIVITYTYPE_TASK:         'task',
+_ICON_MAP = {constants.ACTIVITYTYPE_MEETING:      'meeting',
+             constants.ACTIVITYTYPE_PHONECALL:    'phone',
+             constants.ACTIVITYTYPE_TASK:         'task',
             }
 
-#TODO : test
+
+# TODO : test
 @register.simple_tag
 def get_activity_icon(activity_type_id, size='big'):
     """{% get_activity_icon activity 'big' %}"""

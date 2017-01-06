@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,8 @@ class CommercialConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.opportunities']
 
     def all_apps_ready(self):
+        from django.apps import apps
+
         from . import get_act_model, get_pattern_model, get_strategy_model
 
         self.Act      = get_act_model()
@@ -37,6 +39,9 @@ class CommercialConfig(CremeAppConfig):
         super(CommercialConfig, self).all_apps_ready()
 
         from . import signals
+
+        if apps.is_installed('creme.activities'):
+            self.hook_activities()
 
     # def register_creme_app(self, creme_registry):
     #     creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
@@ -95,3 +100,47 @@ class CommercialConfig(CremeAppConfig):
         from .setting_keys import orga_approaches_key  # notification_key
 
         setting_key_registry.register(orga_approaches_key)  # notification_key
+
+    def hook_activities(self):
+        from functools import partial
+
+        from django.forms import BooleanField
+
+        from creme.activities.forms.activity import ActivityCreateForm
+
+        from .models import CommercialApproach
+
+        def add_commapp_field(form):
+            form.fields['is_comapp'] = BooleanField(
+                required=False, label=_(u'Is a commercial approach ?'),
+                help_text=_(u'All participants (excepted users), subjects and linked entities '
+                            u'will be linked to a commercial approach.'
+                           ),
+                initial=True
+            )
+
+        def save_commapp_field(form):
+            cleaned_data = form.cleaned_data
+
+            if not cleaned_data.get('is_comapp', False):
+                return
+
+            comapp_subjects = list(cleaned_data['other_participants'])
+            comapp_subjects += cleaned_data['subjects']
+            comapp_subjects += cleaned_data['linked_entities']
+
+            if not comapp_subjects:
+                return
+
+            instance = form.instance
+            create_comapp = partial(CommercialApproach.objects.create,
+                                    title=instance.title,
+                                    description=instance.description,
+                                    related_activity=instance,
+                                   )
+
+            for entity in comapp_subjects:
+                create_comapp(creme_entity=entity)
+
+        ActivityCreateForm.add_post_init_callback(add_commapp_field)
+        ActivityCreateForm.add_post_save_callback(save_commapp_field)

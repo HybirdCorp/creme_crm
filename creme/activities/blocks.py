@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,18 +26,14 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.models import CremeEntity, Relation
 from creme.creme_core.gui.block import QuerysetBlock, list4url
 
-from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
+from creme import persons
 
-from . import get_activity_model
-from .models import Calendar  # Activity
-from .constants import (REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY,
-        REL_SUB_ACTIVITY_SUBJECT, REL_OBJ_ACTIVITY_SUBJECT,
-        REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_LINKED_2_ACTIVITY)
+from . import get_activity_model, constants
+from .models import Calendar
 
 
-Contact      = get_contact_model()
-Organisation = get_organisation_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 Activity = get_activity_model()
 
@@ -47,7 +43,7 @@ class ParticipantsBlock(QuerysetBlock):
     # NB: Organisation is a hack in order to reload the SubjectsBlock when
     #     auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
     dependencies  = (Relation, Contact, Calendar, Organisation)
-    relation_type_deps = (REL_OBJ_PART_2_ACTIVITY,)
+    relation_type_deps = (constants.REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
     target_ctypes = (Activity, )
@@ -56,7 +52,7 @@ class ParticipantsBlock(QuerysetBlock):
         activity = context['object']
         btc = self.get_block_template_context(
                         context,
-                        activity.relations.filter(type=REL_OBJ_PART_2_ACTIVITY)
+                        activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
                                           .select_related('type', 'object_entity'),
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
                     )
@@ -85,7 +81,7 @@ class ParticipantsBlock(QuerysetBlock):
 class SubjectsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'subjects')
     dependencies  = (Relation, Organisation) # See ParticipantsBlock.dependencies
-    relation_type_deps = (REL_OBJ_ACTIVITY_SUBJECT,)
+    relation_type_deps = (constants.REL_OBJ_ACTIVITY_SUBJECT,)
     verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'
     target_ctypes = (Activity, )
@@ -94,7 +90,7 @@ class SubjectsBlock(QuerysetBlock):
         activity = context['object']
         btc = self.get_block_template_context(
                     context,
-                    activity.relations.filter(type=REL_OBJ_ACTIVITY_SUBJECT)
+                    activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
                             .select_related('type', 'object_entity'),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
                 )
@@ -107,11 +103,17 @@ class SubjectsBlock(QuerysetBlock):
 class FutureActivitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'future_activities')
     dependencies  = (Relation, Activity)
-    relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
+    relation_type_deps = (constants.REL_SUB_LINKED_2_ACTIVITY,
+                          constants.REL_SUB_ACTIVITY_SUBJECT,
+                          constants.REL_SUB_PART_2_ACTIVITY,
+                         )
     verbose_name  = _(u'Future activities')
     template_name = 'activities/templatetags/block_future_activities.html'
 
-    _RTYPES_2_POP = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+    _RTYPES_2_POP = (constants.REL_OBJ_PART_2_ACTIVITY,
+                     constants.REL_OBJ_ACTIVITY_SUBJECT,
+                     constants.REL_OBJ_LINKED_2_ACTIVITY,
+                    )
 
     def _get_queryset_for_entity(self, entity, context):
         if isinstance(entity, Organisation):
@@ -153,7 +155,7 @@ class FutureActivitiesBlock(QuerysetBlock):
                     context,
                     self._get_queryset_for_entity(entity, context).select_related('status'),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
-                    predicate_id=REL_SUB_LINKED_2_ACTIVITY,
+                    predicate_id=constants.REL_SUB_LINKED_2_ACTIVITY,
                     ct_id=ContentType.objects.get_for_model(Activity).id,
                     display_review=Activity.display_review(),
                 ))
@@ -167,15 +169,8 @@ class FutureActivitiesBlock(QuerysetBlock):
                 ))
 
     def home_display(self, context):
-#        user = context['request'].user
-#        #cache the Contact related to the current user (used by PastActivitiesBlock too)
-#        entity = context.get('user_contact')
-#        if entity is None:
-#            context['user_contact'] = entity = user.linked_contact
-
         return self._render(self.get_block_template_context(
                     context,
-#                    self._get_queryset_for_entity(entity, context).select_related('status'),
                     self._get_queryset_for_entity(context['user'].linked_contact, context)
                         .select_related('status'),
                     update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
@@ -236,16 +231,15 @@ class RelatedCalendar(QuerysetBlock):
                     context,
                     activity.calendars.filter(user=user),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-#                    has_app_perm=user.has_perm('activities'),
                 ))
 
 
-participants_block           = ParticipantsBlock()
-subjects_block               = SubjectsBlock()
-future_activities_block      = FutureActivitiesBlock()
-past_activities_block        = PastActivitiesBlock()
-user_calendars_block         = UserCalendars()
-related_calendar_block       = RelatedCalendar()
+participants_block      = ParticipantsBlock()
+subjects_block          = SubjectsBlock()
+future_activities_block = FutureActivitiesBlock()
+past_activities_block   = PastActivitiesBlock()
+user_calendars_block    = UserCalendars()
+related_calendar_block  = RelatedCalendar()
 
 block_list = (
         participants_block,

@@ -6,6 +6,8 @@ try:
     from json import dumps as json_dump
     from unittest import skipIf
 
+    from django.apps import apps
+
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons import get_contact_model, get_organisation_model
@@ -32,12 +34,14 @@ class _ActivitiesTestCase(CremeTestCase):
     #     cls.populate('creme_core', 'activities', 'persons')
     #     CremeTestCase.setUpClass()
 
-    def login(self, is_superuser=True, other_is_owner=False,
-              allowed_apps=('activities', 'persons'), **kwargs):
-        return super(_ActivitiesTestCase, self).login(is_superuser,
-                                               allowed_apps=allowed_apps,
-                                               **kwargs
-                                              )
+    # def login(self, is_superuser=True, other_is_owner=False,
+    def login(self, is_superuser=True, is_staff=False,
+              allowed_apps=('activities', 'persons'), *args, **kwargs):
+        return super(_ActivitiesTestCase, self).login(is_superuser=is_superuser,
+                                                      is_staff=is_staff,
+                                                      allowed_apps=allowed_apps,
+                                                      *args, **kwargs
+                                                     )
 
     def _acttype_field_value(self, atype_id, subtype_id=None):
         return json_dump({'type': atype_id, 'sub_type': subtype_id})
