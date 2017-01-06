@@ -1328,6 +1328,9 @@ class DatePeriodField(fields.MultiValueField):
     def clean(self, value):
         period_name, period_value = super(DatePeriodField, self).clean(value)
 
+        if not period_value:
+            return None
+
         return date_period_registry.get_period(period_name, period_value)
 
 
