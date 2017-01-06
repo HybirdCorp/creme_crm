@@ -1314,13 +1314,60 @@ class MultiEmailField(fields.Field):
 class DatePeriodField(fields.MultiValueField):
     widget = core_widgets.DatePeriodWidget
 
-    def __init__(self, *args, **kwargs):
-        choices = kwargs.pop('choices', None)
+    # def __init__(self, *args, **kwargs):
+    #     choices = kwargs.pop('choices', None)
+    def __init__(self, period_registry=date_period_registry, period_names=None, *args, **kwargs):
+        """Constructor.
+        @param period_registry: see property 'period_registry'.
+        @param period_names: see property 'period_names'.
+        """
+        try:
+            period_names = kwargs.pop('choices')
+        except KeyError:
+            pass
+        else:
+            warnings.warn('DatePeriodField.__init__(): "choices" argument is deprecated ; '
+                          'use "period_names"  instead.',
+                          DeprecationWarning
+                         )
+
         super(DatePeriodField, self).__init__((fields.ChoiceField(), fields.IntegerField(min_value=1)),
                                               *args, **kwargs
                                              )
-        # TODO: 'choices' property
-        self.fields[0].choices = self.widget.choices = list(date_period_registry.choices(choices=choices))
+
+        # self.fields[0].choices = self.widget.choices = list(date_period_registry.choices(choices=choices))
+        self._period_registry = period_registry
+        self.period_names = period_names
+
+    def _update_choices(self):
+        self.fields[0].choices = self.widget.choices = list(self._period_registry.choices(choices=self._period_names))
+
+    @property
+    def choices(self):
+        return self.fields[0].choices
+
+    @property
+    def period_names(self):
+        return self._period_names
+
+    @period_names.setter
+    def period_names(self, period_names):
+        """Set the periods which are valid (they must be registered in the related registry too).
+        @param period_names: Sequence of strings (see DatePeriod.name for valid values),
+                                or None (== all available periods in the registry are used.
+        """
+        self._period_names = period_names
+        self._update_choices()
+
+    @property
+    def period_registry(self):
+        return self._period_registry
+
+    @period_registry.setter
+    def period_registry(self, period_registry):
+        "@param period_registry: DatePeriodRegistry instance."
+        self._period_registry = period_registry
+        self._update_choices()
 
     def compress(self, data_list):
         return (data_list[0], data_list[1]) if data_list else (u'', u'')

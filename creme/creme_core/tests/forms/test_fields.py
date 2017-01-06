@@ -15,7 +15,8 @@ try:
         CTypeChoiceField, EntityCTypeChoiceField,
         MultiCTypeChoiceField, MultiEntityCTypeChoiceField)
     from creme.creme_core.models import RelationType, CremePropertyType, Currency
-    from creme.creme_core.utils.date_period import DatePeriod
+    from creme.creme_core.utils.date_period import (DatePeriod, MinutesPeriod, HoursPeriod, DaysPeriod,
+        DatePeriodRegistry, date_period_registry)
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -70,8 +71,24 @@ class DatePeriodFieldTestCase(FieldTestCase):
                                         [name, '2'], message_args={'value': name},
                                        )
 
-    def test_choices(self):
+    def test_choices_1(self):
         clean = DatePeriodField(choices=('months',)).clean
+        period = clean(['months', '5'])
+        self.assertIsInstance(period, DatePeriod)
+
+        name = 'years'
+        self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
+                                        [name, '2'], message_args={'value': name},
+                                       )
+
+    def test_choices_2(self):
+        choices = list(DatePeriodField().choices)
+        self.assertIn((MinutesPeriod.name, MinutesPeriod.verbose_name), choices)
+        self.assertIn((HoursPeriod.name,   HoursPeriod.verbose_name),   choices)
+        self.assertIn((DaysPeriod.name,    DaysPeriod.verbose_name),    choices)
+
+    def test_period_names(self):
+        clean = DatePeriodField(period_names=('months',)).clean
         period = clean(['months', '5'])
         self.assertIsInstance(period, DatePeriod)
 
@@ -90,6 +107,30 @@ class DatePeriodFieldTestCase(FieldTestCase):
                          ],
                          cm.exception.messages
                         )
+
+    def test_registry_1(self):
+        self.assertEqual(list(date_period_registry.choices()), list(DatePeriodField().choices))
+
+    def test_registry_2(self):
+        registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
+        self.assertEqual(list(registry.choices()), list(DatePeriodField(period_registry=registry).choices))
+
+    def test_registry_3(self):
+        registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
+        field = DatePeriodField()
+        field.period_registry = registry
+        self.assertEqual(list(registry.choices()), list(field.choices))
+
+    def test_period_names_1(self):
+        names = (MinutesPeriod.name, HoursPeriod.name)
+        self.assertEqual(list(date_period_registry.choices(choices=names)),
+                         list(DatePeriodField(period_names=names).choices)
+                        )
+
+    def test_period_names_2(self):
+        field = DatePeriodField()
+        field.period_names = names = (MinutesPeriod.name, HoursPeriod.name)
+        self.assertEqual(list(date_period_registry.choices(choices=names)), list(field.choices))
 
 
 class DateRangeFieldTestCase(FieldTestCase):

@@ -24,24 +24,20 @@ import logging
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.forms import IntegerField, ModelChoiceField, ModelMultipleChoiceField, DateField, ChoiceField, TimeField  # BooleanField
-from django.forms.utils import ValidationError
+from django.forms import ModelChoiceField, ModelMultipleChoiceField, DateTimeField, TimeField, ValidationError  # IntegerField DateField ChoiceField BooleanField
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
-from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
+from creme.creme_core.forms import (validators, CremeEntityForm,
+    MultiCreatorEntityField, MultiGenericEntityField, DatePeriodField)
 from creme.creme_core.forms.widgets import CalendarWidget  # UnorderedMultipleChoiceWidget
 from creme.creme_core.models import RelationType, Relation, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from creme.persons import get_contact_model
 
-from .. import get_activity_model
+from .. import get_activity_model, constants
 from ..models import ActivityType, Calendar, ActivitySubType
-from ..constants import (ACTIVITYTYPE_INDISPO, FLOATING, NARROW, FLOATING_TIME, SETTING_FORM_USERS_MSG,
-        REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..utils import check_activity_collisions
 from .activity_type import ActivityTypeField
 from .fields import UserParticipationField
@@ -53,7 +49,9 @@ Activity = get_activity_model()
 
 
 class _ActivityForm(CremeEntityForm):
-    type_selector = ActivityTypeField(label=_(u'Type'), types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO))
+    type_selector = ActivityTypeField(label=_(u'Type'),
+                                      types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
+                                     )
 
 #     start      = CremeDateTimeField(label=_(u'Start'), required=False)
     start_time = TimeField(label=_(u'Start time'), required=False)
@@ -108,9 +106,9 @@ class _ActivityForm(CremeEntityForm):
         end   = cdata['end']
 
         if not start and not end:
-            return FLOATING
+            return constants.FLOATING
 
-        floating_type = NARROW
+        floating_type = constants.NARROW
 
         get = cdata.get
         is_all_day = get('is_all_day', False)
@@ -126,7 +124,7 @@ class _ActivityForm(CremeEntityForm):
                                           code='floating_cannot_busy',
                                          )
 
-                floating_type = FLOATING_TIME
+                floating_type = constants.FLOATING_TIME
 
         if not start and end:
             raise ValidationError(self.error_messages['no_start'], code='no_start')
@@ -143,7 +141,7 @@ class _ActivityForm(CremeEntityForm):
             else:
                 tdelta = atype.as_timedelta()
 
-                if (is_all_day or floating_type == FLOATING_TIME) and tdelta.days:
+                if (is_all_day or floating_type == constants.FLOATING_TIME) and tdelta.days:
                     # In 'all day' mode, we round the number of day
                     days = tdelta.days - 1  # Activity already takes 1 day (we do not want it takes 2)
 
@@ -154,7 +152,7 @@ class _ActivityForm(CremeEntityForm):
 
                 end = start + tdelta
 
-        if is_all_day or floating_type == FLOATING_TIME:
+        if is_all_day or floating_type == constants.FLOATING_TIME:
             start = make_aware_dt(datetime.combine(start, time(hour=0, minute=0)))
             end   = make_aware_dt(datetime.combine(end, time(hour=23, minute=59)))
 
@@ -182,7 +180,7 @@ class _ActivityForm(CremeEntityForm):
         super(_ActivityForm, self).save(*args, **kwargs)
 
         create_relation = partial(Relation.objects.create, object_entity=instance,
-                                  type_id=REL_SUB_PART_2_ACTIVITY, user=instance.user,
+                                  type_id=constants.REL_SUB_PART_2_ACTIVITY, user=instance.user,
                                  )
 
         for participant in self.participants:
@@ -208,10 +206,10 @@ class ActivityEditForm(_ActivityForm):
         type_f = fields['type_selector']
         type_f.initial = (instance.type_id, instance.sub_type_id)
 
-        if self.instance.type_id == ACTIVITYTYPE_INDISPO:
-            type_f.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
+        if self.instance.type_id == constants.ACTIVITYTYPE_INDISPO:
+            type_f.types = ActivityType.objects.filter(pk=constants.ACTIVITYTYPE_INDISPO)
 
-        if instance.floating_type == NARROW:
+        if instance.floating_type == constants.NARROW:
             start = self._localize(instance.start)
             if start:
                 fields['start_time'].initial = start.time()
@@ -221,7 +219,7 @@ class ActivityEditForm(_ActivityForm):
                 fields['end_time'].initial = end.time()
 
     def _get_participants_2_check(self):
-        return self.instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY)
+        return self.instance.get_related_entities(constants.REL_OBJ_PART_2_ACTIVITY)
 
 
 class _ActivityCreateForm(_ActivityForm):
@@ -241,9 +239,9 @@ class _ActivityCreateForm(_ActivityForm):
             else:
                 users.update(user.teammates.itervalues())
 
-        self.participants.update(validate_linkable_entities(Contact.objects.filter(is_user__in=users),
-                                                            self.user,
-                                                           )
+        self.participants.update(validators.validate_linkable_entities(Contact.objects.filter(is_user__in=users),
+                                                                       self.user,
+                                                                      )
                                 )
 
         return users
@@ -258,7 +256,7 @@ class _ActivityCreateForm(_ActivityForm):
         return instance
 
 
-MINUTES = 'minutes'
+# MINUTES = 'minutes'
 
 
 class ActivityCreateForm(_ActivityCreateForm):
@@ -288,7 +286,7 @@ class ActivityCreateForm(_ActivityCreateForm):
 
     error_messages = dict(_ActivityCreateForm.error_messages,
                           no_participant=_('No participant'),
-                          no_alert_start=_('If you want this alert you must specify date and time'),
+                          # no_alert_start=_('If you want this alert you must specify date and time'),
                          )
 
     blocks = _ActivityForm.blocks.new(
@@ -296,8 +294,8 @@ class ActivityCreateForm(_ActivityCreateForm):
         ('participants',   _(u'Participants'), ['my_participation',  # 'my_calendar',
                                                 'participating_users',
                                                 'other_participants', 'subjects', 'linked_entities']),
-        ('alert_datetime', _(u'Generate an alert on a specific date'), ['alert_day', 'alert_start_time']),
-        ('alert_period',   _(u'Generate an alert in a while'),         ['alert_trigger_number', 'alert_trigger_unit']),
+        ('alert_datetime', _(u'Generate an alert on a specific date'), ['alert_start']),  # 'alert_day', 'alert_start_time'
+        ('alert_period',   _(u'Generate an alert in a while'),         ['alert_period']),  # 'alert_trigger_number', 'alert_trigger_unit'
         ('informed_users', _(u'Users to keep informed'),               ['informed_users']),
     )
 
@@ -321,7 +319,7 @@ class ActivityCreateForm(_ActivityCreateForm):
         subjects_field = fields['subjects']
         subjects_field.allowed_models = [ct.model_class() 
                                             for ct in RelationType.objects
-                                                                  .get(pk=REL_SUB_ACTIVITY_SUBJECT)
+                                                                  .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
                                                                   .subject_ctypes.all()
                                         ]
         if self.instance.is_auto_orga_subject_enabled():
@@ -342,33 +340,26 @@ class ActivityCreateForm(_ActivityCreateForm):
 
     @staticmethod
     def _add_specified_alert_fields(fields):
-        fields['alert_day'] = DateField(label=_(u'Alert day'), required=False)
-        fields['alert_start_time'] = TimeField(label=_(u'Alert time'), required=False)
+        fields['alert_start'] = DateTimeField(label=_(u'Generate an alert on a specific date'), required=False)
 
     @staticmethod
     def _add_duration_alert_fields(fields):
-        # TODO: merge these too fields
-        fields['alert_trigger_number'] = IntegerField(label=_(u'Value'), required=False,
-                                                      help_text=_(u'Your alert will be raised X units '
-                                                                  u'(X = Value) before the start of the activity'
-                                                                 ),
-                                                    )
-        fields['alert_trigger_unit'] = ChoiceField(label=_(u'Unit'), required=False,
-                                                   choices=[(MINUTES, _(u'Minute')),
-                                                            ('hours', _(u'Hour')),
-                                                            ('days',  _(u'Day',)),
-                                                            ('weeks', _(u'Week')),
-                                                           ],
-                                                  )
+        fields['alert_period'] = DatePeriodField(label=_(u'Generate an alert in a while'),
+                                                 required=False,
+                                                 help_text=_(u"How long before the activity's"
+                                                             u" start the alert is raised?"
+                                                            ),
+                                                 period_names=('minutes', 'hours', 'days', 'weeks'),
+                                                )
 
     @staticmethod
     def _add_informed_users_fields(fields):
         try:
-            sv = SettingValue.objects.get(key_id=SETTING_FORM_USERS_MSG)
+            sv = SettingValue.objects.get(key_id=constants.SETTING_FORM_USERS_MSG)
         except SettingValue.DoesNotExist:
                             logger.critical('SettingValue with key=%s cannot be found !'
                                             ' ("creme_populate" command has not been run correctly)',
-                                            SETTING_FORM_USERS_MSG
+                                            constants.SETTING_FORM_USERS_MSG
                                            )
         else:
             if sv.value:
@@ -384,7 +375,7 @@ class ActivityCreateForm(_ActivityCreateForm):
         # if my_participation:
         if my_participation[0]:
             user = self.user
-            self.participants.add(validate_linkable_entity(user.linked_contact, user))
+            self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
 
         return my_participation
 
@@ -411,10 +402,10 @@ class ActivityCreateForm(_ActivityCreateForm):
             if not cdata['my_participation'][0] and not cdata['participating_users']:
                 raise ValidationError(self.error_messages['no_participant'], code='no_participant')
 
-            if cdata.get('alert_day') and cdata.get('alert_start_time') is None:
-                self.add_error('alert_start_time',
-                               ValidationError(self.error_messages['no_alert_start'], code='no_alert_start'),
-                              )
+            # if cdata.get('alert_day') and cdata.get('alert_start_time') is None:
+            #     self.add_error('alert_start_time',
+            #                    ValidationError(self.error_messages['no_alert_start'], code='no_alert_start'),
+            #                   )
 
         return super(ActivityCreateForm, self).clean()
 
@@ -437,8 +428,8 @@ class ActivityCreateForm(_ActivityCreateForm):
                                   defaults={'user': instance.user},
                                  )
 
-        for entities, rtype_id in ((cdata['subjects'],        REL_SUB_ACTIVITY_SUBJECT),
-                                   (cdata['linked_entities'], REL_SUB_LINKED_2_ACTIVITY),
+        for entities, rtype_id in ((cdata['subjects'],        constants.REL_SUB_ACTIVITY_SUBJECT),
+                                   (cdata['linked_entities'], constants.REL_SUB_LINKED_2_ACTIVITY),
                                   ):
             for entity in entities:
                 create_relation(subject_entity_id=entity.id, type_id=rtype_id)
@@ -459,24 +450,30 @@ class ActivityCreateForm(_ActivityCreateForm):
     def _generate_alerts(self):
         get = self.cleaned_data.get
         activity = self.instance
-        specific_date_alert = get('alert_day')
+        # specific_date_alert = get('alert_day')
+        alert_start = get('alert_start')
 
-        if specific_date_alert:
-            start_time = get('alert_start_time')
+        # if specific_date_alert:
+        if alert_start:
+            # start_time = get('alert_start_time')
             self._create_alert(activity,
-                               make_aware_dt(datetime.combine(specific_date_alert,
-                                                              time(hour=start_time.hour,
-                                                                   minute=start_time.minute,
-                                                                  ),
-                                            ))
+                               # make_aware_dt(datetime.combine(specific_date_alert,
+                               #                                time(hour=start_time.hour,
+                               #                                     minute=start_time.minute,
+                               #                                    ),
+                               #              ))
+                               alert_start,
                               )
 
-        amount = get('alert_trigger_number')
-
-        if amount:
-            self._create_alert(activity,
-                               activity.start - timedelta(**{get('alert_trigger_unit') or MINUTES: amount})
-                              )
+        # amount = get('alert_trigger_number')
+        #
+        # if amount:
+        #     self._create_alert(activity,
+        #                        activity.start - timedelta(**{get('alert_trigger_unit') or MINUTES: amount})
+        #                       )
+        period = get('alert_period')
+        if period:
+            self._create_alert(activity, activity.start - period.as_timedelta())
 
     def _generate_user_messages(self):
         cdata = self.cleaned_data
@@ -510,17 +507,17 @@ class RelatedActivityCreateForm(ActivityCreateForm):
     def __init__(self, related_entity, relation_type_id, *args, **kwargs):
         super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
 
-        if relation_type_id == REL_SUB_PART_2_ACTIVITY:
+        if relation_type_id == constants.REL_SUB_PART_2_ACTIVITY:
             assert isinstance(related_entity, Contact)
 
             if related_entity.is_user:
                 self.fields['participating_users'].initial = [related_entity.is_user]
             else:
                 self.fields['other_participants'].initial = [related_entity]
-        elif relation_type_id == REL_SUB_ACTIVITY_SUBJECT:
+        elif relation_type_id == constants.REL_SUB_ACTIVITY_SUBJECT:
             self.fields['subjects'].initial = [related_entity]
         else:
-            assert relation_type_id == REL_SUB_LINKED_2_ACTIVITY
+            assert relation_type_id == constants.REL_SUB_LINKED_2_ACTIVITY
             self.fields['linked_entities'].initial = [related_entity]
 
 
@@ -545,7 +542,7 @@ class CalendarActivityCreateForm(ActivityCreateForm):
 
 class IndisponibilityCreateForm(_ActivityCreateForm):
     type_selector = ModelChoiceField(label=_('Unavailability type'), required=False,
-                                     queryset=ActivitySubType.objects.filter(type=ACTIVITYTYPE_INDISPO),
+                                     queryset=ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_INDISPO),
                                     )
 
     class Meta(_ActivityCreateForm.Meta):
@@ -560,7 +557,7 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
     )
 
     def __init__(self, activity_type_id=None, *args, **kwargs):
-        assert activity_type_id == ACTIVITYTYPE_INDISPO
+        assert activity_type_id == constants.ACTIVITYTYPE_INDISPO
         super(IndisponibilityCreateForm, self).__init__(*args, **kwargs)
         fields = self.fields
 
@@ -579,6 +576,6 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
         return super(IndisponibilityCreateForm, self).clean()
 
     def _get_activity_type_n_subtype(self):
-        return (ActivityType.objects.get(pk=ACTIVITYTYPE_INDISPO),
+        return (ActivityType.objects.get(pk=constants.ACTIVITYTYPE_INDISPO),
                 self.cleaned_data['type_selector'],
                )
