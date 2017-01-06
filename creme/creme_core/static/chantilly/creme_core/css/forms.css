@@ -85,6 +85,14 @@ input.dperiod-value {
     width: 40px;
 }
 
+ul.optional-widget {
+    display: inline-flex;
+    flex-direction: row;
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+
 /* MERGE TOOL */
 .li_merge_entity_header1 {
     display: inline;

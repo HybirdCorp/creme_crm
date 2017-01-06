@@ -18,13 +18,10 @@ try:
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from .base import _ActivitiesTestCase, skipIfCustomActivity, Contact, Organisation, Activity
+    from .. import constants
     from ..forms.mass_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
-                                     MultiColumnsParticipantsExtractor, SplitColumnParticipantsExtractor,
-                                     SubjectsExtractor)
+            MultiColumnsParticipantsExtractor, SplitColumnParticipantsExtractor, SubjectsExtractor)
     from ..models import Calendar
-    from ..constants import (ACTIVITYTYPE_TASK, NARROW, FLOATING, FLOATING_TIME,
-            REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT,
-            ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK)
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -87,7 +84,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                               user=user.id,
                                               start_colselect=2,
                                               end_colselect=3,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               # Should not be used
                                               busy_colselect=0,
@@ -105,11 +102,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual(len(lines), len(results))
 
         act1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertEqual(ACTIVITYTYPE_TASK, act1.type_id)
+        self.assertEqual(constants.ACTIVITYTYPE_TASK, act1.type_id)
         self.assertIsNone(act1.sub_type)
         self.assertIsNone(act1.start)
         self.assertIsNone(act1.end)
-        self.assertEqual(FLOATING, act1.floating_type)
+        self.assertEqual(constants.FLOATING, act1.floating_type)
 
         self.assertFalse(act1.relations.all())
 
@@ -119,7 +116,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2014, month=5, day=28, hour=15), act2.start)
         self.assertEqual(create_dt(year=2014, month=5, day=28, hour=17), act2.end)
-        self.assertEqual(NARROW, act2.floating_type)
+        self.assertEqual(constants.NARROW, act2.floating_type)
 
         act3 = self.get_object_or_fail(Activity, title=title3)
         self.assertEqual(create_dt(year=2014, month=5, day=28, hour=19, minute=0),
@@ -128,7 +125,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual(create_dt(year=2014, month=5, day=28, hour=19, minute=15),
                          act3.end
                         )
-        self.assertEqual(NARROW, act3.floating_type)
+        self.assertEqual(constants.NARROW, act3.floating_type)
 
         act4 = self.get_object_or_fail(Activity, title=title4)
         self.assertEqual(create_dt(year=2014, month=5, day=29, hour=12, minute=0),
@@ -137,7 +134,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual(create_dt(year=2014, month=5, day=29, hour=12, minute=15),
                          act4.end
                         )
-        self.assertEqual(NARROW, act4.floating_type)
+        self.assertEqual(constants.NARROW, act4.floating_type)
 
         act5 = self.get_object_or_fail(Activity, title=title5)
         self.assertEqual(create_dt(year=2014, month=5, day=30, hour=0, minute=0),
@@ -146,7 +143,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual(create_dt(year=2014, month=5, day=30, hour=23, minute=59),
                          act5.end
                         )
-        self.assertEqual(FLOATING_TIME, act5.floating_type)
+        self.assertEqual(constants.FLOATING_TIME, act5.floating_type)
 
         act6 = self.get_object_or_fail(Activity, title=title6)
         self.assertEqual(create_dt(year=2014, month=6, day=1, hour=0, minute=0),
@@ -155,7 +152,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual(create_dt(year=2014, month=6, day=1, hour=23, minute=59),
                          act6.end
                         )
-        self.assertEqual(FLOATING_TIME, act6.floating_type)
+        self.assertEqual(constants.FLOATING_TIME, act6.floating_type)
 
         act7 = self.get_object_or_fail(Activity, title=title7)
         self.assertEqual(create_dt(year=2014, month=6, day=2, hour=0, minute=0),
@@ -164,7 +161,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertEqual(create_dt(year=2014, month=6, day=2, hour=18, minute=00),
                          act7.end
                         )
-        self.assertEqual(NARROW, act7.floating_type)
+        self.assertEqual(constants.NARROW, act7.floating_type)
 
         # errors = list(form.import_errors)
         # self.assertEqual(1, len(errors), [e for e in errors])
@@ -221,11 +218,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         data = dict(self.lv_import_data,
                     document=doc.id,
                     user=user.id,
-                    type_selector=self._acttype_field_value(ACTIVITYTYPE_MEETING,
-                                                            ACTIVITYSUBTYPE_MEETING_NETWORK,
+                    type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                            constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                            ),
 
-                    my_participation=True,
+                    # my_participation=True,
+                    my_participation_0=True,
                     participating_users=other_user.pk,
 
                     participants_mode=1,  # Search with 1 or 2 columns
@@ -237,9 +235,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # Validation errors ----------
         response = self.client.post(self._build_import_url(Activity), data=data)
-        self.assertFormError(response, 'form', 'my_calendar',
-                             _(u'If you participate, you have to choose one of your calendars.')
-                            )
+        # self.assertFormError(response, 'form', 'my_calendar',
+        #                      _(u'If you participate, you have to choose one of your calendars.')
+        #                     )
+        self.assertFormError(response, 'form', 'my_participation', _(u'Enter a value if you check the box.'))
 
         response = self.client.post(self._build_import_url(Activity), follow=True,
                                     data=dict(data,
@@ -250,7 +249,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # ---------
         response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    data=dict(data, my_calendar=my_calendar.pk)
+                                    # data=dict(data, my_calendar=my_calendar.pk)
+                                    data=dict(data, my_participation_1=my_calendar.pk)
                                    )
         self.assertNoFormError(response)
 
@@ -259,25 +259,25 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         job = self._execute_job(response)
 
         act1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertEqual(ACTIVITYTYPE_MEETING, act1.type_id)
-        self.assertEqual(ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
+        self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
+        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
 
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, user_contact)
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, other_contact)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
         self.assertEqual({my_calendar, Calendar.get_user_default_calendar(other_user)},
                          set(act1.calendars.all())
                         )
 
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(0, act1, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertRelationCount(0, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
-        self.assertRelationCount(1, act1, REL_OBJ_ACTIVITY_SUBJECT, subject)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
 
         # ---------
         act2 = self.get_object_or_fail(Activity, title=title2)
-        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, user_contact)
-        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)
+        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
+        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
         # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
@@ -305,7 +305,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # ---------
         act4 = self.get_object_or_fail(Activity, title=title4)
-        self.assertRelationCount(1, act4, REL_OBJ_PART_2_ACTIVITY, user_contact)  # Not 2
+        self.assertRelationCount(1, act4, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)  # Not 2
 
     @skipIfCustomContact
     def test_import03(self):
@@ -356,8 +356,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_MEETING,
-                                                                                      ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                                                      constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                                                      ),
 
                                               participants_mode='2',  # Search with pattern
@@ -372,27 +372,27 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # ---------
         act1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
         # ---------
         act2 = self.get_object_or_fail(Activity, title=title2)
-        self.assertRelationCount(0, act2, REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertRelationCount(0, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
 
-        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, other_contact)
+        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
         self.assertEqual([Calendar.get_user_default_calendar(other_user)],
                          list(act2.calendars.all())
                         )
 
         # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
-        self.assertRelationCount(0, act3, REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(1, act3, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(0, act3, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertRelationCount(1, act3, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
         # ---------
         act4 = self.get_object_or_fail(Activity, title=title4)
-        self.assertRelationCount(0, act4, REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(1, act4, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(0, act4, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertRelationCount(1, act4, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
         self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists())
 
@@ -426,8 +426,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # ---------
         act5 = self.get_object_or_fail(Activity, title=title5)
-        self.assertRelationCount(1, act5, REL_OBJ_PART_2_ACTIVITY, participant3)
-        self.assertRelationCount(1, act5, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act5, constants.REL_OBJ_PART_2_ACTIVITY, participant3)
+        self.assertRelationCount(1, act5, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
     @skipIfCustomContact
     def test_import04(self):
@@ -445,8 +445,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         data = dict(self.lv_import_data,
                     document=doc.id,
                     user=user.id,
-                    type_selector=self._acttype_field_value(ACTIVITYTYPE_MEETING,
-                                                            ACTIVITYSUBTYPE_MEETING_NETWORK,
+                    type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                            constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                            ),
 
                     participants_mode=2,  # Search with pattern
@@ -465,7 +465,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self._execute_job(response)
 
         act1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, aoi)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, aoi)
 
     @skipIfCustomOrganisation
     def test_import05(self):
@@ -483,7 +483,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               participants_mode=1,  # Search with 1 or 2 columns
                                               participants_first_name_colselect=2,
@@ -502,8 +502,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         task = self.get_object_or_fail(Activity, title=title)
         aoi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, task, REL_OBJ_PART_2_ACTIVITY, aoi)
-        self.assertRelationCount(0, task, REL_OBJ_ACTIVITY_SUBJECT, orga)
+        self.assertRelationCount(1, task, constants.REL_OBJ_PART_2_ACTIVITY, aoi)
+        self.assertRelationCount(0, task, constants.REL_OBJ_ACTIVITY_SUBJECT, orga)
 
     @skipIfCustomContact
     def test_import06(self):
@@ -525,7 +525,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               participants_mode=2,  # Search with pattern
                                               participants_separator='#',
@@ -544,10 +544,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self._assertNoResultError(self._get_job_results(job))
 
         task = self.get_object_or_fail(Activity, title=title)
-        self.assertRelationCount(1, task, REL_OBJ_PART_2_ACTIVITY, aoi)
+        self.assertRelationCount(1, task, constants.REL_OBJ_PART_2_ACTIVITY, aoi)
 
         oga = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, task, REL_OBJ_PART_2_ACTIVITY, oga)
+        self.assertRelationCount(1, task, constants.REL_OBJ_PART_2_ACTIVITY, oga)
 
     def test_import07(self):
         "Search on first_name/last_name + not creation credentials"
@@ -567,7 +567,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=self.user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               participants_mode=1,  # Search with 1 or 2 columns
                                               participants_first_name_colselect=2,
@@ -593,7 +593,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               property_types=[ptype.id],
                                              )
@@ -638,7 +638,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               subjects_colselect=2,
                                               subjects_separator='/',
@@ -649,27 +649,27 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         job = self._execute_job(response)
 
         task1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertRelationCount(1, task1, REL_OBJ_ACTIVITY_SUBJECT, aoi)
+        self.assertRelationCount(1, task1, constants.REL_OBJ_ACTIVITY_SUBJECT, aoi)
 
         task2 = self.get_object_or_fail(Activity, title=title2)
-        self.assertRelationCount(1, task2, REL_OBJ_ACTIVITY_SUBJECT, aoi)
+        self.assertRelationCount(1, task2, constants.REL_OBJ_ACTIVITY_SUBJECT, aoi)
 
         task3 = self.get_object_or_fail(Activity, title=title3)
-        self.assertRelationCount(0, task3, REL_OBJ_ACTIVITY_SUBJECT, aoi)
+        self.assertRelationCount(0, task3, constants.REL_OBJ_ACTIVITY_SUBJECT, aoi)
         self.assertFalse(Organisation.objects.filter(name__icontains=name))
 
         task4 = self.get_object_or_fail(Activity, title=title4)
-        self.assertRelationCount(1, task4, REL_OBJ_ACTIVITY_SUBJECT, clan1)
-        self.assertRelationCount(1, task4, REL_OBJ_ACTIVITY_SUBJECT, clan2)
+        self.assertRelationCount(1, task4, constants.REL_OBJ_ACTIVITY_SUBJECT, clan1)
+        self.assertRelationCount(1, task4, constants.REL_OBJ_ACTIVITY_SUBJECT, clan2)
 
         task5 = self.get_object_or_fail(Activity, title=title5)
-        self.assertRelationCount(1, task5, REL_OBJ_ACTIVITY_SUBJECT, furyo1)
-        self.assertRelationCount(1, task5, REL_OBJ_ACTIVITY_SUBJECT, furyo2)
+        self.assertRelationCount(1, task5, constants.REL_OBJ_ACTIVITY_SUBJECT, furyo1)
+        self.assertRelationCount(1, task5, constants.REL_OBJ_ACTIVITY_SUBJECT, furyo2)
 
         task6 = self.get_object_or_fail(Activity, title=title6)
-        self.assertRelationCount(1, task6, REL_OBJ_ACTIVITY_SUBJECT, aoi)
-        self.assertRelationCount(1, task6, REL_OBJ_ACTIVITY_SUBJECT, clan1)
-        self.assertRelationCount(1, task6, REL_OBJ_ACTIVITY_SUBJECT, clan2)
+        self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, aoi)
+        self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, clan1)
+        self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, clan2)
 
         # with self.assertNoException():
         #     form = response.context['form']
@@ -753,7 +753,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               subjects_colselect=2,
                                               subjects_create=True,
@@ -764,7 +764,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self._execute_job(response)
         task = self.get_object_or_fail(Activity, title=title)
         orga = self.get_object_or_fail(Organisation, name=name)
-        self.assertRelationCount(1, task, REL_OBJ_ACTIVITY_SUBJECT, orga)
+        self.assertRelationCount(1, task, constants.REL_OBJ_ACTIVITY_SUBJECT, orga)
 
     def test_import_subjects03(self):
         "Subject: creation credentials."
@@ -783,7 +783,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=self.user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               subjects_colselect=2,
                                               subjects_create=True,  # Should not be used
@@ -818,7 +818,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
                                               user=self.user.id,
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
                                               subjects_colselect=2,
                                              )
@@ -833,8 +833,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self._assertNoResultError(self._get_job_results(job))
 
         task = self.get_object_or_fail(Activity, title=title)
-        self.assertRelationCount(1, task, REL_OBJ_ACTIVITY_SUBJECT, orga1)
-        self.assertRelationCount(0, task, REL_OBJ_ACTIVITY_SUBJECT, orga2)
+        self.assertRelationCount(1, task, constants.REL_OBJ_ACTIVITY_SUBJECT, orga1)
+        self.assertRelationCount(0, task, constants.REL_OBJ_ACTIVITY_SUBJECT, orga2)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -849,15 +849,15 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         subject = Organisation.objects.create(user=user, name='Ishiyama')
 
         create_act = partial(Activity.objects.create, user=user,
-                             type_id=ACTIVITYTYPE_MEETING,
-                             sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+                             type_id=constants.ACTIVITYTYPE_MEETING,
+                             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                             )
         act1 = create_act(title='Fight against demons#1')
         act2 = create_act(title='Fight against demons#2')
 
         create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=act1, type_id=REL_OBJ_PART_2_ACTIVITY,  object_entity=participant1)
-        create_rel(subject_entity=act2, type_id=REL_OBJ_ACTIVITY_SUBJECT, object_entity=subject)
+        create_rel(subject_entity=act1, type_id=constants.REL_OBJ_PART_2_ACTIVITY,  object_entity=participant1)
+        create_rel(subject_entity=act2, type_id=constants.REL_OBJ_ACTIVITY_SUBJECT, object_entity=subject)
 
         place = 'Hell'
         lines = [(act1.title, participant1.first_name, participant1.last_name, subject.name, place),
@@ -871,8 +871,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                               user=user.id,
                                               key_fields=['title'],
 
-                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_MEETING,
-                                                                                      ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                              type_selector=self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                                                      constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                                                      ),
 
                                               participants_mode=1,  # Search with 1 or 2 columns
@@ -890,13 +890,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         act1 = self.refresh(act1)
         self.assertEqual(place, act1.place)
 
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1)  # <- not 2
-        self.assertRelationCount(0, act1, REL_OBJ_PART_2_ACTIVITY, participant2)
-        self.assertRelationCount(1, act1, REL_OBJ_ACTIVITY_SUBJECT, subject)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)  # <- not 2
+        self.assertRelationCount(0, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act1, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
 
         act2 = self.refresh(act2)
-        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, participant2)
-        self.assertRelationCount(1, act2, REL_OBJ_ACTIVITY_SUBJECT, subject)  # <- not 2
+        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act2, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)  # <- not 2
 
     def test_pattern1(self):
         "Pattern #1: 'Civility FirstName LastName'"
@@ -1255,7 +1255,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # self.populate('tickets')
 
-        rtype = self.get_object_or_fail(RelationType, pk=REL_OBJ_ACTIVITY_SUBJECT)
+        rtype = self.get_object_or_fail(RelationType, pk=constants.REL_OBJ_ACTIVITY_SUBJECT)
         self.assertIn(Ticket, (ct.model_class() for ct in rtype.object_ctypes.all()))
 
         user = self.login()

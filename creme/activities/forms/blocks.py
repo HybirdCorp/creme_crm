@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2016  Hybird
+#    Copyright (C) 2012-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,11 +23,10 @@ import logging
 
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from django.forms import BooleanField, ModelChoiceField, ModelMultipleChoiceField
-from django.utils.translation import ugettext_lazy as _, ungettext # ugettext
+from django.forms import ModelMultipleChoiceField  # BooleanField, ModelChoiceField
+from django.utils.translation import ugettext_lazy as _, ungettext
 
-from creme.creme_core.forms import CremeForm, MultiCreatorEntityField, MultiGenericEntityField
-from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
+from creme.creme_core.forms import CremeForm, MultiCreatorEntityField, MultiGenericEntityField, validators
 # from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import RelationType, Relation
 
@@ -36,6 +35,7 @@ from creme.persons import get_contact_model
 from .. import constants
 from ..models import Calendar
 from ..utils import check_activity_collisions
+from .fields import UserParticipationField
 
 
 logger = logging.getLogger(__name__)
@@ -43,13 +43,14 @@ Contact = get_contact_model()
 
 
 class ParticipantCreateForm(CremeForm):
-    my_participation    = BooleanField(required=False, initial=False,
-                                       label=_(u'Do I participate to this activity?'),
-                                      )
-    my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(),
-                                           required=False, empty_label=None,
-                                           label=_(u'On which of my calendar this activity will appear?'),
-                                          )
+    # my_participation    = BooleanField(required=False, initial=False,
+    #                                    label=_(u'Do I participate to this activity?'),
+    #                                   )
+    # my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(),
+    #                                        required=False, empty_label=None,
+    #                                        label=_(u'On which of my calendar this activity will appear?'),
+    #                                       )
+    my_participation    = UserParticipationField(label=_(u'Do I participate to this activity?'), empty_label=None)
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
                                                    queryset=get_user_model().objects.filter(is_staff=False),
                                                    required=False,
@@ -92,15 +93,14 @@ class ParticipantCreateForm(CremeForm):
 
         if user_pk in existing_users:
             del fields['my_participation']
-            del fields['my_calendar']
-        else:
-            # TODO: refactor this with a smart widget that manages dependencies
-            fields['my_participation'].widget.attrs['onclick'] = \
-                "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
-
-            my_calendar_field = fields['my_calendar']
-            my_calendar_field.queryset = Calendar.objects.filter(user=user)
-            my_calendar_field.widget.attrs['disabled'] = True  # TODO: remove when dependencies system is OK
+            # del fields['my_calendar']
+        # else:
+        #     fields['my_participation'].widget.attrs['onclick'] = \
+        #         "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+        #
+        #     my_calendar_field = fields['my_calendar']
+        #     my_calendar_field.queryset = Calendar.objects.filter(user=user)
+        #     my_calendar_field.widget.attrs['disabled'] = True
 
     # def clean_participants(self):
     #     return validate_linkable_entities(self.cleaned_data['participants'], self.user)
@@ -114,17 +114,19 @@ class ParticipantCreateForm(CremeForm):
             else:
                 users.update(user.teammates.itervalues())
 
-        return validate_linkable_entities(Contact.objects.filter(is_user__in=users),
-                                          self.user,
-                                         )
+        return validators.validate_linkable_entities(Contact.objects.filter(is_user__in=users),
+                                                     self.user,
+                                                    )
 
     # TODO: factorise with ActivityCreateForm
     def clean_my_participation(self):
-        my_participation = self.cleaned_data.get('my_participation', False)
+        # my_participation = self.cleaned_data.get('my_participation', False)
+        my_participation = self.cleaned_data['my_participation']
 
-        if my_participation:
+        # if my_participation:
+        if my_participation[0]:
             user = self.user
-            self.participants.add(validate_linkable_entity(user.linked_contact, user))
+            self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
 
         return my_participation
 
@@ -137,8 +139,8 @@ class ParticipantCreateForm(CremeForm):
             extend_participants(cleaned_data['participating_users'])
             extend_participants(cleaned_data['participants'])
 
-            if cleaned_data.get('my_participation') and not cleaned_data.get('my_calendar'):
-                self.add_error('my_calendar', _(u'If you participate, you have to choose one of your calendars.'))
+            # if cleaned_data.get('my_participation') and not cleaned_data.get('my_calendar'):
+            #     self.add_error('my_calendar', _(u'If you participate, you have to choose one of your calendars.'))
 
             collisions = check_activity_collisions(activity.start, activity.end,
                                                    self.participants, busy=activity.busy,
@@ -155,11 +157,13 @@ class ParticipantCreateForm(CremeForm):
         create_relation = partial(Relation.objects.create, object_entity=activity,
                                   type_id=constants.REL_SUB_PART_2_ACTIVITY, user=activity.user,
                                  )
+        me = self.user
 
         for participant in self.participants:
             user = participant.is_user
             if user:
-                activity.calendars.add(self.cleaned_data['my_calendar'] if user == self.user else
+                # activity.calendars.add(self.cleaned_data['my_calendar'] if user == me else
+                activity.calendars.add(self.cleaned_data['my_participation'][1] if user == me else
                                        Calendar.get_user_default_calendar(user)
                                       )
 

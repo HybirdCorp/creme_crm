@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +30,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import Q
 from django.forms.utils import flatatt
-from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
-        TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer, DateTimeInput)
+from django.forms import widgets
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
@@ -56,7 +55,7 @@ def widget_render_hidden_input(widget, name, value, context):
                    'type':  'hidden',
                   }
 
-    return Input.render(widget, name, value, input_attrs)
+    return widgets.Input.render(widget, name, value, input_attrs)
 
 
 def widget_render_context(typename, attrs, css='', **kwargs):
@@ -76,7 +75,7 @@ def widget_render_context(typename, attrs, css='', **kwargs):
 
 
 # TODO: to be improved....
-class DynamicInput(TextInput):
+class DynamicInput(widgets.TextInput):
     def __init__(self, type='text', attrs=None):
         super(DynamicInput, self).__init__(attrs)
         self.input_type = type
@@ -85,7 +84,7 @@ class DynamicInput(TextInput):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dinput', attrs)
 
-        return mark_safe(widget_render_input(TextInput.render, self, name, value, context)) #, url=self.url
+        return mark_safe(widget_render_input(widgets.TextInput.render, self, name, value, context)) #, url=self.url
 
 # TODO ??? DynamicHiddenInput
 # class HiddenInput(Input): #from django
@@ -158,7 +157,7 @@ class EnhancedSelectOptions(object):
                                                          )
 
 
-class DynamicSelect(Select, EnhancedSelectOptions):
+class DynamicSelect(widgets.Select, EnhancedSelectOptions):
     def __init__(self, attrs=None, options=None, url='', label=None):
         super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
@@ -174,12 +173,12 @@ class DynamicSelect(Select, EnhancedSelectOptions):
         context = widget_render_context('ui-creme-dselect', attrs)
 
         value = self.from_python(value) if self.from_python is not None else value
-        output = widget_render_input(Select.render, self, name, value, context, url=self.url)
+        output = widget_render_input(widgets.Select.render, self, name, value, context, url=self.url)
 
         return mark_safe(self.render_label(output, self.label))
 
 
-class DynamicSelectMultiple(SelectMultiple, EnhancedSelectOptions):
+class DynamicSelectMultiple(widgets.SelectMultiple, EnhancedSelectOptions):
     def __init__(self, attrs=None, options=None, url='', label=None):
         super(DynamicSelectMultiple, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
@@ -195,12 +194,12 @@ class DynamicSelectMultiple(SelectMultiple, EnhancedSelectOptions):
         context = widget_render_context('ui-creme-dselect', attrs)
 
         value = self.from_python(value) if self.from_python is not None else value
-        output = widget_render_input(SelectMultiple.render, self, name, value, context, url=self.url)
+        output = widget_render_input(widgets.SelectMultiple.render, self, name, value, context, url=self.url)
 
         return mark_safe(self.render_label(output, self.label))
 
 
-class ActionButtonList(Widget):
+class ActionButtonList(widgets.Widget):
     def __init__(self, delegate, attrs=None, actions=()):
         super(ActionButtonList, self).__init__(attrs)
         self.delegate = delegate
@@ -256,7 +255,7 @@ class ActionButtonList(Widget):
                )
 
 
-class PolymorphicInput(TextInput):
+class PolymorphicInput(widgets.TextInput):
     def __init__(self, attrs=None, key='', *args):
         super(PolymorphicInput, self).__init__(attrs)
         self.key = key
@@ -312,7 +311,7 @@ class PolymorphicInput(TextInput):
         return '\n'.join(output)
 
 
-class DateRangeSelect(TextInput):
+class DateRangeSelect(widgets.TextInput):
     def __init__(self, attrs=None, choices=None):
         super(DateRangeSelect, self).__init__(attrs)
         self.choices = choices
@@ -356,7 +355,7 @@ class NullableDateRangeSelect(DateRangeSelect):
         return choices
 
 
-class ChainedInput(TextInput):
+class ChainedInput(widgets.TextInput):
     HORIZONTAL = 'hbox'
     VERTICAL = 'vbox'
 
@@ -428,7 +427,7 @@ class ChainedInput(TextInput):
         return u'\n'.join(output)
 
 
-class SelectorList(TextInput):
+class SelectorList(widgets.TextInput):
     class Action(object):
         def __init__(self, name, label, enabled=True, **kwargs):
             self.name = name
@@ -508,7 +507,7 @@ class SelectorList(TextInput):
                          '</div>' % context)
 
 
-class EntitySelector(TextInput):
+class EntitySelector(widgets.TextInput):
     def __init__(self, content_type=None, attrs=None):
         super(EntitySelector, self).__init__(attrs)
         self.url = '/creme_core/list_view/popup/' + content_type + '/${selection}?q_filter=${qfilter}'\
@@ -754,7 +753,7 @@ class FilteredEntityTypeWidget(ChainedInput):
         return super(FilteredEntityTypeWidget, self).render(name, value, attrs)
 
 
-class DateTimeWidget(DateTimeInput):
+class DateTimeWidget(widgets.DateTimeInput):
     is_localized = True
 
     def __init__(self, attrs=None):
@@ -796,7 +795,7 @@ class DateTimeWidget(DateTimeInput):
 """ % context)
 
 
-class TimeWidget(TextInput):
+class TimeWidget(widgets.TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
@@ -827,7 +826,7 @@ class TimeWidget(TextInput):
         return value
 
 
-class CalendarWidget(TextInput):
+class CalendarWidget(widgets.TextInput):
     is_localized = True
     default_help_text = settings.DATE_FORMAT_VERBOSE
 
@@ -838,60 +837,105 @@ class CalendarWidget(TextInput):
 
         return mark_safe(u"""<div>%(help_text)s</div>%(input)s""" % {
                                   'help_text': self.default_help_text,
-                                  'input': widget_render_input(TextInput.render, self, name, value, context,
+                                  'input': widget_render_input(widgets.TextInput.render, self, name, value, context,
                                                                format=dateformat,
                                                                readonly=attrs.get('readonly', False)),
                               })
 
 
 # TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup
-class DependentSelect(Select):
+class DependentSelect(widgets.Select):
     def __init__(self, target_id, attrs=None, choices=()):
-        self.target_id   = target_id
-        self.target_url  = None
-        self._source_val = self._target_val = None
+        self.target_id = target_id
+        self.target_url = None
+        # self._source_val = self._target_val = None
+        self.target_val = None
         super(DependentSelect, self).__init__(attrs, choices)
 
-    def _set_target(self, target):
-        self._target_val = target
-    target_val = property(lambda self: self._target_val, _set_target); del _set_target
-
-    def _set_source(self, source):
-        self._source_val = source
-    source_val = property(lambda self: self._source_val, _set_source); del _set_source
+#    def _set_target(self, target):
+#        self._target_val = target
+#    target_val = property(lambda self: self._target_val, _set_target); del _set_target
+#
+#    def _set_source(self, source):
+#        self._source_val = source
+#    source_val = property(lambda self: self._source_val, _set_source); del _set_source
 
     def render(self, name, value, attrs=None, choices=()):
-        attrs = self.build_attrs(attrs, name=name)
-        id = attrs['id']
-        script = """(function(){
-                        var source = $('#%(id)s');
-                        if(!source || typeof(source) == 'undefined') return;
-                        var target = $('#%(target_id)s');
-                        if(!target || typeof(target) == 'undefined') return;
-                        $.post('%(target_url)s',
-                               {record_id : source.val()},
-                               function(data){
-                                var data = creme.forms.Select.optionsFromData(data.result, 'text', 'id');
-                                creme.forms.Select.fill(target, data, '%(target_val)s');
-                               } , 'json');
-        }());""" % {
+        final_attrs = self.build_attrs(attrs, name=name)
+        id = final_attrs['id']
+        final_attrs['onchange'] = """(function() {
+    var source = $('#%(id)s');
+    if (!source || typeof(source) === undefined) return;
+
+    var target = $('#%(target_id)s');
+    if (!target || typeof(target) === undefined) return;
+
+    $.post('%(target_url)s',
+           {record_id: source.val()},
+           function(data) {
+               var data = creme.forms.Select.optionsFromData(data.result, 'text', 'id');
+               creme.forms.Select.fill(target, data, '%(target_val)s');
+           }, 'json');
+}());""" % {
             'id': id,
             'target_id': self.target_id,
             'target_url': self.target_url,
-            'target_val': self.target_val
-
+            'target_val': self.target_val,
         }
-        attrs['onchange'] = script
 
-        return mark_safe("""
-            <script type="text/javascript">
-                $("#%(id)s").change();
-            </script>
-            %(input)s
-        """ % {'input':super(DependentSelect, self).render(name, value, attrs, choices), 'id': id})
+        return mark_safe('<script type="text/javascript">'
+                            '$("#%(id)s").change();'
+                         '</script>'
+                         '%(input)s' % {'input': super(DependentSelect, self).render(name, value, final_attrs, choices),
+                                        'id': id,
+                                       }
+                        )
 
 
-class TinyMCEEditor(Textarea):
+class OptionalWidget(widgets.MultiWidget):
+    def __init__(self, sub_widget=widgets.TextInput, attrs=None, sub_label=''):
+        super(OptionalWidget, self).__init__(
+                widgets=(widgets.CheckboxInput(attrs={'onchange': 'creme.forms.optionalWidgetHandler(this)'}),
+                         sub_widget,
+                        ),
+                attrs=attrs,
+            )
+        self.sub_label = sub_label
+
+    def decompress(self, value):
+        return (value[0], value[1]) if value else (None, None)
+
+    # TODO: true JS widget ?
+    def format_output(self, rendered_widgets):
+        return (
+'''<ul class="optional-widget">
+    <li>%(check)s</li>
+    <li>%(label)s&nbsp;%(sub_widget)s</li>
+    <script type="text/javascript">
+        creme.forms.optionalWidgetHandler = function(check_box) {
+            var jq_check_box = $(check_box);
+            jq_check_box.parent().siblings('li').css('display', jq_check_box.is(':checked')? '': 'none');
+        }
+        $(document).ready(function() {
+            $('ul.optional-widget li input').each(function() {creme.forms.optionalWidgetHandler(this);});
+        });
+    </script>
+</ul>''' % {'check':      rendered_widgets[0],
+            'sub_widget': rendered_widgets[1],
+            'label':      self.sub_label,
+           })
+
+    @property
+    def sub_widget(self):
+        return self.widgets[1]
+
+
+class OptionalSelect(OptionalWidget):
+    def __init__(self, choices=(), *args, **kwargs):
+        super(OptionalSelect, self).__init__(widgets.Select(choices=choices), *args, **kwargs)
+
+
+class TinyMCEEditor(widgets.Textarea):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-jqueryplugin', attrs)
@@ -913,20 +957,20 @@ class TinyMCEEditor(Textarea):
             "theme_advanced_resizing": True,
         })
 
-        return mark_safe(widget_render_input(Textarea.render, self, name, value, context, 
+        return mark_safe(widget_render_input(widgets.Textarea.render, self, name, value, context,
                                              plugin='tinymce', 
                                              plugin_options=plugin_options))
 
 
-class ColorPickerWidget(TextInput):
+class ColorPickerWidget(widgets.TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-jqueryplugin', attrs)
 
-        return mark_safe(widget_render_input(TextInput.render, self, name, value, context, plugin='gccolor'))
+        return mark_safe(widget_render_input(widgets.TextInput.render, self, name, value, context, plugin='gccolor'))
 
 
-class UnorderedMultipleChoiceWidget(SelectMultiple, EnhancedSelectOptions):
+class UnorderedMultipleChoiceWidget(widgets.SelectMultiple, EnhancedSelectOptions):
     def __init__(self, attrs=None, choices=(), columntype='', filtertype=None, viewless=None):
         super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
         self.columntype = columntype
@@ -943,7 +987,7 @@ class UnorderedMultipleChoiceWidget(SelectMultiple, EnhancedSelectOptions):
         count = self._choice_count()
         attrs = self.build_attrs(attrs, name=name)
         filtertype = self._build_filtertype(count)
-        input = SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'}, choices)
+        input = widgets.SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'}, choices)
 
         context = widget_render_context('ui-creme-checklistselect', attrs,
                                         body=self._render_body(attrs, filtertype),
@@ -1022,7 +1066,7 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
                 )
 
 
-class OrderedMultipleChoiceWidget(SelectMultiple):
+class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
     def render(self, name, value, attrs=None, choices=()):
         if value is None: value = ()
         value_dict = {opt_value: order + 1 for order, opt_value in enumerate(value)}
@@ -1079,11 +1123,11 @@ u"""</tbody></table>
         return [val for _order, val in selected]
 
 
-class Label(TextInput):
+class Label(widgets.TextInput):
     empty_label = None
 
     def __init__(self, attrs=None, empty_label=None):
-        TextInput.__init__(self, attrs=attrs)
+        super(Label, self).__init__(attrs=attrs)
         self.empty_label = empty_label
 
     def render(self, name, value, attrs=None):
@@ -1094,7 +1138,7 @@ class Label(TextInput):
             })
 
 
-class ListEditionWidget(Widget):
+class ListEditionWidget(widgets.Widget):
     content = ()
     only_delete = False
 
@@ -1168,12 +1212,14 @@ class ListEditionWidget(Widget):
 #                         )
 
 
-class DatePeriodWidget(MultiWidget):
+class DatePeriodWidget(widgets.MultiWidget):
     def __init__(self, choices=(), attrs=None):
-        widgets = (Select(choices=choices, attrs={'class': 'dperiod-type'}),
-                   TextInput(attrs={'class': 'dperiod-value'}),  # TODO: min_value
-                  )
-        super(DatePeriodWidget, self).__init__(widgets, attrs)
+        super(DatePeriodWidget, self).__init__(
+                    widgets=(widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
+                             widgets.TextInput(attrs={'class': 'dperiod-value'}),  # TODO: min_value
+                            ),
+                    attrs=attrs,
+        )
 
     @property
     def choices(self):
@@ -1199,15 +1245,17 @@ class DatePeriodWidget(MultiWidget):
                 )
 
 
-class DateRangeWidget(MultiWidget):
+class DateRangeWidget(widgets.MultiWidget):
     def __init__(self, choices=(), attrs=None):
         self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'
 
-        widgets = (Select(choices=choices, attrs={'class': 'range-type'}),
-                   CalendarWidget(attrs={'class': 'date-start'}),
-                   CalendarWidget(attrs={'class': 'date-end'}),
-                  )
-        super(DateRangeWidget, self).__init__(widgets, attrs)
+        super(DateRangeWidget, self).__init__(
+            widgets=(widgets.Select(choices=choices, attrs={'class': 'range-type'}),
+                     CalendarWidget(attrs={'class': 'date-start'}),
+                     CalendarWidget(attrs={'class': 'date-end'}),
+                    ),
+            attrs=attrs,
+        )
 
     @property
     def choices(self):
@@ -1243,10 +1291,12 @@ class DateRangeWidget(MultiWidget):
                     )
 
 
-class DurationWidget(MultiWidget):
+class DurationWidget(widgets.MultiWidget):
     def __init__(self, attrs=None):
-        widgets = (TextInput(), TextInput(), TextInput())
-        super(DurationWidget, self).__init__(widgets, attrs)
+        TextInput = widgets.TextInput
+        super(DurationWidget, self).__init__(widgets=(TextInput(), TextInput(), TextInput()),
+                                             attrs=attrs,
+                                            )
 
     def decompress(self, value):
         if value:
@@ -1264,10 +1314,10 @@ class DurationWidget(MultiWidget):
                              })
 
 
-class ChoiceOrCharWidget(MultiWidget):
+class ChoiceOrCharWidget(widgets.MultiWidget):
     def __init__(self, attrs=None, choices=()):
-        self.select_widget = select = Select(choices=choices)
-        super(ChoiceOrCharWidget, self).__init__((select, TextInput()), attrs)
+        self.select_widget = select = widgets.Select(choices=choices)
+        super(ChoiceOrCharWidget, self).__init__(widgets=(select, widgets.TextInput()), attrs=attrs)
 
     @property
     def choices(self):
@@ -1284,12 +1334,12 @@ class ChoiceOrCharWidget(MultiWidget):
         return None, None
 
 
-class CremeRadioFieldRenderer(RadioFieldRenderer):
+class CremeRadioFieldRenderer(widgets.RadioFieldRenderer):
     def render(self):
         return mark_safe(u'<ul class="radio_select">\n%s\n</ul>' %
                             u'\n'.join(u'<li>%s</li>' % force_unicode(w) for w in self)
                         )
 
 
-class CremeRadioSelect(RadioSelect):
+class CremeRadioSelect(widgets.RadioSelect):
     renderer = CremeRadioFieldRenderer

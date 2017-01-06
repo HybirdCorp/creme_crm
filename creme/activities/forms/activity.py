@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,7 @@ import logging
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField, DateField
-from django.forms.fields import ChoiceField, TimeField
+from django.forms import IntegerField, ModelChoiceField, ModelMultipleChoiceField, DateField, ChoiceField, TimeField  # BooleanField
 from django.forms.utils import ValidationError
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -45,6 +44,7 @@ from ..constants import (ACTIVITYTYPE_INDISPO, FLOATING, NARROW, FLOATING_TIME, 
         REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..utils import check_activity_collisions
 from .activity_type import ActivityTypeField
+from .fields import UserParticipationField
 
 
 logger = logging.getLogger(__name__)
@@ -196,7 +196,8 @@ class ActivityEditForm(_ActivityForm):
         ('datetime', _(u'When'), ['is_all_day', 'start', 'start_time', 'end', 'end_time']),
     )
 
-    def _localize(self, dt):
+    @staticmethod
+    def _localize(dt):
         return localtime(dt) if dt else dt
 
     def __init__(self, *args, **kwargs):
@@ -261,11 +262,13 @@ MINUTES = 'minutes'
 
 
 class ActivityCreateForm(_ActivityCreateForm):
-    my_participation    = BooleanField(required=False, label=_(u'Do I participate to this activity?'), initial=True)
-    my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False,
-                                           label=_(u'On which of my calendar this activity will appears?'),
-                                           empty_label=None,
-                                          )
+    # my_participation    = BooleanField(required=False, label=_(u'Do I participate to this activity?'), initial=True)
+    # my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False,
+    #                                        label=_(u'On which of my calendar this activity will appears?'),
+    #                                        empty_label=None,
+    #                                       )
+    my_participation = UserParticipationField(label=_(u'Do I participate to this activity?'), empty_label=None)
+
     other_participants  = MultiCreatorEntityField(label=_(u'Other participants'), model=Contact, required=False)
     subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
     linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
@@ -290,7 +293,8 @@ class ActivityCreateForm(_ActivityCreateForm):
 
     blocks = _ActivityForm.blocks.new(
         ('datetime',       _(u'When'),         ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
-        ('participants',   _(u'Participants'), ['my_participation', 'my_calendar', 'participating_users',
+        ('participants',   _(u'Participants'), ['my_participation',  # 'my_calendar',
+                                                'participating_users',
                                                 'other_participants', 'subjects', 'linked_entities']),
         ('alert_datetime', _(u'Generate an alert on a specific date'), ['alert_day', 'alert_start_time']),
         ('alert_period',   _(u'Generate an alert in a while'),         ['alert_trigger_number', 'alert_trigger_unit']),
@@ -306,13 +310,13 @@ class ActivityCreateForm(_ActivityCreateForm):
             # TODO: improve help_text of end (we know the type default duration)
             fields['type_selector'].types = ActivityType.objects.filter(pk=activity_type_id)
 
-        my_calendar_field = fields['my_calendar']
-        my_calendar_field.queryset = Calendar.objects.filter(user=user)
-        my_calendar_field.initial  = Calendar.get_user_default_calendar(user)
-
-        # TODO: refactor this with a smart widget that manages dependencies
-        fields['my_participation'].widget.attrs['onclick'] = \
-            "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+        # my_calendar_field = fields['my_calendar']
+        # my_calendar_field.queryset = Calendar.objects.filter(user=user)
+        # my_calendar_field.initial  = Calendar.get_user_default_calendar(user)
+        #
+        # fields['my_participation'].widget.attrs['onclick'] = \
+        #     "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+        fields['my_participation'].initial = (True, Calendar.get_user_default_calendar(user))
 
         subjects_field = fields['subjects']
         subjects_field.allowed_models = [ct.model_class() 
@@ -374,9 +378,11 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                                    )
 
     def clean_my_participation(self):
-        my_participation = self.cleaned_data.get('my_participation', False)
+        # my_participation = self.cleaned_data.get('my_participation', False)
+        my_participation = self.cleaned_data['my_participation']
 
-        if my_participation:
+        # if my_participation:
+        if my_participation[0]:
             user = self.user
             self.participants.add(validate_linkable_entity(user.linked_contact, user))
 
@@ -397,11 +403,12 @@ class ActivityCreateForm(_ActivityCreateForm):
     def clean(self):
         if not self._errors:
             cdata = self.cleaned_data
-            my_participation = cdata['my_participation']
-            if my_participation and not cdata.get('my_calendar'):
-                self.add_error('my_calendar', _(u'If you participate, you have to choose one of your calendars.'))
+            # my_participation = cdata['my_participation']
+            # if my_participation and not cdata.get('my_calendar'):
+            #     self.add_error('my_calendar', _(u'If you participate, you have to choose one of your calendars.'))
 
-            if not my_participation and not cdata['participating_users']:
+            # if not my_participation and not cdata['participating_users']:
+            if not cdata['my_participation'][0] and not cdata['participating_users']:
                 raise ValidationError(self.error_messages['no_participant'], code='no_participant')
 
             if cdata.get('alert_day') and cdata.get('alert_start_time') is None:
@@ -419,10 +426,13 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         cdata = self.cleaned_data
 
-        if cdata['my_participation']:
-            instance.calendars.add(cdata['my_calendar'])
+        # if cdata['my_participation']:
+        #     instance.calendars.add(cdata['my_calendar'])
+        i_participate, my_calendar = cdata['my_participation']
+        if i_participate:
+            instance.calendars.add(my_calendar)
 
-        # TODO: improve Relation model in order to avoid duplcation automatically
+        # TODO: improve Relation model in order to avoid duplication automatically
         create_relation = partial(Relation.objects.get_or_create, object_entity_id=instance.id,
                                   defaults={'user': instance.user},
                                  )
