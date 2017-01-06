@@ -42,26 +42,22 @@ from creme.creme_core.utils.dates import make_aware_dt, dt_from_ISO8601
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_entity
 
-from creme.persons import get_contact_model, get_organisation_model
-from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+from creme import persons
+from creme.persons import constants as persons_constants
 
 from creme.activities import get_activity_model
-from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
-        REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT,
-        ACTIVITYTYPE_PHONECALL,
-        ACTIVITYSUBTYPE_PHONECALL_FAILED, ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-        STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED)
+from creme.activities import constants as act_constants
 from creme.activities.models import Calendar
 
-from .forms import MobileContactCreateForm, MobileOrganisationCreateForm
+from . import forms as mobile_forms
 from .models import MobileFavorite
 from .templatetags.mobile_tags import orga_subjects
 
 
 logger = logging.getLogger(__name__)
 Activity = get_activity_model()
-Contact = get_contact_model()
-Organisation = get_organisation_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 # TODO: in constants.py ? in settings ??
 FLOATING_SIZE = 30
@@ -142,13 +138,13 @@ def portal(request):
             user,
             Activity.objects
                     .filter(is_deleted=False,
-                            relations__type=REL_OBJ_PART_2_ACTIVITY,
+                            relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
                             relations__object_entity=user.linked_contact,
                             start__range=(build_dt(0,  0,  0),
                                           build_dt(23, 59, 59),
                                          ),
                            )
-                    .exclude(status__in=(STATUS_DONE, STATUS_CANCELLED))
+                    .exclude(status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED))
                     .order_by('start')
         )
 
@@ -159,15 +155,15 @@ def portal(request):
     #     'today_activities' as we want (they are ordered by start, and NARROW
     #     activities which start at 0h00 will be in 'hot_activities').
     hot_activities, today_activities = split_filter(
-            lambda a: a.floating_type == NARROW and
-                      (a.status_id == STATUS_IN_PROGRESS or a.start < now_val),
+            lambda a: a.floating_type == act_constants.NARROW and
+                      (a.status_id == act_constants.STATUS_IN_PROGRESS or a.start < now_val),
             activities
         )
     # TODO: populate participants (regroup queries for Relation + real entities) ??
 
     used_worked_hours = frozenset(localtime(a.start).hour
                                     for a in today_activities
-                                      if a.floating_type == NARROW
+                                      if a.floating_type == act_constants.NARROW
                                  )
     shortcuts_map = [(hour, hour in used_worked_hours)
                         for hour in xrange(WORKED_HOURS[0], WORKED_HOURS[1] + 1)
@@ -204,7 +200,7 @@ def persons_portal(request):
                  )
 
 
-def abstract_create_contact(request, form=MobileContactCreateForm,
+def abstract_create_contact(request, form=mobile_forms.MobileContactCreateForm,
                             template='mobile/add_contact.html',
                            ):
     last_name = request.GET.get('last_name')
@@ -223,7 +219,7 @@ def create_contact(request):
     return abstract_create_contact(request)
 
 
-def abstract_create_organisation(request, form=MobileOrganisationCreateForm,
+def abstract_create_organisation(request, form=mobile_forms.MobileOrganisationCreateForm,
                                  template='mobile/add_orga.html'
                                 ):
     name = request.GET.get('name')
@@ -233,6 +229,7 @@ def abstract_create_organisation(request, form=MobileOrganisationCreateForm,
                       template=template,
                       extra_initial={'name': name.title()} if name else None,
                      )
+
 
 @lw_exceptions
 @mobile_login_required
@@ -255,7 +252,9 @@ def search_person(request):
             Contact.objects.exclude(is_deleted=True)
                            .filter(Q(first_name__icontains=search) |
                                    Q(last_name__icontains=search) |
-                                   Q(relations__type__in=(REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES),
+                                   Q(relations__type__in=(persons_constants.REL_SUB_EMPLOYED_BY,
+                                                          persons_constants.REL_SUB_MANAGES,
+                                                         ),
                                      relations__object_entity__header_filter_search_field__icontains=search,
                                     )
                                   )
@@ -297,8 +296,8 @@ def start_activity(request, activity_id):
     if not activity.end or activity.start >= activity.end:
         activity.end = activity.start + activity.type.as_timedelta()
 
-    activity.floating_type = NARROW
-    activity.status_id = STATUS_IN_PROGRESS
+    activity.floating_type = act_constants.NARROW
+    activity.status_id = act_constants.STATUS_IN_PROGRESS
     activity.save()
 
     return HttpResponseRedirect('%s#activity_%s' % (_get_page_url(request), activity_id))
@@ -318,7 +317,7 @@ def stop_activity(request, activity_id):
         raise ConflictError("This activity cannot be stopped before it is started.")
 
     activity.end = now_val
-    activity.status_id = STATUS_DONE
+    activity.status_id = act_constants.STATUS_DONE
     activity.save()
 
     return HttpResponseRedirect(_get_page_url(request))
@@ -331,18 +330,18 @@ def activities_portal(request):
     cred_filter = partial(EntityCredentials.filter, user)
     now_val = now()
     activities = Activity.objects.filter(is_deleted=False,
-                                         relations__type=REL_OBJ_PART_2_ACTIVITY,
+                                         relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
                                          relations__object_entity=user.linked_contact,
                                         ) \
-                                 .exclude(status__in=(STATUS_DONE, STATUS_CANCELLED)) \
+                                 .exclude(status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED)) \
                                  .order_by('start')
 
-    phone_calls = cred_filter(activities.filter(type=ACTIVITYTYPE_PHONECALL,
+    phone_calls = cred_filter(activities.filter(type=act_constants.ACTIVITYTYPE_PHONECALL,
                                                 start__lte=now_val,
                                                )
                              )[:10]
 
-    floating_qs = cred_filter(activities.filter(floating_type=FLOATING).order_by('title'))
+    floating_qs = cred_filter(activities.filter(floating_type=act_constants.FLOATING).order_by('title'))
     floating = floating_qs[:FLOATING_SIZE]
     floating_count = len(floating)
 
@@ -392,7 +391,7 @@ def phonecall_panel(request):
     person_id  = get_from_GET_or_404(GET, 'person_id')
     number     = get_from_GET_or_404(GET, 'number')
 
-    context = {'type_id':         ACTIVITYTYPE_PHONECALL,
+    context = {'type_id':         act_constants.ACTIVITYTYPE_PHONECALL,
                'call_start':      call_start,
                'number':          number,
                'user_contact_id': user.linked_contact.id,
@@ -402,7 +401,7 @@ def phonecall_panel(request):
     pcall_id = GET.get('pcall_id')
     if pcall_id is not None:
         context['phone_call'] = pcall = get_object_or_404(Activity, id=pcall_id,
-                                                          type_id=ACTIVITYTYPE_PHONECALL,
+                                                          type_id=act_constants.ACTIVITYTYPE_PHONECALL,
                                                          )
         user.has_perm_to_view_or_die(pcall)
 
@@ -436,7 +435,7 @@ def _get_pcall(request):
     if pcall_id is None:
         return None
 
-    pcall = get_object_or_404(Activity, id=pcall_id, type_id=ACTIVITYTYPE_PHONECALL)
+    pcall = get_object_or_404(Activity, id=pcall_id, type_id=act_constants.ACTIVITYTYPE_PHONECALL)
 
     request.user.has_perm_to_change_or_die(pcall)
 
@@ -447,13 +446,13 @@ def _get_pcall(request):
 @POST_only
 def phonecall_workflow_done(request, pcall_id):
     pcall = get_object_or_404(Activity,
-                              type_id=ACTIVITYTYPE_PHONECALL,
+                              type_id=act_constants.ACTIVITYTYPE_PHONECALL,
                               id=pcall_id,
                              )
 
     request.user.has_perm_to_change_or_die(pcall)
 
-    pcall.status_id = STATUS_DONE
+    pcall.status_id = act_constants.STATUS_DONE
     pcall.save()
 
     return HttpResponseRedirect(_get_page_url(request))
@@ -494,13 +493,13 @@ def _add_participants(activity, persons):
     # TODO: when orga can participate
     for person in persons:
         if isinstance(person, Contact):
-            create_relation(object_entity=person, type_id=REL_OBJ_PART_2_ACTIVITY)
+            create_relation(object_entity=person, type_id=act_constants.REL_OBJ_PART_2_ACTIVITY)
 
             # TODO: we should move this in a signal in activities
             if person.is_user:
               activity.calendars.add(Calendar.get_user_default_calendar(person.is_user))
         else:
-            create_relation(object_entity=person, type_id=REL_OBJ_ACTIVITY_SUBJECT)
+            create_relation(object_entity=person, type_id=act_constants.REL_OBJ_ACTIVITY_SUBJECT)
 
 
 def _improve_minutes(pcall, minutes):
@@ -525,7 +524,7 @@ def _phonecall_workflow_set_end(request, end_function):
     pcall = _get_pcall(request)
 
     if pcall is not None:
-        pcall.status_id = STATUS_DONE
+        pcall.status_id = act_constants.STATUS_DONE
         pcall.start = start
         pcall.end = end
         _improve_minutes(pcall, minutes)
@@ -542,9 +541,9 @@ def _phonecall_workflow_set_end(request, end_function):
                                                   'status': _('Successful'),
                                                   'person': person,
                                               },
-                                          type_id=ACTIVITYTYPE_PHONECALL,
-                                          sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                                          status_id=STATUS_DONE,
+                                          type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+                                          sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                                          status_id=act_constants.STATUS_DONE,
                                           start=start,
                                           end=end,
                                           minutes=minutes,
@@ -579,9 +578,9 @@ def _create_failed_pcall(request):
                                                 'status': _('Failed'),
                                                 'person':  person,
                                             },
-                                        type_id=ACTIVITYTYPE_PHONECALL,
-                                        sub_type_id=ACTIVITYSUBTYPE_PHONECALL_FAILED,
-                                        status_id=STATUS_DONE,
+                                        type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+                                        sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
+                                        status_id=act_constants.STATUS_DONE,
                                         start=start,
                                         end=start,
                                         # minutes=POST.get('minutes'),
@@ -595,9 +594,9 @@ def _create_failed_pcall(request):
 def _set_pcall_as_failed(pcall, request):
     POST = request.POST
 
-    pcall.sub_type_id = ACTIVITYSUBTYPE_PHONECALL_FAILED
-    pcall.status_id = STATUS_DONE
-    pcall.floating_type = NARROW
+    pcall.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED
+    pcall.status_id = act_constants.STATUS_DONE
+    pcall.floating_type = act_constants.NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
     # _improve_minutes(pcall, POST.get('minutes'))
     _improve_minutes(pcall, POST.get('minutes', ''))
@@ -636,10 +635,10 @@ def phonecall_workflow_postponed(request):
 
         postponed = copy(pcall)  # NB: idem
         postponed.title = _('Call to %s from Creme Mobile') % person
-        postponed.sub_type_id = ACTIVITYSUBTYPE_PHONECALL_OUTGOING
+        postponed.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
         postponed.status = None
 
-    postponed.floating_type = FLOATING_TIME
+    postponed.floating_type = act_constants.FLOATING_TIME
 
     tomorrow = now() + timedelta(days=1)
     dt_combine = datetime.combine
