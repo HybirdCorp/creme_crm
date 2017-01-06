@@ -1316,16 +1316,23 @@ class DurationWidget(widgets.MultiWidget):
 
 class ChoiceOrCharWidget(widgets.MultiWidget):
     def __init__(self, attrs=None, choices=()):
-        self.select_widget = select = widgets.Select(choices=choices)
-        super(ChoiceOrCharWidget, self).__init__(widgets=(select, widgets.TextInput()), attrs=attrs)
+        # self.select_widget = select = widgets.Select(choices=choices)
+        # super(ChoiceOrCharWidget, self).__init__(widgets=(select, widgets.TextInput()), attrs=attrs)
+        super(ChoiceOrCharWidget, self).__init__(widgets=(widgets.Select(choices=choices),
+                                                          widgets.TextInput(),
+                                                         ),
+                                                 attrs=attrs,
+                                                )
 
     @property
     def choices(self):
-        return self.select_widget.choices
+        # return self.select_widget.choices
+        return self.widgets[0].choices
 
     @choices.setter
     def choices(self, choices):
-        self.select_widget.choices = choices
+        # self.select_widget.choices = choices
+        self.widgets[0].choices = choices
 
     def decompress(self, value):
         if value:
