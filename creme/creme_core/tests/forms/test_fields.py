@@ -11,6 +11,7 @@ try:
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.forms.fields import (DatePeriodField, DateRangeField,
         DurationField, ColorField, ChoiceOrCharField,
+        OptionalChoiceField,
         CTypeChoiceField, EntityCTypeChoiceField,
         MultiCTypeChoiceField, MultiEntityCTypeChoiceField)
     from creme.creme_core.models import RelationType, CremePropertyType, Currency
@@ -167,6 +168,47 @@ class DurationFieldTestCase(FieldTestCase):
         clean = DurationField().clean
         self.assertEqual('10:2:0', clean([u'10', u'2', u'0']))
         self.assertEqual('10:2:0', clean([10, 2, 0]))
+
+
+class OptionalChoiceFieldTestCase(FieldTestCase):
+    _team = ['Naruto', 'Sakura', 'Sasuke', 'Kakashi']
+
+    def test_ok_choice(self):
+        field = OptionalChoiceField(choices=enumerate(self._team, start=1))
+        self.assertEqual((True, '1'), field.clean([True, 1]))
+
+    def test_not_required(self):
+        field = OptionalChoiceField(choices=enumerate(self._team, start=1), required=False)
+        expected = (False, None)
+        self.assertEqual(expected, field.clean([False, '']))
+        self.assertEqual(expected, field.clean([False, 1]))
+        self.assertEqual(expected, field.clean([False, None]))
+        self.assertEqual(expected, field.clean([False]))
+        self.assertEqual(expected, field.clean([]))
+
+    def test_required(self):
+        clean = OptionalChoiceField(choices=enumerate(self._team, start=1), required=True).clean
+
+        expected = (False, None)
+        self.assertEqual(expected, clean([False, None]))
+        self.assertEqual(expected, clean([False]))
+        self.assertEqual(expected, clean([]))
+
+        self.assertFieldValidationError(OptionalChoiceField, 'subfield_required', clean, [True, None])
+        self.assertFieldValidationError(OptionalChoiceField, 'subfield_required', clean, [True])
+
+    def test_invalid(self):
+        field = OptionalChoiceField(choices=enumerate(self._team, start=1))
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean([False, 'invalid'])
+
+        self.assertEqual([_('Select a valid choice. %(value)s is not one of the available choices.') % {
+                                'value': 'invalid',
+                            },
+                         ],
+                         cm.exception.messages
+                        )
 
 
 class ChoiceOrCharFieldTestCase(FieldTestCase):

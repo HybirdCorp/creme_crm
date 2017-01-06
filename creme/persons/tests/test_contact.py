@@ -8,12 +8,13 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
     from django.core.urlresolvers import reverse
+    from django.forms.widgets import TextInput
     from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry
-    from creme.creme_core.forms.widgets import Label, TextInput
+    from creme.creme_core.forms.widgets import Label
     from creme.creme_core.gui.quick_forms import quickforms_registry
     from creme.creme_core.models import RelationType, Relation, SetCredentials, FieldsConfig
 

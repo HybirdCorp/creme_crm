@@ -201,8 +201,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'start_time':         '17:30:00',
                                           'end':                '2010-1-10',
                                           'end_time':           '18:45:00',
-                                          'my_participation':   True,
-                                          'my_calendar':        my_calendar.pk,
+                                          # 'my_participation':   True,
+                                          # 'my_calendar':        my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
                                           'other_participants': '[%d]' % genma.id,
                                           'subjects':           self._relation_field_value(ranma),
                                           'linked_entities':    self._relation_field_value(dojo),
@@ -261,8 +263,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                              constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                                                                                             ),
                                             'start':               '2011-2-22',
-                                            'my_participation':    True,
-                                            'my_calendar':         my_calendar.pk,
+                                            # 'my_participation':    True,
+                                            # 'my_calendar':         my_calendar.pk,
+                                            'my_participation_0':  True,
+                                            'my_participation_1':  my_calendar.pk,
                                             'participating_users': [other_user.pk],
                                             'other_participants':  '[%d]' % genma.id,
                                             'subjects':            self._relation_field_value(akane),
@@ -321,8 +325,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'status':             status.pk,
                                           'start':              '2013-3-26',
                                           'start_time':         '12:10:00',
-                                          'my_participation':   True,
-                                          'my_calendar':        my_calendar.pk,
+                                          # 'my_participation':   True,
+                                          # 'my_calendar':        my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
                                           'other_participants': '[%d, %s]' % (genma.id, akane.id),
                                           'subjects':           self._relation_field_value(ranma, rest),
                                           'linked_entities':    self._relation_field_value(dojo_s),
@@ -360,8 +366,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         data = {'user':             user.pk,
                 'title':            title,
                 'type_selector':    self._acttype_field_value(atype_id, subtype_id),
-                'my_participation': True,
-                'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                # 'my_participation': True,
+                # 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                'my_participation_0': True,
+                'my_participation_1': Calendar.get_user_default_calendar(user).pk,
                }
         data.update(kwargs)
 
@@ -467,8 +475,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                     data={'user':             user.pk,
                                           'title':            title,
                                           'status':           Status.objects.all()[0].pk,
-                                          'my_participation': True,
-                                          'my_calendar':      my_calendar.pk,
+                                          # 'my_participation': True,
+                                          # 'my_calendar':      my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
                                           'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                          }
                                    )
@@ -502,8 +512,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                     data={'user':  user.pk,
                                           'title': title,
                                           'start': '2015-03-10',
-                                          'my_participation':    True,
-                                          'my_calendar':         Calendar.get_user_default_calendar(user).pk,
+                                          # 'my_participation':    True,
+                                          # 'my_calendar':         Calendar.get_user_default_calendar(user).pk,
+                                          'my_participation_0':  True,
+                                          'my_participation_1':  Calendar.get_user_default_calendar(user).pk,
                                           'participating_users': [team.id],
                                           'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
                                                                                      constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
@@ -526,8 +538,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title':            'My task',
                 'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 'end':              '2013-3-29',
-                'my_participation': True,
-                'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                # 'my_participation': True,
+                # 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                'my_participation_0': True,
+                'my_participation_1': Calendar.get_user_default_calendar(user).pk,
                }
         url = self.ADD_URL
 
@@ -553,8 +567,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       data={'user':             user.pk,
                                             'title':            'My task',
                                             'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                                            'my_participation': True,
-                                            'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                                            # 'my_participation': True,
+                                            # 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                                            'my_participation_0': True,
+                                            'my_participation_1': Calendar.get_user_default_calendar(user).pk,
                                             'subjects':         self._relation_field_value(bad_subject),
                                         }
                                      )
@@ -573,8 +589,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       data={'user':             user.pk,
                                             'title':            'My task',
                                             'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                                            'my_participation': True,
-                                            'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                                            # 'my_participation': True,
+                                            # 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                                            'my_participation_0': True,
+                                            'my_participation_1': Calendar.get_user_default_calendar(user).pk,
                                             'subjects':         self._relation_field_value(ranma),
                                             'other_participants': '[%d]' % self.other_user.linked_contact.id,
                                         }
@@ -596,8 +614,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                         constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                                                                                        ),
                                           'start':            '2010-1-10',
-                                          'my_participation': True,
-                                          'my_calendar':      my_calendar.pk,
+                                          # 'my_participation': True,
+                                          # 'my_calendar':      my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
 
                                           'alert_day':        '2010-2-10',
                                           'alert_start_time': '10:05',
@@ -639,8 +659,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                        ),
                                           'start':            '2013-3-28',
                                           'start_time':       '17:30:00',
-                                          'my_participation': True,
-                                          'my_calendar':      my_calendar.pk,
+
+                                          # 'my_participation': True,
+                                          # 'my_calendar':      my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
 
                                           'alert_trigger_number': 2,
                                          }
@@ -688,8 +711,12 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                           constants.ACTIVITYSUBTYPE_MEETING_NETWORK
                                                                                          ),
                                           'start':               '2010-1-10',
-                                          'my_participation':    True,
-                                          'my_calendar':         my_calendar.pk,
+
+                                          # 'my_participation':    True,
+                                          # 'my_calendar':         my_calendar.pk,
+                                          'my_participation_0':  True,
+                                          'my_participation_1':  my_calendar.pk,
+
                                           'participating_users': other_user.pk,
                                           'informed_users':      [user.id, other_user.id],
                                           'other_participants':  '[%d]' % genma.id,
@@ -775,8 +802,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'status':             status.pk,
                                           'start':              '2013-4-12',
                                           'start_time':         '10:00:00',
-                                          'my_participation':   True,
-                                          'my_calendar':        my_calendar.pk,
+                                          # 'my_participation':   True,
+                                          # 'my_calendar':        my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
                                           'other_participants': '[%d]' % genma.id,
                                           'subjects':           self._relation_field_value(ranma),
                                           'linked_entities':    self._relation_field_value(dojo),
@@ -817,8 +846,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'type_selector':    self._acttype_field_value(type_id, subtype.id),
                                           'start':            '2013-4-12',
                                           'start_time':       '10:00:00',
-                                          'my_participation': True,
-                                          'my_calendar':      my_calendar.pk,
+                                          # 'my_participation': True,
+                                          # 'my_calendar':      my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -861,8 +892,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'type_selector':    self._acttype_field_value(type_id),
                                           'start':            '2013-4-12',
                                           'start_time':       '10:00:00',
-                                          'my_participation': True,
-                                          'my_calendar':      my_calendar.pk,
+                                          # 'my_participation': True,
+                                          # 'my_calendar':      my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -971,8 +1004,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                        ),
                                           'start':            '2013-5-21',
                                           'start_time':       '9:30:00',
-                                          'my_participation': True,
-                                          'my_calendar':      my_calendar.pk,
+                                          # 'my_participation': True,
+                                          # 'my_calendar':      my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1826,9 +1861,10 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_participants04(self):
         "Remove participants (relationships deleted)"
         user = self.login()
-        logged   = user.linked_contact
-        other    = self.other_user.linked_contact
+        logged = user.linked_contact
+        other = self.other_user.linked_contact
         contact3 = Contact.objects.create(user=user, first_name='Roy', last_name='Mustang')
+
         dt_now = now()
         phone_call = Activity.objects.create(title='a random activity',
                                              start=dt_now, end=dt_now,
@@ -1836,8 +1872,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             )
 
         self.assertPOST200(self._buid_add_participants_url(phone_call), follow=True,
-                           data={'my_participation':    True,
-                                 'my_calendar':         Calendar.get_user_default_calendar(logged.is_user).pk,
+                           data={#'my_participation':    True,
+                                 # 'my_calendar':         Calendar.get_user_default_calendar(logged.is_user).pk,
+                                 'my_participation_0':  True,
+                                 'my_participation_1':  Calendar.get_user_default_calendar(logged.is_user).pk,
                                  'participating_users': [other.is_user_id],
                                  'participants':        '[%d]' % contact3.pk,
                                 }
@@ -1932,8 +1970,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         team.teammates = [musashi, kojiro, user]
 
         response = self.client.post(self._buid_add_participants_url(activity),
-                                    data={'my_participation':    True,
-                                          'my_calendar':         Calendar.get_user_default_calendar(user).pk,
+                                    data={#'my_participation':    True,
+                                          #'my_calendar':         Calendar.get_user_default_calendar(user).pk,
+                                          'my_participation_0':  True,
+                                          'my_participation_1':  Calendar.get_user_default_calendar(user).pk,
                                           'participating_users': [team.id, kojiro.id],
                                          },
                                    )
@@ -2047,8 +2087,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'end':                '2010-3-27',
                                             'start_time':         '09:00:00',
                                             'end_time':           '11:00:00',
-                                            'my_participation':   True,
-                                            'my_calendar':        my_calendar.pk,
+                                            # 'my_participation':   True,
+                                            # 'my_calendar':        my_calendar.pk,
+                                            'my_participation_0': True,
+                                            'my_participation_1': my_calendar.pk,
                                            }
                                     )
         self.assertFormError(response, 'form', 'type_selector',
@@ -2198,14 +2240,20 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.client.post(url, data=data)
         self.assertFormError(response, 'form', None, _(u'No participant'))
 
-        response = self.client.post(url, data=dict(data, my_participation=True))
-        self.assertFormError(response, 'form', 'my_calendar',
-                               _(u'If you participate, you have to choose one of your calendars.')
-                              )
+        # response = self.client.post(url, data=dict(data, my_participation=True))
+        # self.assertFormError(response, 'form', 'my_calendar',
+        #                        _(u'If you participate, you have to choose one of your calendars.')
+        #                       )
+        response = self.client.post(url, data=dict(data, my_participation_0=True))
+        self.assertFormError(response, 'form', 'my_participation',
+                             _(u'Enter a value if you check the box.')
+                            )
 
         response = self.client.post(url, data=dict(data,
-                                                   my_participation=True,
-                                                   my_calendar=my_calendar.pk,
+                                                   # my_participation=True,
+                                                   # my_calendar=my_calendar.pk,
+                                                   my_participation_0=True,
+                                                   my_participation_1=my_calendar.pk,
                                                   )
                                    )
         self.assertNoFormError(response)
@@ -2229,8 +2277,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'type_selector':  self._acttype_field_value(constants.ACTIVITYTYPE_PHONECALL, 
                                                                                       constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
                                                                                      ),
-                                          'my_participation': True,
-                                          'my_calendar': my_calendar.pk,
+                                          # 'my_participation': True,
+                                          # 'my_calendar': my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
+
                                           'start':          '2010-3-15',
                                           'end':            '2010-3-15',
                                           'start_time':     '19:30:00',
@@ -2270,8 +2321,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                               'title':            title,
                                               'type_selector':    self._acttype_field_value(ACTIVITYTYPE_ACTIVITY),
                                               'start':            date_format(today),
-                                              'my_participation': True,
-                                              'my_calendar':      my_calendar.pk,
+                                              # 'my_participation': True,
+                                              # 'my_calendar':      my_calendar.pk,
+                                              'my_participation_0': True,
+                                              'my_participation_1': my_calendar.pk,
                                              }
                                     )
 

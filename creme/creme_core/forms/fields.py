@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,10 +32,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
-from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField,
-        DateField, TimeField, DateTimeField, IntegerField, ValidationError)
-from django.forms.fields import EMPTY_VALUES, MultiValueField, CallableChoiceIterator  # RegexField
-from django.forms import widgets
+from django.forms import fields, widgets, ValidationError, ModelChoiceField
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
@@ -57,6 +54,7 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'RelationEntityField', 'MultiRelationEntityField',
            'CreatorEntityField', 'MultiCreatorEntityField',
            'FilteredEntityTypeField',
+           'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
@@ -66,7 +64,7 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
           )
 
 
-class JSONField(CharField):
+class JSONField(fields.CharField):
     default_error_messages = {
         'invalidformat':    _(u'Invalid format'),
         'invalidtype':      _(u'Invalid type'),
@@ -372,7 +370,7 @@ class GenericEntityField(EntityCredsJSONField):
         return {'reset': False}
 
     def _update_wigets_choices(self):
-        self.widget.content_types = CallableChoiceIterator(self._get_ctypes_options)
+        self.widget.content_types = fields.CallableChoiceIterator(self._get_ctypes_options)
 
     def _has_quickform(self, model):
         from creme.creme_core.gui import quickforms_registry
@@ -1041,7 +1039,7 @@ class FilteredEntityTypeField(JSONField):
             ctypes = lambda: ctypes_list
 
         self._ctypes = ctypes
-        self.widget.content_types = CallableChoiceIterator(self._get_choices)
+        self.widget.content_types = fields.CallableChoiceIterator(self._get_choices)
 
     def _get_choices(self):
         choices = []
@@ -1098,7 +1096,66 @@ class FilteredEntityTypeField(JSONField):
         return {'ctype': value[0], 'efilter': value[1]}
 
 
-class ListEditionField(Field):
+class OptionalField(fields.MultiValueField):
+    sub_field = fields.Field
+    widget = core_widgets.OptionalWidget
+
+    default_error_messages = {
+        'subfield_required': _(u'Enter a value if you check the box.'),
+    }
+
+    def __init__(self, widget=None, label=None, initial=None, help_text='', sub_label='', *args, **kwargs):
+        super(OptionalField, self).__init__(fields=(fields.BooleanField(required=False),
+                                                    self._build_subfield(*args, **kwargs),
+                                                   ),
+                                            required=False,
+                                            require_all_fields=False,
+                                            widget=widget, label=label, initial=initial, help_text=help_text,
+                                           )
+        self.widget.sub_label = sub_label
+
+    def _build_subfield(self, *args, **kwargs):
+        return self.sub_field(*args, **kwargs)
+
+    def compress(self, data_list):
+        return (data_list[0], data_list[1]) if data_list else (False, None)
+
+    def clean(self, value):
+        sub_field = self.fields[1]
+        sub_required = sub_field.required
+        if sub_required:
+            sub_field.required = False
+
+        use_value, sub_value = super(OptionalField, self).clean(value)
+
+        if sub_required:
+            sub_field.required = True
+
+            if use_value:
+                try:
+                    sub_field_value = value[1]
+                except IndexError:
+                    sub_field_value = None
+
+                if sub_field_value in self.empty_values:
+                    raise ValidationError(self.error_messages['subfield_required'], code='subfield_required')
+
+        if not use_value:
+            sub_value = None
+
+        return use_value, sub_value
+
+
+class OptionalChoiceField(OptionalField):
+    sub_field = fields.ChoiceField
+    widget = core_widgets.OptionalSelect
+
+
+class OptionalModelChoiceField(OptionalChoiceField):
+    sub_field = ModelChoiceField
+
+
+class ListEditionField(fields.Field):
     """A field to allow the user to edit/delete a list of strings.
     It returns a list with the same order:
     * deleted elements are replaced by None.
@@ -1135,7 +1192,7 @@ class ListEditionField(Field):
         self.widget.only_delete = only_delete
 
 
-class AjaxChoiceField(ChoiceField):
+class AjaxChoiceField(fields.ChoiceField):
     """
         Same as ChoiceField but bypass the choices validation due to the ajax filling
     """
@@ -1144,19 +1201,16 @@ class AjaxChoiceField(ChoiceField):
         Validates that the input is in self.choices.
         """
 #        value = super(ChoiceField, self).clean(value)
+        if value in self.empty_values:
+            if self.required:
+                raise ValidationError(self.error_messages['required'], code='required')
 
-        is_value_empty = value in EMPTY_VALUES
-
-        if self.required and is_value_empty:
-            raise ValidationError(self.error_messages['required'], code='required')
-
-        if is_value_empty:
             value = u''
 
         return smart_unicode(value)
 
 
-class AjaxMultipleChoiceField(MultipleChoiceField):
+class AjaxMultipleChoiceField(fields.MultipleChoiceField):
     """
         Same as MultipleChoiceField but bypass the choices validation due to the ajax filling
     """
@@ -1185,7 +1239,8 @@ class AjaxModelChoiceField(ModelChoiceField):
     def clean(self, value):
 #        Field.clean(self, value)
 
-        if value in EMPTY_VALUES:
+        # if value in fields.EMPTY_VALUES:
+        if value in self.empty_values:
             return None
 
         try:
@@ -1199,7 +1254,7 @@ class AjaxModelChoiceField(ModelChoiceField):
         return value
 
 
-class CremeTimeField(TimeField):
+class CremeTimeField(fields.TimeField):
     widget = core_widgets.TimeWidget
 
     def __init__(self, *args, **kwargs):
@@ -1209,7 +1264,7 @@ class CremeTimeField(TimeField):
                      )
 
 
-class CremeDateField(DateField):
+class CremeDateField(fields.DateField):
     widget = core_widgets.CalendarWidget
 
     def __init__(self, *args, **kwargs):
@@ -1219,7 +1274,7 @@ class CremeDateField(DateField):
                      )
 
 
-class CremeDateTimeField(DateTimeField):
+class CremeDateTimeField(fields.DateTimeField):
     widget = core_widgets.CalendarWidget
 
     def __init__(self, *args, **kwargs):
@@ -1229,7 +1284,7 @@ class CremeDateTimeField(DateTimeField):
                      )
 
 
-class MultiEmailField(Field):
+class MultiEmailField(fields.Field):
     # Original code at http://docs.djangoproject.com/en/1.3/ref/forms/validation/#form-field-default-cleaning
     widget = widgets.Textarea
 
@@ -1255,22 +1310,19 @@ class MultiEmailField(Field):
             validate_email(email)
 
 
-class DatePeriodField(MultiValueField):
+class DatePeriodField(fields.MultiValueField):
     widget = core_widgets.DatePeriodWidget
 
     def __init__(self, *args, **kwargs):
-        choices = kwargs.pop("choices", None)
-        super(DatePeriodField, self).__init__((ChoiceField(), IntegerField(min_value=1)),
+        choices = kwargs.pop('choices', None)
+        super(DatePeriodField, self).__init__((fields.ChoiceField(), fields.IntegerField(min_value=1)),
                                               *args, **kwargs
                                              )
         # TODO: 'choices' property
         self.fields[0].choices = self.widget.choices = list(date_period_registry.choices(choices=choices))
 
     def compress(self, data_list):
-        if data_list:
-            return data_list[0], data_list[1]
-
-        return u'', u''
+        return (data_list[0], data_list[1]) if data_list else (u'', u'')
 
     def clean(self, value):
         period_name, period_value = super(DatePeriodField, self).clean(value)
@@ -1278,7 +1330,7 @@ class DatePeriodField(MultiValueField):
         return date_period_registry.get_period(period_name, period_value)
 
 
-class DateRangeField(MultiValueField):
+class DateRangeField(fields.MultiValueField):
     """A field which returns a creme_core.utils.DateRange.
     Commonly used with a DateRangeWidget.
     eg:
@@ -1299,14 +1351,14 @@ class DateRangeField(MultiValueField):
 
     def __init__(self, render_as="table", *args, **kwargs):
         # TODO: are these attributes useful ??
-        self.ranges = ranges = ChoiceField(
+        self.ranges = ranges = fields.ChoiceField(
                 required=False,
                 choices=lambda: chain([(u'', pgettext_lazy('creme_core-date_range', u'Customized'))],
                                       date_range_registry.choices(),
                                      )
             )
-        self.start_date = DateField(required=False)
-        self.end_date   = DateField(required=False)
+        self.start_date = fields.DateField(required=False)
+        self.end_date   = fields.DateField(required=False)
         self.render_as  = render_as
 
         super(DateRangeField, self).__init__(fields=(ranges,
@@ -1319,9 +1371,7 @@ class DateRangeField(MultiValueField):
         self.widget.choices = ranges.widget.choices  # Get the CallableChoiceIterator
 
     def compress(self, data_list):
-        if data_list:
-            return data_list[0], data_list[1], data_list[2]
-        return u'', u'', u''
+        return (data_list[0], data_list[1], data_list[2]) if data_list else (u'', u'', u'')
 
     def clean(self, value):
         range_name, start, end = super(DateRangeField, self).clean(value)
@@ -1344,7 +1394,7 @@ class DateRangeField(MultiValueField):
 
 
 # class ColorField(RegexField):
-class ColorField(CharField):
+class ColorField(fields.CharField):
     """A Field which handles HTML colors (e.g: #F2FAB3) without '#' """
     # regex  = compile_re(r'^([0-9a-fA-F]){6}$')
     default_validators = [validators.validate_color]
@@ -1361,7 +1411,7 @@ class ColorField(CharField):
         return super(ColorField, self).clean(value).upper()
 
 
-class DurationField(MultiValueField):
+class DurationField(fields.MultiValueField):
     widget = core_widgets.DurationWidget
     default_error_messages = {
         'invalid': _(u'Enter a whole number.'),
@@ -1369,25 +1419,22 @@ class DurationField(MultiValueField):
     }
 
     def __init__(self, *args, **kwargs):
+        IntegerField = fields.IntegerField
         self.hours   = IntegerField(min_value=0)
         self.minutes = IntegerField(min_value=0)
         self.seconds = IntegerField(min_value=0)
 
-        fields = self.hours, self.minutes, self.seconds
-
-        super(DurationField, self).__init__(fields=fields, *args, **kwargs)
+        super(DurationField, self).__init__(fields=(self.hours, self.minutes, self.seconds), *args, **kwargs)
 
     def compress(self, data_list):
-        if data_list:
-            return data_list[0], data_list[1], data_list[2]
-        return u'', u'', u''
+        return (data_list[0], data_list[1], data_list[2]) if data_list else (u'', u'', u'')
 
     def clean(self, value):
         hours, minutes, seconds = super(DurationField, self).clean(value)
         return ':'.join([str(hours or 0), str(minutes or 0), str(seconds or 0)])
 
 
-class ChoiceOrCharField(MultiValueField):
+class ChoiceOrCharField(fields.MultiValueField):
     widget = core_widgets.ChoiceOrCharWidget
 
     default_error_messages = {
@@ -1398,8 +1445,8 @@ class ChoiceOrCharField(MultiValueField):
         """@param choices Sequence of tuples (id, value).
                           BEWARE: id should not be a null value (like '', 0, etc..).
         """
-        self.choice_field = choice_field = ChoiceField()
-        super(ChoiceOrCharField, self).__init__(fields=(choice_field, CharField(required=False)),
+        self.choice_field = choice_field = fields.ChoiceField()
+        super(ChoiceOrCharField, self).__init__(fields=(choice_field, fields.CharField(required=False)),
                                                 require_all_fields=False,
                                                 *args, **kwargs
                                                )
@@ -1442,7 +1489,7 @@ class ChoiceOrCharField(MultiValueField):
         return value
 
 
-class CTypeChoiceField(Field):
+class CTypeChoiceField(fields.Field):
     "A ChoiceField whose choices are a ContentType instances."
     widget = widgets.Select
     default_error_messages = {
@@ -1479,7 +1526,7 @@ class CTypeChoiceField(Field):
             ctypes = lambda: ctypes_list
 
         self._ctypes = ctypes
-        self.widget.choices = CallableChoiceIterator(
+        self.widget.choices = fields.CallableChoiceIterator(
                 lambda: self._build_empty_choice(self._build_ctype_choices(self.ctypes))
             )
 
@@ -1493,7 +1540,8 @@ class CTypeChoiceField(Field):
         return build_ct_choices(ctypes)
 
     def to_python(self, value):
-        if value in EMPTY_VALUES:
+        # if value in fields.EMPTY_VALUES:
+        if value in self.empty_values:
             return None
 
         try:
@@ -1537,7 +1585,8 @@ class MultiCTypeChoiceField(CTypeChoiceField):
     def to_python(self, value):
         ctypes = []
 
-        if value not in EMPTY_VALUES:
+        # if value not in fields.EMPTY_VALUES:
+        if value not in self.empty_values:
             to_python = super(MultiCTypeChoiceField, self).to_python
             ctypes.extend(to_python(ct_id) for ct_id in value)
 

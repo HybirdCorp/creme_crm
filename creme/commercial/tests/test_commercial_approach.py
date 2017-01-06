@@ -149,8 +149,10 @@ class CommercialApproachTestCase(CremeTestCase):
                                                                 ),
                                           'status':           Status.objects.all()[0].pk,
                                           'start':            '2011-5-18',
-                                          'my_participation': True,
-                                          'my_calendar':      my_calendar.pk,
+                                          # 'my_participation': True,
+                                          # 'my_calendar':      my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
 
                                           'is_comapp': True,
                                          }
@@ -184,8 +186,10 @@ class CommercialApproachTestCase(CremeTestCase):
                                           'description':      description,
                                           'status':           Status.objects.all()[0].pk,
                                           'start':            '2011-5-18',
-                                          'my_participation': True,
-                                          'my_calendar':      my_calendar.pk,
+                                          # 'my_participation': True,
+                                          # 'my_calendar':      my_calendar.pk,
+                                          'my_participation_0': True,
+                                          'my_participation_1': my_calendar.pk,
 
                                           'other_participants': '[%d]' % genma.id,
                                           'subjects':           self._build_entity_field(ranma),
