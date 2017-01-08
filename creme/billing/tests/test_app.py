@@ -7,7 +7,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import (RelationType, CremeProperty, Vat,
+    from creme.creme_core.models import (RelationType, CremePropertyType, CremeProperty, Vat,
             SettingValue, BlockDetailviewLocation)
 
     from creme.persons.tests.base import skipIfCustomOrganisation
@@ -158,7 +158,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_merge_algoconfig03(self):
-        "Two managed with algo config, but not managed"
+        "Two organisations with algo config, but not managed (anymore)"
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -186,7 +186,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_merge_algoconfig04(self):
-        """Two managed with algo config, but only the second is managed
+        """Two organisations with algo config, but only the second is still managed
             => we delete the config of the first one.
         """
         user = self.login()
@@ -194,6 +194,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='NERV'); self._set_managed(orga1)
         orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+
+        # Only the "Is managed by Creme" property should be used.
+        ptype = CremePropertyType.create('billing-test_merge_algoconfig04', "I'm annoying")
+        CremeProperty.objects.create(type=ptype, creme_entity=orga1)
 
         self._remove_managed_prop(orga1)
 

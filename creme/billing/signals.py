@@ -72,7 +72,9 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
 
     def get_orga_2_clean():
         managed_ids = set(CremeProperty.objects
-                                       .filter(creme_entity__in=(sender.id, other_entity.id))
+                                       .filter(type_id=PROP_IS_MANAGED_BY_CREME,
+                                               creme_entity__in=(sender.id, other_entity.id),
+                                              )
                                        .values_list('creme_entity', flat=True)
                          )
 
