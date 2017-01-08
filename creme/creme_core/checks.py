@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.apps import apps
 from django.conf import settings
 from django.core.checks import register, Error, Warning, Tags as CoreTags
-from django.db.utils import OperationalError
+from django.db.utils import DatabaseError
 
 from .models import CremeEntity
 
@@ -64,8 +64,8 @@ def check_uninstalled_apps(**kwargs):
                               .order_by('app_label')
                               .distinct()
                               .values_list('app_label', flat=True)
-                        )
-    except OperationalError:
+                         )
+    except DatabaseError:
         pass
     else:
         for app_label in app_labels:
