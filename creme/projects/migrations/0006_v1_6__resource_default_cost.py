@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='resource',
             name='hourly_cost',
-            field=models.PositiveIntegerField(default=0, verbose_name='Hourly cost (in \u20ac)'),
+            field=models.PositiveIntegerField(default=0, verbose_name='Hourly cost'),
             preserve_default=True,
         ),
         migrations.AlterField(

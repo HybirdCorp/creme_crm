@@ -18,12 +18,12 @@ class TaskStatusDesc(object):
 
 
 TASK_STATUS = {
-                NOT_STARTED_PK: TaskStatusDesc(_(u'Not started'), _(u"The task as not started yet")),
-                IN_PROGRESS_PK: TaskStatusDesc(_(u'In progress'), _(u"The task is in progress")),
-                CANCELED_PK:    TaskStatusDesc(_(u'Canceled'),    _(u"The task has been canceled")),
-                RESTARTED_PK:   TaskStatusDesc(_(u'Restarted'),   _(u"The task has been restarted")),
-                COMPLETED_PK:   TaskStatusDesc(_(u"Completed"),   _(u"The task is finished")),
-              }
+    NOT_STARTED_PK: TaskStatusDesc(_(u'Not started'), _(u'The task as not started yet')),
+    IN_PROGRESS_PK: TaskStatusDesc(_(u'In progress'), _(u'The task is in progress')),
+    CANCELED_PK:    TaskStatusDesc(_(u'Canceled'),    _(u'The task has been canceled')),
+    RESTARTED_PK:   TaskStatusDesc(_(u'Restarted'),   _(u'The task has been restarted')),
+    COMPLETED_PK:   TaskStatusDesc(_(u'Completed'),   _(u'The task is finished')),
+}
 
 REL_SUB_PROJECT_MANAGER = 'projects-subject_project_manager'
 REL_OBJ_PROJECT_MANAGER = 'projects-object_project_manager'

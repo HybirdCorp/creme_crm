@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,35 +25,35 @@ from django.shortcuts import redirect
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
+from creme.creme_core.views import generic
 
 from .. import get_project_model
 from ..constants import DEFAULT_HFILTER_PROJECT
-from ..forms.project import ProjectCreateForm, ProjectEditForm
+from ..forms import project as project_forms
 from ..models import ProjectStatus
 
 
 Project = get_project_model()
 
 
-def abstract_add_project(request, form=ProjectCreateForm,
+def abstract_add_project(request, form=project_forms.ProjectCreateForm,
                          # submit_label=_('Save the project'),
                          submit_label=Project.save_label,
                         ):
-    return add_entity(request, form,
-                      extra_initial={'status': ProjectStatus.objects.first()},
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_initial={'status': ProjectStatus.objects.first()},
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
-def abstract_edit_project(request, project_id, form=ProjectEditForm):
-    return edit_entity(request, project_id, Project, form)
+def abstract_edit_project(request, project_id, form=project_forms.ProjectEditForm):
+    return generic.edit_entity(request, project_id, Project, form)
 
 
 def abstract_view_project(request, project_id,
                           template='projects/view_project.html',
                          ):
-    return view_entity(request, project_id, Project, template=template)
+    return generic.view_entity(request, project_id, Project, template=template)
 
 
 @login_required
@@ -71,7 +71,7 @@ def edit(request, project_id):
 @login_required
 @permission_required('projects')
 def listview(request):
-    return list_view(request, Project, hf_pk=DEFAULT_HFILTER_PROJECT)
+    return generic.list_view(request, Project, hf_pk=DEFAULT_HFILTER_PROJECT)
 
 
 @login_required
