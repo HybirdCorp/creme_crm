@@ -417,7 +417,7 @@ class ChainedInput(widgets.TextInput):
         if attrs.pop('reset', True):
             output.append(u'<li>'
                               u'<img class="reset" src="%(url)s" alt="%(title)s" title="%(title)s" />'
-                          u'</li>' % {'url':   media_url('images/delete_22.png'),
+                          u'</li>' % {'url':   media_url('images/delete_22_button.png'),
                                       'title': _(u'Reset'),
                                      }
                          )
@@ -483,7 +483,6 @@ class SelectorList(widgets.TextInput):
                 u'</li>' % context)
 
     def render(self, name, value, attrs=None):
-        # TODO : wait for django 1.2 and new widget api to remove this hack
         value = self.from_python(value) if self.from_python is not None else value
         attrs = self.build_attrs(attrs, name=name, type='hidden')
         clonelast = 'cloneLast' if attrs.pop('clonelast', True) else ''
@@ -493,10 +492,11 @@ class SelectorList(widgets.TextInput):
                                         add=_(u'Add'),
                                         clonelast=clonelast,
                                         disabled=disabled,
-                                        selector=self.selector.render('', '', {'auto': False,'reset': False}))
+                                        selector=self.selector.render('', '', {'auto': False, 'reset': False}),
+                                       )
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
-        context['img_url'] = media_url('images/add_16.png')
+        # context['img_url'] = media_url('images/add_16.png')
         context['actions'] = self._render_actions()
 
         return mark_safe('<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s %(disabled)s>'

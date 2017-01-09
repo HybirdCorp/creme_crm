@@ -62,7 +62,7 @@
                             {{forloop.counter}}
                             <br /><br />
                             <a onclick="creme.billing.markDelete('{{form.prefix}}', '{{ct_id}}', '{{form.instance.id}}');">
-                                <img src="{% creme_media_url 'images/delete_16.png' %}" border="0" title="{% trans "flag for delete" %}" alt="{% trans "flag for delete" %}">
+                                <img src="{% creme_media_url 'images/delete_16_button.png' %}" border="0" title="{% trans "flag for delete" %}" alt="{% trans "flag for delete" %}">
                             </a>
                             <br /><br />
                             <a onclick="creme.billing.restoreInitialValues({{form.instance.id}}, '{{form.prefix}}', '{{ct_id}}');">
@@ -97,7 +97,7 @@
 
                                 <th class="block_header_line_light linetable-header" align="center" width="2%" id="line_content_{{ct_id}}_{{form.prefix}}">
                                     <a onclick="creme.billing.hideEmptyForm('{{ct_id}}', '{{formset.prefix}}', {{item_count}});">
-                                        <img src="{% creme_media_url 'images/delete_16.png' %}" border="0" alt="{% trans "flag for delete" %}">
+                                        <img src="{% creme_media_url 'images/delete_16_button.png' %}" border="0" alt="{% trans "flag for delete" %}">
                                     </a>
                                 </th>
 

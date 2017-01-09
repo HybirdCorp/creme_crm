@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,10 +23,10 @@ import logging
 import warnings
 
 from django.db.models import ForeignKey, Q
+from django.forms.utils import flatatt
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms.utils import flatatt
 
 from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from .base import CremeAbstractEntity, _SEARCH_FIELD_MAX_LENGTH
@@ -272,7 +272,7 @@ class CremeEntity(CremeAbstractEntity):
         if delete_url:
             actions.append(EntityAction(delete_url, ugettext('Delete'),
                                         user.has_perm_to_delete(self),
-                                        icon='images/delete_16.png',
+                                        icon='images/delete_16_button.png',
                                         attrs={'class': 'confirm post ajax lv_reload'},
                                        )
                           )

@@ -22,7 +22,7 @@
         {% endif %}
         {% if can_delete %}
             <a onclick="creme.lv_widget.deleteEntityFilter($(this).parents('form:first'), '{{efilter_id}}');">
-                {% trans "Delete custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
+                {% trans "Delete custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/delete_22_button.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
             </a>
         {% endif %}
     {% endif %}

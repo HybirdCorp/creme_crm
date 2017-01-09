@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,7 +53,7 @@ USER_HISTORY_TYPE_VERBOSE = dict(USER_HISTORY_TYPE)
 USER_HISTORY_TYPE_IMG = {
     CREATE: "images/add_22.png",
     UPDATE: "images/edit_22_button.png",
-    DELETE: "images/delete_22.png",
+    DELETE: "images/delete_22_button.png",
 }
 
 USER_HISTORY_WHERE = (
