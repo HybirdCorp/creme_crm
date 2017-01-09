@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,9 +26,9 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.views import generic
 
-from ..forms.market_segment import MarketSegmentForm, SegmentReplacementForm
+from ..forms import market_segment as segment_forms
 from ..models import MarketSegment
 
 
@@ -38,17 +38,18 @@ logger = logging.getLogger(__name__)
 @login_required
 @permission_required('commercial')
 def add(request):
-    return add_model_with_popup(request, MarketSegmentForm,
-                                title=_(u'New market segment'),
-                                submit_label=_('Save the market segment'),
-                               )
+    return generic.add_model_with_popup(request, segment_forms.MarketSegmentForm,
+                                        title=_(u'New market segment'),
+                                        submit_label=_('Save the market segment'),
+                                       )
+
 
 @login_required
 @permission_required('commercial')
 def edit(request, segment_id):
-    return edit_model_with_popup(request, {'id': segment_id}, MarketSegment,
-                                 MarketSegmentForm,
-                                )
+    return generic.edit_model_with_popup(request, {'id': segment_id}, MarketSegment,
+                                         segment_forms.MarketSegmentForm,
+                                        )
 
 
 @login_required
@@ -69,11 +70,11 @@ def delete(request, segment_id):
         raise ConflictError(u"You can't delete this specific segment.")
 
     try:
-        return add_model_with_popup(request, SegmentReplacementForm,
-                                    _(u'Delete and replace «%s»') % segment,
-                                    initial={'segment_to_delete': segment},
-                                    submit_label=_('Replace'),
-                                   )
+        return generic.add_model_with_popup(request, segment_forms.SegmentReplacementForm,
+                                            _(u'Delete and replace «%s»') % segment,
+                                            initial={'segment_to_delete': segment},
+                                            submit_label=_('Replace'),
+                                           )
     except Exception:
         logger.exception('Error in MarketSegment deletion view')
         return HttpResponse(_(u"You can't delete this segment."), status=400)
