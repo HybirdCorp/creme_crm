@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,47 +19,49 @@
 ################################################################################
 
 from django.db.models.query_utils import Q
-# from django.utils.translation import ugettext_lazy as _, ugettext
-from django.utils.translation import ugettext as _
+from django.db.transaction import atomic
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views import generic, decorators
 
-from .. import get_organisation_model
-from ..constants import (REL_SUB_SUSPECT, REL_SUB_PROSPECT,
-        REL_SUB_CUSTOMER_SUPPLIER, DEFAULT_HFILTER_ORGA)
-from ..forms.organisation import OrganisationForm
+from .. import get_organisation_model, constants
+from ..forms import organisation as orga_forms
 
 
 Organisation = get_organisation_model()
 
 
-def abstract_add_organisation(request, form=OrganisationForm,
+def abstract_add_organisation(request, form=orga_forms.OrganisationForm,
                               template='persons/add_organisation_form.html',
                               # submit_label=_('Save the organisation'),
                               submit_label=Organisation.save_label,
                              ):
-    return add_entity(request, form, template=template,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form, template=template,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
-def abstract_edit_organisation(request, organisation_id, form=OrganisationForm,
+def abstract_edit_organisation(request, organisation_id, form=orga_forms.OrganisationForm,
                                template='persons/edit_organisation_form.html',
                               ):
-    return edit_entity(request, organisation_id, model=Organisation,
-                       edit_form=form, template=template,
-                      )
+    return generic.edit_entity(request, organisation_id, model=Organisation,
+                               edit_form=form, template=template,
+                              )
 
 
 def abstract_view_organisation(request,organisation_id,
                                template='persons/view_organisation.html',
                               ):
-    return view_entity(request, organisation_id, model=Organisation,
-                       template=template,
-                      )
+    return generic.view_entity(request, organisation_id, model=Organisation,
+                               template=template,
+                              )
 
 
 @login_required
@@ -83,7 +85,7 @@ def detailview(request, organisation_id):
 @login_required
 @permission_required('persons')
 def listview(request):
-    return list_view(request, Organisation, hf_pk=DEFAULT_HFILTER_ORGA)
+    return generic.list_view(request, Organisation, hf_pk=constants.DEFAULT_HFILTER_ORGA)
 
 
 # TODO: set the HF in the url ????
@@ -91,12 +93,57 @@ def listview(request):
 @permission_required('persons')
 def list_my_leads_my_customers(request):
     # TODO: use a constant for 'persons-hf_leadcustomer' ??
-    return list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
-                     # extra_dict={'list_title': ugettext(u'List of my suspects / prospects / customers')},
-                     extra_dict={'list_title': _(u'List of my suspects / prospects / customers')},
-                     extra_q=Q(relations__type__in=(REL_SUB_CUSTOMER_SUPPLIER,
-                                                    REL_SUB_PROSPECT, REL_SUB_SUSPECT,
-                                                   ),
-                               relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME,
+    return generic.list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
+                             extra_dict={'list_title': ugettext(u'List of my suspects / prospects / customers')},
+                             extra_q=Q(relations__type__in=(constants.REL_SUB_CUSTOMER_SUPPLIER,
+                                                            constants.REL_SUB_PROSPECT,
+                                                            constants.REL_SUB_SUSPECT,
+                                                           ),
+                                       # relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME,
+                                       relations__object_entity__in=[o.id for o in Organisation.get_all_managed_by_creme()],
+                                      ),
+                            )
+
+
+@login_required
+@permission_required('creme_core.can_admin')
+def set_managed(request):
+    if request.method == 'POST':
+        form = orga_forms.ManagedOrganisationsForm(user=request.user, data=request.POST)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = orga_forms.ManagedOrganisationsForm(user=request.user)
+
+    return generic.inner_popup(request,
+                               'creme_core/generics/blockform/edit_popup.html',
+                               {'form':         form,
+                                'title':        _(u'Add some managed organisations'),
+                                'submit_label': _(u'Save the modifications'),
+                               },
+                               is_valid=form.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
                               )
-                    )
+
+
+@decorators.POST_only
+@login_required
+@permission_required('creme_core.can_admin')
+def unset_managed(request):
+    orga = get_object_or_404(Organisation, id=get_from_POST_or_404(request.POST, 'id'), is_managed=True)
+
+    request.user.has_perm_to_change_or_die(orga)
+
+    with atomic():
+        ids = Organisation.objects.select_for_update().filter(is_managed=True).values_list('id', flat=True)
+
+        if orga.id in ids:  # In case a concurrent call to this view has been done
+            if len(ids) >= 2:
+                orga.is_managed = False
+                orga.save()
+            else:
+                raise ConflictError(ugettext(u'You must have at least one managed organisation.'))
+
+    return HttpResponse()

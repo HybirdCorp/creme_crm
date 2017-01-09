@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,11 +24,10 @@ from django.conf import settings
 from django.db.models import signals
 from django.dispatch import receiver
 
-from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.models import Relation
 
-from creme.persons import constants as persons_constants
-from creme.persons import get_organisation_model
+from creme.persons import get_organisation_model, constants as persons_constants
 
 from .constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
 from .models import Calendar
@@ -84,7 +83,8 @@ def _set_orga_as_subject(sender, instance, **kwargs):
                                             relations__object_entity=instance.subject_entity_id,
                                            ) \
                                     .exclude(is_deleted=False,
-                                             properties__type=PROP_IS_MANAGED_BY_CREME,
+                                             # properties__type=PROP_IS_MANAGED_BY_CREME,
+                                             is_managed=True,
                                             ):
         create_rel(subject_entity=orga)
 

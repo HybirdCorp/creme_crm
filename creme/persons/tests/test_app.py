@@ -3,10 +3,10 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import HeaderFilter, EntityFilter, EntityFilterCondition
+    from creme.creme_core.models import HeaderFilter, EntityFilter  # EntityFilterCondition
     from creme.creme_core.tests.base import CremeTestCase
 
-    from .. import constants
+    from .. import constants, blocks
     from .base import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -37,10 +37,18 @@ class PersonsAppTestCase(CremeTestCase):
         efilter = self.get_object_or_fail(EntityFilter, pk=constants.FILTER_MANAGED_ORGA)
         self.assertFalse(efilter.is_custom)
         self.assertEqual(Organisation, efilter.entity_type.model_class())
-        self.assertEqual([EntityFilterCondition.EFC_PROPERTY], [c.type for c in efilter.conditions.all()])
+        # self.assertEqual([EntityFilterCondition.EFC_PROPERTY], [c.type for c in efilter.conditions.all()])
+        self.assertQuerysetSQLEqual(Organisation.objects.filter(is_managed=True),
+                                    efilter.filter(Organisation.objects.all())
+                                   )
 
     def test_portal(self):
         self.login()
         self.assertGET200('/persons/')
+
+    def test_config_portal(self):
+        self.login()
+        response = self.assertGET200('/creme_config/')
+        self.assertContains(response, ' id="%s"' % blocks.managed_orgas_block.id_)
 
 # TODO: tests for portal stats

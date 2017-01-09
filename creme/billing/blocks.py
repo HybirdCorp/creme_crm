@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,18 +23,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.gui.block import Block, SimpleBlock, QuerysetBlock
 from creme.creme_core.models import SettingValue, Relation
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 from creme.persons.blocks import AddressBlock
 
 from creme.products import get_product_model, get_service_model
 
-from . import (get_credit_note_model, get_invoice_model, get_quote_model,
-        get_sales_order_model, get_template_base_model,
-        get_product_line_model, get_service_line_model)
+from creme import billing
 from .constants import (REL_SUB_HAS_LINE, REL_OBJ_CREDIT_NOTE_APPLIED,
         REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED,
         REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
@@ -42,17 +40,17 @@ from .function_fields import get_total_pending, get_total_won_quote_last_year, g
 from .models import PaymentInformation
 
 
-Contact      = get_contact_model()
-Organisation = get_organisation_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
-CreditNote   = get_credit_note_model()
-Invoice      = get_invoice_model()
-Quote        = get_quote_model()
-SalesOrder   = get_sales_order_model()
-TemplateBase = get_template_base_model()
+CreditNote   = billing.get_credit_note_model()
+Invoice      = billing.get_invoice_model()
+Quote        = billing.get_quote_model()
+SalesOrder   = billing.get_sales_order_model()
+TemplateBase = billing.get_template_base_model()
 
-ProductLine = get_product_line_model()
-ServiceLine = get_service_line_model()
+ProductLine = billing.get_product_line_model()
+ServiceLine = billing.get_service_line_model()
 
 
 # DEPRECATED
@@ -252,7 +250,7 @@ class _ReceivedBillingDocumentsBlock(QuerysetBlock):
 class ReceivedQuotesBlock(_ReceivedBillingDocumentsBlock):
     id_          = QuerysetBlock.generate_id('billing', 'received_quotes')
     dependencies = (Relation, Quote)
-    verbose_name = _(u"Received quotes")
+    verbose_name = _(u'Received quotes')
 
     _billing_model = Quote
     _title         = _('%s Received quote')
@@ -274,7 +272,7 @@ class ReceivedSalesOrdersBlock(_ReceivedBillingDocumentsBlock):
 class ReceivedCreditNotesBlock(_ReceivedBillingDocumentsBlock):
     id_          = QuerysetBlock.generate_id('billing', 'received_credit_notes')
     dependencies = (Relation, CreditNote)
-    verbose_name = _(u"Received credit notes")
+    verbose_name = _(u'Received credit notes')
 
     _billing_model = CreditNote
     _title         = _('%s Received credit note')
@@ -284,8 +282,8 @@ class ReceivedCreditNotesBlock(_ReceivedBillingDocumentsBlock):
 
 class PaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'payment_information')
-    verbose_name  = _(u"Payment information")
-    template_name = "billing/templatetags/block_payment_information.html"
+    verbose_name  = _(u'Payment information')
+    template_name = 'billing/templatetags/block_payment_information.html'
     target_ctypes = (Organisation, )
     order_by      = 'name'
 
@@ -294,8 +292,10 @@ class PaymentInformationBlock(QuerysetBlock):
         has_to_be_displayed = True
 
         try:
-            if SettingValue.objects.get(key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value \
-               and not organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME).exists():
+            # if SettingValue.objects.get(key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value \
+            #    and not organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME).exists():
+            if not organisation.is_managed \
+               and SettingValue.objects.get(key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value:
                 has_to_be_displayed = False
         except SettingValue.DoesNotExist:
             # Populate error ?
@@ -313,7 +313,7 @@ class PaymentInformationBlock(QuerysetBlock):
 
 class BillingPaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'billing_payment_information')
-    verbose_name  = _(u"Default payment information")
+    verbose_name  = _(u'Default payment information')
     template_name = "billing/templatetags/block_billing_payment_information.html"
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     dependencies  = (Relation, PaymentInformation)
@@ -348,7 +348,7 @@ class BillingAddressBlock(AddressBlock):
 
 class PersonsStatisticsBlock(Block):
     id_  = Block.generate_id('billing', 'persons__statistics')
-    verbose_name  = _(u"Statistics")
+    verbose_name  = _(u'Statistics')
     template_name = 'billing/templatetags/block_persons_statistics.html'
     target_ctypes = (Organisation, Contact)
 

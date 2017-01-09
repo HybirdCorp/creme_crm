@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,9 +25,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, Relation, RelationType
 from creme.creme_core.utils import get_from_POST_or_404
 
-from .. import get_organisation_model
-from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_OBJ_CUSTOMER_SUPPLIER,
-        REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE)
+from .. import get_organisation_model, constants
 
 
 # TODO: generalise and move to creme_core ??
@@ -36,7 +34,7 @@ from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_OBJ_CUSTOMER_SUPPLIER,
 def _link(request, entity_id, relation_type_id):
     managed_orga  = get_object_or_404(get_organisation_model(),
                                       pk=get_from_POST_or_404(request.POST, 'id', int),
-                                      )
+                                     )
     entity        = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
     user = request.user
@@ -61,20 +59,20 @@ def _link(request, entity_id, relation_type_id):
 
 
 def become_customer(request, entity_id):
-    return _link(request, entity_id, REL_SUB_CUSTOMER_SUPPLIER)
+    return _link(request, entity_id, constants.REL_SUB_CUSTOMER_SUPPLIER)
 
 
 def become_prospect(request, entity_id):
-    return _link(request, entity_id, REL_SUB_PROSPECT)
+    return _link(request, entity_id, constants.REL_SUB_PROSPECT)
 
 
 def become_suspect(request, entity_id):
-    return _link(request, entity_id, REL_SUB_SUSPECT)
+    return _link(request, entity_id, constants.REL_SUB_SUSPECT)
 
 
 def become_inactive(request, entity_id):
-    return _link(request, entity_id, REL_SUB_INACTIVE)
+    return _link(request, entity_id, constants.REL_SUB_INACTIVE)
 
 
 def become_supplier(request, entity_id):
-    return _link(request, entity_id, REL_OBJ_CUSTOMER_SUPPLIER)
+    return _link(request, entity_id, constants.REL_OBJ_CUSTOMER_SUPPLIER)

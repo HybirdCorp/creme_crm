@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import RelationType
-from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.views import generic
 
 from .. import get_contact_model, get_organisation_model
 from ..constants import DEFAULT_HFILTER_CONTACT
@@ -41,9 +41,9 @@ def abstract_add_contact(request, form=ContactForm,
                          # submit_label=_('Save the contact'),
                          submit_label=Contact.save_label,
                         ):
-    return add_entity(request, form, template=template,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form, template=template,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_add_related_contact(request, orga_id, rtype_id,
@@ -76,24 +76,24 @@ def abstract_add_related_contact(request, orga_id, rtype_id,
 
         initial['relation_type'] = rtype.symmetric_type
 
-    return add_entity(request, form,
-                      url_redirect=request.POST.get('callback_url') or
-                                   request.GET.get('callback_url'),
-                      template=template, extra_initial=initial,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              url_redirect=request.POST.get('callback_url') or
+                                           request.GET.get('callback_url'),
+                              template=template, extra_initial=initial,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_contact(request, contact_id, form=ContactForm,
                           template='persons/edit_contact_form.html',
                          ):
-    return edit_entity(request, contact_id, model=Contact, edit_form=form, template=template)
+    return generic.edit_entity(request, contact_id, model=Contact, edit_form=form, template=template)
 
 
 def abstract_view_contact(request, contact_id,
                           template='persons/view_contact.html',
                          ):
-    return view_entity(request, contact_id, model=Contact, template=template)
+    return generic.view_entity(request, contact_id, model=Contact, template=template)
 
 
 @login_required
@@ -123,4 +123,4 @@ def detailview(request, contact_id):
 @login_required
 @permission_required('persons')
 def listview(request):
-    return list_view(request, Contact, hf_pk=DEFAULT_HFILTER_CONTACT)
+    return generic.list_view(request, Contact, hf_pk=DEFAULT_HFILTER_CONTACT)

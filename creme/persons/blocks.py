@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,12 +28,13 @@ from creme.creme_core.utils.db import populate_related
 
 from creme.activities import get_activity_model, constants as act_constants
 
-from . import get_address_model, get_contact_model, get_organisation_model, constants
+from creme import persons
+from . import constants
 
 
-Address = get_address_model()
-Contact = get_contact_model()
-Organisation = get_organisation_model()
+Address = persons.get_address_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 Activity = get_activity_model()
 
 
@@ -65,7 +66,7 @@ class ManagersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'managers')
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_MANAGES, )
-    verbose_name  = _(u"Organisation managers")
+    verbose_name  = _(u'Organisation managers')
     template_name = 'persons/templatetags/block_managers.html'
     target_ctypes = (Organisation,)
 
@@ -96,7 +97,7 @@ class ManagersBlock(QuerysetBlock):
 class EmployeesBlock(ManagersBlock):
     id_           = QuerysetBlock.generate_id('persons', 'employees')
     relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
-    verbose_name  = _(u"Organisation employees")
+    verbose_name  = _(u'Organisation employees')
     template_name = 'persons/templatetags/block_employees.html'
 
     def _get_people_qs(self, orga):
@@ -285,6 +286,22 @@ class OtherAddressBlock(QuerysetBlock):
                            )
 
 
+class ManagedOrganisationsBlock(PaginatedBlock):
+    id_           = Block.generate_id('persons', 'managed_organisations')
+    dependencies  = (Organisation,)
+    verbose_name  = 'Managed organisations'
+    template_name = 'persons/templatetags/block_managed_organisations.html'
+    configurable  = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(
+                                context,
+                                Organisation.get_all_managed_by_creme(),
+                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                               )
+                           )
+
+
 # contact_coord_block   = ContactCoordinatesBlock()
 # orga_coord_block      = OrgaCoordinatesBlock()
 address_block         = AddressBlock()
@@ -292,6 +309,7 @@ other_address_block   = OtherAddressBlock()
 managers_block        = ManagersBlock()
 employees_block       = EmployeesBlock()
 neglected_orgas_block = NeglectedOrganisationsBlock()
+managed_orgas_block   = ManagedOrganisationsBlock()
 
 block_list = (
 #        contact_coord_block,
@@ -301,4 +319,5 @@ block_list = (
         managers_block,
         employees_block,
         neglected_orgas_block,
+        managed_orgas_block,
     )

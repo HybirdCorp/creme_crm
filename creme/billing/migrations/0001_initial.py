@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('name',),
                 'verbose_name': 'Payment terms',
-                'verbose_name_plural': 'Payments terms',
+                'verbose_name_plural': 'Payment terms',
             },
             bases=(models.Model,),
         ),

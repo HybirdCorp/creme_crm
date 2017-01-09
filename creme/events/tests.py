@@ -13,10 +13,10 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
+    from creme.creme_core.constants import DEFAULT_CURRENCY_PK  # PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (RelationType, Relation, CremeProperty,
-            SetCredentials, FieldsConfig)
+    from creme.creme_core.models import (RelationType, Relation,
+            SetCredentials, FieldsConfig)  # CremeProperty
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
@@ -675,8 +675,9 @@ class EventsTestCase(CremeTestCase):
 
         self.assertTrue(target_f.help_text)
 
-        emitter = Organisation.objects.create(user=user, name='My society')
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        # emitter = Organisation.objects.create(user=user, name='My society')
+        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
 
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(url, follow=True,
@@ -702,11 +703,12 @@ class EventsTestCase(CremeTestCase):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        emitter = create_orga(name='My society')
+        # emitter = create_orga(name='My society')
+        emitter = create_orga(name='My society', is_managed=True)
         hawks   = create_orga(name='Hawks')
         rhino   = create_orga(name='Rhino')  # No related to the contact
 
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
 
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
         Relation.objects.create(user=user, subject_entity=casca,
@@ -763,8 +765,9 @@ class EventsTestCase(CremeTestCase):
                                      start_date=now(),
                                     )
 
-        emitter = Organisation.objects.create(user=user, name='My society')
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        # emitter = Organisation.objects.create(user=user, name='My society')
+        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
 
         name = 'Opp01'
         response = self.client.post(self._build_related_opp_url(event, casca), follow=True,

@@ -112,6 +112,7 @@ def delete(request, user_id):
     except Exception:
         return HttpResponse(_(u"You can't delete this user."), status=400)
 
+
 @login_required
 @superuser_required
 @POST_only
@@ -131,6 +132,7 @@ def deactivate(request, user_id):
         user_to_deactivate.save()
 
     return HttpResponse()
+
 
 @login_required
 @superuser_required

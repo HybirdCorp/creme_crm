@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import models
+from . import blocks, models
 
 
 to_register = ((models.Position,  'position'),
@@ -9,3 +9,4 @@ to_register = ((models.Position,  'position'),
                (models.StaffSize, 'staff_size'),
                (models.Civility,  'civility'),
               )
+portalblocks_to_register = (blocks.managed_orgas_block, )

@@ -39,14 +39,14 @@ from creme.documents.models.fields import ImageEntityForeignKey
 from ..import get_contact_model, get_organisation_model
 from ..constants import REL_OBJ_EMPLOYED_BY
 from .base import PersonWithAddressesMixin
-from .other_models import Civility, Position, Sector
+from . import other_models
 
 
 logger = logging.getLogger(__name__)
 
 
 class AbstractContact(CremeEntity, PersonWithAddressesMixin):
-    civility   = ForeignKey(Civility, verbose_name=_(u'Civility'),
+    civility   = ForeignKey(other_models.Civility, verbose_name=_(u'Civility'),
                             blank=True, null=True, on_delete=SET_NULL,
                            )
     last_name  = CharField(_(u'Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
@@ -63,13 +63,13 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     url_site = URLField(_(u'Web Site'), max_length=500, blank=True)\
                        .set_tags(optional=True)
 
-    position      = ForeignKey(Position, verbose_name=_(u'Position'),
+    position      = ForeignKey(other_models.Position, verbose_name=_(u'Position'),
                                blank=True, null=True, on_delete=SET_NULL,
                               ).set_tags(optional=True)
     full_position = CharField(_(u'Detailed position'), max_length=500, blank=True)\
                              .set_tags(optional=True)
 
-    sector   = ForeignKey(Sector, verbose_name=_(u'Line of business'),
+    sector   = ForeignKey(other_models.Sector, verbose_name=_(u'Line of business'),
                           blank=True, null=True, on_delete=SET_NULL,
                          ).set_tags(optional=True)
 
@@ -159,9 +159,9 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     def get_lv_absolute_url():
         return reverse('persons__list_contacts')
 
-    def delete(self):
+    def delete(self, using=None):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        super(AbstractContact, self).delete()
+        super(AbstractContact, self).delete(using=using)
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)

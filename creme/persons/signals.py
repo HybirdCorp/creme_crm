@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import logging
 
 from django.conf import settings
-from django.db.models.signals import post_save, post_delete
+from django.db.models import signals
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
 
@@ -30,12 +30,12 @@ from creme.creme_core.utils import update_model_instance
 from creme.creme_core.signals import pre_merge_related
 
 from . import get_address_model, get_contact_model
-from .models.contact import _create_linked_contact
+# from .models.contact import _create_linked_contact
 
 logger = logging.getLogger(__name__)
 
 
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+@receiver(signals.post_save, sender=settings.AUTH_USER_MODEL)
 def sync_with_user(sender, instance, created, **kwargs):
     if instance.is_team:
         return
@@ -59,7 +59,7 @@ def sync_with_user(sender, instance, created, **kwargs):
                    )
 
 
-@receiver(post_delete, sender=CremeEntity)
+@receiver(signals.post_delete, sender=CremeEntity)
 def dispose_addresses(sender, instance, **kwargs):
     get_address_model().objects.filter(object_id=instance.id).delete()
 

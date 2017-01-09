@@ -11,11 +11,11 @@ try:
     from django.utils import timezone as django_tz
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
     from creme.creme_core.models import CremeUser as User
-    from creme.creme_core.models import (CremeEntity, CremeProperty, RelationType,
-            EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue) #Relation
+    from creme.creme_core.models import (CremeEntity, RelationType,
+            EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue)  # Relation  CremeProperty
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
@@ -79,8 +79,9 @@ class UserTestCase(CremeTestCase):
         url = self.ADD_URL
         self.assertGET200(url)
 
-        orga = Organisation.objects.create(user=self.user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        # orga = Organisation.objects.create(user=self.user, name='Olympus')
+        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        orga = Organisation.objects.create(user=self.user, name='Olympus', is_managed=True)
 
         username   = 'deunan'
         first_name = 'Deunan'
@@ -134,8 +135,9 @@ class UserTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        orga = Organisation.objects.create(user=self.user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        # orga = Organisation.objects.create(user=self.user, name='Olympus')
+        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        orga = Organisation.objects.create(user=self.user, name='Olympus', is_managed=True)
 
         username = 'dknut@eswat.ol'
         password = 'password'
@@ -192,8 +194,9 @@ class UserTestCase(CremeTestCase):
         url = self.ADD_URL
         self.assertGET403(url)
 
-        orga = Organisation.objects.create(user=user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        # orga = Organisation.objects.create(user=user, name='Olympus')
+        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         password = 'password'
         self.assertPOST403(url, data={'username':     'deunan',
@@ -212,8 +215,9 @@ class UserTestCase(CremeTestCase):
         "Wrong username"
         user = self.login()
 
-        orga = Organisation.objects.create(user=user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        # orga = Organisation.objects.create(user=user, name='Olympus')
+        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         username = 'é^ǜù'
         password = 'password'
@@ -236,8 +240,9 @@ class UserTestCase(CremeTestCase):
 
         url = self.ADD_URL
 
-        orga = Organisation.objects.create(user=user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        # orga = Organisation.objects.create(user=user, name='Olympus')
+        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         data = {'username':     'deunan',
                 'first_name':   'Deunan',
@@ -274,8 +279,9 @@ class UserTestCase(CremeTestCase):
         "Unique username"
         user = self.login()
 
-        orga = Organisation.objects.create(user=user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        # orga = Organisation.objects.create(user=user, name='Olympus')
+        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         password = 'password'
         response = self.assertPOST200(self.ADD_URL,
@@ -302,8 +308,9 @@ class UserTestCase(CremeTestCase):
         "Internal relationships are forbidden."
         user = self.login()
 
-        orga = Organisation.objects.create(user=user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        # orga = Organisation.objects.create(user=user, name='Olympus')
+        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         rtype = RelationType.create(('creme_config-subject_test_badrtype', u'Bad RType',     [Contact]),
                                     ('creme_config-object_test_badrtype',  u'Bad RType sym', [Organisation]),

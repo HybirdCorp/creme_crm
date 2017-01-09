@@ -14,7 +14,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
             SetCredentials, Currency, Vat)  # CremeProperty
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
@@ -85,9 +85,10 @@ class InvoiceTestCase(_BillingTestCase):
 
         name = 'Invoice001'
 
-        # source = Organisation.objects.create(user=self.user, name='Source Orga')
-        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
-        source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        # # source = Organisation.objects.create(user=self.user, name='Source Orga')
+        # # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+        # source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        source = Organisation.objects.filter(is_managed=True)[0]
 
         target = Organisation.objects.create(user=user, name='Target Orga')
 

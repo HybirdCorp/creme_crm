@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,12 +25,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
-from creme.creme_core import blocks as core_blocks
+from creme.creme_core import blocks as core_blocks, models as core_models
 from creme.creme_core.buttons import merge_entities_button
-from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core import models as core_models
 from creme.creme_core.models import EntityFilter, EntityFilterCondition, EntityFilterVariable
 from creme.creme_core.utils import create_if_needed
 
@@ -47,7 +46,7 @@ class Populator(BasePopulator):
 
     def populate(self):
         already_populated = core_models.RelationType.objects.filter(pk=constants.REL_SUB_EMPLOYED_BY).exists()
-        managed_by_creme = core_models.CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
+        # managed_by_creme = core_models.CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
 
         Contact = get_contact_model()
         Organisation = get_organisation_model()
@@ -88,8 +87,14 @@ class Populator(BasePopulator):
         # ---------------------------
         EntityFilter.create(constants.FILTER_MANAGED_ORGA, name=_(u'Managed by creme'),
                             model=Organisation, user='admin',
-                            conditions=[EntityFilterCondition.build_4_property(
-                                              ptype=managed_by_creme, has=True,
+                            conditions=[# EntityFilterCondition.build_4_property(
+                                        #       ptype=managed_by_creme, has=True,
+                                        #   ),
+                                        EntityFilterCondition.build_4_field(
+                                              model=Organisation,
+                                              operator=EntityFilterCondition.EQUALS,
+                                              name='is_managed',
+                                              values=[True],
                                           ),
                                        ],
                            )
@@ -160,8 +165,9 @@ class Populator(BasePopulator):
 
             # TODO: add relation to admin ????
             if not Organisation.objects.exists():
-                orga = Organisation.objects.create(user=admin, name=_('ReplaceByYourSociety'))
-                core_models.CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
+                # orga = Organisation.objects.create(user=admin, name=_('ReplaceByYourSociety'))
+                # core_models.CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
+                Organisation.objects.create(user=admin, name=_('ReplaceByYourSociety'), is_managed=True)
 
             # ---------------------------
             create_if_needed(Position, {'pk': 1}, title=_(u'CEO'))
@@ -220,6 +226,7 @@ class Populator(BasePopulator):
                                       cells=[build_cell(Organisation, 'created'),
                                              build_cell(Organisation, 'modified'),
                                              build_cell(Organisation, 'name'),
+                                             build_cell(Organisation, 'is_managed'),
                                              build_cell(Organisation, 'staff_size'),
                                              build_cell(Organisation, 'legal_form'),
                                              build_cell(Organisation, 'sector'),
