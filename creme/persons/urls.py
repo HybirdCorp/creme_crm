@@ -2,12 +2,15 @@
 
 from django.conf.urls import url
 
-from . import address_model_is_custom, contact_model_is_custom, organisation_model_is_custom
-from .views import portal, crud_relations
+from creme import persons
+from .views import portal, crud_relations, organisation
 
 
 urlpatterns = [
     url(r'^$', portal.portal),
+
+    url(r'^organisation/managed$',     organisation.set_managed),
+    url(r'^organisation/not_managed$', organisation.unset_managed),
 
     url(r'^(?P<entity_id>\d+)/become_customer$',          crud_relations.become_customer),
     url(r'^(?P<entity_id>\d+)/become_prospect$',          crud_relations.become_prospect),
@@ -16,7 +19,7 @@ urlpatterns = [
     url(r'^(?P<entity_id>\d+)/become_supplier$',          crud_relations.become_supplier),
 ]
 
-if not contact_model_is_custom():
+if not persons.contact_model_is_custom():
     from .views import contact
 
     urlpatterns += [
@@ -29,9 +32,7 @@ if not contact_model_is_custom():
         url(r'^contact/(?P<contact_id>\d+)$',                                     contact.detailview,          name='persons__view_contact'),
     ]
 
-if not organisation_model_is_custom():
-    from .views import organisation
-
+if not persons.organisation_model_is_custom():
     urlpatterns += [
         url(r'^organisations$',                              organisation.listview,                   name='persons__list_organisations'),
         url(r'^organisation/add$',                           organisation.add,                        name='persons__create_organisation'),
@@ -40,7 +41,7 @@ if not organisation_model_is_custom():
         url(r'^leads_customers$',                            organisation.list_my_leads_my_customers, name='persons__leads_customers'),
     ]
 
-if not address_model_is_custom():
+if not persons.address_model_is_custom():
     from .views import address
 
     urlpatterns += [

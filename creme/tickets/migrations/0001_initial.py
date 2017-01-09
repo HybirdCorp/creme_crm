@@ -22,8 +22,8 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('order',),
-                'verbose_name': 'Ticket criticity',
-                'verbose_name_plural': 'Ticket criticities',
+                'verbose_name': 'Ticket criticality',
+                'verbose_name_plural': 'Ticket criticalities',
             },
             bases=(models.Model,),
         ),

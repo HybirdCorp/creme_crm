@@ -7,14 +7,12 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import (RelationType, CremePropertyType, CremeProperty, Vat,
-            SettingValue, BlockDetailviewLocation)
+    from creme.creme_core.models import (RelationType, CremeProperty, Vat,
+            SettingValue, BlockDetailviewLocation)  # CremePropertyType
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..blocks import persons_statistics_block
-    from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
-            REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
+    from .. import blocks, constants
     from ..models import (InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
             ConfigBillingAlgo, SimpleBillingAlgo)
     from .base import (_BillingTestCase,
@@ -32,10 +30,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
                           ]
         lines_clases = [ProductLine, ServiceLine]
 
-        self.get_relationtype_or_fail(REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
-        self.get_relationtype_or_fail(REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
-        self.get_relationtype_or_fail(REL_SUB_HAS_LINE,          billing_classes, lines_clases)
-        self.get_relationtype_or_fail(REL_SUB_LINE_RELATED_ITEM, lines_clases,    [Product, Service])
+        self.get_relationtype_or_fail(constants.REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
+        self.get_relationtype_or_fail(constants.REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
+        self.get_relationtype_or_fail(constants.REL_SUB_HAS_LINE,          billing_classes, lines_clases)
+        self.get_relationtype_or_fail(constants.REL_SUB_LINE_RELATED_ITEM, lines_clases,    [Product, Service])
 
         self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
         self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
@@ -95,8 +93,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertStillExists(orga1)
         self.assertDoesNotExist(orga2)
 
-    def _remove_managed_prop(self, orga):
-        CremeProperty.objects.get(type=PROP_IS_MANAGED_BY_CREME, creme_entity=orga).delete()
+    # def _remove_managed_prop(self, orga):
+    #     CremeProperty.objects.get(type=PROP_IS_MANAGED_BY_CREME, creme_entity=orga).delete()
 
     def _ids_list(self, queryset, length):
         ids_list = list(queryset.values_list('id', flat=True))
@@ -165,8 +163,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         orga1 = create_orga(name='NERV'); self._set_managed(orga1)
         orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
 
-        self._remove_managed_prop(orga1)
-        self._remove_managed_prop(orga2)
+        # self._remove_managed_prop(orga1)
+        # self._remove_managed_prop(orga2)
+        self._set_managed(orga1, False)
+        self._set_managed(orga2, False)
 
         cba_filter = ConfigBillingAlgo.objects.filter
         sba_filter = SimpleBillingAlgo.objects.filter
@@ -195,11 +195,12 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         orga1 = create_orga(name='NERV'); self._set_managed(orga1)
         orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
 
-        # Only the "Is managed by Creme" property should be used.
-        ptype = CremePropertyType.create('billing-test_merge_algoconfig04', "I'm annoying")
-        CremeProperty.objects.create(type=ptype, creme_entity=orga1)
+        # # Only the "Is managed by Creme" property should be used.
+        # ptype = CremePropertyType.create('billing-test_merge_algoconfig04', "I'm annoying")
+        # CremeProperty.objects.create(type=ptype, creme_entity=orga1)
 
-        self._remove_managed_prop(orga1)
+        # self._remove_managed_prop(orga1)
+        self._set_managed(orga1, False)
 
         cba_filter = ConfigBillingAlgo.objects.filter
         sba_filter = SimpleBillingAlgo.objects.filter
@@ -218,7 +219,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(3, sba_filter(pk__in=sba_ids_list2).count())
 
     def _get_setting_value(self):
-        return self.get_object_or_fail(SettingValue, key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
+        return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
 
     @skipIfCustomOrganisation
     def test_block_orga01(self):
@@ -268,11 +269,12 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='NERV')
+        block_id = blocks.persons_statistics_block.id_
 
-        BlockDetailviewLocation.create(block_id=persons_statistics_block.id_, order=1000,
-                                        zone=BlockDetailviewLocation.LEFT, model=Organisation,
-                                       )
+        BlockDetailviewLocation.create(block_id=block_id, order=1000,
+                                       zone=BlockDetailviewLocation.LEFT, model=Organisation,
+                                      )
 
         response = self.assertGET200(orga.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/templatetags/block_persons_statistics.html')
-        self.assertContains(response, 'id="%s"' % persons_statistics_block.id_)
+        self.assertContains(response, 'id="%s"' % block_id)

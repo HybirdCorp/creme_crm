@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,40 +21,40 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
+from creme.creme_core.views import generic
 
 from .. import get_address_model
-from ..forms.address import AddressForm, BillingAddressForm, ShippingAddressForm
+from ..forms import address as address_forms
 
 
 Address = get_address_model()
 
 
-def abstract_add_address(request, entity_id, form=AddressForm,
+def abstract_add_address(request, entity_id, form=address_forms.AddressForm,
                          title=_(u'Adding address to «%s»'),
                          submit_label=_('Save the address'),
                         ):
-    return add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
+    return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
-def abstract_add_billing_address(request, entity_id, form=BillingAddressForm,
+def abstract_add_billing_address(request, entity_id, form=address_forms.BillingAddressForm,
                                  title=_(u'Adding billing address to «%s»'),
                                  submit_label=_('Save the address')
                                 ):
-    return add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
+    return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
-def abstract_add_shipping_address(request, entity_id, form=ShippingAddressForm,
+def abstract_add_shipping_address(request, entity_id, form=address_forms.ShippingAddressForm,
                                   title=_(u'Adding shipping address to «%s»'),
                                   submit_label=_('Save the address'),
                                 ):
-    return add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
+    return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
 def abstract_edit_address(request, address_id,
-                          form=AddressForm, title=_(u'Address for «%s»'),
+                          form=address_forms.AddressForm, title=_(u'Address for «%s»'),
                          ):
-    return edit_related_to_entity(request, address_id, Address, form, title_format=title)
+    return generic.edit_related_to_entity(request, address_id, Address, form, title_format=title)
 
 
 @login_required

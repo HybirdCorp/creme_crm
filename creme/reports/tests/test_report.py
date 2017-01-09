@@ -17,7 +17,7 @@ try:
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
+    from creme.creme_core.constants import REL_SUB_HAS  # PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
             EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
             CremePropertyType, CremeProperty, HeaderFilter, FieldsConfig)
@@ -2206,7 +2206,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
 
-        ptype = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
+        # ptype = CremePropertyType.objects.create(pk=PROP_IS_MANAGED_BY_CREME)
+        ptype = CremePropertyType.objects.create(pk='reports-test_fetch_funcfield_01', text='I am not dead !')
         CremeProperty.objects.create(type=ptype, creme_entity=self.starks)
 
         report = self.report_orga
@@ -2248,7 +2249,10 @@ class ReportTestCase(BaseReportsTestCase):
                      sub_report=report_img, selected=True,
                     )
 
-        ptype = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
+        # ptype = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
+        ptype = CremePropertyType.objects.create(pk='reports-test_fetch_funcfield_02',
+                                                 text='I am waiting the winter',
+                                                )
 
         create_prop = partial(CremeProperty.objects.create, type=ptype)
         create_prop(creme_entity=aria_face)

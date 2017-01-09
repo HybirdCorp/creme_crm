@@ -13,9 +13,9 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeOrganisation
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import (CremeEntity, Relation, CremeProperty,
-            BlockPortalLocation, SettingValue, Job, JobResult)
+    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import (CremeEntity, Relation,
+            BlockPortalLocation, SettingValue, Job, JobResult)  # CremeProperty
     from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
 
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
@@ -463,9 +463,11 @@ class CommercialApproachTestCase(CremeTestCase):
         "Ignore the managed orga that are customer of another managed organisation"
         mngd_orga, customer = self._build_orgas()
 
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME,
-                                     creme_entity=customer,
-                                    )
+        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME,
+        #                              creme_entity=customer,
+        #                             )
+        customer.is_managed = True
+        customer.save()
 
         self._send_mails()
         self.assertFalse(mail.outbox)

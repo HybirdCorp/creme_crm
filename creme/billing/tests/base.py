@@ -20,9 +20,9 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
-    from creme.creme_core.models import (Relation, Currency,
-            CremePropertyType, CremeProperty)
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import Relation, Currency  # CremePropertyType, CremeProperty
+
+    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
 
@@ -223,9 +223,11 @@ class _BillingTestCaseMixin(object):
         doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
         self.assertEqual(status, doc.status)
 
-    def _set_managed(self, orga):
-        ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_MANAGED_BY_CREME)
-        CremeProperty.objects.create(type=ptype, creme_entity=orga)
+    def _set_managed(self, orga, managed=True):
+        # ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_MANAGED_BY_CREME)
+        # CremeProperty.objects.create(type=ptype, creme_entity=orga)
+        orga.is_managed = managed
+        orga.save()
 
 
 class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCaseMixin):

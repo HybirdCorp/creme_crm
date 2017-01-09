@@ -8,8 +8,8 @@ try:
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import Relation, CremeProperty, SetCredentials, FieldsConfig
+    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig  # CremeProperty
 
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation, Organisation, Address, Contact)
@@ -323,13 +323,14 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             self.assertAddressOnlyContentEqual(address, address2)
 
     def _build_managed_orga(self, user=None, name='Bebop'):
-        user = user or self.user
-
-        with self.assertNoException():
-            mng_orga = Organisation.objects.create(user=user, name=name)
-            CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
-
-        return mng_orga
+        # user = user or self.user
+        #
+        # with self.assertNoException():
+        #     mng_orga = Organisation.objects.create(user=user, name=name)
+        #     CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
+        #
+        # return mng_orga
+        return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)
 
     def test_get_all_managed_by_creme(self):
         user = self.login()
@@ -1060,3 +1061,45 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         #
         # self.assertFalse(list(form.import_errors))
         self._assertNoResultError(self._get_job_results(job))
+
+    def test_set_orga_as_managed(self):
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Bebop')
+        orga2 = create_orga(name='Swordfish')
+        orga3 = create_orga(name='RedTail')
+
+        url = '/persons/organisation/managed'
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'organisations': '[%s,%s]' % (orga1.id, orga2.id)})
+        self.assertNoFormError(response)
+
+        self.assertTrue(self.refresh(orga1).is_managed)
+        self.assertTrue(self.refresh(orga2).is_managed)
+        self.assertFalse(self.refresh(orga3).is_managed)
+
+        # Managed Organisations are excluded
+        response = self.assertPOST200(url, data={'organisations': '[%s]' % orga1.id})
+        self.assertFormError(response, 'form', 'organisations', _(u'This entity does not exist.'))
+
+    def test_set_orga_as_not_managed(self):
+        user = self.login()
+
+        mngd_orgas = Organisation.objects.filter(is_managed=True)
+        self.assertEqual(1, len(mngd_orgas))
+
+        orga1 = mngd_orgas[0]
+        orga2 = self._build_managed_orga()
+
+        url = '/persons/organisation/not_managed'
+        data = {'id': orga2.id}
+        self.assertGET404(url)
+        self.assertGET404(url, data=data)
+
+        self.assertPOST200(url, data=data)
+        self.assertFalse(self.refresh(orga2).is_managed)
+
+        self.assertPOST409(url, data={'id': orga1.id})  # At least 1 managed organisation
+        self.assertTrue(self.refresh(orga1).is_managed)

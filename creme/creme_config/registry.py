@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -156,6 +156,7 @@ class _ConfigRegistry(object):
         self._block_registry = block_registry
         self._apps = _apps = {}
         self._userblocks = []
+        self._portalblocks = []
 
         # Add an app to creme_config if it has at least a visible SettingKey
         # (to be sure that even app without registered models appear)
@@ -189,7 +190,7 @@ class _ConfigRegistry(object):
 
     def register(self, *to_register):
         """
-        @param to_register Sequence of tuples (DjangoModel, short_name_for_url [, ModelForm])
+        @param to_register: Sequence of tuples (DjangoModel, short_name_for_url [, ModelForm])
         """
         app_registries = self._apps
 
@@ -221,6 +222,13 @@ class _ConfigRegistry(object):
 
             app_conf.register_block(block)
 
+    def register_portalblocks(self, *blocks_to_register):
+        for block in blocks_to_register:
+            assert hasattr(block, 'detailview_display'), 'block with id="%s" has no detailview_display() method' % block.id_
+            assert block.id_ in self._block_registry._blocks, 'block with id="%s" is not registered' % block.id_
+
+        self._portalblocks.extend(blocks_to_register)
+
     def register_userblocks(self, *blocks_to_register):
         for block in blocks_to_register:
             assert hasattr(block, 'detailview_display'), 'block with id="%s" has no detailview_display() method' % block.id_
@@ -230,7 +238,7 @@ class _ConfigRegistry(object):
 
     def unregister(self, *to_unregister):  # TODO: factorise with register()
         """
-        @param to_unregister Sequence of DjangoModels.
+        @param to_unregister: Sequence of DjangoModels.
         """
         app_registries = self._apps
 
@@ -242,6 +250,10 @@ class _ConfigRegistry(object):
                 app_registries[app_name] = app_conf = self._build_app_conf_registry(app_name)
 
             app_conf.unregister_model(model)
+
+    @property
+    def portalblocks(self):
+        return iter(self._portalblocks)
 
     @property
     def userblocks(self):
@@ -256,7 +268,8 @@ for config_import in find_n_import('creme_config_register',
                                     'blocks_to_register', 'userblocks_to_register',
                                    ]
                                   ):
-    config_registry.register(*getattr(config_import, "to_register", ()))
-    config_registry.unregister(*getattr(config_import, "to_unregister", ()))
-    config_registry.register_blocks(*getattr(config_import, "blocks_to_register", ()))
-    config_registry.register_userblocks(*getattr(config_import, "userblocks_to_register", ()))
+    config_registry.register(*getattr(config_import, 'to_register', ()))
+    config_registry.unregister(*getattr(config_import, 'to_unregister', ()))
+    config_registry.register_blocks(*getattr(config_import, 'blocks_to_register', ()))
+    config_registry.register_userblocks(*getattr(config_import, 'userblocks_to_register', ()))
+    config_registry.register_portalblocks(*getattr(config_import, 'portalblocks_to_register', ()))

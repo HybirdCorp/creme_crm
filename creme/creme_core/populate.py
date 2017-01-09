@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,12 +25,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
-from . import blocks, constants
+from . import blocks, constants, setting_keys
 from .creme_jobs import reminder_type
 from .management.commands.creme_populate import BasePopulator
-from .models import (RelationType, CremePropertyType, SettingValue, Currency, Language, Vat, Job,
-        BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, ButtonMenuItem)
-from .setting_keys import block_opening_key, block_showempty_key, currency_symbol_key
+from .models import (RelationType, SettingValue, Currency, Language, Vat, Job,
+        BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, ButtonMenuItem)  # CremePropertyType
 from .utils import create_if_needed
 
 # logger = logging.getLogger(__name__)
@@ -38,9 +37,10 @@ from .utils import create_if_needed
 
 class Populator(BasePopulator):
     def populate(self):
-        already_populated = CremePropertyType.objects.filter(pk=constants.PROP_IS_MANAGED_BY_CREME).exists()
+        # already_populated = CremePropertyType.objects.filter(pk=constants.PROP_IS_MANAGED_BY_CREME).exists()
+        already_populated = RelationType.objects.filter(id=constants.REL_SUB_HAS).exists()
 
-        CremePropertyType.create(constants.PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
+        # CremePropertyType.create(constants.PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
         RelationType.create((constants.REL_SUB_HAS, _(u'owns')),
                             (constants.REL_OBJ_HAS, _(u'belongs to')))
 
@@ -77,9 +77,9 @@ class Populator(BasePopulator):
         # SettingValue.create_if_needed(key=block_showempty_key, user=None, value=True)
         # SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
         create_svalue = SettingValue.objects.get_or_create
-        create_svalue(key_id=block_opening_key.id,   defaults={'value': True})
-        create_svalue(key_id=block_showempty_key.id, defaults={'value': True})
-        create_svalue(key_id=currency_symbol_key.id, defaults={'value': True})
+        create_svalue(key_id=setting_keys.block_opening_key.id,   defaults={'value': True})
+        create_svalue(key_id=setting_keys.block_showempty_key.id, defaults={'value': True})
+        create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})
 
         # ---------------------------
         create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,21 +24,20 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import Relation
 
-from . import get_contact_model, get_organisation_model
-from .constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT,
-        REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER)
+from creme import persons
+from . import constants
 
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 
 class CrmButton(Button):
     __managed_orga   = False
     relation_type_id = 'OVERLOADME'
     template_name    = 'persons/templatetags/button_become.html'
-    what             = "OVERLOADME"
-    become_url       = "/persons/%s/OVERLOADME/"
+    what             = 'OVERLOADME'
+    become_url       = '/persons/%s/OVERLOADME/'
 
     def ok_4_display(self, entity):
         #TODO: only one query ??
@@ -67,40 +66,40 @@ class CrmButton(Button):
 class BecomeCustomerButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_customer')
     verbose_name     = _(u'Transform into a customer')
-    relation_type_id = REL_SUB_CUSTOMER_SUPPLIER
-    what = "customer"
-    become_url = "/persons/%s/become_customer"
+    relation_type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
+    what = 'customer'
+    become_url = '/persons/%s/become_customer'
 
 
 class BecomeProspectButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_prospect')
     verbose_name     = _(u'Transform into a prospect')
-    relation_type_id = REL_SUB_PROSPECT
-    what = "prospect"
+    relation_type_id = constants.REL_SUB_PROSPECT
+    what = 'prospect'
     become_url = "/persons/%s/become_prospect"
 
 
 class BecomeSuspectButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_suspect')
     verbose_name     = _(u'Transform into a suspect')
-    relation_type_id = REL_SUB_SUSPECT
-    what = "suspect"
+    relation_type_id = constants.REL_SUB_SUSPECT
+    what = 'suspect'
     become_url = "/persons/%s/become_suspect"
 
 
 class BecomeInactiveButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_inactive')
     verbose_name     = _(u'Transform into an inactive customer')
-    relation_type_id = REL_SUB_INACTIVE
-    what = "inactive_customer"
+    relation_type_id = constants.REL_SUB_INACTIVE
+    what = 'inactive_customer'
     become_url = "/persons/%s/become_inactive_customer"
 
 
 class BecomeSupplierButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_supplier')
     verbose_name     = _(u'Transform into a supplier')
-    relation_type_id = REL_OBJ_CUSTOMER_SUPPLIER
-    what = "supplier"
+    relation_type_id = constants.REL_OBJ_CUSTOMER_SUPPLIER
+    what = 'supplier'
     become_url = "/persons/%s/become_supplier"
 
     def get_ctypes(self):

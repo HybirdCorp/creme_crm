@@ -8,9 +8,9 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
-    from creme.creme_core.models import (RelationType, Relation, CremeProperty,
-            EntityFilter, EntityFilterCondition)
+    from creme.creme_core.constants import DEFAULT_CURRENCY_PK  # PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import (RelationType, Relation,
+            EntityFilter, EntityFilterCondition)  # CremeProperty
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -217,7 +217,9 @@ class ActTestCase(CommercialBaseTestCase):
         emitter = create_orga(name='Ferraille corp')
         target  = create_orga(name='World company')
 
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        emitter.is_managed = True
+        emitter.save()
 
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]

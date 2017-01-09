@@ -30,12 +30,12 @@ from creme.creme_core.models import RelationType, Relation
 
 # from creme.media_managers.models import Image
 
-from .. import get_contact_model, get_organisation_model
+from creme import persons
 from .base import _BasePersonForm
 
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 
 class ContactForm(_BasePersonForm):

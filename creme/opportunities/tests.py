@@ -19,9 +19,9 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
-            CremeProperty, SetCredentials, Currency, SettingValue, FieldsConfig)
+            SetCredentials, Currency, SettingValue, FieldsConfig)  # CremeProperty
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
+    from creme.creme_core.constants import DEFAULT_CURRENCY_PK  # PROP_IS_MANAGED_BY_CREME
 
     from creme.documents import get_document_model
 
@@ -123,12 +123,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def _create_target_n_emitter(self, managed=True, contact=False):
         user = self.user
         create_orga = Organisation.objects.create
-        emitter = create_orga(user=user, name='My society')
+        # emitter = create_orga(user=user, name='My society')
+        emitter = create_orga(user=user, name='My society', is_managed=managed)
         target  = create_orga(user=user, name='Target renegade') if not contact else \
                   Contact.objects.create(user=user, first_name='Target', last_name='Renegade')
 
-        if managed:
-            CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        # if managed:
+        #     CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
 
         return target, emitter
 
@@ -530,10 +531,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         target  = CremeEntity.objects.create(user=user)
-        emitter = Organisation.objects.create(user=user, name='My society')
+        # emitter = Organisation.objects.create(user=user, name='My society')
+        emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
         opportunity_count = Opportunity.objects.count()
 
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
 
         url = self._build_addrelated_url(target)
         self.assertGET200(url)  # TODO: is it normal ??
@@ -1094,7 +1096,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         count = Opportunity.objects.count()
 
         # Opportunity #1
-        emitter1 = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        # emitter1 = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        emitter1 = Organisation.objects.filter(is_managed=True)[0]
         target1  = Organisation.objects.create(user=user, name='Acme')
         sp1 = SalesPhase.objects.create(name='Testphase - test_csv_import01')
 
@@ -1200,7 +1203,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         count = Opportunity.objects.count()
 
-        emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        # emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        emitter = Organisation.objects.filter(is_managed=True)[0]
         target1 = Organisation.objects.create(user=user, name='Acme')
 
         sp1_name = 'IAmNotSupposedToAlreadyExist'
@@ -1257,7 +1261,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         "SalesPhase is required"
         user = self.login()
 
-        emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        # emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        emitter = Organisation.objects.filter(is_managed=True)[0]
         target  = Organisation.objects.create(user=user, name='Acme')
 
         lines = [('Opp01', '1000', '2000', target.name)]
@@ -1292,7 +1297,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         count = Opportunity.objects.count()
-        emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        # emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        emitter = Organisation.objects.filter(is_managed=True)[0]
 
         orga_name = 'NERV'
         contact_name = 'Ikari'
@@ -1353,7 +1359,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                       set_type=SetCredentials.ESET_ALL,
                                      )
         # TODO: factorise
-        emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        # emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        emitter = Organisation.objects.filter(is_managed=True)[0]
         doc = self._build_csv_doc([('Opp01', '1000', '2000', 'Acme', 'New phase')])
         url = self._build_import_url(Opportunity)
         data = dict(self.lvimport_data,

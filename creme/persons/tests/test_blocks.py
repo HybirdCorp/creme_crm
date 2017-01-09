@@ -10,7 +10,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import RelationType, Relation, CremeProperty, FieldsConfig
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.activities.models import Activity
@@ -74,7 +74,8 @@ class BlocksTestCase(CremeTestCase):
         self.assertEqual(1, len(orgas))
 
         mng_orga = orgas[0]
-        self.assertTrue(CremeProperty.objects.filter(type=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga).exists())
+        # self.assertTrue(CremeProperty.objects.filter(type=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga).exists())
+        self.assertTrue(mng_orga.is_managed)
         self.assertFalse(self._get_neglected_orgas())
 
         customer01 = Organisation.objects.create(user=self.user, name='orga02')

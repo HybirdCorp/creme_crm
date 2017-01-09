@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,11 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.forms.merge import MergeEntitiesBaseForm, mergefield_factory
 from creme.creme_core.models import FieldsConfig
 
-from .. import get_address_model, get_contact_model
+from creme import persons
 
 
-Contact = get_contact_model()
-Address = get_address_model()
+Contact = persons.get_contact_model()
+Address = persons.get_address_model()
 
 _BILL_PREFIX = 'billaddr_'
 _SHIP_PREFIX = 'shipaddr_'
@@ -104,6 +104,7 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
         for address in chain(to_del1, to_del2):
             address.delete()
+
 
 # TODO: can we build the form once instead of build it each time ??
 # TODO: factorise with lv_import.py ?

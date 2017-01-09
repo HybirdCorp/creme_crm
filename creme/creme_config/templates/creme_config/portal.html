@@ -1,5 +1,5 @@
 {% extends "creme_core/generics/portal.html" %}
-{% load i18n creme_core_tags %}
+{% load i18n creme_core_tags creme_block %}
 {% block page_title %}{% trans "Configuration" %} - {% endblock %}
 {% block logo %}<img src="{% creme_media_url 'images/config_64.png' %}" alt="{% trans "Configuration" %}"/>{% endblock %}
 {% block title %}{% trans "Creme configuration portal" %}{% endblock %}
@@ -34,7 +34,7 @@
                     {% if admin_perm %}
                         <a href="/creme_config/prefered_menu/edit/">{% trans "Default preferred menu settings" %}</a>
                     {% else %}
-                        <span class="forbidden">{% trans "Default preferred menu settings" %}</a>
+                        <span class="forbidden">{% trans "Default preferred menu settings" %}</span>
                     {% endif %}
                 </td>
             </tr>
@@ -66,6 +66,10 @@
             </tr>
         </tbody>
     </table>
+
+    {% import_blocks app_blocks as 'app_blocks' %}
+    {% display_blocks 'app_blocks' %}
+
     <table class="table_detail_view ui-corner-all">
         <thead>
             <tr>
