@@ -96,7 +96,7 @@ class Migration(migrations.Migration):
             name='Resource',
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
-                ('hourly_cost', models.PositiveIntegerField(null=True, verbose_name='Hourly cost (in \u20ac)', blank=True)),
+                ('hourly_cost', models.PositiveIntegerField(null=True, verbose_name='Hourly cost', blank=True)),
                 #('linked_contact', models.ForeignKey(verbose_name='Contact', to='persons.Contact')),
                 ('linked_contact', models.ForeignKey(verbose_name='Contact', to=settings.PERSONS_CONTACT_MODEL)),
                 #('task', models.ForeignKey(related_name='resources_set', verbose_name='Task', to='projects.ProjectTask')),

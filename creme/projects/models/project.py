@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,10 +22,11 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max, PROTECT
 from django.utils.formats import date_format
-from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.timezone import now, localtime
+from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.models import CremeEntity, Currency
 
 from .projectstatus import ProjectStatus
 
@@ -41,6 +42,10 @@ class AbstractProject(CremeEntity):
                                        .set_tags(optional=True)
     effective_end_date  = DateTimeField(_(u'Effective end date'), blank=True, null=True)\
                                        .set_tags(optional=True)
+    currency            = ForeignKey(Currency, verbose_name=_(u'Currency'),
+                                     related_name='+',
+                                     default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
+                                    )
 
     tasks_list = None
 

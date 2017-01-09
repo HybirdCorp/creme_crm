@@ -14,7 +14,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.models import SetCredentials
+    from creme.creme_core.models import SetCredentials, Currency
     from creme.creme_core.auth.entity_credentials import EntityCredentials
 
     from creme.persons.models import Contact
@@ -134,10 +134,12 @@ class ProjectsTestCase(CremeTestCase):
     def create_project(self, name, status=None, start_date='2010-10-11', end_date='2010-12-31'):
         status = status or ProjectStatus.objects.all()[0]
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
+        currency = Currency.objects.all()[0]
         response = self.client.post(self.ADD_PROJECT_URL, follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         name,
                                           'status':       status.id,
+                                          'currency':     currency.id,
                                           'start_date':   start_date,
                                           'end_date':     end_date,
                                           'responsibles': '[%d]' % manager.id,

@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _, ugettext
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.views.generic import inner_popup
 
@@ -68,6 +68,7 @@ def _add_generic(request, form, task_id, title):
                        reload=False,
                        delegate_reload=True,
                       )
+
 
 # TODO: remove and use generic.edit_related_to_entity() ??
 def _edit_generic(request, form, obj_id, model, title):

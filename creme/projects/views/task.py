@@ -30,39 +30,37 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import (add_to_entity, add_model_with_popup,
-        view_entity, edit_entity, edit_model_with_popup)  # edit_related_to_entity
+from creme.creme_core.views import generic
 
 from creme.activities import get_activity_model
 
-from .. import get_project_model, get_task_model
-from ..constants import REL_SUB_PART_AS_RESOURCE, REL_SUB_LINKED_2_PTASK
-from ..forms.task import (TaskCreateForm, TaskEditForm, TaskAddParentForm,
-        RelatedActivityCreateForm, RelatedActivityEditForm)
+from creme import projects
+from .. import constants
+from ..forms import task as task_forms
 
 
 logger = logging.getLogger(__name__)
 Activity = get_activity_model()
-ProjectTask = get_task_model()
+ProjectTask = projects.get_task_model()
 
 
-def abstract_add_ptask(request, project_id, form=TaskCreateForm,
+def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
                        title=_(u'Create a task for «%s»'),
                        # submit_label=_('Save the task'),
                        submit_label=ProjectTask.save_label,
                       ):
-    return add_to_entity(request, project_id, form, title,
-                         entity_class=get_project_model(),
-                         submit_label=submit_label,
-                        )
+    return generic.add_to_entity(request, project_id, form, title,
+                                 entity_class=projects.get_project_model(),
+                                 submit_label=submit_label,
+                                )
 
 
-def abstract_edit_ptask(request, task_id, form=TaskEditForm):
-    return edit_entity(request, task_id, ProjectTask, form)
+def abstract_edit_ptask(request, task_id, form=task_forms.TaskEditForm):
+    return generic.edit_entity(request, task_id, ProjectTask, form)
 
 
-def abstract_edit_ptask_popup(request, task_id, form=TaskEditForm):
-    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, form)
+def abstract_edit_ptask_popup(request, task_id, form=task_forms.TaskEditForm):
+    return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, form)
 # TODO: ?
 #    return edit_related_to_entity(request, task_id, ProjectTask,
 #                                  TaskEditForm, _(u'Edit a task for «%s»'),
@@ -72,7 +70,7 @@ def abstract_edit_ptask_popup(request, task_id, form=TaskEditForm):
 def abstract_view_ptask(request, task_id,
                         template='projects/view_task.html',
                        ):
-    return view_entity(request, task_id, ProjectTask, template=template)
+    return generic.view_entity(request, task_id, ProjectTask, template=template)
 
 
 @login_required
@@ -102,7 +100,7 @@ def edit_popup(request, task_id):
 @login_required
 @permission_required('projects')
 def add_parent(request, task_id):
-    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskAddParentForm)
+    return generic.edit_model_with_popup(request, {'pk': task_id}, ProjectTask, task_forms.TaskAddParentForm)
 
 
 @login_required
@@ -123,7 +121,7 @@ def delete_parent(request):
 
 # Activities -------------------------------------------------------------------
 
-def abstract_add_activity(request, task_id, form=RelatedActivityCreateForm,
+def abstract_add_activity(request, task_id, form=task_forms.RelatedActivityCreateForm,
                           title=_(u'New activity related to «%s»'),
                           # submit_label=_('Save the activity'),
                           submit_label=Activity.save_label,
@@ -133,16 +131,16 @@ def abstract_add_activity(request, task_id, form=RelatedActivityCreateForm,
 
     user.has_perm_to_change_or_die(task)  # TODO: has_perm_to_link_or_die ??
 
-    return add_model_with_popup(request, form,
-                                title=title % task.allowed_unicode(user),
-                                initial={'task': task},
-                                submit_label=submit_label,
-                               )
+    return generic.add_model_with_popup(request, form,
+                                        title=title % task.allowed_unicode(user),
+                                        initial={'task': task},
+                                        submit_label=submit_label,
+                                       )
 
 
-def abstract_edit_activity(request, activity_id, form=RelatedActivityEditForm):
+def abstract_edit_activity(request, activity_id, form=task_forms.RelatedActivityEditForm):
     # TODO: check that its related to a task
-    return edit_model_with_popup(request, {'pk': activity_id}, Activity, form)
+    return generic.edit_model_with_popup(request, {'pk': activity_id}, Activity, form)
 
 
 @login_required
@@ -164,8 +162,8 @@ def delete_activity(request):
     get_rel = Relation.objects.get
 
     try:
-        rel1 = get_rel(type=REL_SUB_PART_AS_RESOURCE, object_entity=activity)
-        rel2 = get_rel(subject_entity=activity, type=REL_SUB_LINKED_2_PTASK)
+        rel1 = get_rel(type=constants.REL_SUB_PART_AS_RESOURCE, object_entity=activity)
+        rel2 = get_rel(subject_entity=activity, type=constants.REL_SUB_LINKED_2_PTASK)
     except Relation.DoesNotExist:
         raise ConflictError('This activity is not related to a project task.')
 

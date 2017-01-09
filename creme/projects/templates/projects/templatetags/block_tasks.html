@@ -33,18 +33,21 @@
                         <td class="{{row_color}}">
                             {% for parent in task.get_parents %}
                                 {% widget_entity_hyperlink parent user %}
-                                {% get_line_deletor at_url '/projects/task/parent/delete' with_args "{ 'id':{{task.pk}}, 'parent_id': {{parent.id}} }" with_perms change_perm %}
+                                {% get_line_deletor at_url '/projects/task/parent/delete' with_args "{ 'id':{{task.pk}}, 'parent_id':{{parent.id}} }" with_perms change_perm %}
                             {% empty %}
                                 {% trans "No parent task" %}
                             {% endfor %}
                         </td>
+{% comment %}
                         <td class="{{row_color}}" align="right">{{task.get_task_cost}} €</td>
+{% endcomment %}
+                        <td class="{{row_color}}" align="right">{{task.get_task_cost|format_amount:object.currency}}</td>
                     {% else %}
                         <td class="{{row_color}}" align="center">?? h</td>
                         <td class="{{row_color}}" align="center">?? h</td>
                         <td class="{{row_color}}" align="center">??</td>
                         <td class="{{row_color}}" align="center">??</td>
-                        <td class="{{row_color}}" align="right">?? €</td>
+                        <td class="{{row_color}}" align="right">??</td>
                     {% endif %}
                     <td class="{{row_color}} action">
                         {% has_perm_to view task as view_perm %}
