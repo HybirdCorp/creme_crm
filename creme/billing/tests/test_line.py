@@ -14,7 +14,7 @@ try:
     from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.products.models import Product, Service
+    from creme.products.models import Product, Service, Category, SubCategory
     from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
     from ..constants import (REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM,
@@ -36,6 +36,9 @@ class LineTestCase(_BillingTestCase):
     #     _BillingTestCase.setUpClass()
     #     cls.populate('products', 'billing')
 
+    def _build_msave_url(self, bdocument):
+        return '/billing/%s/multi_save_lines' % bdocument.id
+
     @skipIfCustomProduct
     def test_add_product_lines01(self):
         "Multiple adding"
@@ -44,7 +47,8 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_product_lines', args=(invoice.id,))
         self.assertGET200(url)
-        self.assertFalse(invoice.service_lines)
+        # self.assertFalse(invoice.service_lines)
+        self.assertFalse(invoice.get_lines(ServiceLine))
 
         product1 = self.create_product()
         product2 = self.create_product()
@@ -59,9 +63,12 @@ class LineTestCase(_BillingTestCase):
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)  # Refresh lines cache
-        self.assertEqual(2, len(invoice.product_lines))
+        # self.assertEqual(2, len(invoice.product_lines))
+        lines = invoice.get_lines(ProductLine)
+        self.assertEqual(2, len(lines))
 
-        line0, line1 = invoice.product_lines
+        # line0, line1 = invoice.product_lines
+        line0, line1 = lines
         self.assertEqual(quantity,        line0.quantity)
         self.assertEqual(quantity,        line1.quantity)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
@@ -138,7 +145,8 @@ class LineTestCase(_BillingTestCase):
                            data={'id': product_line.id},
                           )
         self.assertPOST200('/creme_core/entity/delete/%s' % product_line.id, data={}, follow=True)
-        self.assertFalse(self.refresh(invoice).product_lines)
+        # self.assertFalse(self.refresh(invoice).product_lines)
+        self.assertFalse(self.refresh(invoice).get_lines(ProductLine))
         self.assertFalse(ProductLine.objects.exists())
 
     @skipIfCustomService
@@ -149,7 +157,8 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_service_lines', args=(invoice.id,))
         self.assertGET200(url)
-        self.assertFalse(invoice.service_lines)
+        # self.assertFalse(invoice.service_lines)
+        self.assertFalse(invoice.get_lines(Service))
 
         service1 = self.create_service()
         service2 = self.create_service()
@@ -164,9 +173,11 @@ class LineTestCase(_BillingTestCase):
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)  # Refresh lines cache
-        self.assertEqual(2, len(invoice.service_lines))
+        # self.assertEqual(2, len(invoice.service_lines))
+        lines = invoice.get_lines(ServiceLine)
+        self.assertEqual(2, len(lines))
 
-        lines = invoice.service_lines
+        # lines = invoice.service_lines
         line0 = lines[0]
         line1 = lines[1]
         self.assertEqual(quantity, line0.quantity)
@@ -305,7 +316,8 @@ class LineTestCase(_BillingTestCase):
 
         invoice.save()  # Updates totals
 
-        self.assertEqual(2, len(invoice.product_lines))
+        # self.assertEqual(2, len(invoice.product_lines))
+        self.assertEqual(2, len(invoice.get_lines(ProductLine)))
         expected_total = Decimal('30')
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
@@ -316,7 +328,8 @@ class LineTestCase(_BillingTestCase):
         self.assertFalse(ProductLine.objects.filter(pk__in=ids))
 
         invoice = self.refresh(invoice)
-        self.assertFalse(invoice.product_lines)
+        # self.assertFalse(invoice.product_lines)
+        self.assertFalse(invoice.get_lines(ProductLine))
 
         expected_total = Decimal('0')
         self.assertEqual(expected_total, invoice.total_no_vat)
@@ -540,10 +553,9 @@ class LineTestCase(_BillingTestCase):
         unit = 'day'
         discount = '20'
         discount_unit = DISCOUNT_PERCENT
-        response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
-                                    # TODO: json.dumps
+        response = self.client.post(self._build_msave_url(invoice),
                                     data={service_line.entity_type_id: json_dump({
-                                                        'service_line_formset-TOTAL_FORMS':       len(invoice.service_lines),
+                                                        'service_line_formset-TOTAL_FORMS':       1,
                                                         'service_line_formset-INITIAL_FORMS':     1,
                                                         'service_line_formset-MAX_NUM_FORMS':     u'',
                                                         'service_line_formset-0-cremeentity_ptr': service_line.id,
@@ -584,9 +596,9 @@ class LineTestCase(_BillingTestCase):
         unit_price = '69.0'
         quantity = '2'
         unit = 'month'
-        response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
+        response = self.client.post(self._build_msave_url(invoice),
                                     data={product_line.entity_type_id: json_dump({
-                                                        'product_line_formset-TOTAL_FORMS':       len(invoice.product_lines) + 1,
+                                                        'product_line_formset-TOTAL_FORMS':       2,
                                                         'product_line_formset-INITIAL_FORMS':     1,
                                                         'product_line_formset-MAX_NUM_FORMS':     u'',
                                                         'product_line_formset-0-DELETE':          True,
@@ -640,9 +652,9 @@ class LineTestCase(_BillingTestCase):
                                                   unit_price=Decimal('50.0')
                                                  )
 
-        self.assertPOST403('/billing/%s/multi_save_lines' % invoice.id,
+        self.assertPOST403(self._build_msave_url(invoice),
                            data={service_line.entity_type_id: json_dump({
-                                                'service_line_formset-TOTAL_FORMS':       len(invoice.service_lines),
+                                                'service_line_formset-TOTAL_FORMS':       1,
                                                 'service_line_formset-INITIAL_FORMS':     1,
                                                 'service_line_formset-MAX_NUM_FORMS':     u'',
                                                 'service_line_formset-0-cremeentity_ptr': service_line.id,
@@ -670,9 +682,9 @@ class LineTestCase(_BillingTestCase):
                                                  )
 
         discount_unit = DISCOUNT_LINE_AMOUNT
-        response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
+        response = self.client.post(self._build_msave_url(invoice),
                                     data={service_line.entity_type_id: json_dump({
-                                                        'service_line_formset-TOTAL_FORMS':       len(invoice.service_lines),
+                                                        'service_line_formset-TOTAL_FORMS':       1,
                                                         'service_line_formset-INITIAL_FORMS':     1,
                                                         'service_line_formset-MAX_NUM_FORMS':     u'',
                                                         'service_line_formset-0-cremeentity_ptr': service_line.id,
@@ -705,21 +717,21 @@ class LineTestCase(_BillingTestCase):
                                                   unit_price=Decimal('50.0')
                                                  )
 
-        response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
+        response = self.client.post(self._build_msave_url(invoice),
                                     data={service_line.entity_type_id: json_dump({
-                                                        'service_line_formset-TOTAL_FORMS':       len(invoice.service_lines),
-                                                        'service_line_formset-INITIAL_FORMS':     1,
-                                                        'service_line_formset-MAX_NUM_FORMS':     u'',
-                                                        'service_line_formset-0-cremeentity_ptr': service_line.id,
-                                                        'service_line_formset-0-user':            user.id,
-                                                        'service_line_formset-0-on_the_fly_item': 'on the fly service updated',
-                                                        'service_line_formset-0-unit_price':      '100.0',
-                                                        'service_line_formset-0-quantity':        '2',
-                                                        'service_line_formset-0-discount':        '20',
-                                                        'service_line_formset-0-discount_unit':   DISCOUNT_ITEM_AMOUNT,
-                                                        'service_line_formset-0-vat_value':       Vat.objects.all()[1].id,
-                                                        'service_line_formset-0-unit':            'day',
-                                                    })
+                                                'service_line_formset-TOTAL_FORMS':       1,
+                                                'service_line_formset-INITIAL_FORMS':     1,
+                                                'service_line_formset-MAX_NUM_FORMS':     u'',
+                                                'service_line_formset-0-cremeentity_ptr': service_line.id,
+                                                'service_line_formset-0-user':            user.id,
+                                                'service_line_formset-0-on_the_fly_item': 'on the fly service updated',
+                                                'service_line_formset-0-unit_price':      '100.0',
+                                                'service_line_formset-0-quantity':        '2',
+                                                'service_line_formset-0-discount':        '20',
+                                                'service_line_formset-0-discount_unit':   DISCOUNT_ITEM_AMOUNT,
+                                                'service_line_formset-0-vat_value':       Vat.objects.all()[1].id,
+                                                'service_line_formset-0-unit':            'day',
+                                            }),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -728,6 +740,48 @@ class LineTestCase(_BillingTestCase):
         service_line = self.refresh(service_line)
         self.assertEqual(DISCOUNT_LINE_AMOUNT, service_line.discount_unit)
         self.assertIs(service_line.total_discount, False)
+
+    @skipIfCustomServiceLine
+    def test_multi_save_lines06(self):
+        "1 service line updated with concrete related Service"
+        user = self.login()
+
+        sub_cat = SubCategory.objects.all()[0]
+        shipping = Service.objects.create(user=user, name='Shipping',
+                                          category=sub_cat.category,
+                                          sub_category=sub_cat,
+                                          unit_price=Decimal('60.0'),
+                                         )
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        line = ServiceLine.objects.create(user=user, related_document=invoice,
+                                          related_item=shipping,
+                                          unit_price=Decimal('50.0'),
+                                          vat_value=Vat.objects.all()[0],
+                                         )
+
+        response = self.client.post(self._build_msave_url(invoice),
+                                    data={line.entity_type_id: json_dump({
+                                                'service_line_formset-TOTAL_FORMS':       1,
+                                                'service_line_formset-INITIAL_FORMS':     1,
+                                                'service_line_formset-MAX_NUM_FORMS':     u'',
+                                                'service_line_formset-0-cremeentity_ptr': line.id,
+                                                'service_line_formset-0-user':            user.id,
+                                                # 'service_line_formset-0-on_the_fly_item': '',  # <==
+                                                'service_line_formset-0-unit_price':      '51',
+                                                'service_line_formset-0-quantity':        str(line.quantity),
+                                                'service_line_formset-0-discount':        str(line.discount),
+                                                'service_line_formset-0-discount_unit':   str(line.discount_unit),
+                                                'service_line_formset-0-vat_value':       line.vat_value_id,
+                                                'service_line_formset-0-unit':            line.unit,
+                                            }),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        line = self.refresh(line)
+        self.assertIsNone(line.on_the_fly_item)
+        self.assertEqual(Decimal('51'), line.unit_price)
 
     @skipIfCustomProductLine
     def test_global_discount_change(self):

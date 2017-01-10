@@ -188,7 +188,7 @@ class Base(CremeEntity):
 
     @property
     def product_lines(self):
-        warnings.warn("billing.Base.product_lines() method is deprecated; use get_lines() instead",
+        warnings.warn("billing.Base.product_lines() method is deprecated; use get_lines(ProductLine) instead",
                       DeprecationWarning
                      )
 
@@ -204,7 +204,7 @@ class Base(CremeEntity):
 
     @property
     def service_lines(self):
-        warnings.warn("billing.Base.product_lines() method is deprecated; use get_lines() instead",
+        warnings.warn("billing.Base.service_lines() method is deprecated; use get_lines(ServiceLine) instead",
                       DeprecationWarning
                      )
 

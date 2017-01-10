@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -110,7 +110,7 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 # NB: model (ie: _meta.model) is set later, because this class is only used as base class
 class LineEditForm(CremeModelWithUserForm):
     # TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
-    vat_value = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
+    vat_value = ModelChoiceField(label=_(u'Vat'), queryset=Vat.objects.all(),
                                  required=True,  # TODO: remove when null=False in the model
                                  empty_label=None,
                                 )
@@ -123,7 +123,10 @@ class LineEditForm(CremeModelWithUserForm):
         self.related_document = related_document
         fields = self.fields
 
-        fields['on_the_fly_item'].widget = TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'})
+        if self.instance.related_item:
+            del fields['on_the_fly_item']
+        else:
+            fields['on_the_fly_item'].widget = TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'})
 
         fields['unit_price'].widget = TextInput(attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'})
         fields['quantity'].widget = TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'})
@@ -131,9 +134,9 @@ class LineEditForm(CremeModelWithUserForm):
         fields['discount'].widget = TextInput(attrs={'class': 'line-quantity_discount bound'})
 
         currency_str = related_document.currency.local_symbol
-        discount_units = [(DISCOUNT_PERCENT,        '%'),
-                          (DISCOUNT_LINE_AMOUNT,    _(u"%s per line") % currency_str),
-                          (DISCOUNT_ITEM_AMOUNT,    _(u"%s per unit") % currency_str),
+        discount_units = [(DISCOUNT_PERCENT,     '%'),
+                          (DISCOUNT_LINE_AMOUNT, _(u'%s per line') % currency_str),
+                          (DISCOUNT_ITEM_AMOUNT, _(u'%s per unit') % currency_str),
                          ]
 
         line = self.instance
