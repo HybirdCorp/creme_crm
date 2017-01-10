@@ -2310,14 +2310,12 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
         my_calendar = Calendar.get_user_default_calendar(user)
 
-        ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
-        ActivityType.objects.update_or_create(id=ACTIVITYTYPE_ACTIVITY,
-                                              defaults={'name':                 'Karate session',
-                                                        'default_day_duration':  0,
-                                                        'default_hour_duration': '00:15:00',
-                                                        'is_custom':             True,
-                                                       },
-                                             )
+        atype = ActivityType.objects.create(id='activities-test_createview_popup3',
+                                            name='Karate session',
+                                            default_day_duration=0,
+                                            default_hour_duration='00:15:00',
+                                            is_custom=True,
+                                           )
 
         create_dt = self.create_datetime
 
@@ -2325,7 +2323,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             response = self.client.post(self.ADD_POPUP_URL,
                                         data={'user':             user.pk,
                                               'title':            title,
-                                              'type_selector':    self._acttype_field_value(ACTIVITYTYPE_ACTIVITY),
+                                              'type_selector':    self._acttype_field_value(atype.id),
                                               'start':            date_format(today),
                                               # 'my_participation': True,
                                               # 'my_calendar':      my_calendar.pk,
@@ -2337,7 +2335,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             self.assertNoFormError(response)
 
             activity = self.get_object_or_fail(Activity, title=title)
-            self.assertEqual(ACTIVITYTYPE_ACTIVITY, activity.type_id)
+            self.assertEqual(atype, activity.type)
             self.assertIsNone(activity.sub_type)
 
             create_today_dt = partial(create_dt, year=today.year, month=today.month, day=today.day)
