@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import timedelta # datetime
+from datetime import timedelta
 from functools import partial
 from operator import or_
 
@@ -37,22 +37,18 @@ from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.views.generic import add_entity
 
-from creme.persons import get_contact_model, get_organisation_model
-#from creme.persons.models import Contact, Organisation
+from creme import persons
 from creme.persons.forms.contact import ContactForm
 from creme.persons.forms.organisation import OrganisationForm
 
-from creme.activities import get_activity_model
-from creme.activities.constants import (ACTIVITYTYPE_PHONECALL,
-        ACTIVITYSUBTYPE_PHONECALL_INCOMING, ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-        STATUS_IN_PROGRESS,
-        REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY)
-from creme.activities.models import Calendar #Activity
+from creme import activities
+from creme.activities import constants as act_constants
+from creme.activities.models import Calendar
 
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
-Activity = get_activity_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+Activity = activities.get_activity_model()
 
 RESPOND_TO_A_CALL_MODELS = (Contact, Organisation)
 
@@ -62,8 +58,8 @@ def _create_phonecall(user, title, calltype_id):
     return Activity.objects.create(user=user,
                                    title=title,
                                    description=_(u'Automatically created by CTI'),
-                                   status_id=STATUS_IN_PROGRESS,
-                                   type_id=ACTIVITYTYPE_PHONECALL,
+                                   status_id=act_constants.STATUS_IN_PROGRESS,
+                                   type_id=act_constants.ACTIVITYTYPE_PHONECALL,
                                    sub_type_id=calltype_id,
                                    start=now_value,
                                    end=now_value + timedelta(minutes=5),
@@ -73,7 +69,7 @@ def _create_phonecall(user, title, calltype_id):
 def abstract_create_phonecall_as_caller(request, pcall_creator=_create_phonecall):
     pcall = _build_related_phonecall(request.user,
                                      get_from_POST_or_404(request.POST, 'entity_id'),
-                                     ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                                     act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
                                      _(u'Call to %s'),
                                      pcall_creator=pcall_creator,
                                     )
@@ -103,7 +99,7 @@ def abstract_add_organisation(request, number, form=OrganisationForm,
 
 def abstract_add_phonecall(request, entity_id, pcall_creator=_create_phonecall):
     pcall = _build_related_phonecall(request.user, entity_id,
-                                     ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                                     act_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
                                      _(u'Call from %s'),
                                      pcall_creator=pcall_creator,
                                     )
@@ -118,16 +114,6 @@ def _build_related_phonecall(user, entity_id, calltype_id, title_format, pcall_c
     user.has_perm_to_create_or_die(Activity)
 
     entity = entity.get_real_entity()
-#    now_value = now()
-#    pcall = Activity.objects.create(user=user,
-#                                    title=title_format % entity,
-#                                    type_id=ACTIVITYTYPE_PHONECALL,
-#                                    description=_(u'Automatically created by CTI'),
-#                                    status_id=STATUS_IN_PROGRESS,
-#                                    sub_type_id=calltype_id,
-#                                    start=now_value,
-#                                    end=now_value + timedelta(minutes=5),
-#                                   )
     pcall = pcall_creator(user, title=title_format % entity, calltype_id=calltype_id)
 
     pcall.calendars.add(Calendar.get_user_default_calendar(user))
@@ -137,8 +123,9 @@ def _build_related_phonecall(user, entity_id, calltype_id, title_format, pcall_c
         pcall.calendars.add(Calendar.get_user_default_calendar(entity.is_user))
 
     # TODO: link credentials
-    caller_rtype = REL_SUB_PART_2_ACTIVITY
-    entity_rtype = REL_SUB_PART_2_ACTIVITY if isinstance(entity, Contact) else REL_SUB_LINKED_2_ACTIVITY
+    caller_rtype = act_constants.REL_SUB_PART_2_ACTIVITY
+    entity_rtype = act_constants.REL_SUB_PART_2_ACTIVITY if isinstance(entity, Contact) else \
+                   act_constants.REL_SUB_LINKED_2_ACTIVITY
     rtypes_ids   = {caller_rtype, entity_rtype}
 
     rtypes_map = RelationType.objects.in_bulk(rtypes_ids)
@@ -197,21 +184,18 @@ def respond_to_a_call(request):
 
 
 @login_required
-# @permission_required(('persons', 'persons.add_contact'))
 @permission_required(('persons', cperm(Contact)))
 def add_contact(request, number):
     return abstract_add_contact(request, number)
 
 
 @login_required
-# @permission_required(('persons', 'persons.add_organisation'))
 @permission_required(('persons', cperm(Organisation)))
 def add_orga(request, number):
     return abstract_add_organisation(request, number)
 
 
 @login_required
-# @permission_required(('activities', 'activities.add_activity'))
 @permission_required(('activities', cperm(Activity)))
 def add_phonecall(request, entity_id):
     return abstract_add_phonecall(request, entity_id)
