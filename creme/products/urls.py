@@ -2,7 +2,7 @@
 
 from django.conf.urls import url
 
-from . import product_model_is_custom, service_model_is_custom
+from creme import products
 from .views import portal, product, service
 
 
@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^sub_category/(?P<category_id>\d+)/json$',   product.get_subcategories),
 ]
 
-if not product_model_is_custom():
+if not products.product_model_is_custom():
     urlpatterns += [
         url(r'^products$',                         product.listview,   name='products__list_products'),
         url(r'^product/add$',                      product.add,        name='products__create_product'),
@@ -24,7 +24,7 @@ if not product_model_is_custom():
         url(r'^product/(?P<product_id>\d+)$',      product.detailview, name='products__view_product'),
     ]
 
-if not service_model_is_custom():
+if not products.service_model_is_custom():
     urlpatterns += [
         url(r'^services$',                         service.listview,   name='products__list_services'),
         url(r'^service/add$',                      service.add,        name='products__create_service'),

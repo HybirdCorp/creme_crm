@@ -311,7 +311,8 @@ class ProductTestCase(_ProductsTestCase):
         product = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
 
-        url = self.build_bulkedit_url([product, product2], 'category')
+        # url = self.build_bulkedit_url([product, product2], 'category')
+        url = self.build_bulkupdate_url(Product, 'category')
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.order_by('category')[1]
@@ -320,7 +321,8 @@ class ProductTestCase(_ProductsTestCase):
                                      'sub_category': '{"category":%d, "subcategory":%d}' % (
                                                             next_sub_cat.category.pk,
                                                             next_sub_cat.pk,
-                                                        )
+                                                        ),
+                                     'entities': [product.pk, product2.pk],
                                     }
                                    )
         self.assertNoFormError(response)
@@ -346,7 +348,8 @@ class ProductTestCase(_ProductsTestCase):
         product = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
 
-        url = self.build_bulkedit_url([product, product2], 'category')
+        # url = self.build_bulkedit_url([product, product2], 'category')
+        url = self.build_bulkupdate_url(Product, 'category')
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
@@ -355,7 +358,8 @@ class ProductTestCase(_ProductsTestCase):
                                      'sub_category': '{"category":%d, "subcategory":%d}' % (
                                                             sub_cat.category_id,
                                                             next_sub_cat.pk,
-                                                        )
+                                                        ),
+                                     'entities': [product.id, product2.id],
                                     }
                                    )
         self.assertFormError(response, 'form', 'sub_category',
