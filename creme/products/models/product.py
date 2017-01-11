@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ from creme.creme_core.models import CremeEntity
 # from creme.media_managers.models import Image
 from creme.documents.models.fields import ImageEntityManyToManyField
 
-from .other_models import Category, SubCategory
+from . import other_models
 
 
 class AbstractProduct(CremeEntity):
@@ -45,8 +45,8 @@ class AbstractProduct(CremeEntity):
     stock             = IntegerField(_(u'Quantity/Stock'), blank=True, null=True) \
                                     .set_tags(optional=True)
     web_site          = CharField(_(u'Web Site'), max_length=100, blank=True).set_tags(optional=True)
-    category          = ForeignKey(Category, verbose_name=_(u'Category'), on_delete=PROTECT)
-    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
+    category          = ForeignKey(other_models.Category, verbose_name=_(u'Category'), on_delete=PROTECT)
+    sub_category      = ForeignKey(other_models.SubCategory, verbose_name=_(u'Sub-category'),
                                    on_delete=PROTECT,
                                   )
     # images            = ManyToManyField(Image, blank=True,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from creme.creme_core.models import CremeEntity
 # from creme.media_managers.models import Image
 from creme.documents.models.fields import ImageEntityManyToManyField
 
-from .other_models import Category, SubCategory
+from . import other_models
 
 
 # TODO: use an abstract base class for Service and Products ??
@@ -39,10 +39,8 @@ class AbstractService(CremeEntity):
     name              = CharField(_(u'Name'), max_length=100)
     description       = CharField(_(u'Description'), max_length=200)
     reference         = CharField(_(u'Reference'), max_length=100)
-    category          = ForeignKey(Category, verbose_name=_(u'Category'), on_delete=PROTECT)
-    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
-                                   on_delete=PROTECT,
-                                  )
+    category          = ForeignKey(other_models.Category, verbose_name=_(u'Category'), on_delete=PROTECT)
+    sub_category      = ForeignKey(other_models.SubCategory, verbose_name=_(u'Sub-category'), on_delete=PROTECT)
     countable         = BooleanField(_(u'Countable'), default=False).set_tags(optional=True)
     unit              = CharField(_(u'Unit'), max_length=100, blank=True).set_tags(optional=True)
     quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True) \
