@@ -1,6 +1,4 @@
-{% load i18n  %}
-{% load creme_core_tags %}
-
+{% load i18n creme_core_tags %}
 {% block title %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
@@ -16,16 +14,20 @@
     <div class="help_box">{{help_message|linebreaksbr}}</div>
 {% endif%}
 
-<p>{% trans "Fields marked with * are required."%}</p>
+<script type="text/javascript">
+    $(document).ready(function() {
+        if (!$('span.required-mark').first().length) {
+            $('.required-help').attr('style', 'display:none');
+        }
+{% if not is_inner_popup %}
+        creme.forms.initialize($('#editforms form'));
+{% endif %}
+    });
+</script>
+
+<p class="required-help">{% trans "Fields marked with * are required." %}</p>
 
 <div id="editforms">
-    {% if not is_inner_popup %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            creme.forms.initialize($('#editforms form'));
-        });
-    </script>
-    {% endif %}
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
@@ -40,7 +42,7 @@
                 {% for field in form.visible_fields %}
                     {% if not field.is_hidden %}
                         <tr>
-                            <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.label}}{% if field.field.required %} *{% endif %}</th>
+                            <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</th>
                             <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">
                                 {% if field.help_text %}
                                     {{field.help_text}} <br />

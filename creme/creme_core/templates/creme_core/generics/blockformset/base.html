@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
         <td width="5%"><img src="{% creme_media_url logo %}" alt=""/></td>
@@ -13,16 +12,20 @@
     <div class="help_box">{{help_message}}</div>
 {% endif%}
 
-<p>{% trans "Fields marked with * are required."%} </p>
+<script type="text/javascript">
+    $(document).ready(function() {
+        if (!$('span.required-mark').first().length) {
+            $('.required-help').attr('style', 'display:none');
+        }
+{% if not is_inner_popup %}
+        creme.forms.initialize($('#editforms form'));
+{% endif %}
+    });
+</script>
+
+<p class="required-help">{% trans "Fields marked with * are required." %}</p>
 
 <div id="editforms">
-    {% if not is_inner_popup %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            creme.forms.initialize($('#editforms form'));
-        });
-    </script>
-    {% endif %}
     <form method="POST" action="" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         <table style="width: 100%;" border="0" cellpadding="0" cellspacing="4">
