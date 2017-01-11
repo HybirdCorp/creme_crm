@@ -53,20 +53,28 @@ class CTITestCase(CremeTestCase):
         "Should not ne available when creating UserRoles"
         self.login()
 
-        response = self.assertGET200('/creme_config/role/add/')
+        # response = self.assertGET200('/creme_config/role/add/')
+        #
+        # with self.assertNoException():
+        #     fields = response.context['form'].fields
+        #     apps_choices  = set(c[0] for c in fields['allowed_apps'].choices)
+        #     admin_choices = set(c[0] for c in fields['admin_4_apps'].choices)
+        #
+        # self.assertIn('creme_core', apps_choices)
+        # self.assertIn('persons',    apps_choices)
+        # self.assertNotIn('cti',    apps_choices) #<==
+        #
+        # self.assertIn('creme_core', admin_choices)
+        # self.assertIn('persons',    admin_choices)
+        # self.assertNotIn('cti',    admin_choices) #<==
+        response = self.assertGET200('/creme_config/role/wizard/')
 
         with self.assertNoException():
-            fields = response.context['form'].fields
-            apps_choices  = set(c[0] for c in fields['allowed_apps'].choices)
-            admin_choices = set(c[0] for c in fields['admin_4_apps'].choices)
+            app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
 
-        self.assertIn('creme_core', apps_choices)
-        self.assertIn('persons',    apps_choices)
-        self.assertNotIn('cti',    apps_choices) #<==
-
-        self.assertIn('creme_core', admin_choices)
-        self.assertIn('persons',    admin_choices)
-        self.assertNotIn('cti',    admin_choices) #<==
+        self.assertIn('creme_core', app_labels)
+        self.assertIn('persons',    app_labels)
+        self.assertNotIn('cti', app_labels)  # <==
 
     def test_print_phone(self):
         user = self.login()
