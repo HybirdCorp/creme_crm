@@ -429,17 +429,29 @@ class ReportTestCase(BaseReportsTestCase):
         report_1 = self._create_report('Filter #1')
         report_2 = self._create_report('Filter #2')
 
-        url = self.build_bulkedit_url([report_1, report_2], 'filter')
-        response = self.assertGET200(url)
-        self.assertContains(response, contact_filter.name)
-        self.assertNotContains(response, orga_filter.name)
+        # url = self.build_bulkedit_url([report_1, report_2], 'filter')
+        url = self.build_bulkupdate_url(Report, 'filter')
+        # response = self.assertGET200(url)
+        self.assertGET200(url)
+        # self.assertContains(response, contact_filter.name)
+        # self.assertNotContains(response, orga_filter.name)
 
-        response = self.assertPOST200(url, data={'field_value': orga_filter.pk})
+        # response = self.assertPOST200(url, data={'field_value': orga_filter.pk})
+        response = self.assertPOST200(url,
+                                      data={'field_value': orga_filter.id,
+                                            'entities': [report_1.id, report_2.id],
+                                           }
+                                     )
         self.assertFormError(response, 'form', 'field_value',
                              _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
-        response = self.client.post(url, data={'field_value': contact_filter.pk})
+        # response = self.client.post(url, data={'field_value': contact_filter.pk})
+        response = self.client.post(url,
+                                    data={'field_value': contact_filter.id,
+                                          'entities': [report_1.id, report_2.id],
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         self.assertEqual(self.refresh(report_1).filter, contact_filter)
@@ -454,19 +466,25 @@ class ReportTestCase(BaseReportsTestCase):
         report_1 = self._create_report('Contact report')
         report_2 = self._create_simple_organisations_report('Orga report')
 
-        url = self.build_bulkedit_url([report_1, report_2], 'filter')
-        response = self.assertGET200(url)
-        self.assertContains(response,
-                            escape(_(u"Filter field can only be updated when reports "
-                                     u"target the same type of entities (e.g: only contacts)."
-                                   )
-                                  )
-                           )
+        # url = self.build_bulkedit_url([report_1, report_2], 'filter')
+        url = self.build_bulkupdate_url(Report, 'filter')
+        # response = self.assertGET200(url)
+        self.assertGET200(url)
+        # self.assertContains(response,
+        #                     escape(_(u'Filter field can only be updated when reports '
+        #                              u'target the same type of entities (e.g: only contacts).'
+        #                            )
+        #                           )
+        #                    )
 
-        response = self.assertPOST200(url, data={'field_value': contact_filter.pk})
+        # response = self.assertPOST200(url, data={'field_value': contact_filter.pk})
+        response = self.assertPOST200(url,
+                                      data={'field_value': contact_filter.id,
+                                            'entities': [report_1.id, report_2.id],
+                                           })
         self.assertFormError(response, 'form', None,
-                             _(u"Filter field can only be updated when reports "
-                               u"target the same type of entities (e.g: only contacts)."
+                             _(u'Filter field can only be updated when reports '
+                               u'target the same type of entities (e.g: only contacts).'
                               )
                             )
 
@@ -486,20 +504,26 @@ class ReportTestCase(BaseReportsTestCase):
                                          ct=efilter2.entity_type, filter=efilter2,
                                         )
 
-        url = self.build_bulkedit_url([report_1, report_2, report_3], 'filter')
-        response = self.assertGET200(url)
-        self.assertContains(response, efilter1.name)
-        self.assertContains(response, efilter3.name)
-        self.assertNotContains(response, efilter2.name)
-        self.assertContains(response,
-                            escape(ungettext('The filter of %s report cannot be changed because it is private.',
-                                             'The filters of %s reports cannot be changed because they are private.',
-                                             1
-                                            ) % 1
-                                  )
-                           )
+        # url = self.build_bulkedit_url([report_1, report_2, report_3], 'filter')
+        url = self.build_bulkupdate_url(Report, 'filter')
+        # response = self.assertGET200(url)
+        # self.assertContains(response, efilter1.name)
+        # self.assertContains(response, efilter3.name)
+        # self.assertNotContains(response, efilter2.name)
+        # self.assertContains(response,
+        #                     escape(ungettext('The filter of %s report cannot be changed because it is private.',
+        #                                      'The filters of %s reports cannot be changed because they are private.',
+        #                                      1
+        #                                     ) % 1
+        #                           )
+        #                    )
 
-        response = self.client.post(url, data={'field_value': efilter3.pk})
+        # response = self.client.post(url, data={'field_value': efilter3.pk})
+        response = self.client.post(url,
+                                    data={'field_value': efilter3.id,
+                                          'entities': [report_1.id, report_2.id, report_3.id],
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         self.assertEqual(efilter3, self.refresh(report_1).filter)
