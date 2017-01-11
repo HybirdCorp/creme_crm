@@ -2,7 +2,7 @@
 
 from django.conf.urls import url
 
-from . import document_model_is_custom, folder_model_is_custom
+from creme import documents
 from .views import portal, ajax
 
 
@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^getChildDocuments/$', ajax.get_child_documents),
 ]
 
-if not folder_model_is_custom():
+if not documents.folder_model_is_custom():
     from .views import folder
 
     urlpatterns += [
@@ -24,7 +24,7 @@ if not folder_model_is_custom():
         url(r'^folder/(?P<folder_id>\d+)$',           folder.detailview, name='documents__view_folder'),
     ]
 
-if not document_model_is_custom():
+if not documents.document_model_is_custom():
     from .views import document, quick_forms
 
     urlpatterns += [

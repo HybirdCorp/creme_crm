@@ -273,10 +273,16 @@ class FolderTestCase(_DocumentsTestCase):
         folder3 = create_folder(title=u'Test folder#3', parent_folder=folder2)
         folder4 = create_folder(title=u'Test folder#4')
 
-        url = self.build_bulkedit_url([folder1, folder3, folder4], 'parent_folder')
+        # url = self.build_bulkedit_url([folder1, folder3, folder4], 'parent_folder')
+        url = self.build_bulkupdate_url(Folder, 'parent_folder')
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'field_value': folder3.pk})
+        # response = self.client.post(url, data={'field_value': folder3.pk})
+        response = self.client.post(url,
+                                    data={'field_value': folder3.id,
+                                          'entities':    [folder1.id, folder3.id, folder4.id],
+                                         }
+                                   )
         self.assertContains(response,
                             _(u'This folder is one of the child folders of «%(folder)s»') % {
                                     'folder': folder1,

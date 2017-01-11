@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,15 +31,14 @@ from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.creme_core.utils import ellipsis
 
-
-from .. import get_folder_model, get_document_model
-from ..constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
+from creme import documents
+from .. import constants
 from ..models import FolderCategory
 
 
 logger = logging.getLogger(__name__)
-Folder   = get_folder_model()
-Document = get_document_model()
+Folder   = documents.get_folder_model()
+Document = documents.get_document_model()
 
 
 class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseForm ?
@@ -99,16 +98,16 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
     def clean_user(self):
         return validate_linkable_model(Document, self.user, owner=self.cleaned_data['user'])
 
-    def save(self):
+    def save(self, *args, **kwargs):
         instance = self.instance
         entity = self.related_entity.get_real_entity()
         user   = self.cleaned_data['user']
-        entity_folder = None
+        # entity_folder = None
 
         # TODO: reduce code depth
         try:
             creme_folder = Folder.objects.get(title='Creme')  # Unique title (created in populate.py)
-            category = FolderCategory.objects.get(pk=DOCUMENTS_FROM_ENTITIES)
+            category = FolderCategory.objects.get(pk=constants.DOCUMENTS_FROM_ENTITIES)
             get_folder = Folder.objects.get_or_create
             model_folder = get_folder(title=unicode(entity.entity_type),
                                       parent_folder=creme_folder,
@@ -127,10 +126,10 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         else:
             instance.folder = entity_folder
 
-        super(RelatedDocumentCreateForm, self).save()
+        super(RelatedDocumentCreateForm, self).save(*args, **kwargs)
 
         Relation.objects.create(subject_entity=entity,
-                                type_id=REL_SUB_RELATED_2_DOC,
+                                type_id=constants.REL_SUB_RELATED_2_DOC,
                                 object_entity=instance,
                                 user=user,
                                )
