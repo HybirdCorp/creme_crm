@@ -50,7 +50,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     def test_create01(self):
         "Check app credentials"
-        self.login(is_superuser=False, allowed_apps=('documents'))
+        self.login(is_superuser=False, allowed_apps=['documents'])
 
         ct = self.ct_contact
         self.assertFalse(EntityFilter.objects.filter(entity_type=ct).count())

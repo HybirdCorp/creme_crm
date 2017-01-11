@@ -331,7 +331,9 @@ def bulk_update_field(request, ct_id, field_name):
 @login_required
 def bulk_edit_field(request, ct_id, id, field_name):
     warnings.warn("/creme_core/entity/edit/bulk/{{ct}}/{{ids...}}/field/{{fieldname}} is now deprecated."
-                  "Use /creme_core/entity/update/bulk/{{ct}}/field/{{fieldname}} view instead.")
+                  "Use /creme_core/entity/update/bulk/{{ct}}/field/{{fieldname}} view instead.",
+                  DeprecationWarning
+                 )
 
     user   = request.user
     model  = get_ct_or_404(ct_id).model_class()

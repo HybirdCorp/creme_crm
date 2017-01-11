@@ -294,7 +294,7 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_portal02(self):
         "Do not have the credentials"
-        self.login(is_superuser=False, allowed_apps=('documents'))
+        self.login(is_superuser=False, allowed_apps=['documents'])
 
         class FoobarBlock1(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_portal02_1')
