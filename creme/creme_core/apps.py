@@ -280,6 +280,7 @@ class CremeCoreConfig(CremeAppConfig):
         self.hook_m2m_formfield()
         self.hook_datetime_widgets()
         self.hook_multiselection_widgets()
+        self.hook_widget_render()
 
     # def register_creme_app(self, creme_registry):
     #     creme_registry.register_app('creme_core', _(u'Core'), '/')
@@ -386,6 +387,23 @@ class CremeCoreConfig(CremeAppConfig):
         forms.MultipleChoiceField.widget = forms.ModelMultipleChoiceField.widget = \
              widgets.UnorderedMultipleChoiceWidget
 
+    @staticmethod
+    def hook_widget_render():
+        from django.forms.widgets import Widget
+
+        def build_attrs(self, extra_attrs=None, **kwargs):
+            attrs = dict(self.attrs, **kwargs)
+
+            if self.is_required:
+                attrs['required'] = ''
+
+            if extra_attrs:
+                attrs.update(extra_attrs)
+
+            return attrs
+
+
+        Widget.build_attrs = build_attrs
 
 def creme_app_configs():
     for app_config in apps.get_app_configs():
