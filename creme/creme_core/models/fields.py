@@ -51,7 +51,7 @@ class ColorField(CharField):
     description = _('HTML Color')
 
     def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = 6
+        kwargs['max_length'] = 6  # TODO: accepts 8 too (if alpha is needed) ?
         super(ColorField, self).__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):

@@ -49,8 +49,7 @@ class FieldsConfigRegistry(object):
         #                                self._extra_models,
         #                               )
         #        )
-        warnings.warn("FieldsConfigRegistry.ctypes property is deprecated ; "
-                      "use FieldsConfig.valid_ctypes() instead.",
+        warnings.warn("FieldsConfigRegistry.ctypes property is deprecated.",
                       DeprecationWarning
                      )
 

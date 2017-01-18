@@ -118,7 +118,7 @@ def get_merge_form_builder():
     from creme.creme_core.forms.merge import MergeEntitiesBaseForm
 
     class FolderMergeForm(MergeEntitiesBaseForm):
-        # TODO: uncomment & remove the code in init which eclude the field ?
+        # TODO: uncomment & remove the code in init which exclude the field ?
         #      (MergeEntitiesBaseForm has to be a ModelForm...)
         # class Meta(MergeEntitiesBaseForm.Meta):
         #     exclude = ('parent_folder',)
@@ -130,6 +130,5 @@ def get_merge_form_builder():
             super(FolderMergeForm, self).__init__(entity1, entity2, *args, **kwargs)
 
             del self.fields['parent_folder']
-
 
     return FolderMergeForm

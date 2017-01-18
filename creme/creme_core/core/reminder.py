@@ -47,7 +47,7 @@ class Reminder(object):
     def get_emails(self, object):
         return [getattr(settings, 'DEFAULT_USER_EMAIL', None)]
 
-    def generate_email_subject (self, object):
+    def generate_email_subject(self, object):
         pass
 
     def generate_email_body(self, object):
@@ -56,7 +56,7 @@ class Reminder(object):
     def get_Q_filter(self):  # TODO: get_queryset instead ????
         pass
 
-    def ok_for_continue (self):
+    def ok_for_continue(self):
         return True
 
     # def send_mails(self, instance):
