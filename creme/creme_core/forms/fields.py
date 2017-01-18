@@ -1327,7 +1327,7 @@ class DatePeriodField(fields.MultiValueField):
             pass
         else:
             warnings.warn('DatePeriodField.__init__(): "choices" argument is deprecated ; '
-                          'use "period_names"  instead.',
+                          'use "period_names"  instead (same type).',
                           DeprecationWarning
                          )
 
