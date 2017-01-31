@@ -635,10 +635,14 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertEqual(1, len(docs))
 
         doc = docs[0]
-        self.assertEqual('creme_22.png', doc.title)
-        self.assertEqual('',             doc.description)
-        self.assertEqual(folder,         doc.folder)
-        self.assertTrue('image/png',     doc.mime_type.name)
+        # self.assertEqual('creme_22.png', doc.title)
+        title = doc.title
+        self.assertTrue(title.startswith('creme_22'))
+        self.assertTrue(title.endswith('.png'))
+
+        self.assertEqual('',         doc.description)
+        self.assertEqual(folder,     doc.folder)
+        self.assertTrue('image/png', doc.mime_type.name)
 
         self.assertTrue(filecmp.cmp(path, doc.filedata.path))
 
