@@ -2095,7 +2095,8 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        _JSONFieldBaseTestCase.setUpClass()
+        # _JSONFieldBaseTestCase.setUpClass()
+        super(FilteredEntityTypeFieldTestCase, cls).setUpClass()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(FakeContact)

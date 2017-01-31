@@ -752,7 +752,8 @@ class _BulkEditTestCase(ViewsTestCase):
 class BulkEditTestCase(_BulkEditTestCase):
     @classmethod
     def setUpClass(cls):
-        _BulkEditTestCase.setUpClass()
+        # _BulkEditTestCase.setUpClass()
+        super(BulkEditTestCase, cls).setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
         cls.contact_bulk_status = bulk_update_registry.status(Contact)
 
@@ -1230,7 +1231,8 @@ class BulkEditTestCase(_BulkEditTestCase):
 class BulkUpdateTestCase(_BulkEditTestCase):
     @classmethod
     def setUpClass(cls):
-        _BulkEditTestCase.setUpClass()
+        # _BulkEditTestCase.setUpClass()
+        super(BulkUpdateTestCase, cls).setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
         cls.contact_bulk_status = bulk_update_registry.status(Contact)
 

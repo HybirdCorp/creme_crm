@@ -14,13 +14,15 @@ except Exception as e:
 class VatTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(VatTestCase, cls).setUpClass()
         cls._vat_backup = list(Vat.objects.all())
         Vat.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
+        # CremeTestCase.tearDownClass()
+        super(VatTestCase, cls).tearDownClass()
         Vat.objects.all().delete()
         Vat.objects.bulk_create(cls._vat_backup)
 

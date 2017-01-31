@@ -29,7 +29,8 @@ except Exception as e:
 class EmailsCrudityTestCase(_EmailsTestCase):
     @classmethod
     def setUpClass(cls):
-        _EmailsTestCase.setUpClass()
+        # _EmailsTestCase.setUpClass()
+        super(EmailsCrudityTestCase, cls).setUpClass()
         # cls.populate('documents', 'crudity')
 
         from ..crudity_register import EntityEmailBackend

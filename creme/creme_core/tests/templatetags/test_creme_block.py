@@ -30,7 +30,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(CremeBlockTagsTestCase, cls).setUpClass()
         # cls.populate('creme_core')
 
         cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
@@ -41,7 +42,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
+        # CremeTestCase.tearDownClass()
+        super(CremeBlockTagsTestCase, cls).tearDownClass()
         cls._clean_db()
 
         for model, backup in [(BlockDetailviewLocation, cls._bdl_backup),

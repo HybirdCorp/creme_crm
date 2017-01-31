@@ -21,7 +21,8 @@ except Exception as e:
 class ListViewStateTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(ListViewStateTestCase, cls).setUpClass()
 
         cls.factory = RequestFactory()
         cls.user = CremeUser(username='yui', email='kawa.yui@kimengumi.jp',

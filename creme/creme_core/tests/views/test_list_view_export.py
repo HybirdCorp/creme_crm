@@ -38,7 +38,8 @@ except Exception:
 class CSVExportViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(CSVExportViewsTestCase, cls).setUpClass()
         # cls.populate('creme_core')
         cls.ct = ContentType.objects.get_for_model(Contact)
 
@@ -47,7 +48,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        ViewsTestCase.tearDownClass()
+        # ViewsTestCase.tearDownClass()
+        super(CSVExportViewsTestCase, cls).tearDownClass()
         HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
 

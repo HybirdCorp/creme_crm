@@ -37,7 +37,8 @@ class _DocumentsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(_DocumentsTestCase, cls).setUpClass()
         # cls.populate('creme_core', 'documents')
         cls.ADD_DOC_URL = reverse('documents__create_document')
 

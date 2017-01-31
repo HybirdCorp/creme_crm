@@ -546,18 +546,32 @@ class _CremeTestCase(object):
         return url
 
 
-class CremeTestCase(_CremeTestCase, TestCase):
+# class CremeTestCase(_CremeTestCase, TestCase):
+class CremeTestCase(TestCase, _CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        TestCase.setUpClass()
+        # TestCase.setUpClass()
+        # _CremeTestCase.setUpClass()
+        super(CremeTestCase, cls).setUpClass()
         _CremeTestCase.setUpClass()
 
+    def tearDown(self):
+        super(CremeTestCase, self).tearDown()
+        _CremeTestCase.tearDown(self)
 
-class CremeTransactionTestCase(_CremeTestCase, TransactionTestCase):
+
+# class CremeTransactionTestCase(_CremeTestCase, TransactionTestCase):
+class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        TransactionTestCase.setUpClass()
+        # TransactionTestCase.setUpClass()
+        # _CremeTestCase.setUpClass()
+        super(CremeTransactionTestCase, cls).setUpClass()
         _CremeTestCase.setUpClass()
+
+    def tearDown(self):
+        super(CremeTransactionTestCase, self).tearDown()
+        _CremeTestCase.tearDown(self)
 
     @classmethod
     def populate(cls, *args):

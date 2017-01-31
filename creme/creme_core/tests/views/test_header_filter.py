@@ -25,7 +25,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(HeaderFilterViewsTestCase, cls).setUpClass()
         # cls.populate('creme_core')
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
 
@@ -34,7 +35,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        ViewsTestCase.tearDownClass()
+        # ViewsTestCase.tearDownClass()
+        super(HeaderFilterViewsTestCase, cls).tearDownClass()
         HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
 

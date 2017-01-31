@@ -33,7 +33,8 @@ except Exception as e:
 class ActTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
-        CommercialBaseTestCase.setUpClass()
+        # CommercialBaseTestCase.setUpClass()
+        super(CommercialBaseTestCase, cls).setUpClass()
         # cls.populate('activities', 'opportunities', 'commercial')
 
         cls.ADD_URL = reverse('commercial__create_act')

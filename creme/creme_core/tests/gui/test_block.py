@@ -16,7 +16,8 @@ except Exception as e:
 class BlockRegistryTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(BlockRegistryTestCase, cls).setUpClass()
         RelationBlockItem.objects.all().delete()
         InstanceBlockConfigItem.objects.all().delete()
 

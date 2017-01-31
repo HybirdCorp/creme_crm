@@ -27,7 +27,8 @@ class FlowPaginatorTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(FlowPaginatorTestCase, cls).setUpClass()
 
         all_names = [('Rei',     'Ichido'),
                      (u'Gô',     'Reietsu'),

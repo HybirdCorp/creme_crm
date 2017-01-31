@@ -20,7 +20,8 @@ class PropertyViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(PropertyViewsTestCase, cls).setUpClass()
         # cls.populate('creme_core')
         cls.centity_ct = ContentType.objects.get_for_model(CremeEntity)
 

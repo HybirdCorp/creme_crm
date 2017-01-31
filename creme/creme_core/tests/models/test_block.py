@@ -26,7 +26,8 @@ except Exception as e:
 class BlockTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(BlockTestCase, cls).setUpClass()
 
         # cls.populate('creme_core')
 
@@ -40,7 +41,8 @@ class BlockTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
+        # CremeTestCase.tearDownClass()
+        super(BlockTestCase, cls).tearDownClass()
 
         BlockDetailviewLocation.objects.all().delete()
         BlockPortalLocation.objects.all().delete()

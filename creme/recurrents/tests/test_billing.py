@@ -40,7 +40,8 @@ TemplateBase = get_template_base_model()
 class RecurrentsBillingTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(RecurrentsBillingTestCase, cls).setUpClass()
         # apps_2_pop = ['recurrents']
         #
         # if apps.is_installed('creme.billing'):

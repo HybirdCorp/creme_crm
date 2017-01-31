@@ -50,7 +50,8 @@ class MobileTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(MobileTestCase, cls).setUpClass()
         # cls.populate('persons', 'activities')  # 'mobile'
 
         cls.CREATE_CONTACT_URL = reverse('mobile__create_contact')

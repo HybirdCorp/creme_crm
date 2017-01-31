@@ -44,7 +44,8 @@ except Exception as e:
 class CommercialApproachTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(CommercialApproachTestCase, cls).setUpClass()
         # cls.populate('creme_core', 'activities', 'opportunities', 'commercial', 'persons')
         cls.original_send_messages = EmailBackend.send_messages
 

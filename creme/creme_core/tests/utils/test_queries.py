@@ -20,14 +20,16 @@ except Exception as e:
 class QueriesTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(QueriesTestCase, cls).setUpClass()
 
         cls._civ_backup = list(Civility.objects.all())
         Civility.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
+        # CremeTestCase.tearDownClass()
+        super(QueriesTestCase, cls).tearDownClass()
         Civility.objects.all().delete()
         Civility.objects.bulk_create(cls._civ_backup)
 

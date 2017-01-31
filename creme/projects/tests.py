@@ -58,7 +58,8 @@ class ProjectsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(ProjectsTestCase, cls).setUpClass()
         # cls.populate('creme_core', 'activities', 'projects')
 
         cls.ADD_PROJECT_URL = reverse('projects__create_project')

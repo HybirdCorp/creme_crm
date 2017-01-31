@@ -21,7 +21,8 @@ class SearchConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(SearchConfigTestCase, cls).setUpClass()
 
         SearchConfigItem.objects.all().delete()  # TODO: backup ?
         # cls.populate('creme_core')

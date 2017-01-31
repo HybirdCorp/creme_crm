@@ -38,7 +38,8 @@ Organisation = get_organisation_model()
 class VcfImportTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(VcfImportTestCase, cls).setUpClass()
         # cls.populate('persons')
 
         cls.IMPORT_URL = reverse('vcfs__import')

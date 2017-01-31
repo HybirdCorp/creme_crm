@@ -17,7 +17,8 @@ class PreferedMenuTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(PreferedMenuTestCase, cls).setUpClass()
         # cls.populate('creme_core')
 
         reg_item = creme_menu.get_app_item('creme_config').register_item

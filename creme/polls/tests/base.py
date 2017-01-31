@@ -52,7 +52,8 @@ class AutoIncr:
 class _PollsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(_PollsTestCase, cls).setUpClass()
         # cls.populate('polls')
 
         cls.ADD_REPLY_URL = reverse('polls__create_reply')

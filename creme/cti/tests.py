@@ -32,7 +32,8 @@ class CTITestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(CTITestCase, cls).setUpClass()
         # cls.populate('creme_core', 'activities')
 
         cls.ADD_PCALL_URL = reverse('cti__create_phonecall_as_caller')

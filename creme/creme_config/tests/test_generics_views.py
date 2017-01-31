@@ -24,7 +24,8 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(GenericModelConfigTestCase, cls).setUpClass()
         # cls.populate('creme_core')
 
         cls._sector_backup = list(Sector.objects.all())
@@ -32,7 +33,8 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
+        # CremeTestCase.tearDownClass()
+        super(GenericModelConfigTestCase, cls).tearDownClass()
         Sector.objects.all().delete()
         Sector.objects.bulk_create(cls._sector_backup)
 
