@@ -74,19 +74,43 @@ class CredentialsTestCase(CremeTestCase):
     def _build_contact_qs(self):
         return Contact.objects.filter(pk__in=(self.contact1.id, self.contact2.id))
 
-    def test_attributes(self):
+    def test_attributes01(self):
         user = self.user
-        self.assertEqual(_(u"%(first_name)s %(last_name)s.") % {
-                                'first_name': user.first_name,
-                                'last_name':  user.last_name[0],
-                            },
-                         user.get_full_name()
-                        )
-        self.assertEqual(settings.TIME_ZONE,    user.time_zone)
+
+        full_name = _(u'%(first_name)s %(last_name)s.') % {
+            'first_name': user.first_name,
+            'last_name': user.last_name[0],
+        }
+        self.assertEqual(full_name, user.get_full_name())
+        self.assertEqual(full_name, unicode(user))
+
+        self.assertEqual(user.username, user.get_short_name())
+
+        self.assertEqual(settings.TIME_ZONE, user.time_zone)
 
         theme = settings.THEMES[0]
         self.assertEqual(theme[0], user.theme)
         self.assertEqual(theme, user.theme_info)
+
+    def test_attributes02(self):
+        username1 = 'Teamee'
+        team1 = CremeUser.objects.create(username=username1, is_team=True)
+
+        self.assertEqual(_('%s (team)') % username1, unicode(team1))
+        self.assertEqual(username1, team1.get_short_name())
+
+        # TODO: error if team ??
+        # self.assertEqual(settings.TIME_ZONE, user.time_zone)
+        # theme = settings.THEMES[0]
+        # self.assertEqual(theme[0], user.theme)
+        # self.assertEqual(theme, user.theme_info)
+
+        username2 = 'A-Team'
+        team2 = CremeUser.objects.create(username=username2, is_team=True,
+                                         first_name='NC', last_name=username2,
+                                        )
+
+        self.assertEqual(_('%s (team)') % username2, unicode(team2))
 
     @override_settings(THEMES=[('this_theme_is_cool', 'Cool one'),
                                ('yet_another_theme',  'I am cool too, bro'),
