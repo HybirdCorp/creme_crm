@@ -75,6 +75,9 @@ class PersonsConfig(CremeAppConfig):
         from creme.creme_core.templatetags.creme_widgets import widget_entity_hyperlink
 
         def print_fk_user_html(entity, fval, user, field):
+            if fval.is_team:
+                return unicode(fval)
+
             return widget_entity_hyperlink(fval.linked_contact, user)
 
         print_foreignkey_html.register(get_user_model(), print_fk_user_html)

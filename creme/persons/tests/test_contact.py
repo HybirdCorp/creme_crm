@@ -16,7 +16,7 @@ try:
     from creme.creme_core.gui.field_printers import field_printers_registry
     from creme.creme_core.forms.widgets import Label
     from creme.creme_core.gui.quick_forms import quickforms_registry
-    from creme.creme_core.models import RelationType, Relation, SetCredentials, FieldsConfig
+    from creme.creme_core.models import RelationType, Relation, SetCredentials, FieldsConfig, CremeUser
 
     # from creme.media_managers.models import Image
     from creme.documents.tests.base import skipIfCustomDocument
@@ -1640,6 +1640,28 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         addr2 = self.refresh(addr2)
         self.assertEqual(city2, addr2.city)
 
+    def test_user_linked_contact01(self):
+        first_name = 'Deunan'
+        last_name = 'Knut'
+        user = CremeUser.objects.create(username='dknut', last_name=last_name, first_name=first_name)
+
+        with self.assertNoException():
+            contact = user.linked_contact
+
+        self.assertIsInstance(contact, Contact)
+        self.assertEqual(first_name, contact.first_name)
+        self.assertEqual(last_name,  contact.last_name)
+
+    def test_user_linked_contact02(self):
+        user = CremeUser.objects.create(username='dknut', is_team=True,
+                                        last_name='Knut', first_name='Deunan',
+                                       )
+
+        with self.assertNoException():
+            contact = user.linked_contact
+
+        self.assertIsNone(contact)
+
     def test_user_delete_is_user(self):
         "Manage Contact.is_user field : Contact is no more related to deleted user."
         user = self.login()
@@ -1666,7 +1688,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertStillExists(deunan)
         self.assertEqual(user, self.assertStillExists(briareos).user)
 
-    def test_fk_user_printer(self):
+    def test_fk_user_printer01(self):
         user = self.login()
 
         deunan = Contact.objects.create(user=user, first_name='Deunan', last_name='Knut')
@@ -1681,3 +1703,14 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                         )
 
         self.assertEqual(unicode(user), field_printers_registry.get_csv_field_value(deunan, 'user', user))
+
+    def test_fk_user_printer02(self):
+        "Team"
+        user = self.login()
+
+        eswat = CremeUser.objects.create(username='eswat', is_team=True)
+        deunan = Contact.objects.create(user=eswat, first_name='Deunan', last_name='Knut')
+
+        self.assertEqual(unicode(eswat),
+                         field_printers_registry.get_html_field_value(deunan, 'user', user)
+                        )
