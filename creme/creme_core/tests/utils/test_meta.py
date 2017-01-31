@@ -19,7 +19,8 @@ except Exception as e:
 class MetaTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(MetaTestCase, cls).setUpClass()
         cls._lang = translation.get_language()
         cls._translation_deactivated = False
 

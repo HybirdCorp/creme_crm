@@ -270,7 +270,8 @@ class BatchActionTestCase(CremeTestCase):
 class EntityCellTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(EntityCellTestCase, cls).setUpClass()
 
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
 

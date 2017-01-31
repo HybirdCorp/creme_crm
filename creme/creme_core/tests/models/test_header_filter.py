@@ -21,7 +21,8 @@ except Exception as e:
 class HeaderFiltersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(HeaderFiltersTestCase, cls).setUpClass()
         # cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model

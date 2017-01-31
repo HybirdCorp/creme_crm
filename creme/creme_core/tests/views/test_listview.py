@@ -37,7 +37,8 @@ except Exception as e:
 class ListViewTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(ListViewTestCase, cls).setUpClass()
         # cls.populate('creme_core')
 
         cls.url = Organisation.get_lv_absolute_url()
@@ -48,7 +49,8 @@ class ListViewTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        ViewsTestCase.tearDownClass()
+        # ViewsTestCase.tearDownClass()
+        super(ListViewTestCase, cls).tearDownClass()
         Civility.objects.all().delete()
         Civility.objects.bulk_create(cls._civ_backup)
 

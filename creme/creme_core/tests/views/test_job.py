@@ -39,7 +39,8 @@ class JobViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(JobViewsTestCase, cls).setUpClass()
         # Job.objects.all().delete()
 
         # apps = ['creme_core', 'creme_config']

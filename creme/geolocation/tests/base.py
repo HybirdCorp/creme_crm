@@ -19,7 +19,8 @@ Organisation = get_organisation_model()
 class GeoLocationBaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(GeoLocationBaseTestCase, cls).setUpClass()
         # cls.populate('creme_core', 'persons')
         Town.objects.all().delete()  # TODO: backup ?
 

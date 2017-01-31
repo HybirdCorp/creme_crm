@@ -106,7 +106,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(OpportunitiesTestCase, cls).setUpClass()
         # cls.populate('opportunities', 'documents') #'commercial'
 
         try:
@@ -1470,7 +1471,8 @@ class SalesPhaseTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(SalesPhaseTestCase, cls).setUpClass()
         # cls.populate('creme_core', 'opportunities')
 
         cls._phase_backup = list(SalesPhase.objects.all())
@@ -1478,7 +1480,8 @@ class SalesPhaseTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
+        # CremeTestCase.tearDownClass()
+        super(SalesPhaseTestCase, cls).tearDownClass()
 
         try:
             SalesPhase.objects.bulk_create(cls._phase_backup)

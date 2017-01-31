@@ -77,7 +77,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(MassImportViewsTestCase, cls).setUpClass()
         # cls.populate('creme_core')
         Job.objects.all().delete()
 

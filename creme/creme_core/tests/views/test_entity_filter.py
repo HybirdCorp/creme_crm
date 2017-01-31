@@ -30,7 +30,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(EntityFilterViewsTestCase, cls).setUpClass()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(Contact)

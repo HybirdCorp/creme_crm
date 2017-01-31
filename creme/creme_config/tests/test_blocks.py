@@ -132,7 +132,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(BlocksConfigTestCase, cls).setUpClass()
 
         cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
         cls._bpl_backup = list(BlockPortalLocation.objects.all())
@@ -164,7 +165,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
+        # CremeTestCase.tearDownClass()
+        super(BlocksConfigTestCase, cls).tearDownClass()
 
         BlockDetailviewLocation.objects.all().delete()
         BlockPortalLocation.objects.all().delete()

@@ -34,7 +34,8 @@ except Exception as e:
 class TodoTestCase(AssistantsTestCase):
     @classmethod
     def setUpClass(cls):
-        AssistantsTestCase.setUpClass()
+        # AssistantsTestCase.setUpClass()
+        super(TodoTestCase, cls).setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):

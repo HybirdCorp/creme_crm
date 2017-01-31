@@ -19,7 +19,8 @@ except Exception as e:
 class FolderTestCase(_DocumentsTestCase):
     @classmethod
     def setUpClass(cls):
-        _DocumentsTestCase.setUpClass()
+        # _DocumentsTestCase.setUpClass()
+        super(FolderTestCase, cls).setUpClass()
 
         cls.ADD_URL  = reverse('documents__create_folder')
         cls.LIST_URL = reverse('documents__list_folders')

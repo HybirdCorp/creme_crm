@@ -16,7 +16,8 @@ except Exception as e:
 class EntityCellsFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        FieldTestCase.setUpClass()
+        # FieldTestCase.setUpClass()
+        super(EntityCellsFieldTestCase, cls).setUpClass()
         cls.ct_contact = ContentType.objects.get_for_model(Contact)
 
     def test_clean_empty_required(self):

@@ -39,7 +39,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        _EmailsTestCase.setUpClass()
+        # _EmailsTestCase.setUpClass()
+        super(EntityEmailTestCase, cls).setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):

@@ -303,7 +303,8 @@ class ChoiceOrCharFieldTestCase(FieldTestCase):
 class _CTypeChoiceFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        FieldTestCase.setUpClass()
+        # FieldTestCase.setUpClass()
+        super(_CTypeChoiceFieldTestCase, cls).setUpClass()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct1 = get_ct(RelationType)
@@ -355,7 +356,8 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
 class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        FieldTestCase.setUpClass()
+        # FieldTestCase.setUpClass()
+        super(_EntityCTypeChoiceFieldTestCase, cls).setUpClass()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct1 = get_ct(Contact)

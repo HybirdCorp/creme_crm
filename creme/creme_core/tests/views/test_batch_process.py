@@ -29,7 +29,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(BatchProcessViewsTestCase, cls).setUpClass()
         # cls.populate('creme_core')
         Job.objects.all().delete()
 

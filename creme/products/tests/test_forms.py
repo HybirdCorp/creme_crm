@@ -16,7 +16,8 @@ class CategoryFieldTestCase(FieldTestCase):
 
     @classmethod
     def setUpClass(cls):
-        FieldTestCase.setUpClass()
+        # FieldTestCase.setUpClass()
+        super(CategoryFieldTestCase, cls).setUpClass()
         SubCategory.objects.all().delete()
         Category.objects.all().delete()
 

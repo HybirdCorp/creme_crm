@@ -39,7 +39,8 @@ except Exception as e:
 class ReportGraphTestCase(BaseReportsTestCase):
     @classmethod
     def setUpClass(cls):
-        BaseReportsTestCase.setUpClass()
+        # BaseReportsTestCase.setUpClass()
+        super(ReportGraphTestCase, cls).setUpClass()
         cls.ct_invoice = ContentType.objects.get_for_model(Invoice)
 
     def setUp(self):

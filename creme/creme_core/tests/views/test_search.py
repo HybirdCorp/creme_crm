@@ -21,7 +21,8 @@ class SearchViewTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        ViewsTestCase.setUpClass()
+        # ViewsTestCase.setUpClass()
+        super(SearchViewTestCase, cls).setUpClass()
         # cls.populate('creme_core')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
@@ -32,7 +33,8 @@ class SearchViewTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        ViewsTestCase.tearDownClass()
+        # ViewsTestCase.tearDownClass()
+        super(SearchViewTestCase, cls).tearDownClass()
 
         del QuerysetBlock.page_size
         assert QuerysetBlock.page_size  # In PaginatedBlock

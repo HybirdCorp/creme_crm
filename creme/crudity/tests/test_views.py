@@ -99,7 +99,8 @@ class CrudityViewsTestCase(CrudityTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CrudityTestCase.setUpClass()
+        # CrudityTestCase.setUpClass()
+        super(CrudityViewsTestCase, cls).setUpClass()
 
         cls._original_POP3 = poplib.POP3
         cls._original_POP3_SSL = poplib.POP3_SSL
@@ -109,7 +110,8 @@ class CrudityViewsTestCase(CrudityTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        CrudityTestCase.tearDownClass()
+        # CrudityTestCase.tearDownClass()
+        super(CrudityViewsTestCase, cls).tearDownClass()
 
         poplib.POP3     = cls._original_POP3
         poplib.POP3_SSL = cls._original_POP3_SSL

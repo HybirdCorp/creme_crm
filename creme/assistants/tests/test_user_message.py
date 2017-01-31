@@ -28,7 +28,8 @@ class UserMessageTestCase(AssistantsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        AssistantsTestCase.setUpClass()
+        # AssistantsTestCase.setUpClass()
+        super(UserMessageTestCase, cls).setUpClass()
         # cls.populate('activities', 'assistants')
         cls.original_send_messages = EmailBackend.send_messages
 

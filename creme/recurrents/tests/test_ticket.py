@@ -36,7 +36,8 @@ TicketTemplate = get_tickettemplate_model()
 class RecurrentsTicketsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(RecurrentsTicketsTestCase, cls).setUpClass()
         # apps_2_pop = ['recurrents']
 
         if apps.is_installed('creme.tickets'):

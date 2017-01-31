@@ -19,7 +19,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        CremeTestCase.setUpClass()
+        # CremeTestCase.setUpClass()
+        super(ButtonMenuConfigTestCase, cls).setUpClass()
         # # ButtonMenuItem.objects.all().delete()
         # # cls.populate('creme_core', 'creme_config')
         # cls.populate()
@@ -31,7 +32,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
+        # CremeTestCase.tearDownClass()
+        super(ButtonMenuConfigTestCase, cls).tearDownClass()
 
         ButtonMenuItem.objects.bulk_create(cls._buttonconf_backup)
 
