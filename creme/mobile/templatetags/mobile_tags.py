@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -79,7 +79,7 @@ def employers(contact):
                                       )
 
 
-# TODO: remove when Organisation can participate
+# TODO: remove when Organisations can participate
 @register.filter
 def orga_subjects(activity):
     return Organisation.objects.filter(relations__type=REL_SUB_ACTIVITY_SUBJECT,
@@ -97,7 +97,6 @@ _BUTTONS = {
   }
 
 
-# TODO: takes user instead of context ??
 @register.inclusion_tag('mobile/templatetags/activity_card.html', takes_context=True)
 def activity_card(context, activity, button_panel=START_STOP_BUTTONS, show_date=True,
                   shortcut=False, never_edit_pcall=False,
@@ -122,6 +121,7 @@ def activity_card(context, activity, button_panel=START_STOP_BUTTONS, show_date=
             'show_date':          show_date,
             'shortcut':           shortcut,
             'extra_classes':      extra_classes,
+            'fields_configs':     context['fields_configs'],
            }
 
 

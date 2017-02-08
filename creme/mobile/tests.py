@@ -639,10 +639,18 @@ class MobileTestCase(CremeTestCase):
     def test_activities_portal02(self):
         "Floating count when truncated"
         user = self.login()
+        contact1 = user.linked_contact
+        contact2 = self.other_user.linked_contact
 
-        create_floating = partial(self._create_floating, participant=user.linked_contact)
+        create_floating = partial(self._create_floating, participant=contact1)
         for i in xrange(1, 32):
-            create_floating('Floating %i' % i)
+            activity = create_floating('Floating %i' % i)
+            # TODO: improve self._create_floating for several participants
+            # several participants, because the template does not display 'me' (user.linked_contact)
+            Relation.objects.create(subject_entity=contact2, user=user,
+                                    type_id=REL_SUB_PART_2_ACTIVITY,
+                                    object_entity=activity,
+                                   )
 
         response = self.assertGET200(self.ACTIVITIES_PORTAL_URL)
         self.assertTemplateUsed(response, 'mobile/activities.html')
