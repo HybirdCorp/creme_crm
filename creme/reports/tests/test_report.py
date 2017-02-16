@@ -105,6 +105,9 @@ class ReportTestCase(BaseReportsTestCase):
     def _build_export_url(self, report):
         return '/reports/export/%s' % report.id
 
+    def _build_preview_url(self, report):
+        return '/reports/export/preview/%s' % report.id
+
     def _create_cf_int(self):
         return CustomField.objects.create(content_type=self.ct_contact,
                                           name='Size (cm)', field_type=CustomField.INT,
@@ -122,9 +125,10 @@ class ReportTestCase(BaseReportsTestCase):
 
         return self.get_object_or_fail(Report, name=name)
 
-    def login_as_basic_user(self):
+    def login_as_basic_user(self, **kwargs):
         user = self.login(is_superuser=False,
                           allowed_apps=('creme_core', 'reports'),
+                          **kwargs
                          )
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
@@ -595,7 +599,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertStillExists(efilter)
         self.assertStillExists(report)
 
-    def test_preview(self):
+    def test_preview01(self):
         user = self.login()
 
         create_c = partial(FakeContact.objects.create, user=user)
@@ -603,7 +607,7 @@ class ReportTestCase(BaseReportsTestCase):
         osaka = create_c(first_name='Ayumu', last_name='Kasuga', birthday=date(year=1990, month=4, day=1))
 
         report = self._create_report('My report')
-        url = '/reports/export/preview/%s' % report.id
+        url = self._build_preview_url(report)
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'reports/preview_report.html')
@@ -622,6 +626,74 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertNoFormError(response)
         self.assertContains(response, osaka.last_name)
         self.assertNotContains(response, chiyo.last_name)
+
+    def test_preview02(self):
+        "Empty: no contact"
+        self.login()
+        report = self._create_report('My report')
+
+        response = self.assertGET200(self._build_preview_url(report))
+        self.assertTemplateUsed(response, 'reports/preview_report.html')
+        self.assertContains(response,
+                            _(u'You can see no «%s»') % 'Test Contact'
+                           )
+
+    def test_preview03(self):
+        "Empty: no allowed contact"
+        self.login_as_basic_user(creatable_models=[Report])
+
+        FakeContact.objects.create(user=self.other_user, first_name='Chiyo', last_name='Mihana')
+
+        report = self._create_report('My report')
+        response = self.assertGET200(self._build_preview_url(report))
+        self.assertContains(response,
+                            _(u'You can see no «%s»') % 'Test Contact'
+                           )
+
+    def test_preview04(self):
+        "Empty: no contact after date filtering"
+        user = self.login()
+        tomo = FakeContact.objects.create(user=user, first_name='Tomo', last_name='Takino')
+
+        efilter = EntityFilter.create('test-filter', 'Kasuga family', FakeContact, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=FakeContact,
+                                                        operator=EntityFilterCondition.IEQUALS,
+                                                        name='last_name', values=['Kasuga']
+                                                    ),
+                                                 ],
+                                     )
+        report = self._create_report('My report', efilter=efilter)
+
+        response = self.assertGET200(self._build_preview_url(report))
+        self.assertNotContains(response, tomo.last_name)
+        self.assertContains(response,
+                            _(u'No «%(ctype)s» matches the filter «%(filter)s»') % {
+                                    'ctype': 'Test Contact',
+                                    'filter': report.filter,
+                                }
+                           )
+
+    def test_preview05(self):
+        "Empty: no contact after date filtering"
+        user = self.login()
+        report = self._create_report('My report')
+
+        FakeContact.objects.create(user=user, first_name='Chiyo', last_name='Mihana',
+                                   birthday=date(year=1995, month=3, day=26),
+                                  )
+
+        response = self.assertGET200(self._build_preview_url(report),
+                                     data={'doc_type': 'csv',
+                                           'date_filter_0': '',
+                                           'date_filter_1': '1990-01-01',
+                                           'date_filter_2': '1990-12-31',
+                                           'date_field':    'birthday',
+                                          }
+                                    )
+        self.assertContains(response,
+                            _(u'No «%s» matches your date filter') % 'Test Contact'
+                           )
 
     def test_report_change_field_order01(self):
         self.login()

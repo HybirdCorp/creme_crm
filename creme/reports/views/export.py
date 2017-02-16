@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,7 @@ def preview(request, report_id):
         if not lines:
             ct = report.ct
 
-            if not EntityCredentials.filter(user, ct.model_class().objects.exists()):
+            if not EntityCredentials.filter(user, ct.model_class().objects.all()).exists():
                 empty_message = _(u'You can see no «%s»') % ct
             elif report.filter and not report.fetch_all_lines(limit_to=1, user=user):
                 empty_message = _(u'No «%(ctype)s» matches the filter «%(filter)s»') % {
@@ -71,7 +71,7 @@ def preview(request, report_id):
             else:
                 empty_message = _(u'No «%s» matches your date filter') % ct
     else:
-        empty_message = _('Fix your date filter')
+        empty_message = _(u'Fix your date filter')
 
     return render(request, "reports/preview_report.html",
                   {'lines':    lines,
