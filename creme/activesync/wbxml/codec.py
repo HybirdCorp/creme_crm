@@ -28,7 +28,7 @@
 
 import logging
 import StringIO
-from xml.etree.ElementTree import XML, Element, ElementTree, _ElementInterface #SubElement, tostring, fromstring
+from xml.etree.ElementTree import XML, Element, ElementTree, _ElementInterface, tostring #SubElement, , fromstring
 
 
 logger = logging.getLogger(__name__)
@@ -78,7 +78,8 @@ def prettify(elem):
     #from xml.etree import ElementTree
     from xml.dom import minidom
 
-    rough_string = ElementTree.tostring(elem, 'utf-8')
+    # rough_string = ElementTree.tostring(elem, 'utf-8')
+    rough_string = tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ")
 ################################################################################
