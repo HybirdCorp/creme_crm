@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,21 +21,20 @@
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.mass_import import (ImportForm4CremeEntity,
-                                                EntityExtractorField)
+from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, EntityExtractorField
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
-Organisation = get_organisation_model()
-Contact = get_contact_model()
+Organisation = persons.get_organisation_model()
+Contact = persons.get_contact_model()
 
 
 def get_mass_form_builder(header_dict, choices):
     class OpportunityMassImportForm(ImportForm4CremeEntity):
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
-                                      choices, label=_('Target')
+                                      choices, label=_('Target'),
                                      )
-        emitter = ModelChoiceField(label=_(u"Concerned organisation"), empty_label=None,
+        emitter = ModelChoiceField(label=_(u'Concerned organisation'), empty_label=None,
                                    queryset=Organisation.get_all_managed_by_creme(),
                                   )
 

@@ -34,8 +34,8 @@ from django.forms import widgets
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
 from django.utils.timezone import localtime, is_naive
+from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
 
 from ..utils.date_range import date_range_registry
 from ..utils.media import creme_media_themed_url as media_url

@@ -55,7 +55,6 @@ class ProductsConfig(CremeAppConfig):
                                            'sub_category': ProductInnerEditCategory,
                                           }
                 )
-
         register(self.Service, innerforms={'category':     ProductInnerEditCategory,
                                            'sub_category': ProductInnerEditCategory,
                                           }
@@ -65,6 +64,13 @@ class ProductsConfig(CremeAppConfig):
         reg_icon = icon_registry.register
         reg_icon(self.Product, 'images/product_%(size)s.png')
         reg_icon(self.Service, 'images/service_%(size)s.png')
+
+    def register_mass_import(self, import_form_registry):
+        from .forms.mass_import import get_massimport_form_builder
+
+        register = import_form_registry.register
+        register(self.Product, get_massimport_form_builder)
+        register(self.Service, get_massimport_form_builder)
 
     def register_menu(self, creme_menu):
         from django.conf import settings

@@ -483,7 +483,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         for i, l in enumerate(lines):
             ticket = self.get_object_or_fail(Ticket, title=titles[i])
-            self.assertEqual(user     ,       ticket.user)
+            self.assertEqual(user,            ticket.user)
             self.assertEqual(status_l[i],     ticket.status)
             self.assertEqual(priorities[i],   ticket.priority)
             self.assertEqual(criticities[i],  ticket.criticity)
