@@ -11,21 +11,25 @@
                 <span class="tips">(eg: managed organisations can generate numbers for their invoices, or emit opportunities)</span>
             </th>
         </tr>
-        {% if page.paginator.count %}
-            <tr class="header">
-                <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark action">{% trans "Do not manage any more" %}</th>
-            </tr>
-            {% for orga in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                <tr class="content">
-                    <td class="{{row_color}}">{% widget_entity_hyperlink orga user %}</td>
-                    <td class="{{row_color}} action">
-                        {% has_perm_to change orga as edition_perm %}
-                        {% get_line_unlinker at_url '/persons/organisation/not_managed' with_args "{'id': {{orga.id}} }" with_perms edition_perm|and_op:app_perm %}
-                    </td>
+        {% with count=page.paginator.count %}
+            {% if page.paginator.count %}
+                <tr class="header">
+                    <th class="block_header_line_dark">{% trans "Name" %}</th>
+                    <th class="block_header_line_dark action">{% trans "Do not manage any more" %}</th>
                 </tr>
-            {% endfor %}
-        {% endif %}
+                {% for orga in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                    <tr class="content">
+                        <td class="{{row_color}}">{% widget_entity_hyperlink orga user %}</td>
+                        <td class="{{row_color}} action">
+                            {% if count != 1 %}
+                                {% has_perm_to change orga as edition_perm %}
+                                {% get_line_unlinker at_url '/persons/organisation/not_managed' with_args "{'id': {{orga.id}} }" with_perms edition_perm|and_op:app_perm %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </tbody>
     {% get_block_footer 2 %}
 </table>
