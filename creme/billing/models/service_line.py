@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.products import get_service_model
 
@@ -27,7 +27,7 @@ from .line import Line
 
 
 class AbstractServiceLine(Line):
-    creation_label = _('Create a service line')
+    creation_label = _(u'Create a service line')
 
     class Meta(Line.Meta):
         abstract = True
@@ -36,10 +36,10 @@ class AbstractServiceLine(Line):
 
     def __unicode__(self):
         if self.on_the_fly_item:
-            return u"On the fly service '%s'" % self.on_the_fly_item
+            return ugettext(u'On the fly service «%s»') % self.on_the_fly_item
 
         if self.id:
-            return u"Related to service '%s'" % self.related_item
+            return ugettext(u'Related to service «%s»') % self.related_item
 
         return u'Unsaved service line'
 

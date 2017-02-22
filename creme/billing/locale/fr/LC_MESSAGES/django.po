@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'BILLING' APP
-# Copyright (C) 2016 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
@@ -13,6 +13,22 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#, python-format
+msgid "On the fly product «%s»"
+msgstr "Produit à la volée «%s»"
+
+#, python-format
+msgid "Related to product «%s»"
+msgstr "Relatif au produit «%s»"
+
+#, python-format
+msgid "On the fly service «%s»"
+msgstr "Service à la volée «%s»"
+
+#, python-format
+msgid "Related to service «%s»"
+msgstr "Relatif au service «%s»"
 
 #: apps.py:28 apps.py:54
 msgid "Billing"

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.products import get_product_model
 
@@ -27,7 +27,7 @@ from .line import Line
 
 
 class AbstractProductLine(Line):
-    creation_label = _('Create a product line')
+    creation_label = _(u'Create a product line')
 
     class Meta(Line.Meta):
         abstract = True
@@ -36,10 +36,10 @@ class AbstractProductLine(Line):
 
     def __unicode__(self):
         if self.on_the_fly_item:
-            return u"On the fly product '%s'" % self.on_the_fly_item
+            return ugettext(u'On the fly product «%s»') % self.on_the_fly_item
 
         if self.id:
-            return u"Related to product '%s'" % self.related_item
+            return ugettext(u'Related to product «%s»') % self.related_item
 
         return u'Unsaved product line'
 
