@@ -405,6 +405,7 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
         return self._render(btc)
 
 
+# TODO: remove when portals/old_menu are removed (template file too)
 class BlockPortalLocationsBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('creme_config', 'blocks_portal_locations')
     dependencies  = (BlockPortalLocation,)
@@ -444,6 +445,20 @@ class BlockPortalLocationsBlock(PaginatedBlock):
                                 context,
                                 # apps,
                                 app_configs,
+                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                           ))
+
+
+class BlockHomeLocationsBlock(_ConfigAdminBlock):
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'blocks_home_locations')
+    dependencies  = (BlockPortalLocation,)
+    verbose_name  = u'Locations of blocks on the home page.'
+    template_name = 'creme_config/templatetags/block_blockhomelocations.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(
+                                context,
+                                BlockPortalLocation.objects.filter(app_name='creme_core'),
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
 
@@ -742,6 +757,7 @@ blocks_list = (
         custom_fields_block,
         BlockDetailviewLocationsBlock(),
         BlockPortalLocationsBlock(),
+        BlockHomeLocationsBlock(),
         BlockDefaultMypageLocationsBlock(),
         BlockMypageLocationsBlock(),
         RelationBlocksConfigBlock(),

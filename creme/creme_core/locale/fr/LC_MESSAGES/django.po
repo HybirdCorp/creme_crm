@@ -1079,6 +1079,9 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
+msgid "Create an entity of any type"
+msgstr "Créer une fiche de n'importe quel type"
+
 #: models/auth.py:49 models/block.py:384 models/entity_filter.py:111
 #: models/i18n.py:28
 #: templates/creme_core/templatetags/block_specific_relations.html:51

@@ -45,8 +45,8 @@ class ActType(CremeModel):
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Type of Commercial Action')
-        verbose_name_plural = _(u'Types of Commercial Actions')
+        verbose_name = _(u'Type of commercial action')
+        verbose_name_plural = _(u'Types of commercial actions')
         ordering = ('title',)
 
     def __unicode__(self):
@@ -71,8 +71,8 @@ class AbstractAct(CremeEntity):
     class Meta:
         abstract = True
         app_label = 'commercial'
-        verbose_name = _(u'Commercial Action')
-        verbose_name_plural = _(u'Commercial Actions')
+        verbose_name = _(u'Commercial action')
+        verbose_name_plural = _(u'Commercial actions')
         ordering = ('name',)
 
     def __unicode__(self):
@@ -210,8 +210,8 @@ class AbstractActObjectivePattern(CremeEntity):
     class Meta:
         abstract = True
         app_label = 'commercial'
-        verbose_name = _(u'Commercial objective pattern')
-        verbose_name_plural = _(u'Commercial objective patterns')
+        verbose_name = _(u'Objective pattern')
+        verbose_name_plural = _(u'Objective patterns')
         ordering = ('name',)
 
     def __unicode__(self):

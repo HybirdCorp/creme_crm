@@ -1,3 +1,10 @@
+li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
+    fill: currentColor;
+    width: 14px;
+    height: 14px;
+    /* margin-top: 1px; */
+}
+
 .theme_picker, .tz_picker {
     padding: 2px;
 }

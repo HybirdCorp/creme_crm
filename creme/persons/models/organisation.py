@@ -88,6 +88,8 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     # TODO: refactor
     function_fields = CremeEntity.function_fields.new()
 
+    search_score = 102
+
     creation_label = _('Create an organisation')
     save_label = _('Save the organisation')
 

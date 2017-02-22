@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity
 
@@ -30,13 +30,14 @@ class AbstractMessageTemplate(CremeEntity):
     subject = CharField(_(u'Subject'), max_length=100)
     body    = TextField(_(u'Body'))
 
-    creation_label = _('Create a message template')
+    creation_label = pgettext_lazy('sms-template', u'Create a template')
+    save_label     = pgettext_lazy('sms-template', u'Save the template')
 
     class Meta:
         abstract = True
         app_label = 'sms'
-        verbose_name = _(u'Message template')
-        verbose_name_plural = _(u'Messages templates')
+        verbose_name = _(u'SMS Message template')
+        verbose_name_plural = _(u'SMS Messages templates')
         ordering = ('name',)
 
     def __unicode__(self):

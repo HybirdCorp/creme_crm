@@ -42,8 +42,8 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('title',),
-                'verbose_name': 'Type of Commercial Action',
-                'verbose_name_plural': 'Types of Commercial Actions',
+                'verbose_name': 'Type of commercial action',
+                'verbose_name_plural': 'Types of commercial actions',
             },
             bases=(models.Model,),
         ),
@@ -63,8 +63,8 @@ class Migration(migrations.Migration):
             options={
                 'swappable': 'COMMERCIAL_ACT_MODEL',
                 'ordering': ('name',),
-                'verbose_name': 'Commercial Action',
-                'verbose_name_plural': 'Commercial Actions',
+                'verbose_name': 'Commercial action',
+                'verbose_name_plural': 'Commercial actions',
             },
             bases=('creme_core.cremeentity',),
         ),
@@ -97,8 +97,8 @@ class Migration(migrations.Migration):
             options={
                 'swappable': 'COMMERCIAL_PATTERN_MODEL',
                 'ordering': ('name',),
-                'verbose_name': 'Commercial objective pattern',
-                'verbose_name_plural': 'Commercial objective patterns',
+                'verbose_name': 'Objective pattern',
+                'verbose_name_plural': 'Objective patterns',
             },
             bases=('creme_core.cremeentity',),
         ),

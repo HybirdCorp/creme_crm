@@ -25,14 +25,14 @@ from creme.creme_core.models import CremeModel, CremePropertyType
 
 
 class MarketSegment(CremeModel):
-    name          = CharField(_(u"Name"), max_length=100)  # TODO: unique ?
+    name          = CharField(_(u'Name'), max_length=100)  # TODO: unique ?
     property_type = ForeignKey(CremePropertyType, null=True, editable=False).set_tags(viewable=False)
 
     creation_label = _('Create a market segment')
     save_label     = _('Save the market segment')
 
     class Meta:
-        app_label = "commercial"
+        app_label = 'commercial'
         verbose_name = _(u'Market segment')
         verbose_name_plural = _(u'Market segments')
 
@@ -41,6 +41,10 @@ class MarketSegment(CremeModel):
 
     def get_edit_absolute_url(self):
         return '/commercial/market_segment/edit/%s' % self.id
+
+    @staticmethod
+    def get_lv_absolute_url():
+        return '/commercial/market_segments'
 
     @staticmethod
     def generate_property_text(segment_name):

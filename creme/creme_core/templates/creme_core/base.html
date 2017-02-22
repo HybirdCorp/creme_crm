@@ -18,12 +18,25 @@
     {% include_creme_media "main.css" %}
     {% include "creme_core/frags/js_header.html" %}
     <link rel="shortcut icon" href="{% creme_media_url 'images/favicon.ico' %}" type="image/x-icon" />
-    <style type="text/css">
+    <style type="text/css"> {# TODO: move to CSS #}
+      {% if OLD_MENU %}
         .fg-menu-container { z-index: 100; }
+      {% else %}
+        /* TODO: move to CSS when OLD_MENU has been removed */
+        div.main_content {
+            padding-top: 35px;
+        }
+{% comment %}
+        #top {
+            margin-top: 50px;
+        }
+{% endcomment %}
+      {% endif %}
     </style>
     {% block extrahead %}{% endblock %}
 </head>
 <body {% block bodyclass %}{% endblock %}>
+{% if OLD_MENU %}
     {% block side_menu %}
         <div id="menu_collapse" class="ui-corner-all menu_collapse">
             <img src="{% creme_media_url 'images/favicon.ico' %}"/>
@@ -49,7 +62,7 @@
                     Menu
                 </a>
                 <div id="tree_menu2" style="display:none;">
-                 {% generate_treecreme_menu request %}
+                    {% generate_treecreme_menu request %}
                 </div>
             {% endblock %}
         </div>
@@ -74,15 +87,20 @@
             </div>
         </div>
     {% endblock %}
+{% else %}
+    {% include 'creme_core/frags/header_menu.html' %}
+{% endif %}
 
     <div id="content" class="main_content">
-        {% block last_viewed_items %}
-            {% get_last_items_menu request %}
-        {% endblock %}
+        {% if OLD_MENU %}
+            {% block last_viewed_items %}
+                {% get_last_items_menu request %}
+            {% endblock %}
 
-        {% block prefered_menu %}
-            {% get_prefered_menu request %}
-        {% endblock %}
+            {% block prefered_menu %}
+                {% get_prefered_menu request %}
+            {% endblock %}
+        {% endif %}
 
         <div id="sub_content">
             {% block before_content_1 %}
@@ -108,15 +126,16 @@
         </div>
     </div>
 
-    <div id="footer">
-        <a href="http://hybird.org">{% trans "About Hybird" %}</a>&nbsp;&mdash;&nbsp;2009&hairsp;&ndash;&hairsp;2016 &nbsp;&nbsp;&nbsp;Creme v{{creme_version}} {% if django_version %}<i>&nbsp;&nbsp;&nbsp;(Django {{django_version}})</i>{% endif %}{% if THEME_VERBOSE_NAME %}&nbsp;&nbsp;&nbsp;{{ THEME_VERBOSE_NAME }}{% endif %}
-    </div>
+    {% include 'creme_core/frags/footer.html' %}
+
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function() {
+          {% if OLD_MENU %}
             creme.menu.sideMenu({
                 title: '{% trans "Menu" %}',
                 back: '{% trans "Back to Top" %}'
             });
+          {% endif %}
 
             creme.blocks.bindEvents();
         });

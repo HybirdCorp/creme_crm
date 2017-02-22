@@ -38,6 +38,8 @@ class AbstractInvoice(Base):
     creation_label = _('Create an invoice')
     save_label     = _('Save the invoice')
 
+    search_score = 52
+
     generate_number_in_create = False
 
     class Meta(Base.Meta):

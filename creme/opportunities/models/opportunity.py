@@ -132,6 +132,8 @@ class AbstractOpportunity(CremeEntity):
     creation_label = _('Create an opportunity')
     submit_label   = _('Save the opportunity')
 
+    search_score = 100
+
     _opp_emitter = None
     _opp_target  = None
     _opp_target_rel = None

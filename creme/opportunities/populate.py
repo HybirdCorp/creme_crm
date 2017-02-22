@@ -54,6 +54,7 @@ class Populator(BasePopulator):
         Product = products.get_product_model()
         Service = products.get_service_model()
 
+        # ---------------------------
         create_rtype = RelationType.create
         rt_sub_targets = create_rtype((constants.REL_SUB_TARGETS, _(u'targets the organisation/contact'), [Opportunity]),
                                       (constants.REL_OBJ_TARGETS, _(u'targeted by the opportunity'),      [Organisation, Contact]),
@@ -274,11 +275,12 @@ class Populator(BasePopulator):
 
                 create_bdl(block_id=mails_history_block.id_, order=600, zone=RIGHT, model=Opportunity)
 
+            create_bdl(block_id=blocks.targetting_opps_block.id_, order=16, zone=RIGHT, model=Organisation)
+
+            # ---------------------------
             if apps.is_installed('creme.reports'):
                 logger.info('Reports app is installed => we create an Opportunity report, with 2 graphs, and related blocks')
                 self.create_report_n_graphes(rt_obj_emit_orga)
-
-            create_bdl(block_id=blocks.targetting_opps_block.id_, order=16, zone=RIGHT, model=Organisation)
 
     def create_report_n_graphes(self, rt_obj_emit_orga):
         "Create the report 'Opportunities' and 2 ReportGraphs"
@@ -332,3 +334,5 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=block_id2, order=6, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
         BlockPortalLocation.create(app_name='opportunities', block_id=block_id1, order=1)
         BlockPortalLocation.create(app_name='opportunities', block_id=block_id2, order=2)
+        BlockPortalLocation.create(app_name='creme_core', block_id=block_id1, order=5)
+        BlockPortalLocation.create(app_name='creme_core', block_id=block_id2, order=6)

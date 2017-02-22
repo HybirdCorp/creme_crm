@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from unittest import skipIf
+
+    from django.conf import settings
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.gui.menu import creme_menu
@@ -10,6 +13,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+@skipIf(not settings.OLD_MENU, 'New menu is used, so there is no Preferred menu.')
 class PreferedMenuTestCase(CremeTestCase):
     items_info = [{'url': '/creme_config/test_view1', 'label': u"Test view1"},
                   {'url': '/creme_config/test_view2', 'label': u"Test view2"},

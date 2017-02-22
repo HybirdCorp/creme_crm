@@ -26,7 +26,7 @@ ADMINS = (
 
 from os.path import dirname, join, abspath, exists
 BASE_DIR = dirname(dirname(__file__))
-CREME_ROOT = dirname(abspath(__file__)) #  BASE_DIR + '/creme'
+CREME_ROOT = dirname(abspath(__file__))  # BASE_DIR + '/creme'
 
 # Define 'MANAGERS' if you use BrokenLinkEmailsMiddleware
 # MANAGERS = ADMINS
@@ -207,6 +207,7 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_css_theme',
                 'creme.creme_core.context_processors.get_blocks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',
+                'creme.creme_core.context_processors.get_old_menu',
             ],
             'loaders': [
                 # Don't use cached loader when developing (in your local_settings.py)
@@ -271,7 +272,7 @@ INSTALLED_CREME_APPS = (
     'creme.commercial',  # Need 'opportunities'
     'creme.events',  # Need 'opportunities'
     'creme.crudity',
-    'creme.emails',  # Need 'crudity'
+    'creme.emails',
     # 'creme.sms',  # Work In Progress
     'creme.projects',
     'creme.tickets',
@@ -407,8 +408,10 @@ TEST_RUNNER = 'creme.creme_core.utils.test.CremeDiscoverRunner'
 # GUI ##########################################################################
 
 # Main menu
-LOGO_URL = 'images/creme_256_cropped.png'  # Big image in the side menu
-USE_STRUCT_MENU = True  # True = use the per app menu # DEPRECATED
+# LOGO_URL = 'images/creme_256_cropped.png'  # Big image in the side menu (for OLD_MENU = True)
+LOGO_URL = 'images/creme_30.png'  # Small image in the side menu
+# USE_STRUCT_MENU = True  # True = use the per app menu # DEPRECATED
+OLD_MENU = False  # True use pre 1.7 menu (left side menu, with items per app)
 
 BLOCK_SIZE = 10  # Lines number in common blocks
 MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar
@@ -457,6 +460,7 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/creme.css',
                     'creme_core/css/creme-ui.css',
 
+                    'creme_core/css/header_menu.css',
                     'creme_core/css/blocks.css',
                     'creme_core/css/home.css',
                     'creme_core/css/my_page.css',
@@ -546,6 +550,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/forms.js',
                     'creme_core/js/ajax.js',
                     'creme_core/js/menu.js',
+                    'creme_core/js/search.js',
                     'creme_core/js/blocks.js',
                     'creme_core/js/jobs.js',
 
@@ -585,6 +590,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/dialog/confirm.js',
                     'creme_core/js/widgets/dialog/form.js',
                     'creme_core/js/widgets/dialog/select.js',
+                    'creme_core/js/widgets/dialog/glasspane.js',
 
                     'creme_core/js/widgets/frame.js',
                     'creme_core/js/widgets/toggle.js',
@@ -683,7 +689,10 @@ ROOT_MEDIA_FILTERS = {
 YUICOMPRESSOR_PATH = join(dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar')
 # CLOSURE_COMPILER_PATH = join(dirname(__file__), 'closure.jar')
 
-COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
+COPY_MEDIA_FILETYPES = (
+    'gif', 'jpg', 'jpeg', 'png', 'ico', 'cur',  # Images
+    'woff', 'tff', 'eot',  # Fonts
+)
 
 # MEDIA GENERATOR & THEME SETTINGS [END] #######################################
 

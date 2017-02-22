@@ -48,7 +48,7 @@ def edit(request):
 
 
 # TODO: improve generic.add_model_with_popup ????
-@login_required # No special permission needed
+@login_required  # No special permission needed
 def edit_mine(request):
     user = request.user
 

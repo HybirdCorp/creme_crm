@@ -1,0 +1,499 @@
+/* Header */
+
+.header-menu * {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+.header-menu {
+    font: 12px 'Open Sans', sans-serif;
+
+    height: 35px;
+    background: #fcffff;
+    top: 0;
+
+    -webkit-box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
+       -moz-box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
+
+    border-bottom: 1px #ddd;
+    position: fixed;
+    width: 100%;
+
+    /*  z-index: 100;*/
+    z-index: 2000; /* tmp: the floatThead header is defined in js at 10001 ... */
+}
+
+#logo {
+    position: absolute;
+    left: 10px;
+    top: 4px;
+    z-index: 101;
+}
+
+#logo img:hover {
+    opacity: 1;
+}
+
+.header-menu img, .header-menu a {
+    -webkit-transition: none;
+       -moz-transition: none;
+            transition: none;
+}
+.accessories-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    height: 100%;
+
+/*  padding-right: 50px;*/
+    padding-right: 5px;
+}
+
+.search-box {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    padding-left: 10px;
+    vertical-align: top;
+
+    margin-top: 8px;
+    margin-right: 15px;
+}
+
+.search-box input[type="text"] {
+    font: 12px 'Open Sans', sans-serif;
+    height: auto;
+    /*  padding: 5px 5px;*/
+    padding-left: 5px;
+    /*  width: 120px;*/
+    width: 150px;
+    height: 100%;
+
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.search-box input:focus {
+    outline: none;
+}
+
+/* Header [END] */
+
+/* Menu - based on http://handy-html.com/wp-content/themes/handyhtmlv2/uploads/tutorial-files/cross-browser-compatible-dropdown-menu.html */
+/* menu root */
+.ui-creme-navigation {
+    list-style: none;
+
+    margin: 0;
+
+    position: relative;
+    float: left;
+
+    font-size: 11px;
+    color: #646464;
+    font-weight: 600;
+
+    height: 100%;
+    left: 40px;
+    padding: 7px 0 0 0;
+}
+
+/* Menus and their entries */
+.ui-creme-navigation li {
+    float: left;
+    position: relative;
+
+    line-height: 1.3em;
+    vertical-align: middle;
+
+    zoom: 1;
+    height: 100%;
+}
+.ui-creme-navigation > li {
+    text-transform: uppercase;
+    padding: 5px 10px;
+}  /* menus */
+
+/* Menu entries root */
+.ui-creme-navigation ul {
+    list-style: none;
+
+    margin: 0;
+
+    /*  display: none;*/
+    visibility: hidden;
+    opacity: 0;
+
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    min-width: 230px; /* figure out a good default width, possibly overridable in html classes, or computed in js */
+
+    max-height: 90vh; /* for weird old browsers */
+    max-height: calc(95vh - 35px); /* where 35px = .header-menu height */
+    overflow-y: auto;
+
+    font-size: 13px;
+
+    background: #2a414b;
+    padding: 0 0 3px 0;
+
+    -webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+       -moz-box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    /* todo: investigate shadow techniques - this one shows up over the dark menu item. Using one for each of the 3 sides make the corners unshadowed instead, etc. */
+    z-index: 1; /* so it shows up over the search results */
+}
+
+/* Menu entries */
+.ui-creme-navigation ul li {
+    float: none;
+    text-transform: none;
+}
+.ui-creme-navigation a, .ui-creme-navigation .ui-creme-navigation-text-entry, .ui-creme-navigation-title {
+    display: block;
+    text-decoration: none;
+    text-shadow: none;
+    padding: 5px 10px;
+    color: #ebebeb;
+}
+span.ui-creme-navigation-text-entry {  /* Non-active entries */
+    font-weight: 400;
+}
+.ui-creme-navigation-title {
+    color: #fafafa;
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.ui-creme-navigation li.ui-creme-navigation-activated, .ui-creme-navigation li:hover { cursor: default; background: #2a414b; } /* hover on menus and their entries */
+.ui-creme-navigation li.ui-creme-navigation-activated > ul { /*display: block;*/ visibility: visible; opacity: 1; font-weight: 600;} /* menu entries root when hovering over menus */
+
+.ui-creme-navigation li.ui-creme-navigation-activated {color: white;} /* hover on menus */
+.ui-creme-navigation li.ui-creme-navigation-icon-menu.ui-creme-navigation-activated {color: #bfbfbf;} /* hover on icon menus */
+
+.ui-creme-navigation li.ui-creme-navigation-activated li:hover {background: #446978;} /* hover on menu entries */
+.ui-creme-navigation li.ui-creme-navigation-activated ul a:hover {color: white;} /* hover on menu entries */
+
+.ui-creme-navigation > li:hover, .ui-creme-navigation li:hover > ul, .ui-creme-navigation li:hover li:hover {transition: none;} /* animated transitions into the hover state */
+.ui-creme-navigation li, .ui-creme-navigation ul {
+    transition: all 150ms ease-in;
+
+    webkit-border-radius: 3px;
+       moz-border-radius: 3px;
+           border-radius: 3px;
+} /* animated transitions out of the hover state */
+
+/* Menu separators */
+.ui-creme-navigation-separated-menu {
+    position: relative;
+}
+
+.ui-creme-navigation-separated-menu:before {
+    content: "";
+    width: 1px;
+
+    position: absolute;
+    top: 1px;
+    bottom: 5px;
+
+    background: #bbb;
+    pointer-events: none;
+}
+
+/* Menu separators [END] */
+
+/* Menu entries separators */
+.ui-creme-navigation .ui-creme-navigation-separator {
+    display: block;
+    height: 1px;
+    border: 0;
+
+    /*   margin: 1em 0;*/
+    margin: 5px 0;
+    padding: 0;
+
+    border-top: 1px solid #a29d9d;
+}
+
+.ui-creme-navigation  .ui-creme-navigation-title-separator {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 400;
+    color: #fafafa;
+/*  letter-spacing: 0.3px; */ /* support of fractional metrics to test everywhere */
+/*  word-spacing: 1px; */ /* possible tweak to test everywhere (with 1px or 2px) */
+}
+
+.ui-creme-navigation-space-separated {
+    margin-bottom: 7px;
+}
+
+.ui-creme-navigation-punctuation {
+    font-weight: 400;
+}
+/* Menu entries separators [END] */
+
+/* display or hide elements depending on screen width
+@media (max-width: 1100px) {
+    .screens-over-1100 {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1101px) {
+    .screens-under-1100 {
+        display: none !important;
+    }
+}
+*/
+
+/*
+.ui-creme-navigation .horizontal-ruler {
+   border-top: 1px solid #a29d9d;
+}
+*/
+
+/* .ui-creme-navigation-right-separated-menu */
+.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme {
+    margin-right: 11px;
+}
+
+/* .ui-creme-navigation-left-separated-menu */
+.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation {
+    margin-left: 11px;
+}
+
+/* .ui-creme-navigation-right-separated-menu:before */
+.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme:before {
+    right: -6px;
+}
+
+/* .ui-creme-navigation-left-separated-menu::before */
+.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation::before {
+    left: -6px;
+}
+
+/* .ui-creme-navigation-separated-menu:before */
+.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme:before,
+.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation:before {
+    content: "";
+    width: 1px;
+
+    position: absolute;
+    top: 1px;
+    bottom: 5px;
+
+    background: #bbb;
+    pointer-events: none;
+}
+
+/* menu [END] */
+
+/* Creation popup ----------------------------------------------------*/
+
+.create-all-form {
+  padding: 15px 10px;
+  margin: 0 auto;
+}
+
+.create-group-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.create-group-container + .create-group-container {
+  margin-top: 20px;
+  border-top: 1px solid #dedede;
+  padding-top: 20px;
+}
+
+.create-group {
+  flex-grow: 1;
+  max-width: 190px;
+}
+
+.create-group-container-2-columned .create-group:last-child {
+  /* margin-left: 200px; */
+  margin-left: 50px;
+}
+
+/*
+.create-group-container-3-columned .create-group:nth-child(2) {
+  margin-left: 90px;
+}
+
+.create-group-container-3-columned .create-group:last-child {
+  margin-left: 50px;
+}
+*/
+
+.create-group-container-3-columned .create-group:nth-child(2),
+.create-group-container-3-columned .create-group:last-child {
+  margin-left: 50px;
+}
+
+.create-group-container-4-columned .create-group:nth-child(2),
+.create-group-container-4-columned .create-group:nth-child(3),
+.create-group-container-4-columned .create-group:last-child {
+  margin-left: 40px;
+}
+
+.create-group-title {
+  margin-bottom: 7px;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 12px;
+  color: #777;
+}
+
+a.create-group-entry {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+
+span.create-group-entry {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+}
+
+.create-group-entry + .create-group-entry {
+  margin-top: 5px;
+}
+
+/* Creation popup [END] ----------------------------------------------*/
+
+/* Search box  */
+.search-box-icon.loading .search-icon-default {
+    display: none;
+}
+
+.search-box-icon.default .search-icon-loading {
+    display: none;
+}
+
+.inline-search-results {
+    position: absolute;
+    top: 35px;
+    right: 5px;
+
+    width: 330px;
+
+    max-height: calc(100vh - 50px); /* 50px = 35px for the menu height + 15px to have some padding at the bottom */
+    overflow-y: auto;
+
+    border: 1px solid rgba(0,0,0,0.3);
+    border-top: 1px solid rgba(0,0,0,0.1);
+
+    background: white;
+    box-shadow:  0   5px 4px -4px rgba(0,0,0,0.2),
+                -5px 0   4px -4px rgba(0,0,0,0.2),
+                 5px 0   4px -4px rgba(0,0,0,0.2);
+
+    /* fade out animation */
+    opacity: 0;
+    visibility: hidden;
+
+    -webkit-transition: all 300ms ease-in;
+            transition: all 300ms ease-in;
+}
+
+.inline-search-results.showing {
+    /* fade in animation */
+    opacity: 1;
+    visibility: visible;
+
+    -webkit-transition: all 180ms ease-out;
+            transition: all 180ms ease-out;
+}
+
+.search-results-group /* prefixed with Autoprefixer */ {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+}
+
+.search-results-group-title {
+    width: 42%;
+    padding: 7px 16px 0 10px;
+
+    text-align: right;
+    cursor: default;
+}
+
+.search-results-group-title, .search-results-group-title a {color: #888888;}
+
+.search-results {
+    list-style: none;
+
+    margin: 0;
+
+    width: 58%;
+    /* real padding dimensions: 7px 7px 7px 12px */
+    padding: 5px; /* split the padding between the list and the items to allow for a padded :hover bg */
+
+    background: #fafafa;
+    border-left: 1px solid rgba(0,0,0,0.1);
+
+    font-weight: 600;
+}
+
+.search-results a {
+    display: inline-block;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 2px 2px 2px 7px; /* difference between the list's real padding dimensions and its current padding of 5px */
+
+    color: #666;
+    text-decoration: none;
+}
+
+.search-result-reason {opacity: 0.8; font-weight: 400;}
+
+.search-result {margin-bottom: 7px;}
+.search-result:last-child {margin-bottom: 0;}
+
+.search-results-group:first-child .search-results {padding-top: 10px;}
+
+.search-results-group:last-child .search-results,
+.search-results-group:last-child .search-results-group-title {padding-bottom: 10px;} /* empty space at the bottom of the window, the tallest of the 2 variable-height elements will end up growing the window's height */
+
+.search-results-group-title:hover a {text-decoration: underline;}
+
+.search-result:hover, .search-result-selected {background: #f7b5ad;}
+
+.search-result:hover a, .search-result:hover .search-result-reason,
+.search-result-selected a, .search-result-selected .search-result-reason {color: white;} /* TODO: find the selection color */
+
+img.search-icon-default {
+    position: relative;
+    top: 4px;
+    left: 5px;
+}
+
+img.search-icon-loading {
+    position: relative;
+    top: 4px;
+    left: 7px;
+}
+
+/* Search box [END] */

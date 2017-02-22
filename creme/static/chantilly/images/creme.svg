@@ -14,11 +14,14 @@
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.48.5 r10040"
    sodipodi:docname="creme.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.0"
-   style="display:inline">
+   style="display:inline"
+   inkscape:export-filename="creme_30.png"
+   inkscape:export-xdpi="21.09375"
+   inkscape:export-ydpi="21.09375">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -238,7 +241,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2"
-     inkscape:cx="-80.74064"
+     inkscape:cx="-79.74064"
      inkscape:cy="77.727372"
      inkscape:document-units="px"
      inkscape:current-layer="layer3"
@@ -267,6 +270,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>

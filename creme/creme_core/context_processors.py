@@ -67,3 +67,7 @@ def get_django_version(request):
         from django import get_version
         return {'django_version': get_version()}
     return {}
+
+
+def get_old_menu(request):
+    return {'OLD_MENU': settings.OLD_MENU}

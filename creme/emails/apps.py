@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,10 +62,10 @@ class EmailsConfig(CremeAppConfig):
         register = bulk_update_registry.register
         register(self.MailingList,   exclude=('children', 'contacts', 'organisations',))
         register(self.EmailCampaign, exclude=('mailing_lists',))
-        register(EmailSending,       exclude=('sender', 'type', 'sending_date')) # TODO: tags modifiable=False ??
+        register(EmailSending,       exclude=('sender', 'type', 'sending_date'))  # TODO: tags modifiable=False ??
         register(self.EntityEmail,   exclude=('sender', 'recipient', 'subject',
                                               'body', 'body_html', 'signature', 'attachments',
-                                             ) # TODO: idem
+                                             )  # TODO: idem
                 )
 
     def register_buttons(self, button_registry):
@@ -89,25 +89,53 @@ class EmailsConfig(CremeAppConfig):
 
     def register_menu(self, creme_menu):
         from django.apps import apps
-        from django.core.urlresolvers import reverse_lazy as reverse
-
-        from creme.creme_core.auth import build_creation_perm as cperm
+        from django.conf import settings
 
         ECampaign = self.EmailCampaign
         MList     = self.MailingList
         ETemplate = self.EmailTemplate
-        reg_item = creme_menu.register_app ('emails', '/emails/').register_item
-        reg_item('/emails/',                         _(u'Portal of emails'),    'emails')
-        reg_item(reverse('emails__list_campaigns'),  _(u'All campaigns'),       'emails')
-        reg_item(reverse('emails__create_campaign'), ECampaign.creation_label,  cperm(ECampaign))
-        reg_item(reverse('emails__list_mlists'),     _(u'All mailing lists'),   'emails')
-        reg_item(reverse('emails__create_mlist'),    MList.creation_label,      cperm(MList))
-        reg_item(reverse('emails__list_templates'),  _(u'All email templates'), 'emails')
-        reg_item(reverse('emails__create_template'), ETemplate.creation_label,  cperm(ETemplate))
-        reg_item(reverse('emails__list_emails'),     _(u'All emails'),          'emails')
 
-        if apps.is_installed('creme.crudity'):
-            reg_item('/emails/synchronization', _(u'Synchronization of incoming emails'), 'emails')
+        if settings.OLD_MENU:
+            from django.core.urlresolvers import reverse_lazy as reverse
+            from creme.creme_core.auth import build_creation_perm as cperm
+
+            reg_item = creme_menu.register_app('emails', '/emails/').register_item
+            reg_item('/emails/',                         _(u'Portal of emails'),    'emails')
+            reg_item(reverse('emails__list_campaigns'),  _(u'All campaigns'),       'emails')
+            reg_item(reverse('emails__create_campaign'), ECampaign.creation_label,  cperm(ECampaign))
+            reg_item(reverse('emails__list_mlists'),     _(u'All mailing lists'),   'emails')
+            reg_item(reverse('emails__create_mlist'),    MList.creation_label,      cperm(MList))
+            reg_item(reverse('emails__list_templates'),  _(u'All email templates'), 'emails')
+            reg_item(reverse('emails__create_template'), ETemplate.creation_label,  cperm(ETemplate))
+            reg_item(reverse('emails__list_emails'),     _(u'All emails'),          'emails')
+
+            if apps.is_installed('creme.crudity'):
+                reg_item('/emails/synchronization', _(u'Synchronization of incoming emails'), 'emails')
+        else:
+            group = creme_menu.get('features') \
+                              .get_or_create(creme_menu.ContainerItem, 'marketing', priority=200,
+                                             defaults={'label': _(u'Marketing')},
+                                            ) \
+                              .get_or_create(creme_menu.ItemGroup, 'emails', priority=10)
+            LvURLItem = creme_menu.URLItem.list_view
+
+            group.add(LvURLItem('emails-campaigns', model=ECampaign),        priority=10) \
+                 .add(LvURLItem('emails-mlists',    model=MList),            priority=15) \
+                 .add(LvURLItem('emails-templates', model=ETemplate),        priority=20) \
+                 .add(LvURLItem('emails-emails',    model=self.EntityEmail), priority=25)
+            creme_menu.get('creation', 'any_forms') \
+                      .get_or_create_group('marketing', _(u'Marketing'), priority=200) \
+                      .add_link('emails-create_campaign', ECampaign, priority=10) \
+                      .add_link('emails-create_mlist',    MList, priority=15) \
+                      .add_link('emails-create_template', ETemplate, priority=20)
+
+            if apps.is_installed('creme.crudity'):
+                group.add(creme_menu.URLItem('emails-sync', url='/emails/synchronization',
+                                             label=_(u'Synchronization of incoming emails'),
+                                             perm='emails',
+                                            ),
+                          priority=100,
+                         )
 
     def register_setting_key(self, setting_key_registry):
         from .setting_keys import emailcampaign_sender

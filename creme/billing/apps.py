@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -116,26 +116,47 @@ class BillingConfig(CremeAppConfig):
         reg_import_form(self.SalesOrder, get_import_form_builder)
 
     def register_menu(self, creme_menu):
-        from django.core.urlresolvers import reverse_lazy as reverse
-
-        from creme.creme_core.auth import build_creation_perm as cperm
+        from django.conf import settings
 
         CreditNote = self.CreditNote
         Invoice    = self.Invoice
         Quote      = self.Quote
         SalesOrder = self.SalesOrder
-        reg_item = creme_menu.register_app('billing', '/billing/').register_item
-        reg_item('/billing/',                            _(u'Portal of billing'),   'billing')
-        reg_item(reverse('billing__create_invoice'),     Invoice.creation_label,    cperm(Invoice))
-        reg_item(reverse('billing__list_invoices'),      _(u'All invoices'),        'billing')
-        reg_item(reverse('billing__create_order'),       SalesOrder.creation_label, cperm(SalesOrder))
-        reg_item(reverse('billing__list_orders'),        _(u'All sales orders'),    'billing')
-        reg_item(reverse('billing__create_quote'),       Quote.creation_label,      cperm(Quote))
-        reg_item(reverse('billing__list_quotes'),        _(u'All quotes'),          'billing')
-        reg_item(reverse('billing__create_cnote'),       CreditNote.creation_label, cperm(CreditNote))
-        reg_item(reverse('billing__list_cnotes'),        _(u'All credit notes'),    'billing')
-        reg_item(reverse('billing__list_product_lines'), _(u'All product lines'),   'billing')
-        reg_item(reverse('billing__list_service_lines'), _(u'All service lines'),   'billing')
+
+        if settings.OLD_MENU:
+            from django.core.urlresolvers import reverse_lazy as reverse
+            from creme.creme_core.auth import build_creation_perm as cperm
+
+            reg_item = creme_menu.register_app('billing', '/billing/').register_item
+            reg_item('/billing/',                            _(u'Portal of billing'),   'billing')
+            reg_item(reverse('billing__create_invoice'),     Invoice.creation_label,    cperm(Invoice))
+            reg_item(reverse('billing__list_invoices'),      _(u'All invoices'),        'billing')
+            reg_item(reverse('billing__create_order'),       SalesOrder.creation_label, cperm(SalesOrder))
+            reg_item(reverse('billing__list_orders'),        _(u'All sales orders'),    'billing')
+            reg_item(reverse('billing__create_quote'),       Quote.creation_label,      cperm(Quote))
+            reg_item(reverse('billing__list_quotes'),        _(u'All quotes'),          'billing')
+            reg_item(reverse('billing__create_cnote'),       CreditNote.creation_label, cperm(CreditNote))
+            reg_item(reverse('billing__list_cnotes'),        _(u'All credit notes'),    'billing')
+            reg_item(reverse('billing__list_product_lines'), _(u'All product lines'),   'billing')
+            reg_item(reverse('billing__list_service_lines'), _(u'All service lines'),   'billing')
+        else:
+            LvURLItem = creme_menu.URLItem.list_view
+            creme_menu.get('features') \
+                      .get_or_create(creme_menu.ContainerItem, 'management', priority=50,
+                                     defaults={'label': _(u'Management')},
+                                    ) \
+                      .add(LvURLItem('billing-quotes',        model=Quote),            priority=10) \
+                      .add(LvURLItem('billing-invoices',      model=Invoice),          priority=15) \
+                      .add(LvURLItem('billing-credit_notes',  model=CreditNote),       priority=50) \
+                      .add(LvURLItem('billing-sales_orders',  model=SalesOrder),       priority=55) \
+                      .add(LvURLItem('billing-product_lines', model=self.ProductLine), priority=200) \
+                      .add(LvURLItem('billing-service_lines', model=self.ServiceLine), priority=210)
+            creme_menu.get('creation', 'any_forms') \
+                      .get_or_create_group('management', _(u'Management'), priority=50) \
+                      .add_link('billing-create_quote',   Quote,      priority=10) \
+                      .add_link('billing-create_invoice', Invoice,    priority=15) \
+                      .add_link('billing-create_cnote',   CreditNote, priority=50) \
+                      .add_link('billing-create_order',   SalesOrder, priority=55)
 
     def register_setting_key(self, setting_key_registry):
         from .setting_keys import payment_info_key

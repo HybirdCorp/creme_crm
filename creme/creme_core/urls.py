@@ -135,6 +135,7 @@ creme_core_patterns = [
 
     # Search
     url(r'^search$',                                                       search.search),
+    url(r'^search/light[/]?$',                                             search.light_search),
     url(r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)$', search.reload_block),
 
     url(r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)$',                 quick_forms.add),

@@ -97,6 +97,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     # TODO: refactor
     function_fields = CremeEntity.function_fields.new()
 
+    search_score = 101
+
     creation_label = _('Create a contact')
     save_label     = _('Save the contact')
 

@@ -276,6 +276,7 @@ else:
                                         blank=True, null=True, on_delete=models.SET_NULL,
                                        ).set_tags(optional=True)
 
+        search_score = 101
 #        creation_label = _('Create a contact')
 
         class Meta:
@@ -294,6 +295,10 @@ else:
 
         def get_absolute_url(self):
             return '/tests/contact/%s' % self.id
+
+        @staticmethod
+        def get_create_absolute_url():
+            return '/tests/contact/add'
 
         def get_edit_absolute_url(self):
             return '/tests/contact/edit/%s' % self.id
@@ -362,6 +367,7 @@ else:
 
         function_fields = CremeEntity.function_fields.new(_GetFakeTodos())
 
+        search_score = 102
 #        creation_label = _('Create an organisation')
 
         class Meta:
@@ -376,6 +382,10 @@ else:
 
         def get_absolute_url(self):
             return '/tests/organisation/%s' % self.id
+
+        @staticmethod
+        def get_create_absolute_url():
+            return '/tests/organisation/add'
 
         def get_edit_absolute_url(self):
             return '/tests/organisation/edit/%s' % self.id

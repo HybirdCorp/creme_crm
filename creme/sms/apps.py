@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,22 +46,40 @@ class SMSConfig(CremeAppConfig):
                                              )
 
     def register_menu(self, creme_menu):
+        from django.conf import settings
         from django.core.urlresolvers import reverse_lazy as reverse
 
-        from creme.creme_core.auth import build_creation_perm
+        SMSCampaign = self.SMSCampaign
+        MList       = self.MessagingList
+        MTemplate   = self.MessageTemplate
 
-        SMSCampaign     = self.SMSCampaign
-        MessagingList   = self.MessagingList
-        MessageTemplate = self.MessageTemplate
+        if settings.OLD_MENU:
+            from creme.creme_core.auth import build_creation_perm
 
-        reg_item = creme_menu.register_app('sms', '/sms/').register_item
-        reg_item('/sms/',                         _(u'Portal of SMS'),            'sms')
-        reg_item(reverse('sms__list_campaigns'),  _(u'All campaigns'),            'sms')
-        reg_item(reverse('sms__create_campaign'), SMSCampaign.creation_label,     build_creation_perm(SMSCampaign))
-        reg_item(reverse('sms__list_mlists'),     _(u'All messaging lists'),      'sms')
-        reg_item(reverse('sms__create_mlist'),    MessagingList.creation_label,   build_creation_perm(MessagingList))
-        reg_item(reverse('sms__list_templates'),  _(u'All message templates'),    'sms')
-        reg_item(reverse('sms__create_template'), MessageTemplate.creation_label, build_creation_perm(MessageTemplate))
+            reg_item = creme_menu.register_app('sms', '/sms/').register_item
+            reg_item('/sms/',                         _(u'Portal of SMS'),         'sms')
+            reg_item(reverse('sms__list_campaigns'),  _(u'All campaigns'),         'sms')
+            reg_item(reverse('sms__create_campaign'), SMSCampaign.creation_label,  build_creation_perm(SMSCampaign))
+            reg_item(reverse('sms__list_mlists'),     _(u'All messaging lists'),   'sms')
+            reg_item(reverse('sms__create_mlist'),    MList.creation_label,        build_creation_perm(MList))
+            reg_item(reverse('sms__list_templates'),  _(u'All message templates'), 'sms')
+            reg_item(reverse('sms__create_template'), MTemplate.creation_label,    build_creation_perm(MTemplate))
+        else:
+            LvURLItem = creme_menu.URLItem.list_view
+
+            creme_menu.get('features') \
+                      .get_or_create(creme_menu.ContainerItem, 'marketing', priority=200,
+                                     defaults={'label': _(u'Marketing')},
+                                    ) \
+                      .get_or_create(creme_menu.ItemGroup, 'sms', priority=20) \
+                      .add(LvURLItem('sms-campaigns', model=SMSCampaign), priority=200) \
+                      .add(LvURLItem('sms-mlists',    model=MList),       priority=210) \
+                      .add(LvURLItem('sms-templates', model=MTemplate),   priority=220)
+            creme_menu.get('creation', 'any_forms') \
+                      .get_or_create_group('marketing', _(u'Marketing'), priority=200) \
+                      .add_link('sms-create_campaign', SMSCampaign, priority=200) \
+                      .add_link('sms-create_mlist',    MList,       priority=210) \
+                      .add_link('sms-create_template', MTemplate,   priority=220)
 
     def register_blocks(self, block_registry):
         from .blocks import (messaging_lists_block, recipients_block, contacts_block,

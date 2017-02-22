@@ -59,10 +59,10 @@ class CustomField(CremeModel):
     save_label     = _(u'Save the custom field')
 
     class Meta:
-       app_label = 'creme_core'
-       verbose_name = _(u'Custom field')
-       verbose_name_plural = _(u'Custom fields')
-       ordering = ('id',)
+        app_label = 'creme_core'
+        verbose_name = _(u'Custom field')
+        verbose_name_plural = _(u'Custom fields')
+        ordering = ('id',)
 
     def __unicode__(self):
         return self.name

@@ -9,14 +9,22 @@
 
 {% block before_statistics %}
     {% import_block from_app 'creme_config' named 'blocks_dv_locations' as 'blocks_dv_locations_block' %}
-    {% import_block from_app 'creme_config' named 'blocks_portal_locations' as 'blocks_portal_locations_block' %}
+    {% if OLD_MENU %}
+        {% import_block from_app 'creme_config' named 'blocks_portal_locations' as 'blocks_portal_locations_block' %}
+    {% else %}
+        {% import_block from_app 'creme_config' named 'blocks_home_locations' as 'blocks_home_locations_block' %}
+    {% endif %}
     {% import_block from_app 'creme_config' named 'blocks_default_mypage_locations' as 'blocks_mypage_locations_block' %}
     {% import_block from_app 'creme_config' named 'relation_blocks_config' as 'rblocks_config_block' %}
     {% import_block from_app 'creme_config' named 'instance_blocks_config' as 'iblocks_config_block' %}
     {% import_block from_app 'creme_config' named 'custom_blocks_config' as 'cblocks_config_block' %}
 
     {% display_block_detailview 'blocks_dv_locations_block' %}
-    {% display_block_detailview 'blocks_portal_locations_block' %}
+    {% if OLD_MENU %}
+        {% display_block_detailview 'blocks_portal_locations_block' %}
+    {% else %}
+        {% display_block_detailview 'blocks_home_locations_block' %}
+    {% endif %}
     {% display_block_detailview 'blocks_mypage_locations_block' %}
     {% display_block_detailview 'rblocks_config_block' %}
     {% display_block_detailview 'iblocks_config_block' %}

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.conf.urls import url, include
 
 from .views import (blocks, button_menu, creme_property_type, custom_fields,
@@ -89,6 +90,8 @@ blocks_patterns = [
     url(r'^portal/edit/(?P<app_name>\w+)$', blocks.edit_portal),
     url(r'^portal/delete$',                 blocks.delete_portal),
 
+    url(r'^home/delete$',                   blocks.delete_home),
+
     url(r'^mypage/edit/default$',   blocks.edit_default_mypage),
     url(r'^mypage/edit$',           blocks.edit_mypage),
     url(r'^mypage/default/delete$', blocks.delete_default_mypage),
@@ -113,7 +116,7 @@ blocks_patterns = [
 prefered_menu_patterns = [
     url(r'^edit/$',      prefered_menu.edit),
     url(r'^mine/edit/$', prefered_menu.edit_mine),
-]
+] if settings.OLD_MENU else []
 
 button_menu_patterns = [
     url(r'^portal/$',             button_menu.portal),
