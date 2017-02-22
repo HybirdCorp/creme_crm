@@ -33,8 +33,8 @@ class Category(CremeModel):
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return '/products/category/%s' % self.id
+    # def get_absolute_url(self):
+    #     return '/products/category/%s' % self.id
 
     class Meta:
         app_label = 'products'
