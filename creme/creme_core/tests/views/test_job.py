@@ -80,6 +80,17 @@ class JobViewsTestCase(ViewsTestCase):
                                   raw_data='{"ctype": %s, "actions": []}' % ContentType.objects.get_for_model(Organisation).id,
                                  )
 
+    def _create_invalid_job(self, user=None, status=Job.STATUS_WAIT):
+        if user is None:
+            user = self.user
+
+        return Job.objects.create(user=user,
+                                  type_id=JobType.generate_id('creme_core', 'invalid'),
+                                  language='en',
+                                  status=status,
+                                  raw_data='[]',
+                                 )
+
     def test_detailview01(self):
         self.login()
 
@@ -103,6 +114,15 @@ class JobViewsTestCase(ViewsTestCase):
 
         job = self._create_batchprocess_job(user=self.other_user)
         self.assertGET403(job.get_absolute_url())
+
+    def test_detailview03(self):
+        "Invalid type"
+        self.login()
+
+        job = self._create_invalid_job()
+        self.assertIsNone(job.type)
+        self.assertIsNone(job.get_config_form_class())
+        self.assertGET404(job.get_absolute_url())
 
     def test_editview01(self):
         "Not periodic"
@@ -299,6 +319,12 @@ class JobViewsTestCase(ViewsTestCase):
         self.assertContains(response,
                             _('You must delete one of your jobs in order to create a new one.')
                            )
+
+    def test_listview05(self):
+        "Invalid type"
+        self.login()
+        self._create_invalid_job()
+        self.assertGET200(self.LIST_URL)
 
     def test_clear01(self):
         self.login()

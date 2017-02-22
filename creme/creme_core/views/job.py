@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,11 +45,16 @@ def listview(request):
 @login_required
 def detailview(request, job_id):
     job = get_object_or_404(Job, pk=job_id)
+
+    jtype = job.type
+    if jtype is None:
+        raise Http404(_(u'Unknown job type (%s). Please contact your administrator.') % job_id)
+
     job.check_owner_or_die(request.user)
 
     return render(request, 'creme_core/job.html',
                   {'job': job,
-                   'results_blocks': job.type.results_blocks,
+                   'results_blocks': jtype.results_blocks,
                    # 'back_url': request.META.get('HTTP_REFERER'),
                    # 'back_url': '/', #TODO: improve (page before form, not form itself)
                   }
