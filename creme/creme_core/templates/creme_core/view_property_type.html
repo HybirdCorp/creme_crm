@@ -15,7 +15,7 @@
             </li>
             {% comment %}TODO: improve {% get_add_button object user %} {% endcomment %}
             {% has_perm_to admin 'creme_config' as admin_perm %} {% comment %}TODO: creme_core ?! {% endcomment %}
-            <li>{% include 'creme_core/templatetags/widgets/add_button.html' with path='/creme_core/property/type' can_add=admin_perm %}</li>
+            <li>{% include 'creme_core/templatetags/widgets/add_button.html' with can_add=admin_perm %}</li>
         </ul>
     </div>
 {% endblock %}
