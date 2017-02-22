@@ -329,7 +329,7 @@ class GenericEntityField(EntityCredsJSONField):
 
     @allowed_models.setter
     def allowed_models(self, allowed):
-        "@param allowed An iterable of models (ie: classes inheriting django.db.Model)."
+        """@param allowed: An iterable of models (ie: classes inheriting django.db.Model)."""
         if not hasattr(allowed, '__iter__'):
             warnings.warn("GenericEntityField.allowed_models property should take an iterable.",
                           DeprecationWarning
@@ -337,7 +337,7 @@ class GenericEntityField(EntityCredsJSONField):
             allowed = ()
 
         self._allowed_models = list(allowed)
-        self._update_wigets_choices()
+        self._update_widget_choices()
 
     # @property
     # def user(self):
@@ -347,7 +347,7 @@ class GenericEntityField(EntityCredsJSONField):
     @EntityCredsJSONField.user.setter
     def user(self, user):
         self._user = user
-        self._update_wigets_choices()
+        self._update_widget_choices()
 
     @property
     def autocomplete(self):
@@ -370,7 +370,8 @@ class GenericEntityField(EntityCredsJSONField):
     def widget_attrs(self, widget):
         return {'reset': False}
 
-    def _update_wigets_choices(self):
+    # def _update_wigets_choices(self):
+    def _update_widget_choices(self):
         self.widget.content_types = fields.CallableChoiceIterator(self._get_ctypes_options)
 
     def _has_quickform(self, model):
