@@ -22,7 +22,8 @@
                     <td class="{{row_color}}"><a href="{{caller.get_absolute_url}}">{{caller}}</a></td>
                     <td class="{{row_color}} action">{% trans "Create a phone call" as label %}
                         {% if can_create_activity %}
-                            <a href="/cti/phonecall/add/{{caller.id}}">
+{#                            <a href="/cti/phonecall/add/{{caller.id}}"> #}
+                            <a href="{% url 'cti__create_phonecall' caller.id %}">
                                 <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
                             </a>
                         {% else %}
