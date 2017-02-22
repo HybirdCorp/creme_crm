@@ -29,17 +29,17 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldDecimal
 from creme.creme_core.models import Relation, FieldsConfig
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
-from . import get_invoice_model, get_quote_model
+from creme import billing
 from .constants import REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_ISSUED  # REL_OBJ_BILL_RECEIVED
 
 
-Contact      = get_contact_model()
-Organisation = get_organisation_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
-Invoice = get_invoice_model()
-Quote   = get_quote_model()
+Invoice = billing.get_invoice_model()
+Quote   = billing.get_quote_model()
 
 
 # OLD VERSION

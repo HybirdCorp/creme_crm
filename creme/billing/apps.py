@@ -29,17 +29,15 @@ class BillingConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.products']
 
     def all_apps_ready(self):
-        from . import (get_credit_note_model, get_invoice_model, get_quote_model,
-                get_sales_order_model, get_template_base_model,
-                get_product_line_model, get_service_line_model)
+        from creme import billing
 
-        self.CreditNote   = get_credit_note_model()
-        self.Invoice      = get_invoice_model()
-        self.Quote        = get_quote_model()
-        self.SalesOrder   = get_sales_order_model()
-        self.TemplateBase = get_template_base_model()
-        self.ProductLine  = get_product_line_model()
-        self.ServiceLine  = get_service_line_model()
+        self.CreditNote   = billing.get_credit_note_model()
+        self.Invoice      = billing.get_invoice_model()
+        self.Quote        = billing.get_quote_model()
+        self.SalesOrder   = billing.get_sales_order_model()
+        self.TemplateBase = billing.get_template_base_model()
+        self.ProductLine  = billing.get_product_line_model()
+        self.ServiceLine  = billing.get_service_line_model()
         super(BillingConfig, self).all_apps_ready()
 
         self.register_billing_algorithm()

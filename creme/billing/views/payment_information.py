@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,49 +26,46 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, FieldsConfig
 from creme.creme_core.utils import jsonify
-from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
+from creme.creme_core.views import generic, decorators
 
 from creme.persons import get_organisation_model
 
-from .. import (get_invoice_model, get_quote_model,
-        get_sales_order_model, get_credit_note_model, get_template_base_model)
-from ..forms.payment_information import (PaymentInformationCreateForm,
-        PaymentInformationEditForm)
+from ... import billing
+from ..forms import payment_information as pi_forms
 from ..models import PaymentInformation
 
 
 @login_required
 @permission_required('billing')
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, PaymentInformationCreateForm,
-                         _(u"New payment information in the organisation «%s»"),
-                         entity_class=get_organisation_model(),
-                         submit_label=_('Save the payment information'),
-                        )
+    return generic.add_to_entity(request, entity_id, pi_forms.PaymentInformationCreateForm,
+                                 _(u'New payment information in the organisation «%s»'),
+                                 entity_class=get_organisation_model(),
+                                 submit_label=_('Save the payment information'),
+                                )
 
 
 @login_required
 @permission_required('billing')
 def edit(request, payment_information_id):
-    return edit_related_to_entity(request, payment_information_id,
-                                  PaymentInformation, PaymentInformationEditForm,
-                                  _(u"Payment information for «%s»"),
-                                 )
+    return generic.edit_related_to_entity(request, payment_information_id,
+                                          PaymentInformation, pi_forms.PaymentInformationEditForm,
+                                          _(u'Payment information for «%s»'),
+                                         )
 
 
 @jsonify
 @login_required
 @permission_required('billing')
-@POST_only
+@decorators.POST_only
 def set_default(request, payment_information_id, billing_id):
     pi = get_object_or_404(PaymentInformation, pk=payment_information_id)
     billing_doc = get_object_or_404(CremeEntity, pk=billing_id).get_real_entity()
     user = request.user
 
-    if not isinstance(billing_doc, (get_invoice_model(), get_quote_model(),
-                                    get_sales_order_model(), get_credit_note_model(),
-                                    get_template_base_model(),
+    if not isinstance(billing_doc, (billing.get_invoice_model(), billing.get_quote_model(),
+                                    billing.get_sales_order_model(), billing.get_credit_note_model(),
+                                    billing.get_template_base_model(),
                                    )
                      ):
         raise Http404('This entity is not a billing document')

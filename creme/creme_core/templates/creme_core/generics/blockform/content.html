@@ -1,4 +1,4 @@
-{% with form_block.1 as fields %}
+{% with fields=form_block.1 %}
   {% if fields %}
     <table class="table_detail_view ui-corner-all block-form {% block table_classes %}{% endblock %}" {% block table_attrs %}{% endblock %}>
         {% if fields|length == 1 %}

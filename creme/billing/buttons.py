@@ -23,15 +23,15 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
 
-from creme.persons import get_organisation_model, get_contact_model
+from creme import persons
 
-from . import get_invoice_model, get_quote_model, get_sales_order_model
+from .. import billing
 from .models import Base
 
 
-Invoice      = get_invoice_model()
-Quote        = get_quote_model()
-SalesOrder   = get_sales_order_model()
+Invoice    = billing.get_invoice_model()
+Quote      = billing.get_quote_model()
+SalesOrder = billing.get_sales_order_model()
 
 
 class GenerateInvoiceNumberButton(Button):
@@ -55,7 +55,7 @@ class _AddBillingDocumentButton(Button):
     url_name        = 'OVERLOADME'
 
     def get_ctypes(self):
-        return (get_organisation_model(), get_contact_model())
+        return persons.get_organisation_model(), persons.get_contact_model()
 
     def has_perm(self, context):
         return context['user'].has_perm_to_create(self.model_to_create)

@@ -65,6 +65,8 @@ select.line-vat {
 
 .linetable-container .linetable-header {
     border-right: 1px solid #ddd;
+    width: 2%;
+    text-align: center;
 }
 
 .linetable-separator {
@@ -89,6 +91,10 @@ select.line-vat {
 .linetable .readonly {
     background-color: #f7f7f7; /* See 'block_line_light' */
     color: #666;
+}
+
+.hidden-form {
+    display: none;
 }
 
 .bline-quantity {
@@ -117,6 +123,23 @@ select.line-vat {
 
 .linetable .bline-comment {
     text-align: left;
+}
+
+.bline-deletion-mark {
+    background-color: #f08080;
+}
+
+.bline-input-error {
+    background-color: #f08080;
+}
+
+
+ul.bline-error-list {
+    margin-top: 5px;
+}
+
+ul.bline-error-list > li {
+    margin-top: 10px;
 }
 
 #block_billing-credit_notes .cnote-total-no-tax,

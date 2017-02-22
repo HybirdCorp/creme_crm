@@ -192,6 +192,11 @@ class Line(CremeEntity):
         assert self.pk is None, 'Line.related_item(setter): line is already saved (can not change any more).'
         self._related_item = entity
 
+    @staticmethod
+    def related_item_class():
+        """Returns the model-class of the related item (eg: Product, Service) for this class of line."""
+        raise NotImplementedError
+
     def save(self, *args, **kwargs):
         if not self.pk:  # Creation
             assert self._related_document, 'Line.related_document is required'

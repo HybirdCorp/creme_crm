@@ -26,7 +26,7 @@ from django.forms import (ModelChoiceField, TypedChoiceField, DecimalField,
         ValidationError, TextInput, Textarea)
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.forms import CremeForm, FieldBlockManager, CremeModelWithUserForm
+from creme.creme_core import forms as core_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 # from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.models import Relation, Vat
@@ -43,7 +43,7 @@ ProductLine = billing.get_product_line_model()
 ServiceLine = billing.get_service_line_model()
 
 
-class _LineMultipleAddForm(CremeForm):
+class _LineMultipleAddForm(core_forms.CremeForm):
     quantity       = DecimalField(label=_(u'Quantity'), min_value=DEFAULT_DECIMAL,
                                   initial=DEFAULT_QUANTITY, decimal_places=2,
                                  )
@@ -86,7 +86,7 @@ class _LineMultipleAddForm(CremeForm):
 class ProductLineMultipleAddForm(_LineMultipleAddForm):
     items = MultiCreatorEntityField(label=_(u'Products'), model=products.get_product_model())
 
-    blocks = FieldBlockManager(
+    blocks = core_forms.FieldBlockManager(
         ('general',    _(u'Products choice'), ['items']),
         ('additional', _(u'Optional global information applied to your selected products'), ['quantity', 'vat', 'discount_value'])
     )
@@ -98,7 +98,7 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
 class ServiceLineMultipleAddForm(_LineMultipleAddForm):
     items = MultiCreatorEntityField(label=_(u'Services'), model=products.get_service_model())
 
-    blocks = FieldBlockManager(
+    blocks = core_forms.FieldBlockManager(
         ('general',    _(u'Services choice'), ['items']),
         ('additional', _(u'Optional global information applied to your selected services'), ['quantity', 'vat', 'discount_value'])
     )
@@ -108,7 +108,7 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 
 
 # NB: model (ie: _meta.model) is set later, because this class is only used as base class
-class LineEditForm(CremeModelWithUserForm):
+class LineEditForm(core_forms.CremeModelWithUserForm):
     # TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
     vat_value = ModelChoiceField(label=_(u'Vat'), queryset=Vat.objects.all(),
                                  required=True,  # TODO: remove when null=False in the model
@@ -129,9 +129,9 @@ class LineEditForm(CremeModelWithUserForm):
             fields['on_the_fly_item'].widget = TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'})
 
         fields['unit_price'].widget = TextInput(attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'})
-        fields['quantity'].widget = TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'})
-        fields['unit'].widget = TextInput(attrs={'class': 'line-unit'})
-        fields['discount'].widget = TextInput(attrs={'class': 'line-quantity_discount bound'})
+        fields['quantity'].widget   = TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'})
+        fields['unit'].widget       = TextInput(attrs={'class': 'line-unit'})
+        fields['discount'].widget   = TextInput(attrs={'class': 'line-quantity_discount bound'})
 
         currency_str = related_document.currency.local_symbol
         discount_units = [(DISCOUNT_PERCENT,     '%'),
@@ -178,7 +178,7 @@ class LineEditForm(CremeModelWithUserForm):
         return super(LineEditForm, self).save(*args, **kwargs)
 
 
-class AddToCatalogForm(CremeForm):
+class AddToCatalogForm(core_forms.CremeForm):
     sub_category = CategoryField(label=_(u'Sub-category'), required=False)
 
     def __init__(self, user, line, related_item_class, *args, **kwargs):

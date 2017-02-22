@@ -46,6 +46,22 @@ textarea.line-comment {
     height: 30px;
 }
 
+.bline-deletion-mark {
+    background-color: #f08080;
+}
+
+.bline-input-error {
+    background-color: #f08080;
+}
+
+ul.bline-error-list {
+    margin-top: 5px;
+}
+
+ul.bline-error-list > li {
+    margin-top: 10px;
+}
+
 select.line-vat {
     text-align: right;
 }
@@ -64,6 +80,11 @@ select.line-vat {
     border-spacing: 0;
 }
 
+.linetable-container .linetable-header {
+    width: 2%;
+    text-align: center;
+}
+
 .linetable-separator {
     height: 18px;
 }
@@ -77,6 +98,10 @@ select.line-vat {
 .linetable .readonly {
     background-color: #f4fafd; /* See 'block_line_light' */
     color: #666;
+}
+
+.hidden-form {
+    display: none;
 }
 
 .bline-quantity {

@@ -26,14 +26,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
-        view_entity)
+from creme.creme_core.views import generic, decorators
 
-from .. import get_invoice_model
-from ..constants import (DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS,
-         DEFAULT_HFILTER_INVOICE)
-from ..forms.invoice import InvoiceCreateForm, InvoiceEditForm
+from .. import get_invoice_model, constants
+from ..forms import invoice as invoice_forms
 from ..models import InvoiceStatus
 from ..views.workflow import generic_add_related
 
@@ -41,19 +37,19 @@ from ..views.workflow import generic_add_related
 Invoice = get_invoice_model()
 
 
-def abstract_add_invoice(request, form=InvoiceCreateForm,
-                         initial_status=DEFAULT_DRAFT_INVOICE_STATUS,
+def abstract_add_invoice(request, form=invoice_forms.InvoiceCreateForm,
+                         initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
                          # submit_label=_(u'Save the invoice'),
                          submit_label=Invoice.save_label,
                         ):
-    return add_entity(request, form,
-                      extra_initial={'status': initial_status},
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_initial={'status': initial_status},
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
-def abstract_add_related_invoice(request, target_id, form=InvoiceCreateForm,
-                                 initial_status=DEFAULT_DRAFT_INVOICE_STATUS,
+def abstract_add_related_invoice(request, target_id, form=invoice_forms.InvoiceCreateForm,
+                                 initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
                                  title=_(u'Create an invoice for «%s»'),
                                  # submit_label=_(u'Save the invoice'),
                                  submit_label=Invoice.save_label,
@@ -65,14 +61,14 @@ def abstract_add_related_invoice(request, target_id, form=InvoiceCreateForm,
                               )
 
 
-def abstract_edit_invoice(request, invoice_id, form=InvoiceEditForm):
-    return edit_entity(request, invoice_id, Invoice, form)
+def abstract_edit_invoice(request, invoice_id, form=invoice_forms.InvoiceEditForm):
+    return generic.edit_entity(request, invoice_id, Invoice, form)
 
 
 def abstract_view_invoice(request, invoice_id, template='billing/view_billing.html'):
-    return view_entity(request, invoice_id, Invoice,
-                       template=template, extra_template_dict={'can_download': True},
-                      )
+    return generic.view_entity(request, invoice_id, Invoice,
+                               template=template, extra_template_dict={'can_download': True},
+                              )
 
 
 @login_required
@@ -102,12 +98,12 @@ def detailview(request, invoice_id):
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, Invoice, hf_pk=DEFAULT_HFILTER_INVOICE)
+    return generic.list_view(request, Invoice, hf_pk=constants.DEFAULT_HFILTER_INVOICE)
 
 
 @login_required
 @permission_required('billing')
-@POST_only
+@decorators.POST_only
 def generate_number(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
 
@@ -115,7 +111,7 @@ def generate_number(request, invoice_id):
 
     # TODO: move in model ???
     if not invoice.number:
-        status = get_object_or_404(InvoiceStatus, pk=DEFAULT_INVOICE_STATUS)
+        status = get_object_or_404(InvoiceStatus, pk=constants.DEFAULT_INVOICE_STATUS)
 
         invoice.generate_number()
         invoice.status = status
