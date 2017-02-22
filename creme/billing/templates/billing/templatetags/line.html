@@ -44,8 +44,7 @@
             </div>
         </th>
     {% end_get_block_header %}
-    {% comment %} TODO improve the opti of reload block that only have been modified {% endcomment %}
-    <tbody class="collapsable" ct_id="{{ct_id}}" id="form_id_{{ct_id}}" block_name="{{block_name}}" reload_url={% get_block_reload_uri %}>
+    <tbody class="collapsable bline-form" ct_id="{{ct_id}}" id="form_id_{{ct_id}}" block_name="{{block_name}}" reload_url={% get_block_reload_uri %}>
         {% csrf_token %}
         {{formset.management_form}}
 
@@ -58,7 +57,7 @@
                 <td colspan="13" style="padding:0px 0px;">
                     <table class="linetable-container">
 
-                        <th class="block_header_line_light linetable-header" align="center" width="2%" id="line_content_{{form.instance.id}}">
+                        <th class="block_header_line_light linetable-header" width="2%" id="line_content_{{form.instance.id}}">
                             {{forloop.counter}}
                             <br /><br />
                             <a onclick="creme.billing.markDelete('{{form.prefix}}', '{{ct_id}}', '{{form.instance.id}}');">
@@ -85,17 +84,17 @@
         {% endfor %}
 
         {% if formset %}
-            <tr class="empty_form_{{ct_id}} space_line_{{ct_id}} linetable-separator" style="display: none">
+            <tr class="hidden-form empty_form_{{ct_id}} space_line_{{ct_id}} linetable-separator" {# style="display: none" #} >
                 <td class="line-background-color"></td>
             </tr>
             {% with formset.empty_form as form %}
-                <tr class="content empty_form_{{ct_id}}" style="display: none">
+                <tr class="content hidden-form empty_form_{{ct_id}}" {# style="display: none" #} >
                     <td colspan="13" style="padding:0px 0px;">
                         <table class="linetable-container empty_form_inputs_{{ct_id}}">
                             <tr>
                                 <td style="display: none"> {{form.user}} {{form.DELETE}} {% comment %}{{form.line_ptr}}{% endcomment %}{{form.cremeentity_ptr}}</td>
 
-                                <th class="block_header_line_light linetable-header" align="center" width="2%" id="line_content_{{ct_id}}_{{form.prefix}}">
+                                <th class="block_header_line_light linetable-header" width="2%" id="line_content_{{ct_id}}_{{form.prefix}}">
                                     <a onclick="creme.billing.hideEmptyForm('{{ct_id}}', '{{formset.prefix}}', {{item_count}});">
                                         <img src="{% creme_media_url 'images/delete_16_button.png' %}" border="0" alt="{% trans "flag for delete" %}">
                                     </a>

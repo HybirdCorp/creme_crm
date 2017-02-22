@@ -30,14 +30,12 @@ from creme.creme_core.models import SettingValue, Relation
 from creme import persons
 from creme.persons.blocks import AddressBlock
 
-from creme.products import get_product_model, get_service_model
+# from creme.products import get_product_model, get_service_model
 
 from creme import billing
-from .constants import (REL_SUB_HAS_LINE, REL_OBJ_CREDIT_NOTE_APPLIED,
-        REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED,
-        REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
-from .function_fields import get_total_pending, get_total_won_quote_last_year, get_total_won_quote_this_year
+from . import constants, function_fields
 from .models import PaymentInformation
+from .setting_keys import payment_info_key
 
 
 Contact      = persons.get_contact_model()
@@ -71,16 +69,16 @@ class BillingBlock(Block):
 
 class _LineBlock(SimpleBlock):
     dependencies        = (Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
-    relation_type_deps  = (REL_SUB_HAS_LINE, )
+    relation_type_deps  = (constants.REL_SUB_HAS_LINE, )
     target_ctypes       = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
-    line_model          = "OVERLOAD_ME"
-    # related_item_ct     = "OVERLOAD_ME"
-    related_item_model  = "OVERLOAD_ME"
-    related_item_label  = "OVERLOAD_ME"
+    line_model          = 'OVERLOAD_ME'
+    related_item_model  = 'OVERLOAD_ME'
+    related_item_label  = 'OVERLOAD_ME'
 
     def _get_document_lines(self, document):
         raise NotImplementedError
 
+    # TODO: factorise with views.line.multi_save_lines() ?
     def detailview_display(self, context):
         from .forms.line import LineEditForm
         from .views.line import LINE_FORMSET_PREFIX
@@ -93,24 +91,17 @@ class _LineBlock(SimpleBlock):
                 self.empty_permitted = False
                 super(_LineForm, self).__init__(user=context['user'], related_document=document, *args, **kwargs)
 
-        lineformset_class = modelformset_factory(self.line_model,
-                                                 # TODO can always delete ??? for example a quote accepted
-                                                 # can we really delete a line of this document ???
-                                                 can_delete=True,
-                                                 form=_LineForm,
-                                                 extra=0,
-                                                )
-
-        lineformset = lineformset_class(prefix=LINE_FORMSET_PREFIX[self.line_model], queryset=lines)
+        line_model = self.line_model
+        lineformset_class = modelformset_factory(line_model, can_delete=True, form=_LineForm, extra=0)
+        lineformset = lineformset_class(prefix=LINE_FORMSET_PREFIX[line_model], queryset=lines)
 
         return self._render(self.get_block_template_context(
                     context,
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
-                    ct_id=ContentType.objects.get_for_model(self.line_model).id,
+                    ct_id=ContentType.objects.get_for_model(line_model).id,
                     formset=lineformset,
                     # item_count=lines.count(),
                     item_count=len(lines),
-                    # related_item_ct=self.related_item_ct,
                     related_item_ct=ContentType.objects.get_for_model(self.related_item_model),
                     related_item_label=self.related_item_label,
                    ))
@@ -121,9 +112,10 @@ class ProductLinesBlock(_LineBlock):
     verbose_name       = _(u'Product lines')
     template_name      = 'billing/templatetags/block_product_line.html'
     line_model         = ProductLine
-    # related_item_ct    = ContentType.objects.get_for_model(get_product_model())
-    related_item_model  = get_product_model()
-    related_item_label = _(u'Product')
+    # related_item_model  = get_product_model()
+    related_item_model = ProductLine.related_item_class()
+    # related_item_label = _(u'Product')
+    related_item_label = related_item_model._meta.verbose_name
 
     def _get_document_lines(self, document):
         return document.get_lines(ProductLine)
@@ -134,9 +126,10 @@ class ServiceLinesBlock(_LineBlock):
     verbose_name       = _(u'Service lines')
     template_name      = 'billing/templatetags/block_service_line.html'
     line_model         = ServiceLine
-    # related_item_ct    = ContentType.objects.get_for_model(get_service_model())
-    related_item_model  = get_service_model()
-    related_item_label = _(u'Service')
+    # related_item_model  = get_service_model()
+    related_item_model  = ServiceLine.related_item_class()
+    # related_item_label = _(u'Service')
+    related_item_label = related_item_model._meta.verbose_name
 
     def _get_document_lines(self, document):
         return document.get_lines(ServiceLine)
@@ -145,8 +138,8 @@ class ServiceLinesBlock(_LineBlock):
 class CreditNoteBlock(QuerysetBlock):
     id_                 = QuerysetBlock.generate_id('billing', 'credit_notes')
     dependencies        = (Relation, CreditNote)
-    relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED, )
-    verbose_name        = _(u"Related Credit Notes")
+    relation_type_deps  = (constants.REL_OBJ_CREDIT_NOTE_APPLIED, )
+    verbose_name        = _(u'Related Credit Notes')
     template_name       = 'billing/templatetags/block_credit_note.html'
     target_ctypes       = (Invoice, SalesOrder, Quote,)
 
@@ -173,7 +166,7 @@ class CreditNoteBlock(QuerysetBlock):
 class TotalBlock(Block):
     id_                 = SimpleBlock.generate_id('billing', 'total')
     dependencies        = (ProductLine, ServiceLine, Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
-    relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED,)
+    relation_type_deps  = (constants.REL_OBJ_CREDIT_NOTE_APPLIED,)
     verbose_name        = _(u'Total')
     template_name       = 'billing/templatetags/block_total.html'
     target_ctypes       = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
@@ -197,8 +190,8 @@ class TargetBlock(SimpleBlock):
 class ReceivedInvoicesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'received_invoices')
     dependencies  = (Relation, Invoice)
-    relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
-    verbose_name  = _(u"Received invoices")
+    relation_type_deps = (constants.REL_OBJ_BILL_RECEIVED, )
+    verbose_name  = _(u'Received invoices')
     template_name = 'billing/templatetags/block_received_invoices.html'
     target_ctypes = (Contact, Organisation)
     order_by      = '-expiration_date'
@@ -210,7 +203,7 @@ class ReceivedInvoicesBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(
                     context,
                     Invoice.objects.filter(relations__object_entity=person_id,
-                                           relations__type=REL_SUB_BILL_RECEIVED,
+                                           relations__type=constants.REL_SUB_BILL_RECEIVED,
                                           ),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
                     hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
@@ -218,8 +211,8 @@ class ReceivedInvoicesBlock(QuerysetBlock):
 
 
 class _ReceivedBillingDocumentsBlock(QuerysetBlock):
-    relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
-    verbose_name  = _(u"Received billing documents")
+    relation_type_deps = (constants.REL_OBJ_BILL_RECEIVED, )
+    verbose_name  = _(u'Received billing documents')
     template_name = 'billing/templatetags/block_received_billing_document.html'
     target_ctypes = (Contact, Organisation)
     order_by      = '-expiration_date'
@@ -237,7 +230,7 @@ class _ReceivedBillingDocumentsBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(
                     context,
                     model.objects.filter(relations__object_entity=person_id,
-                                         relations__type=REL_SUB_BILL_RECEIVED,
+                                         relations__type=constants.REL_SUB_BILL_RECEIVED,
                                         ),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
                     title=self._title,
@@ -261,7 +254,7 @@ class ReceivedQuotesBlock(_ReceivedBillingDocumentsBlock):
 class ReceivedSalesOrdersBlock(_ReceivedBillingDocumentsBlock):
     id_          = QuerysetBlock.generate_id('billing', 'received_sales_orders')
     dependencies = (Relation, SalesOrder)
-    verbose_name = _(u"Received sales orders")
+    verbose_name = _(u'Received sales orders')
 
     _billing_model = SalesOrder
     _title         = _('%s Received sales order')
@@ -292,10 +285,9 @@ class PaymentInformationBlock(QuerysetBlock):
         has_to_be_displayed = True
 
         try:
-            # if SettingValue.objects.get(key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value \
+            # if SettingValue.objects.get(key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value \
             #    and not organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME).exists():
-            if not organisation.is_managed \
-               and SettingValue.objects.get(key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value:
+            if not organisation.is_managed and SettingValue.objects.get(key_id=payment_info_key.id).value:
                 has_to_be_displayed = False
         except SettingValue.DoesNotExist:
             # Populate error ?
@@ -314,11 +306,11 @@ class PaymentInformationBlock(QuerysetBlock):
 class BillingPaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'billing_payment_information')
     verbose_name  = _(u'Default payment information')
-    template_name = "billing/templatetags/block_billing_payment_information.html"
+    template_name = 'billing/templatetags/block_billing_payment_information.html'
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     dependencies  = (Relation, PaymentInformation)
-    relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED,
-                          REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED,
+    relation_type_deps = (constants.REL_OBJ_BILL_ISSUED, constants.REL_SUB_BILL_ISSUED,
+                          constants.REL_OBJ_BILL_RECEIVED, constants.REL_SUB_BILL_RECEIVED,
                          )
     order_by      = 'name'
 
@@ -358,9 +350,9 @@ class PersonsStatisticsBlock(Block):
         return self._render(self.get_block_template_context(
                     context,
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
-                    total_pending=get_total_pending(person, user),
-                    total_won_quote_last_year=get_total_won_quote_last_year(person, user),
-                    total_won_quote_this_year=get_total_won_quote_this_year(person, user),
+                    total_pending=function_fields.get_total_pending(person, user),
+                    total_won_quote_last_year=function_fields.get_total_won_quote_last_year(person, user),
+                    total_won_quote_this_year=function_fields.get_total_won_quote_this_year(person, user),
                    ))
 
 

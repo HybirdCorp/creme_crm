@@ -2,9 +2,7 @@
 
 from django.conf.urls import url
 
-from . import (credit_note_model_is_custom, invoice_model_is_custom,
-        quote_model_is_custom, sales_order_model_is_custom, template_base_model_is_custom,
-        product_line_model_is_custom, service_line_model_is_custom)
+from .. import billing
 from .views import portal, export, payment_information, convert, line
 
 urlpatterns = [
@@ -22,7 +20,7 @@ urlpatterns = [
     url(r'^(?P<document_id>\d+)/multi_save_lines', line.multi_save_lines),
 ]
 
-if not invoice_model_is_custom():
+if not billing.invoice_model_is_custom():
     from .views import invoice
 
     urlpatterns += [
@@ -34,7 +32,7 @@ if not invoice_model_is_custom():
         url(r'^invoice/(?P<invoice_id>\d+)$',                 invoice.detailview,      name='billing__view_invoice'),
     ]
 
-if not quote_model_is_custom():
+if not billing.quote_model_is_custom():
     from .views import quote
 
     urlpatterns += [
@@ -45,7 +43,7 @@ if not quote_model_is_custom():
         url(r'^quote/(?P<quote_id>\d+)$',      quote.detailview,  name='billing__view_quote'),
     ]
 
-if not sales_order_model_is_custom():
+if not billing.sales_order_model_is_custom():
     from .views import sales_order
 
     urlpatterns += [
@@ -56,7 +54,7 @@ if not sales_order_model_is_custom():
         url(r'^sales_order/(?P<order_id>\d+)$',      sales_order.detailview,  name='billing__view_order'),
     ]
 
-if not credit_note_model_is_custom():
+if not billing.credit_note_model_is_custom():
     from .views import credit_note
 
     urlpatterns += [
@@ -69,7 +67,7 @@ if not credit_note_model_is_custom():
         url(r'^credit_note/delete_related/(?P<credit_note_id>\d+)/from/(?P<base_id>\d+)/$', credit_note.delete_related_credit_note, name='billing__delete_related_cnote'),
     ]
 
-if not template_base_model_is_custom():
+if not billing.template_base_model_is_custom():
     from .views import templatebase
 
     urlpatterns += [
@@ -78,13 +76,13 @@ if not template_base_model_is_custom():
         url(r'^template/(?P<template_id>\d+)$',      templatebase.detailview, name='billing__view_template'),
     ]
 
-if not product_line_model_is_custom():
+if not billing.product_line_model_is_custom():
     urlpatterns += [
         url(r'^product_lines$',                                  line.listview_product_line,     name='billing__list_product_lines'),
         url(r'^(?P<document_id>\d+)/product_line/add_multiple$', line.add_multiple_product_line, name='billing__create_product_lines'),
     ]
 
-if not service_line_model_is_custom():
+if not billing.service_line_model_is_custom():
     urlpatterns += [
         url(r'^service_lines$',                                  line.listview_service_line,     name='billing__list_service_lines'),
         url(r'^(?P<document_id>\d+)/service_line/add_multiple$', line.add_multiple_service_line, name='billing__create_service_lines'),

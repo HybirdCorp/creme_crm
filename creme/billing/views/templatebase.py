@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,20 +22,20 @@ from django.core.urlresolvers import reverse
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import edit_entity, list_view, view_entity
+from creme.creme_core.views import generic
 
-from .. import get_template_base_model, get_sales_order_model, get_invoice_model
+from ... import billing
 from ..constants import DEFAULT_HFILTER_TEMPLATE
 from ..forms.templatebase import TemplateBaseEditForm
 
 
-TemplateBase = get_template_base_model()
-SalesOrder = get_sales_order_model()
-Invoice = get_invoice_model()
+TemplateBase = billing.get_template_base_model()
+SalesOrder = billing.get_sales_order_model()
+Invoice = billing.get_invoice_model()
 
 
 def abstract_edit_templatebase(request, template_id, form=TemplateBaseEditForm):
-    return edit_entity(request, template_id, TemplateBase, form)
+    return generic.edit_entity(request, template_id, TemplateBase, form)
 
 
 @login_required
@@ -51,19 +51,19 @@ def detailview(request, template_id):
     has_perm = user.has_perm
     isnt_staff = not user.is_staff
 
-    return view_entity(request, template_id, TemplateBase,
-                       template='billing/view_template.html',
-                       extra_template_dict={
-                            'can_download':       False,
-                            'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
-                            'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
-                       },
-                      )
+    return generic.view_entity(request, template_id, TemplateBase,
+                               template='billing/view_template.html',
+                               extra_template_dict={
+                                    'can_download':       False,
+                                    'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
+                                    'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
+                               },
+                              )
 
 
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, TemplateBase, hf_pk=DEFAULT_HFILTER_TEMPLATE,
-                     extra_dict={'add_url': reverse('recurrents__create_generator')},
-                    )
+    return generic.list_view(request, TemplateBase, hf_pk=DEFAULT_HFILTER_TEMPLATE,
+                             extra_dict={'add_url': reverse('recurrents__create_generator')},
+                            )

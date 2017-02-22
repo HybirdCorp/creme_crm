@@ -81,6 +81,8 @@ class LineTestCase(_BillingTestCase):
 
         self.assertEqual(invoice.get_absolute_url(), line0.get_absolute_url())
 
+        self.assertEqual(Product, line0.related_item_class())
+
     @skipIfCustomProduct
     def test_lines_with_negatives_values(self):
         user = self.login()
@@ -189,6 +191,8 @@ class LineTestCase(_BillingTestCase):
 
         self.assertEqual(Decimal('21.6'), invoice.total_no_vat)  # 2 * 5.4 + 2 * 5.4
         self.assertEqual(Decimal('25.84'), invoice.total_vat)  # 21.6 * 1.196 = 25.84
+
+        self.assertEqual(Service, line0.related_item_class())
 
     @skipIfCustomProductLine
     def test_related_document01(self):
@@ -587,10 +591,10 @@ class LineTestCase(_BillingTestCase):
         "1 product line created on the fly and 1 deleted"
         user = self.login()
 
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
         product_line = ProductLine.objects.create(user=user, related_document=invoice,
                                                   on_the_fly_item=u'on the fly service',
-                                                  unit_price=Decimal('50.0')
+                                                  unit_price=Decimal('50.0'),
                                                  )
         name = 'new on the fly product'
         unit_price = '69.0'

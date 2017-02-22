@@ -75,8 +75,12 @@ def get_value(dic, key, default=''):
 def get_meta_value(obj, key, default=''):
     try:
         return getattr(obj._meta, key)
+    except AttributeError as e:
+        logger.warn('Templatetag get_meta_value: %s', e)
     except:
-        return default
+        pass
+
+    return default
 
 
 # TODO: still useful ??

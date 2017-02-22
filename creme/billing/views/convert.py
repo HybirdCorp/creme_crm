@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,18 +23,18 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth import decorators
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
 
-from .. import get_invoice_model, get_sales_order_model, get_quote_model, get_credit_note_model # get_template_base_model
+from ... import billing
 
 
-CreditNote = get_credit_note_model()
-Quote      = get_quote_model()
-Invoice    = get_invoice_model()
-SalesOrder = get_sales_order_model()
+CreditNote = billing.get_credit_note_model()
+Quote      = billing.get_quote_model()
+Invoice    = billing.get_invoice_model()
+SalesOrder = billing.get_sales_order_model()
 _CLASS_MAP = {'credit_note': CreditNote,  # NB: unused
               'invoice':     Invoice,
               'quote':       Quote,
@@ -48,8 +48,8 @@ CONVERT_MATRIX = {
 }
 
 
-@login_required
-@permission_required('billing')
+@decorators.login_required
+@decorators.permission_required('billing')
 def convert(request, document_id):
     src = get_object_or_404(CremeEntity, pk=document_id).get_real_entity()
     user = request.user
@@ -79,4 +79,4 @@ def convert(request, document_id):
         dest.generate_number()
         dest.save()
 
-    return HttpResponse('', content_type='text/javascript')
+    return HttpResponse(content_type='text/javascript')

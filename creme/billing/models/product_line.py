@@ -21,6 +21,8 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from creme.products import get_product_model
+
 from .line import Line
 
 
@@ -44,6 +46,10 @@ class AbstractProductLine(Line):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('billing__list_product_lines')
+
+    @staticmethod
+    def related_item_class():
+        return get_product_model()
 
 
 class ProductLine(AbstractProductLine):

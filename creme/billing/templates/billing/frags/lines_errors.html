@@ -1,0 +1,20 @@
+{% load i18n creme_core_tags %}
+{% for line_errors in errors %}
+    {% if line_errors.item %}
+        {% blocktrans with item=line_errors.item %}Errors on the line <strong>«{{item}}»:</strong>{% endblocktrans %}
+    {% else %}
+        {% blocktrans with model=line_errors.instance|get_meta_value:'verbose_name' %}Errors on the new «{{model}}»:{% endblocktrans %}
+    {% endif %}
+    <ul class="bline-error-list">
+        {% for field, msg in line_errors.errors %}
+            <li>
+                {% if not field %}
+                    {% trans 'General:' %}{{msg}}
+                {% else %}
+                    {% blocktrans with field_name=field.verbose_name %}Field <em>«{{field_name}}»</em>:{% endblocktrans %}{{msg}}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    {% if not forloop.last %}<hr>{% endif %}
+{% endfor %}

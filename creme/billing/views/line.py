@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2016  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,44 +22,42 @@ from json import loads as jsonloads
 
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.shortcuts import get_object_or_404, render
+from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_ct_or_404
-from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_to_entity, list_view, inner_popup
+from creme.creme_core.views import generic, decorators
 
-from creme.products import get_product_model, get_service_model
-
-from .. import get_product_line_model, get_service_line_model
-from ..forms.line import (ProductLineMultipleAddForm, ServiceLineMultipleAddForm,
-        LineEditForm, AddToCatalogForm)
+from ... import billing
+from .. import constants
+from ..forms import line as line_forms
 
 
-ProductLine = get_product_line_model()
-ServiceLine = get_service_line_model()
+ProductLine = billing.get_product_line_model()
+ServiceLine = billing.get_service_line_model()
 
 
 def abstract_add_multiple_product_line(request, document_id,
-                                       form=ProductLineMultipleAddForm,
+                                       form=line_forms.ProductLineMultipleAddForm,
                                        title=_(u'Add one or more product to «%s»'),
                                        submit_label=_('Save the lines'),
                                       ):
-    return add_to_entity(request, document_id, form, title,
-                         link_perm=True, submit_label=submit_label,
-                        )
+    return generic.add_to_entity(request, document_id, form, title,
+                                 link_perm=True, submit_label=submit_label,
+                                )
 
 
 def abstract_add_multiple_service_line(request, document_id,
-                                       form=ServiceLineMultipleAddForm,
+                                       form=line_forms.ServiceLineMultipleAddForm,
                                        title=_(u'Add one or more service to «%s»'),
                                        submit_label=_('Save the lines'),
                                       ):
-    return add_to_entity(request, document_id, form, title,
-                         link_perm=True, submit_label=submit_label,
-                        )
+    return generic.add_to_entity(request, document_id, form, title,
+                                 link_perm=True, submit_label=submit_label,
+                                )
 
 
 @login_required
@@ -77,13 +75,13 @@ def add_multiple_service_line(request, document_id):
 @login_required
 @permission_required('billing')
 def listview_product_line(request):
-    return list_view(request, ProductLine, show_actions=False)
+    return generic.list_view(request, ProductLine, show_actions=False)
 
 
 @login_required
 @permission_required('billing')
 def listview_service_line(request):
-    return list_view(request, ServiceLine, show_actions=False)
+    return generic.list_view(request, ServiceLine, show_actions=False)
 
 
 @login_required
@@ -91,106 +89,123 @@ def listview_service_line(request):
 def add_to_catalog(request, line_id):
     line = get_object_or_404(CremeEntity, pk=line_id).get_real_entity()
 
-    # TODO: method in Line instead ?
-    if isinstance(line, ProductLine):
-        related_item_class = get_product_model()
-    elif isinstance(line, ServiceLine):
-        related_item_class = get_service_model()
-    else:
-        raise Http404('This entity is not a billing line')
+    try:
+        related_item_class = line.related_item_class()
+    except AttributeError:
+        raise Http404('This entity is not a billing line')  # ConflictError ??
 
-    request.user.has_perm_to_create_or_die(related_item_class)
+    user = request.user
+    user.has_perm_to_create_or_die(related_item_class)
 
     if request.method == 'POST':
-        form = AddToCatalogForm(line=line, related_item_class=related_item_class,
-                                user=request.user, data=request.POST,
-                               )
+        form = line_forms.AddToCatalogForm(user=user, line=line, related_item_class=related_item_class,
+                                           data=request.POST,
+                                          )
 
         if form.is_valid():
             form.save()
     else:
-        form = AddToCatalogForm(request.user, line, related_item_class=related_item_class)
+        form = line_forms.AddToCatalogForm(user=user, line=line, related_item_class=related_item_class)
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                       {'form': form,
-                        'title': _(u'Add this on the fly item to your catalog'),
-                        'submit_label': _('Add to the catalog'),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+                               {'form': form,
+                                'title': _(u'Add this on the fly item to your catalog'),
+                                'submit_label': _(u'Add to the catalog'),
+                               },
+                               is_valid=form.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
+                              )
 
 
 LINE_FORMSET_PREFIX = {
-    ProductLine : 'product_line_formset',
-    ServiceLine : 'service_line_formset',
+    ProductLine: 'product_line_formset',
+    ServiceLine: 'service_line_formset',
 }
 
 
-@POST_only
+@decorators.POST_only
 @login_required
 @permission_required('billing')
 def multi_save_lines(request, document_id):
-    document = CremeEntity.objects.get(pk=document_id).get_real_entity()
+    document = get_object_or_404(CremeEntity, pk=document_id).get_real_entity()
 
-    request.user.has_perm_to_change_or_die(document)
+    user = request.user
+    user.has_perm_to_change_or_die(document)
 
     formset_to_save = []
+    errors = []
+
+    class _LineForm(line_forms.LineEditForm):
+        def __init__(self, *args, **kwargs):
+            self.empty_permitted = False
+            super(_LineForm, self).__init__(user=user, related_document=document, *args, **kwargs)
+
     # Only modified formsets land here
     for line_ct_id, data in request.POST.items():
-        model_line = get_ct_or_404(line_ct_id).model_class()
-        qs = model_line.objects.filter(relations__object_entity=document.id)  # TODO: relation type too...
+        line_model = get_ct_or_404(line_ct_id).model_class()
 
-        # TODO: move out the 'for' loop ?
-        class _LineForm(LineEditForm):
-            def __init__(self, *args, **kwargs):
-                self.empty_permitted = False
-                super(_LineForm, self).__init__(user=request.user, related_document=document, *args, **kwargs)
+        prefix = LINE_FORMSET_PREFIX.get(line_model)
+        if prefix is None:
+            raise ConflictError('Invalid model (not a line ?!)')
 
-        # TODO can always delete ??? for example a quote accepted, can we really delete a line of this document ???
-        lineformset_class = modelformset_factory(model_line, form=_LineForm, extra=0, can_delete=True)
-        lineformset = lineformset_class(jsonloads(data),
-                                        prefix=LINE_FORMSET_PREFIX[model_line],
-                                        queryset=qs,
-                                       )
+        qs = line_model.objects.filter(relations__object_entity=document.id,
+                                       relations__type=constants.REL_OBJ_HAS_LINE,
+                                      )
+
+        lineformset_class = modelformset_factory(line_model, form=_LineForm, extra=0, can_delete=True)
+        lineformset = lineformset_class(jsonloads(data), prefix=prefix, queryset=qs)
 
         if lineformset.is_valid():
             formset_to_save.append(lineformset)
         else:
-            # TODO: better display errors ?? (eg: return errors as json & let the JS format them)
-            errors = []
+            get_field = line_model._meta.get_field
 
             for form in lineformset:
                 if form.errors:
                     instance = form.instance
-                    # We retrieve the line again because the field 'on_the_fly_item' may have been cleaned
-                    # TODO: avoid this query
-#                    on_the_fly = Line.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
-                    on_the_fly = model_line.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
-                                 ugettext(u"on the fly [creation]")
+                    # # We retrieve the line again because the field 'on_the_fly_item' may have been cleaned
+                    # # todo: avoid this query
+                    # on_the_fly = line_model.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
+                    #              ugettext(u'on the fly [creation]')
+                    #
+                    # errors.append(u'%s <b>%s</b> : <br>%s' % (
+                    #                 ugettext(u'Errors on the line'),
+                    #                 on_the_fly if on_the_fly else instance.related_item,
+                    #                 u''.join(u"==> %s : %s" % (ugettext(u'General'), msg) if field == '__all__' else
+                    #                          u'==> %s "<i>%s</i>" : %s' % (
+                    #                                 ugettext(u'Specific on the field'),  # todo: format string instead
+                    #                                 line_model._meta.get_field(field).verbose_name,
+                    #                                 msg,
+                    #                             )
+                    #                             for field, msg in form.errors.items()
+                    #                         )
+                    #                 )
+                    #              )
+                    item = None
 
-                    # TODO: cached_ugettext ?
-                    errors.append(u"%s <b>%s</b> : <br>%s" % (
-                                    ugettext(u"Errors on the line"),
-                                    on_the_fly if on_the_fly else instance.related_item,
-                                    u''.join(u"==> %s : %s" % (ugettext(u"General"), msg) if field == "__all__" else
-                                             u'==> %s "<i>%s</i>" : %s' % (
-                                                    ugettext(u"Specific on the field"),  # TODO: format string instead
-                                                    model_line._meta.get_field(field).verbose_name,
-                                                    msg,
-                                                )
-                                                for field, msg in form.errors.items()
-                                            )
-                                    )
+                    if instance.pk:
+                        # We retrieve the line again because the field 'on_the_fly_item' may have been cleaned
+                        # TODO: avoid this query (API for field modifications -- see HistoryLine)
+                        item = line_model.objects.get(pk=instance.pk).on_the_fly_item or instance.related_item
+
+                    errors.append({'item':     item,
+                                   'instance': instance,
+                                   'errors':   [(None if field == '__all__' else get_field(field),
+                                                 msg,
+                                                ) for field, msg in form.errors.items()
+                                               ],
+                                  }
                                  )
 
-            return HttpResponse(u'<center>--------------------</center><br>'.join(errors),
-                                content_type="text/plain", status=409,
-                               )
+    if errors:
+        # return HttpResponse(u'<center>--------------------</center><br>'.join(errors),
+        #                     content_type='text/plain', status=409,
+        #                    )
+        return render(request, 'billing/frags/lines_errors.html', context={'errors': errors}, status=409)
 
     # Save all formset now that we haven't detect any errors
     for formset in formset_to_save:
         formset.save()
 
-    return HttpResponse("", content_type="text/javascript")
+    return HttpResponse(content_type='text/javascript')
