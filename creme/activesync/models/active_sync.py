@@ -142,29 +142,45 @@ class SyncKeyHistory(CremeModel):
         if client_synckeys_count > LIMIT_SYNC_KEY_HISTORY:
             ids_to_delete = client_synckeys.order_by('created')[:client_synckeys_count-LIMIT_SYNC_KEY_HISTORY].values_list('id',flat=True)
 
-            ids_to_delete = list(ids_to_delete)#Forcing the retrieve for MySQL v5.1.49 which "doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery"
+            # Forcing the retrieve for MySQL v5.1.49 which "doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery"
+            ids_to_delete = list(ids_to_delete)
 
             SyncKeyHistory.objects.filter(id__in=ids_to_delete).delete()
 
         super(SyncKeyHistory, self).save(*args, **kwargs)
 
-
+    # TODO: badly named, because this function has side effects
+    # TODO: atomic ? select_for_update ?
     @staticmethod
     def _get_previous_key(client):
-        #keys = SyncKeyHistory.objects.filter(client=client).order_by('-created')[:2]
-        keys = SyncKeyHistory.objects.filter(client=client).order_by('-created')
+        #         #keys = SyncKeyHistory.objects.filter(client=client).order_by('-created')[:2]
+        #         keys = SyncKeyHistory.objects.filter(client=client).order_by('-created')
+        #
+        #         if keys:
+        #             keys[0].delete()
+        # #            if len(keys) == 2:
+        # #                return keys[1]
+        #             for key in keys.all() :
+        #                 if key == '1' or key == '0':
+        #                     key.delete()
+        #                 else:
+        #                     return key
+        #
+        #         return 0
+        hkeys = SyncKeyHistory.objects.filter(client=client).order_by('-created')
 
-        if keys:
-            keys[0].delete()
-#            if len(keys) == 2:
-#                return keys[1]
-            for key in keys.all() :
+        if hkeys:
+            hkeys[0].delete()
+
+            for hkey in hkeys[1:]:
+                key = hkey.sync_key
+
                 if key == '1' or key == '0':
-                    key.delete()
+                    hkey.delete()
                 else:
                     return key
 
-        return 0
+        return '0'
 
     @staticmethod
     def back_to_previous_key(client):

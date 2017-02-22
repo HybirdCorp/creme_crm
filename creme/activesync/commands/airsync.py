@@ -186,7 +186,6 @@ class AirSync(Base):
             except ValueError:
                 pass ###TODO: ???
 
-
             if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
                 add_error_message(_(u"There was an error during synchronization phase. Try again later."))
                 return
@@ -215,7 +214,7 @@ class AirSync(Base):
             except ValueError:
                 pass
 
-            #TODO: Factorise
+            # TODO: Factorise
             if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
                 add_error_message(_(u"There was an error during synchronization phase. Try again later."))
                 if self.status == SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY:
@@ -228,7 +227,7 @@ class AirSync(Base):
             change_nodes  = commands_node.findall('%(ns0)sChange' % d_ns) if commands_node is not None else []
             delete_nodes  = commands_node.findall('%(ns0)sDelete' % d_ns) if commands_node is not None else []
 
-            #TODO: Singular / Plural
+            # TODO: Singular / Plural
             self.add_info_message(_(u"There is %(count)s new %(model)s from the server")     % {'count': len(add_nodes),    'model': creme_model_verbose_name})
             self.add_info_message(_(u"There is %(count)s changed %(model)s from the server") % {'count': len(change_nodes), 'model': creme_model_verbose_name})
             self.add_info_message(_(u"There is %(count)s deleted %(model)s from the server") % {'count': len(delete_nodes), 'model': creme_model_verbose_name})

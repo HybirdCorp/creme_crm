@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,27 +20,30 @@
 
 from collections import defaultdict
 from httplib import socket
+import logging
 
 import restkit.errors
 
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from creme.activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
-from creme.activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
-from creme.activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
-from creme.activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, prettify
 from creme.activesync.connection import Connection
+from creme.activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
 from creme.activesync.messages import _INFO, _ERROR, _SUCCESS, MessageInfo, MessageSucceed, MessageError
+from creme.activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
+from creme.activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, prettify
+from creme.activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
 
 
-ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG
+logger = logging.getLogger(__name__)
+ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG  # TODO: remove
+
 
 class Base(object):
-    template_name = u"overloadme.xml" #XML template to send to the server
-    command       = u"OVERLOADME"     #Associated command
-    encoder       = lambda s, x : WBXMLEncoder(AirsyncDTD_Reverse).encode(x) # xml to wbxml encoder
-    decoder       = lambda s, x : WBXMLDecoder(AirsyncDTD_Forward).decode(x) # wbxml to xml decoder
+    template_name = u'overloadme.xml'  # XML template to send to the server
+    command       = u'OVERLOADME'      # Associated command
+    encoder       = lambda s, x: WBXMLEncoder(AirsyncDTD_Reverse).encode(x)  # xml to wbxml encoder
+    decoder       = lambda s, x: WBXMLDecoder(AirsyncDTD_Forward).decode(x)  # wbxml to xml decoder
 
     def __init__(self, url, login, pwd, device_id, user):
         self.url = url
@@ -115,21 +118,29 @@ class Base(object):
         self.connection = Connection.create(self.url, self.login, self.password, *args, **kwargs)
 
     def _encode(self, content):
-        if ACTIVE_SYNC_DEBUG:
-            print u"Request: %s" % content
-            self._data['debug']['xml'].append(u"Request: %s" % content)
+        if settings.ACTIVE_SYNC_DEBUG:
+            # print u"Request: %s" % content
+            msg = u'Request: %s' % content
+            logger.warn(msg)
+            self._data['debug']['xml'].append(msg)
 
-        return self.encoder(str(content.encode('utf-8')))#TODO: Verify side effects
+        return self.encoder(str(content.encode('utf-8'))) # TODO: Verify side effects
 
     def _decode(self, content):
-        if ACTIVE_SYNC_DEBUG:
-            print u"Response: %s" % prettify(self.decoder(content))
-            self._data['debug']['xml'].append(u"Response: %s" % prettify(self.decoder(content)))
         try:
-            return self.decoder(content)
-        except Exception:
+            decoded = self.decoder(content)
+        except Exception as e:
+            logger.warn('Error while decoding reponse (%s)', e)
             raise CremeActiveSyncError(SYNC_ERR_NOT_FOUND)
 #        return fromstring(str(self.decoder(content)))#Trick to use ElementTree instead of libxml2 in waiting for own ElementTree parser
+
+        if settings.ACTIVE_SYNC_DEBUG:
+            # print u"Response: %s" % prettify(self.decoder(content))
+            msg = u'Response: %s' % prettify(decoded)
+            logger.warn(msg)
+            self._data['debug']['xml'].append(msg)
+
+        return decoded
 
     def _send(self, encoded_content, *args, **kwargs):
         try:

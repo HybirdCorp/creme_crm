@@ -2,6 +2,7 @@
 
 try:
     from django.utils.translation import ugettext as _
+    from django.test import override_settings
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.models import SettingValue
@@ -320,8 +321,18 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertGET200('/activesync/sync')
         # TODO: test errors
 
+    @override_settings(ACTIVE_SYNC_DEBUG=False)
     def test_sync_view_error01(self):
         self._aux_test_sync_view_error('http://toto.com')
 
+    @override_settings(ACTIVE_SYNC_DEBUG=False)
     def test_sync_view_error02(self):
+        self._aux_test_sync_view_error('http://invalid.com')
+
+    @override_settings(ACTIVE_SYNC_DEBUG=True)
+    def test_sync_view_error03(self):
+        self._aux_test_sync_view_error('http://toto.com')
+
+    @override_settings(ACTIVE_SYNC_DEBUG=True)
+    def test_sync_view_error04(self):
         self._aux_test_sync_view_error('http://invalid.com')
