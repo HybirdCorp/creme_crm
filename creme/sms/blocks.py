@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,8 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.gui.block import QuerysetBlock
 #from creme.creme_core.utils import jsonify
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+# from creme.persons.models import Contact
 
 from . import get_smscampaign_model, get_messaginglist_model
 #from .models import SMSCampaign, Recipient, Sending, Message, MessagingList
@@ -83,7 +84,8 @@ class RecipientsBlock(QuerysetBlock):
 
 class ContactsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('sms', 'contacts')
-    dependencies  = (Contact,)
+    # dependencies  = (Contact,)
+    dependencies  = (get_contact_model(),)
     verbose_name  = _(u'Contacts recipients')
     template_name = 'sms/templatetags/block_contacts.html'
     target_ctypes = (MessagingList,)
