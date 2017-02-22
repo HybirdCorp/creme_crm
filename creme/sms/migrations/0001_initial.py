@@ -24,8 +24,8 @@ class Migration(migrations.Migration):
             options={
                 'swappable': 'SMS_TEMPLATE_MODEL',
                 'ordering': ('name',),
-                'verbose_name': 'Message template',
-                'verbose_name_plural': 'Messages templates',
+                'verbose_name': 'SMS Message template',
+                'verbose_name_plural': 'SMS Messages templates',
             },
             bases=('creme_core.cremeentity',),
         ),

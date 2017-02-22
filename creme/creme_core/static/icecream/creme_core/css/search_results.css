@@ -18,3 +18,11 @@
     overflow-x: auto;
 }
 */
+
+.search-form {
+    margin-bottom: 10px;
+}
+
+.search-form input[type=submit] {
+    margin-left: 10px;
+}

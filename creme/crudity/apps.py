@@ -37,9 +37,25 @@ class CrudityConfig(CremeAppConfig):
     #     creme_registry.register_app('crudity', _(u'External data management'), '/crudity')
 
     def register_menu(self, creme_menu):
-        reg_item = creme_menu.register_app('crudity', '/crudity/').register_item
-        reg_item('/crudity/waiting_actions', _(u'Email waiting actions'), 'crudity')
-        reg_item('/crudity/history',         _(u'History'),               'crudity')
+        from django.conf import settings
+
+        if settings.OLD_MENU:
+            reg_item = creme_menu.register_app('crudity', '/crudity/').register_item
+            reg_item('/crudity/waiting_actions', _(u'Email waiting actions'), 'crudity')
+            reg_item('/crudity/history',         _(u'History'),               'crudity')
+        else:
+            URLItem = creme_menu.URLItem
+            creme_menu.get('features', 'tools') \
+                      .add(URLItem('crudity-waiting_actions', url='/crudity/waiting_actions',
+                                   label=_(u'Email waiting actions'), perm='crudity',
+                                  ),
+                           priority=250,
+                          ) \
+                      .add(URLItem('crudity-history', url='/crudity/history',
+                                   label=_(u'History of automatised creation'), perm='crudity',
+                                  ),
+                           priority=260,
+                          )
 
     def register_setting_key(self, setting_key_registry):
         from .setting_keys import sandbox_key

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,12 +49,21 @@ class RecurrentsConfig(CremeAppConfig):
         icon_registry.register(self.RecurrentGenerator, 'images/recurrent_doc_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        from django.core.urlresolvers import reverse_lazy as reverse
-
-        from creme.creme_core.auth import build_creation_perm
+        from django.conf import settings
 
         RGenerator = self.RecurrentGenerator
-        reg_item = creme_menu.register_app('recurrents', '/recurrents/').register_item
-        reg_item('/recurrents/',                          _(u'Portal of recurrent documents'), 'recurrents')
-        reg_item(reverse('recurrents__list_generators'),  _(u'All recurrent generators'),      'recurrents')
-        reg_item(reverse('recurrents__create_generator'), RGenerator.creation_label,           build_creation_perm(RGenerator))
+
+        if settings.OLD_MENU:
+            from django.core.urlresolvers import reverse_lazy as reverse
+            from creme.creme_core.auth import build_creation_perm
+
+            reg_item = creme_menu.register_app('recurrents', '/recurrents/').register_item
+            reg_item('/recurrents/',                          _(u'Portal of recurrent documents'), 'recurrents')
+            reg_item(reverse('recurrents__list_generators'),  _(u'All recurrent generators'),      'recurrents')
+            reg_item(reverse('recurrents__create_generator'), RGenerator.creation_label,           build_creation_perm(RGenerator))
+        else:
+            creme_menu.get('features', 'management') \
+                      .add(creme_menu.URLItem.list_view('recurrents-generators', model=RGenerator), priority=100)
+            creme_menu.get('creation', 'any_forms') \
+                      .get_or_create_group('management', _(u'Management'), priority=50) \
+                      .add_link('recurrents-create_rgenerator', RGenerator, priority=100)

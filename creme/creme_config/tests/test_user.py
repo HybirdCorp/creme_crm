@@ -904,7 +904,10 @@ class UserSettingsTestCase(CremeTestCase):
 
     def test_user_settings(self):
         response = self.assertGET200('/creme_config/my_settings/')
-        self.assertContains(response, 'id="%s"' % UserPreferedMenusBlock.id_)
+
+        if settings.OLD_MENU:
+            self.assertContains(response, 'id="%s"' % UserPreferedMenusBlock.id_)
+
         self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
 
     @override_settings(THEMES=[('icecream',  'Ice cream'),

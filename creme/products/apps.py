@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,14 +67,30 @@ class ProductsConfig(CremeAppConfig):
         reg_icon(self.Service, 'images/service_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        from django.core.urlresolvers import reverse_lazy as reverse
+        from django.conf import settings
 
-        from creme.creme_core.auth import build_creation_perm as cperm
+        Product = self.Product
+        Service = self.Service
 
-        reg_item = creme_menu.register_app('products', '/products/').register_item
-        reg_item('/products/',                        _(u'Portal of products and services'), 'products')
-        reg_item(reverse('products__list_products'),  _(u'All products'),                    'products')
-        reg_item(reverse('products__create_product'), self.Product.creation_label,           cperm(self.Product))
-        reg_item(reverse('products__list_services'),  _(u'All services'),                    'products')
-        reg_item(reverse('products__create_service'), self.Service.creation_label,           cperm(self.Service))
+        if settings.OLD_MENU:
+            from django.core.urlresolvers import reverse_lazy as reverse
+            from creme.creme_core.auth import build_creation_perm as cperm
 
+            reg_item = creme_menu.register_app('products', '/products/').register_item
+            reg_item('/products/',                        _(u'Portal of products and services'), 'products')
+            reg_item(reverse('products__list_products'),  _(u'All products'),                    'products')
+            reg_item(reverse('products__create_product'), Product.creation_label,                cperm(Product))
+            reg_item(reverse('products__list_services'),  _(u'All services'),                    'products')
+            reg_item(reverse('products__create_service'), Service.creation_label,                cperm(Service))
+        else:
+            LvURLItem = creme_menu.URLItem.list_view
+            creme_menu.get('features') \
+                      .get_or_create(creme_menu.ContainerItem, 'management', priority=50,
+                                     defaults={'label': _(u'Management')},
+                                    ) \
+                      .add(LvURLItem('products-products', model=Product), priority=20) \
+                      .add(LvURLItem('products-services', model=Service), priority=25)
+            creme_menu.get('creation', 'any_forms') \
+                      .get_or_create_group('management', label=_(u'Management'), priority=50) \
+                      .add_link('products-create_product', Product, priority=20) \
+                      .add_link('products-create_service', Service, priority=25)

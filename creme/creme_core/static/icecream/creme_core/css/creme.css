@@ -1,4 +1,35 @@
-/* base */
+/* Base */
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('icecream/fonts/OpenSans-Regular-400.eot'); /* IE9 Compat Modes */
+    src: /* url('icecream/fonts/OpenSans-Regular-400.eot?#iefix') format('embedded-opentype'), IE6-IE8 */
+         url('icecream/fonts/OpenSans-Regular-400.woff') format('woff'), /* Modern Browsers */
+         url('icecream/fonts/OpenSans-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 600;
+    src: url('icecream/fonts/OpenSans-Semibold-600.eot'); /* IE9 Compat Modes */
+    src: /* url('icecream/fonts/OpenSans-Semibold-600.eot?#iefix') format('embedded-opentype'), IE6-IE8 */
+         url('icecream/fonts/OpenSans-Semibold-600.woff') format('woff'), /* Modern Browsers */
+         url('icecream/fonts/OpenSans-Semibold.ttf') format('truetype'); /* Safari, Android, iOS */
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    src: url('icecream/fonts/OpenSans-Bold-700.eot'); /* IE9 Compat Modes */
+    src: /* url('icecream/fonts/OpenSans-Bold-700.eot?#iefix') format('embedded-opentype'), IE6-IE8 */
+         url('icecream/fonts/OpenSans-Bold-700.woff') format('woff'), /* Modern Browsers */
+         url('icecream/fonts/OpenSans-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
+}
+
 html {
     color: black;
 /*    background-color: #ebebeb;  92% */
@@ -34,9 +65,9 @@ body.is_deleted {
     background-color: #775555;
 }
 
-/* base - end */
+/* B0se [END] */
 
-/* default styling overrides */
+/* Default styling overrides */
 
 h2 {
     padding-left: 5px;
@@ -147,6 +178,7 @@ a img.text_icon {
 /* page structure - header and footer - end */
 
 /* page structure - left navigation menu */
+/* TODO: remove when old menu is removed */
 
 .menu_expanded {
     /*background-color: #b7d8e7;*/
@@ -243,7 +275,7 @@ a img.text_icon {
 /* page header - type, title, actions bar */
 .table_header {
     width: 100%;
-    margin-top: 15px;
+    /* margin-top: 15px; */
     margin-bottom: 5px;
     padding-top: 10px;
     border-top: 1px solid #ccc;

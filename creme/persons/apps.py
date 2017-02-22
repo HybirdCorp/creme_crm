@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -97,19 +97,45 @@ class PersonsConfig(CremeAppConfig):
         reg_form(Organisation, partial(get_massimport_form_builder, model=Organisation))
 
     def register_menu(self, creme_menu):
+        from django.conf import settings
         from django.core.urlresolvers import reverse_lazy as reverse
-
-        from creme.creme_core.auth import build_creation_perm as cperm
 
         Contact = self.Contact
         Organisation = self.Organisation
-        reg_item = creme_menu.register_app('persons', '/persons/').register_item
-        reg_item('/persons/',                             _(u'Portal of accounts and contacts'),     'persons')
-        reg_item(reverse('persons__list_contacts'),       _(u'All contacts'),                        'persons')
-        reg_item(reverse('persons__create_contact'),      Contact.creation_label,                    cperm(Contact))
-        reg_item(reverse('persons__leads_customers'),     _(u'My customers / prospects / suspects'), 'persons')
-        reg_item(reverse('persons__list_organisations'),  _(u'All organisations'),                   'persons')
-        reg_item(reverse('persons__create_organisation'), Organisation.creation_label,               cperm(Organisation))
+
+        if settings.OLD_MENU:
+            from creme.creme_core.auth import build_creation_perm as cperm
+
+            reg_item = creme_menu.register_app('persons', '/persons/').register_item
+            reg_item('/persons/',                             _(u'Portal of accounts and contacts'),     'persons')
+            reg_item(reverse('persons__list_contacts'),       _(u'All contacts'),                        'persons')
+            reg_item(reverse('persons__create_contact'),      Contact.creation_label,                    cperm(Contact))
+            reg_item(reverse('persons__leads_customers'),     _(u'My customers / prospects / suspects'), 'persons')
+            reg_item(reverse('persons__list_organisations'),  _(u'All organisations'),                   'persons')
+            reg_item(reverse('persons__create_organisation'), Organisation.creation_label,               cperm(Organisation))
+        else:
+            from .gui import UserContactURLItem
+
+            URLItem = creme_menu.URLItem
+            creme_menu.get('creme', 'user').add(UserContactURLItem('persons-user_contact'), priority=2)
+            creme_menu.get('features') \
+                      .get_or_create(creme_menu.ContainerItem, 'persons-directory', priority=20,
+                                     defaults={'label': _(u'Directory')},
+                                    ) \
+                      .add(URLItem.list_view('persons-organisations', model=Organisation), priority=10) \
+                      .add(URLItem.list_view('persons-contacts',      model=Contact),      priority=20) \
+                      .add(URLItem('persons-lead_customers', url=reverse('persons__leads_customers'),
+                                   label=_(u'My customers / prospects / suspects'), perm='persons',
+                                  ),
+                           priority=30,
+                          )
+            creme_menu.get('creation', 'main_entities') \
+                      .add(URLItem.creation_view('persons-create_organisation', model=Organisation), priority=10) \
+                      .add(URLItem.creation_view('persons-create_contact',      model=Contact),      priority=20)
+            creme_menu.get('creation', 'any_forms') \
+                      .get_or_create_group('persons-directory', _(u'Directory'), priority=10) \
+                      .add_link('create_contact',      Contact,      priority=3) \
+                      .add_link('create_organisation', Organisation, priority=5)
 
     def register_merge_forms(self, merge_form_registry):
         from .forms.merge import get_merge_form_builder

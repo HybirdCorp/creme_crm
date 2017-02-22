@@ -69,6 +69,7 @@ class Populator(BasePopulator):
         Product = get_product_model()
         Service = get_service_model()
 
+        # ---------------------------
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
         line_entities = [ProductLine, ServiceLine]
         RelationType.create((constants.REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
@@ -214,8 +215,8 @@ class Populator(BasePopulator):
                                            ]
                                )
 
-        create_hf_lines('billing-hg_product_lines', _(u"Product lines view"), ProductLine)
-        create_hf_lines('billing-hg_service_lines', _(u"Service lines view"), ServiceLine)
+        create_hf_lines('billing-hg_product_lines', _(u'Product lines view'), ProductLine)
+        create_hf_lines('billing-hg_service_lines', _(u'Service lines view'), ServiceLine)
 
         # ---------------------------
         for model in (Invoice, CreditNote, Quote, SalesOrder):
@@ -288,11 +289,11 @@ class Populator(BasePopulator):
                                              ],
                                       )
             cbci_c_note   = create_cbci(id='billing-creditnote_info',
-                                       name=_(u'Credit note information'),
-                                       content_type=get_ct(CreditNote),
-                                       cells=build_common_cells(CreditNote) +
+                                        name=_(u'Credit note information'),
+                                        content_type=get_ct(CreditNote),
+                                        cells=build_common_cells(CreditNote) +
                                              [build_cell(CreditNote, 'status')],
-                                      )
+                                       )
             cbci_quote   = create_cbci(id='billing-quote_info',
                                        name=_(u'Quote information'),
                                        content_type=get_ct(Quote),
@@ -407,19 +408,19 @@ class Populator(BasePopulator):
                                         )
         create_report_columns(invoices_report1)
 
-        rgraph1 = create_graph(name=_(u"Sum of current year invoices total without taxes / month"),
+        rgraph1 = create_graph(name=_(u'Sum of current year invoices total without taxes / month'),
                                report=invoices_report1,
                                abscissa='issuing_date', ordinate='total_no_vat__sum',
                                type=RGT_MONTH, is_count=False,
                               )
-        create_graph(name=_(u"Sum of current year invoices total without taxes / invoices status"),
+        create_graph(name=_(u'Sum of current year invoices total without taxes / invoices status'),
                      report=invoices_report1,
                      abscissa='status', ordinate='total_no_vat__sum',
                      type=RGT_FK, is_count=False,
                     )
         ibci = rgraph1.create_instance_block_config_item()
 
-        BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=1)
+        BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
         invoices_report2 = create_report(name=_(u'Invoices unpaid of the current year'),
@@ -427,11 +428,11 @@ class Populator(BasePopulator):
                                         )
         create_report_columns(invoices_report2)
 
-        rgraph = create_graph(name=_(u"Sum of current year and unpaid invoices total without taxes / month"),
+        rgraph = create_graph(name=_(u'Sum of current year and unpaid invoices total without taxes / month'),
                               report=invoices_report2,
                               abscissa='issuing_date', ordinate='total_no_vat__sum',
                               type=RGT_MONTH, is_count=False,
                              )
         ibci = rgraph.create_instance_block_config_item()
 
-        BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=2)
+        BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=12)

@@ -624,6 +624,19 @@ span.ui-creme-datepicker-trigger {
 .ui-dialog-content .ui-creme-dialog-action {
     display: none;
 }
+
+.glasspane {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.glasspane[data-debug] {
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
 /*----------------------------------*/
 select[readonly] {
     color: gray;

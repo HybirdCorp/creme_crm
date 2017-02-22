@@ -3,6 +3,7 @@
 try:
     from functools import partial
 
+    from django.conf import settings
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
@@ -21,9 +22,7 @@ try:
     from creme.creme_core.models.block import (BlockDetailviewLocation, InstanceBlockConfigItem,
             BlockPortalLocation, BlockMypageLocation, RelationBlockItem, CustomBlockConfigItem)
 
-    from creme.creme_config.blocks import(BlockDetailviewLocationsBlock,
-        BlockPortalLocationsBlock, BlockDefaultMypageLocationsBlock,
-        RelationBlocksConfigBlock, InstanceBlocksConfigBlock, CustomBlocksConfigBlock)
+    from creme.creme_config import blocks
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -234,12 +233,15 @@ class BlocksConfigTestCase(CremeTestCase):
         response = self.assertGET200('/creme_config/blocks/portal/')
 
         fmt = 'id="%s"'
-        self.assertContains(response, fmt % BlockDetailviewLocationsBlock.id_)
-        self.assertContains(response, fmt % BlockPortalLocationsBlock.id_)
-        self.assertContains(response, fmt % BlockDefaultMypageLocationsBlock.id_)
-        self.assertContains(response, fmt % RelationBlocksConfigBlock.id_)
-        self.assertContains(response, fmt % InstanceBlocksConfigBlock.id_)
-        self.assertContains(response, fmt % CustomBlocksConfigBlock.id_)
+        self.assertContains(response, fmt % blocks.BlockDetailviewLocationsBlock.id_)
+        if settings.OLD_MENU:
+            self.assertContains(response, fmt % blocks.BlockPortalLocationsBlock.id_)
+        else:
+            self.assertContains(response, fmt % blocks.BlockHomeLocationsBlock.id_)
+        self.assertContains(response, fmt % blocks.BlockDefaultMypageLocationsBlock.id_)
+        self.assertContains(response, fmt % blocks.RelationBlocksConfigBlock.id_)
+        self.assertContains(response, fmt % blocks.InstanceBlocksConfigBlock.id_)
+        self.assertContains(response, fmt % blocks.CustomBlocksConfigBlock.id_)
 
     def _aux_test_add_detailview(self, role=None, superuser=False):
         model = Contact
@@ -1071,13 +1073,24 @@ class BlocksConfigTestCase(CremeTestCase):
         "Can not delete home conf"
         # TODO: use a helper method ??
         app_name = 'creme_core'
-        blocks = [block for block_id, block in  block_registry
+        blocks = [block for block_id, block in block_registry
                             if hasattr(block, 'home_display')
                  ]
         self.assertGreaterEqual(len(blocks), 1)
 
         BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
         self.assertPOST404('/creme_config/blocks/portal/delete', data={'id': app_name})
+
+    def test_delete_home_location_item(self):
+        app_name = 'creme_core'
+        blocks = [block for block_id, block in block_registry
+                            if hasattr(block, 'home_display')
+                 ]
+        self.assertGreaterEqual(len(blocks), 1)
+
+        bpl = BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
+        self.assertPOST200('/creme_config/blocks/home/delete', data={'id': bpl.id})
+        self.assertDoesNotExist(bpl)
 
     def test_edit_default_mypage(self):
         url = '/creme_config/blocks/mypage/edit/default'

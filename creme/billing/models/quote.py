@@ -34,6 +34,8 @@ class AbstractQuote(Base):
     creation_label = _('Create a quote')
     save_label     = _('Save the quote')
 
+    search_score = 51
+
     def get_absolute_url(self):
         return reverse('billing__view_quote', args=(self.id,))
 

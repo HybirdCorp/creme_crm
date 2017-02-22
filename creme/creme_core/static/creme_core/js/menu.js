@@ -24,31 +24,8 @@
 creme.menu = {};
 creme.menu.actions = {};
 
-/* TODO : Seems never used. remove it ? */
-/*
-creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
-    $(trigger_selector).menu({
-            content: $(content_selector).html(),
-            showSpeed: 400
-    });
 
-    // TODO : jquery 1.9x migration : live() is replaced by on(). menu is deprecated, so is it usefull ?
-    $('[role=menuitem]','[aria-labelledby="' + trigger_selector.replace('#', '') + '"]')
-    .live('menu-item-selected', function(e, menu) {
-        e.stopImmediatePropagation();
-
-        var $a = $('a:first', this);
-
-        //TODO: use 3 classes: 'confirm', 'post', 'ajax'
-        if($a.hasClass('confirm')) {
-            creme.utils.confirmBeforeGo($a.attr('href'), true, {type: "POST"});
-        } else {
-            creme.utils.goTo($a.attr('href'));
-        }
-    });
-};
-*/
-
+// Old menu API ----------------------------------------------------------------
 creme.menu.NavIt = function(trigger_selector, options, listeners) {
     var options = options || {};
     var listeners = listeners || {};
@@ -58,13 +35,12 @@ creme.menu.NavIt = function(trigger_selector, options, listeners) {
         e.preventDefault();
 
         var $a = $(this);
-        var confirm   = $a.hasClass('confirm');
-        var action    = $a.hasClass('post') ? 'post' : 'get';
-        var ajax      = $a.hasClass('ajax');
-        var url       = $a.prop('href');
+        var confirm = $a.hasClass('confirm');
+        var action  = $a.hasClass('post') ? 'post' : 'get';
+        var ajax    = $a.hasClass('ajax');
+        var url     = $a.prop('href');
 
-        if (ajax)
-        {
+        if (ajax) {
             var queryOptions = $.extend({action:action, link:$a}, options.queryOptions || {});
 
             if (confirm) {
@@ -74,45 +50,13 @@ creme.menu.NavIt = function(trigger_selector, options, listeners) {
                 creme.utils.ajaxQuery(url, queryOptions)
                            .on(listeners).start();
             }
-        }
-        else
-        {
+        } else {
             if (confirm) {
                 creme.utils.confirmBeforeGo(url, ajax, opts);
             } else {
                 creme.utils.goTo(url);
             }
         }
-        /*
-        var opts = {
-            type: (post)? "POST": "GET"
-        }
-
-        e.preventDefault();
-
-        if (ajax && list_view) {
-            opts = $.extend(opts, {
-                success: function(data, status, req) {
-                    //creme.utils.showDialog(gettext("Operation done"));
-                    $a.parents('form').list_view('reload');
-                },
-                error: function(req, status, error) { //TODO: factorise
-//                     if(!req.responseText || req.responseText == "") {
-//                         creme.utils.showDialog(gettext("Error"));
-//                     } else {
-//                         creme.utils.showDialog(req.responseText);
-//                     }
-                    creme.dialogs.warning(req.responseText || gettext("Error"));
-                }
-            });
-        }
-
-        if (confirm) {
-            creme.utils.confirmBeforeGo($a.attr('href'), ajax, opts);
-        } else {
-            creme.utils.goTo($a.attr('href'));
-        }*/
-
     });
 };
 
@@ -160,27 +104,23 @@ creme.menu.sideMenu = function(options) {
         footer.width(new_width);
     }
 
-    //var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//$('#footer').offset().top;//
     var logo_container_height = $('#logo_container').outerHeight();
-    //var max_menu_height = content_height - logo_container_height;
-
     var height = $('#menu_expanded').outerHeight();
 
     $('#menu').menu({
         content: $('#tree_menu2').html(),
         flyOut: false,
         backLink: false,
-        alwaysOpen:true,
+        alwaysOpen: true,
         maxHeight: height,
-        crumbDefaultText : options.title,
-        topLinkText : options.back
+        crumbDefaultText: options.title,
+        topLinkText: options.back
     });
 
     $('#menu').hide();
     $('.fg-menu-container')
         .appendTo('#menu_expanded')
         .css({'top': logo_container_height, 'bottom':'auto'});
-        //.css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
 
      $("#menu_expanded").width($('.fg-menu-container').outerWidth());
 
@@ -229,7 +169,6 @@ creme.menu.sideMenu = function(options) {
     $('#menu_expanded').on('menu-item-selected', '#active-menuitem a', function(e, menu) {
         e.stopImmediatePropagation();
         var href = $(this).prop('href');
-        //$.cookie('creme-menu-selected', href);
         creme.utils.goTo(href);
     });
 
@@ -248,18 +187,6 @@ creme.menu.sideMenu = function(options) {
     })();
 
     $('#logo_container').one('load', function() {
-        //var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//Is better but detailviews has float div so we have a very small height size
-        /*var content_height = $(document).height();
-        var logo_container_height = $('#logo_container').outerHeight();
-        var max_menu_height = content_height - logo_container_height;
-
-        $('.fg-menu-container').css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
-        $('.fg-menu').css('height', max_menu_height*0.9);
-        allUIMenus[0].setMaxHeight(max_menu_height*0.9);
-        $('#menu_collapse').height(content_height*0.9);*/
-
-        //var previous_selected = $.cookie('creme-menu-selected');
-
         var logo_container_height = $('#logo_container').outerHeight(); // Webkit
         $('.fg-menu-container').css({'top': logo_container_height}); // Webkit
 
@@ -293,4 +220,105 @@ creme.menu.sideMenu = function(options) {
             }
         }
     });
-};
+}
+
+
+// New menu API ----------------------------------------------------------------
+
+creme.menu.bindEvents = function() {
+    var menu = $('.ui-creme-navigation');
+    var items = menu.children('li');
+
+    // Activate menus on hover events
+    items.hover(function(e) {
+        $(this).addClass('ui-creme-navigation-activated');
+    }, function(e) {
+        $(this).removeClass('ui-creme-navigation-activated');
+    });
+
+    // Activate menus when clicked directly (for devices without hover)
+    items.click(function(e) { // possibly limit this to touch press events for tablets, or maybe just disable for desktop ?
+        if (e.target != this) return; // when clicking on sub-menu entries (<a>s inside <li>s inside <ul>s inside the <li> menu) we don't want to do anything
+
+        var currentActivatedItem = menu.children('li.ui-creme-navigation-activated');
+        var itemToActivate = $(e.currentTarget);
+
+        if (currentActivatedItem.length > 0 && currentActivatedItem.index() != itemToActivate.index()) {
+            currentActivatedItem.removeClass('ui-creme-navigation-activated');
+//          menu.removeClass ('ui-creme-navigation-activated'); // for the different background color on hovered items effect, when there is one activated submenu already
+        }
+
+        if (currentActivatedItem.length == 0 || currentActivatedItem.index() != itemToActivate.index()) {
+            itemToActivate.addClass('ui-creme-navigation-activated');
+//          menu.addClass ('ui-creme-navigation-activated'); // for the different background color on hovered items effect, when there is one activated submenu already
+        }
+    });
+}
+
+creme.menu.openQuickForm = function(element) {
+    var uri = '/creme_core/quickforms/%s/%s';
+
+    var type = element.attr('data-ct-id');
+    var count = element.attr('data-entity-count') || 1;
+
+    // Hide the current open menu (since the quickforms are triggered in the menu)
+    $('.ui-creme-navigation-activated').removeClass ('ui-creme-navigation-activated');
+
+    // ...or if there's a need to close all popups: $('.ui-dialog .ui-dialog-content').dialog('close');
+    if (creme.menu.currentPopup)
+        creme.menu.currentPopup.close();
+
+    creme.menu.currentPopup = creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
+}
+
+creme.menu.openCreateAnyDialog = function(a_tag) {
+    // Hide the current open menu (since the quick-forms are triggered in the menu)...
+    $('.ui-creme-navigation-activated').removeClass('ui-creme-navigation-activated');
+
+    // ...or if there's a need to close all popups: $('.ui-dialog .ui-dialog-content').dialog('close');
+    if (creme.menu.currentPopup)
+        creme.menu.currentPopup.close();
+
+    var grouped_links = JSON.parse(a_tag.getAttribute('data-grouped-links'));
+    var $content = $('<div>').addClass('create-all-form');
+    var max_col = 1;
+
+    for (var j in grouped_links) {
+        var grouped_links_row = grouped_links[j];
+        var $container = $('<div>').addClass('create-group-container')
+                                   .addClass('create-group-container-%s-columned'.format(grouped_links_row.length))
+                                   .appendTo($content)
+        max_col = Math.max(max_col, grouped_links_row.length);
+
+        for (var i in grouped_links_row) {
+            var links_group = grouped_links_row[i];
+            var $group = $('<div>').addClass('create-group')
+                                   .appendTo($container);
+
+            $('<div>').addClass('create-group-title').text(links_group.label)
+                      .appendTo($group);
+
+            var entries = links_group.links;
+
+            for (var i = 0; i < entries.length; ++i) {
+                var entry = entries[i];
+
+                if (entry.url !== undefined) {
+                    $('<a>').addClass('create-group-entry')
+                            .attr('href', entry.url).text(entry.label)
+                            .appendTo($group);
+                } else {
+                    $('<span>').addClass('create-group-entry forbidden')
+                               .text(entry.label)
+                               .appendTo($group);
+                }
+            }
+        }
+    }
+
+    creme.menu.currentPopup = creme.dialogs.html($content[0].outerHTML,
+                                                 {title: gettext('Choisir le type de fiche à créer'),
+                                                  width: Math.max(550, max_col * 200)
+                                                 }
+                                                ).open();
+}

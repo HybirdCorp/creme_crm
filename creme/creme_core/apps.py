@@ -286,9 +286,41 @@ class CremeCoreConfig(CremeAppConfig):
     #     creme_registry.register_app('creme_core', _(u'Core'), '/')
 
     def register_menu(self, creme_menu):
-        reg_app = creme_menu.register_app
-        reg_app('creme_core', '/',     _(u'Home'),    force_order=0)
-        reg_app('my_page', '/my_page', _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
+        if settings.OLD_MENU:
+            reg_app = creme_menu.register_app
+            reg_app('creme_core', '/',     _(u'Home'),    force_order=0)
+            reg_app('my_page', '/my_page', _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
+        else:
+            from .gui.menu import (ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
+                    QuickCreationItemGroup, CreationFormsItem)
+            from .gui.quick_forms import quickforms_registry
+
+            creme_menu.add(ContainerItem('creme', label='Creme')
+                              .add(URLItem('home', url='/', label=_(u'Home')), priority=10)
+                              .add(TrashItem('trash'), priority=20)  # TODO: icon ?
+                              .add(ItemGroup('user', label=_(u'User'))
+                                      .add(URLItem('my_page', url='/my_page', label=_(u'My page')), priority=10),
+                                   priority=30,
+                                  )
+                              .add(URLItem('logout', url='/creme_logout/', label=_(u'Log out')), priority=40),
+                           priority=10,
+                          ) \
+                      .add(ItemGroup('features')
+                                .add(ContainerItem('tools', label=_(u'Tools'))
+                                        .add(URLItem('creme_core-jobs', url='/creme_core/job/all', label=_(u'My jobs')),
+                                             priority=5,
+                                            ),
+                                     priority=100,
+                                    ),
+                           priority=20,
+                          ) \
+                      .add(ContainerItem('creation', label=_(u'+ Creation'))
+                               .add(ItemGroup('main_entities', label=_(u'Main entities')), priority=10)
+                               .add(QuickCreationItemGroup('quick_forms', registry=quickforms_registry), priority=20)
+                               .add(CreationFormsItem('any_forms', label=_(u'Other type of entity')), priority=30),
+                           priority=30,
+                          ) \
+                      .add(LastViewedEntitiesItem('recent_entities', label=_(u'Recent entities')), priority=40)
 
     def register_blocks(self, block_registry):
         # from .blocks import (relations_block, properties_block, customfields_block,

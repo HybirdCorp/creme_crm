@@ -78,6 +78,10 @@ class CremeEntity(CremeAbstractEntity):
     # multi_creation_label = _('Add entities')  TODO ??
     # multi_save_label = _('Save the entities')  TODO ??
 
+    # Score in the light search ; entity with the highest score is display as 'Best result'
+    # Add a 'search_score' @property to a model in order to have a per-instance scoring.
+    search_score = 0
+
     class Meta:
         app_label = 'creme_core'
         # ordering = ('id',) # order by id on a FK can cause a crashes

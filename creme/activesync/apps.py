@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,10 +33,10 @@ class ActivesyncConfig(CremeAppConfig):
     def ready(self):
         def deprecate(**kwargs):
             return [checks.Warning('The app "activesync" is deprecated.',
-                                    hint='It will probably be removed in the next release if nobody works on it.',
-                                    obj='activesync',
-                                    id='creme.activesync.E001',
-                                   ),
+                                   hint='It will probably be removed in the next release if nobody works on it.',
+                                   obj='activesync',
+                                   id='creme.activesync.E001',
+                                  ),
                    ]
 
         checks.register(Tags.settings)(deprecate)
@@ -59,8 +59,19 @@ class ActivesyncConfig(CremeAppConfig):
                                )
 
     def register_menu(self, creme_menu):
-        reg_item = creme_menu.get_app_item('persons').register_item
-        reg_item('/activesync/sync', _(u'Contact synchronisation'), 'persons')
+        from django.conf import settings
+
+        if settings.OLD_MENU:
+            reg_item = creme_menu.get_app_item('persons').register_item
+            reg_item('/activesync/sync', _(u'Contact synchronisation'), 'persons')
+        else:
+            creme_menu.get('features', 'persons-directory') \
+                      .add(creme_menu.URLItem('activesync-sync', url='/activesync/sync',
+                                              label=_(u'Contact synchronisation'),
+                                              perm='persons',
+                                             ),
+                           priority=1000
+                          )
 
     def register_setting_key(self, setting_key_registry):
         from .setting_keys import skeys

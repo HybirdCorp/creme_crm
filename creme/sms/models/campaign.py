@@ -34,7 +34,7 @@ class AbstractSMSCampaign(CremeEntity):
 
     # TODO: pgettext (BUT beware because PreferredMenuItem does not manage context currently...)
     creation_label = _('Create a campaign')
-    save_label     = _('Save the SMS campaign')
+    save_label     = _('Save the campaign')
 
     class Meta:
         abstract = True

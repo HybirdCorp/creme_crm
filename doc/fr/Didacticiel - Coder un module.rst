@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 26-11-2016 pour la version 1.7 de Creme
+:Version: 29-11-2016 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -601,6 +601,15 @@ d'autres blocs sont surchargeables, par exemple celui pour rajouter une icône
 Faire apparaître les entrées dans le menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Vieille API
+***********
+
+Si dans votre ``local_settings.py``, vous mettez ``OLD_MENU = True``, vous activez alors
+l'ancienne API de menu (celle de Creme 1.6 et versions antérieures). Cette API sera supprimée
+dans le futur, et il est vivement conseillé d'utiliser la nouvelle API (activée par défaut).
+Cette vieille API est principalement là pour permettre un passage plus facile à Creme 1.7 aux
+personnes ayant développé des modules avec Creme 1.6.
+
 Dans notre fichier ``apps.py``, nous ajoutons la méthode ``BeaversConfig.register_menu()``
 et nous créons 3 entrées dans le menu de notre app : une pour afficher le portail,
 une pour la liste des castors, et une pour créer un nouveau castor : ::
@@ -626,6 +635,52 @@ Si nous relançons le serveur, et rechargeons notre page dans le navigateur, nou
 voyons bien une nouvelle entrée dans le menu rétractable à gauche, portant le
 label "Beavers management". Et si on entre dans le menu, il contient bien les 3
 liens attendus.
+
+
+API actuelle
+************
+
+Dans notre fichier ``apps.py``, nous ajoutons la méthode ``BeaversConfig.register_menu()``
+et nous créons tout d'abord une nouvelle entrée de niveau 2 dans l'entrée de niveau 1
+"Annuaire", et qui redirige vers notre liste des castors : ::
+
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_menu(self, creme_menu):
+            creme_menu.get('features', 'persons-directory') \
+                      .add(creme_menu.URLItem.list_view('beavers-beavers', model=Beaver))
+
+
+Le méthode ``get()`` permet de récupérer des éléments dans l'arborescence du menu.
+Ici nous allons chercher le groupe avec l'identifiant 'features', puis dans ce
+dernier nous récupérons le conteneur avec l'identifiant 'persons-directory'.
+Si vous voulez connaître la structure du menu, il suffit de faire un
+``print unicode(creme_menu)``.
+
+**Note** : la méthode ``add()`` peut prendre un paramètre ``priority`` qui permet
+de gérer l'ordre des entrées (une priorité plus petite signifiant "avant").
+
+``creme_menu`` propose des raccourci vers les Items de menu les plus courants,
+comme URLItem qui permet évidemment de faire une entrée redirigeant vers une URL.
+Et URLItem dispose d'une méthode statique ``list_view()`` spécialisée dans les
+vues de liste (et qui va donc utiliser la bonne URL et le bon label).
+
+Nous ajoutons ensuite une entrée dans la fenêtre permettant de créer tout type
+d'entité : ::
+
+        creme_menu.get('creation', 'any_forms') \
+                  .get_or_create_group('persons-directory', _(u'Directory'), priority=10) \
+                  .add('create_beaver', Beaver)  # <- vous pouvez utiliser un paramètre 'priority'
+
+
+Puisque dans notre exemple, nous souhaitons insérer notre entrée dans le groupe "Annuaire",
+nous récupérons ce dernier grâce à ``get_or_create_group()``. Pour afficher la structure
+des groupes de cette fenêtre, vous pouvez faire
+``print creme_menu.get('creation', 'any_forms').verbose_unicode``.
 
 
 Initialisation du module

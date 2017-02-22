@@ -2,12 +2,12 @@
 
 from django.conf import settings
 
-from .models import Currency, Vat, Language
+from . import models
 
 
-to_register = ((Language, 'language'),
-               (Currency, 'currency'),
-               (Vat,      'vat_value'),
+to_register = ((models.Language, 'language'),
+               (models.Currency, 'currency'),
+               (models.Vat,      'vat_value'),
               )
 
 

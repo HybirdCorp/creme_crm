@@ -157,6 +157,12 @@ class BlockPortalLocation(CremeModel):
         if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
             BlockPortalLocation.objects.create(app_name=app_name, block_id='', order=1)
 
+    @property
+    def block_verbose_name(self):
+        from ..gui.block import block_registry
+
+        return block_registry.get_blocks((self.block_id,))[0].verbose_name
+
 
 class BlockMypageLocation(CremeModel):
     user     = ForeignKey(settings.AUTH_USER_MODEL, null=True)
@@ -201,6 +207,7 @@ class BlockMypageLocation(CremeModel):
 
         return loc
 
+    # TODO: factorise ?
     @property
     def block_verbose_name(self):
         from creme.creme_core.gui.block import block_registry

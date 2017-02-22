@@ -476,12 +476,23 @@ def delete_detailview(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_portal(request):
-    app_name = get_from_POST_or_404(request.POST, 'id')
+    app_label = get_from_POST_or_404(request.POST, 'id')
 
-    if app_name == 'creme_core':
+    if app_label == 'creme_core':
         raise Http404('Home config can not be deleted')
 
-    BlockPortalLocation.objects.filter(app_name=app_name).delete()
+    BlockPortalLocation.objects.filter(app_name=app_label).delete()
+
+    return HttpResponse()
+
+
+@login_required
+@permission_required('creme_core.can_admin')
+def delete_home(request):
+    get_object_or_404(BlockPortalLocation,
+                      pk=get_from_POST_or_404(request.POST, 'id'),
+                      app_name='creme_core',
+                     ).delete()
 
     return HttpResponse()
 

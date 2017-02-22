@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from time import time
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.shortcuts import render
@@ -32,6 +33,7 @@ from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
 from ..utils import get_ct_or_404, jsonify
 from ..utils.translation import get_model_verbose_name
+from ..utils.unicode_collation import collator
 from .blocks import build_context
 
 
@@ -112,17 +114,18 @@ class FoundEntitiesBlock(QuerysetBlock):
 @login_required
 def search(request):
     GET_get = request.GET.get
-    research = GET_get('research')
-    ct_id    = GET_get('ct_id')
+    research = GET_get('research', '')
+    ct_id    = GET_get('ct_id', '')
 
     t_ctx  = {}
     models = []
     blocks = []
 
     if not research:
-        t_ctx['error_message'] = _(u"Empty search…")
+        if settings.OLD_MENU:
+            t_ctx['error_message'] = _(u'Empty search…')
     elif len(research) < MIN_RESEARCH_LENGTH:
-        t_ctx['error_message'] = _(u"Please enter at least %s characters") % MIN_RESEARCH_LENGTH
+        t_ctx['error_message'] = _(u'Please enter at least %s characters') % MIN_RESEARCH_LENGTH
     else:
         if not ct_id:
             models.extend(creme_registry.iter_entity_models())
@@ -144,6 +147,7 @@ def search(request):
     t_ctx['research'] = research
     t_ctx['models'] = [model._meta.verbose_name for model in models]
     t_ctx['blocks'] = blocks
+    t_ctx['selected_ct_id'] = int(ct_id) if ct_id.isdigit() else None
 
     return render(request, 'creme_core/search_results.html', t_ctx)
 
@@ -164,3 +168,87 @@ def reload_block(request, block_id, research):
     block = FoundEntitiesBlock(Searcher([model], user), model, research, user, id=block_id)
 
     return [(block.id_, block.detailview_display(build_context(request)))]
+
+
+@login_required
+@jsonify
+def light_search(request):
+    GET_get = request.GET.get
+    sought = GET_get('value', '')
+    # ct_id = GET_get('ct_id')  # TODO: ??
+    # limit = int(GET_get('limit', 5))  # TODO: ?? (+ error if not int + min/max)
+    limit = 5
+
+    data = {
+            # 'query': {'content': sought,
+            #               'ctype':   ct_id if ct_id else None,
+            #               'limit':   int(limit),
+            #              }
+           }
+
+    if not sought:
+        data['error'] = _(u'Empty search…')
+    elif len(sought) < MIN_RESEARCH_LENGTH:
+        data['error'] = _(u'Please enter at least %s characters') % MIN_RESEARCH_LENGTH
+    else:
+        models = []
+        results = []
+
+        # if not ct_id:
+        models.extend(creme_registry.iter_entity_models())
+        models.sort(key=lambda m: m._meta.verbose_name)
+        # else:
+        #     model = get_ct_or_404(ct_id).model_class()
+        #
+        #     if not issubclass(model, CremeEntity):
+        #         data['error'] = _(u'The model must be a CremeEntity')
+        #     else:
+        #         models.append(model)
+
+        user = request.user
+        searcher = Searcher(models, user)
+
+        models = list(searcher.models)  # Remove disabled models
+
+        best_score = -1
+        best_entry = None
+
+        for model in models:
+            query = searcher.search(model, sought)
+
+            if query is None:
+                count = 0
+                query = []
+            else:
+                query = EntityCredentials.filter(user, query)
+                count = query.count()
+
+                if limit > 0:
+                    query = query[:limit]
+
+            ctype = ContentType.objects.get_for_model(model)
+
+            if query:
+                entities = []
+
+                for e in query:
+                    score = e.search_score
+                    entry = {'label': unicode(e), 'url': e.get_absolute_url()}  # 'score': score
+
+                    if score > best_score:
+                        best_score = score
+                        best_entry = entry
+
+                    entities.append(entry)
+
+                results.append({'id':      ctype.id,
+                                'label':   unicode(model._meta.verbose_name),
+                                'count':   count,
+                                'results': entities,
+                               })
+
+        sort_key = collator.sort_key
+        data['results'] = sorted(results, key=lambda r: sort_key(r['label']))
+        data['best'] = best_entry
+
+    return data

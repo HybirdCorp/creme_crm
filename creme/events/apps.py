@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,12 +49,21 @@ class EventsConfig(CremeAppConfig):
         icon_registry.register(self.Event, 'images/event_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        from django.core.urlresolvers import reverse_lazy as reverse
-
-        from creme.creme_core.auth import build_creation_perm
+        from django.conf import settings
 
         Event = self.Event
-        reg_item = creme_menu.register_app('events', '/events/').register_item
-        reg_item('/events/',                      _(u'Portal of events'), 'events')
-        reg_item(reverse('events__list_events'),  _(u'All events'),     'events')
-        reg_item(reverse('events__create_event'), Event.creation_label, build_creation_perm(Event))
+
+        if settings.OLD_MENU:
+            from django.core.urlresolvers import reverse_lazy as reverse
+            from creme.creme_core.auth import build_creation_perm
+
+            reg_item = creme_menu.register_app('events', '/events/').register_item
+            reg_item('/events/',                      _(u'Portal of events'), 'events')
+            reg_item(reverse('events__list_events'),  _(u'All events'),       'events')
+            reg_item(reverse('events__create_event'), Event.creation_label,   build_creation_perm(Event))
+        else:
+            creme_menu.get('features', 'tools') \
+                      .add(creme_menu.URLItem.list_view('events-events', model=Event), priority=200)
+            creme_menu.get('creation', 'any_forms') \
+                      .get_or_create_group('tools', _(u'Tools'), priority=100) \
+                      .add_link('events-create_event', Event, priority=200)

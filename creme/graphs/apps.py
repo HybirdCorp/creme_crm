@@ -52,12 +52,24 @@ class GraphsConfig(CremeAppConfig):
         icon_registry.register(self.Graph, 'images/graph_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        from django.core.urlresolvers import reverse_lazy as reverse
-
-        from creme.creme_core.auth import build_creation_perm
+        from django.conf import settings
 
         Graph = self.Graph
-        reg_item = creme_menu.register_app('graphs', '/graphs/').register_item
-        reg_item('/graphs/',                      _(u'Portal of graphs'), 'graphs')
-        reg_item(reverse('graphs__list_graphs'),  _(u'All graphs'),       'graphs')
-        reg_item(reverse('graphs__create_graph'), Graph.creation_label,   build_creation_perm(Graph))
+
+        if settings.OLD_MENU:
+            from django.core.urlresolvers import reverse_lazy as reverse
+            from creme.creme_core.auth import build_creation_perm
+
+            reg_item = creme_menu.register_app('graphs', '/graphs/').register_item
+            reg_item('/graphs/',                      _(u'Portal of graphs'), 'graphs')
+            reg_item(reverse('graphs__list_graphs'),  _(u'All graphs'),       'graphs')
+            reg_item(reverse('graphs__create_graph'), Graph.creation_label,   build_creation_perm(Graph))
+        else:
+            creme_menu.get('features') \
+                      .get_or_create(creme_menu.ContainerItem, 'analysis', priority=500,
+                                     defaults={'label': _(u'Analysis')},
+                                    ) \
+                      .add(creme_menu.URLItem.list_view('graphs-graphs', model=Graph), priority=50)
+            creme_menu.get('creation', 'any_forms') \
+                      .get_or_create_group('analysis', _(u'Analysis'), priority=500) \
+                      .add_link('graphs-create_graph', Graph, priority=50)

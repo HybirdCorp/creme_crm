@@ -1,0 +1,15 @@
+{% load i18n %}
+<div class="search-form">
+    <form method="GET" action="/creme_core/search">
+    {% trans "Search" context "creme_core-verb" as label %}
+        <input type="text" name="research" value="{{search_terms}}" required />
+        <select name="ct_id">
+            <option value="">{% trans "All" %}</option>
+            <option disabled>------</option>
+            {% for ct in content_types %}
+                <option value="{{ct.id}}" {% if ct.id == selected_ct_id %}selected=""{% endif %} >{{ct.verbose_name}}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="{{label}}" />
+   </form>
+</div>

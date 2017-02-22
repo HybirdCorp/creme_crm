@@ -28,12 +28,16 @@
         </form>
     </div>
 
-    {% import_block from_app 'creme_config' named 'user_prefered_menus' as 'prefered_menus_block' %}
+    {% if OLD_MENU %}
+        {% import_block from_app 'creme_config' named 'user_prefered_menus' as 'prefered_menus_block' %}
+    {% endif %}
     {% import_block from_app 'creme_config' named 'blocks_mypage_locations' as 'blocks_mypage_locations_block' %}
     {% import_block from_app 'creme_config' named 'user_setting_values' as 'user_setting_values_block' %}
     {% import_usersettings_blocks %}
 
-    {% display_block_detailview 'prefered_menus_block' %}
+    {% if OLD_MENU %}
+        {% display_block_detailview 'prefered_menus_block' %}
+    {% endif %}
     {% display_block_detailview 'blocks_mypage_locations_block' %}
     {% display_block_detailview 'user_setting_values_block' %}
     {% display_usersettings_blocks %}

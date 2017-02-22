@@ -46,7 +46,8 @@ def add(request):
 @login_required
 @permission_required('emails')
 def edit(request, signature_id):
-    return edit_model_with_popup(request, {'pk': signature_id}, EmailSignature, SignatureForm,
+    return edit_model_with_popup(request, {'pk': signature_id},
+                                 model=EmailSignature, form_class=SignatureForm,
                                  can_change=EmailSignature.can_change_or_delete,
                                 )
 
@@ -65,4 +66,5 @@ def delete(request):
     if request.is_ajax():
         return HttpResponse(content_type='text/javascript')
 
-    return HttpResponseRedirect('/emails/')
+    # return HttpResponseRedirect('/emails/')
+    return HttpResponseRedirect('/')

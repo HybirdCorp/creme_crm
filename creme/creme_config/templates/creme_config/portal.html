@@ -29,15 +29,17 @@
             <tr class="content">
                 <td class="{% cycle row_color %}"><a href="/creme_config/blocks/portal/">{% trans "Blocks settings" %}</a></td>
             </tr>
-            <tr class="content">
-                <td class="{% cycle row_color %}">{% has_perm_to admin 'creme_core' as admin_perm %}
-                    {% if admin_perm %}
-                        <a href="/creme_config/prefered_menu/edit/">{% trans "Default preferred menu settings" %}</a>
-                    {% else %}
-                        <span class="forbidden">{% trans "Default preferred menu settings" %}</span>
-                    {% endif %}
-                </td>
-            </tr>
+            {% if OLD_MENU %}
+                <tr class="content">
+                    <td class="{% cycle row_color %}">{% has_perm_to admin 'creme_core' as admin_perm %}
+                        {% if admin_perm %}
+                            <a href="/creme_config/prefered_menu/edit/">{% trans "Default preferred menu settings" %}</a>
+                        {% else %}
+                            <span class="forbidden">{% trans "Default preferred menu settings" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
             <tr class="content">
                 <td class="{% cycle row_color %}"><a href="/creme_config/button_menu/portal/">{% trans "Button menu settings" %}</a></td>
             </tr>

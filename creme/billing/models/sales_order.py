@@ -33,6 +33,8 @@ class AbstractSalesOrder(Base):
     creation_label = _('Create a salesorder')
     save_label     = _('Save the salesorder')
 
+    search_score = 50
+
     class Meta(Base.Meta):
         abstract = True
         verbose_name = _(u'Salesorder')

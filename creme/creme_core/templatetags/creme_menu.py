@@ -26,56 +26,57 @@ from django.template import Library
 
 from ..models import PreferedMenuItem, ButtonMenuItem
 from ..gui.button_menu import button_registry
+from ..gui.menu import creme_menu
 from ..gui.last_viewed import LastViewedItem
-from ..gui.menu import creme_menu, new_creme_menu
 from ..utils.unicode_collation import collator
 
 
 register = Library()
 
 
-class MenuItem(object):
-    __slots__ = ('url', 'name', 'has_perm')
-
-    def __init__(self, url, name, has_perm):
-        self.url = url
-        self.name = name
-        self.has_perm = has_perm
-
-    def __unicode__(self):
-        return u'<MenuItem: name:%s url:%s perm:%s>' % (self.name, self.url, self.has_perm)
-
-
-class MenuAppItem(object):
-    __slots__ = ('app_name', 'url', 'force_order', 'items', 'sort_key')
-
-    def __init__(self, name, url, force_order, items, user):
-        self.app_name = unicode(name)
-        self.url = url
-        self.force_order = force_order
-        has_perm = user.has_perm
-        self.items = [MenuItem(item.url, item.name, has_perm(item.perm)) for item in items]
-        if force_order is None:
-            self.sort_key = collator.sort_key(self.app_name)
-
-    def __unicode__(self):
-        return u'<MenuAppItem: app:%s url:%s>' % (self.app_name, self.url)
-
-    def __cmp__(self, other):
-        force_order1 = self.force_order
-        force_order2 = other.force_order
-
-        if force_order1 is not None:
-            return cmp(force_order1, force_order2 if force_order2 is not None else MAXINT)
-
-        if force_order2 is not None:
-            return 1
-
-        return cmp(self.sort_key, other.sort_key)
-
-
-if settings.USE_STRUCT_MENU:
+if settings.OLD_MENU:
     from django.template.context import RequestContext
+
+
+    class MenuItem(object):
+        __slots__ = ('url', 'name', 'has_perm')
+
+        def __init__(self, url, name, has_perm):
+            self.url = url
+            self.name = name
+            self.has_perm = has_perm
+
+        def __unicode__(self):
+            return u'<MenuItem: name:%s url:%s perm:%s>' % (self.name, self.url, self.has_perm)
+
+
+    class MenuAppItem(object):
+        __slots__ = ('app_name', 'url', 'force_order', 'items', 'sort_key')
+
+        def __init__(self, name, url, force_order, items, user):
+            self.app_name = unicode(name)
+            self.url = url
+            self.force_order = force_order
+            has_perm = user.has_perm
+            self.items = [MenuItem(item.url, item.name, has_perm(item.perm)) for item in items]
+            if force_order is None:
+                self.sort_key = collator.sort_key(self.app_name)
+
+        def __unicode__(self):
+            return u'<MenuAppItem: app:%s url:%s>' % (self.app_name, self.url)
+
+        def __cmp__(self, other):
+            force_order1 = self.force_order
+            force_order2 = other.force_order
+
+            if force_order1 is not None:
+                return cmp(force_order1, force_order2 if force_order2 is not None else MAXINT)
+
+            if force_order2 is not None:
+                return 1
+
+            return cmp(self.sort_key, other.sort_key)
+
 
     @register.inclusion_tag('creme_core/templatetags/treecreme_menu.html')
     def generate_treecreme_menu(request):
@@ -89,16 +90,19 @@ if settings.USE_STRUCT_MENU:
 
         return RequestContext(request, {'menu': items})
 
+
+    @register.simple_tag
+    def get_header_menu():
+        return '<p>NEW MENU DISABLED</p>'
 else:
-    from django.utils.safestring import mark_safe
-
-
-    @register.inclusion_tag('creme_core/templatetags/newtreecreme_menu.html')
+    @register.simple_tag
     def generate_treecreme_menu(request):
-        result = ''
-        for one_item in new_creme_menu.items:
-            result += one_item.render()
-        return {'menu': mark_safe (result)}
+        return '<p>OLD MENU DISABLED</p>'
+
+
+    @register.simple_tag(takes_context=True)
+    def get_header_menu(context):
+        return creme_menu.render(context)
 
 
 @register.inclusion_tag('creme_core/templatetags/prefered_menu.html')
@@ -130,4 +134,3 @@ def get_button_menu(context):
                          ]
 
     return context
-

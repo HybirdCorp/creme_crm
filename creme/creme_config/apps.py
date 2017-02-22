@@ -41,20 +41,103 @@ class CremeConfigConfig(CremeAppConfig):
         block_registry.register(*blocks_list)
 
     def register_menu(self, creme_menu):
-        reg_item = creme_menu.register_app('creme_config', '/creme_config/').register_item
-        # TODO: 'creme_config'-> '' (perm is not really 'creme_config', but this item is not visible if the user has not 'creme_config' perm)
-        reg_item('/creme_config/',                      _(u"Portal of general configuration"), 'creme_config')
-        reg_item('/creme_config/relation_type/portal/', _(u"Relation types settings"),         'creme_config')
-        reg_item('/creme_config/property_type/portal/', _(u"Property types settings"),         'creme_config')
-        reg_item('/creme_config/fields/portal/',        _(u"Fields settings"),                 'creme_config')
-        reg_item('/creme_config/custom_fields/portal/', _(u"Custom fields settings"),          'creme_config')
-        reg_item('/creme_config/blocks/portal/',        _(u"Blocks settings"),                 'creme_config')
-        reg_item('/creme_config/prefered_menu/edit/',   _(u"Default preferred menu settings"), 'creme_core.can_admin') # TODO: viewer mode if user has credentials 'creme_core' ?
-        reg_item('/creme_config/button_menu/portal/',   _(u"Button menu settings"),            'creme_config')
-        reg_item('/creme_config/search/portal/',        _(u"Search settings"),                 'creme_config')
-        reg_item('/creme_config/history/portal/',       _(u"History settings"),                'creme_config')
-        reg_item('/creme_config/user/portal/',          _(u'Users settings'),                  'creme_config')
-        reg_item('/creme_config/role/portal/',          _(u'Roles and credentials settings'),  'creme_config')
+        from django.conf import settings
+
+        if settings.OLD_MENU:
+            reg_item = creme_menu.register_app('creme_config', '/creme_config/').register_item
+            # TODO: 'creme_config'-> '' (perm is not really 'creme_config', but this item is not visible if the user has not 'creme_config' perm)
+            reg_item('/creme_config/',                      _(u"Portal of general configuration"), 'creme_config')
+            reg_item('/creme_config/relation_type/portal/', _(u"Relation types settings"),         'creme_config')
+            reg_item('/creme_config/property_type/portal/', _(u"Property types settings"),         'creme_config')
+            reg_item('/creme_config/fields/portal/',        _(u"Fields settings"),                 'creme_config')
+            reg_item('/creme_config/custom_fields/portal/', _(u"Custom fields settings"),          'creme_config')
+            reg_item('/creme_config/blocks/portal/',        _(u"Blocks settings"),                 'creme_config')
+            reg_item('/creme_config/prefered_menu/edit/',   _(u"Default preferred menu settings"), 'creme_core.can_admin') # TODO: viewer mode if user has credentials 'creme_core' ?
+            reg_item('/creme_config/button_menu/portal/',   _(u"Button menu settings"),            'creme_config')
+            reg_item('/creme_config/search/portal/',        _(u"Search settings"),                 'creme_config')
+            reg_item('/creme_config/history/portal/',       _(u"History settings"),                'creme_config')
+            reg_item('/creme_config/user/portal/',          _(u'Users settings'),                  'creme_config')
+            reg_item('/creme_config/role/portal/',          _(u'Roles and credentials settings'),  'creme_config')
+        else:
+            from creme.creme_core import models as core_models
+
+            from .gui import TimezoneItem, ConfigContainerItem
+
+            URLItem = creme_menu.URLItem
+            creme_menu.get('creme', 'user') \
+                      .add(TimezoneItem('creme_config-timezone'), priority=5) \
+                      .add(URLItem('my_settings', url='/creme_config/my_settings/', label=_(u'My settings')), priority=20)
+            creme_menu.get('features') \
+                      .add(ConfigContainerItem('creme_config')
+                               .add(URLItem('creme_config-portal', url='/creme_config/',
+                                            label=_(u'General configuration'), perm='creme_config',
+                                           ),
+                                    priority=10
+                                   )
+                               .add(creme_menu.ItemGroup('creme_config-portals')
+                                       .add(URLItem('creme_config-blocks', url='/creme_config/blocks/portal/',
+                                                    label=_(u'Blocks'), perm='creme_config',
+                                                   ),
+                                            priority=10
+                                           )
+                                       .add(URLItem('creme_config-custom_fields',
+                                                    url='/creme_config/custom_fields/portal/',
+                                                    label=core_models.CustomField._meta.verbose_name_plural,
+                                                    perm='creme_config',
+                                                   ),
+                                            priority=20
+                                           )
+                                       .add(URLItem('creme_config-fields',
+                                                    url='/creme_config/fields/portal/',
+                                                    label=_(u'Fields'), perm='creme_config',
+                                                   ),
+                                            priority=30
+                                           )
+                                       .add(URLItem('creme_config-history',
+                                                    url='/creme_config/history/portal/',
+                                                    label=_(u'History'), perm='creme_config',
+                                                   ),
+                                            priority=40
+                                           )
+                                       .add(URLItem('creme_config-button_menu',
+                                                    url='/creme_config/button_menu/portal/',
+                                                    label=_(u'Button menu'), perm='creme_config',
+                                                   ),
+                                            priority=50
+                                           )
+                                       .add(URLItem('creme_config-search', url='/creme_config/search/portal/',
+                                                    label=_(u'Search'), perm='creme_config',
+                                                   ),
+                                            priority=70
+                                           )
+                                       .add(URLItem('creme_config-roles', url='/creme_config/role/portal/',
+                                                    label=_(u'Roles and credentials'), perm='creme_config',
+                                                   ),
+                                            priority=80
+                                           )
+                                       .add(URLItem('creme_config-property_types',
+                                                    url='/creme_config/property_type/portal/',
+                                                    label=core_models.CremePropertyType._meta.verbose_name_plural,
+                                                    perm='creme_config',
+                                                   ),
+                                            priority=90
+                                           )
+                                       .add(URLItem('creme_config-relation_types',
+                                                    url='/creme_config/relation_type/portal/',
+                                                    label=core_models.RelationType._meta.verbose_name_plural,
+                                                    perm='creme_config',
+                                                   ),
+                                            priority=100
+                                           )
+                                       .add(URLItem('creme_config-users', url='/creme_config/user/portal/',
+                                                    label=_(u'Users'), perm='creme_config',
+                                                   ),
+                                            priority=110
+                                           ),
+                                    priority=20
+                                   ),
+                           priority=10000,
+                          )
 
     # def register_setting_key(self, setting_key_registry):
     #     from .setting_keys import theme_key, timezone_key

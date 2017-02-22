@@ -53,12 +53,12 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT)
             BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT)
             BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT)
+            BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT)
 
             BlockPortalLocation.create(block_id=memos_block.id_,    order=100)
             BlockPortalLocation.create(block_id=alerts_block.id_,   order=200)
-            BlockPortalLocation.create(block_id=messages_block.id_, order=400)
+            BlockPortalLocation.create(block_id=messages_block.id_, order=300)
 
             BlockPortalLocation.create(app_name='creme_core', block_id=memos_block.id_,    order=100)
             BlockPortalLocation.create(app_name='creme_core', block_id=alerts_block.id_,   order=200)
-            BlockPortalLocation.create(app_name='creme_core', block_id=messages_block.id_, order=400)
+            BlockPortalLocation.create(app_name='creme_core', block_id=messages_block.id_, order=300)

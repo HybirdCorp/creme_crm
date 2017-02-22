@@ -2,20 +2,24 @@
 
 try:
     from functools import partial
-    import json
+    from json import loads as json_load
 
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
+    from django.test import override_settings
 
     from .base import ViewsTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation, FakeSector
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.block import QuerysetBlock
-    from creme.creme_core.models import SearchConfigItem, FieldsConfig
+    from creme.creme_core.models import SearchConfigItem, FieldsConfig, SetCredentials
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class SearchViewTestCase(ViewsTestCase):
+    LIGHT_URL = '/creme_core/search/light/'
+
     CONTACT_BLOCKID = 'block_creme_core-found-creme_core-fakecontact'
     ORGA_BLOCKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
 
@@ -42,21 +46,21 @@ class SearchViewTestCase(ViewsTestCase):
         SearchConfigItem.objects.all().delete()
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
-    def _build_contacts(self):
+    def _build_contacts(self, user=None):
         sector = FakeSector.objects.create(title='Linux dev')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user or self.user)
         self.linus  = create_contact(first_name='Linus',  last_name='Torvalds')
         self.alan   = create_contact(first_name='Alan',   last_name='Cox',      description='Cool beard')
         self.linus2 = create_contact(first_name='Linus',  last_name='Impostor', is_deleted=True)
         self.andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
 
-    def _setup_contacts(self, disabled=False):
+    def _setup_contacts(self, disabled=False, user=None):
         SearchConfigItem.create_if_needed(Contact,
                                           ['first_name', 'last_name', 'sector__title'],
                                           disabled=disabled,
                                          )
-        self._build_contacts()
+        self._build_contacts(user)
 
     def _setup_orgas(self):
         SearchConfigItem.create_if_needed(Organisation, ['name'])
@@ -139,16 +143,29 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertIn(_('Contact'), vnames)
         self.assertIn(_('Organisation'), vnames)
 
+    @override_settings(OLD_MENU=False)
     def test_search04(self):
         "Error"
         self.login()
         self._setup_contacts()
         self._setup_orgas()
 
-        self.assertEqual(_(u"Please enter at least %s characters") % 3,
+        self.assertEqual(_(u'Please enter at least %s characters') % 3,
                          self._search('ox').context['error_message']
                         )
-        self.assertEqual(_(u"Empty search…"),
+        self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
+
+    @override_settings(OLD_MENU=True)
+    def test_search04_legacy(self):
+        "Error"
+        self.login()
+        self._setup_contacts()
+        self._setup_orgas()
+
+        self.assertEqual(_(u'Please enter at least %s characters') % 3,
+                         self._search('ox').context['error_message']
+                        )
+        self.assertEqual(_(u'Empty search…'),
                          self._search().context['error_message']
                         )
         self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
@@ -304,7 +321,7 @@ class SearchViewTestCase(ViewsTestCase):
         response = self.assertGET200(url_fmt % (block_id, 'linu'))
 
         with self.assertNoException():
-            results = json.loads(response.content)
+            results = json_load(response.content)
 
         self.assertIsInstance(results, list)
         self.assertEqual(1, len(results))
@@ -315,3 +332,123 @@ class SearchViewTestCase(ViewsTestCase):
 
         self.assertEqual(block_id, result[0])
         self.assertIn(' id="%s"' % block_id, result[1])
+
+    def test_light_search01(self):
+        user = self.login()
+
+        self._setup_contacts()
+        coxi = Contact.objects.create(user=user, first_name='Coxi', last_name='Nail')
+
+        self._setup_orgas()
+
+        response = self.assertGET200(self.LIGHT_URL, data={'value': 'cox'})
+
+        with self.assertNoException():
+            results = json_load(response.content)
+
+        alan = self.alan
+        coxco = self.coxco
+
+        self.maxDiff = None
+        self.assertEqual(
+            {'best':    {'label': unicode(coxco),
+                         # 'score': 102,
+                         'url':   coxco.get_absolute_url(),
+                        },
+             # 'query':   {'content': 'cox',
+             #             'limit': 5,
+             #             'ctype': None,
+             #            },
+             'results': [{'count':   2,
+                          'id':      alan.entity_type_id,
+                          'label':   'Test Contact',
+                          'results': [{'label': unicode(alan),
+                                       # 'score': 101,
+                                       'url':   alan.get_absolute_url(),
+                                      },
+                                      {'label': unicode(coxi),
+                                       # 'score': 101,
+                                       'url':   coxi.get_absolute_url(),
+                                      },
+                                     ],
+                         },
+                         {'count':   1,
+                          'id':      coxco.entity_type_id,
+                          'label':   'Test Organisation',
+                          'results': [{'label': unicode(coxco),
+                                       # 'score': 102,
+                                       'url':   coxco.get_absolute_url(),
+                                      },
+                                     ],
+                         }
+                        ],
+            },
+            results
+        )
+
+    def test_light_search02(self):
+        "Credentials"
+        user = self.login(is_superuser=False, allowed_apps=['creme_core'])
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        self._setup_contacts(user=self.other_user)
+        coxi = Contact.objects.create(user=user, first_name='Coxi', last_name='Nail')
+
+        response = self.assertGET200(self.LIGHT_URL, data={'value': 'cox'})
+
+        self.maxDiff = None
+        self.assertEqual(
+            {'best':    {'label': unicode(coxi),
+                         # 'score': 101,
+                         'url':   coxi.get_absolute_url(),
+                        },
+             # 'query':   {'content': 'cox',
+             #             'limit': 5,
+             #             'ctype': None,
+             #            },
+             'results': [{'count':   1,
+                          'id':      coxi.entity_type_id,
+                          'label':   'Test Contact',
+                          'results': [{'label': unicode(coxi),
+                                       # 'score': 101,
+                                       'url':   coxi.get_absolute_url(),
+                                      },
+                                     ],
+                         },
+                        ],
+            },
+            json_load(response.content)
+        )
+
+    def test_light_search03(self):
+        "Errors"
+        self.login()
+
+        url = self.LIGHT_URL
+        response = self.assertGET200(url)
+        self.assertEqual(
+            {
+             # 'query': {'content': '',
+             #           'limit': 5,
+             #           'ctype': None,
+             #          },
+             'error': _(u'Empty search…'),
+            },
+            json_load(response.content)
+        )
+
+        response = self.assertGET200(url, data={'value': 'co'})
+        self.assertEqual(
+            {
+             # 'query': {'content': 'co',
+             #           'limit': 5,
+             #           'ctype': None,
+             #          },
+             'error': _(u"Please enter at least %s characters") % 3,
+            },
+            json_load(response.content)
+        )
