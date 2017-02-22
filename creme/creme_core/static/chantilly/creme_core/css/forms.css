@@ -41,7 +41,7 @@ textarea:invalid {
     border: 1px solid #ff0000;
 }
 
-ul.radio_select {
+ul.radio_select, ul.multi-select {
     list-style-type: none;
     padding: 0;
 }

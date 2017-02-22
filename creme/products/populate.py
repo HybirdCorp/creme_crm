@@ -28,9 +28,7 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from . import get_product_model, get_service_model
-from .blocks import images_block
-from .constants import DEFAULT_HFILTER_PRODUCT, DEFAULT_HFILTER_SERVICE
+from . import blocks, constants, get_product_model, get_service_model
 from .models import Category, SubCategory
 
 
@@ -45,7 +43,7 @@ class Populator(BasePopulator):
         Service = get_service_model()
 
         create_hf = HeaderFilter.create
-        create_hf(pk=DEFAULT_HFILTER_PRODUCT,
+        create_hf(pk=constants.DEFAULT_HFILTER_PRODUCT,
                   model=Product,
                   name=_(u'Product view'),
                   cells_desc=[# (EntityCellRegularField, {'name': 'images__name'}),
@@ -56,7 +54,7 @@ class Populator(BasePopulator):
                              ],
                  )
 
-        create_hf(pk=DEFAULT_HFILTER_SERVICE,
+        create_hf(pk=constants.DEFAULT_HFILTER_SERVICE,
                   model=Service,
                   name=_(u'Service view'),
                   cells_desc=[# (EntityCellRegularField, {'name': 'images__name'}),
@@ -127,12 +125,12 @@ class Populator(BasePopulator):
             RIGHT = BlockDetailviewLocation.RIGHT
 
             for model in (Product, Service):
-                create_bdl(block_id=images_block.id_,       order=10,  zone=TOP,   model=model)
-                BlockDetailviewLocation.create_4_model_block(order=5,  zone=LEFT,  model=model)
-                create_bdl(block_id=customfields_block.id_, order=40,  zone=LEFT,  model=model)
-                create_bdl(block_id=properties_block.id_,   order=450, zone=LEFT,  model=model)
-                create_bdl(block_id=relations_block.id_,    order=500, zone=LEFT,  model=model)
-                create_bdl(block_id=history_block.id_,      order=30,  zone=RIGHT, model=model)
+                create_bdl(block_id=blocks.images_block.id_, order=10,  zone=TOP,   model=model)
+                BlockDetailviewLocation.create_4_model_block(order=5,   zone=LEFT,  model=model)
+                create_bdl(block_id=customfields_block.id_,  order=40,  zone=LEFT,  model=model)
+                create_bdl(block_id=properties_block.id_,    order=450, zone=LEFT,  model=model)
+                create_bdl(block_id=relations_block.id_,     order=500, zone=LEFT,  model=model)
+                create_bdl(block_id=history_block.id_,       order=30,  zone=RIGHT, model=model)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')

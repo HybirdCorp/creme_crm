@@ -8,10 +8,12 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import SetCredentials
     from creme.creme_core.tests.fake_models import FakeContact
 
     # from creme.media_managers.tests import create_image
-    from creme.documents import get_folder_model
+    from creme.documents import get_folder_model, get_document_model
 
     from .base import _ProductsTestCase, skipIfCustomProduct
     from .. import get_product_model
@@ -72,7 +74,7 @@ class ProductTestCase(_ProductsTestCase):
                                           'code':         code,
                                           'description':  description,
                                           'unit_price':   unit_price,
-                                          'unit':         "anything",
+                                          'unit':         'anything',
                                           'sub_category': self._cat_field(cat, sub_cat),
                                          }
                                    )
@@ -521,3 +523,381 @@ class ProductTestCase(_ProductsTestCase):
 
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
         self.assertPOST404('/products/images/remove/%s' % rei.id, data={'id': img_2.id})
+
+    def test_csv_import01(self):
+        "Categories not in CSV"
+        user = self.login()
+
+        count = Product.objects.count()
+
+        names = 'Product 01', 'Product 02'
+        descriptions = 'Description #1', 'Description #2'
+        prices = '10', '20.50'
+        codes = 123, 456
+
+        lines = [(names[0], descriptions[0], prices[0], codes[0]),
+                 (names[1], descriptions[1], prices[1], codes[1]),
+                ]
+
+        doc = self._build_csv_doc(lines)
+        url = self._build_import_url(Product)
+        self.assertGET200(url)
+
+        sub_cat = SubCategory.objects.first()
+
+        data = {'step': 1,
+                'document': doc.id,
+                # has_header
+                'user': user.id,
+
+                'name_colselect': 1,
+                'description_colselect': 2,
+                'unit_price_colselect': 3,
+                'code_colselect': 4,
+
+                'categories_cat_colselect': 0,
+                'categories_subcat_colselect': 0,
+                # 'categories_defval': ...,
+
+                'unit_colselect': 0,
+                'quantity_per_unit_colselect': 0,
+                'weight_colselect': 0,
+                'stock_colselect': 0,
+                'web_site_colselect': 0,
+
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+               }
+
+        # Validation errors ------------------------
+        msg = _('Select a valid sub-category.')
+        response = self.assertPOST200(url, follow=True, data=data)
+        self.assertFormError(response, 'form', 'categories', msg)
+
+        response = self.assertPOST200(url, follow=True, data=dict(data, categories_subcat_defval=1024))
+        self.assertFormError(response, 'form', 'categories', msg)
+
+        response = self.assertPOST200(url, follow=True, data=dict(data, categories_subcat_defval='not a int'))
+        self.assertFormError(response, 'form', 'categories', msg)
+
+        # OK ------------------------
+        response = self.client.post(url, follow=True,
+                                    data=dict(data, categories_subcat_defval=sub_cat.id),
+                                   )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(count + len(lines), Product.objects.count())
+
+        for i, l in enumerate(lines):
+            product = self.get_object_or_fail(Product, name=names[i])
+            self.assertEqual(user,               product.user)
+            self.assertEqual(descriptions[i],    product.description)
+            self.assertEqual(Decimal(prices[i]), product.unit_price)
+            self.assertEqual(codes[i],           product.code)
+
+            self.assertIsNone(product.stock)
+
+            self.assertEqual(sub_cat,          product.sub_category)
+            self.assertEqual(sub_cat.category, product.category)
+
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
+        self._assertNoResultError(results)
+
+    def test_csv_import02(self):
+        "Categories in CSV ; no creation"
+        user = self.login()
+        count = Product.objects.count()
+
+        cat1 = Category.objects.create(name='(Test) Video games')
+        sub_cat11 = SubCategory.objects.create(name='Puzzle', category=cat1)
+        sub_cat12 = SubCategory.objects.create(name='Action', category=cat1)
+
+        cat2 = Category.objects.create(name='(Test) DVD')
+        sub_cat21 = SubCategory.objects.create(name='Thriller', category=cat2)
+        sub_cat22 = SubCategory.objects.create(name='Action',   category=cat2)  # NB: same name than sub_cat12
+
+        names = ['Product %2i' % i for i in xrange(1, 7)]
+
+        lines = [(names[0], '',        ''),
+                 (names[1], cat2.name, sub_cat21.name),
+                 (names[2], cat2.name, sub_cat22.name),  # No problem with the duplicated name of SubCategory
+                 (names[3], cat2.name, ''),              # KO: default sub-category is not corresponding
+                 (names[4], 'invalid', sub_cat12.name),  # KO: even if the SubCategory corresponds to the default Category
+                 (names[5], cat1.name, 'invalid'),       # KO
+                ]
+
+        url = self._build_import_url(Product)
+        doc = self._build_csv_doc(lines)
+        description = 'Imported from CSV'
+        price = '12'
+        code = 489
+        data = {'step': 1,
+                'document': doc.id,
+                # has_header
+                'user': user.id,
+
+                'name_colselect': 1,
+
+                'description_colselect': 0,
+                'description_defval': description,
+
+                'unit_price_colselect': 0,
+                'unit_price_defval': price,
+
+                'code_colselect': 0,
+                'code_defval': code,
+
+                'categories_cat_colselect': 2,
+                'categories_subcat_colselect': 3,
+                'categories_subcat_defval': sub_cat11.pk,
+
+                'unit_colselect': 0,
+                'quantity_per_unit_colselect': 0,
+                'weight_colselect': 0,
+                'stock_colselect': 0,
+                'web_site_colselect': 0,
+
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+               }
+
+        # Validation error ------------------------
+        response = self.assertPOST200(url, follow=True, data=dict(data, categories_subcat_colselect=0))
+        self.assertFormError(response, 'form', 'categories',
+                             _('Select a column for the sub-category if you select a column for the category.')
+                            )
+
+        # OK --------------------------------------
+        response = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(count + 3, Product.objects.count())
+
+        def get_product(i):
+            product = self.get_object_or_fail(Product, name=names[i])
+            self.assertEqual(description,    product.description)
+            self.assertEqual(Decimal(price), product.unit_price)
+            self.assertEqual(code,           product.code)
+
+            self.assertIsNone(product.stock)
+
+            return product
+
+        product1 = get_product(0)
+        self.assertEqual(cat1,      product1.category)
+        self.assertEqual(sub_cat11, product1.sub_category)
+
+        product2 = get_product(1)
+        self.assertEqual(cat2,      product2.category)
+        self.assertEqual(sub_cat21, product2.sub_category)
+
+        product3 = get_product(2)
+        self.assertEqual(cat2,      product3.category)
+        self.assertEqual(sub_cat22, product3.sub_category)
+
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
+
+        jr_errors = [r for r in results if r.messages]
+        self.assertEqual(3, len(jr_errors))
+
+        jr_error1 = jr_errors[0]
+        self.assertEqual([_(u'The category «%(cat)s» and the sub-category «%(sub_cat)s are not matching.') % {
+                                'cat':     cat2,
+                                'sub_cat': sub_cat11,
+                            },
+                          _(u'This field cannot be null.'),  # TODO: the message should indicate the name of the field.
+                          _(u'This field cannot be null.'),
+                         ],
+                         jr_error1.messages
+                        )
+        self.assertIsNone(jr_error1.entity)
+
+        self.assertEqual([_(u'The category «%s» does not exist') % 'invalid',
+                          _(u'This field cannot be null.'),
+                          _(u'This field cannot be null.'),
+                         ],
+                         jr_errors[1].messages
+                        )
+
+        self.assertEqual([_(u'The sub-category «%s» does not exist') % 'invalid',
+                          _(u'This field cannot be null.'),
+                          _(u'This field cannot be null.'),
+                         ],
+                         jr_errors[2].messages
+                        )
+
+    def test_csv_import03(self):
+        "Categories in CSV ; creation of Category/SubCategory"
+        user = self.login()
+        count = Product.objects.count()
+
+        cat1 = Category.objects.create(name='(Test) Video games')
+        sub_cat11 = SubCategory.objects.create(name='Puzzle', category=cat1)
+
+        cat2 = Category.objects.create(name='(Test) DVD')
+        sub_cat21 = SubCategory.objects.create(name='Thriller', category=cat2)
+        sub_cat22_name = 'Action'
+
+        cat3_name = 'Books'
+        sub_cat31_name = 'Sci-Fi'
+
+        names = ['Product %2i' % i for i in xrange(1, 5)]
+
+        lines = [(names[0], '', ''),
+                 (names[1], cat2.name, sub_cat21.name),
+                 (names[2], cat2.name, sub_cat22_name),
+                 (names[3], cat3_name, sub_cat31_name),
+                ]
+
+        doc = self._build_csv_doc(lines)
+
+        description = 'Imported from CSV'
+        price = '12'
+        code = 489
+        response = self.client.post(self._build_import_url(Product), follow=True,
+                                    data={'step': 1,
+                                          'document': doc.id,
+                                          # has_header
+                                          'user': user.id,
+
+                                          'name_colselect': 1,
+
+                                          'description_colselect': 0,
+                                          'description_defval': description,
+
+                                          'unit_price_colselect': 0,
+                                          'unit_price_defval': price,
+
+                                          'code_colselect': 0,
+                                          'code_defval': code,
+
+                                          'categories_cat_colselect': 2,
+                                          'categories_subcat_colselect': 3,
+                                          'categories_subcat_defval': sub_cat11.pk,
+                                          'categories_create': 'on',  # <==
+
+                                          'unit_colselect': 0,
+                                          'quantity_per_unit_colselect': 0,
+                                          'weight_colselect': 0,
+                                          'stock_colselect': 0,
+                                          'web_site_colselect': 0,
+
+                                          # 'property_types',
+                                          # 'fixed_relations',
+                                          # 'dyn_relations',
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(count + len(lines), Product.objects.count())
+
+        def get_product(i):
+            product = self.get_object_or_fail(Product, name=names[i])
+            self.assertEqual(description, product.description)
+            self.assertEqual(Decimal(price), product.unit_price)
+            self.assertEqual(code, product.code)
+
+            self.assertIsNone(product.stock)
+
+            return product
+
+        product1 = get_product(0)
+        self.assertEqual(cat1,      product1.category)
+        self.assertEqual(sub_cat11, product1.sub_category)
+
+        product2 = get_product(1)
+        self.assertEqual(cat2,      product2.category)
+        self.assertEqual(sub_cat21, product2.sub_category)
+
+        product3 = get_product(2)
+        self.assertEqual(cat2,           product3.category)
+        self.assertEqual(sub_cat22_name, product3.sub_category.name)
+
+        product4 = get_product(3)
+        self.assertEqual(cat3_name,      product4.category.name)
+        self.assertEqual(sub_cat31_name, product4.sub_category.name)
+
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
+        self._assertNoResultError(results)
+
+    def test_csv_import04(self):
+        "Categories in CSV ; want to create Category but not it is allowed"
+        user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
+                          creatable_models=[Product, get_document_model()],
+                         )
+        count = Product.objects.count()
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
+
+        cat1 = Category.objects.create(name='(Test) Video games')
+        sub_cat11 = SubCategory.objects.create(name='Puzzle', category=cat1)
+
+        cat2 = Category.objects.create(name='(Test) DVD')
+        sub_cat21 = SubCategory.objects.create(name='Thriller', category=cat2)
+
+        names = ['Product %2i' % i for i in xrange(1, 5)]
+        lines = [(names[0], '', ''),
+                 (names[1], cat2.name, sub_cat21.name),
+                 (names[2], cat2.name, 'Action'),
+                 (names[3], 'Books',   'Sci-Fi'),
+                ]
+
+        doc = self._build_csv_doc(lines)
+        url = self._build_import_url(Product)
+        self.assertGET200(url)
+
+        data = {'step': 1,
+                'document': doc.id,
+                # has_header
+                'user': user.id,
+
+                'name_colselect': 1,
+
+                'description_colselect': 0,
+                'description_defval': 'Imported from CSV',
+
+                'unit_price_colselect': 0,
+                'unit_price_defval': '12',
+
+                'code_colselect': 0,
+                'code_defval': 489,
+
+                'categories_cat_colselect': 2,
+                'categories_subcat_colselect': 3,
+                'categories_subcat_defval': sub_cat11.pk,
+
+                'unit_colselect': 0,
+                'quantity_per_unit_colselect': 0,
+                'weight_colselect': 0,
+                'stock_colselect': 0,
+                'web_site_colselect': 0,
+
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+               }
+
+        # Validation error -----------
+        response = self.assertPOST200(url, follow=True, data=dict(data, categories_create='on'))
+        self.assertFormError(response, 'form', 'categories', 'You cannot create Category or SubCategory')
+
+        # OK --------------------------
+        response = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+        self.assertEqual(count + 2, Product.objects.count())
+

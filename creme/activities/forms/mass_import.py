@@ -221,7 +221,7 @@ class MultiColumnsParticipantsExtractor(RelatedExtractor):
 class SplitColumnParticipantsExtractor(RelatedExtractor):
     def __init__(self, column_index, separator, pattern_func, create_if_unfound=False):
         super(SplitColumnParticipantsExtractor, self).__init__(create_if_unfound)
-        self._column_index  = column_index - 1
+        self._column_index = column_index - 1
         self._separator = separator
         self._pattern_func = pattern_func
 
@@ -263,7 +263,7 @@ class ParticipantsExtractorWidget(ExtractorWidget):
 
         return mark_safe(
 u"""%(create_check)s
-<ul class="radio_select">
+<ul class="multi-select">
     <li>
         <label for="%(name)s_mode1">
             <input id="%(name)s_mode1" type="radio" name="%(name)s_mode" value="%(MULTICOLUMNS)s" %(mode_1_checked)s>%(mode_1_label)s<br/>
@@ -409,7 +409,7 @@ class ParticipantsExtractorField(Field):
 
             return SplitColumnParticipantsExtractor(index, value['separator'],
                                                     pattern_func, create_if_unfound,
-                                                    )
+                                                   )
         else:
             raise ValidationError('Invalid mode')
 
@@ -537,7 +537,7 @@ class SubjectsExtractorField(Field):
     @user.setter
     def user(self, user):
         self._user = user
-        self.widget.propose_creation = self._can_create = user.has_perm_to_create(Organisation) 
+        self.widget.propose_creation = self._can_create = user.has_perm_to_create(Organisation)
 
     # TODO: factorise (in ExtractorField) (need _allowed_indexes)
     def _clean_index(self, value, key):
