@@ -4,6 +4,8 @@ try:
     from django.utils.translation import ugettext as _
     from django.test import override_settings
 
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.models import SettingValue
 
@@ -23,7 +25,8 @@ class GlobalSettingsTestCase(CremeTestCase):
 
     def test_editview(self):
         self.login()
-        url = '/activesync/mobile_synchronization/edit'
+        # url = '/activesync/mobile_synchronization/edit'
+        url = reverse('activesync__edit_mobile_config')
         self.assertGET200(url)
 
         sv_url    = self.get_object_or_fail(SettingValue, key_id=constants.MAPI_SERVER_URL)
@@ -59,12 +62,14 @@ class GlobalSettingsTestCase(CremeTestCase):
 
     def test_config_page(self):
         self.login()
-        response = self.assertGET200('/creme_config/activesync/portal/')
+        # response = self.assertGET200('/creme_config/activesync/portal/')
+        response = self.assertGET200(reverse('creme_config__app_portal', args=('activesync',)))
         self.assertContains(response, ' id="%s"' % mobile_sync_config_block.id_)
 
 
 class UserSettingsTestCase(CremeTestCase):
-    URL = '/activesync/user_settings'
+    # URL = '/activesync/user_settings'
+    URL = reverse('activesync__user_settings')
 
     # @classmethod
     # def setUpClass(cls):
@@ -307,18 +312,18 @@ class UserSettingsTestCase(CremeTestCase):
         self.login()
 
         # response =
-        self.client.post(#'/activesync/user_settings',
-                         self.URL,
-                                    data={'url':            url,
-                                          'ssl':            '1',
-                                          'login':          'fulbert',
-                                          'password':       'fulbert',
-                                          'sync_calendars': '1',
-                                          'sync_contacts':  '1',
-                                         }
-                                   )
+        self.client.post(self.URL,
+                         data={'url':            url,
+                               'ssl':            '1',
+                               'login':          'fulbert',
+                               'password':       'fulbert',
+                               'sync_calendars': '1',
+                               'sync_contacts':  '1',
+                              },
+                        )
 
-        self.assertGET200('/activesync/sync')
+        # self.assertGET200('/activesync/sync')
+        self.assertGET200(reverse('activesync__sync'))
         # TODO: test errors
 
     @override_settings(ACTIVE_SYNC_DEBUG=False)

@@ -60,13 +60,17 @@ class ActivesyncConfig(CremeAppConfig):
 
     def register_menu(self, creme_menu):
         from django.conf import settings
+        from django.core.urlresolvers import reverse_lazy as reverse
 
         if settings.OLD_MENU:
             reg_item = creme_menu.get_app_item('persons').register_item
-            reg_item('/activesync/sync', _(u'Contact synchronisation'), 'persons')
+            # reg_item('/activesync/sync', _(u'Contact synchronisation'), 'persons')
+            reg_item(reverse('activesync__sync'), _(u'Contact synchronisation'), 'persons')
         else:
             creme_menu.get('features', 'persons-directory') \
-                      .add(creme_menu.URLItem('activesync-sync', url='/activesync/sync',
+                      .add(creme_menu.URLItem('activesync-sync',
+                                              # url='/activesync/sync',
+                                              url=reverse('activesync__sync'),
                                               label=_(u'Contact synchronisation'),
                                               perm='persons',
                                              ),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,8 @@
 ################################################################################
 
 import logging
+
+from django.core.urlresolvers import reverse
 
 from creme.creme_core.gui.block import Block, QuerysetBlock
 # from creme.creme_core.models import SettingValue
@@ -92,25 +94,25 @@ class UserMobileSyncConfigBlock(Block):
             return {'as_html': html_value, 'default_config': default_config}
 
         return self._render(self.get_block_template_context(
-                                context,
-                                # url=get_setting_value(USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL),
-                                # domain=get_setting_value(USER_MOBILE_SYNC_SERVER_DOMAIN, MAPI_DOMAIN),
-                                # ssl=get_setting_value(USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL),
-                                # username=get_setting_value(USER_MOBILE_SYNC_SERVER_LOGIN),
-                                # password=get_setting_value(USER_MOBILE_SYNC_SERVER_PWD),
-                                # sync_cal=get_setting_value(USER_MOBILE_SYNC_ACTIVITIES),
-                                # sync_con=get_setting_value(USER_MOBILE_SYNC_CONTACTS),
-                                url=get_setting_value(setting_keys.user_msync_server_url_key, 'url'),
-                                domain=get_setting_value(setting_keys.user_msync_server_domain_key, 'domain'),
-                                ssl=get_setting_value(setting_keys.user_msync_server_ssl_key, 'ssl'),
-                                username=get_setting_value(setting_keys.user_msync_server_login_key),
-                                # TODO: It's the ciphered value but it's just for display. Is it a problem ?
-                                password=get_setting_value(setting_keys.user_msync_server_pwd_key),
-                                sync_cal=get_setting_value(setting_keys.user_msync_activities_key),
-                                sync_con=get_setting_value(setting_keys.user_msync_contacts_key),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                               )
-                           )
+                    context,
+                    # url=get_setting_value(USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL),
+                    # domain=get_setting_value(USER_MOBILE_SYNC_SERVER_DOMAIN, MAPI_DOMAIN),
+                    # ssl=get_setting_value(USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL),
+                    # username=get_setting_value(USER_MOBILE_SYNC_SERVER_LOGIN),
+                    # password=get_setting_value(USER_MOBILE_SYNC_SERVER_PWD),
+                    # sync_cal=get_setting_value(USER_MOBILE_SYNC_ACTIVITIES),
+                    # sync_con=get_setting_value(USER_MOBILE_SYNC_CONTACTS),
+                    url=get_setting_value(setting_keys.user_msync_server_url_key, 'url'),
+                    domain=get_setting_value(setting_keys.user_msync_server_domain_key, 'domain'),
+                    ssl=get_setting_value(setting_keys.user_msync_server_ssl_key, 'ssl'),
+                    username=get_setting_value(setting_keys.user_msync_server_login_key),
+                    # TODO: It's the ciphered value but it's just for display. Is it a problem ?
+                    password=get_setting_value(setting_keys.user_msync_server_pwd_key),
+                    sync_cal=get_setting_value(setting_keys.user_msync_activities_key),
+                    sync_con=get_setting_value(setting_keys.user_msync_contacts_key),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class MobileSyncConfigBlock(Block):
@@ -129,15 +131,16 @@ class MobileSyncConfigBlock(Block):
         values = get_default_server_setting_values()
 
         return self._render(self.get_block_template_context(
-                                context,
-                                # url=server_url,
-                                # domain=server_domain,
-                                # ssl=server_ssl,
-                                url=values['url'],
-                                domain=values['domain'],
-                                ssl=values['ssl'],
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context,
+                    # url=server_url,
+                    # domain=server_domain,
+                    # ssl=server_ssl,
+                    url=values['url'],
+                    domain=values['domain'],
+                    ssl=values['ssl'],
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class UserSynchronizationHistoryBlock(QuerysetBlock):
@@ -150,14 +153,16 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         user = context['user']
-        btc = self.get_block_template_context(context,
-                                              UserSynchronizationHistory.objects.filter(user=user)
-                                                                                .select_related('entity_ct'),
-                                              history_type_verbose=USER_HISTORY_TYPE_VERBOSE,
-                                              history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
-                                              contact_klass=get_contact_model(),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk),
-                                             )
+        btc = self.get_block_template_context(
+                    context,
+                    UserSynchronizationHistory.objects.filter(user=user)
+                                                      .select_related('entity_ct'),
+                    history_type_verbose=USER_HISTORY_TYPE_VERBOSE,
+                    history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
+                    contact_klass=get_contact_model(),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, user.pk)),
+        )
 
         history = btc['page'].object_list
         UserSynchronizationHistory.populate_entities(history)
