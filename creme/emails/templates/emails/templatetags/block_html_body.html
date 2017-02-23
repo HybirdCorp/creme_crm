@@ -13,7 +13,8 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="content">
-            <td class="td_info"><iframe frameborder="0" src="/creme_core/entity/get_sanitized_html/{{object.id}}/body_html" width="100%" height="100%" style="min-height:350px"></iframe></td>
+{#            <td class="td_info"><iframe frameborder="0" src="/creme_core/entity/get_sanitized_html/{{object.id}}/body_html" width="100%" height="100%" style="min-height:350px"></iframe></td> #}
+            <td class="td_info"><iframe frameborder="0" src="{% url 'creme_core__sanitized_html_field' object.id 'body_html' %}" width="100%" height="100%" style="min-height:350px"></iframe></td>
         </tr>
     </tbody>
 </table>

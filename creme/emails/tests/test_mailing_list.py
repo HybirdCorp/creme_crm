@@ -26,16 +26,20 @@ class MailingListsTestCase(_EmailsTestCase):
         self.login()
 
     def _build_addcontact_url(self, mlist):
-        return '/emails/mailing_list/%s/contact/add' % mlist.id
+        # return '/emails/mailing_list/%s/contact/add' % mlist.id
+        return reverse('emails__add_contacts_to_mlist', args=(mlist.id,))
 
     def _build_addcontactfilter_url(self, mlist):
-        return '/emails/mailing_list/%s/contact/add_from_filter' % mlist.id
+        # return '/emails/mailing_list/%s/contact/add_from_filter' % mlist.id
+        return reverse('emails__add_contacts_to_mlist_from_filter', args=(mlist.id,))
 
     def _build_addorga_url(self, mlist):
-        return '/emails/mailing_list/%s/organisation/add' % mlist.id
+        # return '/emails/mailing_list/%s/organisation/add' % mlist.id
+        return reverse('emails__add_orgas_to_mlist', args=(mlist.id,))
 
     def _build_addorgafilter_url(self, mlist):
-        return '/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id
+        # return '/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id
+        return reverse('emails__add_orgas_to_mlist_from_filter', args=(mlist.id,))
 
     def test_create(self):
         url = reverse('emails__create_mlist')
@@ -80,7 +84,8 @@ class MailingListsTestCase(_EmailsTestCase):
         mlist02 = create_ml(name='Ml02')
         self.assertFalse(campaign.mailing_lists.exists())
 
-        url = '/emails/campaign/%s/mailing_list/add' % campaign.id
+        # url = '/emails/campaign/%s/mailing_list/add' % campaign.id
+        url = reverse('emails__add_mlists_to_campaign', args=(campaign.id,))
         self.assertGET200(url)
 
         def post(*mlists):
@@ -99,7 +104,8 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFormError(response, 'form', 'mailing_lists', _('This entity does not exist.'))
 
         # Delete ----------------------
-        self.assertPOST200('/emails/campaign/%s/mailing_list/delete' % campaign.id,
+        # self.assertPOST200('/emails/campaign/%s/mailing_list/delete' % campaign.id,
+        self.assertPOST200(reverse('emails__remove_mlist_from_campaign', args=(campaign.id,)),
                            follow=True, data={'id': mlist01.id}
                           )
         self.assertEqual([mlist02], list(campaign.mailing_lists.all()))
@@ -139,7 +145,8 @@ class MailingListsTestCase(_EmailsTestCase):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         self.assertFalse(mlist.emailrecipient_set.exists())
 
-        url = '/emails/mailing_list/%s/recipient/add' % mlist.id
+        # url = '/emails/mailing_list/%s/recipient/add' % mlist.id
+        url = reverse('emails__add_recipients', args=(mlist.id,))
         self.assertGET200(url)
 
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
@@ -148,12 +155,15 @@ class MailingListsTestCase(_EmailsTestCase):
 
         # --------------------
         response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})  # Invalid address
-        self.assertFormError(response, 'form', 'recipients', _(u"Enter a valid email address."))
+        self.assertFormError(response, 'form', 'recipients', _(u'Enter a valid email address.'))
 
         # --------------------
         recipient = mlist.emailrecipient_set.all()[0]
         ct = ContentType.objects.get_for_model(EmailRecipient)
-        self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id, follow=True, data={'id': recipient.id})
+        # self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id, follow=True, data={'id': recipient.id})
+        self.assertPOST200(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+                           follow=True, data={'id': recipient.id},
+                          )
 
         addresses = {r.address for r in mlist.emailrecipient_set.all()}
         self.assertEqual(len(recipients) - 1, len(addresses))
@@ -161,7 +171,8 @@ class MailingListsTestCase(_EmailsTestCase):
 
     def _aux_test_add_recipients_csv(self, end='\n'):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-        url = '/emails/mailing_list/%s/recipient/add_csv' % mlist.id
+        # url = '/emails/mailing_list/%s/recipient/add_csv' % mlist.id
+        url = reverse('emails__add_recipients_from_csv', args=(mlist.id,))
         self.assertGET200(url)
 
         # TODO: it seems django validator does manages address with unicode chars:
@@ -207,7 +218,8 @@ class MailingListsTestCase(_EmailsTestCase):
 
         # --------------------
         contact_to_del = recipients[0]
-        self.client.post('/emails/mailing_list/%s/contact/delete' % mlist.id,
+        # self.client.post('/emails/mailing_list/%s/contact/delete' % mlist.id,
+        self.client.post(reverse('emails__remove_contact_from_mlist', args=(mlist.id,)),
                          data={'id': contact_to_del.id}
                         )
 
@@ -308,7 +320,8 @@ class MailingListsTestCase(_EmailsTestCase):
 
         # --------------------
         orga_to_del = recipients[0]
-        self.client.post('/emails/mailing_list/%s/organisation/delete' % mlist.id,
+        # self.client.post('/emails/mailing_list/%s/organisation/delete' % mlist.id,
+        self.client.post(reverse('emails__remove_orga_from_mlist', args=(mlist.id,)),
                          data={'id': orga_to_del.id}
                         )
 
@@ -396,15 +409,17 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFalse(mlist01.children.exists())
         self.assertFalse(mlist02.children.exists())
 
-        url = '/emails/mailing_list/%s/child/add' % mlist01.id
+        # url = '/emails/mailing_list/%s/child/add' % mlist01.id
+        url = reverse('emails__add_child_mlists', args=(mlist01.id,))
         self.assertGET200(url)
         self.assertPOST200(url, data={'child': mlist02.id})
         self.assertEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
         self.assertFalse(mlist02.children.exists())
 
         # --------------------
-        self.assertPOST200('/emails/mailing_list/%s/child/delete' % mlist01.id,
-                           data={'id': mlist02.id}, follow=True
+        # self.assertPOST200('/emails/mailing_list/%s/child/delete' % mlist01.id,
+        self.assertPOST200(reverse('emails__remove_child_mlist', args=(mlist01.id,)),
+                           data={'id': mlist02.id}, follow=True,
                           )
         self.assertFalse(mlist01.children.exists())
         self.assertFalse(mlist02.children.exists())
@@ -418,7 +433,8 @@ class MailingListsTestCase(_EmailsTestCase):
         mlist01.children.add(mlist02)
         mlist02.children.add(mlist03)
 
-        post = lambda parent, child: self.client.post('/emails/mailing_list/%s/child/add' % parent.id,
+        # post = lambda parent, child: self.client.post('/emails/mailing_list/%s/child/add' % parent.id,
+        post = lambda parent, child: self.client.post(reverse('emails__add_child_mlists', args=(parent.id,)),
                                                       data={'child': child.id},
                                                      )
 

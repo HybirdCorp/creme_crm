@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
@@ -80,9 +81,11 @@ class _RelatedEntitesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        btc = self.get_block_template_context(context, self._get_queryset(entity),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                             )
+        btc = self.get_block_template_context(
+                    context, self._get_queryset(entity),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+        )
 
         self._update_context(btc)
 
@@ -109,10 +112,13 @@ class EmailRecipientsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         mailing_list = context['object']
-        return self._render(self.get_block_template_context(context, EmailRecipient.objects.filter(ml=mailing_list.id), #get_recipients() ???
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                            ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    EmailRecipient.objects.filter(ml=mailing_list.id), #get_recipients() ???
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, mailing_list.pk)),
+                    ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
+        ))
 
 
 class ContactsBlock(_RelatedEntitesBlock):
@@ -189,35 +195,40 @@ class SendingsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         campaign = context['object']
-        return self._render(self.get_block_template_context(context, EmailSending.objects.filter(campaign=campaign.id), #TODO: use related_name i.e:campaign.sendings_set.all()
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                                                            ct_id=ContentType.objects.get_for_model(EmailSending).id,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    EmailSending.objects.filter(campaign=campaign.id),  # TODO: use related_name i.e:campaign.sendings_set.all()
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, campaign.pk)),
+                    ct_id=ContentType.objects.get_for_model(EmailSending).id,
+        ))
 
 
 class MailsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails')
     dependencies  = (LightWeightEmail,)
     page_size     = 12
-    verbose_name  = u"Emails of a sending"
+    verbose_name  = u'Emails of a sending'
     template_name = 'emails/templatetags/block_mails.html'
     configurable  = False
 
     def detailview_display(self, context):
         sending = context['object']
 
-        return self._render(self.get_block_template_context(context, sending.get_mails().select_related('recipient_entity'),
-                                                            update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk,
-                                                            ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+            context,
+            sending.get_mails().select_related('recipient_entity'),
+            # update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk,
+            update_url=reverse('emails__reload_lw_mails_block', args=(sending.pk,)),
+            ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,
+        ))
 
 
 class MailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails_history')
     dependencies  = (EntityEmail, Relation)
     order_by      = '-sending_date'
-    verbose_name  = _(u"Emails history")
+    verbose_name  = _(u'Emails history')
     template_name = 'emails/templatetags/block_mails_history.html'
     relation_type_deps = (constants.REL_OBJ_MAIL_SENDED,
                           constants.REL_OBJ_MAIL_RECEIVED,
@@ -240,15 +251,16 @@ class MailsHistoryBlock(QuerysetBlock):
                                          .values_list('subject_entity', flat=True) \
                                          .distinct()
 
-        return self._render(self.get_block_template_context(context,
-                                                            EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            sent_status=constants.MAIL_STATUS_SENT,
-                                                            sync_statuses=self._STATUSES,
-                                                            rtypes=','.join(self.relation_type_deps),
-                                                            creation_perm=context['user'].has_perm_to_create(EntityEmail),
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+                    context,
+                    EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                    sent_status=constants.MAIL_STATUS_SENT,
+                    sync_statuses=self._STATUSES,
+                    rtypes=','.join(self.relation_type_deps),
+                    creation_perm=context['user'].has_perm_to_create(EntityEmail),
+        ))
 
 
 class LwMailsHistoryBlock(QuerysetBlock):
@@ -260,10 +272,12 @@ class LwMailsHistoryBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(context,
-                                                            LightWeightEmail.objects.filter(recipient_entity=pk).select_related('sending'),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    LightWeightEmail.objects.filter(recipient_entity=pk).select_related('sending'),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+        ))
 
 
 class SignaturesBlock(QuerysetBlock):
@@ -281,10 +295,11 @@ class SignaturesBlock(QuerysetBlock):
             raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
 
         return self._render(self.get_block_template_context(
-                                context, EmailSignature.objects.filter(user=user),
-                                update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                has_app_perm=True,  # We've just checked it.
-                           ))
+                    context, EmailSignature.objects.filter(user=user),
+                    # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
+                    has_app_perm=True,  # We've just checked it.
+        ))
 
 
 class MySignaturesBlock(QuerysetBlock):
@@ -302,11 +317,12 @@ class MySignaturesBlock(QuerysetBlock):
         user = context['user']
 
         return self._render(self.get_block_template_context(
-                                context,
-                                EmailSignature.objects.filter(user=user),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                has_app_perm=user.has_perm('emails'),
-                           ))
+                    context,
+                    EmailSignature.objects.filter(user=user),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    has_app_perm=user.has_perm('emails'),
+       ))
 
 
 email_html_body_block    = EmailHTMLBodyBlock()
@@ -369,9 +385,11 @@ if apps.is_installed('creme.crudity'):
             if self.is_sandbox_by_user:
                 waiting_mails = waiting_mails.filter(user=context['user'])
 
-            return self._render(self.get_block_template_context(context, waiting_mails,
-                                                                update_url='/emails/sync_blocks/reload',
-                                                               ))
+            return self._render(self.get_block_template_context(
+                        context, waiting_mails,
+                        # update_url='/emails/sync_blocks/reload',
+                        update_url=reverse('emails__crudity_reload_sync_blocks'),
+            ))
 
 
     # TODO: factorise with WaitingSynchronizationMailsBlock ??
@@ -390,9 +408,11 @@ if apps.is_installed('creme.crudity'):
             if self.is_sandbox_by_user:
                 waiting_mails = waiting_mails.filter(user=context['user'])
 
-            return self._render(self.get_block_template_context(context, waiting_mails,
-                                                                update_url='/emails/sync_blocks/reload',
-                                                               ))
+            return self._render(self.get_block_template_context(
+                        context, waiting_mails,
+                        # update_url='/emails/sync_blocks/reload',
+                        update_url=reverse('emails__crudity_reload_sync_blocks'),
+            ))
 
 
     mail_waiting_sync_block = WaitingSynchronizationMailsBlock()

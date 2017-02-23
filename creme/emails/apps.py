@@ -90,17 +90,18 @@ class EmailsConfig(CremeAppConfig):
     def register_menu(self, creme_menu):
         from django.apps import apps
         from django.conf import settings
+        from django.core.urlresolvers import reverse_lazy as reverse
 
         ECampaign = self.EmailCampaign
         MList     = self.MailingList
         ETemplate = self.EmailTemplate
 
         if settings.OLD_MENU:
-            from django.core.urlresolvers import reverse_lazy as reverse
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('emails', '/emails/').register_item
-            reg_item('/emails/',                         _(u'Portal of emails'),    'emails')
+            # reg_item('/emails/',                         _(u'Portal of emails'),    'emails')
+            reg_item(reverse('emails__portal'),          _(u'Portal of emails'),    'emails')
             reg_item(reverse('emails__list_campaigns'),  _(u'All campaigns'),       'emails')
             reg_item(reverse('emails__create_campaign'), ECampaign.creation_label,  cperm(ECampaign))
             reg_item(reverse('emails__list_mlists'),     _(u'All mailing lists'),   'emails')
@@ -110,7 +111,8 @@ class EmailsConfig(CremeAppConfig):
             reg_item(reverse('emails__list_emails'),     _(u'All emails'),          'emails')
 
             if apps.is_installed('creme.crudity'):
-                reg_item('/emails/synchronization', _(u'Synchronization of incoming emails'), 'emails')
+                # reg_item('/emails/synchronization', _(u'Synchronization of incoming emails'), 'emails')
+                reg_item(reverse('emails__crudity_sync'), _(u'Synchronization of incoming emails'), 'emails')
         else:
             group = creme_menu.get('features') \
                               .get_or_create(creme_menu.ContainerItem, 'marketing', priority=200,
@@ -130,7 +132,7 @@ class EmailsConfig(CremeAppConfig):
                       .add_link('emails-create_template', ETemplate, priority=20)
 
             if apps.is_installed('creme.crudity'):
-                group.add(creme_menu.URLItem('emails-sync', url='/emails/synchronization',
+                group.add(creme_menu.URLItem('emails-sync', url=reverse('emails__crudity_sync'),
                                              label=_(u'Synchronization of incoming emails'),
                                              perm='emails',
                                             ),

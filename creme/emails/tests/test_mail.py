@@ -58,7 +58,8 @@ class EntityEmailTestCase(_EmailsTestCase):
                                                      )
 
     def _build_send_from_template_url(self, entity):
-        return '/emails/mail/add_from_template/%s' % entity.id
+        # return '/emails/mail/add_from_template/%s' % entity.id
+        return reverse('emails__create_email_from_template', args=(entity.id,))
 
     def _get_job(self):
         return self.get_object_or_fail(Job, type_id=entity_emails_send_type.id)
@@ -108,8 +109,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=user.linked_contact)
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact)
 
-        self.assertGET200('/emails/mail/%s' % email.id)
-        self.assertGET200('/emails/mail/%s/popup' % email.id)
+        # self.assertGET200('/emails/mail/%s' % email.id)
+        self.assertGET200(reverse('emails__view_email', args=(email.id,)))
+        # self.assertGET200('/emails/mail/%s/popup' % email.id)
+        self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))
@@ -601,10 +604,12 @@ class EntityEmailTestCase(_EmailsTestCase):
         "Empty body"
         self.login()
         email = self._create_email()
-        url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
-        self.assertGET409(url_fmt % (email.id, 'sender'))  # Not an UnsafeHTMLField
+        # url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
+        # self.assertGET409(url_fmt % (email.id, 'sender'))  # Not an UnsafeHTMLField
+        self.assertGET409(reverse('creme_core__sanitized_html_field', args=(email.id, 'sender')))  # Not an UnsafeHTMLField
 
-        response = self.assertGET200(url_fmt % (email.id, 'body_html'))
+        # response = self.assertGET200(url_fmt % (email.id, 'body_html'))
+        response = self.assertGET200(reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')))
         self.assertEqual('', response.content)
 
     def test_get_sanitized_html_field02(self):
@@ -612,9 +617,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         email = self._create_email(body_html='<p>hi</p>'
                                              '<img alt="Totoro" src="http://external/images/totoro.jpg" />'
                                              '<img alt="Nekobus" src="%snekobus.jpg" />' % settings.MEDIA_URL
-                                   )
+                                  )
 
-        url = '/creme_core/entity/get_sanitized_html/%s/%s' % (email.id, 'body_html')
+        # url = '/creme_core/entity/get_sanitized_html/%s/%s' % (email.id, 'body_html')
+        url = reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html'))
         response = self.assertGET200(url)
         self.assertEqual('<p>hi</p>'
                          '<img alt="Totoro">'

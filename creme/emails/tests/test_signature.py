@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
+
     from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
     from ..models import EmailSignature  # EmailTemplate
 except Exception as e:
@@ -8,14 +10,15 @@ except Exception as e:
 
 
 class SignaturesTestCase(_EmailsTestCase):
-    def login(self, is_superuser=True):
-        return super(SignaturesTestCase, self).login(is_superuser, allowed_apps=['emails'])
+    def login(self, is_superuser=True, allowed_apps=('emails',), *args, **kwargs):
+        return super(SignaturesTestCase, self).login(is_superuser, allowed_apps=allowed_apps, *args, **kwargs)
 
     def test_create01(self):
         self.login()
         self.assertFalse(EmailSignature.objects.count())
 
-        url = '/emails/signature/add'
+        # url = '/emails/signature/add'
+        url = reverse('emails__create_signature')
         self.assertGET200(url)
 
         name = 'Polite signature'
@@ -63,17 +66,17 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertGET403(signature.get_edit_absolute_url())
 
     def test_edit03(self):
-        "Superuser can delete all signatures"
+        "Superuser can edit all signatures"
         self.login()
 
         signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature',
                                                   body='I love you... not',
                                                  )
-        #self.assertGET200('/emails/signature/edit/%s' % signature.id)
         self.assertGET200(signature.get_edit_absolute_url())
 
     def _delete(self, signature):
-        return self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True)
+        # return self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True)
+        return self.client.post(reverse('emails__delete_signature'), data={'id': signature.id}, follow=True)
 
     def test_delete01(self):
         user = self.login()

@@ -3,6 +3,7 @@
 try:
     from datetime import timedelta
 
+    from django.core.urlresolvers import reverse
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
@@ -71,7 +72,8 @@ class EmailsCrudityTestCase(_EmailsTestCase):
 
         self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
 
-        url = '/emails/mail/spam'
+        # url = '/emails/mail/spam'
+        url = reverse('emails__crudity_spam')
         self.assertPOST200(url)
         self.assertPOST200(url, data={'ids': [e.id for e in emails]})
 
@@ -84,7 +86,8 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         # self.login()
         emails = self._create_emails()
 
-        self.assertPOST200('/emails/mail/validated', data={'ids': [e.id for e in emails]})
+        # self.assertPOST200('/emails/mail/validated', data={'ids': [e.id for e in emails]})
+        self.assertPOST200(reverse('emails__crudity_validated'), data={'ids': [e.id for e in emails]})
 
         refresh = self.refresh
         self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4,
@@ -95,7 +98,8 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         # self.login()
         emails = self._create_emails()
 
-        self.assertPOST200('/emails/mail/waiting', data={'ids': [e.id for e in emails]})
+        # self.assertPOST200('/emails/mail/waiting', data={'ids': [e.id for e in emails]})
+        self.assertPOST200(reverse('emails__crudity_waiting'), data={'ids': [e.id for e in emails]})
 
         refresh = self.refresh
         self.assertEqual([MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,

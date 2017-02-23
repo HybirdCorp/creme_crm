@@ -6,7 +6,8 @@
         <th class="label">{% get_block_title _('%s Related mailing list') _('%s Related mailing lists') 'email_48.png' _('Mailing lists') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/emails/campaign/{{object.pk}}/mailing_list/add' with_label _("Add existing mailing lists") with_perms has_perm %}
+{#                {% get_line_linker at_url '/emails/campaign/{{object.pk}}/mailing_list/add' with_label _("Add existing mailing lists") with_perms has_perm %} #}
+                {% url 'emails__add_mlists_to_campaign' object.id as add_mlists_url %}{% get_line_linker at_url add_mlists_url with_label _("Add existing mailing lists") with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -16,11 +17,13 @@
                 <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
+            {% url 'emails__remove_mlist_from_campaign' object.id as rm_mlist_url %}
             {% for ml in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink ml user %}</td>
                     <td class="{{row_color}} action">
-                        {% get_line_unlinker at_url '/emails/campaign/{{object.pk}}/mailing_list/delete' with_args "{'id':{{ml.pk}} }" with_perms has_perm %}
+{#                        {% get_line_unlinker at_url '/emails/campaign/{{object.pk}}/mailing_list/delete' with_args "{'id':{{ml.pk}} }" with_perms has_perm %} #}
+                        {% get_line_unlinker at_url rm_mlist_url with_args "{'id':{{ml.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
