@@ -13,7 +13,8 @@
         <th class="actions">
             <div class="buttons">
                 {% if not current_user_fav %}
-                    <a class="link" onclick="creme.blocks.ajaxPOSTQuery('/mobile/mark_as_favorite/{{object.id}}', {blockReloadUrl:{% get_block_reload_uri %}}).start();">
+{#                    <a class="link" onclick="creme.blocks.ajaxPOSTQuery('/mobile/mark_as_favorite/{{object.id}}', {blockReloadUrl:{% get_block_reload_uri %}}).start();"> #}
+                    <a class="link" onclick="creme.blocks.ajaxPOSTQuery('{% url 'mobile__mark_as_favorite' object.id %}', {blockReloadUrl:{% get_block_reload_uri %}}).start();">
                         {% trans "Link" as img_title %}<img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         {% trans "Mark as favorite" %}
                     </a>
@@ -28,7 +29,8 @@
                     <td class="{{row_color}}">
                         {{fav_user}}
                         {% if user == fav_user %}
-                            {% get_line_unlinker at_url '/mobile/unmark_favorite/{{object.id}}' with_args "{}" with_perms 1 %}
+{#                            {% get_line_unlinker at_url '/mobile/unmark_favorite/{{object.id}}' with_args "{}" with_perms 1 %} #}
+                            {% url 'mobile__unmark_favorite' object.id as unmark_url %}{% get_line_unlinker at_url unmark_url with_args "{}" with_perms 1 %}
                         {% endif %}
                     </td>
                 </tr>

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import QuerysetBlock
@@ -44,7 +45,8 @@ class FavoritePersonsBlock(QuerysetBlock):
         btc = self.get_block_template_context(
                                 context,
                                 get_user_model().objects.filter(mobile_favorite__entity=person.id),
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.id),
+                                # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.id),
+                                update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person.id)),
                                 is_contact=isinstance(person, Contact),
                                 is_orga=isinstance(person, Organisation),
                                )
