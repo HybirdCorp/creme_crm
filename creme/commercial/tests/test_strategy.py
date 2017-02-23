@@ -24,13 +24,16 @@ except Exception as e:
 @skipIfCustomStrategy
 class StrategyTestCase(CommercialBaseTestCase):
     def _build_link_segment_url(self, strategy):
-        return '/commercial/strategy/%s/link/segment/' % strategy.id
+        # return '/commercial/strategy/%s/link/segment/' % strategy.id
+        return reverse('commercial__link_segment', args=(strategy.id,))
 
     def _build_edit_segmentdesc_url(self, strategy, segment_desc):
-        return '/commercial/strategy/%s/segment/edit/%s/' % (strategy.id, segment_desc.id)
+        # return '/commercial/strategy/%s/segment/edit/%s/' % (strategy.id, segment_desc.id)
+        return reverse('commercial__edit_segment_desc', args=(strategy.id, segment_desc.id))
 
     def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
-        self.assertPOST200('/commercial/strategy/%s/set_asset_score' % strategy.id,
+        # self.assertPOST200('/commercial/strategy/%s/set_asset_score' % strategy.id,
+        self.assertPOST200(reverse('commercial__set_asset_score', args=(strategy.id,)),
                            data={'model_id':        asset.id,
                                  'segment_desc_id': segment_desc.id,
                                  'orga_id':         orga.id,
@@ -39,7 +42,8 @@ class StrategyTestCase(CommercialBaseTestCase):
                           )
 
     def _set_charm_score(self, strategy, orga, charm, segment_desc, score):
-        self.assertPOST200('/commercial/strategy/%s/set_charm_score' % strategy.id,
+        # self.assertPOST200('/commercial/strategy/%s/set_charm_score' % strategy.id,
+        self.assertPOST200(reverse('commercial__set_charm_score', args=(strategy.id,)),
                            data={'model_id':        charm.id,
                                  'segment_desc_id': segment_desc.id,
                                  'orga_id':         orga.id,
@@ -95,7 +99,8 @@ class StrategyTestCase(CommercialBaseTestCase):
     def test_segment_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
-        url = '/commercial/strategy/%s/add/segment/' % strategy.id
+        # url = '/commercial/strategy/%s/add/segment/' % strategy.id
+        url = reverse('commercial__create_segment_desc', args=(strategy.id,))
         self.assertGET200(url)
 
         name = 'Industry'
@@ -291,7 +296,8 @@ class StrategyTestCase(CommercialBaseTestCase):
     def test_asset_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
-        url = '/commercial/strategy/%s/add/asset/' % strategy.id
+        # url = '/commercial/strategy/%s/add/asset/' % strategy.id
+        url = reverse('commercial__create_asset', args=(strategy.id,))
         self.assertGET200(url)
 
         name = 'Size'
@@ -318,7 +324,8 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(1, strategy.assets.count())
 
         ct = ContentType.objects.get_for_model(CommercialAsset)
-        self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id,
+        # self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id,
+        self.assertPOST200(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                            data={'id': asset.id}, follow=True
                           )
         self.assertFalse(strategy.assets.exists())
@@ -326,7 +333,8 @@ class StrategyTestCase(CommercialBaseTestCase):
     def test_charms_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
-        url = '/commercial/strategy/%s/add/charm/' % strategy.id
+        # url = '/commercial/strategy/%s/add/charm/' % strategy.id
+        url = reverse('commercial__create_charm', args=(strategy.id,))
         self.assertGET200(url)
 
         name = 'Size'
@@ -354,7 +362,8 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(1, strategy.charms.count())
 
         ct = ContentType.objects.get_for_model(MarketSegmentCharm)
-        self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id,
+        # self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id,
+        self.assertPOST200(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                            data={'id': charm.id}, follow=True
                           )
         self.assertFalse(strategy.charms.exists())
@@ -368,23 +377,26 @@ class StrategyTestCase(CommercialBaseTestCase):
         asset = CommercialAsset.objects.create(name='Capital', strategy=strategy)
         charm = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
 
-        url = '/commercial/strategy/%s/add/organisation/' % strategy.id
+        # url = '/commercial/strategy/%s/add/organisation/' % strategy.id
+        url = reverse('commercial__add_evaluated_orgas', args=(strategy.id,))
         self.assertGET200(url)
         self.assertPOST200(url, data={'organisations': '[%d]' % orga.id})
         self.assertEqual([orga], list(strategy.evaluated_orgas.all()))
 
-        response = self.assertGET200('/commercial/strategy/%s/organisation/%s/evaluation' % (
-                                            strategy.id, orga.id
-                                        )
-                                    )
+        # response = self.assertGET200('/commercial/strategy/%s/organisation/%s/evaluation' % (
+        #                                     strategy.id, orga.id
+        #                                 )
+        #                             )
+        response = self.assertGET200(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
         # self.assertTemplateUsed(response, 'commercial/templatetags/widget_score.html') #TODO: do not work ??
         self.assertContains(response, '<select name="asset_score_%s_%s"' % (asset.id, segment_desc.id))
         self.assertContains(response, '<select name="charm_score_%s_%s"' % (charm.id, segment_desc.id))
 
-        response = self.assertGET200('/commercial/strategy/%s/organisation/%s/synthesis'  % (
-                                            strategy.id, orga.id
-                                        )
-                                    )
+        # response = self.assertGET200('/commercial/strategy/%s/organisation/%s/synthesis' % (
+        #                                     strategy.id, orga.id
+        #                                 )
+        #                             )
+        response = self.assertGET200(reverse('commercial__orga_synthesis', args=(strategy.id, orga.id)))
         # self.assertTemplateUsed(response, 'commercial/templatetags/widget_category.html') #TODO: do not work ??
         self.assertContains(response, '<select name="segment_catselect_%s"' % segment_desc.id)
 
@@ -426,8 +438,9 @@ class StrategyTestCase(CommercialBaseTestCase):
         asset_score3 = self.get_object_or_fail(CommercialAssetScore,    organisation=orga1, segment_desc=segment_desc2)
         charm_score3 = self.get_object_or_fail(MarketSegmentCharmScore, organisation=orga1, segment_desc=segment_desc2)
 
-        self.assertPOST200('/commercial/strategy/%s/organisation/delete' % strategy1.id,
-                           data={'id': orga1.id}, follow=True
+        # self.assertPOST200('/commercial/strategy/%s/organisation/delete' % strategy1.id,
+        self.assertPOST200(reverse('commercial__remove_evaluated_orga', args=(strategy1.id,)),
+                           data={'id': orga1.id}, follow=True,
                           )
         self.assertEqual([orga2], list(strategy1.evaluated_orgas.all()))
 
@@ -551,11 +564,12 @@ class StrategyTestCase(CommercialBaseTestCase):
                         )
 
     def _set_segment_category(self, strategy, segment_desc, orga, category):
-        self.assertPOST200('/commercial/strategy/%s/set_segment_cat' % strategy.id,
+        # self.assertPOST200('/commercial/strategy/%s/set_segment_cat' % strategy.id,
+        self.assertPOST200(reverse('commercial__set_segment_category', args=(strategy.id,)),
                            data={'segment_desc_id': segment_desc.id,
                                  'orga_id':         orga.id,
                                  'category':        category,
-                                }
+                                },
                           )
 
     @skipIfCustomOrganisation
@@ -674,7 +688,8 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(2, MarketSegment.objects.count())  # 1 + 'All the organisations'
 
         ct = ContentType.objects.get_for_model(MarketSegmentDescription)
-        self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+        # self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                          data={'id': segment_desc.id}
                         )
         self.assertEqual(0, strategy.segment_info.count())
@@ -717,7 +732,8 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(2, MarketSegmentCategory.objects.count())
 
         ct = ContentType.objects.get_for_model(MarketSegmentDescription)
-        self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+        # self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                          data={'id': industry.id}
                         )
         self.assertEqual(1, MarketSegmentDescription.objects.count())
@@ -770,10 +786,11 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         self._set_asset_score(strategy, orga, asset, segment_desc, 1)
 
-        response = self.assertGET200('/commercial/blocks/assets_matrix/%s/%s/' % (
-                                            strategy.id, orga.id
-                                        )
-                                    )
+        # response = self.assertGET200('/commercial/blocks/assets_matrix/%s/%s/' % (
+        #                                     strategy.id, orga.id
+        #                                 )
+        #                             )
+        response = self.assertGET200(reverse('commercial__reload_assets_matrix', args=(strategy.id, orga.id)))
 
         with self.assertNoException():
             result = load_json(response.content)
@@ -798,10 +815,11 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         self._set_charm_score(strategy, orga, charm, segment_desc, 1)
 
-        response = self.assertGET200('/commercial/blocks/charms_matrix/%s/%s/' % (
-                                            strategy.id, orga.id
-                                        )
-                                    )
+        # response = self.assertGET200('/commercial/blocks/charms_matrix/%s/%s/' % (
+        #                                     strategy.id, orga.id
+        #                                 )
+        #                             )
+        response = self.assertGET200(reverse('commercial__reload_charms_matrix', args=(strategy.id, orga.id)))
 
         with self.assertNoException():
             result = load_json(response.content)
@@ -823,10 +841,11 @@ class StrategyTestCase(CommercialBaseTestCase):
         self._set_asset_score(strategy, orga, asset, segment_desc, 1)
         self._set_charm_score(strategy, orga, charm, segment_desc, 1)
 
-        response = self.assertGET200('/commercial/blocks/assets_charms_matrix/%s/%s/' % (
-                                            strategy.id, orga.id
-                                        )
-                                    )
+        # response = self.assertGET200('/commercial/blocks/assets_charms_matrix/%s/%s/' % (
+        #                                     strategy.id, orga.id
+        #                                 )
+        #                             )
+        response = self.assertGET200(reverse('commercial__reload_assets_charms_matrix', args=(strategy.id, orga.id)))
 
         with self.assertNoException():
             result = load_json(response.content)

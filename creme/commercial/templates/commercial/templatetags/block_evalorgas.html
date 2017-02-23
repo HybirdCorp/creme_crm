@@ -1,12 +1,12 @@
-{% load i18n %}
-{% load creme_core_tags creme_block creme_widgets %}
+{% load i18n creme_core_tags creme_block creme_widgets %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=4 %}
         <th class="label">{% get_block_title _('%s Evaluated organisation') _('%s Evaluated organisations') 'organisation_48.png' _('Organisations') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/commercial/strategy/{{object.id}}/add/organisation/' with_label _("Add some organisations") with_perms has_perm %}
+{#                {% get_line_linker at_url '/commercial/strategy/{{object.id}}/add/organisation/' with_label _("Add some organisations") with_perms has_perm %} #}
+                {% url 'commercial__add_evaluated_orgas' object.id as add_orgas_url %}{% get_line_linker at_url add_orgas_url with_label _('Add some organisations') with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -18,17 +18,20 @@
                 <th class="block_header_line_dark">{% trans "See synthesis" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
+            {% url 'commercial__remove_evaluated_orga' object.id as remove_orga_url %}
             {% for orga in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to view orga as orga_view_perm %}
                     <td class="{{row_color}}">{% widget_entity_hyperlink orga user %}</td>
                     {% if orga_view_perm %}
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            <a href="/commercial/strategy/{{object.id}}/organisation/{{orga.id}}/evaluation">
+{#                            <a href="/commercial/strategy/{{object.id}}/organisation/{{orga.id}}/evaluation"> #}
+                            <a href="{% url 'commercial__orga_evaluation' object.id orga.id %}">
                                 {% trans "Evaluation" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                             </a>
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            <a href="/commercial/strategy/{{object.id}}/organisation/{{orga.id}}/synthesis">
+{#                            <a href="/commercial/strategy/{{object.id}}/organisation/{{orga.id}}/synthesis"> #}
+                            <a href="{% url 'commercial__orga_synthesis' object.id orga.id %}">
                                 {% trans "Synthesis" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                             </a>
                         </td>
@@ -41,7 +44,8 @@
                         </td>
                     {% endif %}
                     <td class="{{row_color}} action">
-                        {% get_line_unlinker at_url '/commercial/strategy/{{object.id}}/organisation/delete' with_args "{'id' : {{orga.id}} }" with_perms has_perm %}
+{#                        {% get_line_unlinker at_url '/commercial/strategy/{{object.id}}/organisation/delete' with_args "{'id' : {{orga.id}} }" with_perms has_perm %} #}
+                        {% get_line_unlinker at_url remove_orga_url with_args "{'id' : {{orga.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

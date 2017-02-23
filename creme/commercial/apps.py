@@ -86,8 +86,10 @@ class CommercialConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
-            reg_item('/commercial/',                         _(u'Portal of commercial strategy'), 'commercial')
-            reg_item('/commercial/market_segments',          _(u'All market segments'),           'commercial')
+            # reg_item('/commercial/',                         _(u'Portal of commercial strategy'), 'commercial')
+            reg_item(reverse('commercial__portal'),          _(u'Portal of commercial strategy'), 'commercial')
+            # reg_item('/commercial/market_segments',          _(u'All market segments'),           'commercial')
+            reg_item(reverse('commercial__list_segments'),   _(u'All market segments'),           'commercial')
             reg_item(reverse('commercial__list_acts'),       _(u'All commercial actions'),        'commercial')
             reg_item(reverse('commercial__create_act'),      Act.creation_label,                  cperm(Act))
             reg_item(reverse('commercial__list_strategies'), _(u'All strategies'),                'commercial')

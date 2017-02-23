@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -28,8 +29,8 @@ class MarketSegment(CremeModel):
     name          = CharField(_(u'Name'), max_length=100)  # TODO: unique ?
     property_type = ForeignKey(CremePropertyType, null=True, editable=False).set_tags(viewable=False)
 
-    creation_label = _('Create a market segment')
-    save_label     = _('Save the market segment')
+    creation_label = _(u'Create a market segment')
+    save_label     = _(u'Save the market segment')
 
     class Meta:
         app_label = 'commercial'
@@ -40,11 +41,13 @@ class MarketSegment(CremeModel):
         return self.name
 
     def get_edit_absolute_url(self):
-        return '/commercial/market_segment/edit/%s' % self.id
+        # return '/commercial/market_segment/edit/%s' % self.id
+        return reverse('commercial__edit_segment', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return '/commercial/market_segments'
+        # return '/commercial/market_segments'
+        return reverse('commercial__list_segments')
 
     @staticmethod
     def generate_property_text(segment_name):

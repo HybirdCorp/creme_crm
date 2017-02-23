@@ -60,9 +60,9 @@ class CommercialApproachTestCase(CremeTestCase):
         return '[{"ctype": {"id": "%s"}, "entity":"%s"}]' % (entity.entity_type_id, entity.id)
 
     def test_createview(self):
-        #self.login()
         entity = CremeEntity.objects.create(user=self.user)
-        url = '/commercial/approach/add/%s/' % entity.id
+        # url = '/commercial/approach/add/%s/' % entity.id
+        url = reverse('commercial__create_approach', args=(entity.id,))
         self.assertGET200(url)
 
         title       = 'TITLE'
@@ -317,7 +317,8 @@ class CommercialApproachTestCase(CremeTestCase):
         "Commercial portal"
         BlockPortalLocation.create(app_name='commercial', block_id=approaches_block.id_, order=100)
 
-        response = self.assertGET200('/commercial/')
+        # response = self.assertGET200('/commercial/')
+        response = self.assertGET200(reverse('commercial__portal'))
         self.assertContains(response, ' id="%s"' % approaches_block.id_)
 
     def _send_mails(self):
