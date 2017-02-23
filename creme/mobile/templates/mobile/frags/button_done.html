@@ -1,4 +1,5 @@
 {% load i18n %}
-<form action="/mobile/phone_call/{{activity.id}}/done" method="POST">{% csrf_token %}
+{# <form action="/mobile/phone_call/{{activity.id}}/done" method="POST">{% csrf_token %} #}
+<form action="{% url 'mobile__pcall_wf_done' activity.id %}" method="POST">{% csrf_token %}
   <input type="submit" class='button' value="{% trans 'This call has already been spent' %}" />
 </form>

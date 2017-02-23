@@ -47,9 +47,9 @@ if (navigator.userAgent.match(/Android/i)) {
 {% endcomment %}
 
   <nav>
-    <a href='/mobile/' class='tab selected-tab'>{% trans 'Home' %}</a>
-    <a href='/mobile/persons' class='tab'>{% trans 'Directory' %}</a>
-    <a href='/mobile/activities' class='tab'>{% trans 'Activities' %}</a>
+    <a href='{% url 'mobile__portal' %}' class='tab selected-tab'>{% trans 'Home' %}</a>
+    <a href='{% url 'mobile__directory' %}' class='tab'>{% trans 'Directory' %}</a>
+    <a href='{% url 'mobile__activities' %}' class='tab'>{% trans 'Activities' %}</a>
   </nav>
 
   <ul class='shortcuts hideable-content'>

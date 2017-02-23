@@ -28,14 +28,14 @@ if (navigator.userAgent.match(/Android/i)) {
 </head>
 <body class='page-form'>
   <section>
-    <form class='form-login{% comment %}form-add form-add-contact{% endcomment %}' method="POST">{% csrf_token %}
+    <form class='form-login' method="POST">{% csrf_token %}
       <div class='form-title'>Creme Mobile - {% trans 'Connection' %}</div>
 
       {% for error in form.non_field_errors %}
         <div class='non-field-error non-field-error-server'>{{error}}</div>
       {% endfor %}
 
-      <input type="hidden" name="{{REDIRECT_FIELD_NAME}}" value="/mobile/" />
+      <input type="hidden" name="{{REDIRECT_FIELD_NAME}}" value="{% url 'mobile__portal' %}" />
 
       <div class="form-field">
         <label for='{{form.username.auto_id}}' class='field-label'>{% trans 'Username' %}</label>

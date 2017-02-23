@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from functools import partial, wraps
 import logging
 
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -67,7 +68,8 @@ WORKED_HOURS = (7, 18)
 
 done_activity_creator = failed_activity_creator = Activity.objects.create
 
-mobile_login_required = partial(login_required, login_url='/mobile/login/')
+# mobile_login_required = partial(login_required, login_url='/mobile/login/')
+mobile_login_required = partial(login_required, login_url='mobile__login')
 
 
 def lw_exceptions(view):
@@ -78,13 +80,13 @@ def lw_exceptions(view):
             return view(request, *args, **kwargs)
         except PermissionDenied as e:
             status = 403
-            msg = _('You do not have access to this page, please contact your administrator.')
+            msg = _(u'You do not have access to this page, please contact your administrator.')
         except Http404 as e:
             status = 404
-            msg = _('The page you have requested is unfoundable.')
+            msg = _(u'The page you have requested is unfoundable.')
         except ConflictError as e:
             status = 409
-            msg = _('You can not perform this action because of business constraints.')
+            msg = _(u'You can not perform this action because of business constraints.')
 
         return render(request, 'mobile/error.html',
                       {'status':    status,
@@ -206,7 +208,8 @@ def abstract_create_contact(request, form=mobile_forms.MobileContactCreateForm,
     last_name = request.GET.get('last_name')
 
     return add_entity(request, form,
-                      url_redirect='/mobile/persons',
+                      # url_redirect='/mobile/persons',
+                      url_redirect=reverse('mobile__directory'),
                       template=template,
                       extra_initial={'last_name': last_name.title()} if last_name else None,
                      )
@@ -225,7 +228,8 @@ def abstract_create_organisation(request, form=mobile_forms.MobileOrganisationCr
     name = request.GET.get('name')
 
     return add_entity(request, form,
-                      url_redirect='/mobile/persons',
+                      # url_redirect='/mobile/persons',
+                      url_redirect=reverse('mobile__directory'),
                       template=template,
                       extra_initial={'name': name.title()} if name else None,
                      )
@@ -280,7 +284,8 @@ def search_person(request):
 
 
 def _get_page_url(request):
-    return request.META.get('HTTP_REFERER', '/mobile/')   # TODO: build_cancel_path() ?
+    # return request.META.get('HTTP_REFERER', '/mobile/')
+    return request.META.get('HTTP_REFERER', reverse('mobile__portal'))  # TODO: build_cancel_path() ?
 
 
 @lw_exceptions

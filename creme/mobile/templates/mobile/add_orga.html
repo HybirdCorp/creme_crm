@@ -29,9 +29,9 @@ if (navigator.userAgent.match(/Android/i)) {
 </head>
 <body class='page-form' onload='checkCallCookies()'>
   <nav>
-    <a href='/mobile/' class='tab'>{% trans 'Home' %}</a>
-    <a href='/mobile/persons' class='tab selected-tab'>{% trans 'Directory' %}</a>
-    <a href='/mobile/activities' class='tab'>{% trans 'Activities' %}</a>
+    <a href='{% url 'mobile__portal' %}' class='tab'>{% trans 'Home' %}</a>
+    <a href='{% url 'mobile__directory' %}' class='tab selected-tab'>{% trans 'Directory' %}</a>
+    <a href='{% url 'mobile__activities' %}' class='tab'>{% trans 'Activities' %}</a>
   </nav>
 
   <section class='hideable-content'>
