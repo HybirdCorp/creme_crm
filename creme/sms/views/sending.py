@@ -54,7 +54,7 @@ def delete(request):
 
     request.user.has_perm_to_change_or_die(campaign)
 
-    sending.delete() #TODO: try/except ??
+    sending.delete()  # TODO: try/except ??
 
     if request.is_ajax():
         return HttpResponse("success", content_type="text/javascript")

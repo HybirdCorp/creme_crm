@@ -22,7 +22,7 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if page.paginator.count %}
+        {% if page.paginator.count %}{% url 'creme_core__delete_related_to_entity' ct_id as delete_url %}
             <tr class="header">
                 <th class="block_header_line_dark">{% trans "Number" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
@@ -31,7 +31,8 @@
                 <tr class="content">
                     <td class="{{row_color}}">{{recipient.phone|formatphone}}</td>
                     <td class="{{row_color}} action">
-                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':{{recipient.pk}} }" with_perms has_perm %}
+{#                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':{{recipient.pk}} }" with_perms has_perm %} #}
+                        {% get_line_deletor at_url delete_url with_args "{'id':{{recipient.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

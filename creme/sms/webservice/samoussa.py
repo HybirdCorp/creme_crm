@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from json import loads
 
 from django.conf import settings
+# from django.core.urlresolvers import reverse
 
 from .backend import WSBackEnd
 
@@ -40,6 +41,7 @@ class SamoussaBackEnd(WSBackEnd):
 
     def delete_messages(self, **kwargs):
         self.delete('/sms/api/message/', **kwargs)
+        # TODO: self.delete(reverse('...'), **kwargs)
 
     def delete_message(self, message):
         self.delete_messages(phone=message.phone, user_data=message.sending_id)
@@ -52,6 +54,7 @@ class SamoussaBackEnd(WSBackEnd):
 
     # curl -u compte21:compte21 --basic --url "http://127.0.0.1:8001/sms/api/piston/message/json?state=accept"
     def list_messages(self, **kwargs):
+        # TODO: reverse('...')
         return loads(self.get('/sms/api/message/json', **kwargs).read())
 
     # curl -u compte21:compte21 --basic --url "http://127.0.0.1:8001/sms/api/piston/message" -F "content=test" -F "phone=0899653355;4577896652;4785556664" -F "user_data=41" -F "accept=True" -X POST
@@ -59,7 +62,9 @@ class SamoussaBackEnd(WSBackEnd):
         if isinstance(numbers, list):
             numbers = ';'.join(numbers)
 
+        # TODO: reverse('...')
         return loads(self.post('/sms/api/message', content=content, phone=numbers, user_data=user_data).read())
 
     def get_account(self):
+        # TODO: reverse('...')
         return loads(self.get('/sms/api/account').read())

@@ -57,7 +57,8 @@ class SMSConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('sms', '/sms/').register_item
-            reg_item('/sms/',                         _(u'Portal of SMS'),         'sms')
+            # reg_item('/sms/',                         _(u'Portal of SMS'),         'sms')
+            reg_item(reverse('sms__portal'),          _(u'Portal of SMS'),         'sms')
             reg_item(reverse('sms__list_campaigns'),  _(u'All campaigns'),         'sms')
             reg_item(reverse('sms__create_campaign'), SMSCampaign.creation_label,  build_creation_perm(SMSCampaign))
             reg_item(reverse('sms__list_mlists'),     _(u'All messaging lists'),   'sms')
