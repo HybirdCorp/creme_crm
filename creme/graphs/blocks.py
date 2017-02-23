@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
@@ -37,9 +38,11 @@ class RootNodesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         graph = context['object']
-        btc = self.get_block_template_context(context, graph.roots.select_related('entity'),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, graph.pk),
-                                             )
+        btc = self.get_block_template_context(
+                    context, graph.roots.select_related('entity'),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, graph.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, graph.id)),
+        )
 
         CremeEntity.populate_real_entities([node.entity for node in btc['page'].object_list])
 
@@ -56,10 +59,12 @@ class OrbitalRelationTypesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         graph = context['object']
-        return self._render(self.get_block_template_context(context,
-                                                            graph.orbital_relation_types.select_related('symmetric_type'),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, graph.pk),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    graph.orbital_relation_types.select_related('symmetric_type'),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, graph.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, graph.id)),
+        ))
 
 
 root_nodes_block     = RootNodesBlock()

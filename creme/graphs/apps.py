@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,8 @@ class GraphsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('graphs', '/graphs/').register_item
-            reg_item('/graphs/',                      _(u'Portal of graphs'), 'graphs')
+            # reg_item('/graphs/',                      _(u'Portal of graphs'), 'graphs')
+            reg_item(reverse('graphs__portal'),       _(u'Portal of graphs'), 'graphs')
             reg_item(reverse('graphs__list_graphs'),  _(u'All graphs'),       'graphs')
             reg_item(reverse('graphs__create_graph'), Graph.creation_label,   build_creation_perm(Graph))
         else:
