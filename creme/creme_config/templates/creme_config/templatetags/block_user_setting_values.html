@@ -17,7 +17,8 @@
                         <td class="{{row_color}}">{{sv_info.description}}</td>
                         <td class="{{row_color}}">{% if sv_info.not_set %}<em>{% trans 'N/A' %}</em>{% else %}{{sv_info.value}}{% endif %}</td>
                         <td class="{{row_color}} action">
-                            {% get_line_editor at_url '/creme_config/my_settings/edit_value/{{sv_info.key_id}}' with_perms 1 %}
+{#                            {% get_line_editor at_url '/creme_config/my_settings/edit_value/{{sv_info.key_id}}' with_perms 1 %} #}
+                            {% url 'creme_config__edit_user_setting' sv_info.key_id as edit_url %}{% get_line_editor at_url edit_url with_perms 1 %}
                         </td>
                     </tr>
                 {% endfor %}

@@ -6,7 +6,7 @@
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
-    {% if conf_perm %}<a href="/creme_config/">{% trans "Configuration" %} > </a>{% endif %}{% trans "Application" %}: {{app_verbose_name}}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% endif %}{% trans "Application" %}: {{app_verbose_name}}
 {% endblock %}
 
 {% block creme_blocks_import %}
@@ -23,7 +23,8 @@
             {% for model_conf in app_config %}
                 <tr class="content">
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">
-                        <a href="/creme_config/{{app_name}}/{{model_conf.name_in_url}}/portal/">{{model_conf.verbose_name}}</a>
+{#                        <a href="/creme_config/{{app_name}}/{{model_conf.name_in_url}}/portal/">{{model_conf.verbose_name}}</a> #}
+                        <a href="{% url 'creme_config__model_portal' app_name model_conf.name_in_url %}">{{model_conf.verbose_name}}</a>
                     </td>
                 </tr>
             {% empty %}

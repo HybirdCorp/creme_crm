@@ -51,14 +51,14 @@ def add(request):
 
 class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
     class _ResourceStep(ButtonMenuAddForm):
-        step_submit_label = _('Select')
+        step_submit_label = _(u'Select')
 
     class _ConfigStep(ButtonMenuEditForm):
-        step_prev_label = _('Previous step')
-        step_submit_label = _('Save the configuration')
+        step_prev_label = _(u'Previous step')
+        step_submit_label = _(u'Save the configuration')
 
     form_list = (_ResourceStep, _ConfigStep)
-    wizard_title = _('New buttons configuration')
+    wizard_title = _(u'New buttons configuration')
     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     permission = 'creme_core.can_admin'
 
@@ -108,7 +108,7 @@ def edit(request, ct_id):
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  buttons_form,
                         'title': title,
-                        'submit_label': _('Save the modifications'),
+                        'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=buttons_form.is_valid(),
                        reload=False,

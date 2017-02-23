@@ -15,17 +15,20 @@
             <td class="{{row_color}}">{% trans "Default configuration" %}</td>
             <td class="{{row_color}}">
                 {% blocktrans count count=default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
-                {% get_line_editor at_url '/creme_config/blocks/detailview/edit/0/default' with_perms admin_perm %}
+{#                {% get_line_editor at_url '/creme_config/blocks/detailview/edit/0/default' with_perms admin_perm %} #}
+                {% url 'creme_config__edit_detailview_blocks' 0 'default' as edit_def_url %}{% get_line_editor at_url edit_def_url with_perms admin_perm %}
             </td>
         </tr>
         {% if page.paginator.count %}
+            {% url 'creme_config__delete_detailview_blocks' as delete_url %}
             {% for ctw in page.object_list %}{% cycle row_color %}
                 {% with ct=ctw.ctype %}
                     <tr class="content">
                         <td class="{{row_color}} blocks-conf-ctype">{{ct}}</td>
                         <td class="{{row_color}} blocks-conf-info">
                             {% if ctw.locations_info|length < max_conf_count %}
-                                {% get_line_adder at_url '/creme_config/blocks/detailview/add/{{ct.id}}' with_label _('Create for a role') with_perms admin_perm %}
+{#                                {% get_line_adder at_url '/creme_config/blocks/detailview/add/{{ct.id}}' with_label _('Create for a role') with_perms admin_perm %} #}
+                                {% url 'creme_config__create_detailviews_blocks' ct.id as create_url %}{% get_line_adder at_url create_url with_label _('Create for a role') with_perms admin_perm %}
                             {% endif %}
                             <ul>
                                 {% with block_count=ctw.default_count %}
@@ -36,9 +39,11 @@
                                         {% else %}
                                             <em>{% trans "(uses the default blocks configuration)" %}</em>
                                         {% endif %}
-                                        {% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}/default' with_perms admin_perm %}
+{#                                        {% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}/default' with_perms admin_perm %} #}
+                                        {% url 'creme_config__edit_detailview_blocks' ct.id 'default' as edit_url %}{% get_line_editor at_url edit_url with_perms admin_perm %}
                                         {% if block_count %}
-                                            {% get_line_deletor at_url '/creme_config/blocks/detailview/delete' with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %}
+{#                                            {% get_line_deletor at_url '/creme_config/blocks/detailview/delete' with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %} #}
+                                            {% get_line_deletor at_url delete_url with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %}
                                         {% endif %}
                                     </li>
                                 {% endwith %}
@@ -46,8 +51,10 @@
                                     <li>
                                         {% if role_arg == 'superuser' %}<em>{{role_label}}</em>{% else %}{{role_label}}{% endif %} :
                                         {% blocktrans count count=block_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
-                                        {% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}/{{role_arg}}' with_perms admin_perm %}
-                                        {% get_line_deletor at_url '/creme_config/blocks/detailview/delete' with_args "{'id': '{{ct.id}}', 'role': '{{role_arg}}'}" with_perms admin_perm %}
+{#                                        {% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}/{{role_arg}}' with_perms admin_perm %} #}
+                                        {% url 'creme_config__edit_detailview_blocks' ct.id role_arg as edit_role_url %}{% get_line_editor at_url edit_role_url with_perms admin_perm %}
+{#                                        {% get_line_deletor at_url '/creme_config/blocks/detailview/delete' with_args "{'id': '{{ct.id}}', 'role': '{{role_arg}}'}" with_perms admin_perm %} #}
+                                        {% get_line_deletor at_url delete_url with_args "{'id': '{{ct.id}}', 'role': '{{role_arg}}'}" with_perms admin_perm %}
                                     </li>
                                 {% endfor %}
                             </ul>

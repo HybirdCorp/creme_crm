@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
@@ -36,7 +37,8 @@ def edit(request):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/creme_config/')
+            # return HttpResponseRedirect('/creme_config/')
+            return HttpResponseRedirect(reverse('creme_config__portal'))
     else:
         form = PreferedMenuForm(user2edit=None, user=request.user)
 
@@ -63,7 +65,7 @@ def edit_mine(request):
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
                         'title': _(u'Edit my preferred menus'),
-                        'submit_label': _('Save the modifications'),
+                        'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,

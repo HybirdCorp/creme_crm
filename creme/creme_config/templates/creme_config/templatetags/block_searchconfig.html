@@ -12,32 +12,34 @@
                 <th class="block_header_line_light">{% trans "Type" %}</th>
                 <th class="block_header_line_light">{% trans "Configuration" %}</th>
             </tr>
+            {% url 'creme_config__delete_search_config' as delete_url %}
             {% for ctw in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}} search-conf-ctype">{{ctw.ctype}}</td>
                     <td class="{{row_color}} search-conf-info">
                         {% if ctw.sc_items|length < max_conf_count %}
                             {% with add_label=ctw.ctype|format:_("New search configuration for «%s»")%}
-                                {% get_line_adder at_url '/creme_config/search/add/{{ctw.ctype.id}}' with_label add_label with_perms admin_perm %}
+{#                                {% get_line_adder at_url '/creme_config/search/add/{{ctw.ctype.id}}' with_label add_label with_perms admin_perm %} #}
+                                {% url 'creme_config__create_search_config' ctw.ctype.id as create_url %}{% get_line_adder at_url create_url with_label add_label with_perms admin_perm %}
                             {% endwith %}
                         {% endif %}
                         <ul>
                             {% for sc_item in ctw.sc_items %}
                                 <li>{% if sc_item.role %}{{sc_item.role}}{% elif sc_item.superuser %}<em>{% trans "Superuser" %}</em>{% else %}<em>{% trans "Default configuration" %}</em>{% endif %}:
-{% comment %}                       {{sc_item.user|default:_("Default configuration")}}:{% endcomment %}
                                     {% if sc_item.disabled %}
-                                        <em>{% trans  "Search is disabled" %}</em>
+                                        <em>{% trans "Search is disabled" %}</em>
                                     {% elif sc_item.all_fields %}
-                                        <em>{% trans  "All fields" %}</em>
+                                        <em>{% trans "All fields" %}</em>
                                     {% else %}
                                         {{sc_item.searchfields|join:" / "}}
                                     {% endif %}
 
-                                    {% get_line_editor at_url '/creme_config/search/edit/{{sc_item.id}}' with_perms admin_perm %}
+{#                                    {% get_line_editor at_url '/creme_config/search/edit/{{sc_item.id}}' with_perms admin_perm %} #}
+                                    {% url 'creme_config__edit_search_config' sc_item.id as edit_url %}{% get_line_editor at_url edit_url with_perms admin_perm %}
 
-{% comment %}                       {% if sc_item.user %}{% endcomment %}
                                     {% if not sc_item.is_default %}
-                                        {% get_line_deletor at_url '/creme_config/search/delete' with_args "{'id': '{{sc_item.id}}'}" with_perms admin_perm %}
+{#                                        {% get_line_deletor at_url '/creme_config/search/delete' with_args "{'id': '{{sc_item.id}}'}" with_perms admin_perm %} #}
+                                        {% get_line_deletor at_url delete_url with_args "{'id': '{{sc_item.id}}'}" with_perms admin_perm %}
                                     {% endif %}
                                 </li>
                             {% endfor %}

@@ -9,7 +9,8 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_dark" colspan="2">
-                {% block edition %}{% get_line_adder at_url '/creme_config/blocks/mypage/edit/default' with_label _("Edit blocks configuration") with_perms admin_perm %}{% endblock %}
+{#                {% block edition %}{% get_line_adder at_url '/creme_config/blocks/mypage/edit/default' with_label _("Edit blocks configuration") with_perms admin_perm %}{% endblock %} #}
+                {% block edition %}{% url 'creme_config__edit_default_mypage_blocks' as edit_def_url %}{% get_line_adder at_url edit_def_url with_label _("Edit blocks configuration") with_perms admin_perm %}{% endblock %}
             </th>
         </tr>
         {% if page.paginator.count %}

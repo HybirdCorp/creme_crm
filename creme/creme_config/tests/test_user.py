@@ -7,6 +7,7 @@ try:
 
     from django.conf import settings
     from django.contrib.sessions.models import Session
+    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils import timezone as django_tz
     from django.utils.translation import ugettext as _
@@ -37,8 +38,10 @@ def skipIfNotCremeUser(test_func):
 
 @skipIfCustomOrganisation
 class UserTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/user/add/'
-    ADD_TEAM_URL = '/creme_config/team/add/'
+    # ADD_URL = '/creme_config/user/add/'
+    ADD_URL = reverse('creme_config__create_user')
+    # ADD_TEAM_URL = '/creme_config/team/add/'
+    ADD_TEAM_URL = reverse('creme_config__create_team')
 
     # @classmethod
     # def setUpClass(cls):
@@ -46,20 +49,29 @@ class UserTestCase(CremeTestCase):
     #     cls.populate('creme_core', 'persons')
 
     def _build_delete_url(self, user):
-        return '/creme_config/user/delete/%s' % user.id
+        # return '/creme_config/user/delete/%s' % user.id
+        return reverse('creme_config__delete_user', args=(user.id,))
 
     def _build_edit_url(self, user_id, password=None):
-        return '/creme_config/user/edit/%s%s' % ('password/' if password else '', user_id)
+        # return '/creme_config/user/edit/%s%s' % ('password/' if password else '', user_id)
+        return reverse('creme_config__change_user_password' if password else 'creme_config__edit_user',
+                       args=(user_id,)
+                      )
 
-    def _build_activation_url(self, user_id, activation):
-        return '/creme_config/user/%s/%s' % (activation, user_id)
+    # def _build_activation_url(self, user_id, activation):
+    def _build_activation_url(self, user_id, activation=True):
+        # return '/creme_config/user/%s/%s' % (activation, user_id)
+        return reverse('creme_config__activate_user' if activation else 'creme_config__deactivate_user',
+                       args=(user_id,)
+                      )
 
     def login_not_as_superuser(self):
         apps = ('creme_config',)
         return self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
     def _aux_test_portal(self):
-        response = self.assertGET200('/creme_config/user/portal/')
+        # response = self.assertGET200('/creme_config/user/portal/')
+        response = self.assertGET200(reverse('creme_config__users'))
         self.assertContains(response, 'id="%s"' % UsersBlock.id_)
         self.assertContains(response, 'id="%s"' % TeamsBlock.id_)
 
@@ -499,15 +511,18 @@ class UserTestCase(CremeTestCase):
         "Not superuser"
         self.login_not_as_superuser()
         other_user = User.objects.create(username='deunan')
-        url = partial(self._build_activation_url, other_user.id)
-        self.assertGET403(url('deactivate'))
-        self.assertGET403(url('activate'))
+        # url = partial(self._build_activation_url, other_user.id)
+        # self.assertGET403(url('deactivate'))
+        # self.assertGET403(url('activate'))
+        self.assertGET403(self._build_activation_url(other_user.id, activation=False))
+        self.assertGET403(self._build_activation_url(other_user.id, activation=True))
 
     @skipIfNotCremeUser
     def test_user_activation02(self):
         "Post only & Current user"
         user = self.login()
-        url = self._build_activation_url(user.id, 'deactivate')
+        # url = self._build_activation_url(user.id, 'deactivate')
+        url = self._build_activation_url(user.id, activation=False)
         self.assertGET404(url)
         self.assertPOST409(url)
 
@@ -516,18 +531,22 @@ class UserTestCase(CremeTestCase):
         "user is staff"
         self.login()
         other_user = User.objects.create(username='deunan', is_staff=True)
-        url = partial(self._build_activation_url, other_user.id)
-        self.assertPOST(400, url('activate'))
-        self.assertPOST(400, url('deactivate'))
+        # url = partial(self._build_activation_url, other_user.id)
+        # self.assertPOST(400, url('activate'))
+        # self.assertPOST(400, url('deactivate'))
+        self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
+        self.assertPOST(400, self._build_activation_url(other_user.id, activation=False))
 
     @skipIfNotCremeUser
     def test_user_activation04(self):
         "user is staff"
         self.login()
         other_user = User.objects.create(username='deunan', is_staff=True)
-        url = partial(self._build_activation_url, other_user.id)
-        self.assertPOST(400, url('activate'))
-        self.assertPOST(400, url('deactivate'))
+        # url = partial(self._build_activation_url, other_user.id)
+        # self.assertPOST(400, url('activate'))
+        # self.assertPOST(400, url('deactivate'))
+        self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
+        self.assertPOST(400, self._build_activation_url(other_user.id, activation=False))
 
     @skipIfNotCremeUser
     def test_user_activation05(self):
@@ -536,9 +555,11 @@ class UserTestCase(CremeTestCase):
         other_user = User.objects.create(username='deunan')
         url = partial(self._build_activation_url, other_user.id)
 
-        self.assertPOST200(url('deactivate'))
+        # self.assertPOST200(url('deactivate'))
+        self.assertPOST200(self._build_activation_url(other_user.id, activation=False))
         self.assertFalse(self.refresh(other_user).is_active)
-        self.assertPOST200(url('activate'))
+        # self.assertPOST200(url('activate'))
+        self.assertPOST200(self._build_activation_url(other_user.id, activation=True))
         self.assertTrue(self.refresh(other_user).is_active)
 
     @skipIfNotCremeUser
@@ -629,7 +650,8 @@ class UserTestCase(CremeTestCase):
         user02 = create_user('Yokiji',  'yokiji@century.jp')
         user03 = create_user('Koizumi', 'koizumi@century.jp')
 
-        self.assertGET404('/creme_config/team/edit/%s' % user01.id)
+        # self.assertGET404('/creme_config/team/edit/%s' % user01.id)
+        self.assertGET404(reverse('creme_config__edit_team', args=(user01.id,)))
 
         teamname = 'Teamee'
         team = self._create_team(teamname, [user01, user02])
@@ -639,7 +661,8 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(user02.has_perm_to_view(entity))
         self.assertFalse(user03.has_perm_to_view(entity))
 
-        url = '/creme_config/team/edit/%s' % team.id
+        # url = '/creme_config/team/edit/%s' % team.id
+        url = reverse('creme_config__edit_team', args=(team.id,))
         self.assertGET200(url)
 
         teamname += '_edited'
@@ -682,7 +705,8 @@ class UserTestCase(CremeTestCase):
         teamname = 'Teamee'
         team = self._create_team(teamname, [user01, user02])
 
-        url = '/creme_config/team/edit/%s' % team.id
+        # url = '/creme_config/team/edit/%s' % team.id
+        url = reverse('creme_config__edit_team', args=(team.id,))
         self.assertGET403(url)
         self.assertPOST403(url, data={'username':  teamname,
                                       'teammates': [user02.id],
@@ -694,10 +718,10 @@ class UserTestCase(CremeTestCase):
         self.login()
 
         user = User.objects.create_user(username='Shogun',
-                                             first_name='Choji', last_name='Ochiai',
-                                             email='shogun@century.jp',
-                                             password='uselesspw',
-                                            )
+                                        first_name='Choji', last_name='Ochiai',
+                                        email='shogun@century.jp',
+                                        password='uselesspw',
+                                       )
         team = self._create_team('Teamee', [])
 
         url = self._build_delete_url(team)
@@ -903,7 +927,8 @@ class UserSettingsTestCase(CremeTestCase):
         self._registered_skey.extend(skeys)
 
     def test_user_settings(self):
-        response = self.assertGET200('/creme_config/my_settings/')
+        # response = self.assertGET200('/creme_config/my_settings/')
+        response = self.assertGET200(reverse('creme_config__user_settings'))
 
         if settings.OLD_MENU:
             self.assertContains(response, 'id="%s"' % UserPreferedMenusBlock.id_)
@@ -919,7 +944,8 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertEqual(settings.THEMES[0][0], user.theme)
 
         def change_theme(theme):
-            self.assertPOST200('/creme_config/my_settings/set_theme/', data={'theme': theme})
+            # self.assertPOST200('/creme_config/my_settings/set_theme/', data={'theme': theme})
+            self.assertPOST200(reverse('creme_config__set_user_theme'), data={'theme': theme})
 
             # svalues = SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME)
             # self.assertEqual(1, len(svalues))
@@ -996,7 +1022,8 @@ class UserSettingsTestCase(CremeTestCase):
             self.client.get('/')
             self.assertFalse(inner['called'])
 
-            url = '/creme_config/my_settings/set_timezone/'
+            # url = '/creme_config/my_settings/set_timezone/'
+            url = reverse('creme_config__set_user_timezone')
 
             def assertSelected(selected_tz):
                 response = self.assertGET200(url)
@@ -1044,7 +1071,8 @@ class UserSettingsTestCase(CremeTestCase):
             django_tz.activate = original_activate
 
     def _build_edit_user_svalue_url(self, setting_key):
-        return '/creme_config/my_settings/edit_value/%s' % setting_key.id
+        # return '/creme_config/my_settings/edit_value/%s' % setting_key.id
+        return reverse('creme_config__edit_user_setting', args=(setting_key.id,))
 
     def test_edit_user_setting_value01(self):
         user = self.user

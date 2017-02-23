@@ -2,6 +2,7 @@
 
 try:
     from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.core.setting_key import SettingKey, setting_key_registry
@@ -10,22 +11,19 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-# TODO: clean registry in teardDown....
+# TODO: clean registry in teardDown...
 class SettingTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core')
+    # def setUp(self):
+    #     self.populate('creme_core')
 
     def _buil_edit_url(self, setting_value):
-        return '/creme_config/settings/edit/%s' % setting_value.id
+        # return '/creme_config/settings/edit/%s' % setting_value.id
+        return reverse('creme_config__edit_setting', args=(setting_value.id,))
 
     def test_edit_string(self):
         self.login()
 
-        #sk = SettingKey.objects.create(pk='persons-title', description=u"Page title",
-                                       #app_label='persons', type=SettingKey.STRING,
-                                       #hidden=False,
-                                      #)
-        sk = SettingKey(id='persons-test_edit_string', description=u"Page title",
+        sk = SettingKey(id='persons-test_edit_string', description=u'Page title',
                         app_label='persons', type=SettingKey.STRING, hidden=False,
                        )
         setting_key_registry.register(sk)
@@ -43,9 +41,6 @@ class SettingTestCase(CremeTestCase):
     def test_edit_int(self):
         self.login()
 
-        #sk = SettingKey.objects.create(pk='persons-size', description=u"Page size",
-                                       #app_label='persons', type=SettingKey.INT,
-                                      #)
         sk = SettingKey(id='persons-test_edit_int', description=u"Page size",
                         app_label='persons', type=SettingKey.INT,
                        )
@@ -61,10 +56,6 @@ class SettingTestCase(CremeTestCase):
     def test_edit_bool(self):
         self.login()
 
-        #sk = SettingKey.objects.create(pk='persons-display_logo',
-                                       #description=u"Display logo ?",
-                                       #app_label='persons', type=SettingKey.BOOL,
-                                      #)
         sk = SettingKey(id='persons-test_edit_bool', description=u"Display logo ?",
                         app_label='persons', type=SettingKey.BOOL,
                        )
@@ -78,10 +69,6 @@ class SettingTestCase(CremeTestCase):
     def test_edit_hour(self):
         self.login()
 
-        #sk = SettingKey.objects.create(pk='persons-reminder_hour',
-                                       #description='Reminder hour',
-                                       #app_label='persons', type=SettingKey.HOUR,
-                                      #)
         sk = SettingKey(id='persons-test_edit_hour', description='Reminder hour',
                         app_label='persons', type=SettingKey.HOUR,
                        )
@@ -135,11 +122,6 @@ class SettingTestCase(CremeTestCase):
         "Hidden => not editable (value=True)"
         self.login()
 
-        #sk = SettingKey.objects.create(pk='persons-display_logo',
-                                       #description=u"Display logo ?",
-                                       #app_label='persons', type=SettingKey.BOOL,
-                                       #hidden=True,
-                                      #)
         sk = SettingKey(id='persons-test_edit_hidden01', description=u"Display logo ?",
                         app_label='persons', type=SettingKey.BOOL, hidden=True,
                        )
@@ -150,17 +132,12 @@ class SettingTestCase(CremeTestCase):
 
     def test_edit_hidden02(self):
         "Hidden => not editable (value=False)"
-        self.login()
+        user = self.login()
 
-        #sk = SettingKey.objects.create(pk='persons-display_logo',
-                                       #description=u"Display logo ?",
-                                       #app_label='persons', type=SettingKey.BOOL,
-                                       #hidden=False,
-                                      #)
         sk = SettingKey(id='persons-test_edit_hidden02', description=u"Display logo ?",
                         app_label='persons', type=SettingKey.BOOL, hidden=False,
                        )
         setting_key_registry.register(sk)
 
-        sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
+        sv = SettingValue.objects.create(key=sk, user=user, value=True)
         self.assertGET404(self._buil_edit_url(sv))

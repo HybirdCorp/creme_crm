@@ -10,7 +10,8 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_dark" colspan="{{colspan}}">
-                {% get_line_adder at_url '/creme_config/{{app_name}}/{{model_name}}/add/' with_label _("New value") with_perms 1 %}
+{#                {% get_line_adder at_url '/creme_config/{{app_name}}/{{model_name}}/add/' with_label _("New value") with_perms 1 %} #}
+                {% url 'creme_config__create_instance' app_name model_name as create_url %}{% get_line_adder at_url create_url with_label _('New value') with_perms 1 %}
             </th>
         </tr>
         {% with page.paginator.count as total_count %}
@@ -27,6 +28,7 @@
                     <th class="block_header_line_light action">{% trans "Edit" %}</th>
                     <th class="block_header_line_light action">{% trans "Delete" %}</th>
                 </tr>
+                {% url 'creme_config__delete_instance' app_name model_name as delete_url %}
                 {% for object in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
                         {% for f in fields %}
@@ -36,12 +38,14 @@
                                         <td class="{{row_color}}" align="center" valign="middle">
                                             {% with object.order as order %}
                                                 {% if order != 1 %}
-                                                    <a style="display: block;" onclick="creme.blocks.ajaxPOSTQuery('/creme_config/{{app_name}}/{{model_name}}/up/{{object.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start();">
+{#                                                    <a style="display: block;" onclick="creme.blocks.ajaxPOSTQuery('/creme_config/{{app_name}}/{{model_name}}/up/{{object.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start();"> #}
+                                                    <a style="display: block;" onclick="creme.blocks.ajaxPOSTQuery('{% url 'creme_config__move_instance_up' app_name model_name object.id %}', {blockReloadUrl: {% get_block_reload_uri %}}).start();">
                                                         {% trans "Move up" as img_title %}<img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                                                     </a>
                                                 {% endif %}
                                                 {% if order != total_count %}
-                                                    <a onclick="creme.blocks.ajaxPOSTQuery('/creme_config/{{app_name}}/{{model_name}}/down/{{object.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start();">
+{#                                                    <a onclick="creme.blocks.ajaxPOSTQuery('/creme_config/{{app_name}}/{{model_name}}/down/{{object.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start();"> #}
+                                                    <a onclick="creme.blocks.ajaxPOSTQuery('{% url 'creme_config__move_instance_down' app_name model_name object.id %}', {blockReloadUrl: {% get_block_reload_uri %}}).start();">
                                                         {% trans "Move down" as img_title %}<img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                                                     </a>
                                                 {% endif %}
@@ -57,10 +61,12 @@
                             <td class="{{row_color}}">{% print_field object=object field=f.name %}</td>
                         {% endfor %}
                         <td class="{{row_color}} action">
-                            {% get_line_editor at_url '/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}' with_perms 1 %}
+{#                            {% get_line_editor at_url '/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}' with_perms 1 %} #}
+                            {% url 'creme_config__edit_instance' app_name model_name object.id as edit_url %}{% get_line_editor at_url edit_url with_perms 1 %}
                         </td>
                         <td class="{{row_color}} action">
                             {% if object|is_custom %}
+{#                                {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" with_perms 1 %} #}
                                 {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" with_perms 1 %}
                             {% else %}
                                 <em>{% trans "(no deletable)" %}</em>

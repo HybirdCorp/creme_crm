@@ -1,9 +1,8 @@
 {% extends "creme_config/portal.html" %}
-{% load i18n %}
-{% load creme_block %}
+{% load i18n creme_block %}
 
 {% block title %}
-    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Users" %}
+    <a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% trans "Users" %}
 {% endblock %}
 
 {% block before_statistics %}

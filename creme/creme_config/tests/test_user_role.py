@@ -4,6 +4,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -22,9 +23,12 @@ except Exception as e:
 
 
 class UserRoleTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/role/add/'
-    WIZARD_URL = '/creme_config/role/wizard/'
-    DEL_CREDS_URL = '/creme_config/role/delete_credentials'
+    # ADD_URL = '/creme_config/role/add/'
+    ADD_URL = reverse('creme_config__create_role_legacy')
+    # WIZARD_URL = '/creme_config/role/wizard/'
+    WIZARD_URL = reverse('creme_config__create_role')
+    # DEL_CREDS_URL = '/creme_config/role/delete_credentials'
+    DEL_CREDS_URL = reverse('creme_config__remove_role_credentials')
 
     # @classmethod
     # def setUpClass(cls):
@@ -32,20 +36,24 @@ class UserRoleTestCase(CremeTestCase):
     #     cls.populate('creme_core')
 
     def _build_add_creds_url(self, role):
-        return '/creme_config/role/add_credentials/%s' % role.id
+        # return '/creme_config/role/add_credentials/%s' % role.id
+        return reverse('creme_config__add_credentials_to_role', args=(role.id,))
 
     def _build_wizard_edit_url(self, role):
-        return '/creme_config/role/wizard/%s' % role.id
+        # return '/creme_config/role/wizard/%s' % role.id
+        return reverse('creme_config__edit_role', args=(role.id,))
 
     def _build_del_role_url(self, role):
-        return '/creme_config/role/delete/%s' % role.id
+        # return '/creme_config/role/delete/%s' % role.id
+        return reverse('creme_config__delete_role', args=(role.id,))
 
     def login_not_as_superuser(self):
         apps = ('creme_config',)
         self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
     def _aux_test_portal(self):
-        response = self.assertGET200('/creme_config/role/portal/')
+        # response = self.assertGET200('/creme_config/role/portal/')
+        response = self.assertGET200(reverse('creme_config__roles'))
         self.assertContains(response, 'id="%s"' % UserRolesBlock.id_)
 
     def test_portal01(self):
@@ -348,7 +356,8 @@ class UserRoleTestCase(CremeTestCase):
                                               value=EntityCredentials.VIEW,
                                              )
 
-        url = '/creme_config/role/edit_credentials/%s' % creds.id
+        # url = '/creme_config/role/edit_credentials/%s' % creds.id
+        url = reverse('creme_config__edit_role_credentials', args=(creds.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -420,7 +429,8 @@ class UserRoleTestCase(CremeTestCase):
         contact    = FakeContact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
         self.assertFalse(other_user.has_perm_to_view(contact))  # role.allowed_apps does not contain 'persons'
 
-        url = '/creme_config/role/edit/%s' % role.id
+        # url = '/creme_config/role/edit/%s' % role.id
+        url = reverse('creme_config__edit_role_legacy', args=(role.id,))
         self.assertGET200(url)
 
         name   = role.name + '_edited'
@@ -459,7 +469,8 @@ class UserRoleTestCase(CremeTestCase):
         self.login_not_as_superuser()
 
         role = UserRole.objects.create(name='CEO')
-        url = '/creme_config/role/edit/%s' % role.id
+        # url = '/creme_config/role/edit/%s' % role.id
+        url = reverse('creme_config__edit_role_legacy', args=(role.id,))
         self.assertGET403(url)
         self.assertPOST403(url, data={'name':              role.name,
                                       'creatable_ctypes':  [],

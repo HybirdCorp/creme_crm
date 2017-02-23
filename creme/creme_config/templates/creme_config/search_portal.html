@@ -3,7 +3,7 @@
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
-    {% if conf_perm %}<a href="/creme_config/">{% trans "Configuration" %} > </a>{% endif %}{% trans "Search in Creme" %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% endif %}{% trans "Search in Creme" %}
 {% endblock %}
 
 {% block before_statistics %}

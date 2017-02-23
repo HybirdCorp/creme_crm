@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.forms.models import ModelChoiceField
 
 from .widgets import CreatorModelChoiceWidget
@@ -58,7 +59,8 @@ class CreatorModelChoiceField(ModelChoiceField):
                 except (KeyError, NotRegisteredInConfig):
                     allowed = False
                 else:
-                    url = '/creme_config/%s/%s/add_widget/' % (app_name, model_name)
+                    # url = '/creme_config/%s/%s/add_widget/' % (app_name, model_name)
+                    url = reverse('creme_config__create_instance_from_widget', args=(app_name, model_name))
 
         return url, allowed
 

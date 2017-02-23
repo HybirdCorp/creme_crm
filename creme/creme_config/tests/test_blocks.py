@@ -4,14 +4,13 @@ try:
     from functools import partial
 
     from django.conf import settings
-    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeAddress as Address, FakeImage as Image,
-            FakeActivity as Activity, FakeEmailCampaign as EmailCampaign, FakeInvoiceLine)
-    from creme.creme_core.registry import creme_registry
+    from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeAddress,
+            FakeImage, FakeActivity, FakeEmailCampaign, FakeInvoiceLine)
     from creme.creme_core.blocks import (relations_block, properties_block,
             history_block, customfields_block)
     from creme.creme_core.constants import MODELBLOCK_ID
@@ -21,6 +20,7 @@ try:
     from creme.creme_core.models import RelationType, CustomField, FieldsConfig, UserRole
     from creme.creme_core.models.block import (BlockDetailviewLocation, InstanceBlockConfigItem,
             BlockPortalLocation, BlockMypageLocation, RelationBlockItem, CustomBlockConfigItem)
+    from creme.creme_core.registry import creme_registry
 
     from creme.creme_config import blocks
 except Exception as e:
@@ -124,10 +124,13 @@ class PortalInstanceBlock(Block):
 
 # Test case --------------------------------------------------------------------
 class BlocksConfigTestCase(CremeTestCase):
-    DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'
+    # DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'
+    DEL_DETAIL_URL = reverse('creme_config__delete_detailview_blocks')
     # RELATION_WIZARD_URL = '/creme_config/blocks/relation_block/wizard'
-    PORTAL_WIZARD_URL = '/creme_config/blocks/portal/wizard'
-    CUSTOM_WIZARD_URL = '/creme_config/blocks/custom/wizard'
+    # PORTAL_WIZARD_URL = '/creme_config/blocks/portal/wizard'
+    PORTAL_WIZARD_URL = reverse('creme_config__create_portal_blocks')
+    # CUSTOM_WIZARD_URL = '/creme_config/blocks/custom/wizard'
+    CUSTOM_WIZARD_URL = reverse('creme_config__create_custom_block')
 
     @classmethod
     def setUpClass(cls):
@@ -186,29 +189,40 @@ class BlocksConfigTestCase(CremeTestCase):
         self.login()
 
     def _build_adddetail_url(self, ct):
-        return '/creme_config/blocks/detailview/add/%s' % ct.id
+        # return '/creme_config/blocks/detailview/add/%s' % ct.id
+        return reverse('creme_config__create_detailviews_blocks', args=(ct.id,))
 
     def _build_editdetail_url(self, ct=None, role=None, superuser=False):
-        return '/creme_config/blocks/detailview/edit/%(ctype)s/%(role)s' % {
-                    'ctype': ct.id if ct else 0,
-                    'role':  'superuser' if superuser else
-                             role.id if role
-                             else 'default',
-                }
+        # return '/creme_config/blocks/detailview/edit/%(ctype)s/%(role)s' % {
+        #             'ctype': ct.id if ct else 0,
+        #             'role':  'superuser' if superuser else
+        #                      role.id if role
+        #                      else 'default',
+        #         }
+        return reverse('creme_config__edit_detailview_blocks', args=(
+            ct.id if ct else 0,
+            'superuser' if superuser else role.id if role else 'default',
+        ))
 
     def _build_rblock_addctypes_url(self, rbi):
-        return '/creme_config/blocks/relation_block/add_ctypes/%s' % rbi.id
+        # return '/creme_config/blocks/relation_block/add_ctypes/%s' % rbi.id
+        return reverse('creme_config__add_ctype_config_to_rtype_block', args=(rbi.id,))
 
     def _build_rblock_addctypes_wizard_url(self, rbi):
-        return '/creme_config/blocks/relation_block/%s/wizard' % rbi.id
+        # return '/creme_config/blocks/relation_block/%s/wizard' % rbi.id
+        return reverse('creme_config__add_cells_to_rtype_block', args=(rbi.id,))
 
     def _build_rblock_editctype_url(self, rbi, model):
-        return '/creme_config/blocks/relation_block/%s/edit_ctype/%s' % (
+        # return '/creme_config/blocks/relation_block/%s/edit_ctype/%s' % (
+        #             rbi.id, ContentType.objects.get_for_model(model).id,
+        #         )
+        return reverse('creme_config__edit_cells_of_rtype_block', args=(
                     rbi.id, ContentType.objects.get_for_model(model).id,
-                )
+                ))
 
     def _build_customblock_edit_url(self, cbc_item):
-        return '/creme_config/blocks/custom/edit/%s' % cbc_item.id
+        # return '/creme_config/blocks/custom/edit/%s' % cbc_item.id
+        return reverse('creme_config__edit_custom_block', args=(cbc_item.id,))
 
     def _find_field_index(self, formfield, name):
         for i, (fname, fvname) in enumerate(formfield.choices):
@@ -230,7 +244,8 @@ class BlocksConfigTestCase(CremeTestCase):
         self.fail('No "%s" in locations' % block_id)
 
     def test_portal(self):
-        response = self.assertGET200('/creme_config/blocks/portal/')
+        # response = self.assertGET200('/creme_config/blocks/portal/')
+        response = self.assertGET200(reverse('creme_config__blocks'))
 
         fmt = 'id="%s"'
         self.assertContains(response, fmt % blocks.BlockDetailviewLocationsBlock.id_)
@@ -244,7 +259,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertContains(response, fmt % blocks.CustomBlocksConfigBlock.id_)
 
     def _aux_test_add_detailview(self, role=None, superuser=False):
-        model = Contact
+        model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
         url = self._build_adddetail_url(ct)
@@ -334,7 +349,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_add_detailview03(self):
         "Used roles are not proposed anymore"
-        model = Contact
+        model = FakeContact
         ct = ContentType.objects.get_for_model(model)
         url = self._build_adddetail_url(ct)
 
@@ -383,14 +398,14 @@ class BlocksConfigTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
 
         build_url = self._build_adddetail_url
-        self.assertGET404(build_url(get_ct(Address))) # Not a CremeEntity
+        self.assertGET404(build_url(get_ct(FakeAddress))) # Not a CremeEntity
 
         model = FakeInvoiceLine
         self.assertIn(model, creme_registry.iter_entity_models())
         self.assertGET404(build_url(get_ct(model)))
 
     def _aux_test_edit_detailview(self, role=None, superuser=False):
-        model = Contact
+        model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
         url = self._build_editdetail_url(ct, role, superuser)
@@ -477,7 +492,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_detailview01(self):
         "Default configuration of a ContentType"
-        model = Contact
+        model = FakeContact
         ct = ContentType.objects.get_for_model(model)
         block_id = list(block_registry.get_compatible_blocks(model))[0].id_
 
@@ -509,7 +524,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_detailview04(self):
         "When no block -> fake block"
-        model = Contact
+        model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
         blocks = list(block_registry.get_compatible_blocks(model))
@@ -606,7 +621,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_detailview06(self):
         "Post one block several times -> validation error"
-        model = Contact
+        model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
         url = self._build_editdetail_url(ct)
@@ -649,14 +664,14 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_detailview07(self):
         "Instance block, relationtype block"
-        model = Contact
+        model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
         rtype = RelationType.objects.all()[0]
         rtype_block_id = SpecificRelationsBlock.generate_id('test', 'foobar')
         RelationBlockItem.objects.create(block_id=rtype_block_id, relation_type=rtype)
 
-        naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+        naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         instance_block_id = InstanceBlockConfigItem.generate_id(DetailviewInstanceBlock, naru, '')
         InstanceBlockConfigItem.objects.create(block_id=instance_block_id,
@@ -676,7 +691,7 @@ class BlocksConfigTestCase(CremeTestCase):
         "Invalid models"
         build_url = self._build_editdetail_url
         get_ct = ContentType.objects.get_for_model
-        self.assertGET404(build_url(get_ct(Address)))
+        self.assertGET404(build_url(get_ct(FakeAddress)))
         self.assertGET404(build_url(get_ct(FakeInvoiceLine)))
 
     def test_delete_detailview01(self):
@@ -686,7 +701,7 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_delete_detailview02(self):
         "Default ContentType configuration"
         get_ct = ContentType.objects.get_for_model
-        ct = get_ct(Contact)
+        ct = get_ct(FakeContact)
 
         create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
                              content_type=ct, zone=BlockDetailviewLocation.TOP,
@@ -699,7 +714,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         locs_2 = [create_bdl(block_id=relations_block.id_, role=self.role),
                   create_bdl(block_id=relations_block.id_, superuser=True),
-                  create_bdl(block_id=relations_block.id_, content_type=get_ct(Organisation)),
+                  create_bdl(block_id=relations_block.id_, content_type=get_ct(FakeOrganisation)),
                  ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id})
@@ -712,7 +727,7 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_delete_detailview03(self):
         "Role configuration"
         get_ct = ContentType.objects.get_for_model
-        ct = get_ct(Contact)
+        ct = get_ct(FakeContact)
         role = self.role
 
         create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
@@ -727,7 +742,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         locs_2 = [create_bdl(block_id=relations_block.id_, role=None),
                   create_bdl(block_id=relations_block.id_, superuser=True),
-                  create_bdl(block_id=relations_block.id_, content_type=get_ct(Organisation)),
+                  create_bdl(block_id=relations_block.id_, content_type=get_ct(FakeOrganisation)),
                  ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': role.id})
@@ -740,7 +755,7 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_delete_detailview04(self):
         "Superuser configuration"
         get_ct = ContentType.objects.get_for_model
-        ct = get_ct(Organisation)
+        ct = get_ct(FakeOrganisation)
 
         create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
                              content_type=ct, zone=BlockDetailviewLocation.TOP,
@@ -754,7 +769,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         locs_2 = [create_bdl(block_id=relations_block.id_, role=self.role),
                   create_bdl(block_id=relations_block.id_, superuser=False),
-                  create_bdl(block_id=relations_block.id_, content_type=get_ct(Contact)),
+                  create_bdl(block_id=relations_block.id_, content_type=get_ct(FakeContact)),
                  ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': 'superuser'})
@@ -765,7 +780,8 @@ class BlocksConfigTestCase(CremeTestCase):
                         )
 
     def test_add_portal(self):
-        url = '/creme_config/blocks/portal/add/'
+        # url = '/creme_config/blocks/portal/add/'
+        url = reverse('creme_config__create_portal_blocks_legagcy')
         self.assertGET200(url)
 
         app_name = 'persons'
@@ -791,12 +807,13 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertNotIn('creme_config', names)
 
     def test_edit_portal01(self):
-        self.assertGET404('/creme_config/blocks/portal/edit/persons')
+        # self.assertGET404('/creme_config/blocks/portal/edit/persons')
+        self.assertGET404(reverse('creme_config__edit_portal_blocks', args=('persons',)))
 
     def test_edit_portal02(self):
         app_name = 'persons'
 
-        naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+        naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         instance_block_id = InstanceBlockConfigItem.generate_id(PortalInstanceBlock, naru, '')
         InstanceBlockConfigItem.objects.create(block_id=instance_block_id, entity=naru, verbose='All stuffes')
@@ -806,10 +823,12 @@ class BlocksConfigTestCase(CremeTestCase):
         block3 = self.portal_only_block3; assert app_name in block3.target_apps
         block4 = self.portal_only_block4; assert app_name not in block4.target_apps
 
-        self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
+        # self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
+        self.client.post(reverse('creme_config__create_portal_blocks_legagcy'), data={'app_name': app_name})
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
 
-        url = '/creme_config/blocks/portal/edit/%s' % app_name
+        # url = '/creme_config/blocks/portal/edit/%s' % app_name
+        url = reverse('creme_config__edit_portal_blocks', args=(app_name,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -862,7 +881,8 @@ class BlocksConfigTestCase(CremeTestCase):
         create_loc(block_id=blocks[0].id_, order=1)
         create_loc(block_id=blocks[1].id_, order=2)
 
-        url = '/creme_config/blocks/portal/edit/%s' % app_name
+        # url = '/creme_config/blocks/portal/edit/%s' % app_name
+        url = reverse('creme_config__edit_portal_blocks', args=(app_name,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -882,7 +902,8 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_edit_portal04(self):
         "Default conf"
         BlockPortalLocation.objects.filter(app_name='').delete()
-        url = '/creme_config/blocks/portal/edit/default'
+        # url = '/creme_config/blocks/portal/edit/default'
+        url = reverse('creme_config__edit_portal_blocks', args=('default',))
         self.assertGET404(url)
 
         blocks = self._get_blocks_4_portal()
@@ -909,7 +930,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
         block = self.home_only_block
 
-        response = self.assertGET200('/creme_config/blocks/portal/edit/%s' % app_name)
+        # response = self.assertGET200('/creme_config/blocks/portal/edit/%s' % app_name)
+        response = self.assertGET200(reverse('creme_config__edit_portal_blocks', args=(app_name,)))
 
         with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
@@ -920,13 +942,16 @@ class BlocksConfigTestCase(CremeTestCase):
         "Edit portal of unknown app"
         app_name = 'unknown'
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name).exists())
-        self.assertGET404('/creme_config/blocks/portal/edit/%s' % app_name)
+        # self.assertGET404('/creme_config/blocks/portal/edit/%s' % app_name)
+        self.assertGET404(reverse('creme_config__edit_portal_blocks', args=(app_name,)))
 
     def test_delete_portal(self):
         app_name = 'persons'
-        self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
+        # self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
+        self.client.post(reverse('creme_config__create_portal_blocks_legagcy'), data={'app_name': app_name})
 
-        self.assertPOST200('/creme_config/blocks/portal/delete', data={'id': app_name})
+        # self.assertPOST200('/creme_config/blocks/portal/delete', data={'id': app_name})
+        self.assertPOST200(reverse('creme_config__delete_portal_blocks'), data={'id': app_name})
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
 
     @skipIfNotInstalled('creme.persons')
@@ -1079,7 +1104,8 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertGreaterEqual(len(blocks), 1)
 
         BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
-        self.assertPOST404('/creme_config/blocks/portal/delete', data={'id': app_name})
+        # self.assertPOST404('/creme_config/blocks/portal/delete', data={'id': app_name})
+        self.assertPOST404(reverse('creme_config__delete_portal_blocks'), data={'id': app_name})
 
     def test_delete_home_location_item(self):
         app_name = 'creme_core'
@@ -1089,11 +1115,13 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertGreaterEqual(len(blocks), 1)
 
         bpl = BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
-        self.assertPOST200('/creme_config/blocks/home/delete', data={'id': bpl.id})
+        # self.assertPOST200('/creme_config/blocks/home/delete', data={'id': bpl.id})
+        self.assertPOST200(reverse('creme_config__delete_home_block'), data={'id': bpl.id})
         self.assertDoesNotExist(bpl)
 
     def test_edit_default_mypage(self):
-        url = '/creme_config/blocks/mypage/edit/default'
+        # url = '/creme_config/blocks/mypage/edit/default'
+        url = reverse('creme_config__edit_default_mypage_blocks')
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1130,7 +1158,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_mypage(self):
         user = self.user
-        url = '/creme_config/blocks/mypage/edit'
+        # url = '/creme_config/blocks/mypage/edit'
+        url = reverse('creme_config__edit_mypage_blocks')
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1167,24 +1196,28 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_delete_default_mypage01(self):
         loc = BlockMypageLocation.objects.create(user=None, block_id=history_block.id_, order=1)
-        self.assertPOST200('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
+        # self.assertPOST200('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
+        self.assertPOST200(reverse('creme_config__delete_default_mypage_blocks'), data={'id': loc.id})
         self.assertDoesNotExist(loc)
 
     def test_delete_default_mypage02(self):
         "'user' must be 'None'"
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
-        self.assertPOST404('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
+        # self.assertPOST404('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
+        self.assertPOST404(reverse('creme_config__delete_default_mypage_blocks'), data={'id': loc.id})
         self.assertStillExists(loc)
 
     def test_delete_mypage01(self):
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
-        self.assertPOST200('/creme_config/blocks/mypage/delete', data={'id': loc.id})
+        # self.assertPOST200('/creme_config/blocks/mypage/delete', data={'id': loc.id})
+        self.assertPOST200(reverse('creme_config__delete_mypage_blocks'), data={'id': loc.id})
         self.assertDoesNotExist(loc)
 
     def test_delete_mypage02(self):
         "BlockMypageLocation must belong to the user"
         loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=history_block.id_, order=1)
-        self.assertPOST404('/creme_config/blocks/mypage/delete', data={'id': loc.id})
+        # self.assertPOST404('/creme_config/blocks/mypage/delete', data={'id': loc.id})
+        self.assertPOST404(reverse('creme_config__delete_mypage_blocks'), data={'id': loc.id})
         self.assertStillExists(loc)
 
     def test_add_relationblock(self):
@@ -1193,7 +1226,8 @@ class BlocksConfigTestCase(CremeTestCase):
                                 )[0]
         self.assertFalse(RelationBlockItem.objects.filter(relation_type=rt).exists())
 
-        url = '/creme_config/blocks/relation_block/add/'
+        # url = '/creme_config/blocks/relation_block/add/'
+        url = reverse('creme_config__create_rtype_block')
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'relation_type': rt.id}))
@@ -1204,12 +1238,12 @@ class BlocksConfigTestCase(CremeTestCase):
         rb_item = rb_items[0]
         self.assertEqual(rt.id, rb_item.relation_type.id)
         self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.block_id)
-        self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(Contact)))
+        self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(FakeContact)))
 
     def test_add_relationblock_ctypes01(self):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                  ('test-objfoo', 'object_predicate', [Contact, Organisation, Activity]),
-                                )[0]
+                                 ('test-objfoo', 'object_predicate', [FakeContact, FakeOrganisation, FakeActivity]),
+                                 )[0]
 
         rb_item = RelationBlockItem.objects.create(
                         block_id='specificblock_creme_config-test-subfoo',
@@ -1223,20 +1257,20 @@ class BlocksConfigTestCase(CremeTestCase):
             choices = response.context['form'].fields['ctypes'].ctypes
 
         get_ct = ContentType.objects.get_for_model
-        self.assertIn(get_ct(Contact),      choices)
-        self.assertIn(get_ct(Organisation), choices)
-        self.assertIn(get_ct(Activity),     choices)
-        self.assertNotIn(get_ct(Image),    choices)
+        self.assertIn(get_ct(FakeContact), choices)
+        self.assertIn(get_ct(FakeOrganisation), choices)
+        self.assertIn(get_ct(FakeActivity), choices)
+        self.assertNotIn(get_ct(FakeImage), choices)
 
         self.assertNoFormError(self.client.post(
             url,
-            data={'ctypes': [get_ct(m).id for m in (Contact, Organisation)]},
+            data={'ctypes': [get_ct(m).id for m in (FakeContact, FakeOrganisation)]},
         ))
 
         rb_item = self.refresh(rb_item)
-        self.assertIsNone(rb_item.get_cells(get_ct(Activity)))
-        self.assertEqual([], rb_item.get_cells(get_ct(Contact)))
-        self.assertEqual([], rb_item.get_cells(get_ct(Organisation)))
+        self.assertIsNone(rb_item.get_cells(get_ct(FakeActivity)))
+        self.assertEqual([], rb_item.get_cells(get_ct(FakeContact)))
+        self.assertEqual([], rb_item.get_cells(get_ct(FakeOrganisation)))
 
         # Used CTypes should not be proposed
         response = self.assertGET200(url)
@@ -1244,10 +1278,10 @@ class BlocksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['ctypes'].ctypes
 
-        self.assertIn(get_ct(Activity),        choices)  # Compatible & not used
-        self.assertNotIn(get_ct(Image),        choices)  # Still not compatible
-        self.assertNotIn(get_ct(Contact),      choices)  # Used
-        self.assertNotIn(get_ct(Organisation), choices)  # Used
+        self.assertIn(get_ct(FakeActivity), choices)  # Compatible & not used
+        self.assertNotIn(get_ct(FakeImage), choices)  # Still not compatible
+        self.assertNotIn(get_ct(FakeContact), choices)  # Used
+        self.assertNotIn(get_ct(FakeOrganisation), choices)  # Used
 
     def test_add_relationblock_ctypes02(self):
         "All ContentTypes allowed"
@@ -1267,15 +1301,15 @@ class BlocksConfigTestCase(CremeTestCase):
             choices = response.context['form'].fields['ctypes'].ctypes
 
         get_ct = ContentType.objects.get_for_model
-        self.assertIn(get_ct(Contact),      choices)
-        self.assertIn(get_ct(Organisation), choices)
-        self.assertIn(get_ct(Activity),     choices)
+        self.assertIn(get_ct(FakeContact), choices)
+        self.assertIn(get_ct(FakeOrganisation), choices)
+        self.assertIn(get_ct(FakeActivity), choices)
 
-        self.assertNoFormError(self.client.post(url, data={'ctypes': [get_ct(Contact).id]}))
+        self.assertNoFormError(self.client.post(url, data={'ctypes': [get_ct(FakeContact).id]}))
 
         rb_item = self.refresh(rb_item)
-        self.assertIsNone(rb_item.get_cells(get_ct(Organisation)))
-        self.assertEqual([], rb_item.get_cells(get_ct(Contact)))
+        self.assertIsNone(rb_item.get_cells(get_ct(FakeOrganisation)))
+        self.assertEqual([], rb_item.get_cells(get_ct(FakeContact)))
 
         # Used CTypes should not be proposed
         response = self.assertGET200(url)
@@ -1283,13 +1317,13 @@ class BlocksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['ctypes'].ctypes
 
-        self.assertNotIn(get_ct(Contact),   choices)  # Used
-        self.assertIn(get_ct(Organisation), choices)  # Not used
+        self.assertNotIn(get_ct(FakeContact), choices)  # Used
+        self.assertIn(get_ct(FakeOrganisation), choices)  # Not used
 
     def test_add_relationblock_ctypes_wizard01(self):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                  ('test-objfoo', 'object_predicate', [Contact, Organisation, Activity]),
-                                )[0]
+                                 ('test-objfoo', 'object_predicate', [FakeContact, FakeOrganisation, FakeActivity]),
+                                 )[0]
 
         rb_item = RelationBlockItem.objects.create(
                         block_id='specificblock_creme_config-test-subfoo',
@@ -1303,11 +1337,11 @@ class BlocksConfigTestCase(CremeTestCase):
             choices = response.context['form'].fields['ctype'].ctypes
 
         get_ct = ContentType.objects.get_for_model
-        ct_contact  = get_ct(Contact)
-        ct_activity = get_ct(Activity)
-        ct_image    = get_ct(Image)
+        ct_contact  = get_ct(FakeContact)
+        ct_activity = get_ct(FakeActivity)
+        ct_image    = get_ct(FakeImage)
         self.assertIn(ct_contact,           choices)
-        self.assertIn(get_ct(Organisation), choices)
+        self.assertIn(get_ct(FakeOrganisation), choices)
         self.assertIn(ct_activity,          choices)
         self.assertNotIn(ct_image,          choices)
 
@@ -1326,7 +1360,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         self.assertIn('cells', fields)
 
-        funcfield = Contact.function_fields.get('get_pretty_properties')
+        funcfield = FakeContact.function_fields.get('get_pretty_properties')
         field_fname = 'first_name'
         field_lname = 'last_name'
         response = self.client.post(
@@ -1370,9 +1404,9 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_add_relationblock_ctypes_wizard02(self):
         "ContentType constraint"
-        rtype = RelationType.create(('test-subfoo', 'subject_predicate', [Contact]),
-                                    ('test-objfoo', 'object_predicate',  [Organisation]),
-                                   )[0]
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate', [FakeContact]),
+                                    ('test-objfoo', 'object_predicate',  [FakeOrganisation]),
+                                    )[0]
         rb_item = RelationBlockItem.objects.create(
                         block_id='specificblock_creme_config-test-subfoo',
                         relation_type=rtype,
@@ -1385,10 +1419,10 @@ class BlocksConfigTestCase(CremeTestCase):
             choices = response.context['form'].fields['ctype'].ctypes
 
         get_ct = ContentType.objects.get_for_model
-        ct_contact = get_ct(Contact)
-        self.assertIn(get_ct(Organisation), choices)
+        ct_contact = get_ct(FakeContact)
+        self.assertIn(get_ct(FakeOrganisation), choices)
         self.assertNotIn(ct_contact,        choices)
-        self.assertNotIn(get_ct(Activity),  choices)
+        self.assertNotIn(get_ct(FakeActivity), choices)
 
         response = self.client.post(url,
                                     {'relation_c_type_block_wizard-current_step': '0',
@@ -1401,9 +1435,9 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_add_relationblock_ctypes_wizard03(self):
         "Go back"
-        rtype = RelationType.create(('test-subfoo', 'subject_predicate', [Organisation]),
-                                    ('test-objfoo', 'object_predicate',  [Contact]),
-                                   )[0]
+        rtype = RelationType.create(('test-subfoo', 'subject_predicate', [FakeOrganisation]),
+                                    ('test-objfoo', 'object_predicate',  [FakeContact]),
+                                    )[0]
         rb_item = RelationBlockItem.objects.create(
                         block_id='specificblock_creme_config-test-subfoo',
                         relation_type=rtype,
@@ -1411,7 +1445,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         url = self._build_rblock_addctypes_wizard_url(rb_item)
 
-        ct_contact  = ContentType.objects.get_for_model(Contact)
+        ct_contact  = ContentType.objects.get_for_model(FakeContact)
         self.assertPOST200(url,
                            {'relation_c_type_block_wizard-current_step': '0',
                             '0-ctype': ct_contact.pk,
@@ -1431,7 +1465,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertIn(ct_contact, choices)
 
     def test_edit_relationblock_ctypes01(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                  ('test-objfoo', 'object_predicate'),
                                 )[0]
@@ -1443,12 +1477,12 @@ class BlocksConfigTestCase(CremeTestCase):
         rb_item.set_cells(ct, ())
         rb_item.save()
 
-        self.assertGET404(self._build_rblock_editctype_url(rb_item, Organisation))
+        self.assertGET404(self._build_rblock_editctype_url(rb_item, FakeOrganisation))
 
-        url = self._build_rblock_editctype_url(rb_item, Contact)
+        url = self._build_rblock_editctype_url(rb_item, FakeContact)
         self.assertGET200(url)
 
-        funcfield = Contact.function_fields.get('get_pretty_properties')
+        funcfield = FakeContact.function_fields.get('get_pretty_properties')
         field_fname = 'first_name'
         field_lname = 'last_name'
         self.assertNoFormError(self.client.post(
@@ -1485,10 +1519,10 @@ class BlocksConfigTestCase(CremeTestCase):
                                                   ('test-objfoo', 'object_predicate'),
                                                  )[0],
             )
-        rb_item.set_cells(ContentType.objects.get_for_model(Contact), ())
+        rb_item.set_cells(ContentType.objects.get_for_model(FakeContact), ())
         rb_item.save()
 
-        url = self._build_rblock_editctype_url(rb_item, Contact)
+        url = self._build_rblock_editctype_url(rb_item, FakeContact)
 
         def post(field_name, error=True):
             response = self.assertPOST200(
@@ -1521,10 +1555,10 @@ class BlocksConfigTestCase(CremeTestCase):
                                                   ('test-objfoo', 'object_predicate'),
                                                  )[0],
             )
-        rb_item.set_cells(ContentType.objects.get_for_model(EmailCampaign), ())
+        rb_item.set_cells(ContentType.objects.get_for_model(FakeEmailCampaign), ())
         rb_item.save()
 
-        url = self._build_rblock_editctype_url(rb_item, EmailCampaign)
+        url = self._build_rblock_editctype_url(rb_item, FakeEmailCampaign)
 
         def post(field_name):
             response = self.assertPOST200(
@@ -1552,11 +1586,11 @@ class BlocksConfigTestCase(CremeTestCase):
                 block_id='specificblock_creme_config-test-subfoo',
                 relation_type=rt1,
             )
-        rb_item.set_cells(ContentType.objects.get_for_model(Organisation), ())
+        rb_item.set_cells(ContentType.objects.get_for_model(FakeOrganisation), ())
         rb_item.save()
 
         response = self.assertPOST200(
-            self._build_rblock_editctype_url(rb_item, Organisation),
+            self._build_rblock_editctype_url(rb_item, FakeOrganisation),
             data={'cells': 'relation-%(rtype)s,regular_field-%(rfield)s' % {
                                 'rtype':  rt2.id,
                                 'rfield': 'name',
@@ -1569,7 +1603,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_relationblock_ctypes05(self):
         "With FieldsConfig"
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                  ('test-objfoo', 'object_predicate'),
                                 )[0]
@@ -1578,21 +1612,21 @@ class BlocksConfigTestCase(CremeTestCase):
         valid_fname = 'last_name'
         hidden_fname1 = 'phone'
         hidden_fname2 = 'birthday'
-        FieldsConfig.create(Contact,
+        FieldsConfig.create(FakeContact,
                             descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
                                           (hidden_fname2, {FieldsConfig.HIDDEN: True}),
                                          ]
-                           )
+                            )
 
         rb_item = RelationBlockItem(
                         block_id='specificblock_creme_config-test-subfoo',
                         relation_type=rt,
                     )
         build_cell = EntityCellRegularField.build
-        rb_item.set_cells(ct, [build_cell(Contact, hidden_fname1)])
+        rb_item.set_cells(ct, [build_cell(FakeContact, hidden_fname1)])
         rb_item.save()
 
-        url = self._build_rblock_editctype_url(rb_item, Contact)
+        url = self._build_rblock_editctype_url(rb_item, FakeContact)
         response = self.assertPOST200(
                         url,
                         data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,regular_field-%(rfield3)s' % {
@@ -1618,7 +1652,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_delete_relationblock_ctypes(self):
         get_ct = ContentType.objects.get_for_model
-        ct = get_ct(Contact)
+        ct = get_ct(FakeContact)
 
         rb_item = RelationBlockItem(
                 block_id='specificblock_creme_config-test-subfoo',
@@ -1626,13 +1660,13 @@ class BlocksConfigTestCase(CremeTestCase):
                                                   ('test-objfoo', 'object_predicate'),
                                                  )[0],
             )
-        rb_item.set_cells(ct, [EntityCellRegularField.build(Contact, 'first_name')])
+        rb_item.set_cells(ct, [EntityCellRegularField.build(FakeContact, 'first_name')])
         rb_item.save()
 
-        url_fmt = '/creme_config/blocks/relation_block/%s/delete_ctype'
-        self.assertPOST404(url_fmt % rb_item.id, data={'id': get_ct(Organisation).id})
+        # url = '/creme_config/blocks/relation_block/%s/delete_ctype' % rb_item.id
+        url = reverse('creme_config__delete_cells_of_rtype_block', args=(rb_item.id,))
+        self.assertPOST404(url, data={'id': get_ct(FakeOrganisation).id})
 
-        url = url_fmt % rb_item.id
         data = {'id': ct.id}
         self.assertGET404(url, data=data) # only POST
 
@@ -1646,10 +1680,11 @@ class BlocksConfigTestCase(CremeTestCase):
         rbi = RelationBlockItem.objects.create(block_id='foobarid', relation_type=rt)
         loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5,
                                              zone=BlockDetailviewLocation.RIGHT,
-                                             model=Contact,
-                                            )
+                                             model=FakeContact,
+                                             )
 
-        self.assertPOST200('/creme_config/blocks/relation_block/delete', data={'id': rbi.id})
+        # self.assertPOST200('/creme_config/blocks/relation_block/delete', data={'id': rbi.id})
+        self.assertPOST200(reverse('creme_config__delete_rtype_block'), data={'id': rbi.id})
         self.assertDoesNotExist(rbi)
         self.assertDoesNotExist(loc)
 
@@ -1766,23 +1801,25 @@ class BlocksConfigTestCase(CremeTestCase):
     #     self.assertIn(rtype.pk, [e[0] for e in response.context['form'].fields['relation_type'].choices])
 
     def test_delete_instanceblock(self):
-        naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+        naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         ibi = InstanceBlockConfigItem.objects.create(
                     block_id=InstanceBlockConfigItem.generate_id(DetailviewInstanceBlock, naru, ''),
                     entity=naru, verbose='All stuffes',
                 )
-        loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
-        self.assertPOST200('/creme_config/blocks/instance_block/delete', data={'id': ibi.id})
+        loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=FakeContact)
+        # self.assertPOST200('/creme_config/blocks/instance_block/delete', data={'id': ibi.id})
+        self.assertPOST200(reverse('creme_config__delete_instance_block'), data={'id': ibi.id})
         self.assertDoesNotExist(ibi)
         self.assertDoesNotExist(loc)
 
     def test_add_customblock(self):
         get_ct = ContentType.objects.get_for_model
-        ct = get_ct(Contact)
+        ct = get_ct(FakeContact)
         self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=ct))
 
-        url = '/creme_config/blocks/custom/add/'
+        # url = '/creme_config/blocks/custom/add/'
+        url = reverse('creme_config__create_custom_block_legacy')
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1815,7 +1852,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(2, CustomBlockConfigItem.objects.filter(content_type=ct).count())
 
     def test_edit_customblock01(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
 
         loves = RelationType.create(('test-subject_love', u'Is loving'),
                                     ('test-object_love',  u'Is loved by')
@@ -1824,7 +1861,7 @@ class BlocksConfigTestCase(CremeTestCase):
                                                  field_type=CustomField.INT,
                                                  content_type=ct,
                                                 )
-        funcfield = Contact.function_fields.get('get_pretty_properties')
+        funcfield = FakeContact.function_fields.get('get_pretty_properties')
 
         name = 'info'
         cbc_item = CustomBlockConfigItem.objects.create(id='tests-contacts1',
@@ -1878,7 +1915,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_customblock02(self):
         "With FieldsConfig"
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
 
         valid_fname = 'last_name'
         valid_subfname = 'city'
@@ -1887,11 +1924,11 @@ class BlocksConfigTestCase(CremeTestCase):
         hidden_subfname = 'zipcode'
 
         create_fconf = FieldsConfig.create
-        create_fconf(Contact, descriptions=[(hidden_fname,  {FieldsConfig.HIDDEN: True}),
-                                            (hidden_fkname, {FieldsConfig.HIDDEN: True}),
-                                           ]
-                    )
-        create_fconf(Address, descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})])
+        create_fconf(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True}),
+                                                (hidden_fkname, {FieldsConfig.HIDDEN: True}),
+                                                ]
+                     )
+        create_fconf(FakeAddress, descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})])
 
         cbc_item = CustomBlockConfigItem.objects.create(id='tests-contacts1',
                                                         name='Contact info',
@@ -1945,7 +1982,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_customblock03(self):
         "With FieldsConfig + field in the blocks becomes hidden => still proposed in the form"
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
 
         valid_fname = 'last_name'
         hidden_fname1 = 'phone'
@@ -1958,23 +1995,23 @@ class BlocksConfigTestCase(CremeTestCase):
         hidden_subfname2 = 'country'
 
         create_fconf = FieldsConfig.create
-        create_fconf(Contact, descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                                            (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                                            ('image',       {FieldsConfig.HIDDEN: True}),
-                                           ],
-                    )
-        create_fconf(Address, descriptions=[(hidden_subfname1, {FieldsConfig.HIDDEN: True}),
-                                            (hidden_subfname2, {FieldsConfig.HIDDEN: True}),
-                                           ],
-                    )
+        create_fconf(FakeContact, descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                                ('image',       {FieldsConfig.HIDDEN: True}),
+                                                ],
+                     )
+        create_fconf(FakeAddress, descriptions=[(hidden_subfname1, {FieldsConfig.HIDDEN: True}),
+                                                (hidden_subfname2, {FieldsConfig.HIDDEN: True}),
+                                                ],
+                     )
 
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBlockConfigItem.objects.create(
                         id='tests-contacts1', name='Contact info', content_type=ct,
-                        cells=[build_cell(Contact, valid_fname),
-                               build_cell(Contact, hidden_fname1),
-                               build_cell(Contact, addr_prefix + hidden_subfname1),
-                               build_cell(Contact, hidden_fkname),
+                        cells=[build_cell(FakeContact, valid_fname),
+                               build_cell(FakeContact, hidden_fname1),
+                               build_cell(FakeContact, addr_prefix + hidden_subfname1),
+                               build_cell(FakeContact, hidden_fkname),
                               ],
                     )
 
@@ -2016,19 +2053,20 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(4, len(self.refresh(cbc_item).cells))
 
     def test_delete_customblock(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         cbci = CustomBlockConfigItem.objects.create(content_type=ct, name='Info')
         loc = BlockDetailviewLocation.create(block_id=cbci.generate_id(), order=5,
-                                             model=Contact,
+                                             model=FakeContact,
                                              zone=BlockDetailviewLocation.RIGHT,
-                                            )
+                                             )
 
-        self.assertPOST200('/creme_config/blocks/custom/delete', data={'id': cbci.id})
+        # self.assertPOST200('/creme_config/blocks/custom/delete', data={'id': cbci.id})
+        self.assertPOST200(reverse('creme_config__delete_custom_block'), data={'id': cbci.id})
         self.assertDoesNotExist(cbci)
         self.assertDoesNotExist(loc)
 
     def test_customblock_wizard_model_step(self):
-        contact_ct = ContentType.objects.get_for_model(Contact)
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
         contact_customfield = CustomField.objects.create(name=u'Size (cm)',
                                                          field_type=CustomField.INT,
                                                          content_type=contact_ct,
@@ -2058,7 +2096,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
 
     def test_customblock_wizard_model_step_invalid(self):
-        contact_ct = ContentType.objects.get_for_model(Contact)
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
 
         response = self.assertGET200(self.CUSTOM_WIZARD_URL)
@@ -2078,7 +2116,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=contact_ct))
 
     def test_customblock_wizard_config_step(self):
-        contact_ct = ContentType.objects.get_for_model(Contact)
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
         contact_customfield = CustomField.objects.create(name=u'Size (cm)',
                                                          field_type=CustomField.INT,
                                                          content_type=contact_ct,
@@ -2125,7 +2163,7 @@ class BlocksConfigTestCase(CremeTestCase):
                             )
 
     def test_customblock_wizard_go_back(self):
-        contact_ct = ContentType.objects.get_for_model(Contact)
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
         contact_customfield = CustomField.objects.create(name=u'Size (cm)',
                                                          field_type=CustomField.INT,
                                                          content_type=contact_ct,
