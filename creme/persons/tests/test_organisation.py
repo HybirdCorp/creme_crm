@@ -111,7 +111,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNone(orga.shipping_address)
 
         abs_url = orga.get_absolute_url()
-        self.assertEqual('/persons/organisation/%s' % orga.id, abs_url)
+        # self.assertEqual('/persons/organisation/%s' % orga.id, abs_url)
         self.assertRedirects(response, abs_url)
 
     @skipIfCustomAddress
@@ -354,18 +354,21 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual(id(qs1), id(qs2))
 
-    def _become_test(self, url, relation_type):
+    # def _become_test(self, url, relation_type):
+    def _become_test(self, url_name, relation_type):
         user = self.login()
 
         mng_orga = self._build_managed_orga()
         customer = Contact.objects.create(user=user, first_name='Jet', last_name='Black')
 
-        response = self.assertPOST200(url % customer.id, data={'id': mng_orga.id}, follow=True)
+        # response = self.assertPOST200(url % customer.id, data={'id': mng_orga.id}, follow=True)
+        response = self.assertPOST200(reverse(url_name, args=(customer.id,)), data={'id': mng_orga.id}, follow=True)
         self.assertTrue(response.redirect_chain)
         self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type)
 
     def test_become_customer01(self):
-        self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_SUPPLIER)
+        # self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_SUPPLIER)
+        self._become_test('persons__become_customer', REL_SUB_CUSTOMER_SUPPLIER)
 
     @skipIfCustomContact
     def test_become_customer02(self):
@@ -374,7 +377,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                           EntityCredentials.DELETE | EntityCredentials.UNLINK, # Not 'LINK'
+                           EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not 'LINK'
                      set_type=SetCredentials.ESET_ALL
                     )
         create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
@@ -384,29 +387,33 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         mng_orga01 = self._build_managed_orga()
         customer01 = Contact.objects.create(user=self.other_user, first_name='Jet', last_name='Black')  # Can not link it
-        self.assertPOST403('/persons/%s/become_customer' % customer01.id,
+        self.assertPOST403(reverse('persons__become_customer', args=(customer01.id,)),
                            data={'id': mng_orga01.id}, follow=True
                           )
         self.assertEqual(0, Relation.objects.filter(subject_entity=customer01.id).count())
 
         mng_orga02 = self._build_managed_orga(user=self.other_user)  # Can not link it
         customer02 = Contact.objects.create(user=user, first_name='Vicious', last_name='??')
-        self.assertPOST403('/persons/%s/become_customer' % customer02.id,
+        self.assertPOST403(reverse('persons__become_customer', args=(customer02.id,)),
                            data={'id': mng_orga02.id}, follow=True
                           )
         self.assertEqual(0, Relation.objects.filter(subject_entity=customer02.id).count())
 
     def test_become_prospect(self):
-        self._become_test('/persons/%s/become_prospect', REL_SUB_PROSPECT)
+        # self._become_test('/persons/%s/become_prospect', REL_SUB_PROSPECT)
+        self._become_test('persons__become_prospect', REL_SUB_PROSPECT)
 
     def test_become_suspect(self):
-        self._become_test('/persons/%s/become_suspect', REL_SUB_SUSPECT)
+        # self._become_test('/persons/%s/become_suspect', REL_SUB_SUSPECT)
+        self._become_test('persons__become_suspect', REL_SUB_SUSPECT)
 
     def test_become_inactive_customer(self):
-        self._become_test('/persons/%s/become_inactive_customer', REL_SUB_INACTIVE)
+        # self._become_test('/persons/%s/become_inactive_customer', REL_SUB_INACTIVE)
+        self._become_test('persons__become_inactive_customer', REL_SUB_INACTIVE)
 
     def test_become_supplier(self):
-        self._become_test('/persons/%s/become_supplier', REL_OBJ_CUSTOMER_SUPPLIER)
+        # self._become_test('/persons/%s/become_supplier', REL_OBJ_CUSTOMER_SUPPLIER)
+        self._become_test('persons__become_supplier', REL_OBJ_CUSTOMER_SUPPLIER)
 
     def test_leads_customers01(self):
         user = self.login()
@@ -414,7 +421,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self._build_managed_orga()
         Organisation.objects.create(user=user, name='Nerv')
 
-        response = self.assertGET200('/persons/leads_customers')
+        response = self.assertGET200(reverse('persons__leads_customers'))
 
         with self.assertNoException():
             orgas_page = response.context['entities']
@@ -432,11 +439,11 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         fsf  = create_orga(name='FSF')
 
         post = partial(self.client.post, data={'id': mng_orga.id})
-        post('/persons/%s/become_customer' % nerv.id)
-        post('/persons/%s/become_prospect' % acme.id)
-        post('/persons/%s/become_suspect'  % fsf.id)
+        post(reverse('persons__become_customer', args=(nerv.id,)))
+        post(reverse('persons__become_prospect', args=(acme.id,)))
+        post(reverse('persons__become_suspect',  args=(fsf.id,)))
 
-        response = self.client.get('/persons/leads_customers')
+        response = self.client.get(reverse('persons__leads_customers'))
         orgas_page = response.context['entities']
 
         self.assertEqual(3, orgas_page.paginator.count)
@@ -452,9 +459,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
-        self.client.post('/persons/%s/become_customer' % nerv.id, data={'id': acme.id})
+        self.client.post(reverse('persons__become_customer', args=(nerv.id,)), data={'id': acme.id})
 
-        response = self.client.get('/persons/leads_customers')
+        response = self.client.get(reverse('persons__leads_customers'))
         self.assertEqual(0, response.context['entities'].paginator.count)
 
     @skipIfCustomAddress
@@ -852,7 +859,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         hunting = Sector.objects.create(title='Bounty hunting')
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
-        self.assertPOST200('/creme_config/persons/sector/delete', data={'id': hunting.pk})
+        # self.assertPOST200('/creme_config/persons/sector/delete', data={'id': hunting.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
+                           data={'id': hunting.pk}
+                          )
         self.assertDoesNotExist(hunting)
 
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
@@ -864,7 +874,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         band = LegalForm.objects.create(title='Bounty hunting band')
         bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
 
-        self.assertPOST200('/creme_config/persons/legal_form/delete', data={'id': band.pk})
+        # self.assertPOST200('/creme_config/persons/legal_form/delete', data={'id': band.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'legal_form')),
+                           data={'id': band.pk}
+                          )
         self.assertDoesNotExist(band)
 
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
@@ -876,7 +889,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         size = StaffSize.objects.create(size='4 and a dog')
         bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
 
-        self.assertPOST200('/creme_config/persons/staff_size/delete', data={'id': size.pk})
+        # self.assertPOST200('/creme_config/persons/staff_size/delete', data={'id': size.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'staff_size')),
+                           data={'id': size.pk}
+                          )
         self.assertDoesNotExist(size)
 
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
@@ -1070,7 +1086,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga2 = create_orga(name='Swordfish')
         orga3 = create_orga(name='RedTail')
 
-        url = '/persons/organisation/managed'
+        url = reverse('persons__orga_set_managed')
         self.assertGET200(url)
 
         response = self.client.post(url, data={'organisations': '[%s,%s]' % (orga1.id, orga2.id)})
@@ -1093,7 +1109,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga1 = mngd_orgas[0]
         orga2 = self._build_managed_orga()
 
-        url = '/persons/organisation/not_managed'
+        url = reverse('persons__orga_unset_managed')
         data = {'id': orga2.id}
         self.assertGET404(url)
         self.assertGET404(url, data=data)

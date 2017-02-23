@@ -107,7 +107,7 @@ class PersonsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('persons', '/persons/').register_item
-            reg_item('/persons/',                             _(u'Portal of accounts and contacts'),     'persons')
+            reg_item(reverse('persons__portal'),              _(u'Portal of accounts and contacts'),     'persons')
             reg_item(reverse('persons__list_contacts'),       _(u'All contacts'),                        'persons')
             reg_item(reverse('persons__create_contact'),      Contact.creation_label,                    cperm(Contact))
             reg_item(reverse('persons__leads_customers'),     _(u'My customers / prospects / suspects'), 'persons')
