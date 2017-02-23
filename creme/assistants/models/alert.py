@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, BooleanField, DateTimeField,
         ForeignKey, PositiveIntegerField)
 from django.utils.translation import ugettext_lazy as _
@@ -55,7 +56,8 @@ class Alert(CremeModel):
         return self.title
 
     def get_edit_absolute_url(self):
-        return '/assistants/alert/edit/%s/' % self.id
+        # return '/assistants/alert/edit/%s/' % self.id
+        return reverse('assistants__edit_alert', args=(self.id,))
 
     @staticmethod
     def get_alerts(entity):

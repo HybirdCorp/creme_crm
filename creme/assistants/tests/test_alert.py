@@ -6,6 +6,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail
+    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -22,7 +23,8 @@ except Exception as e:
 
 class AlertTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
-        return '/assistants/alert/add/%s/' % entity.id
+        # return '/assistants/alert/add/%s/' % entity.id
+        return reverse('assistants__create_alert', args=(entity.id,))
 
     def _create_alert(self, title='TITLE', description='DESCRIPTION', trigger_date='2010-9-29', entity=None):
         entity = entity or self.entity
@@ -119,14 +121,16 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(1, Alert.objects.count())
 
         ct = ContentType.objects.get_for_model(Alert)
-        self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': alert.id})
+        # self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': alert.id})
+        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': alert.id})
         self.assertEqual(0, Alert.objects.count())
 
     def test_validate(self):
         alert = self._create_alert()
         self.assertFalse(alert.is_validated)
 
-        response = self.assertPOST200('/assistants/alert/validate/%s/' % alert.id, follow=True)
+        # response = self.assertPOST200('/assistants/alert/validate/%s/' % alert.id, follow=True)
+        response = self.assertPOST200(reverse('assistants__validate_alert', args=(alert.id,)), follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
 
         self.assertTrue(self.refresh(alert).is_validated)

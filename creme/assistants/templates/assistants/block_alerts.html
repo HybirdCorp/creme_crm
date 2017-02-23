@@ -7,8 +7,9 @@
         <th class="actions">
             <div class="buttons">
                 {% if object %}
-                    {% has_perm_to change object as has_perm %}
-                    {% get_line_adder at_url '/assistants/alert/add/{{object.id}}/' with_label _("New alert") with_perms has_perm %}
+                    {% has_perm_to change object as has_perm %}{% url 'assistants__create_alert' object.id as create_url %}
+{#                    {% get_line_adder at_url '/assistants/alert/add/{{object.id}}/' with_label _("New alert") with_perms has_perm %} #}
+                    {% get_line_adder at_url create_url with_label _('New alert') with_perms has_perm %}
                 {% endif %}
             </div>
         </th>
@@ -26,6 +27,7 @@
                 <th class="block_header_line_dark action">{% trans "Treated ?" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
+            {% url 'creme_core__delete_related_to_entity' ct_id as delete_url %}
             {% for alert in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to change alert.creme_entity as has_perm %}
                     <td class="{{row_color}}"><strong>{% print_field object=alert field='title' %}</strong></td>
@@ -37,7 +39,8 @@
                     <td class="{{row_color}}"><em>{% print_field object=alert field='description' %}</em></td>
                     <td class="{{row_color}} action">
                         {% if has_perm %}
-                            <form method="post" action="/assistants/alert/validate/{{alert.id}}/">{% csrf_token %}
+{#                            <form method="post" action="/assistants/alert/validate/{{alert.id}}/">{% csrf_token %} #}
+                            <form method="post" action="{% url 'assistants__validate_alert' alert.id %}">{% csrf_token %}
                                 <input type="checkbox" name="checked_alert{{alert.id}}" id="checked_alert{{alert.id}}" />
                                 <button type="button" onclick="creme.assistants.validateEntity(this.form, 'checked_alert{{alert.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
                                     <img src="{% creme_media_url 'images/refresh_16.png' %}" width="16" height="16" border="0">
@@ -48,9 +51,9 @@
                         {% endif %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% comment %}{% get_line_editor at_url '/assistants/alert/edit/{{alert.id}}/' with_perms has_perm %}{% endcomment %}
                         {% get_line_editor at_url alert.get_edit_absolute_url with_perms has_perm %}
-                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{alert.id}} }" with_perms has_perm %}
+{#                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{alert.id}} }" with_perms has_perm %} #}
+                        {% get_line_deletor at_url delete_url with_args "{'id' : {{alert.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

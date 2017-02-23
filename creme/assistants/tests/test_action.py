@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
-    #from datetime import datetime
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.timezone import now
 
     from creme.creme_core.tests.fake_models import FakeContact as Contact
     from creme.creme_core.models import BlockDetailviewLocation
-
-    #from creme.persons.models import Contact
 
     from ..blocks import actions_it_block, actions_nit_block
     from ..models import Action
@@ -21,7 +19,8 @@ except Exception as e:
 
 class ActionTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
-        return '/assistants/action/add/%s/' % entity.id
+        # return '/assistants/action/add/%s/' % entity.id
+        return reverse('assistants__create_action', args=(entity.id,))
 
     def _create_action(self, deadline, title='TITLE', descr='DESCRIPTION',
                        reaction='REACTION', entity=None, user=None,
@@ -62,7 +61,6 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(entity.id,             action.creme_entity.id)
 
         self.assertDatetimesAlmostEqual(now(), action.creation_date)
-        #self.assertEqual(datetime(year=2010, month=12, day=24), action.deadline)
         self.assertEqual(self.create_datetime(year=2010, month=12, day=24),
                          action.deadline
                         )
@@ -107,7 +105,6 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(title,    action.title)
         self.assertEqual(descr,    action.description)
         self.assertEqual(reaction, action.expected_reaction)
-        #self.assertEqual(datetime(year=2011, month=11, day=25, hour=17, minute=37), action.deadline)
         self.assertEqual(self.create_datetime(year=2011, month=11, day=25, hour=17, minute=37),
                          action.deadline
                         )
@@ -121,7 +118,8 @@ class ActionTestCase(AssistantsTestCase):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         ct = ContentType.objects.get_for_model(Action)
         kwargs = {} if not ajax else {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+        # response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+        response = self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                                     data={'id': action.id}, **kwargs
                                    )
         self.assertDoesNotExist(action)
@@ -142,7 +140,8 @@ class ActionTestCase(AssistantsTestCase):
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
 
-        response = self.assertPOST200('/assistants/action/validate/%s/' % action.id, follow=True)
+        # response = self.assertPOST200('/assistants/action/validate/%s/' % action.id, follow=True)
+        response = self.assertPOST200(reverse('assistants__validate_action', args=(action.id,)), follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
 
         action = self.refresh(action)

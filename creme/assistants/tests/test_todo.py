@@ -8,6 +8,7 @@ try:
     from django.conf import settings
     from django.core import mail
     from django.core.mail.backends.locmem import EmailBackend
+    from django.core.urlresolvers import reverse
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.test.utils import override_settings
@@ -43,7 +44,8 @@ class TodoTestCase(AssistantsTestCase):
         EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity):
-        return '/assistants/todo/add/%s/' % entity.id
+        # return '/assistants/todo/add/%s/' % entity.id
+        return reverse('assistants__create_todo', args=(entity.id,))
 
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
         entity = entity or self.entity
@@ -179,15 +181,17 @@ class TodoTestCase(AssistantsTestCase):
         todo = self._create_todo()
         self.assertEqual(1, ToDo.objects.count())
 
-        ct   = ContentType.objects.get_for_model(ToDo)
-        self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': todo.id})
+        ct = ContentType.objects.get_for_model(ToDo)
+        # self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': todo.id})
+        self.assertPOST(302, reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': todo.id})
         self.assertFalse(ToDo.objects.all())
 
     def test_validate(self):
         todo = self._create_todo()
         self.assertFalse(todo.is_ok)
 
-        response = self.assertPOST200('/assistants/todo/validate/%s/' % todo.id, follow=True)
+        # response = self.assertPOST200('/assistants/todo/validate/%s/' % todo.id, follow=True)
+        response = self.assertPOST200(reverse('assistants__validate_todo', args=(todo.id,)), follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
         self.assertIs(True, self.refresh(todo).is_ok)
 
@@ -204,7 +208,8 @@ class TodoTestCase(AssistantsTestCase):
 
         self.assertGreaterEqual(todos_block.page_size, 2)
 
-        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (todos_block.id_, self.entity.id))
+        # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (todos_block.id_, self.entity.id))
+        response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(todos_block.id_, self.entity.id)))
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = load_json(response.content)
@@ -227,7 +232,8 @@ class TodoTestCase(AssistantsTestCase):
         todos = ToDo.get_todos_for_home(self.user)
         self.assertEqual(2, len(todos))
 
-        response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % todos_block.id_)
+        # response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % todos_block.id_)
+        response = self.assertGET200(reverse('creme_core__reload_home_blocks', args=(todos_block.id_,)))
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = load_json(response.content)
@@ -249,9 +255,13 @@ class TodoTestCase(AssistantsTestCase):
         todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
         self.assertEqual(2, len(todos))
 
-        response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (
-                                            todos_block.id_, ct_id
-                                        )
+        # response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (
+        #                                     todos_block.id_, ct_id
+        #                                 )
+        #                             )
+        response = self.assertGET200(reverse('creme_core__reload_portal_blocks',
+                                             args=(todos_block.id_, ct_id),
+                                            )
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
 

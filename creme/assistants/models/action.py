@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
         ForeignKey, PositiveIntegerField)
 from django.utils.translation import ugettext_lazy as _
@@ -37,7 +38,7 @@ class Action(CremeModel):
     deadline            = DateTimeField(_(u"Deadline"))
     validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True, editable=False)
 
-    #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
+    # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="action_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -59,7 +60,8 @@ class Action(CremeModel):
         return self.title
 
     def get_edit_absolute_url(self):
-        return '/assistants/action/edit/%s/' % self.id
+        # return '/assistants/action/edit/%s/' % self.id
+        return reverse('assistants__edit_action', args=(self.id,))
 
     @staticmethod
     def get_actions_it(entity, today):
