@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.fields import JSONField, ChoiceModelIterator
 from creme.creme_core.forms.widgets import ChainedInput
+from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..models import Category, SubCategory
 
@@ -33,13 +34,16 @@ from ..models import Category, SubCategory
 class CategorySelector(ChainedInput):
     def __init__(self, categories=(), attrs=None, creation_allowed=True):
         super(CategorySelector, self).__init__(attrs)
-        self.creation_allowed = creation_allowed # TODO: useless at the moment...
+        self.creation_allowed = creation_allowed  # TODO: useless at the moment...
         self.categories = categories
 
     def render(self, name, value, attrs=None):
         add = partial(self.add_dselect, attrs={'auto': False})
         add('category', options=self.categories, label=_(u'Category'))
-        add('subcategory', options='/products/sub_category/${category}/json',
+        add('subcategory',
+            # options='/products/sub_category/${category}/json',
+            options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
+                                      .resolve('products__subcategories'),
             label=_(u'Sub-category'),
            )
 
@@ -50,8 +54,8 @@ class CategoryField(JSONField):
     widget = CategorySelector  # need 'categories' "attribute"
     default_error_messages = {
         'doesnotexist':          _(u"This category doesn't exist."),
-        'categorynotallowed':    _(u"This category causes constraint error."),
-        'subcategorynotallowed': _(u"This sub-category causes constraint error."),
+        'categorynotallowed':    _(u'This category causes constraint error.'),
+        'subcategorynotallowed': _(u'This sub-category causes constraint error.'),
     }
     value_type = dict
 
