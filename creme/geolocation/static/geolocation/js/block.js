@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014  Hybird
+    Copyright (C) 2014-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-
 creme.geolocation = creme.geolocation || {};
 
 creme.geolocation.PersonsBlock = creme.component.Component.sub({
@@ -27,14 +26,20 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
         3: ''
     },
 
-    _init_: function(block, addresses)
+//    _init_: function(block, addresses)
+    _init_: function(block, addresses, set_address_info_url)
     {
+        if (set_address_info_url === undefined) {
+            console.warn('creme.geolocation.PersonsBlock(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.')
+        }
+
         var self = this;
 
         this._block = block;
         this._addresses = addresses;
 
-        var controller = this._controller = new creme.geolocation.GoogleMapController();
+//        var controller = this._controller = new creme.geolocation.GoogleMapController();
+        var controller = this._controller = new creme.geolocation.GoogleMapController(set_address_info_url);
         var container = $('.block-geoaddress-canvas', block);
 
         if (container.length) {
@@ -150,9 +155,22 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
 
 
 creme.geolocation.AddressesBlock = creme.component.Component.sub({
-    _init_: function(block)
+//    _init_: function(block)
+    _init_: function(block, addresses_url, set_address_info_url)
     {
-        var controller = this._controller = new creme.geolocation.GoogleMapController();
+        if (addresses_url === undefined) {
+            console.warn('creme.geolocation.AddressesBlock(): hard-coded "addresses_url" is deprecated ; give it as the second parameter.')
+            this.addresses_url = '/geolocation/get_addresses/';
+        } else {
+            this.addresses_url = addresses_url;
+        }
+
+        if (set_address_info_url === undefined) {
+            console.warn('creme.geolocation.AddressesBlock(): hard-coded "set_address_info_url" is deprecated ; give it as the third parameter.')
+        }
+
+//        var controller = this._controller = new creme.geolocation.GoogleMapController();
+        var controller = this._controller = new creme.geolocation.GoogleMapController(set_address_info_url);
         var filterSelector = this._filterSelector = $('.block-geoaddress-filter', block);
         var container = $('.block-geoaddress-canvas', block);
 
@@ -178,7 +196,13 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
         var controller = this._controller;
         var updateAddress = this._updateAddress.bind(this);
 
-        creme.ajax.query('/geolocation/get_addresses_from_filter/%s'.format(filter))
+        var url = this.addresses_url;
+        if (filter) {
+            url = url + '?id=' + filter;
+        }
+
+//        creme.ajax.query('/geolocation/get_addresses_from_filter/%s'.format(filter))
+        creme.ajax.query(url)
                   .converter(JSON.parse)
                   .onDone(function(event, data) {
                       data.addresses.forEach(updateAddress);
@@ -243,10 +267,22 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
 
 
 creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
-    _init_: function(block, radius)
+//    _init_: function(block, radius)
+    _init_: function(block, radius, neighbours_url, set_address_info_url)
     {
+        if (neighbours_url === undefined) {
+            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "neighbours_url" is deprecated ; give it as the third parameter.')
+            this.neighbours_url = '/geolocation/get_neighbours/';
+        } else {
+            this.neighbours_url = neighbours_url;
+        }
 
-        var controller = this._controller = new creme.geolocation.GoogleMapController();
+        if (set_address_info_url === undefined) {
+            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "set_address_info_url" is deprecated ; give it as the fourth parameter.')
+        }
+
+//        var controller = this._controller = new creme.geolocation.GoogleMapController();
+        var controller = this._controller = new creme.geolocation.GoogleMapController(set_address_info_url);
         this._radius = radius;
         this._block = block;
 
@@ -278,7 +314,13 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
 
         var updateNeighbours = this._updateNeighbours.bind(this);
 
-        creme.ajax.query('/geolocation/get_neighbours/%s/%s'.format(address, filter || ''))
+        var url = this.neighbours_url + '?address_id=' + address;
+        if (filter) {
+            url = url + '&filter_id=' + filter;
+        }
+
+//        creme.ajax.query('/geolocation/get_neighbours/%s/%s'.format(address, filter || ''))
+        creme.ajax.query(url)
                   .converter(JSON.parse)
                   .onDone(function(event, data) {
                        updateNeighbours(data.source_address, data.addresses);

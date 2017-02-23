@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,12 +22,13 @@ from collections import defaultdict
 from json import dumps as encode_json
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.gui.block import Block
 from creme.creme_core.models import EntityFilter
 
-from creme.persons import get_contact_model, get_organisation_model, get_address_model
+from creme import persons
 
 # from .constants import DEFAULT_SEPARATING_NEIGHBOURS
 from .models import GeoAddress
@@ -35,13 +36,13 @@ from .models import GeoAddress
 from .utils import address_as_dict, get_radius  # get_setting
 
 
-Contact      = get_contact_model()
-Organisation = get_organisation_model()
-Address      = get_address_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+Address      = persons.get_address_model()
 
 
 class _MapBlock(Block):
-    dependencies  = (Address,) 
+    dependencies = (Address,)
 
     def get_filter_choices(self, user, *models):
         choices = []
@@ -81,12 +82,13 @@ class PersonsMapsBlock(_MapBlock):
     def detailview_display(self, context):
         entity = context['object']
         addresses = [address for address in self.get_addresses_as_dict(entity) if address.get('content')]
-        return self._render(self.get_block_template_context(context,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            addresses=addresses,
-                                                            geoaddresses=encode_json(addresses),
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+                    context,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    addresses=addresses,
+                    geoaddresses=encode_json(addresses),
+        ))
 
 
 class PersonsFiltersMapsBlock(_MapBlock):
@@ -96,13 +98,13 @@ class PersonsFiltersMapsBlock(_MapBlock):
 
     def home_display(self, context):
         return self._render(self.get_block_template_context(
-                                context,
-                                update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                address_filters=self.get_filter_choices(context['user'],
-                                                                        Contact, Organisation,
-                                                                       ),
-                               )
-                           )
+                    context,
+                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
+                    address_filters=self.get_filter_choices(context['user'],
+                                                            Contact, Organisation,
+                                                           ),
+        ))
 
 
 class WhoisAroundMapsBlock(_MapBlock):
@@ -124,19 +126,19 @@ class WhoisAroundMapsBlock(_MapBlock):
         entity = context['object']
 
         return self._render(self.get_block_template_context(
-                                context,
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                ref_addresses=self.get_addresses_as_dict(entity),
-                                address_filters=self.get_filter_choices(context['user'],
-                                                                        Contact, Organisation,
-                                                                       ),
-                                # radius=get_setting(NEIGHBOURHOOD_DISTANCE,
-                                #                    DEFAULT_SEPARATING_NEIGHBOURS,
-                                #                   ),
-                                radius=get_radius(),
-                                maps_blockid=PersonsMapsBlock.id_,
-                               )
-                           )
+                    context,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    ref_addresses=self.get_addresses_as_dict(entity),
+                    address_filters=self.get_filter_choices(context['user'],
+                                                            Contact, Organisation,
+                                                           ),
+                    # radius=get_setting(NEIGHBOURHOOD_DISTANCE,
+                    #                    DEFAULT_SEPARATING_NEIGHBOURS,
+                    #                   ),
+                    radius=get_radius(),
+                    maps_blockid=PersonsMapsBlock.id_,
+        ))
 
 
 persons_maps_block        = PersonsMapsBlock()

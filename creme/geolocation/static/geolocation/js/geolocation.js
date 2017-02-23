@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014-2015  Hybird
+    Copyright (C) 2014-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -15,7 +15,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
-
 
 creme.geolocation = creme.geolocation || {};
 
@@ -87,8 +86,16 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         }
     ],
 
-    _init_: function ()
+//    _init_: function ()
+    _init_: function (set_address_info_url)
     {
+        if (set_address_info_url === undefined) {
+            console.warn('creme.geolocation.GoogleMapController(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.')
+            this.set_address_info_url = '/geolocation/set_address_info/';
+        } else {
+            this.set_address_info_url = set_address_info_url;
+        }
+
         this.defaultZoomValue = 12;
         this.defaultLat = 48;
         this.defaultLn = 2;
@@ -256,7 +263,9 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
     {
         var self = this;
 
-        creme.ajax.query('/geolocation/set_address_info/%s'.format(options.address.id), {}, {
+//        creme.ajax.query('/geolocation/set_address_info/%s'.format(options.address.id), {}, {
+        creme.ajax.query(this.set_address_info_url, {}, {
+                             id:        options.address.id,
                              latitude:  marker.position.lat(),
                              longitude: marker.position.lng(),
                              geocoded:  geocoded,
@@ -273,7 +282,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         return this;
     },
 
-    findLocation: function (address, options)
+    findLocation: function(address, options)
     {
         return this.geocode({
             address:   address,
