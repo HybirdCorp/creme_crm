@@ -8,7 +8,7 @@ from .views import portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal),
+    url(r'^$', portal.portal, name='opportunities__portal'),
 ]
 
 if not opportunity_model_is_custom():
@@ -29,6 +29,10 @@ if apps.is_installed('creme.billing'):
     from .views import billing
 
     urlpatterns += [
-        url(r'^opportunity/generate_new_doc/(?P<opp_id>\d+)/(?P<ct_id>\d+)$',                                       billing.generate_new_doc),
-        url(r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/(?P<action>set_current|unset_current)/$', billing.current_quote),
+        url(r'^opportunity/generate_new_doc/(?P<opp_id>\d+)/(?P<ct_id>\d+)$',
+            billing.generate_new_doc, name='opportunities__generate_billing_doc',
+           ),
+        url(r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/(?P<action>set_current|unset_current)/$',
+            billing.current_quote, name='opportunities__linked_quote_is_current',
+           ),
     ]

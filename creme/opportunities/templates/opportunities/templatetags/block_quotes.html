@@ -19,6 +19,7 @@
                 <th class="block_header_line_dark action">{% trans "Current quote ?" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
+            {% url 'creme_core__delete_similar_relations' as delete_relation_url %}
             {% with current_quote_ids=object.get_current_quote_ids %}
                 {% for quote in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     {% with quote_is_current=quote.id|in:current_quote_ids %}
@@ -28,12 +29,14 @@
                             <td class="{{row_color}} action">
                                 {% has_perm_to link quote as quote_link_perm %}
                                 {% has_perm_to unlink quote as quote_unlink_perm %}
-                                    <input{% if quote_is_current %} checked{% endif %} type="radio" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="CurrentQuote_{{quote.id}}" value="false">{% trans "Yes" %}
-                                    <input{% if not quote_is_current %} checked{% endif %} type="radio" {% if not unlink_perm or not quote_unlink_perm %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/unset_current/', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="CurrentQuote_{{quote.id}}" value="true">{% trans "No" %}
+{#                                    <input{% if quote_is_current %} checked{% endif %} type="radio" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="CurrentQuote_{{quote.id}}" value="false">{% trans "Yes" %} #}
+                                    <input{% if quote_is_current %} checked{% endif %} type="radio" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('{% url 'opportunities__linked_quote_is_current' object.pk quote.pk 'set_current' %}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="CurrentQuote_{{quote.id}}" value="false">{% trans "Yes" %}
+{#                                    <input{% if not quote_is_current %} checked{% endif %} type="radio" {% if not unlink_perm or not quote_unlink_perm %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/unset_current/', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="CurrentQuote_{{quote.id}}" value="true">{% trans "No" %} #}
+                                    <input{% if not quote_is_current %} checked{% endif %} type="radio" {% if not unlink_perm or not quote_unlink_perm %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('{% url 'opportunities__linked_quote_is_current' object.pk quote.pk 'unset_current' %}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="CurrentQuote_{{quote.id}}" value="true">{% trans "No" %}
                             </td>
                             <td class="{{row_color}} action">
                                 {% has_perm_to unlink quote as quote_unlink_perm %}{% comment %}TODO: specilized view to delete 'current doc' relation too ??{% endcomment %}
-                                {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" with_perms unlink_perm|and_op:quote_unlink_perm %}
+                                {% get_line_unlinker at_url delete_relation_url with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" with_perms unlink_perm|and_op:quote_unlink_perm %}
                             </td>
                         </tr>
                     {% endwith %}

@@ -201,7 +201,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/opportunities/')
+        # self.assertGET200('/opportunities/')
+        self.assertGET200(reverse('opportunities__portal'))
 
     @skipIfCustomOrganisation
     def test_createview01(self):
@@ -403,7 +404,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         target, emitter = self._create_target_n_emitter()
-        url = '/opportunities/opportunity/add_to/%s/popup' % target.id
+        # url = '/opportunities/opportunity/add_to/%s/popup' % target.id
+        url = reverse('opportunities__create_related_opportunity_popup', args=(target.id,))
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
@@ -488,7 +490,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         target, emitter = self._create_target_n_emitter(contact=True)
-        url = '/opportunities/opportunity/add_to/%s/popup' % target.id
+        # url = '/opportunities/opportunity/add_to/%s/popup' % target.id
+        url = reverse('opportunities__create_related_opportunity_popup', args=(target.id,))
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
@@ -634,7 +637,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opp1 = self._create_opportunity_n_organisations('Opp1')[0]
         opp2 = self._create_opportunity_n_organisations('Opp2')[0]
 
-        response = self.assertGET200('/opportunities/opportunities')
+        # response = self.assertGET200('/opportunities/opportunities')
+        response = self.assertGET200(reverse('opportunities__list_opportunities'))
 
         with self.assertNoException():
             opps_page = response.context['entities']
@@ -651,13 +655,15 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         target.trash()
         emitter.trash()
 
-        url_fmt = '/creme_core/entity/delete/%s' #TODO: in CremeTestCase
-        self.assertPOST403(url_fmt % target.id, follow=True)
+        # url_fmt = '/creme_core/entity/delete/%s'
+        # self.assertPOST403(url_fmt % target.id, follow=True)
+        self.assertPOST403(target.get_delete_absolute_url(), follow=True)
         self.assertStillExists(target)
         self.assertStillExists(opp)
         self.assertEqual(target, self.refresh(opp).target)
 
-        self.assertPOST403(url_fmt % emitter.id, follow=True)
+        # self.assertPOST403(url_fmt % emitter.id, follow=True)
+        self.assertPOST403(emitter.get_delete_absolute_url(), follow=True)
         self.assertStillExists(emitter)
         self.assertStillExists(opp)
         self.assertEqual(emitter, self.refresh(opp).emitter)
@@ -670,7 +676,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opp, target, emitter = self._create_opportunity_n_organisations('My Opp')
         opp.trash()
 
-        self.assertPOST200('/creme_core/entity/delete/%s' % opp.id, follow=True)
+        # self.assertPOST200('/creme_core/entity/delete/%s' % opp.id, follow=True)
+        self.assertPOST200(opp.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(opp)
         self.assertStillExists(target)
         self.assertStillExists(emitter)
@@ -689,14 +696,17 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, cloned)
 
         self.assertRelationCount(1, target, constants.REL_OBJ_TARGETS, opportunity)
-        self.assertRelationCount(1, target, constants.REL_OBJ_TARGETS, cloned) #<== internal
+        self.assertRelationCount(1, target, constants.REL_OBJ_TARGETS, cloned)  # <== internal
 
     def _build_gendoc_url(self, opportunity, model=None):
         model = model or Quote
-        return '/opportunities/opportunity/generate_new_doc/%s/%s' % (
-                        opportunity.id,
-                        ContentType.objects.get_for_model(model).id,
-                    )
+        # return '/opportunities/opportunity/generate_new_doc/%s/%s' % (
+        #                 opportunity.id,
+        #                 ContentType.objects.get_for_model(model).id,
+        #             )
+        return reverse('opportunities__generate_billing_doc',
+                       args=(opportunity.id, ContentType.objects.get_for_model(model).id),
+                      )
 
     @skipIfNotInstalled('creme.billing')
     @skipIfCustomOrganisation
@@ -822,9 +832,12 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertPOST200(url, follow=True)
 
     def _build_currentquote_url(self, opportunity, quote, action='set_current'):
-        return '/opportunities/opportunity/%s/linked/quote/%s/%s/' % (
-                    opportunity.id, quote.id, action
-                )
+        # return '/opportunities/opportunity/%s/linked/quote/%s/%s/' % (
+        #             opportunity.id, quote.id, action
+        #         )
+        return reverse('opportunities__linked_quote_is_current',
+                       args=(opportunity.id, quote.id, action),
+                      )
 
     @skipIfNotInstalled('creme.billing')
     @skipIfCustomOrganisation
@@ -1084,7 +1097,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          emitter=create_orga(name='My society'),
                                          target=create_orga(name='Target renegade'),
                                         )
-        self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
+        # self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
+                           data={'id': currency.pk}
+                          )
         self.assertStillExists(currency)
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
@@ -1466,8 +1482,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
 
 class SalesPhaseTestCase(CremeTestCase):
-    DELETE_URL = '/creme_config/opportunities/sales_phase/delete'
-    PORTAL_URL = '/creme_config/opportunities/sales_phase/portal/'
+    # DELETE_URL = '/creme_config/opportunities/sales_phase/delete'
+    DELETE_URL = reverse('creme_config__delete_instance', args=('opportunities', 'sales_phase'))
+    # PORTAL_URL = '/creme_config/opportunities/sales_phase/portal/'
+    PORTAL_URL = reverse('creme_config__model_portal', args=('opportunities', 'sales_phase'))
 
     @classmethod
     def setUpClass(cls):
@@ -1505,7 +1523,8 @@ class SalesPhaseTestCase(CremeTestCase):
 
     def test_creme_config_block(self):
         self.login()
-        self.assertGET200('/creme_config/opportunities/portal/')
+        # self.assertGET200('/creme_config/opportunities/portal/')
+        self.assertGET200(reverse('creme_config__app_portal', args=('opportunities',)))
 
         create_phase = SalesPhase.objects.create
         sp1 = create_phase(name='Forthcoming', order=2)
@@ -1583,11 +1602,13 @@ class OriginTestCase(CremeTestCase):
         origin1 = create_origin(name='Web site')
         origin2 = create_origin(name='Mouth')
 
-        response = self.assertGET200('/creme_config/opportunities/origin/portal/')
+        # response = self.assertGET200('/creme_config/opportunities/origin/portal/')
+        response = self.assertGET200(reverse('creme_config__model_portal', args=('opportunities', 'origin')))
         self.assertContains(response, origin1.name)
         self.assertContains(response, origin2.name)
 
-        self.assertPOST404('/creme_config/opportunities/origin/down/%s' % origin1.id)
+        # self.assertPOST404('/creme_config/opportunities/origin/down/%s' % origin1.id)
+        self.assertPOST404(reverse('creme_config__move_instance_down', args=('opportunities', 'origin', origin1.id)))
 
     @skipIfCustomOpportunity
     def test_delete(self):
@@ -1602,7 +1623,10 @@ class OriginTestCase(CremeTestCase):
                                          target=create_orga(name='Target renegade'),
                                         )
 
-        self.assertPOST200('/creme_config/opportunities/origin/delete', data={'id': origin.pk})
+        # self.assertPOST200('/creme_config/opportunities/origin/delete', data={'id': origin.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('opportunities', 'origin')),
+                           data={'id': origin.pk}
+                          )
         self.assertDoesNotExist(origin)
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
