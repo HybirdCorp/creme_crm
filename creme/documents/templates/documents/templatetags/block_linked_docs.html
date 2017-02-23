@@ -18,8 +18,9 @@
             <tr  class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Download" %}</th>
-                <th class="block_header_line_dark action">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
+            {% url 'creme_core__delete_relation' as del_rel_url %}
             {% for relation in page.object_list %}
                 {% with relation.object_entity as doc %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
@@ -27,7 +28,8 @@
                         <td class="{{row_color}} action">
                             {% has_perm_to view doc as line_perm %}
                             {% if line_perm %}
-                                <a href="/download_file/{{doc.filedata}}">
+{#                                <a href="/download_file/{{doc.filedata}}"> #}
+                                <a href="{% url 'creme_core__dl_file' doc.filedata %}">
                                     <img src="{% creme_media_url 'images/download_22.png' %}" title="{% blocktrans %}Download '{{doc}}'{% endblocktrans %}" alt="{% trans "Download" %}"/>
                                 </a>
                             {% else %}
@@ -36,7 +38,8 @@
                         </td>
                         <td class="{{row_color}} action">
                             {% has_perm_to unlink doc as doc_unlink_perm %}
-                            {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms unlink_perm|and_op:doc_unlink_perm %}
+{#                            {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms unlink_perm|and_op:doc_unlink_perm %} #}
+                            {% get_line_unlinker at_url del_rel_url with_args "{'id':{{relation.pk}} }" with_perms unlink_perm|and_op:doc_unlink_perm %}
                         </td>
                     </tr>
                 {% endwith %}

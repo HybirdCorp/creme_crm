@@ -114,7 +114,8 @@ class DocumentsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('documents', '/documents/').register_item
-            reg_item('/documents/',                         _(u'Portal of documents'), 'documents')
+            # reg_item('/documents/',                         _(u'Portal of documents'), 'documents')
+            reg_item(reverse('documents__portal'),          _(u'Portal of documents'), 'documents')
             reg_item(reverse('documents__list_documents'),  _(u'All documents'),       'documents')
             reg_item(reverse('documents__create_document'), Document.creation_label,   cperm(Document))
             reg_item(reverse('documents__list_folders'),    _(u'All folders'),         'documents')
