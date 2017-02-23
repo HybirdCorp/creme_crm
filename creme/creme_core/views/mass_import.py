@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from os.path import splitext
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.encoding import smart_str
@@ -55,7 +56,8 @@ def mass_import(request, ct_id):
     user = request.user
 
     if Job.objects.filter(user=user).count() >= settings.MAX_JOBS_PER_USER:
-        return HttpResponseRedirect('/creme_core/job/all')
+        # return HttpResponseRedirect('/creme_core/job/all')
+        return HttpResponseRedirect(reverse('creme_core__jobs'))
 
     user.has_perm_to_create_or_die(ct.model_class())
 

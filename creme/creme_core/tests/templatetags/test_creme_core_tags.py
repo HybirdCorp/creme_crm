@@ -4,6 +4,7 @@ try:
     from functools import partial
 
     from django.db.models.fields import FieldDoesNotExist
+    from django.core.urlresolvers import reverse
     from django.template import Template, Context, TemplateSyntaxError
     from django.contrib.contenttypes.models import ContentType
 
@@ -133,11 +134,19 @@ class CremeCoreTagsTestCase(CremeTestCase):
                         )
 
     def assertFieldEditorTag(self, render, entity, field_name, block=False):
-        fmt = """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {blockReloadUrl:""" if block else \
-              """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {reloadOnSuccess:"""
-        expected = fmt % (entity.entity_type_id, entity.id, field_name)
+        # fmt = """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {blockReloadUrl:""" if block else \
+        #       """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {reloadOnSuccess:"""
+        # expected = fmt % (entity.entity_type_id, entity.id, field_name)
+        url = reverse('creme_core__inner_edition', args=(entity.entity_type_id, entity.id, field_name))
+
+        if block:
+            expected = """<a onclick="creme.blocks.form('%s', {blockReloadUrl:""" % url
+        else:
+            expected = """<a onclick="creme.blocks.form('%s', {reloadOnSuccess:""" % url
+
         self.assertTrue(render.strip().startswith(expected),
-                        "%s\n doesn't start with\n %s" % (render.strip(), expected))
+                        "%s\n doesn't start with\n %s" % (render.strip(), expected)
+                       )
 
     def test_get_field_editor01(self):
         user = self.login()

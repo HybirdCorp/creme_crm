@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2016  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -386,6 +386,10 @@ creme.utils.decorateSearchResult = function(research) {
 }
 
 creme.utils.openQuickForms = function(element) {
+    // NB: deprecated because it does not use reversed URLs
+    //     creme.menu.openQuickForm() is OK, but need the new menu.
+    console.warn('creme.utils.openQuickForms() is deprecated.');
+
     var uri = '/creme_core/quickforms/%s/%s';
     var type = $('[name="ct_id"]', element).val();
     var count = $('[name="entity_count"]', element).val();

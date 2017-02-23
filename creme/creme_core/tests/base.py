@@ -11,6 +11,7 @@ from django.test import TestCase, TransactionTestCase
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.utils.timezone import utc, get_current_timezone, make_aware
@@ -445,7 +446,8 @@ class _CremeTestCase(object):
             raise self.failureException('XML are not equal\n%s' % msg)
 
     def build_merge_url(self, entity1, entity2):
-        return '/creme_core/entity/merge/%s,%s' % (entity1.id, entity2.id)
+        # return '/creme_core/entity/merge/%s,%s' % (entity1.id, entity2.id)
+        return reverse('creme_core__merge_entities') + '?id1=%s&id2=%s' % (entity1.id, entity2.id)
 
     def create_datetime(self, *args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
@@ -517,33 +519,51 @@ class _CremeTestCase(object):
 
     @staticmethod
     def build_inneredit_url(entity, fieldname):
-        return '/creme_core/entity/edit/inner/%d/%d/field/%s' % (
-                    ContentType.objects.get_for_model(entity).pk,
-                    entity.pk,
-                    fieldname,
-                )
+        # return '/creme_core/entity/edit/inner/%d/%d/field/%s' % (
+        #             ContentType.objects.get_for_model(entity).pk,
+        #             entity.pk,
+        #             fieldname,
+        #         )
+        return reverse('creme_core__inner_edition',
+                       args=(ContentType.objects.get_for_model(entity).pk,
+                             entity.pk,
+                             fieldname,
+                            ),
+                      )
 
     @staticmethod
     def build_bulkedit_url(entities, fieldname=None):
-        url = '/creme_core/entity/edit/bulk/%d/%s' % (
-                    ContentType.objects.get_for_model(entities[0]).pk,
-                    ','.join(str(e.pk) for e in entities),
-                )
-
+        # url = '/creme_core/entity/edit/bulk/%d/%s' % (
+        #             ContentType.objects.get_for_model(entities[0]).pk,
+        #             ','.join(str(e.pk) for e in entities),
+        #         )
+        #
+        # if fieldname:
+        #     url += '/field/%s' % fieldname
+        #
+        # return url
+        args = [ContentType.objects.get_for_model(entities[0]).pk,
+                ','.join(str(e.pk) for e in entities),
+               ]
         if fieldname:
-            url += '/field/%s' % fieldname
+            args.append(fieldname)
 
-        return url
+        return reverse('creme_core__bulk_edit_field_legacy', args=args)
 
     @staticmethod
     def build_bulkupdate_url(model, fieldname=None):
-        ct = ContentType.objects.get_for_model(model)
-        url = '/creme_core/entity/update/bulk/%s' % ct.id
-
+        # ct = ContentType.objects.get_for_model(model)
+        # url = '/creme_core/entity/update/bulk/%s' % ct.id
+        #
+        # if fieldname:
+        #     url += '/field/%s' % fieldname
+        #
+        # return url
+        args = [ContentType.objects.get_for_model(model).id]
         if fieldname:
-            url += '/field/%s' % fieldname
+            args.append(fieldname)
 
-        return url
+        return reverse('creme_core__bulk_update', args=args)
 
 
 # class CremeTestCase(_CremeTestCase, TestCase):

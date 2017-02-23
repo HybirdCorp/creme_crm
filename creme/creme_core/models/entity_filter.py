@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,9 @@ from re import compile as compile_re
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db.models import (Model, CharField, TextField, BooleanField,
         PositiveSmallIntegerField, ForeignKey, Q, ManyToManyField)
-
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
@@ -505,6 +505,9 @@ class EntityFilter(Model):  # CremeModel ???
             connected.update(level_ids)
 
         return connected
+
+    def get_edit_absolute_url(self):
+        return reverse('creme_core__edit_efilter', args=(self.id,))
 
     @staticmethod
     def get_for_user(user, content_type=None):

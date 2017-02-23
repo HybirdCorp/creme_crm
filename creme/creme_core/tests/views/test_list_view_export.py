@@ -7,6 +7,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
@@ -105,8 +106,29 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         return cells
 
-    def _build_url(self, ct, method='download', doc_type='csv'):
-        return '/creme_core/list_view/%s/%s/%s' % (method, ct.id, doc_type)
+    # def _build_url(self, ct, method='download', doc_type='csv'):
+        # return '/creme_core/list_view/%s/%s/%s' % (method, ct.id, doc_type)
+
+    @staticmethod
+    def _build_dl_url(ct, doc_type='csv', header=False, list_url='', use_GET=True):
+        # if header:
+        #     return reverse('creme_core__dl_listview_header', args=(ct.id, doc_type)) if not use_GET else \
+        #            reverse('creme_core__dl_listview') + '?ct_id=%s&type=%s&header=true&lv_url=%s' % (ct.id, doc_type, lv_url)
+        #
+        # return reverse('creme_core__dl_listview', args=(ct.id, doc_type)) if not use_GET else \
+        #        reverse('creme_core__dl_listview') + '?ct_id=%s&type=%s&lv_url=%s' % (ct.id, doc_type, lv_url)
+
+        if not use_GET:
+            return reverse('creme_core__dl_listview_header' if header else 'creme_core__dl_listview',
+                           args=(ct.id, doc_type)
+                          )
+
+        url = reverse('creme_core__dl_listview') + '?ct_id=%s&type=%s&list_url=%s' % (ct.id, doc_type, list_url)
+
+        if header:
+            url += '&header=true'
+
+        return url
 
     def _set_listview_state(self, model=Contact):
         lv_url = model.get_lv_absolute_url()
@@ -119,15 +141,25 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.login()
         lv_url = self._set_listview_state()
 
-        self.assertGET404(self._build_url(self.ct, doc_type='exe'), data={'list_url': lv_url})
+        # self.assertGET404(self._build_url(self.ct, doc_type='exe'), data={'list_url': lv_url})
+        self.assertGET404(self._build_dl_url(self.ct, doc_type='exe', list_url=lv_url))
 
     def test_list_view_export_header(self):
         self.login()
         cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
-        url = self._build_url(self.ct, method='download_header')
-        response = self.assertGET200(url, data={'list_url': lv_url})
+        # url = self._build_url(self.ct, method='download_header')
+        # response = self.assertGET200(url, data={'list_url': lv_url})
+        response = self.assertGET200(self._build_dl_url(self.ct, header=True, list_url=lv_url))
 
+        self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in cells)],
+                         [force_unicode(line) for line in response.content.splitlines()]
+                        )
+
+        # Legacy
+        response = self.assertGET200(self._build_dl_url(self.ct, header=True, use_GET=False),
+                                     data={'list_url': lv_url}
+                                    )
         self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in cells)],
                          [force_unicode(line) for line in response.content.splitlines()]
                         )
@@ -138,8 +170,12 @@ class CSVExportViewsTestCase(ViewsTestCase):
         cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
-        response = self.assertGET200(self._build_url(self.ct, method='download_header', doc_type='xls'),
-                                     data={'list_url': lv_url}, follow=True
+        # response = self.assertGET200(self._build_url(self.ct, method='download_header', doc_type='xls'),
+        #                              data = {'list_url': lv_url}, follow = True
+        #
+        #                             )
+        response = self.assertGET200(self._build_dl_url(self.ct, doc_type='xls', header=True, list_url=lv_url),
+                                     follow=True
                                     )
 
         result = list(XlrdReader(None, file_contents=response.content))
@@ -152,10 +188,12 @@ class CSVExportViewsTestCase(ViewsTestCase):
         cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
-        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        # response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        response = self.assertGET200(self._build_dl_url(self.ct, list_url=lv_url))
 
         # TODO: sort the relations/properties by they verbose_name ??
-        it = (force_unicode(line) for line in response.content.splitlines())
+        result = response.content.splitlines()
+        it = (force_unicode(line) for line in result)
         self.assertEqual(it.next(), u','.join(u'"%s"' % hfi.title for hfi in cells))
         self.assertEqual(it.next(), u'"","Black","Jet","Bebop",""')
         self.assertIn(it.next(), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
@@ -167,13 +205,18 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(it.next(), u'"","Wong","Edward","","is a girl"')
         self.assertRaises(StopIteration, it.next)
 
+        # Legacy
+        response = self.assertGET200(self._build_dl_url(self.ct, use_GET=False), data={'list_url': lv_url})
+        self.assertEqual(result, response.content.splitlines())
+
     def test_list_view_export02(self):
         "scsv"
         self.login()
         cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
-        response = self.assertGET200(self._build_url(self.ct, doc_type='scsv'), data={'list_url': lv_url})
+        # response = self.assertGET200(self._build_url(self.ct, doc_type='scsv'), data={'list_url': lv_url})
+        response = self.assertGET200(self._build_dl_url(self.ct, doc_type='scsv', list_url=lv_url))
 
         # TODO: sort the relations/properties by they verbose_name ??
         it = (force_unicode(line) for line in response.content.splitlines())
@@ -192,12 +235,15 @@ class CSVExportViewsTestCase(ViewsTestCase):
         "'export' credential"
         self.login(is_superuser=False)
         self._build_hf_n_contacts()
-        url = self._build_url(self.ct)
-        data = {'list_url': self._set_listview_state()}
-        self.assertGET403(url, data=data)
+        # url = self._build_url(self.ct)
+        # data = {'list_url': self._set_listview_state()}
+        # self.assertGET403(url, data=data)
+        url = self._build_dl_url(self.ct, list_url=self._set_listview_state())
+        self.assertGET403(url)
 
         self.role.exportable_ctypes = [self.ct]  # Set the 'export' credentials
-        self.assertGET200(url, data=data)
+        # self.assertGET200(url, data=data)
+        self.assertGET200(url)
 
     def test_list_view_export04(self):
         "Credential"
@@ -220,9 +266,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertFalse(user.has_perm_to_view(bebop))
         self.assertTrue(user.has_perm_to_view(organisations['Swordfish']))
 
-        response = self.assertGET200(self._build_url(self.ct),
-                                     data={'list_url': self._set_listview_state()}
-                                    )
+        # response = self.assertGET200(self._build_url(self.ct),
+        #                              data = {'list_url': self._set_listview_state()}
+        #                            )
+        response = self.assertGET200(self._build_dl_url(self.ct, list_url=self._set_listview_state()))
         result = map(force_unicode, response.content.splitlines())
         self.assertEqual(result[1], '"","Black","Jet","",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
@@ -241,7 +288,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
         spike = Contact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
 
         lv_url = self._set_listview_state()
-        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        # response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        response = self.assertGET200(self._build_dl_url(self.ct, list_url=lv_url))
 
         result = [force_unicode(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
@@ -275,7 +323,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
                            )
 
         lv_url = self._set_listview_state()
-        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        # response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        response = self.assertGET200(self._build_dl_url(self.ct, list_url=lv_url))
         it = (force_unicode(line) for line in response.content.splitlines()); it.next()
 
         self.assertEqual(it.next(), '"Black","Jet face","Jet\'s selfie"')
@@ -304,8 +353,12 @@ class CSVExportViewsTestCase(ViewsTestCase):
                            )
 
         lv_url = self._set_listview_state(model=EmailCampaign)
-        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(EmailCampaign)),
-                                     data={'list_url': lv_url}
+        # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(EmailCampaign)),
+        #                              data = {'list_url': lv_url}
+        #                             )
+        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(EmailCampaign),
+                                                        list_url=lv_url,
+                                                       ),
                                     )
         result = [force_unicode(line) for line in response.content.splitlines()]
         self.assertEqual(4, len(result))
@@ -324,14 +377,15 @@ class CSVExportViewsTestCase(ViewsTestCase):
                             descriptions=[('first_name', {FieldsConfig.HIDDEN: True})],
                            )
 
-        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        # response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        response = self.assertGET200(self._build_dl_url(self.ct, list_url=lv_url))
 
         it = (force_unicode(line) for line in response.content.splitlines())
         self.assertEqual(it.next(),
-                         u','.join(u'"%s"' % u for u in [_('Civility'),
-                                                         _('Last name'),
+                         u','.join(u'"%s"' % u for u in [_(u'Civility'),
+                                                         _(u'Last name'),
                                                          'pilots',
-                                                         _('Properties'),
+                                                         _(u'Properties'),
                                                         ]
                                   )
                         )
@@ -342,8 +396,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.login()
         cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
-        response = self.assertGET200(self._build_url(self.ct, doc_type='xls'),
-                                     data={'list_url': lv_url}, follow=True,
+        # response = self.assertGET200(self._build_url(self.ct, doc_type='xls'),
+        #                              data = {'list_url': lv_url}, follow = True,
+        #                             )
+        response = self.assertGET200(self._build_dl_url(self.ct, doc_type='xls', list_url=lv_url),
+                                     follow=True,
                                     )
 
         it = iter(XlrdReader(None, file_contents=response.content))
@@ -375,14 +432,20 @@ class CSVExportViewsTestCase(ViewsTestCase):
                             model=Organisation, cells_desc=cells,
                            )
 
-        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(Organisation), doc_type='xls'),
-                                     data={'list_url': self._set_listview_state(model=Organisation)}, follow=True,
+        # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(Organisation), doc_type='xls'),
+        #                              data = {'list_url': self._set_listview_state(model=Organisation)}, follow = True,
+        #                             )
+        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(Organisation),
+                                                        doc_type='xls',
+                                                        list_url=self._set_listview_state(model=Organisation),
+                                                       ),
+                                     follow=True,
                                     )
 
         it = iter(XlrdReader(None, file_contents=response.content))
         self.assertEqual(it.next(), [hfi.title for hfi in cells])
-        self.assertEqual(it.next(), [orga01.name, _('Yes'), ''])
-        self.assertEqual(it.next(), [orga02.name, _('No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])
+        self.assertEqual(it.next(), [orga01.name, _(u'Yes'), ''])
+        self.assertEqual(it.next(), [orga02.name, _(u'No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])
         self.assertRaises(StopIteration, it.next)
 
     def test_print_integer01(self):
@@ -400,8 +463,13 @@ class CSVExportViewsTestCase(ViewsTestCase):
                            )
 
         lv_url = self._set_listview_state(model=Organisation)
-        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(Organisation)),
-                                     data={'list_url': lv_url}, follow=True,
+        # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(Organisation)),
+        #                              data = {'list_url': lv_url}, follow = True,
+        #                             )
+        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(Organisation),
+                                                        list_url=lv_url,
+                                                       ),
+                                     follow=True,
                                     )
 
         lines = {force_unicode(line) for line in response.content.splitlines()}
@@ -430,8 +498,13 @@ class CSVExportViewsTestCase(ViewsTestCase):
                            )
 
         lv_url = self._set_listview_state(model=FakeInvoiceLine)
-        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(FakeInvoiceLine)),
-                                     data={'list_url': lv_url}, follow=True,
+        # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(FakeInvoiceLine)),
+        #                              data = {'list_url': lv_url}, follow = True,
+        #                             )
+        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeInvoiceLine),
+                                                        list_url=lv_url,
+                                                       ),
+                                     follow=True,
                                     )
 
         lines = {force_unicode(line) for line in response.content.splitlines()}
@@ -475,7 +548,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertNotIn(faye.last_name, content)
 
         # ----------------------
-        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        # response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        response = self.assertGET200(self._build_dl_url(self.ct, list_url=lv_url))
 
         it = (force_unicode(line) for line in response.content.splitlines())
         it.next()  # Header
@@ -520,7 +594,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertNotIn(camp3.name, content)
 
         # ------
-        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(EmailCampaign)),
+        # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(EmailCampaign)),
+        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(EmailCampaign), use_GET=False),
                                      data={'list_url': lv_url}
                                     )
         result = [force_unicode(line) for line in response.content.splitlines()]

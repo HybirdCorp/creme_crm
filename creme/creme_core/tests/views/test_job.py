@@ -6,6 +6,7 @@ try:
     from django.apps import apps
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.db.models import Max
     from django.test.utils import override_settings
     from django.utils.encoding import smart_unicode
@@ -34,8 +35,10 @@ except Exception as e:
 
 
 class JobViewsTestCase(ViewsTestCase):
-    LIST_URL = '/creme_core/job/all'
-    INFO_URL = '/creme_core/job/info'
+    # LIST_URL = '/creme_core/job/all'
+    LIST_URL = reverse('creme_core__jobs')
+    # INFO_URL = '/creme_core/job/info'
+    INFO_URL = reverse('creme_core__jobs_info')
 
     @classmethod
     def setUpClass(cls):
@@ -61,13 +64,16 @@ class JobViewsTestCase(ViewsTestCase):
         self.assertEqual(count, smart_unicode(response.content).count(found))
 
     def _build_enable_url(self, job):
-        return '/creme_core/job/%s/enable' % job.id
+        # return '/creme_core/job/%s/enable' % job.id
+        return reverse('creme_core__enable_job', args=(job.id,))
 
     def _build_delete_url(self, job):
-        return '/creme_core/job/%s/delete' % job.id
+        # return '/creme_core/job/%s/delete' % job.id
+        return reverse('creme_core__delete_job', args=(job.id,))
 
     def _build_disable_url(self, job):
-        return '/creme_core/job/%s/disable' % job.id
+        # return '/creme_core/job/%s/disable' % job.id
+        return reverse('creme_core__disable_job', args=(job.id,))
 
     def _create_batchprocess_job(self, user=None, status=Job.STATUS_WAIT):
         if user is None:
@@ -339,7 +345,7 @@ class JobViewsTestCase(ViewsTestCase):
         response = self.assertPOST200(del_url, follow=True)
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(jresult)
-        self.assertRedirects(response, '/creme_core/job/all')
+        self.assertRedirects(response, self.LIST_URL)
 
     def test_clear02(self):
         "status = Job.STATUS_ERROR + ajax"
@@ -489,7 +495,8 @@ class JobViewsTestCase(ViewsTestCase):
                         )
 
     def _aux_test_reload(self, job, block_id):
-        response = self.assertGET200('/creme_core/job/%s/reload/%s' % (job.id, block_id))
+        # response = self.assertGET200('/creme_core/job/%s/reload/%s' % (job.id, block_id))
+        response = self.assertGET200(reverse('creme_core__reload_job_block', args=(job.id, block_id)))
 
         with self.assertNoException():
             result = json_load(response.content)
@@ -520,4 +527,5 @@ class JobViewsTestCase(ViewsTestCase):
     def test_reload03(self):
         self.login(is_superuser=False)
         job = self._create_batchprocess_job(user=self.other_user)
-        self.assertGET403('/creme_core/job/%s/reload/%s' % (job.id, job_block.id_))
+        # self.assertGET403('/creme_core/job/%s/reload/%s' % (job.id, job_block.id_))
+        self.assertGET403(reverse('creme_core__reload_job_block', args=(job.id, job_block.id_)))

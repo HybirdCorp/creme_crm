@@ -37,11 +37,13 @@
                         </a>&nbsp;
                     {% endif %}
                     {% get_export_backends as export_backends %}
-                    {% if export_backends|length > 2 %}
-                        <a {% if export_perm %}href="/creme_core/list_view/download/{{content_type_id}}/%s?list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                    {% if export_backends|length > 2 %}{% url 'creme_core__dl_listview' as dl_url %}
+{#                        <a {% if export_perm %}href="/creme_core/list_view/download/{{content_type_id}}/%s?list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
+                        <a {% if export_perm %}href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                             {% trans "Download" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                         </a>&nbsp;
-                        <a {% if export_perm %}href="/creme_core/list_view/download_header/{{content_type_id}}/%s?list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+{#                        <a {% if export_perm %}href="/creme_core/list_view/download_header/{{content_type_id}}/%s?list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
+                        <a {% if export_perm %}href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                             {% trans "Download header" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                         </a>&nbsp;
                     {% endif %}
@@ -50,12 +52,14 @@
                         {% get_import_backends as import_backends %}
                         {% if import_backends|length > 2 %}
 {#                          <a {% if creation_perm %}href="/creme_core/list_view/import/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
-                            <a {% if creation_perm %}href="/creme_core/mass_import/{{content_type_id}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+{#                            <a {% if creation_perm %}href="/creme_core/mass_import/{{content_type_id}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
+                            <a {% if creation_perm %}href="{% url 'creme_core__mass_import' content_type_id %}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                                 {% trans "Import" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                             </a>&nbsp;
                         {% endif %}
                     {% endif %}
-                    <a href="/creme_core/list_view/batch_process/{{content_type_id}}?list_url={{request.path}}">
+{#                    <a href="/creme_core/list_view/batch_process/{{content_type_id}}?list_url={{request.path}}"> #}
+                    <a href="{% url 'creme_core__batch_process' content_type_id %}?list_url={{request.path}}">
                         {% trans "Batch process" as label %}<img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                     </a>&nbsp;
                 {% endif %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from collections import defaultdict
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from .creme_jobs.base import JobType
@@ -42,10 +43,11 @@ class PropertiesBlock(QuerysetBlock):
     def detailview_display(self, context):
         entity = context['object']
         return self._render(self.get_block_template_context(
-                                context, entity.properties.select_related('type'),
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                ct_id=ContentType.objects.get_for_model(CremeProperty).id,
-                           ))
+                    context, entity.properties.select_related('type'),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    ct_id=ContentType.objects.get_for_model(CremeProperty).id,
+       ))
 
 
 class RelationsBlock(QuerysetBlock):
@@ -63,10 +65,12 @@ class RelationsBlock(QuerysetBlock):
         excluded_types = BlocksManager.get(context).used_relationtypes_ids
 
         if excluded_types:
-            update_url = '/creme_core/blocks/reload/relations_block/%s/%s/' % (entity.pk, ','.join(excluded_types))
+            # update_url = '/creme_core/blocks/reload/relations_block/%s/%s/' % (entity.pk, ','.join(excluded_types))
+            update_url = reverse('creme_core__reload_relations_block', args=(entity.pk, ','.join(excluded_types)))
             relations  = relations.exclude(type__in=excluded_types)
         else:
-            update_url = '/creme_core/blocks/reload/relations_block/%s/' % entity.pk
+            # update_url = '/creme_core/blocks/reload/relations_block/%s/' % entity.pk
+            update_url = reverse('creme_core__reload_relations_block', args=(entity.pk,))
 
         btc = self.get_block_template_context(context, relations, update_url=update_url)
 
@@ -142,7 +146,8 @@ class HistoryBlock(QuerysetBlock):
         btc = self.get_block_template_context(
                     context,
                     HistoryLine.objects.filter(entity=pk),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
                    )
         hlines = btc['page'].object_list
 
@@ -158,7 +163,8 @@ class HistoryBlock(QuerysetBlock):
         btc = self.get_block_template_context(
                     context,
                     HistoryLine.objects.filter(entity_ctype__in=ct_ids),
-                    update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
                     HIDDEN_VALUE=settings.HIDDEN_VALUE,
                    )
         hlines = btc['page'].object_list
@@ -174,7 +180,8 @@ class HistoryBlock(QuerysetBlock):
         btc = self.get_block_template_context(
                     context,
                     HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL)),
-                    update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
                     HIDDEN_VALUE=settings.HIDDEN_VALUE,
                    )
         hlines = btc['page'].object_list
@@ -198,10 +205,12 @@ class TrashBlock(QuerysetBlock):
     configurable  = False  # TODO: allows on home page ?
 
     def detailview_display(self, context):
-        btc = self.get_block_template_context(context,
-                                              CremeEntity.objects.filter(is_deleted=True),
-                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                             )
+        btc = self.get_block_template_context(
+                context,
+                CremeEntity.objects.filter(is_deleted=True),
+                # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+         )
         CremeEntity.populate_real_entities(btc['page'].object_list)
 
         return self._render(btc)
@@ -217,14 +226,14 @@ class StatisticsBlock(Block):
         has_perm = context['user'].has_perm
 
         return self._render(self.get_block_template_context(
-                                context,
-                                items=[item
-                                        for item in statistics_registry
-                                            if not item.perm or has_perm(item.perm)
-                                      ],
-                                update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                               )
-                           )
+                    context,
+                    items=[item
+                            for item in statistics_registry
+                                if not item.perm or has_perm(item.perm)
+                          ],
+                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)) ,
+        ))
 
 
 class JobBlock(Block):
@@ -239,7 +248,8 @@ class JobBlock(Block):
 
         return self._render(self.get_block_template_context(
                     context, job=job,
-                    update_url='/creme_core/job/%s/reload/%s' % (job.id, self.id_),
+                    # update_url='/creme_core/job/%s/reload/%s' % (job.id, self.id_),
+                    update_url=reverse('creme_core__reload_job_block', args=(job.id, self.id_)),
                     JOB_OK=Job.STATUS_OK,
                     JOB_ERROR=Job.STATUS_ERROR,
                     JOB_WAIT=Job.STATUS_WAIT,
@@ -269,9 +279,10 @@ class JobResultsBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(
                     context, self._build_queryset(job),
                     # self.dependencies[0].objects.filter(job=job, raw_messages__isnull=False),
-                    update_url='/creme_core/job/%s/reload/%s' % (job.id, self.id_),
+                    # update_url='/creme_core/job/%s/reload/%s' % (job.id, self.id_),
+                    update_url=reverse('creme_core__reload_job_block', args=(job.id, self.id_)),
                     **self._extra_context(job)
-                ))
+        ))
 
 
 class JobErrorsBlock(JobResultsBlock):
@@ -319,7 +330,8 @@ class JobsBlock(QuerysetBlock):
 
         return self._render(self.get_block_template_context(
                     context, jobs,
-                    update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     # TODO: computed twice when user is not superuser...
                     user_jobs_count=Job.objects.filter(user=user).count(),
                     MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,

@@ -19,12 +19,14 @@
 // if(!creme.relations) creme.relations = {}  ???
 creme.lv_widget = {};
 
+// TODO: useful ? (only used in tests)
 creme.lv_widget.openFilterSelection = function(ct_id, q_filter, multiple, listeners) {
     creme.lv_widget.listViewAction('/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter), {multiple:multiple})
                    .one(listeners)
                    .start();
-}
+};
 
+// TODO: useful ? (only used in tests)
 creme.lv_widget.openFilterView = function(ct_id, q_filter) {
     creme.utils.showInnerPopup('/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, 1, q_filter), {
                                    closeOnEscape: true,
@@ -35,19 +37,29 @@ creme.lv_widget.openFilterView = function(ct_id, q_filter) {
                                                      }
                                              }]
                                });
-}
+};
 
 creme.lv_widget.deleteEntityFilter = function(list, filterid) {
+    console.warn('creme.lv_widget.deleteEntityFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
+
     var query = creme.utils.confirmPOSTQuery('/creme_core/entity_filter/delete', {}, {id: filterid});
     query.onDone(function(event, data) {list.list_view('reload');});
     return query.start();
-}
+};
 
 creme.lv_widget.deleteHeaderFilter = function(list, filterid) {
+    console.warn('creme.lv_widget.deleteHeaderFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
+
     var query = creme.utils.confirmPOSTQuery('/creme_core/header_filter/delete', {}, {id: filterid});
     query.onDone(function(event, data) {list.list_view('reload');});
     return query.start();
-}
+};
+
+creme.lv_widget.deleteFilter = function(list, filter_id, url) {
+    return creme.utils.confirmPOSTQuery(url, {}, {id: filter_id})
+                      .onDone(function(event, data) {list.list_view('reload');})
+                      .start();
+};
 
 creme.lv_widget.selectedLines = function(list) {
     var list = $(list);
@@ -56,9 +68,16 @@ creme.lv_widget.selectedLines = function(list) {
         return [];
 
     return list.list_view('getSelectedEntitiesAsArray');
-}
+};
 
-creme.lv_widget.deleteSelectedLines = function(list) {
+//creme.lv_widget.deleteSelectedLines = function(list) {
+creme.lv_widget.deleteSelectedLines = function(list, url) {
+    var url = url;
+    if (url === undefined) {
+        console.warn('creme.lv_widget.deleteSelectedLines(): implicit "url" argument is deprecated ; give the URL as second argument.');
+        url = '/creme_core/entity/delete/multi';
+    }
+
     var list = $(list);
     var selection = creme.lv_widget.selectedLines(list);
     var parser = new creme.utils.JSON();
@@ -68,13 +87,13 @@ creme.lv_widget.deleteSelectedLines = function(list) {
         return;
     }
 
-    var query = creme.utils.confirmPOSTQuery('/creme_core/entity/delete/multi', {warnOnFail: false, dataType:'json'}, {ids: selection.join(',')});
+//    var query = creme.utils.confirmPOSTQuery('/creme_core/entity/delete/multi', {warnOnFail: false, dataType:'json'}, {ids: selection.join(',')});
+    var query = creme.utils.confirmPOSTQuery(url, {warnOnFail: false, dataType:'json'}, {ids: selection.join(',')});
     query.onFail(function(event, error, data) {
               var message = Object.isType(error, 'string') ? error : (error.message || gettext("Error"));
               var header = creme.ajax.localizedErrorMessage(data);
 
-              if (!Object.isEmpty(message) && parser.isJSON(message))
-              {
+              if (!Object.isEmpty(message) && parser.isJSON(message)) {
                   var results = parser.decode(message);
                   var removed_count = results.count - results.errors.length;
 
@@ -102,7 +121,7 @@ creme.lv_widget.deleteSelectedLines = function(list) {
          .onDone(function(event, data) {list.list_view('reload');});
 
     return query.start();
-}
+};
 
 creme.lv_widget.addToSelectedLines = function(list, url) {
     var list = $(list);
@@ -121,7 +140,7 @@ creme.lv_widget.addToSelectedLines = function(list, url) {
           .start();
 
     return action;
-}
+};
 
 creme.lv_widget.editSelectedLines = function(list, url) {
     var list = $(list);
@@ -165,9 +184,16 @@ creme.lv_widget.editSelectedLines = function(list, url) {
           .open({width: 800});
 
     return dialog;
-}
+};
 
-creme.lv_widget.mergeSelectedLines = function(list) {
+//creme.lv_widget.mergeSelectedLines = function(list) {
+creme.lv_widget.mergeSelectedLines = function(list, url) {
+    var url = url;
+    if (url === undefined) {
+        console.warn('creme.lv_widget.mergeSelectedLines(): implicit "url" argument is deprecated ; give the URL as second argument.');
+        url = '/creme_core/entity/merge/';
+    }
+
     var selection = creme.lv_widget.selectedLines(list);
 
     if (selection.length !== 2) {
@@ -175,8 +201,9 @@ creme.lv_widget.mergeSelectedLines = function(list) {
         return;
     }
 
-    window.location.href = '/creme_core/entity/merge/' + selection[0] + ',' + selection[1];
-}
+//    window.location.href = '/creme_core/entity/merge/' + selection[0] + ',' + selection[1];
+    window.location.href = url + '?' + $.param({id1: selection[0], id2: selection[1]});
+};
 
 creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, input, callback) {
     var $sort_field = $(sort_field);
@@ -195,7 +222,7 @@ creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, in
 //     if(typeof(callback) == "function") callback(input);
     if ($.isFunction(callback))
         callback(input);
-}
+};
 
 creme.lv_widget.initialize = function(options, dialog) {
     var id = dialog ? dialog.attr('id') : undefined;
@@ -284,7 +311,7 @@ creme.lv_widget.listViewAction = function(url, options, data) {
                    return data !== null;
                }
            }, data);
-}
+};
 
 creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
     options: {

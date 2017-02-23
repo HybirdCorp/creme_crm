@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import logging, warnings
 
 # from django.db.models import Q
 from django.http import Http404
@@ -29,7 +29,7 @@ from ..backends import export_backend_registry
 from ..core.paginator import FlowPaginator
 from ..gui.listview import ListViewState
 from ..models import EntityFilter, EntityCredentials, HeaderFilter
-from ..utils import get_ct_or_404
+from ..utils import get_ct_or_404, get_from_GET_or_404, bool_from_str_extended
 # from ..utils.chunktools import iter_as_slices
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,49 @@ logger = logging.getLogger(__name__)
 # TODO: stream response ??
 # TODO: factorise with list_view()
 @login_required
-def dl_listview(request, ct_id, doc_type, header_only=False):
+# def dl_listview(request, ct_id, doc_type, header_only=False):
+def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
+    """ Download the content of a list-view.
+    @param ct_id: the ContentType ID of the model we want. Deprecated.
+    @param doc_type: the type of file (see export_backend_registry). Deprecated.
+    @param header_only: True means we download only a simple header file (to manually fill it). Deprecated.
+
+    GET arguments are:
+      - 'ct_id': the ContentType ID of the model we want. Required (if not given if the URL -- which is deprecated).
+      - 'type': the type of file (see export_backend_registry).
+      - 'header': True means we download only a simple header file (to manually fill it).
+                  Value must be in 0/1/false/true. Optional; default value is '0' (false).
+      - 'list_url': the URL of the downloaded list-view (in order to retrieve HeaderFilter/EntityFilter/search).
+    """
+    GET = request.GET
+
+    if ct_id is not None:
+        warnings.warn('creme_core.views.list_view_export.dl_listview(): '
+                      'the URL argument "ct_id" is deprecated ; '
+                      'use the related GET parameter instead.',
+                      DeprecationWarning
+                     )
+    else:
+        ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
+
+    if doc_type is not None:
+        warnings.warn('creme_core.views.list_view_export.dl_listview(): '
+                      'the URL argument "doc_type" is deprecated ; '
+                      'use the GET parameter "type" instead.',
+                      DeprecationWarning
+                     )
+    else:
+        doc_type = get_from_GET_or_404(GET, 'type')
+
+    if header_only is not None:
+        warnings.warn('creme_core.views.list_view_export.dl_listview(): '
+                      'the URL to download header only is deprecated ; '
+                      'use the GET parameter "header" with the download URL instead.',
+                      DeprecationWarning
+                     )
+    else:
+        header_only = get_from_GET_or_404(GET, 'header', cast=bool_from_str_extended, default='0')
+
     ct    = get_ct_or_404(ct_id)
     model = ct.model_class()
     user  = request.user

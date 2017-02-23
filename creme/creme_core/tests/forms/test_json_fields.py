@@ -4,6 +4,7 @@ from functools import partial
 
 try:
     from django.core.exceptions import ValidationError
+    from django.core.urlresolvers import reverse
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query import Q, QuerySet
     from django.utils.translation import ugettext as _
@@ -152,20 +153,27 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
-    # QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
-    QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/'
+    # # QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
+    # QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/'
     DATA_FORMAT = '{"ctype": {"create": "%s", "id": %s, "create_label": "%s"}, "entity": %s}'
-    CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s, "create_label": "%s"}, "entity": %s}'
+    # CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s, "create_label": "%s"}, "entity": %s}'
 
-    def build_field_data(self, ctype_id, entity):
-        label = ContentType.objects.get(pk=ctype_id).model_class().creation_label
-        return self.CREATE_DATA_FORMAT % (ctype_id, ctype_id, label, entity)
+    # def build_field_data(self, ctype_id, entity):
+    def build_field_data(self, ctype_id, entity_id, label=None):
+        # label = ContentType.objects.get(pk=ctype_id).model_class().creation_label
+        # return self.CREATE_DATA_FORMAT % (ctype_id, ctype_id, label, entity)
+        return '{"ctype": {"create": "%(url)s", "id": %(ct_id)s, "create_label": "%(label)s"}, "entity": %(entity_id)s}' % {
+            'url': reverse('creme_core__quick_form', args=(ctype_id,)),
+            'ct_id': ctype_id,
+            'label': label or ContentType.objects.get_for_id(ctype_id).model_class().creation_label,
+            'entity_id': entity_id,
+        }
 
     def test_models_ctypes(self):
         get_ct = ContentType.objects.get_for_model
         self.assertEqual([get_ct(FakeOrganisation), get_ct(FakeContact), get_ct(FakeImage)],
                          GenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage]).get_ctypes()
-                         )
+                        )
 
     def test_default_ctypes(self):
         ctypes = GenericEntityField().get_ctypes()
@@ -196,9 +204,12 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact()
         field = GenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
 
-        self.assertEqual(self.DATA_FORMAT % (self.QUICKFORM_URL % 12, 12, 'Add', 1),
-                         field.from_python({'ctype': {'create': self.QUICKFORM_URL % 12,
-                                                      'id' : 12,
+        # self.assertEqual(self.DATA_FORMAT % (self.QUICKFORM_URL % 12, 12, 'Add', 1),
+        #                  field.from_python({'ctype': {'create': self.QUICKFORM_URL % 12,
+        self.assertEqual(self.build_field_data(12, 1, 'Add'),
+                         # field.from_python({'ctype': {'create': self.QUICKFORM_URL % 12,
+                         field.from_python({'ctype': {'create': reverse('creme_core__quick_form', args=(12,)),
+                                                      'id': 12,
                                                       'create_label': 'Add',
                                                      },
                                             'entity': 1,
@@ -437,14 +448,25 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
-    # QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
-    QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/'
+    # # QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/1'
+    # QUICKFORM_URL = '/creme_core/quickforms/from_widget/%s/add/'
     DATA_FORMAT = '{"ctype": {"create": "%s", "id": %s, "create_label": "%s"}, "entity": %s}'
-    CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s, "create_label": "%s"}, "entity": %s}'
+    # CREATE_DATA_FORMAT = '{"ctype": {"create": "' + QUICKFORM_URL + '", "id": %s, "create_label": "%s"}, "entity": %s}'
 
-    def build_field_entry_data(self, ctype_id, entity):
-        label = ContentType.objects.get(pk=ctype_id).model_class().creation_label
-        return self.CREATE_DATA_FORMAT % (ctype_id, ctype_id, label, entity)
+    def _build_quick_forms_url(self, ct_id):
+        return reverse('creme_core__quick_form', args=(ct_id,))
+
+    # def build_field_entry_data(self, ctype_id, entity):
+    def build_field_entry_data(self, ctype_id, entity_id):
+        # label = ContentType.objects.get(pk=ctype_id).model_class().creation_label
+        # return self.CREATE_DATA_FORMAT % (ctype_id, ctype_id, label, entity)
+        return '{"ctype": {"create": "%(url)s", "id": %(ct_id)s, "create_label": "%(label)s"}, "entity": %(entity_id)s}' % {
+            'url': reverse('creme_core__quick_form', args=(ctype_id,)),
+            'ct_id': ctype_id,
+            # 'label': label or ContentType.objects.get_for_id(ctype_id).model_class().creation_label,
+            'label': ContentType.objects.get_for_id(ctype_id).model_class().creation_label,
+            'entity_id': entity_id,
+        }
 
     def test_models_ctypes(self):
         get_ct = ContentType.objects.get_for_model
@@ -470,14 +492,26 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact_label = FakeContact.creation_label
         orga_label    = FakeOrganisation.creation_label
 
-        url_fmt = self.QUICKFORM_URL
+        # url_fmt = self.QUICKFORM_URL
+        build_url = self._build_quick_forms_url
         build_entry = self.build_field_entry_data
         field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
         self.assertEqual('[%s, %s]' % (build_entry(contact_ct_id, 1), build_entry(orga_ct_id, 5)),
                          field.from_python(
-                             [{'ctype': {'id': contact_ct_id, 'create': url_fmt % contact_ct_id, 'create_label': unicode(contact_label)}, 'entity': 1},
-                              {'ctype': {'id': orga_ct_id,    'create': url_fmt % orga_ct_id,    'create_label': unicode(orga_label)},    'entity': 5},
-                             ]
+                             # [{'ctype': {'id': contact_ct_id, 'create': url_fmt % contact_ct_id, 'create_label': unicode(contact_label)}, 'entity': 1},
+                             #  {'ctype': {'id': orga_ct_id,    'create': url_fmt % orga_ct_id,    'create_label': unicode(orga_label)},    'entity': 5},
+                             # ]
+                             [{'ctype': {'id': contact_ct_id,
+                                         'create': build_url(contact_ct_id) ,
+                                         'create_label': unicode(contact_label)},
+                                         'entity': 1,
+                                        },
+                              {'ctype': {'id': orga_ct_id,
+                                         'create': build_url(orga_ct_id),
+                                         'create_label': unicode(orga_label)},
+                                         'entity': 5,
+                                        },
+                              ]
                          )
                         )
 
@@ -1697,20 +1731,21 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
 
         field = CreatorEntityField(FakeContact)
-        # self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
-        self.assertEqual('/creme_core/quickforms/from_widget/%s/add/' % ContentType.objects.get_for_model(FakeContact).pk,
+        # # self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
+        # self.assertEqual('/creme_core/quickforms/from_widget/%s/add/' % ContentType.objects.get_for_model(FakeContact).pk,
+        self.assertEqual(reverse('creme_core__quick_form', args=(ContentType.objects.get_for_model(FakeContact).pk,)),
                          field.create_action_url
                         )
 
         # field.create_action_url = '/persons/quickforms/from_widget/contact/add/1'
         # self.assertEqual('/persons/quickforms/from_widget/contact/add/1', field.create_action_url)
-        field.create_action_url = '/persons/quickforms/from_widget/contact/add/'
-        self.assertEqual('/persons/quickforms/from_widget/contact/add/', field.create_action_url)
+        field.create_action_url = url = '/persons/quickforms/from_widget/contact/add/'
+        self.assertEqual(url, field.create_action_url)
 
     def test_clean_empty_required(self):
         clean = CreatorEntityField(FakeContact, required=True).clean
         self.assertFieldValidationError(CreatorEntityField, 'required', clean, None)
-        self.assertFieldValidationError(CreatorEntityField, 'required', clean, "")
+        self.assertFieldValidationError(CreatorEntityField, 'required', clean, '')
 
     def test_clean_empty_not_required(self):
         with self.assertNoException():
@@ -1956,21 +1991,22 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
 
         field = MultiCreatorEntityField(FakeContact)
-        # self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
-        self.assertEqual('/creme_core/quickforms/from_widget/%s/add/' % ContentType.objects.get_for_model(FakeContact).pk,
+        # # self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
+        # self.assertEqual('/creme_core/quickforms/from_widget/%s/add/' % ContentType.objects.get_for_model(FakeContact).pk,
+        self.assertEqual(reverse('creme_core__quick_form', args=(ContentType.objects.get_for_model(FakeContact).pk,)),
                          field.create_action_url
-                         )
+                        )
 
         # field.create_action_url = '/persons/quickforms/from_widget/contact/add/1'
         # self.assertEqual('/persons/quickforms/from_widget/contact/add/1', field.create_action_url)
-        field.create_action_url = '/persons/quickforms/from_widget/contact/add/'
-        self.assertEqual('/persons/quickforms/from_widget/contact/add/', field.create_action_url)
+        field.create_action_url = url = '/persons/quickforms/from_widget/contact/add/'
+        self.assertEqual(url, field.create_action_url)
 
     def test_clean_empty_required(self):
         clean = MultiCreatorEntityField(FakeContact, required=True).clean
         self.assertFieldValidationError(MultiCreatorEntityField, 'required', clean, None)
-        self.assertFieldValidationError(MultiCreatorEntityField, 'required', clean, "")
-        self.assertFieldValidationError(MultiCreatorEntityField, 'required', clean, "[]")
+        self.assertFieldValidationError(MultiCreatorEntityField, 'required', clean, '')
+        self.assertFieldValidationError(MultiCreatorEntityField, 'required', clean, '[]')
 
     def test_clean_empty_not_required(self):
         with self.assertNoException():
@@ -2143,8 +2179,8 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
         field = FilteredEntityTypeField(ctypes=ctypes)
         self.assertEqual(ctypes, field.ctypes)
 
-        from creme.creme_core.forms.widgets import FilteredEntityTypeWidget
-        self.assertIsInstance(field.widget, FilteredEntityTypeWidget)
+        # from creme.creme_core.forms.widgets import FilteredEntityTypeWidget
+        # self.assertIsInstance(field.widget, FilteredEntityTypeWidget)
 
         self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
                                         field.clean, error_msg

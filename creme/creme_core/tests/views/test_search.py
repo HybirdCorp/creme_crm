@@ -5,6 +5,7 @@ try:
     from json import loads as json_load
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
     from django.test import override_settings
 
@@ -18,7 +19,8 @@ except Exception as e:
 
 
 class SearchViewTestCase(ViewsTestCase):
-    LIGHT_URL = '/creme_core/search/light/'
+    # LIGHT_URL = '/creme_core/search/light/'
+    LIGHT_URL = reverse('creme_core__light_search')
 
     CONTACT_BLOCKID = 'block_creme_core-found-creme_core-fakecontact'
     ORGA_BLOCKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
@@ -78,7 +80,8 @@ class SearchViewTestCase(ViewsTestCase):
         if ct_id is not None:
             data['ct_id'] = ct_id
 
-        return self.client.get('/creme_core/search', data=data)
+        # return self.client.get('/creme_core/search', data=data)
+        return self.client.get(reverse('creme_core__search'), data=data)
 
     def test_search01(self):
         self.login()
@@ -314,11 +317,13 @@ class SearchViewTestCase(ViewsTestCase):
         self.login()
         self._setup_contacts()
 
-        url_fmt = '/creme_core/search/reload_block/%s/%s'
+        # url_fmt = '/creme_core/search/reload_block/%s/%s'
         block_id = self.CONTACT_BLOCKID + '-32132154'
-        self.assertGET404(url_fmt % (block_id, 'da'))
+        # self.assertGET404(url_fmt % (block_id, 'da'))
+        self.assertGET404(reverse('creme_core__reload_search_block', args=(block_id, 'da')))
 
-        response = self.assertGET200(url_fmt % (block_id, 'linu'))
+        # response = self.assertGET200(url_fmt % (block_id, 'linu'))
+        response = self.assertGET200(reverse('creme_core__reload_search_block', args=(block_id, 'linu')))
 
         with self.assertNoException():
             results = json_load(response.content)

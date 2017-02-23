@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2016  Hybird
+    Copyright (C) 2016-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -69,7 +69,8 @@ creme.jobs.decorateJobStatus = function(block, job_id, status, ack_errors) {
     return must_reload;
 };
 
-creme.jobs.checkJobManager = function(block_id, reload_page) {
+//creme.jobs.checkJobManager = function(block_id, reload_page) {
+creme.jobs.checkJobManager = function(url, block_id, reload_page) {
     var block = $('#' + block_id);  // We retrieve the block by its ID at each call, because the block can be reloaded (& so, replaced)
     var job_ids = [];
 
@@ -84,9 +85,9 @@ creme.jobs.checkJobManager = function(block_id, reload_page) {
         }
     });
 
-    var url = '/creme_core/job/info';
+//    var url = '/creme_core/job/info';
     if (job_ids.length) {
-        url = url + '?' + $.param({'id':job_ids});
+        url = url + '?' + $.param({'id': job_ids});
     }
 
     $.ajax({url: url,
@@ -119,7 +120,8 @@ creme.jobs.checkJobManager = function(block_id, reload_page) {
                 });
 
                 if (!alright) {
-                    setTimeout(creme.jobs.checkJobManager, 5000, block_id, reload_page);
+//                    setTimeout(creme.jobs.checkJobManager, 5000, block_id, reload_page);
+                    setTimeout(creme.jobs.checkJobManager, 5000, url, block_id, reload_page);
                 } else if (reload_page) {
                     window.location = window.location;
                 }

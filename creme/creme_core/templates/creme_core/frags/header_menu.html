@@ -17,7 +17,8 @@
                 <div class='search-results-group all-search-results'>
                     <span class='search-results-group-title'></span>
                     <ul class='search-results'>
-                        <li class='search-result'><a href='/creme_core/search'>{% trans "Advanced search" %}</a></li>
+{#                        <li class='search-result'><a href='/creme_core/search'>{% trans "Advanced search" %}</a></li> #}
+                        <li class='search-result'><a href='{% url 'creme_core__search' %}'>{% trans "Advanced search" %}</a></li>
                     </ul>
                 </div>
             </div>
@@ -37,7 +38,8 @@
                 creme.menu.openCreateAnyDialog(e.target);
             });
 
-            new creme.search.SearchBox('.search-box', '/creme_core/search/light/', '/creme_core/search');
+{#            new creme.search.SearchBox('.search-box', '/creme_core/search/light/', '/creme_core/search'); #}
+            new creme.search.SearchBox('.search-box', '{% url 'creme_core__light_search' %}', '{% url 'creme_core__search' %}');
         })
     </script>
 </div>

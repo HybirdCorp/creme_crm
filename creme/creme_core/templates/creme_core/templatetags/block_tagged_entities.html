@@ -24,7 +24,8 @@
                 {% endif %}
             </th>
         {% end_get_block_header %}
-        <tbody class="collapsable">
+        {% url 'creme_core__remove_property' as rm_url %}
+        <tbody class="collapsable">{% url 'creme_core__remove_property' as delete_url %}
             {% for entity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">
@@ -32,7 +33,8 @@
                         {% widget_entity_hyperlink entity user %}
                     </td>
                     <td class="{{row_color}} action">{% has_perm_to change entity as has_perm %}
-                        {% get_line_unlinker at_url '/creme_core/property/delete_from_type' with_args "{'ptype_id':'{{ptype_id}}','entity_id':{{entity.id}} }" with_perms has_perm %}
+{#                        {% get_line_unlinker at_url '/creme_core/property/delete_from_type' with_args "{'ptype_id':'{{ptype_id}}','entity_id':{{entity.id}} }" with_perms has_perm %} #}
+                        {% get_line_unlinker at_url rm_url with_args "{'ptype_id':'{{ptype_id}}','entity_id':{{entity.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

@@ -25,6 +25,7 @@ import math
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse_lazy as reverse
 from django.utils.encoding import smart_unicode
 from django.utils.html import escape  # escapejs
 from django.utils.translation import ugettext as _, ungettext, ugettext_lazy
@@ -562,7 +563,7 @@ else:
 
     class TrashItem(URLItem):
         "Item rendering as a link to the Creme trash."
-        def __init__(self, id, url='/creme_core/entity/trash'):
+        def __init__(self, id, url=reverse('creme_core__trash')):
             super(TrashItem, self).__init__(id=id, url=url)
 
         def render(self, context, level=0):
@@ -588,8 +589,10 @@ else:
                 self.model = model
 
             def render(self, context, level=0):
-                return u'<a href="" class="quickform-menu-link" data-ct-id="%s">%s</a>' % (
-                                self.ct_id,
+                # return u'<a href="" class="quickform-menu-link" data-ct-id="%s">%s</a>' % (
+                return u'<a href="%s" class="quickform-menu-link">%s</a>' % (
+                                # self.ct_id,
+                                reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
                                 self.label,
                             ) if context['user'].has_perm_to_create(self.model) else \
                        u'<span class="ui-creme-navigation-text-entry forbidden">%s</span>' % self.label

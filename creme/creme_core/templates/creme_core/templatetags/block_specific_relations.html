@@ -8,13 +8,14 @@
         </th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}/{{relation_type.id}}' with_label _("New relationships") with_perms subject_link_perm %}
+{#                {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}/{{relation_type.id}}' with_label _("New relationships") with_perms subject_link_perm %} #}
+                {% url 'creme_core__create_relations' object.id relation_type.id as create_url %}{% get_line_linker at_url create_url with_label _('New relationships') with_perms subject_link_perm %}
             </div>
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% for entities, cells in groups %}
-            {% if cells %}
+            {% if cells %}{% url 'creme_core__delete_relation' as delete_url %}
                 {% with len=cells|length %}{% with fixed_colspan=colspan|sub:len %}
                     {% if groups|length > 1 %}<tr class="header"><th class="block_header_line_dark" colspan="{{colspan}}">{{entities.0|get_meta_value:'verbose_name_plural'}}</th></tr>{% endif %}
                     <tr class="header">
@@ -39,7 +40,8 @@
                                 {% endfor %}
                             {% endif %}
                             <td class="{{row_color}} action">{% has_perm_to unlink entity_obj as object_unlink_perm %}
-                                {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{entity_obj.srb_relation_cache.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
+{#                                {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{entity_obj.srb_relation_cache.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %} #}
+                                {% get_line_unlinker at_url delete_url with_args "{'id':{{entity_obj.srb_relation_cache.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -55,7 +57,8 @@
                         <tr class="content">
                             <td class="{{row_color}}" colspan="{{fixed_colspan}}">{% widget_entity_hyperlink entity_obj user %}</td>
                             <td class="{{row_color}} action">{% has_perm_to unlink entity_obj as object_unlink_perm %}
-                                {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{entity_obj.srb_relation_cache.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
+{#                                {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{entity_obj.srb_relation_cache.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %} #}
+                                {% get_line_unlinker at_url delete_url with_args "{'id':{{entity_obj.srb_relation_cache.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
                             </td>
                         </tr>
                     {% endfor %}

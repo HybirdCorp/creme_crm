@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -286,28 +286,34 @@ class CremeCoreConfig(CremeAppConfig):
     #     creme_registry.register_app('creme_core', _(u'Core'), '/')
 
     def register_menu(self, creme_menu):
+        from django.core.urlresolvers import reverse_lazy as reverse
+
         if settings.OLD_MENU:
             reg_app = creme_menu.register_app
-            reg_app('creme_core', '/',     _(u'Home'),    force_order=0)
-            reg_app('my_page', '/my_page', _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
+            # reg_app('creme_core', '/',     _(u'Home'),    force_order=0)
+            reg_app('creme_core', reverse('creme_core__home'),    _(u'Home'),    force_order=0)
+            # reg_app('my_page', '/my_page', _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
+            reg_app('my_page',    reverse('creme_core__my_page'), _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
         else:
             from .gui.menu import (ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
                     QuickCreationItemGroup, CreationFormsItem)
             from .gui.quick_forms import quickforms_registry
 
             creme_menu.add(ContainerItem('creme', label='Creme')
-                              .add(URLItem('home', url='/', label=_(u'Home')), priority=10)
+                              .add(URLItem('home', url=reverse('creme_core__home'), label=_(u'Home')), priority=10)
                               .add(TrashItem('trash'), priority=20)  # TODO: icon ?
                               .add(ItemGroup('user', label=_(u'User'))
-                                      .add(URLItem('my_page', url='/my_page', label=_(u'My page')), priority=10),
+                                      .add(URLItem('my_page', url=reverse('creme_core__my_page'), label=_(u'My page')),
+                                           priority=10,
+                                          ),
                                    priority=30,
                                   )
-                              .add(URLItem('logout', url='/creme_logout/', label=_(u'Log out')), priority=40),
+                              .add(URLItem('logout', url=reverse('creme_logout'), label=_(u'Log out')), priority=40),
                            priority=10,
                           ) \
                       .add(ItemGroup('features')
                                 .add(ContainerItem('tools', label=_(u'Tools'))
-                                        .add(URLItem('creme_core-jobs', url='/creme_core/job/all', label=_(u'My jobs')),
+                                        .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'), label=_(u'My jobs')),
                                              priority=5,
                                             ),
                                      priority=100,

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,27 +22,51 @@
 
 creme.relations = creme.relations || {};
 
-creme.relations.addRelationTo = function(subject, predicate, ctype, options, data) {
-    var options = options || {};
-    var query = new creme.ajax.Backend().query().url('/creme_core/relation/add_from_predicate/save');
+//creme.relations.addRelationTo = function(subject, predicate, ctype, options, data) {
+creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options, data) {
+//    var query = new creme.ajax.Backend().query().url('/creme_core/relation/add_from_predicate/save');
+    var $body = $('body');
 
+    var save_url = $body.attr('data-save-relations-url');
+    if (save_url === undefined) {
+        console.warn('creme.relations.addRelationTo(): hard-coded save-URL is deprecated ; set the URL as the <body> attribute "data-save-relations-url" (see base.html).');
+        save_url = '/creme_core/relation/add_from_predicate/save';
+    }
+
+    var selection_url = $body.attr('data-select-relations-objects-url');
+    if (selection_url === undefined) {
+        console.warn('creme.relations.addRelationTo(): hard-coded selection-URL is deprecated ; set the URL as the <body> attribute "data-select-relations-objects-url" (see base.html).');
+        selection_url = '/creme_core/relation/objects2link/';
+    }
+
+    var query = new creme.ajax.Backend().query().url(save_url);
+
+    var options = options || {};
     if (options.blockReloadUrl) {
         query.onDone(function(event, data) {creme.blocks.reload(options.blockReloadUrl);});
     } else {
         query.onDone(function(event, data) {creme.utils.reload(window);});
     }
 
-    var url = '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s%s'.format(predicate, subject, ctype,
-                                                                                 options.multiple ? '' : '/simple');
+//    var selection_url = '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s%s'.format(predicate, subject, ctype,
+//                                                                                 options.multiple ? '' : '/simple');
+    var get_data = $.extend({
+        subject_id:    subject_id,
+        rtype_id:      rtype_id,
+        objects_ct_id: ctype_id,
+        selection:     options.multiple ? 'multiple' : 'single'
+    }, data || {});
 
-    var action = creme.lv_widget.listViewAction(url, options, data);
+    var action = creme.lv_widget.listViewAction(selection_url, options, get_data);
     action.onDone(function(event, data) {
         query.post({
                   entities: data,
-                  subject_id: subject,
-                  predicate_id: predicate
+//                  subject_id: subject,
+                  subject_id: subject_id,
+//                  predicate_id: predicate
+                  predicate_id: rtype_id
               });
     });
 
     return action.start();
-}
+};

@@ -5,11 +5,11 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
-    from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeImage as Image)
+    from ..fake_models import FakeContact, FakeOrganisation, FakeImage
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui import merge_form_registry
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
@@ -29,7 +29,8 @@ class MergeViewsTestCase(ViewsTestCase):
     #     cls.populate('creme_core')  # HeaderFilter for FakeContact/FakeOrganisation
 
     def _build_select_url(self, e1):
-        return '/creme_core/entity/merge/select_other/%s' % e1.id
+        # return '/creme_core/entity/merge/select_other/%s' % e1.id
+        return reverse('creme_core__select_entity_for_merge') + '?id1=%s' % e1.id
 
     def _oldify(self, entity, hours_delta=1):
         mdate = entity.modified - timedelta(hours=hours_delta)
@@ -38,16 +39,38 @@ class MergeViewsTestCase(ViewsTestCase):
     def test_select_entity_for_merge01(self):
         user = self.login()
 
-        form_factory = merge_form_registry.get(Organisation)
+        form_factory = merge_form_registry.get(FakeOrganisation)
         self.assertIsNotNone(form_factory)
         self.assertTrue(callable(form_factory))
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
         orga03 = create_orga(name='Manga Club')
 
         response = self.assertGET200(self._build_select_url(orga01))
+
+        with self.assertNoException():
+            contacts = response.context['entities'].object_list
+
+        contacts = set(contacts)
+        self.assertIn(orga02, contacts)
+        self.assertIn(orga03, contacts)
+        self.assertNotIn(orga01, contacts)
+
+    def test_select_entity_for_merge01_legacy(self):  # TODO: delete in 1.8
+        user = self.login()
+
+        form_factory = merge_form_registry.get(FakeOrganisation)
+        self.assertIsNotNone(form_factory)
+        self.assertTrue(callable(form_factory))
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga01 = create_orga(name='Genshiken')
+        orga02 = create_orga(name='Gen-shi-ken')
+        orga03 = create_orga(name='Manga Club')
+
+        response = self.assertGET200(reverse('creme_core__select_entity_for_merge', args=(orga01.id,)))
 
         with self.assertNoException():
             contacts = response.context['entities'].object_list
@@ -66,7 +89,7 @@ class MergeViewsTestCase(ViewsTestCase):
                 value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
                 set_type=SetCredentials.ESET_OWN
             )
-        orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
+        orga = FakeOrganisation.objects.create(user=self.other_user, name='Genshiken')
         self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._build_select_url(orga))
 
@@ -78,7 +101,7 @@ class MergeViewsTestCase(ViewsTestCase):
                                       value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
-        orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
+        orga = FakeOrganisation.objects.create(user=self.other_user, name='Genshiken')
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_change(orga))
         self.assertGET403(self._build_select_url(orga))
@@ -86,9 +109,9 @@ class MergeViewsTestCase(ViewsTestCase):
     def test_select_entity_for_merge04(self):
         "Unregistered model"
         self.login()
-        self.assertIsNone(merge_form_registry.get(Image))
+        self.assertIsNone(merge_form_registry.get(FakeImage))
 
-        image = Image.objects.create(user=self.user, name='IMG#1')
+        image = FakeImage.objects.create(user=self.user, name='IMG#1')
         self.assertGET409(self._build_select_url(image))
 
     def test_merge01(self):
@@ -103,11 +126,11 @@ class MergeViewsTestCase(ViewsTestCase):
         ptype01 = create_ptype(str_pk='test-prop_manga', text='Manga related')
         ptype02 = create_ptype(str_pk='test-prop_anime', text='Anime related')
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken',   description='Otaku band.',   phone='8787878')
         orga02 = create_orga(name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Chika',       last_name='Ogiue')
         contact02 = create_contact(first_name=u'Souichirou', last_name='Tanaka')
 
@@ -216,12 +239,12 @@ class MergeViewsTestCase(ViewsTestCase):
         "2 Contacts, M2M, foreign key to CremeEntities"
         user = self.login()
 
-        create_img = partial(Image.objects.create, user=user)
+        create_img = partial(FakeImage.objects.create, user=user)
         image1 = create_img(name='Kosaka face')
-        image2 = create_img(name='Kosuaka selfie')
+        image2 = create_img(name='Kousaka selfie')
         create_img(name='Genshiken logo')  # Should not be proposed by the form
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
 
@@ -276,11 +299,75 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual([language3],          list(new_contact01.languages.all()))
         self.assertEqual(image2,               new_contact01.image)
 
+    def test_merge02_legacy(self):  # TODO: delete in 1.8
+        "2 Contacts, M2M, foreign key to CremeEntities"
+        user = self.login()
+
+        create_img = partial(FakeImage.objects.create, user=user)
+        image1 = create_img(name='Kosaka face')
+        image2 = create_img(name='Kousaka selfie')
+        create_img(name='Genshiken logo')  # Should not be proposed by the form
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
+        contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
+
+        language1, language2 = Language.objects.all()[:2]
+        language3 = Language.objects.create(name=u'Klingon', code='KLN')
+
+        contact01.languages = [language1]
+        contact02.languages = [language1, language2]
+
+        url = reverse('creme_core__merge_entities', args=(contact01.id, contact02.id))
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            f_image = response.context['form'].fields['image']
+
+        self.assertFalse(f_image.required)
+        self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
+        self.assertEqual({(image1.id, unicode(image1)), (image2.id, unicode(image2))},  # not image #3 !
+                         set(f_image._original_field.choices)
+                        )
+
+        response = self.client.post(url, follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'first_name_1':      contact01.first_name,
+                                          'first_name_2':      contact02.first_name,
+                                          'first_name_merged': contact01.first_name,
+
+                                          'last_name_1':      contact01.last_name,
+                                          'last_name_2':      contact02.last_name,
+                                          'last_name_merged': contact01.last_name,
+
+                                          'languages_1':      [language1.id],
+                                          'languages_2':      [language1.id, language2.id],
+                                          'languages_merged': [language3.id],  # <======
+
+                                          'image_1':      image1.id,
+                                          'image_2':      image2.id,
+                                          'image_merged': image2.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertRedirects(response, contact01.get_absolute_url())
+
+        self.assertDoesNotExist(contact02)
+
+        new_contact01 = self.refresh(contact01)
+        self.assertEqual(contact01.first_name, new_contact01.first_name)
+        self.assertEqual(contact01.last_name,  new_contact01.last_name)
+        self.assertEqual([language3],          list(new_contact01.languages.all()))
+        self.assertEqual(image2,               new_contact01.image)
+
     def test_merge03(self):
         "Initial values come in priority from the last edited entity"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
 
@@ -298,9 +385,9 @@ class MergeViewsTestCase(ViewsTestCase):
     def test_merge04(self):
         "Nullable foreign key to CremeEntities"
         user = self.login()
-        image = Image.objects.create(user=user, name='Kosaka face')
+        image = FakeImage.objects.create(user=user, name='Kosaka face')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka', image=image)
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
 
@@ -317,9 +404,9 @@ class MergeViewsTestCase(ViewsTestCase):
     def test_merge05(self):
         "Unregistered model"
         user = self.login()
-        self.assertIsNone(merge_form_registry.get(Image))
+        self.assertIsNone(merge_form_registry.get(FakeImage))
 
-        create_image = partial(Image.objects.create, user=user)
+        create_image = partial(FakeImage.objects.create, user=user)
         image1 = create_image(name='IMG#1')
         image2 = create_image(name='IMG#2')
 
@@ -329,8 +416,8 @@ class MergeViewsTestCase(ViewsTestCase):
         user = self.login()
 
         create_cf = partial(CustomField.objects.create, field_type=CustomField.INT,
-                            content_type=ContentType.objects.get_for_model(Contact),
-                           )
+                            content_type=ContentType.objects.get_for_model(FakeContact),
+                            )
         cf_01 = create_cf(name='Number of manga')
         cf_02 = create_cf(name='Number of anime')
         cf_03 = create_cf(name='Club', field_type=CustomField.ENUM)
@@ -340,7 +427,7 @@ class MergeViewsTestCase(ViewsTestCase):
         enum_val1_1 = create_evalue(custom_field=cf_03, value='Club Manga')
         create_evalue(custom_field=cf_03, value='Club Anime')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka')
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
 
@@ -429,8 +516,8 @@ class MergeViewsTestCase(ViewsTestCase):
         "Try to merge 2 entities with different types"
         user = self.login()
 
-        orga = Organisation.objects.create(user=user, name='Genshiken')
-        contact = Contact.objects.create(user=user, first_name='Chika', last_name='Ogiue')
+        orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
+        contact = FakeContact.objects.create(user=user, first_name='Chika', last_name='Ogiue')
 
         self.assertGET409(self.build_merge_url(orga, contact))
 
@@ -438,7 +525,7 @@ class MergeViewsTestCase(ViewsTestCase):
         "Required fields"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
 
@@ -460,7 +547,7 @@ class MergeViewsTestCase(ViewsTestCase):
         "Try to merge an entity with itself (by forging the URL)"
         user = self.login()
 
-        orga = Organisation.objects.create(user=user, name='Genshiken')
+        orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
         self.assertGET409(self.build_merge_url(orga, orga))
 
     def test_perm01(self):
@@ -472,7 +559,7 @@ class MergeViewsTestCase(ViewsTestCase):
                 set_type=SetCredentials.ESET_OWN
             )
 
-        create_orga = Organisation.objects.create
+        create_orga = FakeOrganisation.objects.create
         orga01 = create_orga(user=user,            name='Genshiken')
         orga02 = create_orga(user=self.other_user, name='Gen-shi-ken')
 
@@ -487,9 +574,9 @@ class MergeViewsTestCase(ViewsTestCase):
         user = self.login()
 
         hidden_fname = 'phone'
-        FieldsConfig.create(Contact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+        FieldsConfig.create(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka')
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
 

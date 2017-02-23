@@ -5,10 +5,10 @@ try:
     from json import loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeAddress as Address)
+    from ..fake_models import FakeContact, FakeOrganisation, FakeAddress
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.blocks import RelationsBlock
     from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -21,7 +21,8 @@ except Exception as e:
 
 
 class BlockViewTestCase(CremeTestCase):
-    SET_STATE_URL = '/creme_core/blocks/reload/set_state/%s/'
+    # SET_STATE_URL = '/creme_core/blocks/reload/set_state/%s/'
+    SET_STATE_URL = reverse('creme_core__set_block_state')
     # TODO: other urls...
 
     # @classmethod
@@ -34,7 +35,8 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual(0, BlockState.objects.count())
 
         block_id = RelationsBlock.id_
-        self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1})
+        # self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1})
+        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, 'is_open': 1})
 
         bstates = BlockState.objects.all()
         self.assertEqual(1, len(bstates))
@@ -44,13 +46,15 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual(user,     bstate.user)
         self.assertTrue(bstate.is_open)
 
-        self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 0})
+        # self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 0})
+        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, 'is_open': 0})
         self.assertEqual(1, BlockState.objects.count())
 
         bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
         self.assertFalse(bstate.is_open)
 
-        self.assertPOST200(self.SET_STATE_URL % block_id, data={})  # No data
+        # self.assertPOST200(self.SET_STATE_URL % block_id, data={})  # No data
+        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, })  # No data
         self.assertEqual(1, BlockState.objects.count())
 
         bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
@@ -59,7 +63,8 @@ class BlockViewTestCase(CremeTestCase):
     def test_set_state02(self):
         user = self.login()
         block_id = RelationsBlock.id_
-        self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
+        # self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
+        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, 'is_open': 1, 'show_empty_fields': 1})
 
         bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
         self.assertTrue(bstate.is_open)
@@ -68,16 +73,19 @@ class BlockViewTestCase(CremeTestCase):
     def test_set_state03(self):
         user = self.login()
         block_id = RelationsBlock.id_
-        self.client.post(self.SET_STATE_URL % block_id,
-                         data={'is_open': 1, 'show_empty_fields': 1}
-                        )
+        # self.client.post(self.SET_STATE_URL % block_id,
+        #                  data = {'is_open': 1, 'show_empty_fields': 1}
+        #                 )
+        self.client.post(self.SET_STATE_URL, data={'id': block_id, 'is_open': 1, 'show_empty_fields': 1})
 
         self.client.logout()
-        self.client.login(username=self.other_user.username, password="test")
+        self.client.login(username=self.other_user.username, password='test')
 
-        block_id = RelationsBlock.id_
-        self.client.post(self.SET_STATE_URL % block_id,
-                         data={'is_open': 0, 'show_empty_fields': 0}
+        # self.client.post(self.SET_STATE_URL % block_id,
+        #                  data = {'is_open': 0, 'show_empty_fields': 0}
+        #                 )
+        self.client.post(self.SET_STATE_URL,
+                         data={'id': block_id, 'is_open': 0, 'show_empty_fields': 0}
                         )
 
         blocks_states = BlockState.objects.filter(block_id=block_id)
@@ -94,11 +102,11 @@ class BlockViewTestCase(CremeTestCase):
     def test_set_state04(self):
         "Block ids with |"
         user = self.login()
-        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Mylove')
+        casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class ContactBlock(Block):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
-            dependencies = (Organisation,)
+            dependencies = (FakeOrganisation,)
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
 
             def __init__(self, instance_block_config_item):
@@ -124,7 +132,19 @@ class BlockViewTestCase(CremeTestCase):
         blocks = block_registry.get_blocks([ibci.block_id], entity=casca)
         block_id = blocks[0].id_
 
-        self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
+        # self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
+        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, 'is_open': 1, 'show_empty_fields': 1})
+
+    def test_set_state_legacy(self):
+        user = self.login()
+        block_id = RelationsBlock.id_
+        self.assertPOST200(reverse('creme_core__set_block_state', args=(block_id,)),
+                           data={'is_open': 1, 'show_empty_fields': 1}
+                          )
+
+        bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
+        self.assertTrue(bstate.is_open)
+        self.assertTrue(bstate.show_empty_fields)
 
     class TestBlock(Block):
         verbose_name = u'Testing purpose'
@@ -149,7 +169,7 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_detailview01(self):
         user = self.login()
-        atom = Contact.objects.create(user=user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         class FoobarBlock(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_detailview01')
@@ -157,7 +177,8 @@ class BlockViewTestCase(CremeTestCase):
         block1 = FoobarBlock()
         block_registry.register(block1)
 
-        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
+        # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
+        response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(block1.id_, atom.id)))
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
                          load_json(response.content)
@@ -167,7 +188,7 @@ class BlockViewTestCase(CremeTestCase):
     def test_reload_detailview02(self):
         "With dependencies"
         user = self.login()
-        atom = Contact.objects.create(user=user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         class FoobarBlock1(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_detailview02_1')
@@ -183,7 +204,8 @@ class BlockViewTestCase(CremeTestCase):
         block3 = FoobarBlock3()
         block_registry.register(block1, block2, block3)
 
-        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id),
+        # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id),
+        response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(block1.id_, atom.id)),
                                      data={block1.id_ + '_deps': ','.join([block2.id_, block3.id_])}
                                     )
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_],
@@ -200,21 +222,22 @@ class BlockViewTestCase(CremeTestCase):
         "Do not have the credentials"
         self.login(is_superuser=False)
 
-        atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
 
         class FoobarBlock(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_detailview03')
 
         block1 = FoobarBlock()
         block_registry.register(block1)
-        self.assertGET403('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
+        # self.assertGET403('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
+        self.assertGET403(reverse('creme_core__reload_detailview_blocks', args=(block1.id_, atom.id)))
 
     def test_reload_detailview04(self):
         "Not superuser"
         self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
-        atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
         self.assertTrue(self.user.has_perm_to_view(atom))
 
         class FoobarBlock(self.TestBlock):
@@ -223,7 +246,8 @@ class BlockViewTestCase(CremeTestCase):
         block1 = FoobarBlock()
         block_registry.register(block1)
 
-        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
+        # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
+        response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(block1.id_, atom.id)))
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
                          load_json(response.content)
                         )
@@ -231,9 +255,13 @@ class BlockViewTestCase(CremeTestCase):
     def test_reload_detailview05(self):
         "Invalid block_id"
         user = self.login()
-        atom = Contact.objects.create(user=user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
-        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % ('test_reload_detailview05', atom.id))
+        # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % ('test_reload_detailview05', atom.id))
+        response = self.assertGET200(reverse('creme_core__reload_detailview_blocks',
+                                             args=('test_reload_detailview05', atom.id),
+                                            )
+                                    )
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([], load_json(response.content))
 
@@ -250,7 +278,8 @@ class BlockViewTestCase(CremeTestCase):
         block2 = FoobarBlock2()
         block_registry.register(block1, block2)
 
-        response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % block1.id_,
+        # response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % block1.id_,
+        response = self.assertGET200(reverse('creme_core__reload_home_blocks', args=(block1.id_,)),
                                      data={block1.id_ + '_deps': ','.join([block2.id_, 'silly_id'])}
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -274,11 +303,14 @@ class BlockViewTestCase(CremeTestCase):
         block_registry.register(block1, block2)
 
         get_ct = ContentType.objects.get_for_model
-        ct_id1 = get_ct(Contact).id
-        ct_id2 = get_ct(Organisation).id
-        response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s,%s/' % (
-                                            block1.id_, ct_id1, ct_id2
-                                        ),
+        ct_id1 = get_ct(FakeContact).id
+        ct_id2 = get_ct(FakeOrganisation).id
+        # response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s,%s/' % (
+        #                                     block1.id_, ct_id1, ct_id2
+        #                                 ),
+        response = self.assertGET200(reverse('creme_core__reload_portal_blocks',
+                                             args=(block1.id_, '%s,%s' % (ct_id1, ct_id2)),
+                                            ),
                                      data={block1.id_ + '_deps': ','.join([block2.id_, 'silly_id'])}
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -301,15 +333,21 @@ class BlockViewTestCase(CremeTestCase):
 
         block1 = FoobarBlock1()
         block_registry.register(block1)
-        self.assertGET403('/creme_core/blocks/reload/portal/%s/%s/' % (
-                                block1.id_,
-                                ContentType.objects.get_for_model(Contact).id
-                            )
+        # self.assertGET403('/creme_core/blocks/reload/portal/%s/%s/' % (
+        #                         block1.id_,
+        #                         ContentType.objects.get_for_model(FakeContact).id
+        #                     )
+        #                  )
+        self.assertGET403(reverse('creme_core__reload_portal_blocks',
+                                  args=(block1.id_,
+                                        ContentType.objects.get_for_model(FakeContact).id,
+                                       )
+                                 )
                          )
 
     def test_reload_portal03(self):
         "Not superuser"
-        model = Contact
+        model = FakeContact
         self.login(is_superuser=False, allowed_apps=[model._meta.app_label])
 
         class FoobarBlock1(self.TestBlock):
@@ -318,9 +356,13 @@ class BlockViewTestCase(CremeTestCase):
         block1 = FoobarBlock1()
         block_registry.register(block1)
 
-        response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (
-                                            block1.id_, ContentType.objects.get_for_model(model).id
-                                        ),
+        # response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (
+        #                                     block1.id_, ContentType.objects.get_for_model(model).id
+        #                                 ),
+        #                             )
+        response = self.assertGET200(reverse('creme_core__reload_portal_blocks',
+                                             args=(block1.id_, ContentType.objects.get_for_model(model).id)
+                                            )
                                     )
         self.assertEqual([[block1.id_, self.TestBlock.string_format_portal % block1.id_]],
                          load_json(response.content)
@@ -341,7 +383,8 @@ class BlockViewTestCase(CremeTestCase):
         block2 = FoobarBlock2()
         block_registry.register(block1, block2)
 
-        response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_,
+        # response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_,
+        response = self.assertGET200(reverse('creme_core__reload_blocks', args=(block1.id_,)),
                                      data={block1.id_ + '_deps': '%s,silly_id' % block2.id_}
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -361,7 +404,8 @@ class BlockViewTestCase(CremeTestCase):
 
         block1 = FoobarBlock1()
         block_registry.register(block1)
-        self.assertGET403('/creme_core/blocks/reload/basic/%s/' % block1.id_)
+        # self.assertGET403('/creme_core/blocks/reload/basic/%s/' % block1.id_)
+        self.assertGET403(reverse('creme_core__reload_blocks', args=(block1.id_,)))
 
     def test_reload_basic03(self):
         "Not superuser"
@@ -375,7 +419,8 @@ class BlockViewTestCase(CremeTestCase):
         block1 = FoobarBlock1()
         block_registry.register(block1)
 
-        response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_)
+        # response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_)
+        response = self.assertGET200(reverse('creme_core__reload_blocks', args=(block1.id_,)))
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
                          load_json(response.content)
                         )
@@ -383,7 +428,7 @@ class BlockViewTestCase(CremeTestCase):
     def test_reload_relations01(self):
         user = self.login()
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
         tenma = create_contact(first_name='Dr',   last_name='Tenma')
         uran  = create_contact(first_name='Uran', last_name='Ochanomizu')
@@ -398,7 +443,8 @@ class BlockViewTestCase(CremeTestCase):
                                     )[0]
         rel2 = Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=user)
 
-        response = self.assertGET200('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
+        # response = self.assertGET200('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
+        response = self.assertGET200(reverse('creme_core__reload_relations_block', args=(atom.id,)))
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = load_json(response.content)
@@ -417,7 +463,7 @@ class BlockViewTestCase(CremeTestCase):
         "With relationtype to exclude"
         user = self.login()
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
         tenma = create_contact(first_name='Dr',   last_name='Tenma')
         uran  = create_contact(first_name='Uran', last_name='Ochanomizu')
@@ -432,24 +478,27 @@ class BlockViewTestCase(CremeTestCase):
                                     )[0]
         rel2 = Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=user)
 
-        response = self.assertGET200('/creme_core/blocks/reload/relations_block/%s/%s/' % (atom.id, rtype1.id))
+        # response = self.assertGET200('/creme_core/blocks/reload/relations_block/%s/%s/' % (atom.id, rtype1.id))
+        response = self.assertGET200(reverse('creme_core__reload_relations_block', args=(atom.id, rtype1.id)))
         self.assertEqual([rel2], list(response.context['page'].object_list))
 
     def test_reload_relations03(self):
         "Do not have the credentials"
         self.login(is_superuser=False)
-        atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
         self.assertFalse(self.user.has_perm_to_view(atom))
-        self.assertGET403('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
+        # self.assertGET403('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
+        self.assertGET403(reverse('creme_core__reload_relations_block', args=(atom.id,)))
 
     def test_reload_relations04(self):
         "Not superuser"
         self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
-        atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
         self.assertTrue(self.user.has_perm_to_view(atom))
-        self.assertGET200('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
+        # self.assertGET200('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
+        self.assertGET200(reverse('creme_core__reload_relations_block', args=(atom.id,)))
 
     def _get_contact_block_content(self, contact):
         content = self.assertGET200(contact.get_absolute_url()).content
@@ -467,9 +516,9 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_display_objectblock01(self):
         user = self.login()
-        naru = Contact.objects.create(user=user, last_name='Narusegawa',
-                                      first_name='Naru', phone='1122334455',
-                                     )
+        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
+                                          first_name='Naru', phone='1122334455',
+                                         )
         block_content = self._get_contact_block_content(naru)
         self.assertIn(naru.last_name, block_content)
         self.assertIn(naru.phone,     block_content)
@@ -478,12 +527,12 @@ class BlockViewTestCase(CremeTestCase):
         "With FieldsConfig"
         user = self.login()
 
-        FieldsConfig.create(Contact,
+        FieldsConfig.create(FakeContact,
                             descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
-                           )
-        naru = Contact.objects.create(user=user, last_name='Narusegawa',
-                                      first_name='Naru', phone='1122334455',
-                                     )
+                            )
+        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
+                                          first_name='Naru', phone='1122334455',
+                                         )
         block_content = self._get_contact_block_content(naru)
         self.assertIn(naru.last_name, block_content)
         self.assertNotIn(naru.phone,  block_content)
@@ -496,19 +545,19 @@ class BlockViewTestCase(CremeTestCase):
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBlockConfigItem.objects.create(
                         id='tests-contacts1', name='Contact info',
-                        content_type=ContentType.objects.get_for_model(Contact),
-                        cells=[build_cell(Contact, fname1),
-                               build_cell(Contact, fname2),
+                        content_type=ContentType.objects.get_for_model(FakeContact),
+                        cells=[build_cell(FakeContact, fname1),
+                               build_cell(FakeContact, fname2),
                               ],
                     )
         bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
                                              order=1000,  # Should be the last block
-                                             model=Contact,
+                                             model=FakeContact,
                                              zone=BlockDetailviewLocation.BOTTOM,
                                             )
-        naru = Contact.objects.create(user=user, last_name='Narusegawa',
-                                      first_name='Naru', phone='1122334455',
-                                     )
+        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
+                                          first_name='Naru', phone='1122334455',
+                                         )
         content = self.assertGET200(naru.get_absolute_url()).content
         idx = content.find('id="%s"' % bdl.block_id)
         self.assertNotEqual(-1, idx)
@@ -522,25 +571,25 @@ class BlockViewTestCase(CremeTestCase):
         user = self.login()
 
         hidden_fname = 'phone'
-        FieldsConfig.create(Contact,
+        FieldsConfig.create(FakeContact,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+                            )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBlockConfigItem.objects.create(
                         id='tests-contacts1', name='Contact info',
-                        content_type=ContentType.objects.get_for_model(Contact),
-                        cells=[build_cell(Contact, 'last_name'),
-                               build_cell(Contact, hidden_fname),
+                        content_type=ContentType.objects.get_for_model(FakeContact),
+                        cells=[build_cell(FakeContact, 'last_name'),
+                               build_cell(FakeContact, hidden_fname),
                               ],
                     )
         bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
                                              order=1000,  # Should be the last block
-                                             model=Contact,
+                                             model=FakeContact,
                                              zone=BlockDetailviewLocation.BOTTOM,
                                             )
-        naru = Contact.objects.create(user=user, last_name='Narusegawa',
-                                      first_name='Naru', phone='1122334455',
-                                     )
+        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
+                                          first_name='Naru', phone='1122334455',
+                                         )
         content = self.assertGET200(naru.get_absolute_url()).content
         idx = content.find('id="%s"' % bdl.block_id)
         self.assertNotEqual(-1, idx)
@@ -554,29 +603,29 @@ class BlockViewTestCase(CremeTestCase):
         user = self.login()
 
         hidden_fname = 'zipcode'
-        FieldsConfig.create(Address,
+        FieldsConfig.create(FakeAddress,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+                            )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBlockConfigItem.objects.create(
                         id='tests-contacts1', name='Contact info',
-                        content_type=ContentType.objects.get_for_model(Contact),
-                        cells=[build_cell(Contact, 'last_name'),
-                               build_cell(Contact, 'address__' + hidden_fname),
-                               build_cell(Contact, 'address__city'),
+                        content_type=ContentType.objects.get_for_model(FakeContact),
+                        cells=[build_cell(FakeContact, 'last_name'),
+                               build_cell(FakeContact, 'address__' + hidden_fname),
+                               build_cell(FakeContact, 'address__city'),
                               ],
                     )
         bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
                                              order=1000,  # Should be the last block
-                                             model=Contact,
+                                             model=FakeContact,
                                              zone=BlockDetailviewLocation.BOTTOM,
                                             )
-        naru = Contact.objects.create(user=user, last_name='Narusegawa',
-                                      first_name='Naru', phone='1122334455',
-                                     )
-        naru.address = Address.objects.create(value='Hinata Inn', city='Tokyo',
-                                              zipcode='112233', entity=naru,
-                                             )
+        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
+                                          first_name='Naru', phone='1122334455',
+                                         )
+        naru.address = FakeAddress.objects.create(value='Hinata Inn', city='Tokyo',
+                                                  zipcode='112233', entity=naru,
+                                                 )
         naru.save()
 
         content = self.assertGET200(naru.get_absolute_url()).content

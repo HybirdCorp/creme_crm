@@ -35,7 +35,11 @@
     </style>
     {% block extrahead %}{% endblock %}
 </head>
-<body {% block bodyclass %}{% endblock %}>
+<body {% block bodyclass %}{% endblock %}
+      data-save-relations-url="{% url 'creme_core__save_relations' %}"
+      data-select-relations-objects-url="{% url 'creme_core__select_entities_to_link' %}"
+      data-block-state-url="{% url 'creme_core__set_block_state' %}"
+>
 {% if OLD_MENU %}
     {% block side_menu %}
         <div id="menu_collapse" class="ui-corner-all menu_collapse">
@@ -74,11 +78,11 @@
                 {% blocktrans %}Welcome, <strong>{{user}}</strong> (Time zone: {{TIME_ZONE}}){% endblocktrans %} -
                 {% block userlinks %}
                     <a href="/creme_config/my_settings/">{% trans 'My settings' %}</a> -
-                    <a href="/creme_logout/">{% trans 'Log out' %}</a> -
-                    <a href="/creme_core/entity/trash">
+                    <a href="{% url 'creme_logout' %}">{% trans 'Log out' %}</a> -
+                    <a href="{% url 'creme_core__trash' %}">
                         {% trans 'Trash' as trash_label %} <img src="{% creme_media_url 'images/delete_16.png' %}" alt="{{trash_label}}" title="{{trash_label}}" />{{trash_label}}
                     </a> -
-                    <a href="/creme_core/job/all">{% trans 'My jobs' %}</a>
+                    <a href="{% url 'creme_core__jobs' %}">{% trans 'My jobs' %}</a>
                 {% endblock %}
             </div>
             <div class="widget major">

@@ -30,6 +30,7 @@ import warnings
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
 from django.forms import fields, widgets, ValidationError, ModelChoiceField
@@ -382,8 +383,9 @@ class GenericEntityField(EntityCredsJSONField):
         model = ctype.model_class()
 
         if self._has_quickform(model) and user is not None and user.has_perm_to_create(model):
-            # return '/creme_core/quickforms/from_widget/%s/add/1' % ctype.pk
-            return '/creme_core/quickforms/from_widget/%s/add/' % ctype.pk
+            # # return '/creme_core/quickforms/from_widget/%s/add/1' % ctype.pk
+            # return '/creme_core/quickforms/from_widget/%s/add/' % ctype.pk
+            return reverse('creme_core__quick_form', args=(ctype.pk,))
 
         return ''
 
@@ -884,9 +886,12 @@ class CreatorEntityField(EntityCredsJSONField):
         #        '/creme_core/quickforms/from_widget/%s/add/' %
         #             ContentType.objects.get_for_model(model).id)
         if model is not None and self._has_quickform(model):
-            return '/creme_core/quickforms/from_widget/{}/add/'.format(
-                ContentType.objects.get_for_model(model).id
-            )
+            # return '/creme_core/quickforms/from_widget/{}/add/'.format(
+            #     ContentType.objects.get_for_model(model).id
+            # )
+            return reverse('creme_core__quick_form',
+                           args=(ContentType.objects.get_for_model(model).id,),
+                          )
 
         return ''
 

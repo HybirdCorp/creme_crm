@@ -8,6 +8,7 @@ try:
     from pytz import timezone
 
     from django.conf import settings
+    from django.core.urlresolvers import reverse
     from django.http import Http404
     from django.utils.timezone import is_naive, is_aware, override as override_tz
     from django.utils.translation import ugettext_lazy
@@ -22,6 +23,7 @@ try:
         get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_from_ISO8601, date_to_ISO8601, date_2_dict,
         get_dt_from_json_str, dt_from_ISO8601, dt_to_json_str, dt_to_ISO8601, round_hour, to_utc, make_aware_dt)
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
+    from creme.creme_core.utils.url import TemplateURLBuilder
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -613,3 +615,74 @@ class CurrencyFormatTestCase(CremeTestCase):
 
         result7 = currency(-5, currency_or_id=my_currency)
         self.assertNotEqual(result6, result7)
+
+
+class TemplateURLBuilderTestCase(CremeTestCase):
+    def test_place_holder01(self):
+        "Word"
+        ph = TemplateURLBuilder.Word('$name', 'name')
+        self.assertEqual('__placeholder0__', ph.tmp_name(0, 0))
+        self.assertEqual('__placeholder1__', ph.tmp_name(1, 0))
+        self.assertEqual('__PLACEHOLDER0__', ph.tmp_name(0, 1))
+
+    def test_place_holder02(self):
+        "Int"
+        ph = TemplateURLBuilder.Int('$ct_id', 'ctype_id')
+        self.assertEqual('1234567890', ph.tmp_name(0, 0))
+        self.assertEqual('1234567891', ph.tmp_name(1, 0))
+        self.assertEqual('9876543210', ph.tmp_name(0, 1))
+
+    def test_one_place_holder01(self):
+        "Word place holder"
+        vname = 'creme_core__batch_process_ops'
+        placeholder = 'XXXXXX'
+        final_value = '${name}'  # This string does not match with (?P<field>[\w]+)
+
+        tub = TemplateURLBuilder(field=(TemplateURLBuilder.Word, final_value))
+
+        self.assertEqual(reverse(vname, args=(65, placeholder)).replace(placeholder, final_value),
+                         tub.resolve(vname, kwargs={'ct_id': 65})
+                        )
+
+    def test_one_place_holder02(self):
+        "Int place holder"
+        vname = 'creme_core__batch_process_ops'
+        placeholder = '123456'
+        final_value = '${ct}'  # This string does not match with (?P<ct_id>\d+)
+
+        tub = TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, final_value))
+
+        self.assertEqual(reverse(vname, args=(placeholder, 'name')).replace(placeholder, final_value),
+                         tub.resolve(vname, kwargs={'field': 'name'})
+                        )
+
+    def test_two_place_holders01(self):
+        "1 word & 1 int place holders"
+        vname = 'creme_core__batch_process_ops'
+        placeholder1 = '123456'; final_value1 = '${ct}'
+        placeholder2 = 'XXXXXX'; final_value2 = '${name}'
+
+        tub = TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int,  final_value1),
+                                 field=(TemplateURLBuilder.Word, final_value2),
+                                )
+
+        self.assertEqual(reverse(vname, args=(placeholder1, placeholder2)).replace(placeholder1, final_value1)
+                                                                          .replace(placeholder2, final_value2),
+                         tub.resolve(vname)
+                        )
+
+    def test_two_place_holders02(self):
+        "2 int place holders"
+        vname = 'creme_core__merge_entities'
+
+        placeholder1 = '123456'; final_value1 = '${id1}'
+        placeholder2 = '789456'; final_value2 = '${id2}'
+
+        tub = TemplateURLBuilder(entity1_id=(TemplateURLBuilder.Int, final_value1),
+                                 entity2_id=(TemplateURLBuilder.Int, final_value2),
+                                )
+
+        self.assertEqual(reverse(vname, args=(placeholder1, placeholder2)).replace(placeholder1, final_value1)
+                                                                          .replace(placeholder2, final_value2),
+                         tub.resolve(vname)
+                        )

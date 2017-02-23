@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2016  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -256,19 +256,19 @@ creme.menu.bindEvents = function() {
 }
 
 creme.menu.openQuickForm = function(element) {
-    var uri = '/creme_core/quickforms/%s/%s';
+//    var uri = '/creme_core/quickforms/%s/%s';
+//    var type = element.attr('data-ct-id');
+//    var count = element.attr('data-entity-count') || 1;
 
-    var type = element.attr('data-ct-id');
-    var count = element.attr('data-entity-count') || 1;
-
-    // Hide the current open menu (since the quickforms are triggered in the menu)
+    // Hide the current open menu (since the quick-forms are triggered in the menu)
     $('.ui-creme-navigation-activated').removeClass ('ui-creme-navigation-activated');
 
     // ...or if there's a need to close all popups: $('.ui-dialog .ui-dialog-content').dialog('close');
     if (creme.menu.currentPopup)
         creme.menu.currentPopup.close();
 
-    creme.menu.currentPopup = creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
+//    creme.menu.currentPopup = creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
+    creme.menu.currentPopup = creme.dialogs.form(element.attr('href'), {reloadOnSuccess: true}).open();
 }
 
 creme.menu.openCreateAnyDialog = function(a_tag) {

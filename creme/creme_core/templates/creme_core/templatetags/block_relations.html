@@ -7,7 +7,8 @@
         <th class="label">{% get_block_title _('%s Relationship') _('%s Relationships') 'relations_48.png' _('Relationship') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}' with_label _("New relationships") with_perms subject_link_perm %}
+{#                {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}' with_label _("New relationships") with_perms subject_link_perm %} #}
+                {% url 'creme_core__create_relations' object.id as create_url %}{% get_line_linker at_url create_url with_label _('New relationships') with_perms subject_link_perm %}
 {% comment %}
                 {% if subject_unlink_perm %}
                     <a class="negative" onclick="creme.blocks.confirmPOSTQuery('/creme_core/relation/delete/all', {blockReloadUrl:{% get_block_relation_reload_uri %}}, {subject_id:{{object.pk}}}).start();">
@@ -25,7 +26,7 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if page.paginator.count %}
+        {% if page.paginator.count %}{% url 'creme_core__delete_relation' as delete_url %}
             {% for relation_group in relations_by_rtype %}
                 <tr class="header"><th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="2">{{relation_group.grouper}}</th></tr>
                 {% for relation in relation_group.list %}
@@ -35,7 +36,8 @@
                             <td class="{% cycle "block_line_dark" "block_line_light" %} action">
                                 {% if not relation.type.is_internal %}
                                     {% has_perm_to unlink entity_obj as object_unlink_perm %}
-                                    {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
+{#                                    {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %} #}
+                                    {% get_line_unlinker at_url delete_url with_args "{'id':{{relation.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
                                 {% endif %}
                             </td>
                         </tr>

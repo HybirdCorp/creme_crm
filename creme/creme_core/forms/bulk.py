@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db.models.fields.related import ManyToManyField  # RelatedField ForeignKey
 # from django.db.models.query_utils import Q
 from django.forms.fields import ChoiceField
@@ -69,40 +70,52 @@ class BulkForm(CremeForm):
         self.model_field = field
         self.model_parent_field = parent_field
         self.entities = entities
-        self.bulk_url = '/creme_core/entity/update/bulk/%(ct)s/field/%(field)s'
+        # self.bulk_url = '/creme_core/entity/update/bulk/%(ct)s/field/%(field)s'
+        self.bulk_viewname = 'creme_core__bulk_update'
 
     @property
-    def bulk_url(self):
-        return self._bulk_url_format
+    # def bulk_url(self):
+    #     return self._bulk_url_format
+    def bulk_viewname(self):
+        return self._bulk_viewname
 
-    @bulk_url.setter
-    def bulk_url(self, url):
-        self._bulk_url_format = url
-
-        model = self.model
-        entities = self.entities
+    # @bulk_url.setter
+    # def bulk_url(self, url):
+    @bulk_viewname.setter
+    def bulk_viewname(self, viewname):
+        self._bulk_viewname = viewname
 
         if self.is_bulk:
-            choices = self._bulk_model_choices(model, entities)
+            model = self.model
+            entities = self.entities
+            # TODO: factorise
             fieldname = self.parent_field.name + '__' + self.field_name if self.is_subfield else self.field_name
-            initial = self._bulk_field_url(model,
-                                           fieldname,
-                                           entities,
-                                          )
 
-            self.fields['_bulk_fieldname'] = ChoiceField(choices=choices,
-                                                         label=_(u"Field to update"),
-                                                         initial=initial,
-                                                         widget=BulkFieldSelectWidget,
-                                                         required=False,
-                                                        )
+            self.fields['_bulk_fieldname'] = ChoiceField(
+                choices=self._bulk_model_choices(model, entities),
+                label=_(u'Field to update'),
+                initial=self._bulk_field_url(model, fieldname, entities),
+                widget=BulkFieldSelectWidget,
+                required=False,
+            )
 
     def _bulk_field_url(self, model, fieldname, entities):
-        return self.bulk_url % {
-                    'ct': ContentType.objects.get_for_model(model).pk,
-                    'field': fieldname,
-                    'entities': ','.join(str(e.pk) for e in entities),
-               }
+        # return self.bulk_url % {
+        #             'ct': ContentType.objects.get_for_model(model).id,
+        #             'field': fieldname,
+        #             'entities': ','.join(str(e.pk) for e in entities),
+        #        }
+        kwargs = {'ct_id': ContentType.objects.get_for_model(model).id,
+                  'field_name': fieldname,
+                 }
+
+        try:
+            return reverse(self._bulk_viewname, kwargs=kwargs)
+        except NoReverseMatch:
+            # NB: ugly hack to support the old view bulk_edit_field().
+            # TODO: remove it in 1.8
+            kwargs['id'] = ','.join(str(e.pk) for e in entities)
+            return reverse(self._bulk_viewname, kwargs=kwargs)
 
     def _bulk_formfield(self, user, instance=None):
         if self.is_custom:
@@ -114,17 +127,20 @@ class BulkForm(CremeForm):
         regular_fields = bulk_update_registry.regular_fields(model, expand=True)
         custom_fields = bulk_update_registry.custom_fields(model)
 
-        url = self._bulk_field_url(model, '%s', entities)
+        # url = self._bulk_field_url(model, '%s', entities)
+        build_url = partial(self._bulk_field_url, model=model, entities=entities)
 
         choices = []
         sub_choices = []
 
         for field, subfields in regular_fields:
             if not subfields:
-                choices.append((url % unicode(field.name), unicode(field.verbose_name)))
+                # choices.append((url % unicode(field.name), unicode(field.verbose_name)))
+                choices.append((build_url(fieldname=field.name), unicode(field.verbose_name)))
             else:
                 sub_choices.append((unicode(field.verbose_name),
-                                    [(url % unicode(field.name + '__' + subfield.name), unicode(subfield.verbose_name))
+                                    # [(url % unicode(field.name + '__' + subfield.name), unicode(subfield.verbose_name))
+                                    [(build_url(fieldname=field.name + '__' + subfield.name), unicode(subfield.verbose_name))
                                         for subfield in subfields
                                     ],
                                    )
@@ -132,7 +148,8 @@ class BulkForm(CremeForm):
 
         if custom_fields:
             choices.append((ugettext(u'Custom fields'),
-                            [(url % (_CUSTOMFIELD_FORMAT % field.id), field.name)
+                            # [(url % (_CUSTOMFIELD_FORMAT % field.id), field.name)
+                            [(build_url(fieldname=_CUSTOMFIELD_FORMAT % field.id), field.name)
                                 for field in custom_fields
                             ]
                            )

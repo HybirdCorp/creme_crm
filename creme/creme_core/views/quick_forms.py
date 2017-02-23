@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,6 +39,9 @@ from .generic import inner_popup
 
 @login_required
 def add(request, ct_id, count):
+    if count == '0':
+        raise Http404('Count must be between 1 & 9')
+
     model = get_ct_or_404(ct_id).model_class()
     model_name = model._meta.verbose_name
     user = request.user
@@ -67,7 +70,8 @@ def add(request, ct_id, count):
         qformset = qformset_class(data=request.POST, files=request.FILES or None)
 
         if qformset.is_valid():
-            for form in qformset.forms:  # TODO: "for form in qformset:"
+            # for form in qformset.forms:
+            for form in qformset:
                 form.save()
     else:
         qformset = qformset_class()

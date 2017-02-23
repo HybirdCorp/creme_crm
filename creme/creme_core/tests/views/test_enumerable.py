@@ -4,6 +4,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
@@ -17,7 +18,8 @@ except Exception as e:
 
 class EnumerableViewsTestCase(ViewsTestCase):
     def _build_enum_url(self, model):
-        return '/creme_core/enumerable/%s/json' % ContentType.objects.get_for_model(model).id
+        # return '/creme_core/enumerable/%s/json' % ContentType.objects.get_for_model(model).id
+        return reverse('creme_core__list_enumerable', args=(ContentType.objects.get_for_model(model).id,))
 
     def test_model_not_registered(self):
         self.login()
@@ -38,7 +40,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
     def test_contenttype_not_exists(self):
         self.login()
 
-        url = '/creme_core/enumerable/%d/json' % 1045
+        # url = '/creme_core/enumerable/%d/json' % 1045
+        url = reverse('creme_core__list_enumerable', args=(1045,))
         response = self.assertGET404(url)
         self.assertContains(response, 'No content type with this id', status_code=404)
 
@@ -70,7 +73,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         efilter = create_filter('test-filter01', 'Filter 01', Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.EQUALS,
-                                                                    name='first_name', values=['Misato']
+                                                                    name='first_name', values=['Misato'],
                                                                    )
                                ])
 
@@ -98,8 +101,9 @@ class EnumerableViewsTestCase(ViewsTestCase):
     def test_userfilter_list(self):
         self.login()
 
-        response = self.assertGET200('/creme_core/enumerable/userfilter/json')
-        self.assertEqual([['__currentuser__', _('Current user')]] +
+        # response = self.assertGET200('/creme_core/enumerable/userfilter/json')
+        response = self.assertGET200(reverse('creme_core__efilter_user_choices'))
+        self.assertEqual([['__currentuser__', _(u'Current user')]] +
                          [[u.id, unicode(u)] for u in get_user_model().objects.all()],
                          json.loads(response.content)
                         )
@@ -107,7 +111,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
     def test_custom_enum_not_exists(self):
         self.login()
 
-        response = self.assertGET404('/creme_core/enumerable/custom/%s/json' % 666)
+        # response = self.assertGET404('/creme_core/enumerable/custom/%s/json' % 666)
+        response = self.assertGET404(reverse('creme_core__cfield_enums', args=(666,)))
         self.assertContains(response, 'No CustomField matches the given query', status_code=404)
 
     def test_custom_enum(self):
@@ -122,10 +127,11 @@ class EnumerableViewsTestCase(ViewsTestCase):
         eva01 = create_evalue(custom_field=custom_field, value='Eva-01')
         eva02 = create_evalue(custom_field=custom_field, value='Eva-02')
 
-        response = self.assertGET200('/creme_core/enumerable/custom/%s/json' % custom_field.id)
+        # response = self.assertGET200('/creme_core/enumerable/custom/%s/json' % custom_field.id)
+        response = self.assertGET200(reverse('creme_core__cfield_enums', args=(custom_field.id,)))
         self.assertEquals([[eva00.id, eva00.value],
                            [eva01.id, eva01.value],
                            [eva02.id, eva02.value]
                           ],
-                          json.loads(response.content))
-
+                          json.loads(response.content)
+                         )

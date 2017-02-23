@@ -23,6 +23,7 @@ import logging
 import warnings
 
 from django.db.models import ForeignKey, Q
+from django.core.urlresolvers import reverse
 from django.forms.utils import flatatt
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -138,7 +139,8 @@ class CremeEntity(CremeAbstractEntity):
         real_entity = self.get_real_entity()
 
         if self is real_entity:
-            return "/creme_core/entity/%s" % self.id  # TODO: '' instead ?
+            # return "/creme_core/entity/%s" % self.id
+            return ''
 
         return real_entity.get_absolute_url()
 
@@ -148,7 +150,8 @@ class CremeEntity(CremeAbstractEntity):
         This URL should only accept POST method, and take an 'id' POST parameter.
         If '' (void string) is returned, the type can not be cloned.
         """
-        return '/creme_core/entity/clone'
+        # return '/creme_core/entity/clone'
+        return reverse('creme_core__clone_entity')
 
     @staticmethod
     def get_create_absolute_url():
@@ -169,7 +172,8 @@ class CremeEntity(CremeAbstractEntity):
         """Returns the url of the deletion view (should use POST method) for this instance.
         If '' (void string) is returned, the model can not be deleted directly.
         """
-        return "/creme_core/entity/delete/%s" % self.id
+        # return "/creme_core/entity/delete/%s" % self.id
+        return reverse('creme_core__delete_entity', args=(self.id,))
 
     def get_html_attrs(self, context):
         """Extra HTMl attributes for this entity.

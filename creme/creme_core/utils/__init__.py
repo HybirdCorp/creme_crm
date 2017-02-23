@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2016 Hybird
+# Copyright (c) 2009-2017 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -286,13 +286,21 @@ def bool_from_str(string):
     raise ValueError('Can not be coerced to a boolean value: %s' % str(string))
 
 
+def bool_from_str_extended(value):
+    value = value.lower()
+    if value in ('1', 'true'): return True
+    if value in ('0', 'false'): return False
+
+    raise ValueError('Can not be coerced to a boolean value: %s; must be in 0/1/false/true' % value)
+
+
 def bool_as_html(b):
     if b:
         checked = 'checked '
-        label = _('Yes')
+        label = _(u'Yes')
     else:
         checked = ''
-        label = _('No')
+        label = _(u'No')
 
     return mark_safe(u'<input type="checkbox" %sdisabled/>%s' % (checked, label))
 
