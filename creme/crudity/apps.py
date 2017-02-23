@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,20 +38,23 @@ class CrudityConfig(CremeAppConfig):
 
     def register_menu(self, creme_menu):
         from django.conf import settings
+        from django.core.urlresolvers import reverse_lazy as reverse
 
         if settings.OLD_MENU:
             reg_item = creme_menu.register_app('crudity', '/crudity/').register_item
-            reg_item('/crudity/waiting_actions', _(u'Email waiting actions'), 'crudity')
-            reg_item('/crudity/history',         _(u'History'),               'crudity')
+            # reg_item('/crudity/waiting_actions', _(u'Email waiting actions'), 'crudity')
+            # reg_item('/crudity/history',         _(u'History'),               'crudity')
+            reg_item(reverse('crudity__actions'), _(u'Email waiting actions'), 'crudity')
+            reg_item(reverse('crudity__history'), _(u'History'),               'crudity')
         else:
             URLItem = creme_menu.URLItem
             creme_menu.get('features', 'tools') \
-                      .add(URLItem('crudity-waiting_actions', url='/crudity/waiting_actions',
+                      .add(URLItem('crudity-waiting_actions', url=reverse('crudity__actions'),
                                    label=_(u'Email waiting actions'), perm='crudity',
                                   ),
                            priority=250,
                           ) \
-                      .add(URLItem('crudity-history', url='/crudity/history',
+                      .add(URLItem('crudity-history', reverse('crudity__history'),
                                    label=_(u'History of automatised creation'), perm='crudity',
                                   ),
                            priority=260,

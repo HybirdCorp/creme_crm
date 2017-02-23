@@ -9,6 +9,7 @@ try:
     from xml.etree.ElementTree import XML, tostring
 
     from django.contrib.auth import get_user_model
+    from django.core.urlresolvers import reverse
     from django.db.models.fields import FieldDoesNotExist
     from django.utils.translation import ugettext as _
     from django.test.client import RequestFactory
@@ -720,7 +721,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self._get_backend(ContactFakeBackend, subject=subject,
                           body_map={}, model=Contact
                          )
-        self.assertGET404('/crudity/infopath/create_form/%s' % subject)
+        # self.assertGET404('/crudity/infopath/create_form/%s' % subject)
+        self.assertGET404(reverse('crudity__dl_infopath_form', args=(subject,)))
 
     def test_get_create_form_view02(self):
         subject = 'create_contact'
@@ -733,7 +735,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         input.add_backend(backend)
         crudity_registry.register_inputs('test', [input])
 
-        self.assertGET200('/crudity/infopath/create_form/%s' % subject)
+        # self.assertGET200('/crudity/infopath/create_form/%s' % subject)
+        self.assertGET200(reverse('crudity__dl_infopath_form', args=(subject,)))
 
 
 class InfopathFormFieldTestCase(CrudityTestCase):
