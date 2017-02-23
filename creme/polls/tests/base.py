@@ -50,22 +50,25 @@ class AutoIncr:
 
 
 class _PollsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        # CremeTestCase.setUpClass()
-        super(_PollsTestCase, cls).setUpClass()
-        # cls.populate('polls')
+    ADD_REPLY_URL = reverse('polls__create_reply')
 
-        cls.ADD_REPLY_URL = reverse('polls__create_reply')
+    # @classmethod
+    # def setUpClass(cls):
+    #     # CremeTestCase.setUpClass()
+    #     super(_PollsTestCase, cls).setUpClass()
+    #     # cls.populate('polls')
+    #
+    #     cls.ADD_REPLY_URL = reverse('polls__create_reply')
 
     def _build_stats_url(self, pform):
-        return '/polls/poll_form/stats/%s' % pform.id
+        # return '/polls/poll_form/stats/%s' % pform.id
+        return reverse('polls__form_stats', args=(pform.id,))
 
     def _get_formline_creator(self, pform):
         get_order = AutoIncr()
 
         def create_line(question, section=None, qtype=PollLineType.STRING, disabled=False, conds_use_or=None, **type_kwargs):
-            return  PollFormLine.objects.create(
+            return PollFormLine.objects.create(
                             pform=pform, section=section,
                             question=question, type=qtype, order=get_order(),
                             disabled=disabled, conds_use_or=conds_use_or,

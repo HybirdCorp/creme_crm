@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2016  Hybird
+#    Copyright (C) 2012-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,8 +38,8 @@ class AbstractPollForm(CremeEntity):
     name = CharField(_(u'Name'), max_length=220)
     type = ForeignKey(PollType, verbose_name=_(u'Type'), null=True, blank=True, on_delete=SET_NULL)
 
-    creation_label = _('Create a form')
-    save_label     = _('Save the form of poll')
+    creation_label = _(u'Create a form')
+    save_label     = _(u'Save the form of poll')
 
     class Meta:
         abstract = True
@@ -74,9 +74,9 @@ class AbstractPollForm(CremeEntity):
         """
         instance_classname = instance.__class__.__name__
 
-        if instance_classname == "PollForm":
+        if instance_classname == 'PollForm':
             create_section = partial(PollFormSection.objects.create, pform=instance)
-        elif instance_classname == "PollReply":
+        elif instance_classname == 'PollReply':
             from .poll_reply import PollReplySection
             create_section = partial(PollReplySection.objects.create, preply=instance)
 
@@ -151,8 +151,8 @@ class PollFormSection(CremeModel):
     name   = CharField(_(u'Name'), max_length=250)
     body   = TextField(_(u'Section body'), blank=True)
 
-    creation_label = _('Create a section')
-    save_label     = _('Save the section')
+    creation_label = _(u'Create a section')
+    save_label     = _(u'Save the section')
 
     class Meta:
         app_label = 'polls'
@@ -170,7 +170,7 @@ class PollFormSection(CremeModel):
                             )
                         )
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         from ..utils import SectionTree
 
         section_id = self.id
@@ -178,12 +178,13 @@ class PollFormSection(CremeModel):
         for node in SectionTree(self.pform):
             if node.is_section and node.id == section_id:
                 if not node.has_line: break
-                raise ProtectedError(ugettext('There is at least one question in this section.'), [self])
+                raise ProtectedError(ugettext(u'There is at least one question in this section.'), [self])
 
-        super(PollFormSection, self).delete()
+        super(PollFormSection, self).delete(*args, **kwargs)
 
     def get_edit_absolute_url(self):
-        return '/polls/pform_section/%s/edit' % self.id
+        # return '/polls/pform_section/%s/edit' % self.id
+        return reverse('polls__edit_form_section', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
         return self.pform
@@ -204,8 +205,8 @@ class PollFormLine(CremeModel, _PollLine):
 
     question     = TextField(_(u'Question'))
 
-    creation_label = _('Create a question')
-    save_label     = _('Save the question')
+    creation_label = _(u'Create a question')
+    save_label     = _(u'Save the question')
 
     class Meta:
         app_label = 'polls'
@@ -227,7 +228,7 @@ class PollFormLine(CremeModel, _PollLine):
     def _get_condition_class(cls):  # See _PollLine
         return PollFormLineCondition
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         if not self.disabled and PollFormLineCondition.objects.filter(source=self).exists():
             raise ProtectedError(ugettext('There is at least one other '
                                           'question which depends on this question.'
@@ -235,32 +236,33 @@ class PollFormLine(CremeModel, _PollLine):
                                  [self]
                                 )
 
-        super(PollFormLine, self).delete()
+        super(PollFormLine, self).delete(*args, **kwargs)
 
     def disable(self):
         if self.disabled:
-            raise ProtectedError(ugettext('This question is already disabled.'), [self])
+            raise ProtectedError(ugettext(u'This question is already disabled.'), [self])
 
         if PollFormLineCondition.objects.filter(source=self).exists():
-            raise ProtectedError(ugettext('There is at least one other question '
-                                          'which depends on this question.'
+            raise ProtectedError(ugettext(u'There is at least one other question '
+                                          u'which depends on this question.'
                                          ),
-                                [self]
-                               )
+                                 [self]
+                                )
 
         self.disabled = True
         self.conditions.all().delete()
         self.save()
 
     def get_edit_absolute_url(self):
-        return '/polls/pform_line/%s/edit' % self.id
+        # return '/polls/pform_line/%s/edit' % self.id
+        return reverse('polls__edit_form_line', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
         return self.pform
 
     @property
     def verbose_conds_use_or(self):  # TODO: templatetag instead ?
-        return ugettext('OR') if self.conds_use_or else ugettext('AND')
+        return ugettext(u'OR') if self.conds_use_or else ugettext(u'AND')
 
 
 class PollFormLineCondition(CremeModel):
@@ -293,7 +295,7 @@ class PollFormLineCondition(CremeModel):
     operator   = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
 
-    save_label = _('Save the condition')
+    save_label = _(u'Save the condition')
 
     class Meta:
         app_label = 'polls'

@@ -60,7 +60,8 @@
                     </td>
                     <td class="{{row_color}}" style="{% print_node_css style node %}">
                         {% if node.conditions_are_met %}
-                            {% get_line_editor at_url '/polls/poll_reply/{{object.id}}/line/{{node.id}}/edit' with_perms has_perm %}
+{#                            {% get_line_editor at_url '/polls/poll_reply/{{object.id}}/line/{{node.id}}/edit' with_perms has_perm %} #}
+                            {% url 'polls__edit_reply_line' object.id node.id as edit_line_url %}{% get_line_editor at_url edit_line_url with_perms has_perm %}
                         {% endif %}
                     </td>
                 {% endif %}

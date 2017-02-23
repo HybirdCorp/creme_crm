@@ -68,7 +68,8 @@ class PollRepliesTestCase(_PollsTestCase):
                         )
 
     def _build_linkto_url(self, entity):
-        return '/polls/poll_reply/link_to_person/%s' % entity.id
+        # return '/polls/poll_reply/link_to_person/%s' % entity.id
+        return reverse('polls__link_reply_to_person', args=(entity.id,))
 
     def _build_preply_from_person_url(self, person):
         return reverse('polls__create_reply_from_person', args=(person.id,))
@@ -216,13 +217,16 @@ class PollRepliesTestCase(_PollsTestCase):
         self.rcondition = self.get_object_or_fail(PollReplyLineCondition, line=self.rline2)
 
     def _build_edit_answer_url(self, preply, preply_line):
-        return '/polls/poll_reply/%s/line/%s/edit' % (preply.id, preply_line.id)
+        # return '/polls/poll_reply/%s/line/%s/edit' % (preply.id, preply_line.id)
+        return reverse('polls__edit_reply_line', args=(preply.id, preply_line.id))
 
     def _build_edit_wizard_answer_url(self, preply, line):
-        return '/polls/poll_reply/%s/line/%s/edit_wizard' % (preply.id, line.id)
+        # return '/polls/poll_reply/%s/line/%s/edit_wizard' % (preply.id, line.id)
+        return reverse('polls__edit_reply_line_wizard', args=(preply.id, line.id))
 
     def _build_fill_url(self, preply):
-        return '/polls/poll_reply/fill/%s' % preply.id
+        # return '/polls/poll_reply/fill/%s' % preply.id
+        return reverse('polls__fill_reply', args=(preply.id,))
 
     def _build_preply(self, ptype=None):
         user  = self.user
@@ -989,7 +993,10 @@ class PollRepliesTestCase(_PollsTestCase):
         ptype  = PollType.objects.create(name='Political poll')
         preply = self._build_preply(ptype=ptype)
 
-        self.assertPOST200('/creme_config/polls/poll_type/delete', data={'id': ptype.pk})
+        # self.assertPOST200('/creme_config/polls/poll_type/delete', data={'id': ptype.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
+                           data={'id': ptype.pk}
+                          )
         self.assertDoesNotExist(ptype)
 
         preply = self.assertStillExists(preply)
@@ -1497,7 +1504,8 @@ class PollRepliesTestCase(_PollsTestCase):
         self._fill(preply, '', not_applicable=True)
         self.assertTrue(self.refresh(preply).is_complete)
 
-        self.assertPOST200('/polls/poll_reply/clean', follow=True, data={'id': preply.id})
+        # self.assertPOST200('/polls/poll_reply/clean', follow=True, data={'id': preply.id})
+        self.assertPOST200(reverse('polls__clean_reply'), follow=True, data={'id': preply.id})
         self.assertFalse(self.refresh(preply).is_complete)
 
         rline1 = self.refresh(rline1)
