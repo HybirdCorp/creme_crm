@@ -2,6 +2,7 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -32,7 +33,8 @@ class VcfExportTestCase(CremeTestCase):
     #     cls.populate('creme_core', 'persons')
 
     def _generate_vcf(self, contact, status_code=200):
-        response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
+        # response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
+        response = self.client.get(reverse('vcfs__export', args=(contact.id,)))
         self.assertEqual(status_code, response.status_code)
 
         return response
