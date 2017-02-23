@@ -18,13 +18,15 @@
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
+            {% url 'creme_core__delete_similar_relations' as delete_relation_url %}
             {% for invoice in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{invoice.number}}</td>
                     <td class="{{row_color}}">{% widget_entity_hyperlink invoice user %}</td>
                     <td class="{{row_color}} action">
                         {% has_perm_to unlink invoice as invoice_unlink_perm %}
-                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{invoice.pk}} }" with_perms unlink_perm|and_op:invoice_unlink_perm %}
+{#                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{invoice.pk}} }" with_perms unlink_perm|and_op:invoice_unlink_perm %} #}
+                        {% get_line_unlinker at_url delete_relation_url with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{invoice.pk}} }" with_perms unlink_perm|and_op:invoice_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

@@ -20,6 +20,7 @@
                 {% if 'made_sales' not in hidden_fields %}<th class="block_header_line_dark">{% trans "Made sales" %}</th>{% endif %}
                 <th class="block_header_line_dark action">{% trans "Delete the opportunity" %}</th>
             </tr>
+            {% url 'creme_core__delete_entities' as delete_multi_url %}
             {% for opportunity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to view opportunity as opp_view_perm %}
                     <td class="{{row_color}}">{% widget_entity_hyperlink opportunity user %}</td>
@@ -35,7 +36,8 @@
                     {% endif %}
                     <td class="{{row_color}} action">
                         {% has_perm_to unlink opportunity as opp_unlink_perm %}
-                        {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids': [{{opportunity.pk}}] }" with_perms unlink_perm|and_op:opp_unlink_perm %}
+{#                        {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids': [{{opportunity.pk}}] }" with_perms unlink_perm|and_op:opp_unlink_perm %} #}
+                        {% get_line_deletor at_url delete_multi_url with_args "{'ids': [{{opportunity.pk}}] }" with_perms unlink_perm|and_op:opp_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

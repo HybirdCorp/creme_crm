@@ -88,7 +88,8 @@ class OpportunitiesConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('opportunities', '/opportunities/').register_item
-            reg_item('/opportunities/',                            _(u'Portal of opportunities'), 'opportunities')
+            # reg_item('/opportunities/',                            _(u'Portal of opportunities'), 'opportunities')
+            reg_item(reverse('opportunities__portal'),             _(u'Portal of opportunities'), 'opportunities')
             reg_item(reverse('opportunities__list_opportunities'), _(u'All opportunities'),       'opportunities')
             reg_item(reverse('opportunities__create_opportunity'), Opportunity.creation_label,    cperm(Opportunity))
         else:

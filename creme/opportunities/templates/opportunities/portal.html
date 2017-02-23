@@ -1,8 +1,6 @@
 {% extends "creme_core/generics/portal.html" %}
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
 {% block logo %}<img src="{% creme_media_url 'images/opportunity_64.png' %}" alt="{% trans "Opportunity" %}"/>{% endblock %}
 {% block title %}{% trans "Opportunities portal" %}{% endblock %}
-{% comment %}{% block list_url %}/opportunities/opportunities{% endblock %}{% endcomment %}
 {% block list_url %}{% url 'opportunities__list_opportunities' %}{% endblock %}
 {% block list_msg %}{% trans "List of opportunities" %}{% endblock %}
