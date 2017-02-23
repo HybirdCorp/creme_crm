@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
         ForeignKey, PositiveIntegerField)
 from django.utils.translation import ugettext_lazy as _
@@ -55,7 +56,8 @@ class ToDo(CremeModel):
         return self.title
 
     def get_edit_absolute_url(self):
-        return '/assistants/todo/edit/%s/' % self.id
+        # return '/assistants/todo/edit/%s/' % self.id
+        return reverse('assistants__edit_todo', args=(self.id,))
 
     @staticmethod
     def get_todos(entity):

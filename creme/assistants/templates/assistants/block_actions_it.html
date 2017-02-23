@@ -8,7 +8,8 @@
             <div class="buttons">
                 {% if object %}
                     {% has_perm_to change object as has_perm %}
-                    {% get_line_adder at_url '/assistants/action/add/{{object.id}}/' with_label _("New action") with_perms has_perm %}
+{#                    {% get_line_adder at_url '/assistants/action/add/{{object.id}}/' with_label _("New action") with_perms has_perm %} #}
+                    {% url 'assistants__create_action' object.id as create_url %}{% get_line_adder at_url create_url with_label _('New action') with_perms has_perm %}
                 {% endif %}
             </div>
         </th>
@@ -28,6 +29,7 @@
                 <th class="block_header_line_dark action">{% trans "OK?" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
+            {% url 'creme_core__delete_related_to_entity' ct_id as delete_url %}
             {% for action in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to change action.creme_entity as has_perm %}
                     <td class="{{row_color}}"><strong>{% print_field object=action field='title' %}</strong></td>
@@ -41,7 +43,8 @@
                     <td class="{{row_color}}">{% print_field object=action field='deadline' %}</td>
                     <td class="{{row_color}} action">
                         {% if has_perm %}
-                            <form method="post" action="/assistants/action/validate/{{action.id}}/">{% csrf_token %}
+{#                            <form method="post" action="/assistants/action/validate/{{action.id}}/">{% csrf_token %} #}
+                            <form method="post" action="{% url 'assistants__validate_action' action.id %}">{% csrf_token %}
                                 <input type="checkbox" name="checked_action{{action.id}}" id="checked_action{{action.id}}" />
                                 {# move validateEntity() to a 'assistants.js' file ?? #}
                                 <button type="button" onclick="creme.assistants.validateEntity(this.form, 'checked_action{{action.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
@@ -53,9 +56,9 @@
                         {% endif %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% comment %}{% get_line_editor at_url '/assistants/action/edit/{{action.id}}/' with_perms has_perm %}{% endcomment %}
                         {% get_line_editor at_url action.get_edit_absolute_url with_perms has_perm %}
-                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{action.id}} }" with_perms has_perm %}
+{#                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{action.id}} }" with_perms has_perm %} #}
+                        {% get_line_deletor at_url delete_url with_args "{'id' : {{action.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

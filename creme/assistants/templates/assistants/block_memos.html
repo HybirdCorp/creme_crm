@@ -7,8 +7,9 @@
         <th class="actions">
             <div class="buttons">
                 {% if object %}
-                    {% has_perm_to change object as has_perm %}
-                    {% get_line_adder at_url '/assistants/memo/add/{{object.id}}/' with_label _("New memo") with_perms has_perm %}
+                    {% has_perm_to change object as has_perm %}{% url 'assistants__create_memo' object.id as create_url %}
+{#                    {% get_line_adder at_url '/assistants/memo/add/{{object.id}}/' with_label _("New memo") with_perms has_perm %} #}
+                    {% get_line_adder at_url create_url with_label _("New memo") with_perms has_perm %}
                 {% endif %}
             </div>
         </th>
@@ -24,6 +25,7 @@
                 {% get_column_header _('Content') 'content' %}
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
+            {% url 'creme_core__delete_related_to_entity' ct_id as delete_url %}
             {% for memo in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     {% if not object %}
@@ -34,9 +36,9 @@
                     <td class="{{row_color}}">{% print_field object=memo field='content' %}</td>
                     <td class="{{row_color}} action">
                         {% has_perm_to change memo.creme_entity as has_perm %}
-                        {% comment %}{% get_line_editor at_url '/assistants/memo/edit/{{memo.id}}/' with_perms has_perm %}{% endcomment %}
                         {% get_line_editor at_url memo.get_edit_absolute_url with_perms has_perm %}
-                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{memo.id}} }" with_perms has_perm %}
+{#                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{memo.id}} }" with_perms has_perm %} #}
+                        {% get_line_deletor at_url delete_url with_args "{'id' : {{memo.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

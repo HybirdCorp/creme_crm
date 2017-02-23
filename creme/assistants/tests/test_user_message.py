@@ -24,7 +24,8 @@ User = get_user_model()  # TODO: self.User
 
 
 class UserMessageTestCase(AssistantsTestCase):
-    DEL_PRIORITY_URL = '/creme_config/assistants/message_priority/delete'
+    # DEL_PRIORITY_URL = '/creme_config/assistants/message_priority/delete'
+    DEL_PRIORITY_URL = reverse('creme_config__delete_instance', args=('assistants', 'message_priority'))
 
     @classmethod
     def setUpClass(cls):
@@ -38,8 +39,10 @@ class UserMessageTestCase(AssistantsTestCase):
         EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity=None):
-        return '/assistants/message/add/%s/' % entity.id if entity else \
-               '/assistants/message/add/'
+        # return '/assistants/message/add/%s/' % entity.id if entity else \
+        #        '/assistants/message/add/'
+        return reverse('assistants__create_related_message', args=(entity.id,)) if entity else \
+               reverse('assistants__create_message')
 
     def _create_usermessage(self, title, body, priority, users, entity):
         if priority is None:
@@ -224,7 +227,8 @@ class UserMessageTestCase(AssistantsTestCase):
         message = messages[0]
         self.assertEqual(self.user, message.recipient)
 
-        self.assertPOST(302, '/assistants/message/delete', data={'id': message.id})
+        # self.assertPOST(302, '/assistants/message/delete', data={'id': message.id})
+        self.assertPOST(302, reverse('assistants__delete_message'), data={'id': message.id})
         self.assertFalse(UserMessage.objects.all())
 
     def test_merge(self):
