@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -25,7 +27,9 @@ class VcfsTestCase(CremeTestCase):
         # self.assertIn('creme_core', admin_choices)
         # self.assertIn('persons',    admin_choices)
         # self.assertNotIn('vcfs',    admin_choices)  # <==
-        response = self.assertGET200('/creme_config/role/wizard/')
+
+        # response = self.assertGET200('/creme_config/role/wizard/')
+        response = self.assertGET200(reverse('creme_config__create_role'))
 
         with self.assertNoException():
             app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
