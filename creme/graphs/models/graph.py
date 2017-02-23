@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -159,8 +159,9 @@ class AbstractGraph(CremeEntity):
 
             raise Graph.GraphException(str(e))
 
-        # return HttpResponseRedirect('/download_file/upload/graphs/' + filename)
-        return HttpResponseRedirect('/download_file/upload/graphs/' + basename(path))
+        # # return HttpResponseRedirect('/download_file/upload/graphs/' + filename)
+        # return HttpResponseRedirect('/download_file/upload/graphs/' + basename(path))
+        return HttpResponseRedirect(reverse('creme_core__dl_file', args=('/upload/graphs/' + basename(path),)))
 
     def _post_save_clone(self, source):
         for node in RootNode.objects.filter(graph=source):
@@ -183,7 +184,8 @@ class RootNode(CremeModel):
         app_label = 'graphs'
 
     def get_edit_absolute_url(self):
-        return '/graphs/root/edit/%s/' % self.id
+        # return '/graphs/root/edit/%s/' % self.id
+        return reverse('graphs__edit_root', args=(self.id,))
 
     def get_related_entity(self):  # For generic views (edit_related_to_entity)
         return self.graph

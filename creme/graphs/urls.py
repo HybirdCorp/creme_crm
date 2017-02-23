@@ -7,16 +7,16 @@ from .views import portal, graph, root_node
 
 
 urlpatterns = [
-    url(r'^$', portal.portal),
+    url(r'^$', portal.portal, name='graphs__portal'),
 
-    url(r'^graph/(?P<graph_id>\d+)/png$', graph.dl_png),
+    url(r'^graph/(?P<graph_id>\d+)/png$', graph.dl_png, name='graphs__dl_image'),
 
-    url(r'^graph/(?P<graph_id>\d+)/relation_types/add$',   graph.add_relation_types),
-    url(r'^graph/(?P<graph_id>\d+)/relation_type/delete$', graph.delete_relation_type),
+    url(r'^graph/(?P<graph_id>\d+)/relation_types/add$',   graph.add_relation_types,   name='graphs__add_rtypes'),
+    url(r'^graph/(?P<graph_id>\d+)/relation_type/delete$', graph.delete_relation_type, name='graphs__remove_rtype'),
 
-    url(r'^graph/(?P<graph_id>\d+)/roots/add$', root_node.add),
-    url(r'^root/edit/(?P<root_id>\d+)/',        root_node.edit),
-    url(r'^root/delete$',                       root_node.delete),
+    url(r'^graph/(?P<graph_id>\d+)/roots/add$', root_node.add,    name='graphs__add_roots'),
+    url(r'^root/edit/(?P<root_id>\d+)/',        root_node.edit,   name='graphs__edit_root'),
+    url(r'^root/delete$',                       root_node.delete, name='graphs__remove_root'),
 ]
 
 if not graph_model_is_custom():
