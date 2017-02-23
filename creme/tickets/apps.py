@@ -69,7 +69,8 @@ class TicketsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('tickets', '/tickets/').register_item
-            reg_item('/tickets/',                       _(u'Portal of tickets'), 'tickets')
+            # reg_item('/tickets/',                       _(u'Portal of tickets'), 'tickets')
+            reg_item(reverse('tickets__portal'),        _(u'Portal of tickets'), 'tickets')
             reg_item(reverse('tickets__list_tickets'),  _(u'All tickets'),       'tickets')
             reg_item(reverse('tickets__create_ticket'), Ticket.creation_label,   cperm(Ticket))
         else:

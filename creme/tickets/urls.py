@@ -2,15 +2,15 @@
 
 from django.conf.urls import url
 
-from . import ticket_model_is_custom, tickettemplate_model_is_custom
+from creme import tickets
 from .views import portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal),
+    url(r'^$', portal.portal, name='tickets__portal'),
 ]
 
-if not ticket_model_is_custom():
+if not tickets.ticket_model_is_custom():
     from .views import ticket
 
     urlpatterns += [
@@ -20,7 +20,7 @@ if not ticket_model_is_custom():
         url(r'^ticket/(?P<ticket_id>\d+)$',      ticket.detailview, name='tickets__view_ticket'),
     ]
 
-if not tickettemplate_model_is_custom():
+if not tickets.tickettemplate_model_is_custom():
     from .views import template
 
     urlpatterns += [
