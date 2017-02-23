@@ -14,8 +14,8 @@ try:
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry
-    from creme.creme_core.forms.widgets import Label
     from creme.creme_core.gui.quick_forms import quickforms_registry
+    from creme.creme_core.forms.widgets import Label
     from creme.creme_core.models import RelationType, Relation, SetCredentials, FieldsConfig, CremeUser
 
     # from creme.media_managers.models import Image
@@ -72,9 +72,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         return reverse('persons__create_related_contact', kwargs=kwargs) + '?callback_url=' + url
 
-    # TODO: in creme_core ??
-    def _build_delete_url(self, entity):
-        return '/creme_core/entity/delete/%s' % entity.id
+    # def _build_delete_url(self, entity):
+    #     return '/creme_core/entity/delete/%s' % entity.id
 
     def test_empty_fields(self):
         user = self.login()
@@ -146,7 +145,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNone(contact.shipping_address)
 
         abs_url = contact.get_absolute_url()
-        self.assertEqual('/persons/contact/%s' % contact.id, abs_url)
+        # self.assertEqual('/persons/contact/%s' % contact.id, abs_url)
         self.assertRedirects(response, abs_url)
 
     @skipIfCustomAddress
@@ -614,7 +613,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_delete01(self):
         user = self.login()
         naruto = Contact.objects.create(user=user, first_name='Naruto', last_name='Uzumaki')
-        url = self._build_delete_url(naruto)
+        # url = self._build_delete_url(naruto)
+        url = naruto.get_delete_absolute_url()
         self.assertPOST200(url, follow=True)
 
         with self.assertNoException():
@@ -629,17 +629,20 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         "Can not delete if the Contact corresponds to an user"
         user = self.login()
         contact = user.linked_contact
-        self.assertPOST403(self._build_delete_url(contact), follow=True)
+        # self.assertPOST403(self._build_delete_url(contact), follow=True)
+        self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
 
     def test_delete03(self):
         "Can not trash if the Contact corresponds to an user"
         user = self.login()
         contact = user.linked_contact
-        self.assertPOST403(self._build_delete_url(contact), follow=True)
+        # self.assertPOST403(self._build_delete_url(contact), follow=True)
+        self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
 
     def _build_quickform_url(self, count):
         ct = ContentType.objects.get_for_model(Contact)
-        return '/creme_core/quickforms/%s/%s' % (ct.id, count)
+        # return '/creme_core/quickforms/%s/%s' % (ct.id, count)
+        return reverse('creme_core__quick_forms', args=(ct.id, count))
 
     def test_quickform01(self):
         "2 Contacts created"
@@ -1443,7 +1446,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          last_name='Matsumoto', civility=captain,
                                         )
 
-        self.assertPOST200('/creme_config/persons/civility/delete', data={'id': captain.pk})
+        # self.assertPOST200('/creme_config/persons/civility/delete', data={'id': captain.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'civility')),
+                           data={'id': captain.pk}
+                          )
         self.assertDoesNotExist(captain)
 
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
@@ -1457,7 +1463,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          last_name='Matsumoto', position=captain,
                                         )
 
-        self.assertPOST200('/creme_config/persons/position/delete', data={'id': captain.pk})
+        # self.assertPOST200('/creme_config/persons/position/delete', data={'id': captain.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'position')),
+                           data={'id': captain.pk}
+                          )
         self.assertDoesNotExist(captain)
 
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
@@ -1471,7 +1480,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          last_name='Matsumoto', sector=piracy,
                                         )
 
-        self.assertPOST200('/creme_config/persons/sector/delete', data={'id': piracy.pk})
+        # self.assertPOST200('/creme_config/persons/sector/delete', data={'id': piracy.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
+                           data={'id': piracy.pk}
+                          )
         self.assertDoesNotExist(piracy)
 
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
@@ -1674,7 +1686,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         deunan   = create_contact(user=user,       first_name='Deunan',   last_name='Knut')
         briareos = create_contact(user=other_user, first_name='Briareos', last_name='Hecatonchires')
 
-        self.assertNoFormError(self.client.post('/creme_config/user/delete/%s' % other_user.id,
+        # self.assertNoFormError(self.client.post('/creme_config/user/delete/%s' % other_user.id,
+        self.assertNoFormError(self.client.post(reverse('creme_config__delete_user', args=(other_user.id,)),
                                                 {'to_user': user.id}
                                                )
                               )

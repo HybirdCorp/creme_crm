@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from creme import persons
 from .views import portal, crud_relations, organisation
 
 
+become_patterns = [
+    url(r'^customer$',          crud_relations.become_customer, name='persons__become_customer'),
+    url(r'^prospect$',          crud_relations.become_prospect, name='persons__become_prospect'),
+    url(r'^suspect$',           crud_relations.become_suspect,  name='persons__become_suspect'),
+    url(r'^inactive_customer$', crud_relations.become_inactive, name='persons__become_inactive_customer'),
+    url(r'^supplier$',          crud_relations.become_supplier, name='persons__become_supplier'),
+]
+
 urlpatterns = [
-    url(r'^$', portal.portal),
+    url(r'^$', portal.portal, name='persons__portal'),
 
-    url(r'^organisation/managed$',     organisation.set_managed),
-    url(r'^organisation/not_managed$', organisation.unset_managed),
+    url(r'^organisation/managed$',     organisation.set_managed,   name='persons__orga_set_managed'),
+    url(r'^organisation/not_managed$', organisation.unset_managed, name='persons__orga_unset_managed'),
 
-    url(r'^(?P<entity_id>\d+)/become_customer$',          crud_relations.become_customer),
-    url(r'^(?P<entity_id>\d+)/become_prospect$',          crud_relations.become_prospect),
-    url(r'^(?P<entity_id>\d+)/become_suspect$',           crud_relations.become_suspect),
-    url(r'^(?P<entity_id>\d+)/become_inactive_customer$', crud_relations.become_inactive),
-    url(r'^(?P<entity_id>\d+)/become_supplier$',          crud_relations.become_supplier),
+    url(r'^(?P<entity_id>\d+)/become_', include(become_patterns)),
 ]
 
 if not persons.contact_model_is_custom():

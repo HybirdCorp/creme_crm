@@ -2,6 +2,7 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.models import HeaderFilter, EntityFilter  # EntityFilterCondition
     from creme.creme_core.tests.base import CremeTestCase
@@ -44,11 +45,12 @@ class PersonsAppTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/persons/')
+        self.assertGET200(reverse('persons__portal'))
 
     def test_config_portal(self):
         self.login()
-        response = self.assertGET200('/creme_config/')
+        # response = self.assertGET200('/creme_config/')
+        response = self.assertGET200(reverse('creme_config__portal'))
         self.assertContains(response, ' id="%s"' % blocks.managed_orgas_block.id_)
 
 # TODO: tests for portal stats

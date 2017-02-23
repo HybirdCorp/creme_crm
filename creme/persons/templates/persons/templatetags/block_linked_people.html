@@ -8,7 +8,6 @@
         <th class="actions">
             <div class="buttons">{% has_perm_to create ct as creation_perm %}
                 {% if creation_perm and obj_link_perm and contact_link_perm %}
-                    {% comment %}<a class="add" href="/persons/contact/add_with_relation/{{object.pk}}/{{rtype_id}}?callback_url=" onclick="this.href+=window.location.href">{% endcomment %}
                     <a class="add" href="{% url 'persons__create_related_contact' object.pk rtype_id %}?callback_url=" onclick="this.href+=window.location.href">
                         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{add_title}}" alt="{{add_title}}" />{{add_title}}
                     </a>
@@ -30,7 +29,7 @@
                 {% if 'email' not in hidden_fields %}<th class="block_header_line_dark">{% trans "Email" %}</th>{% endif %}
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% trans "Edit" as edit_label %}{% trans "Can't edit" as noedit_label %}
+            {% trans "Edit" as edit_label %}{% trans "Can't edit" as noedit_label %}{% url 'creme_core__delete_similar_relations' as del_rel_url %}
             {% for people in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to view people as people_view_perm %}
                     <td class="{{row_color}}">{% widget_entity_hyperlink people user %}</td>
@@ -49,7 +48,8 @@
                         {% else %}
                             <img class="forbidden" src="{% creme_media_url 'images/edit_22_button.png' %}" border="0" title="{{noedit_label}}" alt="{{noedit_label}}" />
                         {% endif %}
-                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{people.pk}} }" with_perms unlink_perm|and_op:people_unlink_perm %}
+{#                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{people.pk}} }" with_perms unlink_perm|and_op:people_unlink_perm %} #}
+                        {% get_line_unlinker at_url del_rel_url with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{people.pk}} }" with_perms unlink_perm|and_op:people_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

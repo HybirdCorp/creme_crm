@@ -124,7 +124,7 @@ class AddressTestCase(CremeTestCase):
     @skipIfCustomOrganisation
     def test_create_billing01(self):
         orga = self.login()
-        self.assertGET404('/persons/address/add/invalid/%s' % orga.id)
+        # self.assertGET404('/persons/address/add/invalid/%s' % orga.id)
 
         url = reverse('persons__create_billing_address', args=(orga.id,))
         response = self.assertGET200(url)
@@ -234,7 +234,8 @@ class AddressTestCase(CremeTestCase):
         address = Address.objects.filter(object_id=orga.id)[0]
         ct = ContentType.objects.get_for_model(Address)
 
-        self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': address.id})
+        # self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': address.id})
+        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': address.id})
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
     def test_bool(self):

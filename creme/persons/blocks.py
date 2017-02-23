@@ -20,6 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url  # SimpleBlock
@@ -81,17 +82,17 @@ class ManagersBlock(QuerysetBlock):
         is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
 
         return self._render(self.get_block_template_context(context,
-                                self._get_people_qs(orga).select_related('civility'),
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                rtype_id=self.relation_type_deps[0],
-                                ct=ContentType.objects.get_for_model(Contact),
-                                add_title=self._get_add_title(),
-                                hidden_fields={fname
-                                                for fname in ('phone', 'mobile', 'email')
-                                                    if is_hidden(fname)
-                                              },
-                               )
-                           )
+                    self._get_people_qs(orga).select_related('civility'),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, orga.id)),
+                    rtype_id=self.relation_type_deps[0],
+                    ct=ContentType.objects.get_for_model(Contact),
+                    add_title=self._get_add_title(),
+                    hidden_fields={fname
+                                    for fname in ('phone', 'mobile', 'email')
+                                        if is_hidden(fname)
+                                  },
+        ))
 
 
 class EmployeesBlock(ManagersBlock):
@@ -170,22 +171,22 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
             raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
 
         return self._render(self.get_block_template_context(
-                                context,
-                                self._get_neglected(context['today']),
-                                update_url='/creme_core/blocks/reload/portal/%s/%s/' % (
-                                                    self.id_, list4url(ct_ids),
-                                                ),
-                               )
-                           )
+                    context,
+                    self._get_neglected(context['today']),
+                    # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (
+                    #                     self.id_, list4url(ct_ids),
+                    #                 ),
+                    update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
+        ))
 
     def home_display(self, context):
         # We do not check the 'persons' permission, because it's only statistics for people who cannot see Organisations
         return self._render(self.get_block_template_context(
-                                context,
-                                self._get_neglected(context['today']),
-                                update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                               )
-                           )
+                    context,
+                    self._get_neglected(context['today']),
+                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
+        ))
 
 
 # TODO: factorise (see CSV import) ? (exclue param in info_field_names())
@@ -247,17 +248,17 @@ class AddressBlock(Block):
         if not colspan: colspan = 1
 
         return self._render(self.get_block_template_context(
-                                context,
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (
-                                                self.id_, person.pk,
-                                            ),
-                                b_address=b_address,
-                                s_address=s_address,
-                                field_names=_get_address_field_names(),  # TODO: cache in context ??
-                                address_model=Address,  # For fields' verbose name
-                                colspan=colspan,
-                               )
-                           )
+                    context,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (
+                    #                 self.id_, person.pk,
+                    #             ),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person.id)),
+                    b_address=b_address,
+                    s_address=s_address,
+                    field_names=_get_address_field_names(),  # TODO: cache in context ??
+                    address_model=Address,  # For fields' verbose name
+                    colspan=colspan,
+        ))
 
 
 class OtherAddressBlock(QuerysetBlock):
@@ -274,16 +275,16 @@ class OtherAddressBlock(QuerysetBlock):
         person = context['object']
 
         return self._render(self.get_block_template_context(
-                                context,
-                                person.other_addresses,
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (
-                                                self.id_, person.pk,
-                                            ),
-                                field_names=_get_address_field_names(),
-                                # ct_id=self._ADDRESS_CT_ID,
-                                ct_id=ContentType.objects.get_for_model(Address).id,
-                               )
-                           )
+                    context,
+                    person.other_addresses,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (
+                    #                 self.id_, person.pk,
+                    #             ),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person.id)),
+                    field_names=_get_address_field_names(),
+                    # ct_id=self._ADDRESS_CT_ID,
+                    ct_id=ContentType.objects.get_for_model(Address).id,
+        ))
 
 
 class ManagedOrganisationsBlock(PaginatedBlock):
@@ -295,11 +296,11 @@ class ManagedOrganisationsBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context,
-                                Organisation.get_all_managed_by_creme(),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                               )
-                           )
+                    context,
+                    Organisation.get_all_managed_by_creme(),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 # contact_coord_block   = ContactCoordinatesBlock()
