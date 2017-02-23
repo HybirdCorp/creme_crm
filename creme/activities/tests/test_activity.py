@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date, time # timedelta
+    from datetime import datetime, date, time  # timedelta
     from functools import partial
     from json import loads as json_loads
 
@@ -38,23 +38,35 @@ except Exception as e:
 
 @skipIfCustomActivity
 class ActivityTestCase(_ActivitiesTestCase):
-    ADD_URL         = '/activities/activity/add'
-    ADD_POPUP_URL   = '/activities/activity/add_popup'
-    ADD_INDISPO_URL = '/activities/activity/add_indispo'
-    DEL_ACTTYPE_URL = '/creme_config/activities/activity_type/delete'
-    GET_TYPES       = '/activities/type/%s/json'
+    # ADD_URL         = '/activities/activity/add'
+    ADD_URL         = reverse('activities__create_activity')
+    # ADD_POPUP_URL   = '/activities/activity/add_popup'
+    ADD_POPUP_URL   = reverse('activities__create_activity_popup')
+    # ADD_INDISPO_URL = '/activities/activity/add_indispo'
+    ADD_INDISPO_URL = reverse('activities__create_indispo')
+    # DEL_ACTTYPE_URL = '/creme_config/activities/activity_type/delete'
+    DEL_ACTTYPE_URL = reverse('creme_config__delete_instance', args=('activities', 'activity_type'))
+    # GET_TYPES       = '/activities/type/%s/json'
 
     def _buid_add_participants_url(self, activity):
-        return '/activities/activity/%s/participant/add' % activity.id
+        # return '/activities/activity/%s/participant/add' % activity.id
+        return reverse('activities__add_participants', args=(activity.id,))
 
     def _build_add_related_uri(self, related, act_type_id=None):
-        return '/activities/activity/add_related/%(entity)s%(type_arg)s' % {
-                    'entity':   related.id,
-                    'type_arg': '' if not act_type_id else '?activity_type=%s' % act_type_id,
-                }
+        # return '/activities/activity/add_related/%(entity)s%(type_arg)s' % {
+        #             'entity':   related.id,
+        #             'type_arg': '' if not act_type_id else '?activity_type=%s' % act_type_id,
+        #         }
+        url = reverse('activities__create_related_activity', args=(related.id,))
+
+        return url if not act_type_id else (url + '?activity_type=%s' % act_type_id)
 
     def _buid_add_subjects_url(self, activity):
-        return '/activities/activity/%s/subject/add' % activity.id
+        # return '/activities/activity/%s/subject/add' % activity.id
+        return reverse('activities__add_subjects', args=(activity.id,))
+
+    def _build_get_types_url(self, type_id):
+        return reverse('activities__get_types', args=(type_id,))
 
     def _build_nolink_setcreds(self):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
@@ -156,18 +168,23 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/activities/')
+        # self.assertGET200('/activities/')
+        self.assertGET200(reverse('activities__portal'))
 
     def test_get_subtypes(self):
         self.login()
-        self.assertGET404(self.GET_TYPES % 'unknown')
+        # self.assertGET404(self.GET_TYPES % 'unknown')
+        build_url = self._build_get_types_url
+        self.assertGET404(build_url('unknown'))
 
         # Empty
-        response = self.assertGET200(self.GET_TYPES % '')
+        # response = self.assertGET200(self.GET_TYPES % '')
+        response = self.assertGET200(build_url(''))
         self.assertListEqual([], json_loads(response.content))
 
         # Valid type
-        response = self.assertGET200(self.GET_TYPES % constants.ACTIVITYTYPE_TASK)
+        # response = self.assertGET200(self.GET_TYPES % constants.ACTIVITYTYPE_TASK)
+        response = self.assertGET200(build_url(constants.ACTIVITYTYPE_TASK))
         self.assertListEqual(list(ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_TASK)
                                                          # .order_by('id')
                                                          .values_list('id', 'name')
@@ -863,7 +880,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_create_view_invalidtype(self):
         self.login()
-        self.assertGET404('/activities/activity/add/invalid')
+        # self.assertGET404('/activities/activity/add/invalid')
+        self.assertGET404(reverse('activities__create_activity', args=('invalid',)))
 
     def test_create_view_unallowedtype(self):
         user = self.login()
@@ -1268,7 +1286,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       object_entity=activity,
                                      )
 
-        self.assertPOST403('/creme_core/entity/delete/%s' % musashi.id, follow=True)
+        # self.assertPOST403('/creme_core/entity/delete/%s' % musashi.id, follow=True)
+        self.assertPOST403(musashi.get_delete_absolute_url(), follow=True)
         self.assertStillExists(musashi)
         self.assertStillExists(activity)
         self.assertStillExists(rel)
@@ -1287,7 +1306,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       object_entity=activity,
                                      )
 
-        self.assertPOST200('/creme_core/entity/delete/%s' % activity.id, follow=True)
+        # self.assertPOST200('/creme_core/entity/delete/%s' % activity.id, follow=True)
+        self.assertPOST200(activity.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(rel)
         self.assertStillExists(musashi)
@@ -1306,7 +1326,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       object_entity=activity,
                                      )
 
-        self.assertPOST200('/creme_core/entity/trash/empty')
+        # self.assertPOST200('/creme_core/entity/trash/empty')
+        self.assertPOST200(reverse('creme_core__empty_trash'))
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(rel)
         self.assertStillExists(musashi)
@@ -1338,7 +1359,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         musashi.trash()
         kojiro.trash()
 
-        self.assertPOST200('/creme_core/entity/trash/empty')
+        # self.assertPOST200('/creme_core/entity/trash/empty')
+        self.assertPOST200(reverse('creme_core__empty_trash'))
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(musashi)
         self.assertDoesNotExist(kojiro)
@@ -1742,7 +1764,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         r4 = create_rel(type_id=REL_SUB_HAS)
         self.assertEqual(3, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
 
-        url = '/activities/linked_activity/unlink'
+        # url = '/activities/linked_activity/unlink'
+        url = reverse('activities__unlink_activity')
         self.assertPOST200(url, data={'id': activity.id, 'object_id': contact.id})
         self.assertEqual(0, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
         self.assertEqual(1, contact.relations.filter(pk=r4.id).count())
@@ -1772,7 +1795,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            object_entity=activity, user=user,
                                           )
 
-        self.assertPOST403('/activities/linked_activity/unlink',
+        # self.assertPOST403('/activities/linked_activity/unlink',
+        self.assertPOST403(reverse('activities__unlink_activity'),
                            data={'id': activity.id, 'object_id': contact.id},
                           )
         self.assertEqual(1, contact.relations.filter(pk=relation.id).count())
@@ -1799,7 +1823,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            object_entity=activity, user=self.user
                                           )
 
-        self.assertPOST403('/activities/linked_activity/unlink',
+        # self.assertPOST403('/activities/linked_activity/unlink',
+        self.assertPOST403(reverse('activities__unlink_activity'),
                            data={'id': activity.id, 'object_id': contact.id}
                           )
         self.get_object_or_fail(Relation, pk=relation.id)
@@ -1894,7 +1919,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         sym_rel = Relation.objects.get(subject_entity=logged, type=constants.REL_SUB_PART_2_ACTIVITY, object_entity=phone_call)
 
-        del_url = '/activities/activity/participant/delete'
+        # del_url = '/activities/activity/participant/delete'
+        del_url = reverse('activities__remove_participant')
         self.assertGET404(del_url)
         self.assertPOST404(del_url, data={'id': sym_rel.pk})
         self.get_object_or_fail(Relation, pk=sym_rel.pk)
@@ -2370,6 +2396,53 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(time(hour=23, minute=16), start_time_f.initial)
         self.assertIsNone(end_time_f.initial)
 
+    def test_dl_ical_legacy(self):
+        user = self.login()
+
+        create_act = partial(Activity.objects.create, user=user,
+                             type_id=constants.ACTIVITYTYPE_TASK, busy=True,
+                            )
+        create_dt = self.create_datetime
+        act1 = create_act(title='Act#1',
+                          start=create_dt(year=2013, month=4, day=1, hour=9),
+                          end=create_dt(year=2013,   month=4, day=1, hour=10),
+                         )
+        act2 = create_act(title='Act#2',
+                          start=create_dt(year=2013, month=4, day=2, hour=9),
+                          end=create_dt(year=2013,   month=4, day=2, hour=10),
+                         )
+
+        # response = self.assertGET200('/activities/activities/%s,%s/ical' % (
+        #                                     act1.id, act2.id
+        #                                 )
+        #                             )
+        response = self.assertGET200(reverse('activities__dl_ical',
+                                             args=('%s,%s' % (act1.id, act2.id),)
+                                            )
+                                    )
+        self.assertEqual('text/calendar', response['Content-Type'])
+        self.assertEqual('attachment; filename=Calendar.ics',
+                         response['Content-Disposition']
+                        )
+
+        content = force_unicode(response.content)
+        self.assertTrue(content.startswith('BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CremeCRM//CremeCRM//EN\n'
+                                           'BEGIN:VEVENT\n'
+                                           'UID:http://cremecrm.com\n'
+                                          )
+                       )
+        self.assertIn(u'SUMMARY:Act#2\n'
+                      u'DTSTART:20130402T090000Z\n'
+                      u'DTEND:20130402T100000Z\n'
+                      u'LOCATION:\n'
+                      u'CATEGORIES:%s\n'
+                      u'STATUS:\n'
+                      u'END:VEVENT\n' %  act2.type.name,
+                      content
+                     )
+        self.assertIn(u'SUMMARY:Act#1\n', content)
+        self.assertTrue(content.endswith('END:VCALENDAR'))
+
     def test_dl_ical(self):
         user = self.login()
 
@@ -2386,10 +2459,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                           end=create_dt(year=2013,   month=4, day=2, hour=10),
                          )
 
-        response = self.assertGET200('/activities/activities/%s,%s/ical' % (
-                                            act1.id, act2.id
-                                        )
-                                    )
+        response = self.assertGET200(reverse('activities__dl_ical'), data={'id': [act1.id, act2.id]})
         self.assertEqual('text/calendar', response['Content-Type'])
         self.assertEqual('attachment; filename=Calendar.ics',
                          response['Content-Disposition']

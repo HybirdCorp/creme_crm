@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 # from creme.creme_core.utils.imports import find_n_import
 
@@ -8,26 +8,33 @@ from . import activity_model_is_custom, constants
 from .views import portal, activity, blocks, calendar
 
 
-urlpatterns = [
-    url(r'^$', portal.portal),
+calendar_patterns = [
+    url(r'^user$',                                                     calendar.user_calendar,        name='activities__calendar'),
+    # url(r'^users_activities/(?P<calendar_ids>([\d]+){0,1}(,[\d]+)*)$', calendar.get_users_activities, name='activities__calendars_activities'),
+    # TODO: use GET arguments instead
+    url(r'^users_activities/(?P<calendar_ids>([\d]+){0,1}(,[\d]+)*)$', calendar.get_users_activities, name='activities__calendars_activities'),
+    url(r'^activity/update',                                           calendar.update_activity_date, name='activities__set_activity_dates'),
+    url(r'^add$',                                                      calendar.add_user_calendar,    name='activities__create_calendar'),
+    url(r'^(?P<calendar_id>\d+)/edit$',                                calendar.edit_user_calendar,   name='activities__edit_calendar'),
+    url(r'^delete$',                                                   calendar.delete_user_calendar, name='activities__delete_calendar'),
+    url(r'^link/(?P<activity_id>\d+)$',                                calendar.link_user_calendar,   name='activities__link_calendar'),
+]
 
-    url(r'^activities/(?P<ids>([\d][,]*)+)/ical$', activity.download_ical),
-    url(r'^type/(?P<type_id>[\w-]*)/json$',        activity.get_types),
+urlpatterns = [
+    url(r'^$', portal.portal, name='activities__portal'),
+
+    url(r'^activities/ical$',                      activity.download_ical, name='activities__dl_ical'),
+    url(r'^activities/(?P<ids>([\d][,]*)+)/ical$', activity.download_ical, name='activities__dl_ical'),  # DEPRECATED
+
+    url(r'^type/(?P<type_id>[\w-]*)/json$',        activity.get_types,     name='activities__get_types'),
 
     # Blocks
-    url(r'^activity/(?P<activity_id>\d+)/participant/add$', blocks.add_participant),
-    url(r'^activity/participant/delete$',                   blocks.delete_participant),
-    url(r'^activity/(?P<activity_id>\d+)/subject/add$',     blocks.add_subject),
-    url(r'^linked_activity/unlink$',                        blocks.unlink_activity),
+    url(r'^activity/(?P<activity_id>\d+)/participant/add$', blocks.add_participant,    name='activities__add_participants'),
+    url(r'^activity/participant/delete$',                   blocks.delete_participant, name='activities__remove_participant'),
+    url(r'^activity/(?P<activity_id>\d+)/subject/add$',     blocks.add_subject,        name='activities__add_subjects'),
+    url(r'^linked_activity/unlink$',                        blocks.unlink_activity,    name='activities__unlink_activity'),
 
-    # Calendar
-    url(r'^calendar/user$',                                                     calendar.user_calendar),
-    url(r'^calendar/users_activities/(?P<calendar_ids>([\d]+){0,1}(,[\d]+)*)$', calendar.get_users_activities),
-    url(r'^calendar/activity/update',                                           calendar.update_activity_date),
-    url(r'^calendar/add$',                                                      calendar.add_user_calendar),
-    url(r'^calendar/(?P<calendar_id>\d+)/edit$',                                calendar.edit_user_calendar),
-    url(r'^calendar/delete$',                                                   calendar.delete_user_calendar),
-    url(r'^calendar/link/(?P<activity_id>\d+)$',                                calendar.link_user_calendar),
+    url(r'^calendar/', include(calendar_patterns)),
 ]
 
 if not activity_model_is_custom():

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,9 @@
 
 from itertools import chain
 
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
 from creme.creme_core.gui.block import QuerysetBlock, list4url
@@ -51,11 +52,12 @@ class ParticipantsBlock(QuerysetBlock):
     def detailview_display(self, context):
         activity = context['object']
         btc = self.get_block_template_context(
-                        context,
-                        activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
-                                          .select_related('type', 'object_entity'),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                    )
+                    context,
+                    activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
+                                      .select_related('type', 'object_entity'),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
+        )
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
         # TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
@@ -92,8 +94,9 @@ class SubjectsBlock(QuerysetBlock):
                     context,
                     activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
                             .select_related('type', 'object_entity'),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                )
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
+        )
 
         Relation.populate_real_object_entities(btc['page'].object_list)
 
@@ -154,29 +157,32 @@ class FutureActivitiesBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(
                     context,
                     self._get_queryset_for_entity(entity, context).select_related('status'),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     predicate_id=constants.REL_SUB_LINKED_2_ACTIVITY,
                     ct_id=ContentType.objects.get_for_model(Activity).id,
                     display_review=Activity.display_review(),
-                ))
+        ))
 
     def portal_display(self, context, ct_ids):
         return self._render(self.get_block_template_context(
                     context,
                     self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
-                    update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
                     display_review=Activity.display_review(),
-                ))
+        ))
 
     def home_display(self, context):
         return self._render(self.get_block_template_context(
                     context,
                     self._get_queryset_for_entity(context['user'].linked_contact, context)
                         .select_related('status'),
-                    update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
                     is_home=True,
                     display_review=Activity.display_review(),
-                ))
+        ))
 
 
 class PastActivitiesBlock(FutureActivitiesBlock):
@@ -211,9 +217,10 @@ class UserCalendars(QuerysetBlock):
         return self._render(self.get_block_template_context(
                     context,
                     Calendar.objects.filter(user=user),
-                    update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     has_app_perm=user.has_perm('activities'),
-                ))
+        ))
 
 
 class RelatedCalendar(QuerysetBlock):
@@ -230,8 +237,9 @@ class RelatedCalendar(QuerysetBlock):
         return self._render(self.get_block_template_context(
                     context,
                     activity.calendars.filter(user=user),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                ))
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
+        ))
 
 
 participants_block      = ParticipantsBlock()
