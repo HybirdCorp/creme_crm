@@ -5,25 +5,21 @@ try:
     from functools import partial
     from json import loads as json_load
 
-    from django.core.urlresolvers import reverse
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.models import (RelationType, Relation,
             InstanceBlockConfigItem, BlockDetailviewLocation, BlockPortalLocation,
             EntityFilter, EntityFilterCondition, FieldsConfig,
             CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
-    from creme.creme_core.tests.fake_constants import (
-            FAKE_REL_SUB_EMPLOYED_BY as REL_SUB_EMPLOYED_BY,
-            FAKE_REL_OBJ_EMPLOYED_BY as REL_OBJ_EMPLOYED_BY,
-            FAKE_REL_SUB_BILL_RECEIVED as REL_SUB_BILL_RECEIVED)
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeInvoice as Invoice,
-            FakePosition as Position, FakeSector as Sector)
+    from creme.creme_core.tests import fake_constants
+    from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation,
+            FakeInvoice, FakePosition, FakeSector)
 
     from .base import (BaseReportsTestCase, skipIfCustomReport, skipIfCustomRGraph,
             Report, ReportGraph)
-    from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document
+    from .fake_models import FakeReportsFolder, FakeReportsDocument
 
     from ..blocks import ReportGraphBlock
     from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR,
@@ -41,7 +37,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def setUpClass(cls):
         # BaseReportsTestCase.setUpClass()
         super(ReportGraphTestCase, cls).setUpClass()
-        cls.ct_invoice = ContentType.objects.get_for_model(Invoice)
+        cls.ct_invoice = ContentType.objects.get_for_model(FakeInvoice)
 
     def setUp(self):
         self.login()
@@ -58,25 +54,32 @@ class ReportGraphTestCase(BaseReportsTestCase):
         return reverse('reports__create_graph', args=(report.id,))
 
     def _build_add_block_url(self, rgraph):
-        return '/reports/graph/%s/block/add' % rgraph.id
+        # return '/reports/graph/%s/block/add' % rgraph.id
+        return reverse('reports__create_instance_block', args=(rgraph.id,))
 
     def _build_edit_url(self, rgraph):
         return reverse('reports__edit_graph', args=(rgraph.id,))
 
-    def _builf_fetch_url(self, rgraph, order='ASC'):
-        return '/reports/graph/fetch_graph/%s/%s' % (rgraph.id, order)
+    def _builf_fetch_url(self, rgraph, order='ASC', use_GET=False):
+        # return '/reports/graph/fetch_graph/%s/%s' % (rgraph.id, order)
+        return reverse('reports__fetch_graph', args=(rgraph.id,)) + '?order=%s' % order if use_GET else \
+               reverse('reports__fetch_graph', args=(rgraph.id, order))
 
-    def _build_fetchfromblock_url_(self, ibi, entity, order='ASC'):
-        return '/reports/graph/fetch_from_instance_block/%s/%s/%s' % (
-                        ibi.id, entity.id, order,
-                    )
+    def _build_fetchfromblock_url_(self, ibi, entity, order='ASC', use_GET=False):
+        # return '/reports/graph/fetch_from_instance_block/%s/%s/%s' % (
+        #                 ibi.id, entity.id, order,
+        #             )
+        return reverse('reports__fetch_graph_from_block', args=(ibi.id, entity.id)) + '?order=%s' % order \
+               if use_GET else \
+               reverse('reports__fetch_graph_from_block', args=(ibi.id, entity.id, order))
 
     def _build_graph_types_url(self, ct):
-        return '/reports/graph/get_available_types/%s' % ct.id
+        # return '/reports/graph/get_available_types/%s' % ct.id
+        return reverse('reports__graph_types', args=(ct.id,))
 
     def _create_invoice_report_n_graph(self, abscissa='issuing_date', ordinate='total_no_vat__sum'):
         self.report = report = Report.objects.create(user=self.user,
-                                                     name=u"All invoices of the current year",
+                                                     name=u'All invoices of the current year',
                                                      ct=self.ct_invoice,
                                                     )
 
@@ -89,19 +92,19 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                          )
 
     def test_listview_URL_builder(self):
-        builder = ListViewURLBuilder(Contact)
-        url = Contact.get_lv_absolute_url()
+        builder = ListViewURLBuilder(FakeContact)
+        url = FakeContact.get_lv_absolute_url()
         self.assertEqual(builder(None),        url + '?q_filter=')
         self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}')
 
-        efilter = EntityFilter.create('test-filter', 'Names', Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+        efilter = EntityFilter.create('test-filter', 'Names', FakeContact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
                                                                     operator=EntityFilterCondition.IENDSWITH,
                                                                     name='last_name', values=['Stark'],
-                                                                   ),
+                                                                    ),
                                ])
 
-        builder = ListViewURLBuilder(Contact, efilter)
+        builder = ListViewURLBuilder(FakeContact, efilter)
         self.assertEqual(builder(None),        url + '?q_filter=&filter=test-filter')
         self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}&filter=test-filter')
 
@@ -173,7 +176,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertTemplateUsed(response, 'reports/view_graph.html')
 
         # ------------------------------------------------------------
-        response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+        response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC', use_GET=True))
         with self.assertNoException():
             data = json_load(response.content)
 
@@ -181,7 +184,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(3, len(data))
         self.assertEqual(str(rgraph.id), data.get('graph_id'))
 
-        sectors = Sector.objects.all()
+        sectors = FakeSector.objects.all()
         x_asc = data.get('x')
         self.assertEqual([s.title for s in sectors], x_asc)
 
@@ -192,8 +195,15 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          y_asc[0]
                         )
 
+        response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+        with self.assertNoException():
+            other_data = json_load(response.content)
+        self.assertEqual(data, other_data)
+
         # ------------------------------------------------------------
+        self.assertGET200(self._builf_fetch_url(rgraph, 'DESC', use_GET=True))
         self.assertGET200(self._builf_fetch_url(rgraph, 'DESC'))
+        self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF', use_GET=True))
         self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF'))
 
     def test_createview02(self):
@@ -313,7 +323,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                              'Unknown relationship type.'
                             )
 
-        rtype_id = REL_OBJ_EMPLOYED_BY
+        rtype_id = fake_constants.FAKE_REL_OBJ_EMPLOYED_BY
         self.assertNoFormError(post(rtype_id))
 
         rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
@@ -428,7 +438,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         red  = create_enum_value(value='Red')
         create_enum_value(value='Black')  # Not used
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=self.user)
         ryomou  = create_contact(first_name='Ryomou',  last_name='Shimei')
         kanu    = create_contact(first_name=u'Kan-u',  last_name=u'Unchô')
         sonsaku = create_contact(first_name='Sonsaku', last_name='Hakufu')
@@ -581,11 +591,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         report = self._create_simple_organisations_report()
 
         hidden_fname1 = 'sector'
-        FieldsConfig.create(Organisation,
+        FieldsConfig.create(FakeOrganisation,
                             descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
                                           ('capital',     {FieldsConfig.HIDDEN: True}),
                                          ]
-                           )
+                            )
 
         response = self.assertGET200(self._build_add_graph_url(report))
 
@@ -684,11 +694,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
 
         hidden_fname1 = 'expiration_date'
-        FieldsConfig.create(Invoice,
+        FieldsConfig.create(FakeInvoice,
                             descriptions=[(hidden_fname1,  {FieldsConfig.HIDDEN: True}),
                                           ('total_no_vat', {FieldsConfig.HIDDEN: True}),
                                          ]
-                           )
+                            )
 
         response = self.assertGET200(self._build_edit_url(rgraph))
 
@@ -713,9 +723,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         hidden_fname = 'expiration_date'
         rgraph = self._create_invoice_report_n_graph(abscissa=hidden_fname)
 
-        FieldsConfig.create(Invoice,
+        FieldsConfig.create(FakeInvoice,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+                            )
 
         url = self._build_edit_url(rgraph)
         response = self.assertGET200(url)
@@ -753,9 +763,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         hidden_fname = 'total_no_vat'
         rgraph = self._create_invoice_report_n_graph(ordinate=hidden_fname + '__sum')
 
-        FieldsConfig.create(Invoice,
+        FieldsConfig.create(FakeInvoice,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                           )
+                            )
 
         response = self.assertGET200(self._build_edit_url(rgraph))
 
@@ -802,22 +812,22 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_with_fk_01(self):
         "Count"
-        create_position = Position.objects.create
+        create_position = FakePosition.objects.create
         hand = create_position(title='Hand of the king')
         lord = create_position(title='Lord')
 
         last_name = 'Stark'
-        create_contact = partial(Contact.objects.create, user=self.user, last_name=last_name)
+        create_contact = partial(FakeContact.objects.create, user=self.user, last_name=last_name)
         create_contact(first_name='Eddard', position=hand)
         create_contact(first_name='Robb',   position=lord)
         create_contact(first_name='Bran',   position=lord)
         create_contact(first_name='Aria')
 
-        efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+        efilter = EntityFilter.create('test-filter', 'Starks', FakeContact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
                                                                     operator=EntityFilterCondition.IEQUALS,
                                                                     name='last_name', values=[last_name]
-                                                                   )
+                                                                    )
                                ])
 
         report = self._create_simple_contacts_report(efilter=efilter)
@@ -830,7 +840,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
 
-        self.assertEqual(list(Position.objects.values_list('title', flat=True)), x_asc)
+        self.assertEqual(list(FakePosition.objects.values_list('title', flat=True)), x_asc)
 
         self.assertIsInstance(y_asc, list)
         self.assertEqual(len(x_asc), len(y_asc))
@@ -846,21 +856,21 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_with_fk_02(self):
         "Aggregate"
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         war   = create_sector(title='War')
         trade = create_sector(title='Trade')
         peace = create_sector(title='Peace')
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         create_orga(name='House Lannister', capital=1000, sector=trade)
         create_orga(name='House Stark',     capital=100,  sector=war)
         create_orga(name='House Targaryen', capital=10,   sector=war)
 
-        efilter = EntityFilter.create('test-filter', 'Houses', Organisation, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+        efilter = EntityFilter.create('test-filter', 'Houses', FakeOrganisation, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeOrganisation,
                                                                     operator=EntityFilterCondition.ISTARTSWITH,
                                                                     name='name', values=['House '],
-                                                                   )
+                                                                    )
                                ])
 
         report = self._create_simple_organisations_report(efilter=efilter)
@@ -873,7 +883,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
 
-        self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
+        self.assertEqual(list(FakeSector.objects.values_list('title', flat=True)), x_asc)
 
         fmt = '/tests/organisations?q_filter={"sector": %s}&filter=test-filter'
         index = x_asc.index
@@ -883,12 +893,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_with_fk_03(self):
         "Aggregate ordinate with custom field"
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         war   = create_sector(title='War')
         trade = create_sector(title='Trade')
         peace = create_sector(title='Peace')
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         lannisters = create_orga(name='House Lannister', sector=trade)
         starks     = create_orga(name='House Stark',     sector=war)
         targaryens = create_orga(name='House Targaryen', sector=war)
@@ -914,7 +924,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         x_asc, y_asc = rgraph.fetch()
 
-        self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
+        self.assertEqual(list(FakeSector.objects.values_list('title', flat=True)), x_asc)
 
         fmt = '/tests/organisations?q_filter={"sector": %s}'
         index = x_asc.index
@@ -935,7 +945,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
 
-        sectors = Sector.objects.all()
+        sectors = FakeSector.objects.all()
         self.assertEqual([s.title for s in sectors], x_asc)
         self.assertEqual([0, '/tests/organisations?q_filter={"sector": %d}' % sectors[0].id],
                          y_asc[0]
@@ -957,7 +967,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
 
-        sectors = Sector.objects.all()
+        sectors = FakeSector.objects.all()
         self.assertEqual([s.title for s in sectors], x_asc)
         self.assertEqual([0, '/tests/organisations?q_filter={"sector": %d}' % sectors[0].id],
                          y_asc[0]
@@ -979,7 +989,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                              )
 
         rgraph = create_graph(15)
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         create_orga(name='Target Orga1', creation_date='2013-06-01')
         create_orga(name='Target Orga2', creation_date='2013-06-05')
         create_orga(name='Target Orga3', creation_date='2013-06-14')
@@ -1032,7 +1042,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             is_count=False,
                                            )
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         create_orga(name='Orga1', creation_date='2013-06-22', capital=100)
         create_orga(name='Orga2', creation_date='2013-06-25', capital=200)
         create_orga(name='Orga3', creation_date='2013-07-5',  capital=150)
@@ -1070,7 +1080,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                              )
 
         rgraph = create_graph(15)
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         create_orga(name='Target Orga1', creation_date='2013-12-21')
         create_orga(name='Target Orga2', creation_date='2013-12-26')
         create_orga(name='Target Orga3', creation_date='2013-12-31')
@@ -1126,7 +1136,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         cf2 = create_cf(name='First defeat')  # This one is annoying because the values are in the same table
                                               # so the query must be more complex to not retrieve them
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         targaryens = create_orga(name='House Targaryen')
         lannisters = create_orga(name='House Lannister')
         starks     = create_orga(name='House Stark')
@@ -1214,7 +1224,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             is_count=False,
                                            )
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         create_orga(name='Orga1', creation_date='2013-06-22', capital=100)
         create_orga(name='Orga2', creation_date='2013-06-22', capital=200)
         create_orga(name='Orga3', creation_date='2013-07-5',  capital=130)
@@ -1246,7 +1256,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         cf2 = create_cf_dt(name='First defeat')  # This one is annoying because the values are in the same table
                                                  # so the query must be more complex to not retrieve them
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         lannisters = create_orga(name='House Lannister', capital=100)
         baratheons = create_orga(name='House Baratheon', capital=200)
         targaryens = create_orga(name='House Targaryen', capital=130)
@@ -1317,7 +1327,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             ordinate='', is_count=True,
                                            )
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         create_orga(name='Orga1', creation_date='2013-06-22')
         create_orga(name='Orga2', creation_date='2013-06-25')
         create_orga(name='Orga3', creation_date='2013-08-5')
@@ -1344,7 +1354,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                         name='First victory',
                                         field_type=CustomField.DATETIME,
                                        )
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         lannisters = create_orga(name='House Lannister')
         baratheons = create_orga(name='House Baratheon')
         targaryens = create_orga(name='House Targaryen')
@@ -1376,7 +1386,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             ordinate='', is_count=True,
                                            )
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         create_orga(name='Orga1', creation_date='2013-06-22')
         create_orga(name='Orga2', creation_date='2013-07-25')
         create_orga(name='Orga3', creation_date='2014-08-5')
@@ -1399,7 +1409,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         "Aggregate ordinate with custom field"
         user = self.user
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         lannisters = create_orga(name='House Lannister', creation_date='2013-06-22')
         starks     = create_orga(name='House Stark',     creation_date='2013-07-25')
         baratheons = create_orga(name='House Baratheon', creation_date='2014-08-5')
@@ -1461,7 +1471,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                         field_type=CustomField.DATETIME,
                                        )
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         lannisters = create_orga(name='House Lannister')
         baratheons = create_orga(name='House Baratheon')
         targaryens = create_orga(name='House Targaryen')
@@ -1486,24 +1496,24 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def test_fetch_by_relation01(self):
         "Count"
         user = self.user
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         lannisters = create_orga(name='House Lannister')
         starks     = create_orga(name='House Stark')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         tyrion = create_contact(first_name='Tyrion', last_name='Lannister')
         ned    = create_contact(first_name='Eddard', last_name='Stark')
         aria   = create_contact(first_name='Aria',   last_name='Stark')
         jon    = create_contact(first_name='Jon',    last_name='Snow')
 
-        efilter = EntityFilter.create('test-filter', 'Not bastard', Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+        efilter = EntityFilter.create('test-filter', 'Not bastard', FakeContact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
                                                                     operator=EntityFilterCondition.IEQUALS,
                                                                     name='last_name', values=[tyrion.last_name, ned.last_name]
-                                                                   )
+                                                                    )
                                ])
 
-        create_rel = partial(Relation.objects.create, user=user, type_id=REL_OBJ_EMPLOYED_BY)
+        create_rel = partial(Relation.objects.create, user=user, type_id=fake_constants.FAKE_REL_OBJ_EMPLOYED_BY)
         create_rel(subject_entity=lannisters, object_entity=tyrion)
         create_rel(subject_entity=starks,     object_entity=ned)
         create_rel(subject_entity=starks,     object_entity=aria)
@@ -1512,10 +1522,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         report = self._create_simple_contacts_report(efilter=efilter)
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name="Number of employees",
-                                            abscissa=REL_SUB_EMPLOYED_BY,
+                                            abscissa=fake_constants.FAKE_REL_SUB_EMPLOYED_BY,
                                             type=RGT_RELATION,
                                             ordinate='', is_count=True,
-                                           )
+                                            )
 
         # ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch()
@@ -1542,18 +1552,18 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def test_fetch_by_relation02(self):
         "Aggregate"
         user = self.user
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         lannisters = create_orga(name='House Lannister', capital=100)
         starks     = create_orga(name='House Stark',     capital=50)
         tullies    = create_orga(name='House Tully',     capital=40)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         tywin = create_contact(first_name='Tywin',  last_name='Lannister')
         ned   = create_contact(first_name='Eddard', last_name='Stark')
 
-        rtype = RelationType.create(('reports-subject_obeys',   'obeys to', [Organisation]),
-                                    ('reports-object_commands', 'commands', [Contact]),
-                                   )[0]
+        rtype = RelationType.create(('reports-subject_obeys',   'obeys to', [FakeOrganisation]),
+                                    ('reports-object_commands', 'commands', [FakeContact]),
+                                    )[0]
 
         create_rel = partial(Relation.objects.create, user=user, type=rtype)
         create_rel(subject_entity=lannisters, object_entity=tywin)
@@ -1603,17 +1613,17 @@ class ReportGraphTestCase(BaseReportsTestCase):
                   name='Gold', field_type=CustomField.INT,
                  )  # Bad CT
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         lannisters = create_orga(name='House Lannister')
         starks     = create_orga(name='House Stark')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         ned    = create_contact(first_name='Eddard', last_name='Stark')
         robb   = create_contact(first_name='Robb',   last_name='Stark')
         jaime  = create_contact(first_name='Jaime',  last_name='Lannister')
         tyrion = create_contact(first_name='Tyrion', last_name='Lannister')
 
-        rtype_id = REL_SUB_EMPLOYED_BY
+        rtype_id = fake_constants.FAKE_REL_SUB_EMPLOYED_BY
         create_rel = partial(Relation.objects.create, user=user, type_id=rtype_id)
         create_rel(subject_entity=ned,    object_entity=starks)
         create_rel(subject_entity=robb,   object_entity=starks)
@@ -1693,7 +1703,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         hand = create_enum_value(value='Hand')
         lord = create_enum_value(value='Lord')
 
-        create_contact = partial(Contact.objects.create, user=self.user, last_name='Stark')
+        create_contact = partial(FakeContact.objects.create, user=self.user, last_name='Stark')
         ned  = create_contact(first_name='Eddard')
         robb = create_contact(first_name='Robb')
         bran = create_contact(first_name='Bran')
@@ -1734,7 +1744,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         fight     = create_enum_value(value='Fight')
         smartness = create_enum_value(value='Smartness')
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         starks     = create_orga(name='Starks',     capital=30)
         baratheons = create_orga(name='Baratheon',  capital=60)
         lannisters = create_orga(name='Lannisters', capital=100)
@@ -1770,7 +1780,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def test_fetchgraphview_with_decimal_ordinate(self):
         "Test json encoding for Graph with Decimal in fetch_graph view"
         rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         orga1 = create_orga(name='BullFrog')
         orga2 = create_orga(name='Maxis')
         self._create_invoice(orga1, orga2, issuing_date='2015-10-16', total_vat=Decimal("1212.12"))
@@ -1840,9 +1850,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             ordinate='', is_count=True,
                                            )
 
-        rtype = RelationType.create(('reports-subject_loves', 'loves',       [Contact]),
-                                    ('reports-object_loves',  'is loved by', [Contact]),
-                                   )[0]
+        rtype = RelationType.create(('reports-subject_loves', 'loves',       [FakeContact]),
+                                    ('reports-object_loves',  'is loved by', [FakeContact]),
+                                    )[0]
 
         ibci = rgraph.create_instance_block_config_item(volatile_rtype=rtype)
         self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (
@@ -1903,10 +1913,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         ct = self.ct_invoice
         BlockDetailviewLocation.objects.filter(content_type=ct).delete()
         BlockDetailviewLocation.create(block_id=item.block_id, order=1,
-                                       zone=BlockDetailviewLocation.RIGHT, model=Invoice,
-                                      )
+                                       zone=BlockDetailviewLocation.RIGHT, model=FakeInvoice,
+                                       )
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         orga1 = create_orga(name='BullFrog')
         orga2 = create_orga(name='Maxis')
         orga3 = create_orga(name='Bitmap brothers')
@@ -1919,7 +1929,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertContains(response, ' id="%s"' % item.block_id)
 
         # ---------------------------------------------------------------------
-        response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'ASC'))
+        response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'ASC', use_GET=True))
 
         result = json_load(response.content)
         self.assertIsInstance(result, dict)
@@ -1936,6 +1946,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
                        }
                       )
 
+        response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'ASC'))
+        self.assertEqual(result, json_load(response.content))
+
+        # ---------------------------------------------------------------------
         response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'DESC'))
         result = json_load(response.content)
         self.assertEqual([x_fmt % 11, x_fmt % 10], result.get('x'))
@@ -1948,6 +1962,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
                        }
                       )
 
+        # ---------------------------------------------------------------------
+        self.assertGET404(self._build_fetchfromblock_url_(item, invoice, 'FOOBAR', use_GET=True))
         self.assertGET404(self._build_fetchfromblock_url_(item, invoice, 'FOOBAR'))
 
     def test_add_graph_instance_block02(self):
@@ -1985,11 +2001,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(title, unicode(item))
 
         # Display on detailview
-        create_folder = partial(Folder.objects.create, user=self.user)
+        create_folder = partial(FakeReportsFolder.objects.create, user=self.user)
         folder1 = create_folder(title='Internal')
         folder2 = create_folder(title='External')
 
-        create_doc = partial(Document.objects.create, user=self.user)
+        create_doc = partial(FakeReportsDocument.objects.create, user=self.user)
         doc1 = create_doc(title='Doc#1.1', folder=folder1)
         create_doc(title='Doc#1.2', folder=folder1)
         create_doc(title='Doc#2',   folder=folder2)
@@ -1997,8 +2013,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         ct = folder1.entity_type
         BlockDetailviewLocation.objects.filter(content_type=ct).delete()
         BlockDetailviewLocation.create(block_id=item.block_id, order=1,
-                                       zone=BlockDetailviewLocation.RIGHT, model=Folder,
-                                      )
+                                       zone=BlockDetailviewLocation.RIGHT, model=FakeReportsFolder,
+                                       )
 
         response = self.assertGET200(folder1.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/templatetags/block_report_graph.html')
@@ -2025,7 +2041,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                     data='%s|%s' % (fname, RFT_FIELD),
                 )
 
-        folder = Folder.objects.create(user=self.user, title='My folder')
+        folder = FakeReportsFolder.objects.create(user=self.user, title='My folder')
 
         fetcher = ReportGraph.get_fetcher_from_instance_block(ibci)
         x, y = fetcher.fetch_4_entity(folder)
@@ -2049,7 +2065,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                     data='%s|%s' % (fname, RFT_FIELD),
                 )
 
-        folder = Folder.objects.create(user=self.user, title='My folder')
+        folder = FakeReportsFolder.objects.create(user=self.user, title='My folder')
 
         fetcher = ReportGraph.get_fetcher_from_instance_block(ibci)
         x, y = fetcher.fetch_4_entity(folder)
@@ -2075,10 +2091,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         "Volatile column (RFT_RELATION)"
         user = self.user
         report = self._create_simple_contacts_report()
-        rtype = RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)
+        rtype = RelationType.objects.get(pk=fake_constants.FAKE_REL_SUB_EMPLOYED_BY)
         incompatible_rtype = RelationType.create(('reports-subject_related_doc', 'is related to doc',   [Report]),
-                                                 ('reports-object_related_doc',  'is linked to report', [Document]),
-                                                )[0]
+                                                 ('reports-object_related_doc',  'is linked to report', [FakeReportsDocument]),
+                                                 )[0]
 
         rgraph = ReportGraph.objects.create(user=user, report=report,
                                             name='Number of created contacts / year',
@@ -2118,12 +2134,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          ReportGraphBlock(item).verbose_name
                         )
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         sonsaku = create_contact(first_name='Sonsaku', last_name='Hakufu')
         ryomou  = create_contact(first_name='Ryomou',  last_name='Shimei')
         create_contact(first_name=u'Kan-u', last_name=u'Unchô')
 
-        nanyo = Organisation.objects.create(user=user, name=u'Nanyô')
+        nanyo = FakeOrganisation.objects.create(user=user, name=u'Nanyô')
 
         create_rel = partial(Relation.objects.create, user=user, type=rtype, object_entity=nanyo)
         create_rel(subject_entity=sonsaku)
@@ -2195,7 +2211,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         ct = self.ct_invoice
         url = self._build_graph_types_url(ct)
 
-        response = self.assertPOST200(url, data={'record_id': REL_SUB_BILL_RECEIVED})
+        response = self.assertPOST200(url, data={'record_id': fake_constants.FAKE_REL_SUB_BILL_RECEIVED})
         self.assertEqual({'result': [{'id': RGT_RELATION, 'text': _(u"By values (of related entities)")}]},
                          json_load(response.content)
                         )
@@ -2236,7 +2252,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         interval_day_count = 300
         entities_per_day = 5
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         for i in xrange(1, interval_day_count + 1):
             creation = datetime.strptime('%s 2014' % i, '%j %Y').strftime("%Y-%m-%d")
             for _j in xrange(entities_per_day):
@@ -2271,7 +2287,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         interval_day_count = 300
         entities_per_day = 5
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         for i in xrange(1, interval_day_count + 1):
             creation = datetime.strptime('%s 2014' % i, '%j %Y').strftime("%Y-%m-%d")
             for _j in xrange(entities_per_day):

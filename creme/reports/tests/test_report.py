@@ -8,6 +8,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.encoding import smart_str
     from django.utils.formats import date_format
     from django.utils.html import escape
@@ -100,13 +101,16 @@ class ReportTestCase(BaseReportsTestCase):
         return orga_report
 
     def _build_linkreport_url(self, rfield):
-        return '/reports/report/field/%s/link_report' % rfield.id
+        # return '/reports/report/field/%s/link_report' % rfield.id
+        return reverse('reports__link_report', args=(rfield.id,))
 
     def _build_export_url(self, report):
-        return '/reports/export/%s' % report.id
+        # return '/reports/export/%s' % report.id
+        return reverse('reports__export_report', args=(report.id,))
 
     def _build_preview_url(self, report):
-        return '/reports/export/preview/%s' % report.id
+        # return '/reports/export/preview/%s' % report.id
+        return reverse('reports__export_report_preview', args=(report.id,))
 
     def _create_cf_int(self):
         return CustomField.objects.create(content_type=self.ct_contact,
@@ -139,7 +143,8 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/reports/')
+        # self.assertGET200('/reports/')
+        self.assertGET200(reverse('reports__portal'))
 
     def test_columns(self):
         self.login()
@@ -587,7 +592,8 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.create('test-filter', 'Mihana family', FakeContact, is_custom=True)
         report = self._create_report('My awesome report', efilter)
 
-        url = '/creme_core/entity_filter/delete'
+        # url = '/creme_core/entity_filter/delete'
+        url = reverse('creme_core__delete_efilter')
         data = {'id': efilter.id}
         response = self.assertPOST200(url, data=data, follow=True)
         self.assertStillExists(efilter)
@@ -742,7 +748,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        url = '/reports/export/filter/%s' % report.id
+        # url = '/reports/export/filter/%s' % report.id
+        url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
         date_field = 'birthday'
@@ -759,13 +766,21 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             callback_url = response.context['callback_url']
 
-        self.assertEqual('/reports/export/%s?doc_type=csv'
-                                           '&date_field=%s'
-                                           '&date_filter_0='
-                                           '&date_filter_1=01-01-1990'
-                                           '&date_filter_2=31-12-1990' % (
-                                report.id, date_field,
-                            ),
+        # self.assertEqual('/reports/export/%s?doc_type=csv'
+        #                                    '&date_field=%s'
+        #                                    '&date_filter_0='
+        #                                    '&date_filter_1=01-01-1990'
+        #                                    '&date_filter_2=31-12-1990' % (
+        #                         report.id, date_field,
+        #                     ),
+        #                  callback_url
+        #                 )
+        self.assertEqual(reverse('reports__export_report', args=(report.id,)) +
+                         '?doc_type=csv'
+                          '&date_field=%s'
+                          '&date_filter_0='
+                          '&date_filter_1=01-01-1990'
+                          '&date_filter_2=31-12-1990' % date_field,
                          callback_url
                         )
 
@@ -773,7 +788,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        url = '/reports/export/filter/%s' % report.id
+        # url = '/reports/export/filter/%s' % report.id
+        url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
         date_field = 'birthday'
@@ -787,7 +803,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        url = '/reports/export/filter/%s' % report.id
+        # url = '/reports/export/filter/%s' % report.id
+        url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
         date_field = 'birthday'
@@ -809,7 +826,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        url = '/reports/export/filter/%s' % report.id
+        # url = '/reports/export/filter/%s' % report.id
+        url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
         date_field = 'birthday'
@@ -819,7 +837,7 @@ class ReportTestCase(BaseReportsTestCase):
                                      )
 
         self.assertFormError(response, 'form', 'date_filter',
-                             _(u"Select a valid choice. %(value)s is not one of the available choices.") % {
+                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': 'unknown',
                                 }
                             )
@@ -828,7 +846,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        url = '/reports/export/filter/%s' % report.id
+        # url = '/reports/export/filter/%s' % report.id
+        url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
         date_field = ''
@@ -843,9 +862,12 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             callback_url = response.context['callback_url']
 
-        self.assertEqual('/reports/export/%s?doc_type=%s&date_field=' % (
-                                report.id, doc_type,
-                            ),
+        # self.assertEqual('/reports/export/%s?doc_type=%s&date_field=' % (
+        #                         report.id, doc_type,
+        #                     ),
+        #                  callback_url
+        #                 )
+        self.assertEqual(reverse('reports__export_report', args=(report.id,)) + '?doc_type=%s&date_field=' % doc_type,
                          callback_url
                         )
 
@@ -1019,7 +1041,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._create_persons()
         report   = self._create_report('trinita')
-        response = self.assertGET200('/reports/export/%s' % report.id,
+        # response = self.assertGET200('/reports/export/%s' % report.id,
+        response = self.assertGET200(reverse('reports__export_report', args=(report.id,)),
                                      data={'doc_type': 'xls',
                                            'date_field': 'birthday',
                                            'date_filter_0': '',
@@ -1037,7 +1060,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(['Langley', user_str, '', ''],       result[2])
 
     def _build_editfields_url(self, report):
-        return '/reports/report/%s/edit_fields' % report.id
+        # return '/reports/report/%s/edit_fields' % report.id
+        return reverse('reports__edit_fields', args=(report.id,))
 
     def test_edit_fields01(self):
         self.login()
@@ -1456,7 +1480,8 @@ class ReportTestCase(BaseReportsTestCase):
         # Unlink ---------------------------------------------------------------
         fk_img_field.selected = True
         fk_img_field.save()
-        url = '/reports/report/field/unlink_report'
+        # url = '/reports/report/field/unlink_report'
+        url = reverse('reports__unlink_report')
         self.assertGET404(url)
         self.assertPOST409(url, data={'field_id': str_field.id})
         self.assertPOST200(url, data={'field_id': fk_img_field.id})
@@ -1609,7 +1634,8 @@ class ReportTestCase(BaseReportsTestCase):
                                   sub_report=orga_report, type=RFT_RELATION, selected=True,
                                   )
 
-        url = '/reports/report/field/set_selected'
+        # url = '/reports/report/field/set_selected'
+        url = reverse('reports__set_selected_field')
         self.assertGET404(url)
 
         data = {'report_id': contact_report.id, 

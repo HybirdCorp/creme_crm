@@ -74,7 +74,8 @@ class ReportsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('reports', '/reports/').register_item
-            reg_item('/reports/',                       _(u'Portal of reports'), 'reports')
+            # reg_item('/reports/',                       _(u'Portal of reports'), 'reports')
+            reg_item(reverse('reports__portal'),        _(u'Portal of reports'), 'reports')
             reg_item(reverse('reports__list_reports'),  _(u'All reports'),       'reports')
             reg_item(reverse('reports__create_report'), Report.creation_label,   cperm(Report))
         else:

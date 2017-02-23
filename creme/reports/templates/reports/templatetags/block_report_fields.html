@@ -8,7 +8,8 @@
             <div class="buttons">{% comment %}TODO: improve get_line_editor width=90% + label + CSS class {% endcomment %}
                 {% trans "Edit the columns" as edit_label %}
                 {% if has_perm %}
-                    <a class="edit" onclick="creme.blocks.form('/reports/report/{{object.id}}/edit_fields', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'90%'});">
+{#                    <a class="edit" onclick="creme.blocks.form('/reports/report/{{object.id}}/edit_fields', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'90%'});"> #}
+                    <a class="edit" onclick="creme.blocks.form('{% url 'reports__edit_fields' object.id %}', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'90%'});">
                         <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{edit_label}}" alt="{{edit_label}}" />
                         {{edit_label}}
                     </a>
@@ -31,6 +32,7 @@
                 <th class="block_header_line_light action">{% trans "Action(s)" %}</th>
                 {% if expand %}<th class="block_header_line_light action">{% trans "Expand ?" %}</th>{% endif %}
             </tr>
+            {% url 'reports__change_field_order' as change_order_url %}
             {% for column in columns %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 {% with sub_report=column.sub_report %}
                     <tr class="content">
@@ -52,13 +54,15 @@
                                             {% if not column.hand.get_linkable_ctypes|is_none %}
                                                 {% if sub_report %}{% has_perm_to unlink sub_report as unlink_sub_report_perm %}
                                                     {% if unlink_perm and unlink_sub_report_perm %}
-                                                        <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
+{#                                                        <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a> #}
+                                                        <a onclick="creme.reports.unlink_report('{% url 'reports__unlink_report' %}', '{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
                                                     {% else %}
                                                         <span class="forbidden">{% trans 'Unlink the report' %}</span>
                                                     {% endif %}
                                                 {% else %}
                                                     {% if link_perm %}
-                                                        <a onclick="creme.blocks.form('/reports/report/field/{{column.pk}}/link_report', {blockReloadUrl:{% get_block_reload_uri %}}).open();">{% trans 'Link a report' %}</a>
+{#                                                        <a onclick="creme.blocks.form('/reports/report/field/{{column.pk}}/link_report', {blockReloadUrl:{% get_block_reload_uri %}}).open();">{% trans 'Link a report' %}</a> #}
+                                                        <a onclick="creme.blocks.form('{% url 'reports__link_report' column.pk %}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">{% trans 'Link a report' %}</a>
                                                     {% else %}
                                                         <span class="forbidden">{% trans 'Link a report' %}</span>
                                                     {% endif %}
@@ -68,7 +72,8 @@
                                         <td style="width: 33%;" align="center" valign="middle">
                                             {% if column.order != 1 %}{% trans "Column up" as up_label %}
                                                 {% if has_perm %}
-                                                    <a onclick="creme.reports.changeOrder('{{column.pk}}', 'up', {% get_block_reload_uri %});">
+{#                                                    <a onclick="creme.reports.changeOrder('{{column.pk}}', 'up', {% get_block_reload_uri %});"> #}
+                                                    <a onclick="creme.reports.changeOrder('{{change_order_url}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
                                                         <img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{up_label}}" alt="{{up_label}}" />
                                                     </a>
                                                 {% else %}
@@ -77,7 +82,8 @@
                                             {% endif %}<br/>
                                             {% if column.order != columns|length %}{% trans "Column down" as down_label %}
                                                 {% if has_perm %}
-                                                    <a onclick="creme.reports.changeOrder('{{column.pk}}', 'down', {% get_block_reload_uri %});">
+{#                                                    <a onclick="creme.reports.changeOrder('{{column.pk}}', 'down', {% get_block_reload_uri %});"> #}
+                                                    <a onclick="creme.reports.changeOrder('{{change_order_url}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
                                                         <img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{{down_label}}" alt="{{down_label}}" />
                                                     </a>
                                                 {% else %}
@@ -91,8 +97,9 @@
                         </td>
                         {% if expand %}
                             <td class="{{row_color}} action">
-                                {% if sub_report %}{% comment %}TODO: use {% get_block_reload_uri %}{% endcomment %}
-                                    <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %}checked {% endif %}/>
+                                {% if sub_report %}
+{#                                    <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %}checked {% endif %}/> #}
+                                    <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected('{% url 'reports__set_selected_field' %}', this, '{{column.pk}}', {% get_block_reload_uri %});" {% if column.selected %}checked {% endif %}/>
                                 {% endif %}
                             </td>
                         {% endif %}
