@@ -126,7 +126,8 @@ class BillingConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('billing', '/billing/').register_item
-            reg_item('/billing/',                            _(u'Portal of billing'),   'billing')
+            # reg_item('/billing/',                            _(u'Portal of billing'),   'billing')
+            reg_item(reverse('billing__portal'),             _(u'Portal of billing'),   'billing')
             reg_item(reverse('billing__create_invoice'),     Invoice.creation_label,    cperm(Invoice))
             reg_item(reverse('billing__list_invoices'),      _(u'All invoices'),        'billing')
             reg_item(reverse('billing__create_order'),       SalesOrder.creation_label, cperm(SalesOrder))

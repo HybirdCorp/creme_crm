@@ -117,7 +117,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(invoice, invoice.shipping_address.owner)
 
         url = invoice.get_absolute_url()
-        self.assertEqual('/billing/invoice/%s' % invoice.id, url)
+        # self.assertEqual('/billing/invoice/%s' % invoice.id, url)
         self.assertGET200(url)
 
     def test_createview03(self):
@@ -351,13 +351,15 @@ class InvoiceTestCase(_BillingTestCase):
         name = 'invoice001'
         invoice = self.create_invoice_n_orgas(name, user=user)[0]
 
-        url_fmt = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
-        ct_id = invoice.entity_type_id
-
-        def build_url(field_name):
-            return url_fmt % {'ct': ct_id, 'id': invoice.id, 'field': field_name}
-
-        url = build_url('name')
+        # url_fmt = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
+        # ct_id = invoice.entity_type_id
+        #
+        # def build_url(field_name):
+        #     return url_fmt % {'ct': ct_id, 'id': invoice.id, 'field': field_name}
+        #
+        # url = build_url('name')
+        build_url = partial(self.build_inneredit_url, entity=invoice)
+        url = build_url(fieldname='name')
         self.assertGET200(url)
 
         name = name.title()
@@ -369,19 +371,22 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(name, self.refresh(invoice).name)
 
         # Addresses should not be editable
-        self.assertGET(400, build_url('billing_address'))
-        self.assertGET(400, build_url('shipping_address'))
+        # self.assertGET(400, build_url('billing_address'))
+        # self.assertGET(400, build_url('shipping_address'))
+        self.assertGET(400, build_url(fieldname='billing_address'))
+        self.assertGET(400, build_url(fieldname='shipping_address'))
 
     def test_inner_edit02(self):
         "Discount"
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=user)[0]
-        url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s' % {
-                    'ct': invoice.entity_type_id,
-                    'id': invoice.id,
-                    'field': 'discount',
-                }
+        # url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s' % {
+        #             'ct': invoice.entity_type_id,
+        #             'id': invoice.id,
+        #             'field': 'discount',
+        #         }
+        url = self.build_inneredit_url(entity=invoice, fieldname='discount')
         self.assertGET200(url)
 
         response = self.assertPOST200(url, data={'entities_lbl': [unicode(invoice)],
@@ -742,7 +747,8 @@ class InvoiceTestCase(_BillingTestCase):
     def test_delete_paymentterms(self):
         self.login()
 
-        self.assertGET200('/creme_config/billing/payment_terms/portal/')
+        # self.assertGET200('/creme_config/billing/payment_terms/portal/')
+        self.assertGET200(reverse('creme_config__model_portal', args=('billing', 'payment_terms')))
 
         pterms = PaymentTerms.objects.create(name='3 months')
 
@@ -750,7 +756,10 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.payment_terms = pterms
         invoice.save()
 
-        self.assertPOST200('/creme_config/billing/payment_terms/delete', data={'id': pterms.pk})
+        # self.assertPOST200('/creme_config/billing/payment_terms/delete', data={'id': pterms.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', 'payment_terms')),
+                           data={'id': pterms.pk}
+                          )
         self.assertDoesNotExist(pterms)
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
@@ -762,7 +771,10 @@ class InvoiceTestCase(_BillingTestCase):
         currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
         invoice = self.create_invoice_n_orgas('Nerv', currency=currency)[0]
 
-        self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
+        # self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
+                           data={'id': currency.pk}
+                          )
         self.get_object_or_fail(Currency, pk=currency.pk)
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
@@ -776,7 +788,10 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.additional_info = info
         invoice.save()
 
-        self.assertPOST200('/creme_config/billing/additional_information/delete', data={'id': info.pk})
+        # self.assertPOST200('/creme_config/billing/additional_information/delete', data={'id': info.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', 'additional_information')),
+                           data={'id': info.pk}
+                          )
         self.assertDoesNotExist(info)
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)

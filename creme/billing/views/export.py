@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ import subprocess
 from tempfile import mkdtemp
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import loader
@@ -60,7 +61,7 @@ def export_as_pdf(request, base_id):
 
     template_path = TEMPLATE_PATHS.get(entity.__class__)
     if template_path is None:
-        raise ConflictError("This type of entity cannot be exported as pdf")
+        raise ConflictError('This type of entity cannot be exported as pdf')
 
     source = entity.get_source().get_real_entity()
     has_perm(source)
@@ -115,4 +116,8 @@ def export_as_pdf(request, base_id):
 
     rmtree(tmp_dir_path)
 
-    return HttpResponseRedirect('/download_file/upload/billing/' + path.basename(final_path))
+    # return HttpResponseRedirect('/download_file/upload/billing/' + path.basename(final_path))
+    return HttpResponseRedirect(reverse('creme_core__dl_file',
+                                        args=('upload/billing/' + path.basename(final_path),),
+                                       )
+                               )

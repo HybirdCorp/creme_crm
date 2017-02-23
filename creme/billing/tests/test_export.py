@@ -4,6 +4,7 @@ try:
     from decimal import Decimal
     from functools import partial
 
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -22,7 +23,8 @@ except Exception as e:
 @skipIfCustomOrganisation
 class ExportTestCase(_BillingTestCase):
     def _build_export_url(self, entity):
-        return '/billing/generate_pdf/%s' % entity.id
+        # return '/billing/generate_pdf/%s' % entity.id
+        return reverse('billing__export', args=(entity.id,))
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine

@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from .. import billing
 from .views import portal, export, payment_information, convert, line
 
+
 urlpatterns = [
-    url(r'^$', portal.portal),
+    url(r'^$', portal.portal, name='billing__portal'),
 
-    url(r'^generate_pdf/(?P<base_id>\d+)$', export.export_as_pdf),
+    url(r'^generate_pdf/(?P<base_id>\d+)$', export.export_as_pdf, name='billing__export'),
 
-    url(r'^payment_information/add/(?P<entity_id>\d+)$',                                          payment_information.add),
-    url(r'^payment_information/edit/(?P<payment_information_id>\d+)$',                            payment_information.edit),
-    url(r'^payment_information/set_default/(?P<payment_information_id>\d+)/(?P<billing_id>\d+)$', payment_information.set_default),
+    url(r'^payment_information/', include([
+        url(r'^add/(?P<entity_id>\d+)$',                                          payment_information.add,         name='billing__create_payment_info'),
+        url(r'^edit/(?P<payment_information_id>\d+)$',                            payment_information.edit,        name='billing__edit_payment_info'),
+        url(r'^set_default/(?P<payment_information_id>\d+)/(?P<billing_id>\d+)$', payment_information.set_default, name='billing__set_default_payment_info'),
+    ])),
 
-    url(r'^(?P<document_id>\d+)/convert/$', convert.convert),
+    url(r'^(?P<document_id>\d+)/convert/$', convert.convert, name='billing__convert'),
 
-    url(r'^line/(?P<line_id>\d+)/add_to_catalog',  line.add_to_catalog),
-    url(r'^(?P<document_id>\d+)/multi_save_lines', line.multi_save_lines),
+    url(r'^line/(?P<line_id>\d+)/add_to_catalog',  line.add_to_catalog,   name='billing__add_to_catalog'),
+    url(r'^(?P<document_id>\d+)/multi_save_lines', line.multi_save_lines, name='billing__multi_save_lines'),
 ]
 
 if not billing.invoice_model_is_custom():

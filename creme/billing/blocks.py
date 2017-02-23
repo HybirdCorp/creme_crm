@@ -20,6 +20,7 @@
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
@@ -60,11 +61,12 @@ class BillingBlock(Block):
         document = context['object']
         return self._render(self.get_block_template_context(
                     context,
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, document.pk)),
                     is_invoice=isinstance(document, Invoice),
                     is_quote=isinstance(document, Quote),
                     is_templatebase=isinstance(document, TemplateBase),
-                   ))
+        ))
 
 
 class _LineBlock(SimpleBlock):
@@ -97,14 +99,15 @@ class _LineBlock(SimpleBlock):
 
         return self._render(self.get_block_template_context(
                     context,
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, document.id)),
                     ct_id=ContentType.objects.get_for_model(line_model).id,
                     formset=lineformset,
                     # item_count=lines.count(),
                     item_count=len(lines),
                     related_item_ct=ContentType.objects.get_for_model(self.related_item_model),
                     related_item_label=self.related_item_label,
-                   ))
+        ))
 
 
 class ProductLinesBlock(_LineBlock):
@@ -150,9 +153,10 @@ class CreditNoteBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(
                     context,
                     billing_document.get_credit_notes(),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (
-                                    self.id_, billing_document.pk,
-                                ),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (
+                    #                 self.id_, billing_document.pk,
+                    #             ),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, billing_document.id)),
                     rtype_id=self.relation_type_deps[0],
                     ct=ContentType.objects.get_for_model(CreditNote),
                     add_title=_(u'Create a credit note'),
@@ -160,7 +164,7 @@ class CreditNoteBlock(QuerysetBlock):
                                        for fname in ('issuing_date', 'expiration_date', 'comment')
                                            if is_hidden(fname)
                                   },
-                ))
+        ))
 
 
 class TotalBlock(Block):
@@ -174,9 +178,10 @@ class TotalBlock(Block):
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
                     context,
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, context['object'].id)),
                     cell_class=getattr(settings, 'CSS_NUMBER_LISTVIEW', ''),
-                   ))
+        ))
 
 
 class TargetBlock(SimpleBlock):
@@ -205,9 +210,10 @@ class ReceivedInvoicesBlock(QuerysetBlock):
                     Invoice.objects.filter(relations__object_entity=person_id,
                                            relations__type=constants.REL_SUB_BILL_RECEIVED,
                                           ),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person_id)),
                     hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
-                ))
+        ))
 
 
 class _ReceivedBillingDocumentsBlock(QuerysetBlock):
@@ -232,12 +238,13 @@ class _ReceivedBillingDocumentsBlock(QuerysetBlock):
                     model.objects.filter(relations__object_entity=person_id,
                                          relations__type=constants.REL_SUB_BILL_RECEIVED,
                                         ),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person_id)),
                     title=self._title,
                     title_plural=self._title_plural,
                     empty_msg=self._empty_msg,
                     hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
-                ))
+        ))
 
 
 class ReceivedQuotesBlock(_ReceivedBillingDocumentsBlock):
@@ -298,9 +305,10 @@ class PaymentInformationBlock(QuerysetBlock):
 
         return self._render(self.get_block_template_context(context,
                     PaymentInformation.objects.filter(organisation=organisation),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, organisation.pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, organisation.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, organisation.id)),
                     ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
-                   ))
+        ))
 
 
 class BillingPaymentInformationBlock(QuerysetBlock):
@@ -326,11 +334,12 @@ class BillingPaymentInformationBlock(QuerysetBlock):
 
         return self._render(self.get_block_template_context(
                     context, pi_qs,
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, billing.id)),
                     ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
                     organisation=organisation,
                     field_hidden=hidden,
-                   ))
+        ))
 
 
 class BillingAddressBlock(AddressBlock):
@@ -349,11 +358,12 @@ class PersonsStatisticsBlock(Block):
         user = context['user']
         return self._render(self.get_block_template_context(
                     context,
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person.id)),
                     total_pending=function_fields.get_total_pending(person, user),
                     total_won_quote_last_year=function_fields.get_total_won_quote_last_year(person, user),
                     total_won_quote_this_year=function_fields.get_total_won_quote_this_year(person, user),
-                   ))
+        ))
 
 
 product_lines_block       = ProductLinesBlock()

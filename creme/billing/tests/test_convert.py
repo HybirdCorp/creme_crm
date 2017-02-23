@@ -6,6 +6,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.db.models.query_utils import Q
     from django.utils.timezone import now
 
@@ -35,7 +36,8 @@ class ConvertTestCase(_BillingTestCase):
     #     cls.populate('creme_core', 'persons', 'billing')
 
     def _convert(self, status_code, src, dest_type):
-        self.assertPOST(status_code, '/billing/%s/convert/' % src.id,
+        # self.assertPOST(status_code, '/billing/%s/convert/' % src.id,
+        self.assertPOST(status_code, reverse('billing__convert', args=(src.id,)),
                         data={'type': dest_type}, follow=True
                        )
 

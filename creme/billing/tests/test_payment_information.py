@@ -4,6 +4,8 @@ try:
     from decimal import Decimal
     from functools import partial
 
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.models import Currency, FieldsConfig
 
     from creme.persons.tests.base import skipIfCustomOrganisation
@@ -21,10 +23,12 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.login()
 
     def _build_add_url(self, orga):
-        return '/billing/payment_information/add/%s' % orga.id
+        # return '/billing/payment_information/add/%s' % orga.id
+        return reverse('billing__create_payment_info', args=(orga.id,))
 
     def _build_setdefault_url(self, pi, invoice):
-        return '/billing/payment_information/set_default/%s/%s' % (pi.id, invoice.id)
+        # return '/billing/payment_information/set_default/%s/%s' % (pi.id, invoice.id)
+        return reverse('billing__set_default_payment_info', args=(pi.id, invoice.id))
 
     def test_createview01(self):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
@@ -74,7 +78,9 @@ class PaymentInformationTestCase(_BillingTestCase):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
         pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
 
-        url = '/billing/payment_information/edit/%s' % pi.id #TODO: get_edit_absolute_url()
+        # TODO: get_edit_absolute_url() ?
+        # url = '/billing/payment_information/edit/%s' % pi.id
+        url = reverse('billing__edit_payment_info', args=(pi.id,))
         self.assertGET200(url)
 
         rib_key = "00"
@@ -106,7 +112,8 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         self.assertTrue(self.refresh(pi_11).is_default)
 
-        url = '/billing/payment_information/edit/%s' % pi_12.id
+        # url = '/billing/payment_information/edit/%s' % pi_12.id
+        url = reverse('billing__edit_payment_info', args=(pi_12.id,))
         self.assertGET200(url)
 
         rib_key = "00"
@@ -188,14 +195,14 @@ class PaymentInformationTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     def test_set_null_in_invoice01(self):
-        sega = Organisation.objects.create(user=self.user, name=u"Sega")
+        sega = Organisation.objects.create(user=self.user, name=u'Sega')
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
         self.assertPOST200(self._build_setdefault_url(pi_sony, invoice))
 
         currency = Currency.objects.all()[0]
-        response = self.client.post('/billing/invoice/edit/%s' % invoice.id, follow=True,
+        response = self.client.post(invoice.get_edit_absolute_url(), follow=True,
                                     data={'user':            self.user.pk,
                                           'name':            'Dreamcast',
                                           'issuing_date':    '2010-9-7',

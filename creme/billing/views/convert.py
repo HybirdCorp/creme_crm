@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.db.transaction import atomic
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth import decorators
@@ -72,11 +72,14 @@ def convert(request, document_id):
     with atomic():
         dest = dest_class()
         dest.build(src)
-        dest.name = _(u'%(src)s (converted into  %(dest)s)') % {
+        dest.name = _(u'%(src)s (converted into %(dest)s)') % {
                             'src':  src.name,
                             'dest': dest._meta.verbose_name,
                         }
         dest.generate_number()
         dest.save()
 
-    return HttpResponse(content_type='text/javascript')
+    if request.is_ajax():
+        return HttpResponse(content_type='text/javascript')
+
+    return redirect(dest)

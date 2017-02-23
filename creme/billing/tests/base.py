@@ -213,11 +213,17 @@ class _BillingTestCaseMixin(object):
         return order, source, target
 
     def assertDeleteStatusOK(self, status, short_name):
-        self.assertPOST200('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
+        # self.assertPOST200('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', short_name)),
+                           data={'id': status.pk}
+                          )
         self.assertDoesNotExist(status)
 
     def assertDeleteStatusKO(self, status, short_name, doc):
-        self.assertPOST404('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
+        # self.assertPOST404('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('billing', short_name)),
+                           data={'id': status.pk}
+                          )
         self.assertStillExists(status)
 
         doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
