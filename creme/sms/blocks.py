@@ -18,42 +18,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.template.context import RequestContext
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
-#from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.block import QuerysetBlock
-#from creme.creme_core.utils import jsonify
 
 from creme.persons import get_contact_model
-# from creme.persons.models import Contact
 
-from . import get_smscampaign_model, get_messaginglist_model
-#from .models import SMSCampaign, Recipient, Sending, Message, MessagingList
+from creme import sms
 from .models import Recipient, Sending, Message
 
 
-SMSCampaign   = get_smscampaign_model()
-MessagingList = get_messaginglist_model()
+SMSCampaign   = sms.get_smscampaign_model()
+MessagingList = sms.get_messaginglist_model()
 
 
 class _RelatedEntitesBlock(QuerysetBlock):
-    #id_           = 'SET ME'
-    #dependencies  = 'SET ME'
-    #verbose_name  = 'SET ME'
-    #template_name = 'SET ME'
-
-    def _get_queryset(self, entity): #OVERLOAD ME
+    def _get_queryset(self, entity):
         raise NotImplementedError
 
     def detailview_display(self, context):
         entity = context['object']
 
-        return self._render(self.get_block_template_context(context, self._get_queryset(entity),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+                    context, self._get_queryset(entity),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+        ))
 
 
 class MessagingListsBlock(_RelatedEntitesBlock):
@@ -63,7 +55,7 @@ class MessagingListsBlock(_RelatedEntitesBlock):
     template_name = 'sms/templatetags/block_messaging_lists.html'
     target_ctypes = (SMSCampaign,)
 
-    def _get_queryset(self, entity): #entity=campaign
+    def _get_queryset(self, entity):  # NB: entity=campaign
         return entity.lists.all()
 
 
@@ -76,10 +68,13 @@ class RecipientsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, Recipient.objects.filter(messaging_list=pk), #get_recipients() ??? related_name()
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ct_id=ContentType.objects.get_for_model(Recipient).id,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                context,
+                Recipient.objects.filter(messaging_list=pk),  # get_recipients() ??? related_name() ?
+                # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                ct_id=ContentType.objects.get_for_model(Recipient).id,
+        ))
 
 
 class ContactsBlock(_RelatedEntitesBlock):
@@ -90,11 +85,11 @@ class ContactsBlock(_RelatedEntitesBlock):
     template_name = 'sms/templatetags/block_contacts.html'
     target_ctypes = (MessagingList,)
 
-    def _get_queryset(self, entity): #entity=mlist
+    def _get_queryset(self, entity):  # NB: entity=mlist
         return entity.contacts.all()
 
 
-#TODO: improve credentials (see emails.blocks.MailsBlock) ; must and related entity in Message model
+# TODO: improve credentials (see emails.blocks.MailsBlock) ; must and related entity in Message model
 class MessagesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'messages')
     dependencies  = (Message,)
@@ -104,9 +99,11 @@ class MessagesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         sending = context['object']
-        return self._render(self.get_block_template_context(context, sending.messages.all(),
-                                                            update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk
-                                                            ))
+        return self._render(self.get_block_template_context(
+                context, sending.messages.all(),
+                # update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk
+                update_url=reverse('sms__reload_messages_block', args=(sending.id,)),
+        ))
 
 
 class SendingsBlock(QuerysetBlock):
@@ -119,9 +116,12 @@ class SendingsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         campaign = context['object']
-        return self._render(self.get_block_template_context(context, Sending.objects.filter(campaign=campaign), #get_sendings() ??
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                                                            ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    Sending.objects.filter(campaign=campaign),  # get_sendings() ??
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, campaign.pk)),
+        ))
 
 
 messaging_lists_block = MessagingListsBlock()

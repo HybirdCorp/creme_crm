@@ -7,14 +7,13 @@ skip_messagetemplate_tests = False
 try:
     from unittest import skipIf
 
-    from .. import (smscampaign_model_is_custom, messaginglist_model_is_custom,
-            messagetemplate_model_is_custom, get_smscampaign_model)
+    from creme import sms
 
-    skip_smscampaign_tests     = smscampaign_model_is_custom()
-    skip_messaginglist_tests   = messaginglist_model_is_custom()
-    skip_messagetemplate_tests = messagetemplate_model_is_custom()
+    skip_smscampaign_tests     = sms.smscampaign_model_is_custom()
+    skip_messaginglist_tests   = sms.messaginglist_model_is_custom()
+    skip_messagetemplate_tests = sms.messagetemplate_model_is_custom()
 
-    SMSCampaign = get_smscampaign_model()
+    SMSCampaign = sms.get_smscampaign_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
