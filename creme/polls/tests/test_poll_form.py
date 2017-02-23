@@ -21,7 +21,7 @@ except Exception as e:
 
 
 get_ct = ContentType.objects.get_for_model
-DELETE_RELATED_URL = '/creme_core/entity/delete_related/%s'
+# DELETE_RELATED_URL = '/creme_core/entity/delete_related/%s'
 
 
 @skipIfCustomPollForm
@@ -34,25 +34,32 @@ class PollFormsTestCase(_PollsTestCase):
         self.login()
 
     def _build_addline_url(self, pform):
-        return '/polls/poll_form/%s/add/line' % pform.id
+        # return '/polls/poll_form/%s/add/line' % pform.id
+        return reverse('polls__create_form_line', args=(pform.id,))
 
     def _build_addline2section_url(self, section):
-        return '/polls/pform_section/%s/add/line' % section.id
+        # return '/polls/pform_section/%s/add/line' % section.id
+        return reverse('polls__create_form_line_in_section', args=(section.id,))
 
     def _build_choices_url(self, line):
-        return '/polls/pform_line/%s/choices' % line.id
+        # return '/polls/pform_line/%s/choices' % line.id
+        return reverse('polls__form_line_choices', args=(line.id,))
 
     def _build_deleteline_url(self):
-        return DELETE_RELATED_URL % get_ct(PollFormLine).id
+        # return DELETE_RELATED_URL % get_ct(PollFormLine).id
+        return reverse('creme_core__delete_related_to_entity', args=(get_ct(PollFormLine).id,))
 
     def _build_deletesection_url(self):
-        return DELETE_RELATED_URL % get_ct(PollFormSection).id
+        # return DELETE_RELATED_URL % get_ct(PollFormSection).id
+        return reverse('creme_core__delete_related_to_entity', args=(get_ct(PollFormSection).id,))
 
     def _build_disableline_url(self, line):
-        return '/polls/pform_line/%s/disable' % line.id
+        # return '/polls/pform_line/%s/disable' % line.id
+        return reverse('polls__disable_form_line', args=(line.id,))
 
     def _build_editlineconditions_url(self, line):
-        return '/polls/pform_line/%s/conditions/edit' % line.id
+        # return '/polls/pform_line/%s/conditions/edit' % line.id
+        return reverse('polls__edit_form_line_conditions', args=(line.id,))
 
     def _create_enum_line(self, choices, qtype=PollLineType.ENUM, del_choices=None):
         kwargs = {} if not del_choices else {'del_choices': del_choices}
@@ -171,7 +178,8 @@ class PollFormsTestCase(_PollsTestCase):
 
     def test_deleteview01(self):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        url = '/creme_core/entity/delete/%s' % pform.id
+        # url = '/creme_core/entity/delete/%s' % pform.id
+        url = pform.get_delete_absolute_url()
         redirection = PollForm.get_lv_absolute_url()
         self.assertRedirects(self.client.post(url), redirection)
 
@@ -191,7 +199,8 @@ class PollFormsTestCase(_PollsTestCase):
         cond1 = create_cond(source=line1, raw_answer='1')
         cond2 = create_cond(source=line2, raw_answer='2')
 
-        url = '/creme_core/entity/delete/%s' % pform.id
+        # url = '/creme_core/entity/delete/%s' % pform.id
+        url = pform.get_delete_absolute_url()
         self.assertPOST200(url, follow=True)
         pform = self.assertStillExists(pform)
         self.assertTrue(pform.is_deleted)
@@ -206,7 +215,8 @@ class PollFormsTestCase(_PollsTestCase):
     def test_add_section01(self):  # TODO: uniqueness of name ???
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
-        url = '/polls/poll_form/%s/add/section' % pform.id
+        # url = '/polls/poll_form/%s/add/section' % pform.id
+        url = reverse('polls__create_form_section', args=(pform.id,))
         self.assertGET200(url)
 
         name = 'Name of the Chapter 1'
@@ -227,7 +237,8 @@ class PollFormsTestCase(_PollsTestCase):
         PollFormSection.objects.create(pform=pform, name='Name of the Chapter 1', order=1)
 
         name = 'Name of the Chapter 2'
-        response = self.client.post('/polls/poll_form/%s/add/section' % pform.id,
+        # response = self.client.post('/polls/poll_form/%s/add/section' % pform.id,
+        response = self.client.post(reverse('polls__create_form_section', args=(pform.id,)),
                                     data={'name': name}
                                    )
         self.assertNoFormError(response)
@@ -243,7 +254,8 @@ class PollFormsTestCase(_PollsTestCase):
         section_2 = create_section(name='Name of the Chapter 2', order=2)
         section_3 = create_section(name='Name of the Chapter 3', order=3)
 
-        url = '/polls/pform_section/%s/add/child' % section_2.id
+        # url = '/polls/pform_section/%s/add/child' % section_2.id
+        url = reverse('polls__create_child_form_section', args=(section_2.id,))
         self.assertGET200(url)
 
         name = 'Name of the Chapter 2.1'
@@ -1133,7 +1145,10 @@ class PollFormsTestCase(_PollsTestCase):
         ptype = PollType.objects.create(name='Political poll')
         pform = PollForm.objects.create(user=self.user, name='Form#1', type=ptype)
 
-        self.assertPOST200('/creme_config/polls/poll_type/delete', data={'id': ptype.pk})
+        # self.assertPOST200('/creme_config/polls/poll_type/delete', data={'id': ptype.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
+                           data={'id': ptype.pk}
+                          )
         self.assertDoesNotExist(ptype)
 
         pform = self.assertStillExists(pform)

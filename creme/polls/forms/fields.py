@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.fields import JSONField
 from creme.creme_core.forms.widgets import SelectorList, ChainedInput
+from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..models import PollFormLineCondition
 
@@ -37,9 +38,14 @@ class PollFormLineConditionsWidget(SelectorList):
     def render(self, name, value, attrs=None):
         self.selector = chained_input = ChainedInput()
 
+        src_name = 'source'
         add = partial(chained_input.add_dselect, attrs={'auto': False})
-        add('source', options=self.sources)
-        add('choice', options='/polls/pform_line/${source}/choices')
+        add(src_name, options=self.sources)
+        # add('choice', options='/polls/pform_line/${source}/choices')
+        add('choice',
+            options=TemplateURLBuilder(line_id=(TemplateURLBuilder.Int, '${%s}' % src_name))
+                                      .resolve('polls__form_line_choices')
+           )
 
         return super(PollFormLineConditionsWidget, self).render(name, value, attrs)
 
@@ -47,8 +53,8 @@ class PollFormLineConditionsWidget(SelectorList):
 class PollFormLineConditionsField(JSONField):
     widget = PollFormLineConditionsWidget
     default_error_messages = {
-        'invalidsource': _('This source is invalid.'),
-        'invalidchoice': _('This choice is invalid.'),
+        'invalidsource': _(u'This source is invalid.'),
+        'invalidchoice': _(u'This choice is invalid.'),
     }
     value_type = list
 

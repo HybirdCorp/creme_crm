@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2016  Hybird
+#    Copyright (C) 2012-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 import logging
 
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
@@ -33,7 +34,7 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
 from creme.creme_core.utils.media import creme_media_themed_url as media_url
 from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
-    inner_popup, view_entity, list_view, add_to_entity)
+        inner_popup, view_entity, list_view, add_to_entity)
 from creme.creme_core.views.utils import build_cancel_path
 
 from creme.persons import get_contact_model, get_organisation_model
@@ -211,26 +212,28 @@ def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
         answer = pgettext('polls', u'N/A')
     elif isinstance(line.poll_line_type, MultiEnumPollLineType):  # TODO: isinstance(answer, list) ??
-        answer = u", ".join(escape(choice) for choice in line.answer)
+        answer = u', '.join(escape(choice) for choice in line.answer)
     else:
         answer = escape(line.answer)
 
     number = style.number(line)
     return mark_safe(u'<b>%(title)s</b><br>'
                       '%(label)s : %(number)s %(question)s<br>'
-                      '%(answer_str)s : %(answer)s <a class="add" href="/polls/poll_reply/%(mreply_id)s/line/%(line_id)s/edit_wizard"><img src="%(img_src)s" alt="Edit" title="Edit"></a>'
-                        % {'title':         ugettext(u"Reminder of the previous answered question :"),
+                      # '%(answer_str)s : %(answer)s <a class="add" href="/polls/poll_reply/%(mreply_id)s/line/%(line_id)s/edit_wizard"><img src="%(img_src)s" alt="Edit" title="Edit"></a>'
+                      '%(answer_str)s : %(answer)s <a class="add" href="%(url)s"><img src="%(img_src)s" alt="Edit" title="Edit"></a>'
+                        % {'title':         ugettext(u'Reminder of the previous answered question :'),
                            'label':         ugettext('Question'),
                            'number':        '%s -' % number if number != 'None' else '',
                            'question':      escape(line.question),
                            'answer_str':    ugettext('Answer'),
                            'answer':        answer,
-                           'mreply_id':     preply_id,
-                           'line_id':       line.id,
+                           'url':           reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
+                           # 'mreply_id':     preply_id,
+                           # 'line_id':       line.id,
                            'img_src':       media_url('images/edit_16.png'),
                           }
                     )
-
+# /polls/poll_reply/%(mreply_id)s/line/%(line_id)s/edit_wizard
 
 @login_required
 @permission_required('polls')
@@ -271,7 +274,8 @@ def edit_line_wizard(request, preply_id, line_id):
                     url = preply.get_absolute_url()
                 else:
                     is_complete = False
-                    url = '/polls/poll_reply/fill/%s' % preply_id
+                    # url = '/polls/poll_reply/fill/%s' % preply_id
+                    url = reverse('polls__fill_reply', args=(preply_id,))
 
                 update_model_instance(preply, is_complete=is_complete)
 
@@ -285,7 +289,7 @@ def edit_line_wizard(request, preply_id, line_id):
         form = PollReplyFillForm(line_node=line_node, user=user)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title' :       ugettext(u'Answers of the form : %s') % preply,
+                  {'title':        ugettext(u'Answers of the form : %s') % preply,
                    'form':         form,
                    'help_message': previous_answer,
                    'cancel_url':   preply.get_absolute_url(),
@@ -359,7 +363,7 @@ def clean(request):
         update_model_instance(preply, is_complete=False)
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(preply)
 
@@ -412,7 +416,7 @@ def edit_line(request, preply_id, line_id):
                        {'form':  edit_form,
                         'title': ugettext(u'Answer edition'),
                         # TODO: help_text (cleared answers + conditions etc...) ??
-                        'submit_label': _('Save the modification'),
+                        'submit_label': _(u'Save the modification'),
                        },
                        is_valid=edit_form.is_valid(),
                        reload=False,

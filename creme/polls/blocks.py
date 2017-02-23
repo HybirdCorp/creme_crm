@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2016  Hybird
+#    Copyright (C) 2012-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,21 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
-from . import get_pollform_model, get_pollreply_model, get_pollcampaign_model
+from creme import polls
 from .models import PollFormLine, PollReplyLine, PollFormSection
 from .utils import SectionTree, ReplySectionTree, NodeStyle
 
 
-PollCampaign = get_pollcampaign_model()
-PollForm     = get_pollform_model()
-PollReply    = get_pollreply_model()
+PollCampaign = polls.get_pollcampaign_model()
+PollForm     = polls.get_pollform_model()
+PollReply    = polls.get_pollreply_model()
 
 get_ct = ContentType.objects.get_for_model
 # _CT_REPLY = get_ct(PollReply)
@@ -54,16 +55,16 @@ class PollFormLinesBlock(Block):
         PollFormLine.populate_conditions([node for node in nodes if not node.is_section])
 
         return self._render(self.get_block_template_context(
-                        context,
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
-                        nodes=nodes,
-                        style=NodeStyle(),
-                        # line_ct_id=_CT_FLINE_ID,
-                        line_ct_id=get_ct(PollFormLine).id,
-                        # section_ct_id=_CT_SECTION_ID,
-                        section_ct_id=get_ct(PollFormSection).id,
-                       )
-                    )
+                    context,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pform.pk)),
+                    nodes=nodes,
+                    style=NodeStyle(),
+                    # line_ct_id=_CT_FLINE_ID,
+                    line_ct_id=get_ct(PollFormLine).id,
+                    # section_ct_id=_CT_SECTION_ID,
+                    section_ct_id=get_ct(PollFormSection).id,
+        ))
 
 
 class PollReplyLinesBlock(Block):
@@ -80,12 +81,12 @@ class PollReplyLinesBlock(Block):
         nodes.set_conditions_flags()
 
         return self._render(self.get_block_template_context(
-                        context,
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, preply.pk),
-                        nodes=nodes,
-                        style=NodeStyle(),
-                       )
-                    )
+                    context,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, preply.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, preply.pk)),
+                    nodes=nodes,
+                    style=NodeStyle(),
+        ))
 
 
 class PollRepliesBlock(QuerysetBlock):
@@ -100,20 +101,20 @@ class PollRepliesBlock(QuerysetBlock):
         pform = context['object']
 
         return self._render(self.get_block_template_context(
-                        context,
-                        PollReply.objects.filter(pform=pform),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
-                        # ct_reply=_CT_REPLY,
-                        ct_reply=get_ct(PollReply),
-                        # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
-                        propose_creation=pform.lines.exists(),
-                       )
-                    )
+                    context,
+                    PollReply.objects.filter(pform=pform),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pform.pk)),
+                    # ct_reply=_CT_REPLY,
+                    ct_reply=get_ct(PollReply),
+                    # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
+                    propose_creation=pform.lines.exists(),
+        ))
 
 
 class _RelatedRepliesBlock(QuerysetBlock):
-    dependencies  = (PollReply,)
-    verbose_name  = _(u'Related form replies')
+    dependencies = (PollReply,)
+    verbose_name = _(u'Related form replies')
 
     def _get_replies(self, pk):
         raise NotImplementedError
@@ -122,21 +123,21 @@ class _RelatedRepliesBlock(QuerysetBlock):
         pk = context['object'].id
 
         return self._render(self.get_block_template_context(
-                        context,
-                        self._get_replies(pk),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                        # ct_reply=_CT_REPLY,
-                        ct_reply=get_ct(PollReply),
-                        propose_creation=True,
-                       )
-                    )
+                    context,
+                    self._get_replies(pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                    # ct_reply=_CT_REPLY,
+                    ct_reply=get_ct(PollReply),
+                    propose_creation=True,
+        ))
 
 
 class PersonPollRepliesBlock(_RelatedRepliesBlock):
     id_           = _RelatedRepliesBlock.generate_id('polls', 'person_replies')
     template_name = 'polls/templatetags/block_person_preplies.html'
 #    target_ctypes = (Contact, Organisation)
-    target_ctypes = (get_contact_model(), get_organisation_model())
+    target_ctypes = (persons.get_contact_model(), persons.get_organisation_model())
 
     def _get_replies(self, pk):
         return PollReply.objects.filter(person=pk)

@@ -2,6 +2,7 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.models import HeaderFilter
 
@@ -18,7 +19,8 @@ except Exception as e:
 class PollsAppTestCase(_PollsTestCase):
     def test_portal(self):
         self.login()
-        self.assertGET200('/polls/')
+        # self.assertGET200('/polls/')
+        self.assertGET200(reverse('polls__portal'))
 
     def test_populate(self):
         get_ct = ContentType.objects.get_for_model

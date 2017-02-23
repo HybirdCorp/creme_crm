@@ -74,7 +74,8 @@ class PollsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('polls', '/polls/').register_item
-            reg_item('/polls/',                         _(u'Portal of polls'),    'polls')
+            # reg_item('/polls/',                         _(u'Portal of polls'),    'polls')
+            reg_item(reverse('polls__portal'),          _(u'Portal of polls'),    'polls')
             reg_item(reverse('polls__list_forms'),      _(u'All forms'),          'polls')
             reg_item(reverse('polls__create_form'),     PForm.creation_label,     cperm(PForm))
             reg_item(reverse('polls__list_replies'),    _(u'All replies'),        'polls')
