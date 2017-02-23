@@ -2,7 +2,7 @@
 
 try:
     from django.conf import settings
-
+    from django.core.urlresolvers import reverse
     from django.http import Http404
     from django.utils.translation import ugettext as _
     from django.test.client import RequestFactory
@@ -208,10 +208,12 @@ class LanguageTestCase(ViewsTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200('/creme_config/creme_core/language/portal/')
+        # self.assertGET200('/creme_config/creme_core/language/portal/')
+        self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'language')))
 
     def test_create(self):
-        url = '/creme_config/creme_core/language/add/'
+        # url = '/creme_config/creme_core/language/add/'
+        url = reverse('creme_config__create_instance', args=('creme_core', 'language'))
         self.assertGET200(url)
 
         name = 'Klingon'
@@ -226,7 +228,8 @@ class LanguageTestCase(ViewsTestCase):
         code = 'KLGN'
         language = Language.objects.create(name=name, code=code)
 
-        url = '/creme_config/creme_core/language/edit/%s' % language.id
+        # url = '/creme_config/creme_core/language/edit/%s' % language.id
+        url = reverse('creme_config__edit_instance', args=('creme_core', 'language', language.id))
         self.assertGET200(url)
 
         name = name.title()
@@ -241,7 +244,8 @@ class LanguageTestCase(ViewsTestCase):
     def test_delete(self):
         language = Language.objects.create(name='Klingon', code='KLN')
 
-        self.assertPOST200('/creme_config/creme_core/language/delete',
+        # self.assertPOST200('/creme_config/creme_core/language/delete',
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('creme_core', 'language')),
                            data={'id': language.id}
                           )
         self.assertDoesNotExist(language)
@@ -257,10 +261,12 @@ class CurrencyTestCase(ViewsTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200('/creme_config/creme_core/currency/portal/')
+        # self.assertGET200('/creme_config/creme_core/currency/portal/')
+        self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'currency')))
 
     def test_create(self):
-        url = '/creme_config/creme_core/currency/add/'
+        # url = '/creme_config/creme_core/currency/add/'
+        url = reverse('creme_config__create_instance', args=('creme_core', 'currency'))
         self.assertGET200(url)
 
         name = 'Berry'
@@ -285,7 +291,8 @@ class CurrencyTestCase(ViewsTestCase):
                                            international_symbol=international_symbol
                                           )
 
-        url = '/creme_config/creme_core/currency/edit/%s' % currency.id
+        # url = '/creme_config/creme_core/currency/edit/%s' % currency.id
+        url = reverse('creme_config__edit_instance', args=('creme_core', 'currency', currency.id))
         self.assertGET200(url)
 
         name = name.title()
@@ -308,7 +315,8 @@ class CurrencyTestCase(ViewsTestCase):
         currency = Currency.objects.create(name='Berry', local_symbol='B',
                                            international_symbol='BRY'
                                           )
-        self.assertPOST200('/creme_config/creme_core/currency/delete',
+        # self.assertPOST200('/creme_config/creme_core/currency/delete',
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
                            data={'id': currency.id}
                           )
         self.assertDoesNotExist(currency)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import RelationType, HistoryConfigItem
@@ -10,7 +11,8 @@ except Exception as e:
 
 
 class HistoryConfigTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/history/add/'
+    # ADD_URL = '/creme_config/history/add/'
+    ADD_URL = reverse('creme_config__create_history_configs')
 
     # @classmethod
     # def setUpClass(cls):
@@ -21,7 +23,8 @@ class HistoryConfigTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200('/creme_config/history/portal/')
+        # self.assertGET200('/creme_config/history/portal/')
+        self.assertGET200(reverse('creme_config__history'))
 
     def test_add01(self):
         self.assertFalse(HistoryConfigItem.objects.exists())
@@ -60,5 +63,6 @@ class HistoryConfigTestCase(CremeTestCase):
         rtype = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         hci = HistoryConfigItem.objects.create(relation_type=rtype)
 
-        self.assertPOST200('/creme_config/history/delete', data={'id': hci.id})
+        # self.assertPOST200('/creme_config/history/delete', data={'id': hci.id})
+        self.assertPOST200(reverse('creme_config__remove_history_config'), data={'id': hci.id})
         self.assertDoesNotExist(hci)

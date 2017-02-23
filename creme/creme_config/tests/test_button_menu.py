@@ -2,20 +2,23 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.models import ButtonMenuItem
     from creme.creme_core.gui.button_menu import Button, button_registry
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation)
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class ButtonMenuConfigTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/button_menu/add/'
-    WIZARD_URL = '/creme_config/button_menu/wizard/'
-    DEL_URL = '/creme_config/button_menu/delete'
+    # ADD_URL = '/creme_config/button_menu/add/'
+    ADD_URL = reverse('creme_config__add_buttons_to_ctype_legacy')
+    # WIZARD_URL = '/creme_config/button_menu/wizard/'
+    WIZARD_URL = reverse('creme_config__add_buttons_to_ctype')
+    # DEL_URL = '/creme_config/button_menu/delete'
+    DEL_URL = reverse('creme_config__delete_ctype_buttons')
 
     @classmethod
     def setUpClass(cls):
@@ -25,7 +28,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         # # cls.populate('creme_core', 'creme_config')
         # cls.populate()
 
-        cls.contact_ct = ct = ContentType.objects.get_for_model(Contact)
+        cls.contact_ct = ct = ContentType.objects.get_for_model(FakeContact)
         contact_conf = ButtonMenuItem.objects.filter(content_type=ct)
         cls._buttonconf_backup = list(contact_conf)
         contact_conf.delete()
@@ -41,7 +44,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200('/creme_config/button_menu/portal/')
+        # self.assertGET200('/creme_config/button_menu/portal/')
+        self.assertGET200(reverse('creme_config__buttons'))
 
     def test_add_detailview(self):
         ct = self.contact_ct
@@ -111,7 +115,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_edit01(self):
         ct = self.contact_ct
-        self.assertGET404('/creme_config/button_menu/edit/%s' % ct.id)
+        # self.assertGET404('/creme_config/button_menu/edit/%s' % ct.id)
+        self.assertGET404(reverse('creme_config__edit_ctype_buttons', args=(ct.id,)))
 
     def test_edit02(self):
         class TestButton(Button):
@@ -122,7 +127,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button = TestButton()
         button_registry.register(button)
 
-        url = '/creme_config/button_menu/edit/0'
+        # url = '/creme_config/button_menu/edit/0'
+        url = reverse('creme_config__edit_ctype_buttons', args=(0,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -154,7 +160,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             verbose_name = u'Testing purpose'
 
             def get_ctypes(self):
-                return [Contact, Organisation]
+                return [FakeContact, FakeOrganisation]
 
 
         class TestButton03(Button):
@@ -162,7 +168,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             verbose_name = u'Testing purpose'
 
             def get_ctypes(self):
-                return [Organisation]  # No Contact
+                return [FakeOrganisation]  # No Contact
 
 
         button01 = TestButton01()
@@ -173,7 +179,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.client.post(self.ADD_URL, data={'ctype': ct.id})
         self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
 
-        url = '/creme_config/button_menu/edit/%s' % ct.id
+        # url = '/creme_config/button_menu/edit/%s' % ct.id
+        url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():

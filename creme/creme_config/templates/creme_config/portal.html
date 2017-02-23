@@ -15,25 +15,31 @@
         </thead>
         <tbody class="collapsable">
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/relation_type/portal/">{% trans "Relation types settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/relation_type/portal/">{% trans "Relation types settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__rtypes' %}">{% trans "Relation types settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/property_type/portal/">{% trans "Property types settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/property_type/portal/">{% trans "Property types settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__ptypes' %}">{% trans "Property types settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/fields/portal/">{% trans "Fields settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/fields/portal/">{% trans "Fields settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__fields' %}">{% trans "Fields settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/custom_fields/portal/">{% trans "Custom fields settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/custom_fields/portal/">{% trans "Custom fields settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__custom_fields' %}">{% trans "Custom fields settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/blocks/portal/">{% trans "Blocks settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/blocks/portal/">{% trans "Blocks settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__blocks' %}">{% trans "Blocks settings" %}</a></td>
             </tr>
             {% if OLD_MENU %}
                 <tr class="content">
                     <td class="{% cycle row_color %}">{% has_perm_to admin 'creme_core' as admin_perm %}
                         {% if admin_perm %}
-                            <a href="/creme_config/prefered_menu/edit/">{% trans "Default preferred menu settings" %}</a>
+{#                            <a href="/creme_config/prefered_menu/edit/">{% trans "Default preferred menu settings" %}</a> #}
+                            <a href="{% url 'creme_config__edit_preferred_menu' %}">{% trans "Default preferred menu settings" %}</a>
                         {% else %}
                             <span class="forbidden">{% trans "Default preferred menu settings" %}</span>
                         {% endif %}
@@ -41,13 +47,16 @@
                 </tr>
             {% endif %}
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/button_menu/portal/">{% trans "Button menu settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/button_menu/portal/">{% trans "Button menu settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__buttons' %}">{% trans "Button menu settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/search/portal/">{% trans "Search settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/search/portal/">{% trans "Search settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__search' %}">{% trans "Search settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/history/portal/">{% trans "History settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/history/portal/">{% trans "History settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__history' %}">{% trans "History settings" %}</a></td>
             </tr>
         </tbody>
     </table>
@@ -61,10 +70,12 @@
         </thead>
         <tbody class="collapsable">
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/user/portal/">{% trans "Users settings" %}</a></td>
+{#                <td class="{% cycle row_color %}"><a href="/creme_config/user/portal/">{% trans "Users settings" %}</a></td> #}
+                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__users' %}">{% trans "Users settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}"> <a href="/creme_config/role/portal/">{% trans "Roles and credentials settings" %}</a> </td>
+{#                <td class="{% cycle row_color %}"> <a href="/creme_config/role/portal/">{% trans "Roles and credentials settings" %}</a> </td> #}
+                <td class="{% cycle row_color %}"> <a href="{% url 'creme_config__roles' %}">{% trans "Roles and credentials settings" %}</a> </td>
             </tr>
         </tbody>
     </table>

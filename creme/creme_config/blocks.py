@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -81,7 +82,10 @@ class GenericModelsBlock(QuerysetBlock):
 
         btc = self.get_block_template_context(
                     context, model.objects.order_by(order_by),
-                    update_url='/creme_config/models/%s/reload/' % ContentType.objects.get_for_model(model).id,
+                    # update_url='/creme_config/models/%s/reload/' % ContentType.objects.get_for_model(model).id,
+                    update_url=reverse('creme_config__reload_model_block',
+                                       args=(ContentType.objects.get_for_model(model).id,),
+                                      ),
                     model=model,
                     model_name=context['model_name'],
                     app_name=context['app_name'],
@@ -119,7 +123,8 @@ class SettingsBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(
                                 context,
                                 SettingValue.objects.filter(key_id__in=skeys_ids, user=None),
-                                update_url='/creme_config/settings/%s/reload/' % app_name,
+                                # update_url='/creme_config/settings/%s/reload/' % app_name,
+                                update_url=reverse('creme_config__reload_settings_block', args=(app_name,)),
                                 app_name=app_name,
                            ))
 
@@ -139,10 +144,11 @@ class PropertyTypesBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context,
-                                CremePropertyType.objects.annotate(stats=Count('cremeproperty')),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context,
+                    CremePropertyType.objects.annotate(stats=Count('cremeproperty')),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class RelationTypesBlock(_ConfigAdminBlock):
@@ -153,13 +159,14 @@ class RelationTypesBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context,
-                                RelationType.objects.filter(is_custom=False,
-                                                            pk__contains='-subject_',
-                                                           ),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                custom=False,
-                           ))
+                    context,
+                    RelationType.objects.filter(is_custom=False,
+                                                pk__contains='-subject_',
+                                               ),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    custom=False,
+        ))
 
 
 class CustomRelationTypesBlock(_ConfigAdminBlock):
@@ -170,13 +177,14 @@ class CustomRelationTypesBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context,
-                                RelationType.objects.filter(is_custom=True,
-                                                            pk__contains='-subject_',
-                                                           ),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                custom=True,
-                            ))
+                    context,
+                    RelationType.objects.filter(is_custom=True,
+                                                pk__contains='-subject_',
+                                               ),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    custom=True,
+        ))
 
 
 class SemiFixedRelationTypesBlock(_ConfigAdminBlock):
@@ -186,9 +194,11 @@ class SemiFixedRelationTypesBlock(_ConfigAdminBlock):
     template_name = 'creme_config/templatetags/block_semifixed_relation_types.html'
 
     def detailview_display(self, context):
-        btc = self.get_block_template_context(context, SemiFixedRelationType.objects.all(),
-                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                             )
+        btc = self.get_block_template_context(
+                    context, SemiFixedRelationType.objects.all(),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        )
 
         CremeEntity.populate_real_entities([sfrt.object_entity for sfrt in btc['page'].object_list])
 
@@ -216,14 +226,15 @@ class FieldsConfigsBlock(PaginatedBlock):
         used_models = {fconf.content_type.model_class() for fconf in fconfigs}
         btc = self.get_block_template_context(
                     context, fconfigs,
-                    update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     # display_add_button=any(ct not in used_ctypes and any(_get_fields_enum(ct))
                     #                             for ct in fields_config_registry.ctypes
                     #                       ),
                     display_add_button=any(model not in used_models
                                                 for model in filter(FieldsConfig.is_model_valid, apps.get_models())
                                           ),
-                )
+        )
 
         for fconf in btc['page'].object_list:
             vnames = [unicode(f.verbose_name) for f in fconf.hidden_fields]
@@ -244,9 +255,10 @@ class CustomFieldsPortalBlock(_ConfigAdminBlock):
         ct_ids = CustomField.objects.distinct().values_list('content_type_id', flat=True)
 
         return self._render(self.get_block_template_context(
-                                context, ContentType.objects.filter(pk__in=ct_ids),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context, ContentType.objects.filter(pk__in=ct_ids),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class CustomFieldsBlock(QuerysetBlock):
@@ -263,9 +275,10 @@ class CustomFieldsBlock(QuerysetBlock):
 
         btc = self.get_block_template_context(
                     context, CustomField.objects.filter(content_type=ct),
-                    update_url='/creme_config/custom_fields/%s/reload/' % ct.id,
-                    ct=ct
-                )
+                    # update_url='/creme_config/custom_fields/%s/reload/' % ct.id,
+                    update_url=reverse('creme_config__reload_custom_field_block', args=(ct.id,)),
+                    ct=ct,
+        )
 
         # Retrieve & cache Enum values (in order to display them of course)
         enums_types = {CustomField.ENUM, CustomField.MULTI_ENUM}
@@ -297,9 +310,11 @@ class UsersBlock(_ConfigAdminBlock):
         if not context['user'].is_staff:
             users = users.exclude(is_staff=True)
 
-        btc = self.get_block_template_context(context, users,
-                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                             )
+        btc = self.get_block_template_context(
+                    context, users,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        )
         page = btc['page']
         page_users = page.object_list
         TIME_ZONE = settings.TIME_ZONE
@@ -321,9 +336,10 @@ class TeamsBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context, User.objects.filter(is_team=True),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context, User.objects.filter(is_team=True),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class BlockDetailviewLocationsBlock(PaginatedBlock):
@@ -361,10 +377,11 @@ class BlockDetailviewLocationsBlock(PaginatedBlock):
         ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
 
         btc = self.get_block_template_context(
-                        context, ctypes,
-                        update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                        max_conf_count=UserRole.objects.count() + 1,  # NB: '+ 1' is for super-users config.
-                    )
+                    context, ctypes,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    max_conf_count=UserRole.objects.count() + 1,  # NB: '+ 1' is for super-users config.
+        )
 
         ctypes_wrappers = btc['page'].object_list
 
@@ -442,11 +459,12 @@ class BlockPortalLocationsBlock(PaginatedBlock):
         app_configs.sort(key=lambda app: sort_key(app.verbose_name))
 
         return self._render(self.get_block_template_context(
-                                context,
-                                # apps,
-                                app_configs,
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context,
+                    # apps,
+                    app_configs,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class BlockHomeLocationsBlock(_ConfigAdminBlock):
@@ -457,10 +475,11 @@ class BlockHomeLocationsBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context,
-                                BlockPortalLocation.objects.filter(app_name='creme_core'),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context,
+                    BlockPortalLocation.objects.filter(app_name='creme_core'),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class BlockDefaultMypageLocationsBlock(_ConfigAdminBlock):
@@ -471,10 +490,11 @@ class BlockDefaultMypageLocationsBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context,
-                                BlockMypageLocation.objects.filter(user=None),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context,
+                    BlockMypageLocation.objects.filter(user=None),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class BlockMypageLocationsBlock(_ConfigAdminBlock):
@@ -485,10 +505,11 @@ class BlockMypageLocationsBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context,
-                                BlockMypageLocation.objects.filter(user=context['user']),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context,
+                    BlockMypageLocation.objects.filter(user=context['user']),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class RelationBlocksConfigBlock(_ConfigAdminBlock):
@@ -500,9 +521,10 @@ class RelationBlocksConfigBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context, RelationBlockItem.objects.all(),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context, RelationBlockItem.objects.all(),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class InstanceBlocksConfigBlock(_ConfigAdminBlock):
@@ -514,9 +536,10 @@ class InstanceBlocksConfigBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context, InstanceBlockConfigItem.objects.all(),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context, InstanceBlockConfigItem.objects.all(),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 # class CustomBlocksConfigBlock(_ConfigAdminBlock):
@@ -554,9 +577,10 @@ class CustomBlocksConfigBlock(PaginatedBlock):
         ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
 
         return self._render(self.get_block_template_context(
-                                context, ctypes,
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                context, ctypes,
+                # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class ButtonMenuBlock(Block):
@@ -584,11 +608,12 @@ class ButtonMenuBlock(Block):
         buttons.sort(key=lambda t: sort_key(unicode(t[0])))
 
         return self._render(self.get_block_template_context(
-                                context,
-                                default_buttons=default_buttons,
-                                buttons=buttons,
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context,
+                    default_buttons=default_buttons,
+                    buttons=buttons,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class SearchConfigBlock(PaginatedBlock):
@@ -618,11 +643,12 @@ class SearchConfigBlock(PaginatedBlock):
         ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
 
         btc = self.get_block_template_context(
-                        context, ctypes,
-                        update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                        # NB: '+ 2' is for default config + super-users config.
-                        max_conf_count=UserRole.objects.count() + 2,
-                    )
+                context, ctypes,
+                # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                # NB: '+ 2' is for default config + super-users config.
+                max_conf_count=UserRole.objects.count() + 2,
+        )
 
         ctypes_wrappers = btc['page'].object_list
 
@@ -657,9 +683,10 @@ class HistoryConfigBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context, HistoryConfigItem.objects.all(),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context, HistoryConfigItem.objects.all(),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class UserRolesBlock(_ConfigAdminBlock):
@@ -671,9 +698,10 @@ class UserRolesBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context, UserRole.objects.all(),
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context, UserRole.objects.all(),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class UserPreferedMenusBlock(QuerysetBlock):
@@ -689,11 +717,12 @@ class UserPreferedMenusBlock(QuerysetBlock):
     def detailview_display(self, context):
         # NB: credentials OK: user can only view his own settings
         return self._render(self.get_block_template_context(
-                                context,
-                                PreferedMenuItem.objects.filter(user=context['user']),
-                                page_size=self.page_size,
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+                    context,
+                    PreferedMenuItem.objects.filter(user=context['user']),
+                    page_size=self.page_size,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class UserSettingValuesBlock(Block):
@@ -731,15 +760,16 @@ class UserSettingValuesBlock(Block):
             count += 1
 
         return self._render(self.get_block_template_context(
-                                context,
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                values_per_app=[
-                                    # (get_app(app_label, silent_fail=True).verbose_name, svalues)
-                                    (get_app_config(app_label).verbose_name, svalues)
-                                        for app_label, svalues in sv_info_per_app.iteritems()
-                                ],
-                                count=count,
-                           ))
+                    context,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    values_per_app=[
+                        # (get_app(app_label, silent_fail=True).verbose_name, svalues)
+                        (get_app_config(app_label).verbose_name, svalues)
+                            for app_label, svalues in sv_info_per_app.iteritems()
+                    ],
+                    count=count,
+        ))
 
 
 generic_models_block = GenericModelsBlock()

@@ -1,10 +1,9 @@
 {% extends "creme_config/portal.html" %}
-{% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load i18n creme_core_tags creme_block %}
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
-    {% if conf_perm %}<a href="/creme_config/">{% trans "Configuration" %} > </a>{% endif %}{% trans "Custom fields" %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% endif %}{% trans "Custom fields" %}
 {% endblock %}
 
 {% block before_statistics %}

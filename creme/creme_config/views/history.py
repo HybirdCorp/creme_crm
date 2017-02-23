@@ -24,8 +24,8 @@ from django.shortcuts import get_object_or_404, render
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import HistoryConfigItem
-from creme.creme_core.views.generic import add_model_with_popup
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_model_with_popup
 
 from ..forms.history import HistoryConfigForm
 
@@ -35,10 +35,11 @@ from ..forms.history import HistoryConfigForm
 def add(request):
     return add_model_with_popup(request, HistoryConfigForm, _(u'New relation types'))
 
+
 @login_required
-#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/history_portal.html')
+
 
 @login_required
 @permission_required('creme_core.can_admin')

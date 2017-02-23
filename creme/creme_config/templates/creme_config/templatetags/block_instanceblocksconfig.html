@@ -14,6 +14,7 @@
                 <th class="block_header_line_light">{% trans "Errors" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
+            {% url 'creme_config__delete_instance_block' as delete_url %}
             {% for block_type in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}}">
@@ -33,7 +34,8 @@
                         </td>
                     {% endwith %}
                     <td class="{{row_color}} action">
-                        {% get_line_deletor at_url '/creme_config/blocks/instance_block/delete' with_args "{'id': '{{block_type.id}}'}" with_perms admin_perm %}
+{#                        {% get_line_deletor at_url '/creme_config/blocks/instance_block/delete' with_args "{'id': '{{block_type.id}}'}" with_perms admin_perm %} #}
+                        {% get_line_deletor at_url delete_url with_args "{'id': '{{block_type.id}}'}" with_perms admin_perm %}
                     </td>
                 </tr>
             {% endfor %}

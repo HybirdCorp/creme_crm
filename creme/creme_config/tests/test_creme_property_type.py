@@ -2,11 +2,11 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.models import CremePropertyType, CremeProperty
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation)
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
 
     #from creme.persons.models import Contact, Organisation #need CremeEntity
 except Exception as e:
@@ -14,8 +14,10 @@ except Exception as e:
 
 
 class PropertyTypeTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/property_type/add/'
-    DELETE_URL = '/creme_config/property_type/delete'
+    # ADD_URL = '/creme_config/property_type/add/'
+    ADD_URL = reverse('creme_config__create_ptype')
+    # DELETE_URL = '/creme_config/property_type/delete'
+    DELETE_URL = reverse('creme_config__delete_ptype')
 
     # @classmethod
     # def setUpClass(cls):
@@ -26,7 +28,8 @@ class PropertyTypeTestCase(CremeTestCase):
         self.login()
 
     def _build_edit_url(self, ptype):
-        return '/creme_config/property_type/edit/%s' % ptype.id
+        # return '/creme_config/property_type/edit/%s' % ptype.id
+        return reverse('creme_config__edit_ptype', args=(ptype.id,))
 
     def test_portal(self):
         create_ptype = CremePropertyType.create
@@ -34,7 +37,8 @@ class PropertyTypeTestCase(CremeTestCase):
         ptype2  = create_ptype(str_pk='test-prop_beard', text='is bearded')
 
         url = CremePropertyType.get_lv_absolute_url()
-        self.assertEqual('/creme_config/property_type/portal/', url)
+        # self.assertEqual('/creme_config/property_type/portal/', url)
+        self.assertEqual(reverse('creme_config__ptypes'), url)
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_config/property_type_portal.html')
@@ -66,7 +70,7 @@ class PropertyTypeTestCase(CremeTestCase):
 
     def test_create02(self):
         get_ct = ContentType.objects.get_for_model
-        ct_ids = [get_ct(Contact).id, get_ct(Organisation).id]
+        ct_ids = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
         text   = 'is beautiful'
         response = self.client.post(self.ADD_URL,
                                     data={'text':           text,
@@ -82,17 +86,17 @@ class PropertyTypeTestCase(CremeTestCase):
 
     def test_edit01(self):
         get_ct = ContentType.objects.get_for_model
-        pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(Contact)], is_custom=False)
+        pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(FakeContact)], is_custom=False)
 
         self.assertGET404(self._build_edit_url(pt))
 
     def test_edit02(self):
         get_ct = ContentType.objects.get_for_model
-        pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(Contact)], is_custom=True)
+        pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(FakeContact)], is_custom=True)
         uri = self._build_edit_url(pt)
         self.assertGET200(uri)
 
-        ct_orga = get_ct(Organisation)
+        ct_orga = get_ct(FakeOrganisation)
         text   = 'is very beautiful'
         response = self.client.post(uri, data={'text':           text,
                                                'subject_ctypes': [ct_orga.id],
@@ -113,7 +117,7 @@ class PropertyTypeTestCase(CremeTestCase):
         pt1 = create_ptype('test-foo', 'is beautiful', [], is_custom=True)
         pt2 = create_ptype('test-bar', 'is smart')
 
-        zap = Contact.objects.create(user=self.user, first_name='Zap', last_name='Brannigan')
+        zap = FakeContact.objects.create(user=self.user, first_name='Zap', last_name='Brannigan')
         prop = CremeProperty.objects.create(creme_entity=zap, type=pt1)
 
         self.assertPOST200(self.DELETE_URL, data={'id': pt1.id})

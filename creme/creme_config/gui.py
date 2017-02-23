@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 
 from creme.creme_core.gui.menu import ViewableItem, ContainerItem
 
@@ -12,7 +13,8 @@ class TimezoneItem(ViewableItem):
 
     def render(self, context, level=0):
         return u'<a href="%s">%s%s</a>' % (
-                    '/creme_config/my_settings/',
+                    # '/creme_config/my_settings/',
+                    reverse('creme_config__user_settings'),
                     self.render_icon(context),
                     _(u'Time zone: %s') % context['TIME_ZONE'],
                 )

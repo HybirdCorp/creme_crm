@@ -77,7 +77,7 @@
             <div class="widget">
                 {% blocktrans %}Welcome, <strong>{{user}}</strong> (Time zone: {{TIME_ZONE}}){% endblocktrans %} -
                 {% block userlinks %}
-                    <a href="/creme_config/my_settings/">{% trans 'My settings' %}</a> -
+                    <a href="{% url 'creme_config__user_settings' %}">{% trans 'My settings' %}</a> -
                     <a href="{% url 'creme_logout' %}">{% trans 'Log out' %}</a> -
                     <a href="{% url 'creme_core__trash' %}">
                         {% trans 'Trash' as trash_label %} <img src="{% creme_media_url 'images/delete_16.png' %}" alt="{{trash_label}}" title="{{trash_label}}" />{{trash_label}}

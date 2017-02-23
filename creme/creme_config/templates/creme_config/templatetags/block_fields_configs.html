@@ -10,7 +10,8 @@
         {% if display_add_button %}
             <tr class="header toolbar">
                 <th class="block_header_line_light" colspan="{{colspan}}">
-                    {% get_line_adder at_url '/creme_config/fields/wizard/' with_label _("New fields configuration") with_perms admin_perm %}
+{#                    {% get_line_adder at_url '/creme_config/fields/wizard/' with_label _("New fields configuration") with_perms admin_perm %} #}
+                    {% url 'creme_config__create_fields_config' as create_url %}{% get_line_adder at_url create_url with_label _('New fields configuration') with_perms admin_perm %}
                 </th>
             </tr>
         {% endif %}
@@ -20,6 +21,7 @@
                 <th class="block_header_line_light">{% trans "Hidden fields" %}</th>
                 <th class="block_header_line_light action">{% trans "Actions" %}</th>
             </tr>
+            {% url 'creme_config__delete_fields_config' as delete_url %}
             {% for fconf in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}}">{{fconf.content_type}}</td>
@@ -32,8 +34,10 @@
                         {% endwith %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/creme_config/fields/edit/{{fconf.pk}}' with_perms admin_perm %}
-                        {% get_line_deletor at_url '/creme_config/fields/delete' with_args "{'id': '{{fconf.pk}}'}" with_perms admin_perm %}
+{#                        {% get_line_editor at_url '/creme_config/fields/edit/{{fconf.pk}}' with_perms admin_perm %} #}
+                        {% url 'creme_config__edit_fields_config' fconf.pk as edit_url %}{% get_line_editor at_url edit_url with_perms admin_perm %}
+{#                        {% get_line_deletor at_url '/creme_config/fields/delete' with_args "{'id': '{{fconf.pk}}'}" with_perms admin_perm %} #}
+                        {% get_line_deletor at_url delete_url with_args "{'id': '{{fconf.pk}}'}" with_perms admin_perm %}
                     </td>
                 </tr>
             {% endfor %}

@@ -2,6 +2,7 @@
 
 try:
     from django.contrib.auth import get_user_model
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import UserRole
@@ -16,7 +17,8 @@ except Exception as e:
 
 
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/creme_core/fake_position/add_widget/'
+    # ADD_URL = '/creme_config/creme_core/fake_position/add_widget/'
+    ADD_URL = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_position'))
 
     # @classmethod
     # def setUpClass(cls):

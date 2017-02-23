@@ -13,7 +13,8 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th colspan="{{colspan}}" class="block_header_line_dark">
-                {% get_line_adder at_url '/creme_config/property_type/add/' with_label _("New custom type of property") with_perms admin_perm %}
+{#                {% get_line_adder at_url '/creme_config/property_type/add/' with_label _("New custom type of property") with_perms admin_perm %} #}
+                {% url 'creme_config__create_ptype' as create_url %}{% get_line_adder at_url create_url with_label _('New custom type of property') with_perms admin_perm %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -25,9 +26,9 @@
                 <th class="block_header_line_light action">{% trans "Edit" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
+            {% url 'creme_config__delete_ptype' as delete_url %}
             {% for prop_type in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
-                    {% comment %}<td class="{{row_color}}">{{prop_type.text}}</td>{% endcomment %}
                     <td class="{{row_color}}">{% widget_hyperlink prop_type %}</td>
                     <td class="{{row_color}}">
                         {% widget_select_or_msg prop_type.subject_ctypes.all _('No related type of resource') %}
@@ -39,10 +40,12 @@
                         {% blocktrans count prop_type.stats as count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktrans %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% if prop_type.is_custom %}{% get_line_editor at_url '/creme_config/property_type/edit/{{prop_type.id}}' with_perms admin_perm %}{% endif %}
+{#                        {% if prop_type.is_custom %}{% get_line_editor at_url '/creme_config/property_type/edit/{{prop_type.id}}' with_perms admin_perm %}{% endif %} #}
+                        {% if prop_type.is_custom %}{% url 'creme_config__edit_ptype' prop_type.id as edit_url %}{% get_line_editor at_url edit_url with_perms admin_perm %}{% endif %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% if prop_type.is_custom %}{% get_line_deletor at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" with_perms admin_perm %}{% endif %}
+{#                        {% if prop_type.is_custom %}{% get_line_deletor at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" with_perms admin_perm %}{% endif %} #}
+                        {% if prop_type.is_custom %}{% get_line_deletor at_url delete_url with_args "{'id': '{{prop_type.pk}}'}" with_perms admin_perm %}{% endif %}
                     </td>
                 </tr>
             {% endfor %}

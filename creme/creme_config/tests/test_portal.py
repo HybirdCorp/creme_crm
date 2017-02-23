@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -8,7 +10,7 @@ except Exception as e:
 
 class PortalTestCase(CremeTestCase):
     def test_portal(self):
-#        self.populate('creme_core', 'creme_config')
-        self.populate('creme_core')
+        # self.populate('creme_core')
         self.login()
-        self.assertGET200('/creme_config/')
+        # self.assertGET200('/creme_config/')
+        self.assertGET200(reverse('creme_config__portal'))

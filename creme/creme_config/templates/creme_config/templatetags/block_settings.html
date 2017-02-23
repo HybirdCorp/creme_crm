@@ -16,7 +16,8 @@
                     <td class="{{row_color}}">{{setting_value.key.description}}</td>
                     <td class="{{row_color}}">{{setting_value.as_html}}</td>
                     <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/creme_config/settings/edit/{{setting_value.id}}' with_perms 1 %}
+{#                        {% get_line_editor at_url '/creme_config/settings/edit/{{setting_value.id}}' with_perms 1 %} #}
+                        {% url 'creme_config__edit_setting' setting_value.id as edit_url %}{% get_line_editor at_url edit_url with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}

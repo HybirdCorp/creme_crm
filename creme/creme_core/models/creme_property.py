@@ -68,7 +68,8 @@ class CremePropertyType(CremeModel):
 
     @staticmethod
     def get_lv_absolute_url():
-        return '/creme_config/property_type/portal/'
+        # return '/creme_config/property_type/portal/'
+        return reverse('creme_config__ptypes')
 
     @staticmethod
     def create(str_pk, text, subject_ctypes=(), is_custom=False, generate_pk=False, is_copiable=True):

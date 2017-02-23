@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeInvoice, FakeInvoiceLine)
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine
     from creme.creme_core.utils import creme_entity_content_types
     from creme.creme_core.utils.unicode_collation import collator
 
@@ -17,7 +17,8 @@ except Exception as e:
 
 
 class SearchConfigTestCase(CremeTestCase):
-    PORTAL_URL = '/creme_config/search/portal/'
+    # PORTAL_URL = '/creme_config/search/portal/'
+    PORTAL_URL = reverse('creme_config__search')
 
     @classmethod
     def setUpClass(cls):
@@ -28,8 +29,8 @@ class SearchConfigTestCase(CremeTestCase):
         # cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
-        cls.ct_contact = get_ct(Contact)
-        cls.ct_orga    = get_ct(Organisation)
+        cls.ct_contact = get_ct(FakeContact)
+        cls.ct_orga    = get_ct(FakeOrganisation)
 
     def setUp(self):
         self.login()
@@ -40,10 +41,12 @@ class SearchConfigTestCase(CremeTestCase):
                 self.fail(field_name + ' in choices')
 
     def _build_add_url(self, ctype):
-        return '/creme_config/search/add/%s' % ctype.id
+        # return '/creme_config/search/add/%s' % ctype.id
+        return reverse('creme_config__create_search_config', args=(ctype.id,))
 
     def _build_edit_url(self, sci):
-        return '/creme_config/search/edit/%s' % sci.id
+        # return '/creme_config/search/edit/%s' % sci.id
+        return reverse('creme_config__edit_search_config', args=(sci.id,))
 
     def _find_field_index(self, formfield, field_name):
         for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
@@ -167,9 +170,9 @@ class SearchConfigTestCase(CremeTestCase):
     def test_add04(self):
         "Unique configuration (super-user)"
         ct = self.ct_contact
-        SearchConfigItem.create_if_needed(Contact, role='superuser',
+        SearchConfigItem.create_if_needed(FakeContact, role='superuser',
                                           fields=['first_name', 'last_name'],
-                                         )
+                                          )
 
         response = self.assertGET200(self._build_add_url(ct))
 
@@ -198,7 +201,7 @@ class SearchConfigTestCase(CremeTestCase):
         return sci
 
     def test_edit01(self):
-        sci = SearchConfigItem.create_if_needed(Contact, fields=['first_name'])
+        sci = SearchConfigItem.create_if_needed(FakeContact, fields=['first_name'])
         self.assertIsNone(sci.role)
 
         url = self._build_edit_url(sci)
@@ -282,7 +285,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_edit06(self):
         "With FieldsConfig"
-        model = Contact
+        model = FakeContact
         hidden_fname1 = 'description'
         hidden_fname2 = 'position'
         FieldsConfig.create(model,
@@ -307,7 +310,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_edit07(self):
         "With FieldsConfig + selected hidden fields"
-        model = Contact
+        model = FakeContact
         hidden_fname1 = 'description'
         hidden_fname2 = 'position'
         hidden_sub_fname2 = hidden_fname2 + '__title'
@@ -338,22 +341,25 @@ class SearchConfigTestCase(CremeTestCase):
         self._find_field_index(fields_f, hidden_sub_fname2)
 
     def test_delete01(self):
-        sci = SearchConfigItem.create_if_needed(Contact, role=self.role,
+        sci = SearchConfigItem.create_if_needed(FakeContact, role=self.role,
                                                 fields=['first_name', 'last_name'],
-                                               )
-        self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
+                                                )
+        # self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
+        self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
     def test_delete02(self):
         "Super users"
-        sci = SearchConfigItem.create_if_needed(Contact, role='superuser',
+        sci = SearchConfigItem.create_if_needed(FakeContact, role='superuser',
                                                 fields=['first_name', 'last_name'],
-                                               )
-        self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
+                                                )
+        # self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
+        self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
     def test_delete03(self):
         "Cannot delete the default configuration"
-        sci = SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
-        self.assertPOST409('/creme_config/search/delete', data={'id': sci.id})
+        sci = SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
+        # self.assertPOST409('/creme_config/search/delete', data={'id': sci.id})
+        self.assertPOST409(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertStillExists(sci)

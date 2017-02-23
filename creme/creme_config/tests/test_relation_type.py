@@ -2,20 +2,22 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import (RelationType, CremePropertyType,
             SemiFixedRelationType)
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation)
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
 except Exception, e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class RelationTypeTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/relation_type/add/'
-    DEL_URL = '/creme_config/relation_type/delete'
+    # ADD_URL = '/creme_config/relation_type/add/'
+    ADD_URL = reverse('creme_config__create_rtype')
+    # DEL_URL = '/creme_config/relation_type/delete'
+    DEL_URL = reverse('creme_config__delete_rtype')
 
     # @classmethod
     # def setUpClass(cls):
@@ -26,10 +28,12 @@ class RelationTypeTestCase(CremeTestCase):
         self.login()
 
     def _build_edit_url(self, rtype):
-        return '/creme_config/relation_type/edit/%s' % rtype.id
+        # return '/creme_config/relation_type/edit/%s' % rtype.id
+        return reverse('creme_config__edit_rtype', args=(rtype.id,))
 
     def test_portal(self):
-        self.assertGET200('/creme_config/relation_type/portal/')
+        # self.assertGET200('/creme_config/relation_type/portal/')
+        self.assertGET200(reverse('creme_config__rtypes'))
 
     def test_create01(self):
         url = self.ADD_URL
@@ -56,12 +60,12 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_create02(self):
         create_pt = CremePropertyType.create
-        pt_sub = create_pt('test-pt_sub', 'has cash',  [Organisation])
-        pt_obj = create_pt('test-pt_obj', 'need cash', [Contact])
+        pt_sub = create_pt('test-pt_sub', 'has cash', [FakeOrganisation])
+        pt_obj = create_pt('test-pt_obj', 'need cash', [FakeContact])
 
         get_ct     = ContentType.objects.get_for_model
-        ct_orga    = get_ct(Organisation)
-        ct_contact = get_ct(Contact)
+        ct_orga    = get_ct(FakeOrganisation)
+        ct_contact = get_ct(FakeContact)
 
         subject_pred = 'employs (test version)'
         self.assertFalse(RelationType.objects.filter(predicate=subject_pred))
@@ -128,7 +132,8 @@ class RelationTypeTestCase(CremeTestCase):
 
 
 class SemiFixedRelationTypeTestCase(CremeTestCase):
-    ADD_URL = '/creme_config/relation_type/semi_fixed/add/'
+    # ADD_URL = '/creme_config/relation_type/semi_fixed/add/'
+    ADD_URL = reverse('creme_config__create_semifixed_rtype')
     format_str = '{"rtype": "%s", "ctype": %s,"entity": %s}'
 
     # @classmethod
@@ -143,7 +148,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                          ('test-object_foobar',  'is loved by')
                                         )[0]
 
-        self.iori = Contact.objects.create(user=self.user, first_name='Iori', last_name='Yoshizuki')
+        self.iori = FakeContact.objects.create(user=self.user, first_name='Iori', last_name='Yoshizuki')
 
     def test_create01(self):
         url = self.ADD_URL
@@ -176,7 +181,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                              object_entity=self.iori,
                                             )
 
-        itsuki = Contact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
+        itsuki = FakeContact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
         response = self.assertPOST200(self.ADD_URL,
                                       data={'predicate':     predicate,
                                             'semi_relation': self.format_str % (
@@ -187,9 +192,9 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                             }
                                      )
         self.assertFormError(response, 'form', 'predicate',
-                             _(u"%(model_name)s with this %(field_label)s already exists.") %  {
-                                    'model_name': _('Semi-fixed type of relationship'),
-                                    'field_label': _('Predicate'),
+                             _(u'%(model_name)s with this %(field_label)s already exists.') % {
+                                    'model_name': _(u'Semi-fixed type of relationship'),
+                                    'field_label': _(u'Predicate'),
                                 }
                             )
 
@@ -215,7 +220,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                               }
                                      )
         self.assertFormError(response, 'form', None,
-                             _(u"A semi-fixed type of relationship with this type and this object already exists.")
+                             _(u'A semi-fixed type of relationship with this type and this object already exists.')
                             )
 
     def test_delete(self):
@@ -223,7 +228,8 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                                     relation_type=self.loves,
                                                     object_entity=self.iori,
                                                    )
-        self.assertPOST200('/creme_config/relation_type/semi_fixed/delete',
+        # self.assertPOST200('/creme_config/relation_type/semi_fixed/delete',
+        self.assertPOST200(reverse('creme_config__delete_semifixed_rtype'),
                            data={'id': sfrt.id}
                           )
         self.assertDoesNotExist(sfrt)

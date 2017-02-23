@@ -5,12 +5,12 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.gui.block import SimpleBlock, _BlockRegistry
     from creme.creme_core.forms import CremeModelForm
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeCivility as Civility,
-            FakeSector as Sector, FakePosition as Position)
+    from creme.creme_core.tests.fake_models import FakeCivility, FakeSector, FakePosition
 
     from ..blocks import generic_models_block
     from ..registry import _ConfigRegistry, NotRegisteredInConfig
@@ -19,8 +19,8 @@ except Exception as e:
 
 
 class GenericModelConfigTestCase(CremeTestCase):
-    DOWN_URL = '/creme_config/creme_core/fake_sector/down/%s'
-    UP_URL   = '/creme_config/creme_core/fake_sector/up/%s'
+    # DOWN_URL = '/creme_config/creme_core/fake_sector/down/%s'
+    # UP_URL   = '/creme_config/creme_core/fake_sector/up/%s'
 
     @classmethod
     def setUpClass(cls):
@@ -28,40 +28,46 @@ class GenericModelConfigTestCase(CremeTestCase):
         super(GenericModelConfigTestCase, cls).setUpClass()
         # cls.populate('creme_core')
 
-        cls._sector_backup = list(Sector.objects.all())
-        Sector.objects.all().delete()
+        cls._sector_backup = list(FakeSector.objects.all())
+        FakeSector.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
         # CremeTestCase.tearDownClass()
         super(GenericModelConfigTestCase, cls).tearDownClass()
-        Sector.objects.all().delete()
-        Sector.objects.bulk_create(cls._sector_backup)
+        FakeSector.objects.all().delete()
+        FakeSector.objects.bulk_create(cls._sector_backup)
 
     def setUp(self):
         self.login()
 
+    def _build_down_url(self, instance_id, app_name='creme_core', short_name='fake_sector'):
+        return reverse('creme_config__move_instance_down', args=(app_name, short_name, instance_id))
+
+    def _build_up_url(self, instance_id, app_name='creme_core', short_name='fake_sector'):
+        return reverse('creme_config__move_instance_up', args=(app_name, short_name, instance_id))
+
     def test_registry_register_model(self):
         class SectorForm(CremeModelForm):
             class Meta(CremeModelForm.Meta):
-                model = Sector
+                model = FakeSector
 
         registry = _ConfigRegistry()
-        registry.register((Civility, 'civility'),
-                          (Sector,   'sector', SectorForm),
-                         )
+        registry.register((FakeCivility, 'civility'),
+                          (FakeSector, 'sector', SectorForm),
+                          )
 
         with self.assertNoException():
             app_conf = registry.get_app('creme_core')
 
         with self.assertNoException():
-            model_conf = app_conf.get_model_conf(model=Civility)
+            model_conf = app_conf.get_model_conf(model=FakeCivility)
         self.assertEqual('civility', model_conf.name_in_url)
         self.assertIsSubclass(model_conf.model_form, CremeModelForm)
         self.assertEqual('Test civility', model_conf.verbose_name)
 
         with self.assertNoException():
-            model_conf = app_conf.get_model_conf(model=Sector)
+            model_conf = app_conf.get_model_conf(model=FakeSector)
         self.assertIsSubclass(model_conf.model_form, SectorForm)
 
         # with self.assertNoException():
@@ -70,16 +76,16 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual('sector', model_conf.name_in_url)
 
         with self.assertRaises(ValueError):
-            registry.register((Position, 'my-position'))  # Invalid char '-'
+            registry.register((FakePosition, 'my-position'))  # Invalid char '-'
 
     def test_registry_unregister_model01(self):
         "Unregister after the registration"
         registry = _ConfigRegistry()
-        registry.register((Civility, 'civility'),
-                          (Sector,   'sector'),
-                          (Position, 'position'),
-                         )
-        registry.unregister(Civility, Position)
+        registry.register((FakeCivility, 'civility'),
+                          (FakeSector, 'sector'),
+                          (FakePosition, 'position'),
+                          )
+        registry.unregister(FakeCivility, FakePosition)
 
         with self.assertNoException():
             app_conf = registry.get_app('creme_core')
@@ -87,19 +93,19 @@ class GenericModelConfigTestCase(CremeTestCase):
         get_model_conf = app_conf.get_model_conf
 
         with self.assertNoException():
-            get_model_conf(model=Sector)
+            get_model_conf(model=FakeSector)
 
-        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Civility)
-        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Position)
+        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakeCivility)
+        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakePosition)
 
     def test_registry_unregister_model02(self):
         "Unregister before the registration"
         registry = _ConfigRegistry()
-        registry.unregister(Civility, Position)
-        registry.register((Civility, 'civility'),
-                          (Sector,   'sector'),
-                          (Position, 'position'),
-                         )
+        registry.unregister(FakeCivility, FakePosition)
+        registry.register((FakeCivility, 'civility'),
+                          (FakeSector, 'sector'),
+                          (FakePosition, 'position'),
+                          )
 
         with self.assertNoException():
             app_conf = registry.get_app('creme_core')
@@ -107,10 +113,10 @@ class GenericModelConfigTestCase(CremeTestCase):
         get_model_conf = app_conf.get_model_conf
 
         with self.assertNoException():
-            get_model_conf(model=Sector)
+            get_model_conf(model=FakeSector)
 
-        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Civility)
-        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Position)
+        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakeCivility)
+        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakePosition)
 
     def test_registry_register_blocks(self):
         class TestBlock1(SimpleBlock):
@@ -164,46 +170,55 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertIn(block2, registry.userblocks)
 
     def test_portals(self):
-        self.assertGET200('/creme_config/creme_core/portal/')
-        self.assertGET200('/creme_config/creme_core/fake_civility/portal/')
-        self.assertGET404('/creme_config/creme_core/unexistingmodel/portal/')
+        # self.assertGET200('/creme_config/creme_core/portal/')
+        self.assertGET200(reverse('creme_config__app_portal', args=('creme_core',)))
+        # self.assertGET404('/creme_config/unexistingapp/portal/')
+        self.assertGET404(reverse('creme_config__app_portal', args=('unexistingapp',)))
 
-        self.assertGET404('/creme_config/unexistingapp/portal/')
+        # self.assertGET200('/creme_config/creme_core/fake_civility/portal/')
+        self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'fake_civility')))
+        # self.assertGET404('/creme_config/creme_core/unexistingmodel/portal/')
+        self.assertGET404(reverse('creme_config__model_portal', args=('creme_core', 'unexistingmodel')))
 
         if apps.is_installed('creme.persons'):
-            self.assertGET200('/creme_config/persons/portal/')
-            self.assertGET200('/creme_config/persons/civility/portal/')
-            self.assertGET404('/creme_config/persons/unexistingmodel/portal/')
+            # self.assertGET200('/creme_config/persons/portal/')
+            self.assertGET200(reverse('creme_config__app_portal', args=('persons',)))
+            # self.assertGET200('/creme_config/persons/civility/portal/')
+            self.assertGET200(reverse('creme_config__model_portal', args=('persons', 'civility')))
+            # self.assertGET404('/creme_config/persons/unexistingmodel/portal/')
+            self.assertGET404(reverse('creme_config__model_portal', args=('persons', 'unexistingmodel')))
 
     def test_add01(self):
-        count = Civility.objects.count()
+        count = FakeCivility.objects.count()
 
-        url = '/creme_config/creme_core/fake_civility/add/'
+        # url = '/creme_config/creme_core/fake_civility/add/'
+        url = reverse('creme_config__create_instance', args=('creme_core', 'fake_civility'))
         self.assertGET200(url)
 
         title = 'Generalissime'
         shortcut = 'G.'
         self.assertNoFormError(self.client.post(url, data={'title': title, 'shortcut': shortcut}))
-        self.assertEqual(count + 1, Civility.objects.count())
-        civility = self.get_object_or_fail(Civility, title=title)
+        self.assertEqual(count + 1, FakeCivility.objects.count())
+        civility = self.get_object_or_fail(FakeCivility, title=title)
         self.assertEqual(shortcut, civility.shortcut)
 
     def test_add02(self):
-        count = Sector.objects.count()
+        count = FakeSector.objects.count()
 
-        url = '/creme_config/creme_core/fake_sector/add/'
+        # url = '/creme_config/creme_core/fake_sector/add/'
+        url = reverse('creme_config__create_instance', args=('creme_core', 'fake_sector'))
         self.assertGET200(url)
 
         title = 'Music'
         self.assertNoFormError(self.client.post(url, data={'title': title}))
-        self.assertEqual(count + 1, Sector.objects.count())
+        self.assertEqual(count + 1, FakeSector.objects.count())
 
-        sector = self.get_object_or_fail(Sector, title=title, is_custom=True)
+        sector = self.get_object_or_fail(FakeSector, title=title, is_custom=True)
         self.assertEqual(count + 1, sector.order)  # order is set to max
 
         title = 'Music & movie'
         self.client.post(url, data={'title': title})
-        sector = self.get_object_or_fail(Sector, title=title)
+        sector = self.get_object_or_fail(FakeSector, title=title)
         self.assertEqual(count + 2, sector.order)  # order is set to max
 
     def assertWidgetResponse(self, response, instance):
@@ -216,48 +231,51 @@ class GenericModelConfigTestCase(CremeTestCase):
                         )
 
     def test_add01_from_widget(self):
-        count = Civility.objects.count()
+        count = FakeCivility.objects.count()
 
-        url = '/creme_config/creme_core/fake_civility/add_widget/'
+        # url = '/creme_config/creme_core/fake_civility/add_widget/'
+        url = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_civility'))
         self.assertGET200(url)
 
         title = 'Generalissime'
         shortcut = 'G.'
         response = self.client.post(url, data={'title': title, 'shortcut': shortcut})
         self.assertNoFormError(response)
-        self.assertEqual(count + 1, Civility.objects.count())
+        self.assertEqual(count + 1, FakeCivility.objects.count())
 
-        civility = self.get_object_or_fail(Civility, title=title)
+        civility = self.get_object_or_fail(FakeCivility, title=title)
         self.assertEqual(shortcut, civility.shortcut)
         self.assertWidgetResponse(response, civility)
 
     def test_add02_from_widget(self):
-        count = Sector.objects.count()
+        count = FakeSector.objects.count()
 
-        url = '/creme_config/creme_core/fake_sector/add_widget/'
+        # url = '/creme_config/creme_core/fake_sector/add_widget/'
+        url = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'))
         self.assertGET200(url)
 
         title = 'Music'
         response = self.client.post(url, data={'title': title})
         self.assertNoFormError(response)
-        self.assertEqual(count + 1, Sector.objects.count())
+        self.assertEqual(count + 1, FakeSector.objects.count())
 
-        sector = self.get_object_or_fail(Sector, title=title, is_custom=True)
+        sector = self.get_object_or_fail(FakeSector, title=title, is_custom=True)
         self.assertEqual(count + 1, sector.order)  # order is set to max
         self.assertWidgetResponse(response, sector)
 
         title = 'Music & movie'
         response = self.client.post(url, data={'title': title})
-        sector = self.get_object_or_fail(Sector, title=title)
+        sector = self.get_object_or_fail(FakeSector, title=title)
         self.assertEqual(count + 2, sector.order)  # order is set to max
         self.assertWidgetResponse(response, sector)
 
     def test_edit01(self):
         title = 'herr'
         shortcut = 'H.'
-        civ = Civility.objects.create(title=title, shortcut=shortcut)
+        civ = FakeCivility.objects.create(title=title, shortcut=shortcut)
 
-        url = '/creme_config/creme_core/fake_civility/edit/%s' % civ.id
+        # url = '/creme_config/creme_core/fake_civility/edit/%s' % civ.id
+        url = reverse('creme_config__edit_instance', args=('creme_core', 'fake_civility', civ.id,))
         self.assertGET200(url)
 
         title = title.title()
@@ -273,10 +291,11 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_edit02(self):
         "Order not changed"
-        count = Sector.objects.count()
-        sector = Sector.objects.create(title='music', order=count + 1)
+        count = FakeSector.objects.count()
+        sector = FakeSector.objects.create(title='music', order=count + 1)
 
-        url = '/creme_config/creme_core/fake_sector/edit/%s' % sector.id
+        # url = '/creme_config/creme_core/fake_sector/edit/%s' % sector.id
+        url = reverse('creme_config__edit_instance', args=('creme_core', 'fake_sector', sector.id,))
         self.assertGET200(url)
 
         title = sector.title.title()
@@ -287,8 +306,9 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(sector.order, new_sector.order)
 
     def test_delete01(self):
-        civ = Civility.objects.create(title='Herr')
-        url = '/creme_config/creme_core/fake_civility/delete'
+        civ = FakeCivility.objects.create(title='Herr')
+        # url = '/creme_config/creme_core/fake_civility/delete'
+        url = reverse('creme_config__delete_instance', args=('creme_core', 'fake_civility'))
         data = {'id': civ.pk}
         self.assertGET404(url, data=data)
         self.assertPOST200(url, data=data)
@@ -296,15 +316,20 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_delete02(self):
         "Not custom instance"
-        sector = Sector.objects.create(title='Music', is_custom=False)
-        self.assertPOST404('/creme_config/creme_core/fake_sector/delete',
+        sector = FakeSector.objects.create(title='Music', is_custom=False)
+        # self.assertPOST404('/creme_config/creme_core/fake_sector/delete',
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'fake_sector')),
                            data={'id': sector.pk},
                           )
         self.assertStillExists(sector)
 
     def test_reload_block(self):
-        response = self.assertGET200('/creme_config/models/%s/reload/' %
-                                        ContentType.objects.get_for_model(Civility).id
+        # response = self.assertGET200('/creme_config/models/%s/reload/' %
+        #                                 ContentType.objects.get_for_model(FakeCivility).id
+        #                             )
+        response = self.assertGET200(reverse('creme_config__reload_model_block',
+                                             args=(ContentType.objects.get_for_model(FakeCivility).id,),
+                                            )
                                     )
 
         with self.assertNoException():
@@ -320,11 +345,12 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertIn(' id="%s"' % generic_models_block.id_, result[1])
 
     def test_incr_order01(self):
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         sector1 = create_sector(title='Music', order=1)
         sector2 = create_sector(title='Movie',   order=2)
 
-        url = self.DOWN_URL % sector1.id
+        # url = self.DOWN_URL % sector1.id
+        url = self._build_down_url(sector1.id)
         self.assertGET404(url)
         self.assertPOST200(url)
 
@@ -332,13 +358,14 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(1, self.refresh(sector2).order)
 
     def test_incr_order02(self):
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         sector1 = create_sector(title='Music', order=1)
         sector2 = create_sector(title='Movie', order=2)
         sector3 = create_sector(title='Book',  order=3)
         sector4 = create_sector(title='Web',   order=4)
 
-        self.assertPOST200(self.DOWN_URL % sector2.id)
+        # self.assertPOST200(self.DOWN_URL % sector2.id)
+        self.assertPOST200(self._build_down_url(sector2.id))
 
         self.assertEqual(1, self.refresh(sector1).order)
         self.assertEqual(3, self.refresh(sector2).order)
@@ -347,22 +374,25 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_incr_order03(self):
         "Errors"
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         sector1 = create_sector(title='Music', order=1)
         sector2 = create_sector(title='Movie',   order=2)
 
-        url = self.DOWN_URL
-        self.assertPOST404(url % sector2.id)
-        self.assertPOST404(url % (sector2.id + sector1.id))  # Odd pk
+        # url = self.DOWN_URL
+        # self.assertPOST404(url % sector2.id)
+        # self.assertPOST404(url % (sector2.id + sector1.id))  # Odd pk
+        self.assertPOST404(self._build_down_url(sector2.id))
+        self.assertPOST404(self._build_down_url(sector2.id + sector1.id))  # Odd pk
 
     def test_decr_order01(self):
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         sector1 = create_sector(title='Music', order=1)
         sector2 = create_sector(title='Movie', order=2)
         sector3 = create_sector(title='Book',  order=3)
         sector4 = create_sector(title='Web',   order=4)
 
-        self.assertPOST200(self.UP_URL % sector3.id)
+        # self.assertPOST200(self.UP_URL % sector3.id)
+        self.assertPOST200(self._build_up_url(sector3.id))
 
         self.assertEqual(1, self.refresh(sector1).order)
         self.assertEqual(3, self.refresh(sector2).order)
@@ -371,8 +401,9 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_decr_order02(self):
         "Error: can move up the first one"
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         sector1 = create_sector(title='Music', order=1)
         create_sector(title='Movie', order=2)
 
-        self.assertPOST404(self.UP_URL % sector1.id)
+        # self.assertPOST404(self.UP_URL % sector1.id)
+        self.assertPOST404(self._build_up_url(sector1.id))

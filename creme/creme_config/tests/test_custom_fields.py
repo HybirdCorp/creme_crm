@@ -4,13 +4,11 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation)
-
-    #from creme.persons.models import Contact, Organisation
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -25,15 +23,17 @@ class CustomFieldsTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200('/creme_config/custom_fields/portal/')
+        # self.assertGET200('/creme_config/custom_fields/portal/')
+        self.assertGET200(reverse('creme_config__custom_fields'))
 
     def test_add_ct(self):
         self.assertFalse(CustomField.objects.all())
 
-        url = '/creme_config/custom_fields/ct/add/'
+        # url = '/creme_config/custom_fields/ct/add/'
+        url = reverse('creme_config__create_first_ctype_custom_field')
         self.assertGET200(url)
 
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         name = 'Size'
         field_type = CustomField.INT
         response = self.client.post(url, data={'content_type': ct.id,
@@ -54,35 +54,34 @@ class CustomFieldsTestCase(CremeTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            #choices = response.context['form'].fields['content_type'].choices
             ctypes = response.context['form'].fields['content_type'].ctypes
 
-        #ct_set = set(ct_id for ct_id, vname in choices)
-        #self.assertNotIn(ct.id, ct_set)
-        #self.assertIn(ContentType.objects.get_for_model(Organisation).id, ct_set)
         self.assertNotIn(ct, ctypes)
-        self.assertIn(ContentType.objects.get_for_model(Organisation), ctypes)
+        self.assertIn(ContentType.objects.get_for_model(FakeOrganisation), ctypes)
 
-        self.assertGET200('/creme_config/custom_fields/ct/%s' % ct.id)
+        # self.assertGET200('/creme_config/custom_fields/ct/%s' % ct.id)
+        self.assertGET200(reverse('creme_config__ctype_custom_fields', args=(ct.id,)))
 
     def test_delete_ct(self):
         get_ct = ContentType.objects.get_for_model
-        ct_contact = get_ct(Contact)
-        ct_orga    = get_ct(Organisation)
+        ct_contact = get_ct(FakeContact)
+        ct_orga    = get_ct(FakeOrganisation)
 
         create_cf = CustomField.objects.create
         cfield1 = create_cf(content_type=ct_contact, name='CF#1', field_type=CustomField.INT)
         cfield2 = create_cf(content_type=ct_contact, name='CF#2', field_type=CustomField.FLOAT)
         cfield3 = create_cf(content_type=ct_orga,    name='CF#3', field_type=CustomField.BOOL)
-        self.assertPOST200('/creme_config/custom_fields/ct/delete', data={'id': ct_contact.id})
+        # self.assertPOST200('/creme_config/custom_fields/ct/delete', data={'id': ct_contact.id})
+        self.assertPOST200(reverse('creme_config__delete_ctype_custom_fields'), data={'id': ct_contact.id})
         self.assertFalse(CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]))
         self.assertStillExists(cfield3)
 
     def test_add(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         CustomField.objects.create(content_type=ct, name='CF#1', field_type=CustomField.INT)
 
-        url = '/creme_config/custom_fields/add/%s' % ct.id
+        # url = '/creme_config/custom_fields/add/%s' % ct.id
+        url = reverse('creme_config__create_custom_field', args=(ct.id,))
         self.assertGET200(url)
 
         name = 'Eva'
@@ -109,11 +108,12 @@ class CustomFieldsTestCase(CremeTestCase):
                         )
 
     def test_edit01(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         name = 'nickname'
         cfield = CustomField.objects.create(content_type=ct, name=name, field_type=CustomField.STR)
 
-        url = '/creme_config/custom_fields/edit/%s' % cfield.id
+        # url = '/creme_config/custom_fields/edit/%s' % cfield.id
+        url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         self.assertGET200(url)
 
         name = name.title()
@@ -122,7 +122,7 @@ class CustomFieldsTestCase(CremeTestCase):
 
     def test_edit02(self):
         "ENUM"
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         cfield = CustomField.objects.create(content_type=ct,
                                             name='Programming languages',
                                             field_type=CustomField.MULTI_ENUM
@@ -132,7 +132,8 @@ class CustomFieldsTestCase(CremeTestCase):
         create_evalue(custom_field=cfield, value='ABC')
         create_evalue(custom_field=cfield, value='Java')
 
-        url = '/creme_config/custom_fields/edit/%s' % cfield.id
+        # url = '/creme_config/custom_fields/edit/%s' % cfield.id
+        url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -165,7 +166,7 @@ class CustomFieldsTestCase(CremeTestCase):
 
     def test_delete(self):
         create_cf = partial(CustomField.objects.create,
-                            content_type=ContentType.objects.get_for_model(Contact)
+                            content_type=ContentType.objects.get_for_model(FakeContact)
                            )
         cfield1 = create_cf(name='Day',       field_type=CustomField.DATETIME)
         cfield2 = create_cf(name='Languages', field_type=CustomField.ENUM)
@@ -177,7 +178,8 @@ class CustomFieldsTestCase(CremeTestCase):
         eval3 = create_evalue(custom_field=cfield3, value='Programming')
         eval4 = create_evalue(custom_field=cfield3, value='Reading')
 
-        self.assertPOST200('/creme_config/custom_fields/delete', data={'id': cfield2.id})
+        # self.assertPOST200('/creme_config/custom_fields/delete', data={'id': cfield2.id})
+        self.assertPOST200(reverse('creme_config__delete_custom_field'), data={'id': cfield2.id})
 
         self.assertStillExists(cfield1)
         self.assertStillExists(cfield3)
@@ -188,4 +190,4 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertDoesNotExist(eval1)
         self.assertDoesNotExist(eval2)
 
-    #TODO: (r'^custom_fields/(?P<ct_id>\d+)/reload/$', 'custom_fields.reload_block'),
+    # TODO: (r'^custom_fields/(?P<ct_id>\d+)/reload/$', 'custom_fields.reload_block'),

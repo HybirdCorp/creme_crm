@@ -5,6 +5,7 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
@@ -19,8 +20,10 @@ except Exception as e:
 
 
 class FieldsConfigTestCase(CremeTestCase):
-    ADD_CTYPE_URL = '/creme_config/fields/add/'
-    WIZARD_URL = '/creme_config/fields/wizard'
+    # ADD_CTYPE_URL = '/creme_config/fields/add/'
+    ADD_CTYPE_URL = reverse('creme_config__create_fields_config_legacy')
+    # WIZARD_URL = '/creme_config/fields/wizard'
+    WIZARD_URL = reverse('creme_config__create_fields_config')
 
     @classmethod
     def setUpClass(cls):
@@ -33,7 +36,8 @@ class FieldsConfigTestCase(CremeTestCase):
         # fields_config_registry.register(FakeAddress)
 
     def _build_edit_url(self, fconf):
-        return '/creme_config/fields/edit/%s' % fconf.pk
+        # return '/creme_config/fields/edit/%s' % fconf.pk
+        return reverse('creme_config__edit_fields_config', args=(fconf.pk,))
 
     def _create_fconf(self):
         ct = self.ct
@@ -58,7 +62,8 @@ class FieldsConfigTestCase(CremeTestCase):
     def test_portal01(self):
         self.login()
 
-        response = self.assertGET200('/creme_config/fields/portal/')
+        # response = self.assertGET200('/creme_config/fields/portal/')
+        response = self.assertGET200(reverse('creme_config__fields'))
         self.assertTemplateUsed(response, 'creme_config/fields_config_portal.html')
         self.assertContains(response, self.WIZARD_URL)
 
@@ -67,7 +72,8 @@ class FieldsConfigTestCase(CremeTestCase):
         self._configure_all_models()
         self.login()
 
-        response = self.assertGET200('/creme_config/fields/portal/')
+        # response = self.assertGET200('/creme_config/fields/portal/')
+        response = self.assertGET200(reverse('creme_config__fields'))
         self.assertNotContains(response, self.WIZARD_URL)
 
     def test_add01(self):
@@ -176,7 +182,8 @@ class FieldsConfigTestCase(CremeTestCase):
         self.login()
         fconf = self._create_fconf()
 
-        self.assertPOST200('/creme_config/fields/delete', data={'id': fconf.pk})
+        # self.assertPOST200('/creme_config/fields/delete', data={'id': fconf.pk})
+        self.assertPOST200(reverse('creme_config__delete_fields_config'), data={'id': fconf.pk})
         self.assertDoesNotExist(fconf)
 
     def test_wizard_model_step(self):
