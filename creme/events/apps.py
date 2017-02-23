@@ -58,7 +58,8 @@ class EventsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('events', '/events/').register_item
-            reg_item('/events/',                      _(u'Portal of events'), 'events')
+            # reg_item('/events/',                      _(u'Portal of events'), 'events')
+            reg_item(reverse('events__portal'),       _(u'Portal of events'), 'events')
             reg_item(reverse('events__list_events'),  _(u'All events'),       'events')
             reg_item(reverse('events__create_event'), Event.creation_label,   build_creation_perm(Event))
         else:

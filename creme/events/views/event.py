@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -171,10 +171,15 @@ class ListViewPostProcessor(object):
             current_status = constants.INV_STATUS_NO_ANSWER
 
         has_perm = user.has_perm_to_link
-        select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % (
-                        event.id,
-                        entity.id,
-                        '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
+        # select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % (
+        #                 event.id,
+        #                 entity.id,
+        #                 '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
+        #             )
+        #          ]
+        select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
+                        reverse('events__set_invitation_status', args=(event.id, entity.id)),
+                        '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
                     )
                  ]
         select.extend(u'<option value="%s" %s>%s</option>' % (
@@ -200,10 +205,15 @@ class ListViewPostProcessor(object):
             current_status = constants.PRES_STATUS_DONT_KNOW
 
         has_perm = user.has_perm_to_link
-        select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % (
-                        event.id,
-                        entity.id,
-                        '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
+        # select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % (
+        #                 event.id,
+        #                 entity.id,
+        #                 '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
+        #             )
+        #          ]
+        select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
+                        reverse('events__set_presence_status', args=(event.id, entity.id)),
+                        '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
                     )
                  ]
         select.extend(u'<option value="%s" %s>%s</option>' % (

@@ -66,7 +66,8 @@ class EventsTestCase(CremeTestCase):
         cls.ADD_URL = reverse('events__create_event')
 
     def _build_link_contacts_url(self, event):
-        return '/events/event/%s/link_contacts' % event.id
+        # return '/events/event/%s/link_contacts' % event.id
+        return reverse('events__link_contacts', args=(event.id,))
 
     def _build_related_opp_url(self, event, contact):
         return reverse('events__create_related_opportunity', args=(event.id, contact.id))
@@ -83,7 +84,8 @@ class EventsTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/events/')
+        # self.assertGET200('/events/')
+        self.assertGET200(reverse('events__portal'))
 
     def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
         etype = etype or EventType.objects.all()[0]
@@ -252,7 +254,8 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(3, stats['visitors_count'])
 
     def _build_invitation_url(self, event, contact):
-        return '/events/event/%s/contact/%s/set_invitation_status' % (event.id, contact.id)
+        # return '/events/event/%s/contact/%s/set_invitation_status' % (event.id, contact.id)
+        return reverse('events__set_invitation_status', args=(event.id, contact.id))
 
     def _set_invitation_status(self, event, contact, status_id):
         self.client.post(self._build_invitation_url(event, contact),
@@ -399,7 +402,8 @@ class EventsTestCase(CremeTestCase):
                           )
 
     def _build_presence_url(self, event, contact):
-        return '/events/event/%s/contact/%s/set_presence_status' % (event.id, contact.id)
+        # return '/events/event/%s/contact/%s/set_presence_status' % (event.id, contact.id)
+        return reverse('events__set_presence_status', args=(event.id, contact.id))
 
     def _set_presence_status(self, event, contact, status_id):
         return self.client.post(self._build_presence_url(event, contact),
@@ -505,7 +509,8 @@ class EventsTestCase(CremeTestCase):
         self._set_invitation_status(event, judo, INV_STATUS_NO_ANSWER)
         self._set_invitation_status(event, griffith, INV_STATUS_ACCEPTED)
 
-        response = self.assertGET200('/events/event/%s/contacts' % event.id)
+        # response = self.assertGET200('/events/event/%s/contacts' % event.id)
+        response = self.assertGET200(reverse('events__list_related_contacts', args=(event.id,)))
 
         with self.assertNoException():
             contacts_page = response.context['entities']
@@ -648,7 +653,10 @@ class EventsTestCase(CremeTestCase):
         etype = EventType.objects.create(name='Natural')
         event = self._create_event('Eclipse', etype)
 
-        self.assertPOST404('/creme_config/events/event_type/delete', data={'id': etype.pk})
+        # self.assertPOST404('/creme_config/events/event_type/delete', data={'id': etype.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('events', 'event_type')),
+                           data={'id': etype.pk}
+                          )
         self.get_object_or_fail(EventType, pk=etype.pk)
 
         event = self.assertStillExists(event)
