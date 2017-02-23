@@ -23,6 +23,8 @@
 creme.billing = creme.billing || {};
 
 creme.billing.selectDefaultPayment = function(payment_id, invoice_id, reload_url) {
+    console.warn('creme.billing.selectDefaultPayment() is deprecated.');
+
     creme.blocks.ajaxPOSTQuery('/billing/payment_information/set_default/%s/%s'.format(payment_id, invoice_id),
                                {blockReloadUrl: reload_url})
                 .start();
@@ -405,7 +407,8 @@ creme.billing.serializeForm = function(form) {
     return data;
 }
 
-creme.billing.multiSaveLines = function (document_id) {
+//creme.billing.multiSaveLines = function (document_id) {
+creme.billing.multiSaveLines = function (save_url) {
     if (creme.billing.formsHaveErrors()) {
         creme.dialogs.alert('<p>' + gettext('There are some errors in your lines.') + '</p>').open();
     } else {
@@ -445,7 +448,8 @@ creme.billing.multiSaveLines = function (document_id) {
             return;
         }
 
-        creme.utils.ajaxQuery('/billing/%s/multi_save_lines'.format(document_id),
+//        creme.utils.ajaxQuery('/billing/%s/multi_save_lines'.format(document_id),
+        creme.utils.ajaxQuery(save_url,
                               {action: 'post', warnOnFail: true, warnOnFailTitle: gettext('Errors report')},
                               forms_data)
                    .onDone(function() {
@@ -497,7 +501,10 @@ creme.billing.exportAs = function(url, formats) {
                  }).open();
 }
 
-creme.billing.convertAs = function (billing_id, type) {
+creme.billing.convertAs = function(billing_id, type) {
+    console.warn('creme.billing.convertAs() is deprecated.');
+
+    // XXX: pass the reversed URL as argument (instead of 'billing_id') if you want a correct version of this function
     return creme.utils.ajaxQuery('/billing/%s/convert/'.format(billing_id),
                                  {action: 'post', warnOnFail: true, reloadOnSuccess: true},
                                  {type:type})

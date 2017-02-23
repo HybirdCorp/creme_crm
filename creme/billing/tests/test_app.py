@@ -4,6 +4,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
@@ -53,7 +54,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/billing/')
+        # self.assertGET200('/billing/')
+        self.assertGET200(reverse('billing__portal'))
 
     @skipIfCustomOrganisation
     def test_algoconfig(self):
