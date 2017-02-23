@@ -49,7 +49,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/documents/')
+        # self.assertGET200('/documents/')
+        self.assertGET200(reverse('documents__portal'))
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
     def test_createview01(self):
@@ -99,7 +100,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual([content], filedata.readlines())
 
         # Download
-        response = self.assertGET200('/download_file/%s' % doc.filedata)
+        # response = self.assertGET200('/download_file/%s' % doc.filedata)
+        response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
                          response['Content-Disposition']
@@ -120,7 +122,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         # Download
-        response = self.assertGET200('/download_file/%s' % doc.filedata)
+        # response = self.assertGET200('/download_file/%s' % doc.filedata)
+        response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
                          response['Content-Disposition']
@@ -141,7 +144,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         # Download
-        response = self.assertGET200('/download_file/%s' % doc.filedata)
+        # response = self.assertGET200('/download_file/%s' % doc.filedata)
+        response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
                          response['Content-Disposition']
@@ -159,7 +163,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         # Download
-        response = self.assertGET200('/download_file/%s' % doc.filedata)
+        # response = self.assertGET200('/download_file/%s' % doc.filedata)
+        response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual('txt', response['Content-Type']) # 'text/plain' ??
         self.assertEqual('attachment; filename=%s.txt' % file_name,
                          response['Content-Disposition']
@@ -189,7 +194,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_download_error(self):
         self.login()
-        self.assertGET404('/download_file/%s' % 'tmpLz48vy.txt')
+        # self.assertGET404('/download_file/%s' % 'tmpLz48vy.txt')
+        self.assertGET404(reverse('creme_core__dl_file', args=('tmpLz48vy.txt',)))
 
     def test_editview(self):
         user = self.login()
@@ -430,7 +436,10 @@ class DocumentTestCase(_DocumentsTestCase):
         cat = FolderCategory.objects.create(name='Manga')
         folder = Folder.objects.create(user=user, title='One piece', category=cat)
 
-        self.assertPOST200('/creme_config/documents/category/delete', data={'id': cat.pk})
+        # self.assertPOST200('/creme_config/documents/category/delete', data={'id': cat.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('documents', 'category')),
+                           data={'id': cat.pk}
+                          )
         self.assertDoesNotExist(cat)
 
         folder = self.get_object_or_fail(Folder, pk=folder.pk)
@@ -539,7 +548,8 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
 
-        url = '/creme_core/quickforms/%s/%d' % (ContentType.objects.get_for_model(Document).pk, 1)
+        # url = '/creme_core/quickforms/%s/%d' % (ContentType.objects.get_for_model(Document).pk, 1)
+        url = reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(Document).id, 1))
         self.assertGET200(url)
 
         content = 'Yes I am the content (DocumentQuickFormTestCase.test_add)'

@@ -21,6 +21,7 @@
 from json import dumps as json_dump
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import Relation
@@ -50,15 +51,15 @@ class FolderDocsBlock(QuerysetBlock):
         folder_id = context['object'].id
         q_dict = {'folder': folder_id}
         return self._render(self.get_block_template_context(
-                        context,
-                        Document.objects.filter(**q_dict),
-                        # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder_id),
-                        # ct_id=_CT_DOC.id,
-                        ct_id=ContentType.objects.get_for_model(Document).id,
-                        q_filter=json_dump(q_dict),
-                       )
-                   )
+                    context,
+                    Document.objects.filter(**q_dict),
+                    # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder_id),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, folder_id)),
+                    # ct_id=_CT_DOC.id,
+                    ct_id=ContentType.objects.get_for_model(Document).id,
+                    q_filter=json_dump(q_dict),
+        ))
 
 
 class ChildFoldersBlock(QuerysetBlock):
@@ -75,10 +76,10 @@ class ChildFoldersBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(
                     context,
                     Folder.objects.filter(parent_folder=folder),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder.id),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder.id),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, folder.id)),
                     folder_model=Folder,
-                   )
-                )
+        ))
 
 
 class LinkedDocsBlock(QuerysetBlock):
@@ -92,7 +93,10 @@ class LinkedDocsBlock(QuerysetBlock):
         entity = context['object']
         btc = self.get_block_template_context(context,
                                               Document.get_linkeddoc_relations(entity),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
+                                              # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
+                                              update_url=reverse('creme_core__reload_detailview_blocks',
+                                                                 args=(self.id_, entity.id),
+                                                                ),
                                               predicate_id=REL_SUB_RELATED_2_DOC,
                                               # ct_doc=_CT_DOC,
                                               ct_doc=ContentType.objects.get_for_model(Document),

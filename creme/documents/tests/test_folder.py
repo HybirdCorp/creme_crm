@@ -393,7 +393,8 @@ class FolderTestCase(_DocumentsTestCase):
         folder = Folder.objects.create(user=self.user, title='ToBeDel', description="remove me")
         folder.trash()
 
-        response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
+        # response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
+        response = self.assertPOST200(folder.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(folder)
         self.assertRedirects(response, self.LIST_URL)
 
@@ -407,7 +408,8 @@ class FolderTestCase(_DocumentsTestCase):
 
         folder.trash()
 
-        self.assertPOST403('/creme_core/entity/delete/%s' % folder.pk)
+        # self.assertPOST403('/creme_core/entity/delete/%s' % folder.pk)
+        self.assertPOST403(folder.get_delete_absolute_url())
         self.assertStillExists(folder)
 
     def test_block(self):
