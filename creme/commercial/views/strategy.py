@@ -90,7 +90,7 @@ def listview(request):
 @permission_required('commercial')
 def add_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
-                                 ugettext(u"New market segment for «%s»"),
+                                 ugettext(u'New market segment for «%s»'),
                                  entity_class=Strategy,
                                  # submit_label=_('Save the market segment'),
                                  submit_label=MarketSegment.save_label,
@@ -101,7 +101,7 @@ def add_segment(request, strategy_id):
 @permission_required('commercial')
 def link_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
-                                 ugettext(u"New market segment for «%s»"),
+                                 ugettext(u'New market segment for «%s»'),
                                  entity_class=Strategy,
                                  # submit_label=_('Save the market segment'),
                                  submit_label=MarketSegment.save_label,  # TODO: MarketSegmentDescription ?
@@ -134,7 +134,7 @@ def add_charm(request, strategy_id):
 @permission_required('commercial')
 def add_evalorga(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
-                                 ugettext(u"New organisation(s) for «%s»"),
+                                 ugettext(u'New organisation(s) for «%s»'),
                                  entity_class=Strategy,
                                  submit_label=_('Link the organisation(s)'),
                                 )
@@ -144,7 +144,7 @@ def add_evalorga(request, strategy_id):
 @permission_required('commercial')
 def edit_segment(request, strategy_id, seginfo_id):
     return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
-                                          forms.SegmentEditForm, ugettext(u"Segment for «%s»")
+                                          forms.SegmentEditForm, ugettext(u'Segment for «%s»'),
                                          )
 
 
@@ -152,7 +152,7 @@ def edit_segment(request, strategy_id, seginfo_id):
 @permission_required('commercial')
 def edit_asset(request, asset_id):
     return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
-                                          forms.AssetForm, ugettext(u"Asset for «%s»")
+                                          forms.AssetForm, ugettext(u'Asset for «%s»'),
                                          )
 
 
@@ -160,7 +160,7 @@ def edit_asset(request, asset_id):
 @permission_required('commercial')
 def edit_charm(request, charm_id):
     return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
-                                          forms.CharmForm, ugettext(u"Charm for «%s»")
+                                          forms.CharmForm, ugettext(u'Charm for «%s»'),
                                          )
 
 

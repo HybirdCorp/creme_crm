@@ -160,12 +160,13 @@ class ActObjective(CremeModel):
         return self.name
 
     def get_edit_absolute_url(self):
-        return '/commercial/objective/%s/edit' % self.id
+        # return '/commercial/objective/%s/edit' % self.id
+        return reverse('commercial__edit_objective', args=(self.id,))
 
     def get_related_entity(self):  # NB: see edit_related_to_entity()
         return self.act
 
-    def get_count(self): #TODO: property ??
+    def get_count(self):  # TODO: property ??
         count = self._count_cache
 
         if count is None:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from collections import defaultdict
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
@@ -32,17 +33,17 @@ from creme.persons import get_organisation_model
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.constants import REL_SUB_TARGETS
 
-from . import get_act_model, get_pattern_model, get_strategy_model
+from creme import commercial
 from .models import (CommercialApproach, MarketSegment, MarketSegmentDescription,
         CommercialAsset, MarketSegmentCharm, ActObjective, ActObjectivePatternComponent)
 from .constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 
 
-Act = get_act_model()
-ActObjectivePattern = get_pattern_model()
-Strategy = get_strategy_model()
-Opportunity = get_opportunity_model()
 get_ct = ContentType.objects.get_for_model
+Opportunity = get_opportunity_model()
+Act = commercial.get_act_model()
+ActObjectivePattern = commercial.get_pattern_model()
+Strategy = commercial.get_strategy_model()
 
 
 class ApproachesBlock(QuerysetBlock):
@@ -89,23 +90,29 @@ class ApproachesBlock(QuerysetBlock):
         else:
             approaches = CommercialApproach.get_approaches(pk)
 
-        return self._render(self.get_block_template_context(context, approaches,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context, approaches,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+        ))
 
     def portal_display(self, context, ct_ids):
-        btc = self.get_block_template_context(context,
-                                              CommercialApproach.get_approaches_for_ctypes(ct_ids),
-                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                             )
+        btc = self.get_block_template_context(
+                    context,
+                    CommercialApproach.get_approaches_for_ctypes(ct_ids),
+                    # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
+         )
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
     def home_display(self, context):
-        btc = self.get_block_template_context(context, CommercialApproach.get_approaches(),
-                                              update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                             )
+        btc = self.get_block_template_context(
+                    context, CommercialApproach.get_approaches(),
+                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
+        )
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
         return self._render(btc)
@@ -122,10 +129,10 @@ class SegmentsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                        context, MarketSegment.objects.all(),
-                        update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                       )
-                    )
+                    context, MarketSegment.objects.all(),
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+        ))
 
 
 class SegmentDescriptionsBlock(PaginatedBlock):
@@ -140,12 +147,12 @@ class SegmentDescriptionsBlock(PaginatedBlock):
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_block_template_context(
-                        context, strategy.get_segment_descriptions_list(),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                        # ct_id=self._SEGMENTDESC_CT_ID,
-                        ct_id=get_ct(MarketSegmentDescription).id,
-                       )
-                    )
+                    context, strategy.get_segment_descriptions_list(),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
+                    # ct_id=self._SEGMENTDESC_CT_ID,
+                    ct_id=get_ct(MarketSegmentDescription).id,
+        ))
 
 
 class AssetsBlock(QuerysetBlock):
@@ -161,12 +168,12 @@ class AssetsBlock(QuerysetBlock):
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_block_template_context(
-                        context, strategy.assets.all(),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                        # ct_id=self._ASSET_CT_ID,
-                        ct_id=get_ct(CommercialAsset).id,
-                       )
-                    )
+                    context, strategy.assets.all(),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
+                    # ct_id=self._ASSET_CT_ID,
+                    ct_id=get_ct(CommercialAsset).id,
+        ))
 
 
 class CharmsBlock(QuerysetBlock):
@@ -182,12 +189,12 @@ class CharmsBlock(QuerysetBlock):
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_block_template_context(
-                        context, strategy.charms.all(),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                        # ct_id=self._CHARM_CT_ID,
-                        ct_id=get_ct(MarketSegmentCharm).id,
-                       )
-                    )
+                    context, strategy.charms.all(),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
+                    # ct_id=self._CHARM_CT_ID,
+                    ct_id=get_ct(MarketSegmentCharm).id,
+        ))
 
 
 class EvaluatedOrgasBlock(QuerysetBlock):
@@ -202,10 +209,10 @@ class EvaluatedOrgasBlock(QuerysetBlock):
         strategy = context['object']
 
         return self._render(self.get_block_template_context(
-                        context, strategy.evaluated_orgas.all(),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                       )
-                    )
+                context, strategy.evaluated_orgas.all(),
+                # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
+        ))
 
 
 class AssetsMatrixBlock(Block):
@@ -224,7 +231,8 @@ class AssetsMatrixBlock(Block):
                         assets=strategy.get_assets_list(),
                         segment_info=strategy.get_segment_descriptions_list(),
                         totals=strategy.get_assets_totals(orga),
-                        update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        # update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        update_url=reverse('commercial__reload_assets_matrix', args=(strategy.id, orga.id)),
                        )
                     )
 
@@ -245,7 +253,8 @@ class CharmsMatrixBlock(Block):
                         charms=strategy.get_charms_list(),
                         segment_info=strategy.get_segment_descriptions_list(),
                         totals=strategy.get_charms_totals(orga),
-                        update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        # update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        update_url=reverse('commercial__reload_charms_matrix', args=(strategy.pk, orga.pk),)
                        )
                     )
 
@@ -264,7 +273,8 @@ class AssetsCharmsMatrixBlock(Block):
         return self._render(self.get_block_template_context(
                         context,
                         segment_info=strategy.get_segment_descriptions_list(),
-                        update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        # update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        update_url=reverse('commercial__reload_assets_charms_matrix', args=(strategy.pk, orga.pk)),
                        )
                     )
 
@@ -283,14 +293,14 @@ class ActObjectivesBlock(QuerysetBlock):
         act_id = context['object'].id
         # TODO: pre-populate EntityFilters ??
         return self._render(self.get_block_template_context(
-                        context,
-                        # NB: "act.objectives.all()" causes a strange additional query...
-                        ActObjective.objects.filter(act=act_id),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
-                        # ct_id=self._OBJECTIVE_CT_ID,
-                        ct_id=get_ct(ActObjective).id,
-                       )
-                    )
+                    context,
+                    # NB: "act.objectives.all()" causes a strange additional query...
+                    ActObjective.objects.filter(act=act_id),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, act_id)),
+                    # ct_id=self._OBJECTIVE_CT_ID,
+                    ct_id=get_ct(ActObjective).id,
+        ))
 
 
 class RelatedOpportunitiesBlock(PaginatedBlock):
@@ -313,13 +323,13 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
         act = context['object']
 
         return self._render(self.get_block_template_context(
-                        context, act.get_related_opportunities(),
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
-                        predicate_id=REL_OBJ_COMPLETE_GOAL,
-                        # opp_ct=self._OPPORT_CT,
-                        opp_ct=get_ct(Opportunity),
-                       )
-                    )
+                    context, act.get_related_opportunities(),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, act.id)),
+                    predicate_id=REL_OBJ_COMPLETE_GOAL,
+                    # opp_ct=self._OPPORT_CT,
+                    opp_ct=get_ct(Opportunity),
+        ))
 
 
 class PatternComponentsBlock(Block):
@@ -344,13 +354,13 @@ class PatternComponentsBlock(Block):
         explore_tree(pattern.get_components_tree(), 0)
 
         return self._render(self.get_block_template_context(
-                        context,
-                        components=flattened_tree,
-                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
-                        # ct_id=self._PATTERNCOMP_CT_ID,
-                        ct_id=get_ct(ActObjectivePatternComponent).id,
-                       )
-                    )
+                    context,
+                    components=flattened_tree,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pattern.id)),
+                    # ct_id=self._PATTERNCOMP_CT_ID,
+                    ct_id=get_ct(ActObjectivePatternComponent).id,
+        ))
 
 # del get_ct
 

@@ -374,7 +374,8 @@ class CommercialAsset(CremeModel):
         return self.name
 
     def get_edit_absolute_url(self):
-        return '/commercial/asset/edit/%s/' % self.id
+        # return '/commercial/asset/edit/%s/' % self.id
+        return reverse('commercial__edit_asset', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
         return self.strategy
@@ -410,7 +411,8 @@ class MarketSegmentCharm(CremeModel):
         return self.name
 
     def get_edit_absolute_url(self):
-        return '/commercial/charm/edit/%s/' % self.id
+        # return '/commercial/charm/edit/%s/' % self.id
+        return reverse('commercial__edit_charm', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
         return self.strategy

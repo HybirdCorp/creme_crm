@@ -47,6 +47,7 @@ def widget_asset_score(context, segment_desc, asset):
 
     context['score'] = strategy.get_asset_score(orga, asset, segment_desc)
     context['model_name'] = 'asset'
+    context['view_name'] = 'commercial__set_asset_score'
     context['model'] = asset
     context['has_perm'] = context['user'].has_perm_to_change(strategy)
 
@@ -60,6 +61,7 @@ def widget_charm_score(context, segment, charm):
 
     context['score'] = strategy.get_charm_score(orga, charm, segment)
     context['model_name'] = 'charm'
+    context['view_name'] = 'commercial__set_charm_score'
     context['model'] = charm
     context['has_perm'] = context['user'].has_perm_to_change(strategy)
 

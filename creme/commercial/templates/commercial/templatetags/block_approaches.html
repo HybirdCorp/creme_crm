@@ -7,8 +7,9 @@
         <th class="actions">
             <div class="buttons">
                 {% if object %}
-                    {% has_perm_to change object as has_perm %}
-                    {% get_line_adder at_url '/commercial/approach/add/{{object.id}}/' with_label _("New commercial approach") with_perms has_perm %}
+                    {% has_perm_to change object as has_perm %}{% url 'commercial__create_approach' object.id as create_url %}
+{#                    {% get_line_adder at_url '/commercial/approach/add/{{object.id}}/' with_label _("New commercial approach") with_perms has_perm %} #}
+                    {% get_line_adder at_url create_url with_label _('New commercial approach') with_perms has_perm %}
                 {% endif %}
             </div>
         </th>

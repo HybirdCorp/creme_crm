@@ -40,16 +40,20 @@ class ActTestCase(CommercialBaseTestCase):
         cls.ADD_URL = reverse('commercial__create_act')
 
     def _build_addobjective_url(self, act):
-        return '/commercial/act/%s/add/objective' % act.id
+        # return '/commercial/act/%s/add/objective' % act.id
+        return reverse('commercial__create_objective', args=(act.id,))
 
     def _build_addobjectivefrompattern_url(self, act):
-        return '/commercial/act/%s/add/objectives_from_pattern' % act.id
+        # return '/commercial/act/%s/add/objectives_from_pattern' % act.id
+        return reverse('commercial__create_objective_from_pattern', args=(act.id,))
 
     def _build_create_related_entity_url(self, objective):
-        return '/commercial/objective/%s/create_entity' % objective.id
+        # return '/commercial/objective/%s/create_entity' % objective.id
+        return reverse('commercial__create_entity_from_objective', args=(objective.id,))
 
     def _build_incr_url(self, objective):
-        return '/commercial/objective/%s/incr' % objective.id
+        # return '/commercial/objective/%s/incr' % objective.id
+        return reverse('commercial__incr_objective_counter', args=(objective.id,))
 
     def test_create(self):
         url = self.ADD_URL
@@ -483,7 +487,8 @@ class ActTestCase(CommercialBaseTestCase):
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         ct = ContentType.objects.get_for_model(ActObjective)
 
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, 
+        # response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+        response = self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                                     data={'id': objective.id}
                                    )
         self.assertRedirects(response, act.get_absolute_url())
@@ -726,7 +731,10 @@ class ActTestCase(CommercialBaseTestCase):
         act = self.create_act()
         atype = act.act_type
 
-        self.assertPOST404('/creme_config/commercial/act_type/delete', data={'id': atype.pk})
+        # self.assertPOST404('/creme_config/commercial/act_type/delete', data={'id': atype.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('commercial', 'act_type')),
+                           data={'id': atype.pk}
+                          )
         self.get_object_or_fail(ActType, pk=atype.pk)
 
         act = self.get_object_or_fail(Act, pk=act.pk)

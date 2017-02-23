@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.tests.base import skipIfCustomContact
@@ -14,8 +16,10 @@ except Exception as e:
 
 
 class CommercialTestCase(CremeTestCase):
-    ADD_SALESMAN_URL = '/commercial/salesman/add'
-    SALESMEN_URL = '/commercial/salesmen'
+    # ADD_SALESMAN_URL = '/commercial/salesman/add'
+    ADD_SALESMAN_URL = reverse('commercial__create_salesman')
+    # SALESMEN_URL = '/commercial/salesmen'
+    SALESMEN_URL = reverse('commercial__list_salesmen')
 
     # @classmethod
     # def setUpClass(cls):
@@ -101,4 +105,5 @@ class CommercialTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/commercial/')
+        # self.assertGET200('/commercial/')
+        self.assertGET200(reverse('commercial__portal'))

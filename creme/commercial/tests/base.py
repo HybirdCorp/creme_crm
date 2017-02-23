@@ -7,15 +7,12 @@ skip_strategy_tests = False
 try:
     from unittest import skipIf
 
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons import get_contact_model, get_organisation_model
+    from creme import persons, activities, opportunities, commercial
 
-    from creme.activities import get_activity_model
-
-    from creme.opportunities import get_opportunity_model
-
-    from creme import commercial
     from ..models import MarketSegment
 
     skip_act_tests      = commercial.act_model_is_custom()
@@ -29,12 +26,12 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
-Activity = get_activity_model()
+Activity = activities.get_activity_model()
 
-Opportunity = get_opportunity_model()
+Opportunity = opportunities.get_opportunity_model()
 
 
 def skipIfCustomAct(test_func):
@@ -50,7 +47,8 @@ def skipIfCustomStrategy(test_func):
 
 
 class CommercialBaseTestCase(CremeTestCase):
-    ADD_SEGMENT_URL = '/commercial/market_segment/add'
+    # ADD_SEGMENT_URL = '/commercial/market_segment/add'
+    ADD_SEGMENT_URL = reverse('commercial__create_segment')
 
     # @classmethod
     # def setUpClass(cls):
@@ -61,7 +59,8 @@ class CommercialBaseTestCase(CremeTestCase):
         self.login()
 
     def _build_add_segmentdesc_url(self, strategy):
-        return '/commercial/strategy/%s/add/segment/' % strategy.id
+        # return '/commercial/strategy/%s/add/segment/' % strategy.id
+        return reverse('commercial__create_segment_desc', args=(strategy.id,))
 
     def _build_ctypefilter_field(self, ctype=None, efilter=None):
         return '{"ctype": "%s", "efilter": "%s"}' % (ctype.id if ctype else 0, efilter.id if efilter else '')

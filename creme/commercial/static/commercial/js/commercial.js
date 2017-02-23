@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2014  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -28,21 +28,6 @@ creme.commercial.postScore = function(url, model_id, segment_desc_id, orga_id, s
         };
 
     creme.blocks.ajaxPOSTQuery(url, {blockReloadUrl: reload_url}, data).start();
-/*
-    creme.ajax.post({
-                'url': url,
-                'data': {
-                        //'score':           $(select).find('[selected="true"]').attr("value"),
-                        'score':           $(select).val(),
-                        'model_id':        model_id,
-                        'segment_desc_id': segment_desc_id,
-                        'orga_id':         orga_id
-                    },
-                'success': function(data, status) {
-                      creme.blocks.reload(reload_url);
-                    }
-            });
-*/
 }
 
 creme.commercial.postCategory = function(url, segment_desc_id, orga_id, select, reload_url) {
@@ -53,39 +38,13 @@ creme.commercial.postCategory = function(url, segment_desc_id, orga_id, select, 
         };
 
     creme.blocks.ajaxPOSTQuery(url, {blockReloadUrl: reload_url}, data).start();
-/*
-    creme.ajax.post({
-                'url': url,
-                'data': {
-                        //'category':        $(select).find('[selected="true"]').attr("value"),
-                        'category':        $(select).val(),
-                        'segment_desc_id': segment_desc_id,
-                        'orga_id':         orga_id
-                    },
-                'success': function(data, status) {
-                      creme.blocks.reload(reload_url);
-                    }
-            });
-*/
 }
 
-creme.commercial.increaseObjectiveCounter = function(objective_id, inc, reload_url) {
-    creme.blocks.ajaxPOSTQuery('/commercial/objective/%s/incr'.format(objective_id),
+//creme.commercial.increaseObjectiveCounter = function(objective_id, inc, reload_url) {
+creme.commercial.increaseObjectiveCounter = function(url, inc, reload_url) {
+//    creme.blocks.ajaxPOSTQuery('/commercial/objective/%s/incr'.format(objective_id),
+    creme.blocks.ajaxPOSTQuery(url,
                                {blockReloadUrl: reload_url},
                                {diff: inc})
                 .start();
 }
-
-/*
-creme.commercial.incr_counter = function(diff, url, reload_url) {
-    creme.ajax.post({
-                'url': url,
-                'data': {
-                        'diff': diff,
-                    },
-                'success': function(data, status) {
-                      creme.blocks.reload(reload_url);
-                    }
-            });
-}
-*/
