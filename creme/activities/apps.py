@@ -86,8 +86,10 @@ class ActivitiesConfig(CremeAppConfig):
 
         if settings.OLD_MENU:
             reg_item = creme_menu.register_app('activities', '/activities/').register_item
-            reg_item('/activities/',                                              _(u'Portal of activities'),     'activities')
-            reg_item('/activities/calendar/user',                                 _(u'Calendar'),                 'activities')
+            # reg_item('/activities/',                                              _(u'Portal of activities'),     'activities')
+            reg_item(reverse('activities__portal'),                               _(u'Portal of activities'),     'activities')
+            # reg_item('/activities/calendar/user',                                 _(u'Calendar'),                 'activities')
+            reg_item(reverse('activities__calendar'),                             _(u'Calendar'),                 'activities')
             reg_item(reverse('activities__create_activity'),                      Activity.creation_label,        creation_perm)
             reg_item(reverse('activities__create_activity', args=('meeting',)),   _(u'Create a meeting'),         creation_perm)
             reg_item(reverse('activities__create_activity', args=('phonecall',)), _(u'Create a phone call'),      creation_perm)
@@ -102,7 +104,9 @@ class ActivitiesConfig(CremeAppConfig):
                       .get_or_create(creme_menu.ContainerItem, 'activities-main', priority=10,
                                      defaults={'label': _(u'Activities')},
                                     ) \
-                      .add(URLItem('activities-calendar', url='/activities/calendar/user',
+                      .add(URLItem('activities-calendar',
+                                   # url='/activities/calendar/user',
+                                   url=reverse('activities__calendar'),
                                    label=_(u'Calendar'), perm='activities',
                                   ),
                            priority=10

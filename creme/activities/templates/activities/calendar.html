@@ -1,12 +1,11 @@
 {% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_core_tags creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 {% block page_title %}{% trans "Calendars" %} - {% endblock %}
 {% block extrahead %}
     <script type='text/javascript'>
         $(document).ready(function() {
-{% comment %}creme.activities.calendar.fullCalendar('{{events_url}}');{% endcomment %}
-            creme.activities.calendar.fullCalendar('{{events_url}}', '{% url "activities__create_activity_popup" %}');
+{#            creme.activities.calendar.fullCalendar('{{events_url}}', '{% url "activities__create_activity_popup" %}'); #}
+            creme.activities.calendar.fullCalendar('{{events_url}}', '{% url "activities__create_activity_popup" %}', '{% url "activities__set_activity_dates" %}');
             creme.activities.calendar.loadCalendarEventListeners('{{user_username}}', {{creme_calendars_by_user|safe}});
         });
     </script>

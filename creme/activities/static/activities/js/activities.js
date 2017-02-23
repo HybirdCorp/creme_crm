@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2016  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,8 @@
 
 creme.activities = {};
 
-creme.activities.exportAsICal = function(list) {
+//creme.activities.exportAsICal = function(list) {
+creme.activities.exportAsICal = function(list, url) {
     var selection = $(list).list_view('getSelectedEntities').trim();
 
     if (!selection) {
@@ -26,7 +27,12 @@ creme.activities.exportAsICal = function(list) {
         return false;
     }
 
-    document.location.href = '/activities/activities/%s/ical'.format(selection);
+    if (url === undefined ) {
+        console.warn('creme.activities.exportAsICal(): implicit "url" argument is deprecated ; give the URL as second argument.');
+        document.location.href = '/activities/activities/%s/ical'.format(selection);
+    } else {
+        document.location.href = url + '?' + $.param({'id': selection.split(',')});
+    }
 }
 
 creme.activities.calendar = {};
@@ -181,8 +187,10 @@ creme.activities.calendar.chooseForeground = function(target, bgColor) {
     target.css('color', creme.color.maxContrastingColor(rgb.r, rgb.g, rgb.b));
 }
 
-creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-    creme.ajax.query('/activities/calendar/activity/update', {action: 'POST'},
+//creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+creme.activities.calendar.updater = function(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+//    creme.ajax.query('/activities/calendar/activity/update', {action: 'POST'},
+    creme.ajax.query(update_url, {action: 'POST'},
                      {id: event.id,
                       start: event.start.getTime(),
                       end: event.end.getTime(),
@@ -246,8 +254,14 @@ creme.activities.calendar.resizeSidebar = function() {
     sidebar.css('height', (calendarHeight - sidebarMargin) + 'px');
 }
 
-// creme.activities.calendar.fullCalendar = function(events_url) {
-creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
+//creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
+creme.activities.calendar.fullCalendar = function(events_url, creation_url, update_url) {
+    var update_url = update_url;
+    if (update_url === undefined) {
+        console.warn('creme.activities.calendar.fullCalendar(): implicit "update_url" argument is deprecated ; give the URL as last argument.');
+        update_url = '/activities/calendar/activity/update';
+    }
+
     $('.calendar').fullCalendar({
         weekends: true,
         header: {
@@ -270,9 +284,9 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
         maxTime: 24,
         timeFormat: "H'h'mm", //TODO: use l110n time format
         columnFormat: {
-            "month":"dddd",
-            "agendaWeek":"dddd d MMMM",
-            "agendaDay":"dddd d MMMM"
+            "month": "dddd",
+            "agendaWeek": "dddd d MMMM",
+            "agendaDay": "dddd d MMMM"
         },
         titleFormat: {
             month: 'MMMM yyyy',
@@ -363,7 +377,8 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
                 $('.calendar').fullCalendar('removeEvents', event.id);
             }
 
-            creme.activities.calendar.updater(event, null, null, allDay, cancel_drop);
+//            creme.activities.calendar.updater(event, null, null, allDay, cancel_drop);
+            creme.activities.calendar.updater(update_url, event, null, null, allDay, cancel_drop);
         },
         loading: function(isLoading, view) {
             creme.activities.calendar.loading(!isLoading);
@@ -377,7 +392,6 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
                 'minute': date.getMinutes()
             };
 
-//             creme.dialogs.form('/activities/activity/add_popup', {reloadOnSuccess: true}, data).open({width: '80%'});
             creme.dialogs.form(creation_url, {reloadOnSuccess: true}, data).open({width: '80%'});
         },
         eventRender: function(event, element, view) {
@@ -401,7 +415,8 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
         },
         eventDragStart: function(calEvent, domEvent, ui, view) {},
         eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-            creme.activities.calendar.updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
+//            creme.activities.calendar.updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
+            creme.activities.calendar.updater(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
         },
         eventClick: function(event) {
             creme.dialogs.url(event.url).open({width:'80%'});
@@ -409,7 +424,8 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
             return false;
         },
         eventResize: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
-            creme.activities.calendar.updater(event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
+//            creme.activities.calendar.updater(event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
+            creme.activities.calendar.updater(update_url, event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
         }
     });
 

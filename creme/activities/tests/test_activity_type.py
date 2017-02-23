@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
+
     from .base import _ActivitiesTestCase
     from ..models import ActivityType, ActivitySubType
 except Exception as e:
@@ -13,10 +15,13 @@ __all__ = ('ActivityTypeTestCase',)
 class ActivityTypeTestCase(_ActivitiesTestCase):
     def test_create_type(self):
         self.login()
-        self.assertGET200('/creme_config/activities/portal/')
-        self.assertGET200('/creme_config/activities/activity_type/portal/')
+        # self.assertGET200('/creme_config/activities/portal/')
+        self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
+        # self.assertGET200('/creme_config/activities/activity_type/portal/')
+        self.assertGET200(reverse('creme_config__model_portal', args=('activities', 'activity_type')))
 
-        url = '/creme_config/activities/activity_type/add/'
+        # url = '/creme_config/activities/activity_type/add/'
+        url = reverse('creme_config__create_instance', args=('activities', 'activity_type'))
         self.assertGET200(url)
 
         name = 'Awesome show'
@@ -44,7 +49,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
                                             is_custom=True,
                                            )
 
-        url = '/creme_config/activities/activity_type/edit/%s' % atype.id
+        # url = '/creme_config/activities/activity_type/edit/%s' % atype.id
+        url = reverse('creme_config__edit_instance', args=('activities', 'activity_type', atype.id))
         self.assertGET200(url)
 
         name = atype.name.title()
@@ -65,7 +71,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
 
     def test_create_subtype(self):
         self.login()
-        self.assertGET200('/creme_config/activities/activity_sub_type/portal/')
+        # self.assertGET200('/creme_config/activities/activity_sub_type/portal/')
+        self.assertGET200(reverse('creme_config__model_portal', args=('activities', 'activity_sub_type')))
 
         atype = ActivityType.objects.create(pk='test-activity_karate',
                                             name='Karate session',
@@ -74,7 +81,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
                                             is_custom=True,
                                            )
 
-        url = '/creme_config/activities/activity_sub_type/add/'
+        # url = '/creme_config/activities/activity_sub_type/add/'
+        url = reverse('creme_config__create_instance', args=('activities', 'activity_sub_type'))
         self.assertGET200(url)
 
         name = 'Fight'
@@ -97,7 +105,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
                                            )
         satype = ActivitySubType.objects.create(pk='test-activity_fight', type=atype, name='Figtho')
 
-        url = '/creme_config/activities/activity_sub_type/edit/%s' % satype.id
+        # url = '/creme_config/activities/activity_sub_type/edit/%s' % satype.id
+        url = reverse('creme_config__edit_instance', args=('activities', 'activity_sub_type', satype.id))
         self.assertGET200(url)
 
         name = 'Figtho'

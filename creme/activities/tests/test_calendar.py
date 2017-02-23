@@ -28,11 +28,16 @@ Activity = get_activity_model()
 
 
 class CalendarTestCase(_ActivitiesTestCase):
-    ADD_URL = '/activities/calendar/add'
-    CONF_ADD_URL = '/creme_config/activities/calendar/add/'
-    CALENDAR_URL = '/activities/calendar/user'
-    DEL_CALENDAR_URL = '/activities/calendar/delete'
-    UPDATE_URL = '/activities/calendar/activity/update'
+    # ADD_URL = '/activities/calendar/add'
+    ADD_URL = reverse('activities__create_calendar')
+    # CONF_ADD_URL = '/creme_config/activities/calendar/add/'
+    CONF_ADD_URL = reverse('creme_config__create_instance', args=('activities', 'calendar'))
+    # CALENDAR_URL = '/activities/calendar/user'
+    CALENDAR_URL = reverse('activities__calendar')
+    # DEL_CALENDAR_URL = '/activities/calendar/delete'
+    DEL_CALENDAR_URL = reverse('activities__delete_calendar')
+    # UPDATE_URL = '/activities/calendar/activity/update'
+    UPDATE_URL = reverse('activities__set_activity_dates')
 
     def assertUserHasDefaultCalendar(self, user):
         return self.get_object_or_fail(Calendar, is_default=True, user=user)
@@ -41,7 +46,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         return float(dt.strftime('%s')) * 1000  # Simulates JS that sends milliseconds
 
     def build_link_url(self, activity_id):
-        return '/activities/calendar/link/%s' % activity_id
+        # return '/activities/calendar/link/%s' % activity_id
+        return reverse('activities__link_calendar', args=(activity_id,))
 
     def _get_cal_activities(self, calendars, start=None, end=None, status=200):
         data = {}
@@ -49,9 +55,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         if end:   data['end'] = end
 
         return self.assertGET(status,
-                              '/activities/calendar/users_activities/%s' % (
-                                        ','.join(str(c.id) for c in calendars),
-                                   ),
+                              # '/activities/calendar/users_activities/%s' % (
+                              #           ','.join(str(c.id) for c in calendars),
+                              #      ),
+                              reverse('activities__calendars_activities',
+                                      args=(','.join(str(c.id) for c in calendars),)
+                                     ),
                               data=data,
                              )
 
@@ -211,7 +220,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual({str(cal1.id), str(cal2.id)}, set(cal_ids))
         self.assertEqual({act1, act2, act4}, set(floating_acts))
         self.assertEqual({cal1}, set(my_cals))
-        self.assertEqual('/activities/calendar/users_activities/', event_url)
+        # self.assertEqual('/activities/calendar/users_activities/', event_url)
+        self.assertEqual(reverse('activities__calendars_activities', args=('',)), event_url)
         self.assertEqual({other_user: [cal2]}, others_calendars)
         self.assertEqual(1, n_others_calendars)
         filter_key = "%s %s %s" % (other_user.username,
@@ -271,7 +281,8 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_edit_user_calendar01(self):
         user = self.login()
         cal = Calendar.get_user_default_calendar(user)
-        url = '/activities/calendar/%s/edit' % cal.id
+        # url = '/activities/calendar/%s/edit' % cal.id
+        url = reverse('activities__edit_calendar', args=(cal.id,))
         self.assertGET200(url)
 
         name = 'My calendar'
@@ -666,8 +677,10 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_config01(self):
         user = self.login()
 
-        self.assertGET200('/creme_config/activities/portal/')
-        self.assertGET200('/creme_config/activities/calendar/portal/')
+        # self.assertGET200('/creme_config/activities/portal/')
+        self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
+        # self.assertGET200('/creme_config/activities/calendar/portal/')
+        self.assertGET200(reverse('creme_config__model_portal', args=('activities', 'calendar')))
 
         url = self.CONF_ADD_URL
         self.assertGET200(url)
@@ -713,7 +726,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal3 = Calendar.objects.create(user=user, name='My third calendar')
 
         # Delete
-        self.assertPOST200('/creme_config/activities/calendar/delete',
+        # self.assertPOST200('/creme_config/activities/calendar/delete',
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('activities', 'calendar')),
                            data={'id': cal2.id},
                           )
         self.assertDoesNotExist(cal2)
@@ -728,7 +742,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         name = 'cal#1'
         cal2 = Calendar.objects.create(user=user, name=name)
 
-        url = '/creme_config/activities/calendar/edit/%s' % cal2.id
+        # url = '/creme_config/activities/calendar/edit/%s' % cal2.id
+        url = reverse('creme_config__edit_instance', args=('activities', 'calendar', cal2.id))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -782,7 +797,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertTrue(self.refresh(cal21).is_default)
         self.assertFalse(self.refresh(cal22).is_default)
 
-        url = '/creme_config/user/delete/%s' % other_user.id
+        # url = '/creme_config/user/delete/%s' % other_user.id
+        url = reverse('creme_config__delete_user', args=(other_user.id,))
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, {'to_user': user.id}))

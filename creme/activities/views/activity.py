@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from datetime import datetime
 from functools import partial
+import warnings
 
 from django.db.models import Q
 from django.http import Http404, HttpResponse
@@ -240,9 +241,19 @@ def listview(request, type_id=None):
 
 @login_required
 @permission_required('activities')
-def download_ical(request, ids):
+# def download_ical(request, ids):
+def download_ical(request, ids=None):
+    if ids is not None:
+        warnings.warn('download_ical(): the URL argument "ids" is deprecated ; '
+                      'use the GET parameter "id" instead.',
+                      DeprecationWarning
+                     )
+        act_ids = ids.split(',')
+    else:
+        act_ids = request.GET.getlist('id')
+
     # TODO: is_deleted=False ??
-    activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
+    activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=act_ids),
                                           user=request.user,
                                          )
     response = HttpResponse(get_ical(activities), content_type='text/calendar')

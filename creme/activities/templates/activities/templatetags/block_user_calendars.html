@@ -11,7 +11,8 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th colspan="5" class="block_header_line_dark">
-                <a class="button_link" onclick="creme.blocks.form('/activities/calendar/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+{#                <a class="button_link" onclick="creme.blocks.form('/activities/calendar/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();"> #}
+                <a class="button_link" onclick="creme.blocks.form('{% url 'activities__create_calendar' %}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                     {% trans "New calendar" as label %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" alt="{{label}}" title="{{label}}"/>
                     {{label}}
                 </a>
@@ -25,6 +26,7 @@
                 <th class="block_header_line_dark action">{% trans "Edit" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
+            {% url 'activities__delete_calendar' as delete_url %}
             {% for calendar in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">
@@ -34,13 +36,15 @@
                     <td class="{{row_color}}">{% print_field object=calendar field='is_default' %}</td>
                     <td class="{{row_color}}">{% print_field object=calendar field='is_public' %}</td>
                     <td class="{{row_color}} action">
-                        <a onclick="creme.blocks.form('/activities/calendar/{{calendar.id}}/edit', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+{#                        <a onclick="creme.blocks.form('/activities/calendar/{{calendar.id}}/edit', {blockReloadUrl:{% get_block_reload_uri %}}).open();"> #}
+                        <a onclick="creme.blocks.form('{% url 'activities__edit_calendar' calendar.id %}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                             {% trans "Edit calendar" as img_title %}<img src="{% creme_media_url 'images/edit_22_button.png' %}" border="0" alt="{{img_title}}" title="{{img_title}}"/>
                         </a>
                     </td>
                     <td class="{{row_color}} action">
                         {% if calendar.is_custom %}
-                            {% get_line_deletor at_url '/activities/calendar/delete' with_args "{'id': '{{calendar.id}}'}" with_perms 1 %}
+{#                            {% get_line_deletor at_url '/activities/calendar/delete' with_args "{'id': '{{calendar.id}}'}" with_perms 1 %} #}
+                            {% get_line_deletor at_url delete_url with_args "{'id': '{{calendar.id}}'}" with_perms 1 %}
                         {% endif %}
                     </td>
                 </tr>

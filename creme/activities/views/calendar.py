@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,13 +63,14 @@ def _activity_2_dict(activity, user):
     if start == end and not is_all_day:
         end += timedelta(seconds=1)
 
-    return {'id' :          int(activity.pk),  # TODO: int() useful ??
+    return {#'id':           int(activity.pk),
+            'id':           activity.id,
             'title':        activity.get_title_for_calendar(),
             'start':        start.isoformat(),
             'end':          end.isoformat(),
             'url':          reverse('activities__view_activity_popup', args=(activity.pk,)),
             'calendar_color': "#%s" % (activity.calendar.get_color or constants.DEFAULT_CALENDAR_COLOR),
-            'allDay' :      is_all_day,
+            'allDay':       is_all_day,
             'editable':     user.has_perm_to_change(activity),
             'calendar':     activity.calendar.id,
             'type':         activity.type.name,
@@ -152,7 +153,8 @@ def user_calendar(request):
 
     return render(request, 'activities/calendar.html',
                   {'user_username':           user.username,
-                   'events_url':              '/activities/calendar/users_activities/',
+                   # 'events_url':              '/activities/calendar/users_activities/',
+                   'events_url':              reverse('activities__calendars_activities', args=('',)),
                    'max_element_search':      constants.MAX_ELEMENT_SEARCH,
                    'my_calendars':            Calendar.objects.filter(user=user),
                    'others_calendars':        dict(others_calendars),

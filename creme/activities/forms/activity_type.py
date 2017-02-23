@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from functools import partial
 
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.forms.fields import CharField, CallableChoiceIterator
 from django.utils.translation import ugettext_lazy as _, ungettext
 
@@ -29,6 +30,7 @@ from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.fields import DurationField, JSONField
 from creme.creme_core.forms.widgets import ChainedInput, Label
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
+from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..constants import ACTIVITYTYPE_INDISPO
 from ..models import ActivityType, ActivitySubType
@@ -75,13 +77,17 @@ class ActivitySubTypeForm(CremeModelForm):
 class ActivityTypeWidget(ChainedInput):
     def __init__(self, types=(), attrs=None, creation_allowed=True):
         super(ActivityTypeWidget, self).__init__(attrs)
-        self.creation_allowed = creation_allowed # TODO: useless at the moment ...
+        self.creation_allowed = creation_allowed  # TODO: useless at the moment ...
         self.types = types
 
     def render(self, name, value, attrs=None):
         add = partial(self.add_dselect, attrs={'auto': False})
         add('type', options=self.types)
-        add('sub_type', options='/activities/type/${type}/json')
+        # add('sub_type', options='/activities/type/${type}/json')
+        add('sub_type',
+            options=TemplateURLBuilder(type_id=(TemplateURLBuilder.Word, '${type}'))
+                                      .resolve('activities__get_types'),
+           )
 
         return super(ActivityTypeWidget, self).render(name, value, attrs)
 

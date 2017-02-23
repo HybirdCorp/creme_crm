@@ -6,12 +6,14 @@
         <th class="label">{% get_block_title _('%s Participant') _('%s Participants') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/activities/activity/{{object.id}}/participant/add' with_label _("Add contacts") with_perms activity_link_perm %}
+{#                {% get_line_linker at_url '/activities/activity/{{object.id}}/participant/add' with_label _("Add contacts") with_perms activity_link_perm %} #}
+                {% url 'activities__add_participants' object.id as add_url %}{% get_line_linker at_url '/activities/activity/{{object.id}}/participant/add' with_label _('Add contacts') with_perms activity_link_perm %}
             </div>
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
+            {% url 'activities__remove_participant' as rm_part_url  %}
             {% for relation in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 {% with relation.object_entity as participant %}
                     <tr class="content">
@@ -23,7 +25,8 @@
                         </td>
                         <td class="{{row_color}} action" width="5%">
                             {% has_perm_to unlink participant as participant_unlink_perm %}
-                            {% get_line_unlinker at_url '/activities/activity/participant/delete' with_args "{'id':{{relation.pk}} }" with_perms activity_unlink_perm|and_op:participant_unlink_perm %}
+{#                            {% get_line_unlinker at_url '/activities/activity/participant/delete' with_args "{'id':{{relation.pk}} }" with_perms activity_unlink_perm|and_op:participant_unlink_perm %} #}
+                            {% get_line_unlinker at_url rm_part_url with_args "{'id':{{relation.pk}} }" with_perms activity_unlink_perm|and_op:participant_unlink_perm %}
                         </td>
                     </tr>
                 {% endwith %}
