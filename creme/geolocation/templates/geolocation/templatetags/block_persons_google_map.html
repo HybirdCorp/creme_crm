@@ -1,7 +1,8 @@
 {% load i18n creme_core_tags creme_block %}
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
-        new creme.geolocation.PersonsBlock($('#{{block_name}}'), {{geoaddresses|safe}});
+{#        new creme.geolocation.PersonsBlock($('#{{block_name}}'), {{geoaddresses|safe}}); #}
+        new creme.geolocation.PersonsBlock($('#{{block_name}}'), {{geoaddresses|safe}}, '{% url 'geolocation__set_address_info' %}');
     });
 </script>
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">

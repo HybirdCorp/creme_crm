@@ -1,7 +1,8 @@
 {% load i18n creme_block %}
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
-        new creme.geolocation.AddressesBlock($('#{{block_name}}'));
+{#        new creme.geolocation.AddressesBlock($('#{{block_name}}'));  #}
+        new creme.geolocation.AddressesBlock($('#{{block_name}}'), '{% url 'geolocation__addresses' %}', '{% url 'geolocation__set_address_info' %}');
     });
 </script>
 
