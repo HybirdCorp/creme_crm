@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.gui.block import QuerysetBlock
@@ -71,13 +72,19 @@ class WaitingActionBlock(CrudityQuerysetBlock):
         if self.is_sandbox_by_user:
             waiting_actions = waiting_actions.filter(user=context['user'])
 
-        return self._render(self.get_block_template_context(context,
-                                                            waiting_actions,
-                                                            waiting_ct=ct,
-                                                            buttons=self.buttons,
-                                                            backend=backend,
-                                                            update_url='/crudity/waiting_actions_blocks/%s/reload' % self.id_,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    waiting_actions,
+                    waiting_ct=ct,
+                    buttons=self.buttons,
+                    backend=backend,
+                    # update_url='/crudity/waiting_actions_blocks/%s/reload' % self.id_,
+                    update_url=reverse('crudity__reload_actions_block',
+                                       args=(self.ct.id,
+                                             CrudityBackend.normalize_subject(self.backend.subject),
+                                            )
+                                      ),
+        ))
 
 
 class HistoryBlock(CrudityQuerysetBlock):
@@ -104,10 +111,11 @@ class HistoryBlock(CrudityQuerysetBlock):
         if self.is_sandbox_by_user:
             histories = histories.filter(user=context['user'])
 
-        return self._render(self.get_block_template_context(context,
-                                                            histories,
-                                                            ct=ct,
-                                                            buttons=self.buttons,
-                                                            update_url='/crudity/history_block/%s/reload' % self.id_,
-                                                           ))
-
+        return self._render(self.get_block_template_context(
+                    context,
+                    histories,
+                    ct=ct,
+                    buttons=self.buttons,
+                    # update_url='/crudity/history_block/%s/reload' % self.id_,
+                    update_url=reverse('crudity__reload_history_block', args=(self.ct.id,)),
+        ))

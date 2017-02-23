@@ -40,6 +40,6 @@ def create_form(request, subject):
             break
 
     if backend is None:
-        raise Http404(u"This backend is not registered")
+        raise Http404(u'This backend is not registered')
 
     return InfopathFormBuilder(request, backend).render()

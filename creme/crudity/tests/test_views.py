@@ -5,6 +5,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils.translation import ungettext
 
@@ -174,7 +175,8 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertEqual(1, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
 
-        self.assertPOST200('/crudity/waiting_actions/validate', data={'ids': [wa.id]})
+        # self.assertPOST200('/crudity/waiting_actions/validate', data={'ids': [wa.id]})
+        self.assertPOST200(reverse('crudity__validate_actions'), data={'ids': [wa.id]})
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(1, History.objects.count())
         # self.assertEqual(c_count + 1, Contact.objects.count())
@@ -189,7 +191,8 @@ class CrudityViewsTestCase(CrudityTestCase):
         self._build_test_registry()
 
         subject = 'create_contact'
-        url = '/crudity/download_email_template/%s' % subject
+        # url = '/crudity/download_email_template/%s' % subject
+        url = reverse('crudity__dl_email_template', args=(subject,))
         self.assertGET404(url)  # No backend
 
         crudity_input = FakeInput()
@@ -215,7 +218,8 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertTemplateUsed(response, 'crudity/create_email_template.html')
 
     def test_history(self):
-        response = self.assertGET200('/crudity/history')
+        # response = self.assertGET200('/crudity/history')
+        response = self.assertGET200(reverse('crudity__history'))
         self.assertTemplateUsed(response, 'crudity/history.html')
         # TODO: complete
 
@@ -244,7 +248,8 @@ class CrudityViewsTestCase(CrudityTestCase):
         # crudity_registry.autodiscover()
         # crudity_registry.dispatch()
         self._build_test_registry()
-        response = self.assertGET200('/crudity/waiting_actions')
+        # response = self.assertGET200('/crudity/waiting_actions')
+        response = self.assertGET200(reverse('crudity__actions'))
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization.html')
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization_spam.html')
 
@@ -345,7 +350,8 @@ class CrudityViewsTestCase(CrudityTestCase):
     def test_actions_fetch02(self):
         # response = self._aux_test_actions_fetch(lambda: self.client.get('/crudity/waiting_actions'))
         # self.assertEqual(200, response.status_code)
-        self.assertGET200('/crudity/waiting_actions')
+        # self.assertGET200('/crudity/waiting_actions')
+        self.assertGET200(reverse('crudity__actions'))
         # TODO: complete
 
     @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)

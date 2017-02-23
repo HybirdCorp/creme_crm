@@ -21,11 +21,11 @@
 from django.conf import settings
 
 from .fetchers.pop import pop_fetcher
-from .inputs.email import create_email_input, create_infopath_input
+from .inputs import email
 
 
 fetchers = {'email': [pop_fetcher]}
-inputs = {'email': [create_email_input, create_infopath_input]}
+inputs = {'email': [email.create_email_input, email.create_infopath_input]}
 backends = []
 
 
