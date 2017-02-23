@@ -137,7 +137,10 @@ class ServiceTestCase(_ProductsTestCase):
 
         service, cat, sub_cat = self._build_service_cat_subcat()
 
-        self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        # self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
+                           data={'id': sub_cat.pk}
+                          )
         self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
 
         service = self.assertStillExists(service)
@@ -148,7 +151,10 @@ class ServiceTestCase(_ProductsTestCase):
 
         service, cat, sub_cat = self._build_service_cat_subcat()
 
-        self.assertPOST404('/creme_config/products/category/delete', data={'id': cat.pk})
+        # self.assertPOST404('/creme_config/products/category/delete', data={'id': cat.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
+                           data={'id': cat.pk}
+                          )
         self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
         self.get_object_or_fail(Category, pk=cat.pk)
 
@@ -181,7 +187,8 @@ class ServiceTestCase(_ProductsTestCase):
                                         )
         service.images = [img_3]
 
-        url = '/products/service/%s/add_images' % service.id
+        # url = '/products/service/%s/add_images' % service.id
+        url = reverse('products__add_images_to_service', args=(service.id,))
         self.assertGET200(url)
 
         def post(*images):
@@ -212,7 +219,8 @@ class ServiceTestCase(_ProductsTestCase):
                                         )
         service.images = [img_1, img_2]
 
-        url = '/products/images/remove/%s' % service.id
+        # url = '/products/images/remove/%s' % service.id
+        url = reverse('products__remove_image', args=(service.id,))
         data = {'id': img_1.id}
         self.assertGET404(url, data=data)
 

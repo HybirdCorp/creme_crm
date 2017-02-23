@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block
@@ -38,12 +39,16 @@ class ImagesBlock(Block):
 
     def detailview_display(self, context):
         entity = context['object']
+        pk = entity.id
         return self._render(self.get_block_template_context(
-                                context,
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                object_type='product' if isinstance(entity, Product) else 'service',
-                               )
-                           )
+                    context,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                    # object_type='product' if isinstance(entity, Product) else 'service',
+                    add_images_url=reverse('products__add_images_to_product', args=(pk,))
+                                   if isinstance(entity, Product) else
+                                   reverse('products__add_images_to_service', args=(pk,)),
+        ))
 
 
 images_block = ImagesBlock()

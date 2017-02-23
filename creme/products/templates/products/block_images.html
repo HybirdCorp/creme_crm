@@ -6,7 +6,8 @@
         <th class="label">{% get_basic_block_header _("Images") 'image_48.png' _('Images') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/products/{{object_type}}/{{object.id}}/add_images' with_label _("Add images") with_perms edit_perm %}
+{#                {% get_line_linker at_url '/products/{{object_type}}/{{object.id}}/add_images' with_label _("Add images") with_perms edit_perm %} #}
+                {% get_line_linker at_url add_images_url with_label _("Add images") with_perms edit_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -30,10 +31,11 @@
                         </td>
                     {% endfor %}
                 </tr>
-                <tr class="content">
+                <tr class="content">{% url 'products__remove_image' object.id as remove_url %}
                     {% for image_entity in images %}
                         <td class="block_line_light action">
-                            {% get_line_unlinker at_url '/products/images/remove/{{object.id}}' with_args "{'id' : {{image_entity.id}} }" with_perms edit_perm %}
+{#                            {% get_line_unlinker at_url '/products/images/remove/{{object.id}}' with_args "{'id' : {{image_entity.id}} }" with_perms edit_perm %} #}
+                            {% get_line_unlinker at_url remove_url with_args "{'id' : {{image_entity.id}} }" with_perms edit_perm %}
                         </td>
                     {% endfor %}
                 </tr>

@@ -33,12 +33,14 @@ class ProductTestCase(_ProductsTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/products/')
+        # self.assertGET200('/products/')
+        self.assertGET200(reverse('products__portal'))
 
     def test_ajaxview01(self):
         self.login()
 
-        self.assertGET404('/products/sub_category/0/json')
+        # self.assertGET404('/products/sub_category/0/json')
+        self.assertGET404(reverse('products__subcategories', args=(0,)))
 
         name1 = 'subcat1'
         name2 = 'subcat2'
@@ -48,7 +50,8 @@ class ProductTestCase(_ProductsTestCase):
         subcat1 = create_subcat(name=name1, description='description')
         subcat2 = create_subcat(name=name2, description='description')
 
-        response = self.assertGET200('/products/sub_category/%s/json' % cat.id)
+        # response = self.assertGET200('/products/sub_category/%s/json' % cat.id)
+        response = self.assertGET200(reverse('products__subcategories', args=(cat.id,)))
         self.assertEqual([[subcat1.id, name1], [subcat2.id, name2]],
                          json.loads(response.content)
                         )
@@ -206,7 +209,10 @@ class ProductTestCase(_ProductsTestCase):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
 
-        self.assertPOST200('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        # self.assertPOST200('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        self.assertPOST200(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
+                           data={'id': sub_cat.pk}
+                          )
         self.assertDoesNotExist(sub_cat)
 
     def _build_product_cat_subcat(self):
@@ -225,7 +231,10 @@ class ProductTestCase(_ProductsTestCase):
 
         product, cat, sub_cat = self._build_product_cat_subcat()
 
-        self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        # self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
+                           data={'id': sub_cat.pk}
+                          )
         self.assertStillExists(sub_cat)
 
         product = self.assertStillExists(product)
@@ -236,7 +245,10 @@ class ProductTestCase(_ProductsTestCase):
 
         product, cat, sub_cat = self._build_product_cat_subcat()
 
-        self.assertPOST404('/creme_config/products/category/delete', data={'id': cat.pk})
+        # self.assertPOST404('/creme_config/products/category/delete', data={'id': cat.pk})
+        self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
+                           data={'id': cat.pk}
+                          )
         self.assertStillExists(sub_cat)
         self.assertStillExists(cat)
 
@@ -474,7 +486,8 @@ class ProductTestCase(_ProductsTestCase):
                                         )
         product.images = [img_3]
 
-        url = '/products/product/%s/add_images' % product.id
+        # url = '/products/product/%s/add_images' % product.id
+        url = reverse('products__add_images_to_product', args=(product.id,))
         self.assertGET200(url)
 
         def post(*images):
@@ -514,7 +527,8 @@ class ProductTestCase(_ProductsTestCase):
                                         )
         product.images = [img_1, img_2]
 
-        url = '/products/images/remove/%s' % product.id
+        # url = '/products/images/remove/%s' % product.id
+        url = reverse('products__remove_image', args=(product.id,))
         data = {'id': img_1.id}
         self.assertGET404(url, data=data)
 
@@ -522,7 +536,8 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual([img_2], list(product.images.all()))
 
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
-        self.assertPOST404('/products/images/remove/%s' % rei.id, data={'id': img_2.id})
+        # self.assertPOST404('/products/images/remove/%s' % rei.id, data={'id': img_2.id})
+        self.assertPOST404(reverse('products__remove_image', args=(rei.id,)), data={'id': img_2.id})
 
     def test_csv_import01(self):
         "Categories not in CSV"

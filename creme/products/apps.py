@@ -83,7 +83,8 @@ class ProductsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('products', '/products/').register_item
-            reg_item('/products/',                        _(u'Portal of products and services'), 'products')
+            # reg_item('/products/',                        _(u'Portal of products and services'), 'products')
+            reg_item(reverse('products__portal'),         _(u'Portal of products and services'), 'products')
             reg_item(reverse('products__list_products'),  _(u'All products'),                    'products')
             reg_item(reverse('products__create_product'), Product.creation_label,                cperm(Product))
             reg_item(reverse('products__list_services'),  _(u'All services'),                    'products')
