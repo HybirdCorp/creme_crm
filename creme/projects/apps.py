@@ -64,7 +64,8 @@ class ProjectsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('projects', '/projects/').register_item
-            reg_item('/projects/',                        _('Portal of projects'), 'projects')
+            # reg_item('/projects/',                        _('Portal of projects'), 'projects')
+            reg_item(reverse('projects__portal'),         _('Portal of projects'), 'projects')
             reg_item(reverse('projects__list_projects'),  _('All projects'),       'projects')
             reg_item(reverse('projects__create_project'), Project.creation_label,  build_creation_perm(Project))
         else:

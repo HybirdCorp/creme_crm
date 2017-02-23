@@ -1,8 +1,6 @@
 {% extends "creme_core/generics/portal.html" %}
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
 {% block logo %}<img src="{% creme_media_url 'images/project_64.png' %}" alt="{% trans "Project" %}"/>{% endblock %}
 {% block title %}{% trans "Projects portal" %}{% endblock %}
-{% comment %}{% block list_url %}/projects/projects{% endblock %}{% endcomment %}
 {% block list_url %}{% url 'projects__list_projects' %}{% endblock %}
 {% block list_msg %}{% trans "List of projects" %}{% endblock %}

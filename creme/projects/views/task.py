@@ -116,7 +116,7 @@ def delete_parent(request):
 
     task.parent_tasks.remove(parent_id)
 
-    return HttpResponse("")
+    return HttpResponse()
 
 
 # Activities -------------------------------------------------------------------

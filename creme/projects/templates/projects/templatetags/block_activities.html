@@ -7,7 +7,6 @@
         <th class="actions">
             <div class="buttons">
                 {% if object.is_alive %}
-{% comment %}       {% get_line_adder at_url '/projects/task/{{object.id}}/activity/add' with_label _("New activity") with_perms task_change_perm %}{% endcomment %}
                     {% url 'projects__create_activity' object.id as creation_url %}
                     {% get_line_adder at_url creation_url with_label _("New activity") with_perms task_change_perm %}
                 {% endif %}
@@ -31,6 +30,7 @@
                 <th class="block_header_line_dark">{% trans "Concerned resource(s)" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
+            {% url 'projects__delete_activity' as delete_url %}
             {% for activity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}" align="center">{% get_activity_icon activity.type_id 'small' %}</td>
@@ -41,10 +41,10 @@
                         {% widget_entity_hyperlink activity.projects_resource.linked_contact user %}
                     </td>
                     <td class="{{row_color}} action">
-{% comment %}           {% get_line_editor at_url '/projects/activity/edit/{{activity.id}}' with_perms task_change_perm %}{% endcomment %}
                         {% url 'projects__edit_activity' activity.id as edition_url %}
                         {% get_line_editor at_url edition_url with_perms task_change_perm %}
-                        {% get_line_deletor at_url '/projects/activity/delete' with_args "{'id': {{activity.pk}} }" with_perms task_change_perm %}
+{#                        {% get_line_deletor at_url '/projects/activity/delete' with_args "{'id': {{activity.pk}} }" with_perms task_change_perm %} #}
+                        {% get_line_deletor at_url delete_url with_args "{'id': {{activity.pk}} }" with_perms task_change_perm %}
                     </td>
                 </tr>
             {% endfor %}

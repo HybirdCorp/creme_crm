@@ -22,6 +22,7 @@
                 <th class="block_header_line_dark">{% trans "Cost" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
+            {% url 'projects__remove_parent_task' as remove_parent_url %}
             {% for task in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to view task as view_perm %}{% has_perm_to change task as change_perm %}
                     <td class="{{row_color}}" align="center">{{task.order}}</td>
@@ -33,7 +34,8 @@
                         <td class="{{row_color}}">
                             {% for parent in task.get_parents %}
                                 {% widget_entity_hyperlink parent user %}
-                                {% get_line_deletor at_url '/projects/task/parent/delete' with_args "{ 'id':{{task.pk}}, 'parent_id':{{parent.id}} }" with_perms change_perm %}
+{#                                {% get_line_deletor at_url '/projects/task/parent/delete' with_args "{ 'id':{{task.pk}}, 'parent_id':{{parent.id}} }" with_perms change_perm %} #}
+                                {% get_line_deletor at_url remove_parent_url with_args "{ 'id':{{task.pk}}, 'parent_id':{{parent.id}} }" with_perms change_perm %}
                             {% empty %}
                                 {% trans "No parent task" %}
                             {% endfor %}
@@ -58,7 +60,8 @@
                         {% get_line_editor at_url edition_url with_perms change_perm %}
 
                         {% has_perm_to delete task as delete_perm %}
-                        {% get_line_deletor at_url '/creme_core/entity/delete/{{task.pk}}' with_args "{}" with_perms delete_perm %}
+{#                        {% get_line_deletor at_url '/creme_core/entity/delete/{{task.pk}}' with_args "{}" with_perms delete_perm %} #}
+                        {% get_line_deletor at_url task.get_delete_absolute_url with_args "{}" with_perms delete_perm %}
                     </td>
                 </tr>
             {% endfor %}

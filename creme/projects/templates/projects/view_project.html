@@ -1,6 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
 
 {% block extra_menu_buttons %}
     {% if not object.is_closed %}
@@ -8,7 +7,8 @@
             {% if has_perm %}
                 <a class="menu_button" onclick="$(this).find('#id_project_close').submit();">
                     <img src="{% creme_media_url 'images/cancel_32.png' %}" border="0" title="{{close_label}}" alt="{{close_label}}" />{{close_label}}
-                    <div style="display:none;"><form id="id_project_close" method="POST" action="/projects/project/{{object.id}}/close">{% csrf_token %}</form></div>
+{#                    <div style="display:none;"><form id="id_project_close" method="POST" action="/projects/project/{{object.id}}/close">{% csrf_token %}</form></div> #}
+                    <div style="display:none;"><form id="id_project_close" method="POST" action="{% url 'projects__close_project' object.id %}">{% csrf_token %}</form></div>
                 </a>
             {% else %}
                 <span class="menu_button forbidden" title="{% trans "forbidden" %}">

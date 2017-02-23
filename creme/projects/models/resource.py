@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 
@@ -37,7 +38,7 @@ class Resource(CremeEntity):
                                 editable=False,
                                )
 
-    creation_label = _('Create a resource')
+    creation_label = _(u'Create a resource')
 
     class Meta:
         app_label = 'projects'
@@ -56,7 +57,8 @@ class Resource(CremeEntity):
         return ''
 
     def get_edit_absolute_url(self):
-        return "/projects/resource/edit/%s" % self.id
+        # return "/projects/resource/edit/%s" % self.id
+        return reverse('projects__edit_resource', args=(self.id,))
 
     def get_related_entity(self):
         return self.task

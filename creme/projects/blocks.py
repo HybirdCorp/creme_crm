@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -64,10 +65,11 @@ class ParentTasksBlock(QuerysetBlock):
         task = context['object']
 
         return self._render(self.get_block_template_context(
-                                context,
-                                task.parent_tasks.all(),
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                           ))
+                    context,
+                    task.parent_tasks.all(),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
+        ))
 
 
 class ProjectTasksBlock(QuerysetBlock):
@@ -83,10 +85,11 @@ class ProjectTasksBlock(QuerysetBlock):
         creation_perm = user.has_perm(cperm(ProjectTask)) and user.has_perm_to_change(project)
 
         return self._render(self.get_block_template_context(
-                                context, project.get_tasks(),
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
-                                creation_perm=creation_perm, #TODO: use a tempatetag instead ??
-                           ))
+                    context, project.get_tasks(),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, project.id)),
+                    creation_perm=creation_perm,  # TODO: use a tempatetag instead ??
+        ))
 
 
 class TaskResourcesBlock(QuerysetBlock):
@@ -100,10 +103,11 @@ class TaskResourcesBlock(QuerysetBlock):
         task = context['object']
 
         return self._render(self.get_block_template_context(
-                                context,
-                                task.get_resources().select_related('linked_contact'),
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                           ))
+                    context,
+                    task.get_resources().select_related('linked_contact'),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
+        ))
 
 
 class TaskActivitiesBlock(PaginatedBlock):
@@ -117,10 +121,11 @@ class TaskActivitiesBlock(PaginatedBlock):
     def detailview_display(self, context):
         task = context['object']
         return self._render(self.get_block_template_context(
-                                context,
-                                task.related_activities,
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                           ))
+                    context,
+                    task.related_activities,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
+        ))
 
 
 project_extra_info      = ProjectExtraInfo()

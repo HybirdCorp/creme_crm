@@ -9,23 +9,23 @@ from .views import portal, project, task, resource
 
 
 urlpatterns = [
-    url(r'^$', portal.portal),
+    url(r'^$', portal.portal, name='projects__portal'),
 
     # TODO: Define what user could do or not if projet is 'close'
     #       (with the use of the button that sets an effective end date)
     # TODO: change url ?? project/close/(?P<project_id>\d+)
-    url(r'^project/(?P<project_id>\d+)/close$',  project.close),
+    url(r'^project/(?P<project_id>\d+)/close$',  project.close, name='projects__close_project'),
 
-    url(r'^task/parent/delete$',               task.delete_parent),
-    url(r'^task/(?P<task_id>\d+)/parent/add$', task.add_parent),
+    url(r'^task/parent/delete$',               task.delete_parent, name='projects__remove_parent_task'),
+    url(r'^task/(?P<task_id>\d+)/parent/add$', task.add_parent,    name='projects__add_parent_task'),
 
     # Task: Resource block
-    url(r'^task/(?P<task_id>\d+)/resource/add$', resource.add),
-    url(r'^resource/edit/(?P<resource_id>\d+)$', resource.edit),
-    url(r'^resource/delete$',                    resource.delete),
+    url(r'^task/(?P<task_id>\d+)/resource/add$', resource.add,    name='projects__create_resource'),
+    url(r'^resource/edit/(?P<resource_id>\d+)$', resource.edit,   name='projects__edit_resource'),
+    url(r'^resource/delete$',                    resource.delete, name='projects__delete_resource'),
 
     # Task: related activities block
-    url(r'^activity/delete$', task.delete_activity),
+    url(r'^activity/delete$', task.delete_activity, name='projects__delete_activity'),
 ]
 
 if not activity_model_is_custom():

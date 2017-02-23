@@ -52,9 +52,11 @@ def skipIfCustomTask(test_func):
 @skipIfCustomContact
 @skipIfCustomProject
 class ProjectsTestCase(CremeTestCase):
-    ADD_TASK_PARENT_URL = '/projects/task/%s/parent/add'
-    DELETE_RESOURCE_URL = '/projects/resource/delete'
-    DELETE_ACTIVITY_URL = '/projects/activity/delete'
+    # ADD_TASK_PARENT_URL = '/projects/task/%s/parent/add'
+    # DELETE_RESOURCE_URL = '/projects/resource/delete'
+    DELETE_RESOURCE_URL = reverse('projects__delete_resource')
+    # DELETE_ACTIVITY_URL = '/projects/activity/delete'
+    DELETE_ACTIVITY_URL = reverse('projects__delete_activity')
 
     @classmethod
     def setUpClass(cls):
@@ -73,8 +75,12 @@ class ProjectsTestCase(CremeTestCase):
     def _build_add_task_url(self, project):
         return reverse('projects__create_task', args=(project.id,))
 
+    def _build_add_parent_task_url(self, task):
+        return reverse('projects__add_parent_task', args=(task.id,))
+
     def _build_add_resource_url(self, task):
-        return '/projects/task/%s/resource/add' % task.id
+        # return '/projects/task/%s/resource/add' % task.id
+        return reverse('projects__create_resource', args=(task.id,))
 
     def _build_add_activity_url(self, task):
         return reverse('projects__create_activity', args=(task.id,))
@@ -130,7 +136,8 @@ class ProjectsTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/projects/')
+        # self.assertGET200('/projects/')
+        self.assertGET200(reverse('projects__portal'))
 
     def create_project(self, name, status=None, start_date='2010-10-11', end_date='2010-12-31'):
         status = status or ProjectStatus.objects.all()[0]
@@ -247,15 +254,16 @@ class ProjectsTestCase(CremeTestCase):
         self.create_project('Eva01')
         self.assertGET200(reverse('projects__list_projects'))
 
-    def _build_inner_edit_url(self, entity, field): #TODO: in creme_core ??
-        url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
-        return url % {'ct': entity.entity_type_id, 'id': entity.id, 'field': field}
+    # def _build_inner_edit_url(self, entity, field):
+    #     url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
+    #     return url % {'ct': entity.entity_type_id, 'id': entity.id, 'field': field}
 
     def test_project_inner_edit01(self):
         self.login()
 
         project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
-        url = self._build_inner_edit_url(project, 'start_date')
+        # url = self._build_inner_edit_url(project, 'start_date')
+        url = self.build_inneredit_url(project, 'start_date')
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'entities_lbl': [unicode(project)],
@@ -272,7 +280,8 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         project = self.create_project('Eva01', start_date='2012-02-20', end_date='2012-03-25')[0]
-        response = self.assertPOST200(self._build_inner_edit_url(project, 'start_date'),
+        # response = self.assertPOST200(self._build_inner_edit_url(project, 'start_date'),
+        response = self.assertPOST200(self.build_inneredit_url(project, 'start_date'),
                                       data={'entities_lbl': [unicode(project)],
                                             'field_value':  '2012-03-27',  # <= after end_date
                                            }
@@ -458,16 +467,18 @@ class ProjectsTestCase(CremeTestCase):
         task02 = self.create_task(project, 'Parent02')
         task03 = self.create_task(project, 'Task')
 
-        url = self.ADD_TASK_PARENT_URL % task03.id
+        # url = self.ADD_TASK_PARENT_URL % task03.id
+        url = self._build_add_parent_task_url(task03)
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'parents': '[%d,%d]' % (task01.id, task02.id)}))
         self.assertEqual({task01, task02}, set(task03.parent_tasks.all()))
 
-        self.assertPOST200('/projects/task/parent/delete', data={'id': task03.id, 'parent_id': task01.id})
+        # self.assertPOST200('/projects/task/parent/delete', data={'id': task03.id, 'parent_id': task01.id})
+        self.assertPOST200(reverse('projects__remove_parent_task'), data={'id': task03.id, 'parent_id': task01.id})
         self.assertEqual([task02], list(task03.parent_tasks.all()))
 
-        #Error: already parent
+        # Error: already parent
         self.assertFormError(self.client.post(url, data={'parents': '[%d]' % task02.id}),
                              'form', 'parents',
                              _(u'This entity does not exist.')
@@ -484,7 +495,8 @@ class ProjectsTestCase(CremeTestCase):
         task01 = self.create_task(project01, 'Task01')
         task02 = self.create_task(project02, 'Task02')
 
-        response = self.client.post(self.ADD_TASK_PARENT_URL % task02.id,
+        # response = self.client.post(self.ADD_TASK_PARENT_URL % task02.id,
+        response = self.client.post(self._build_add_parent_task_url(task02),
                                     data={'parents': '[%d]' % task01.id}
                                    )
         self.assertFormError(response, 'form', 'parents',
@@ -503,14 +515,18 @@ class ProjectsTestCase(CremeTestCase):
 
         self.assertEqual([task01], list(task01.get_subtasks()))
 
-        url = self.ADD_TASK_PARENT_URL
-        self.assertNoFormError(self.client.post(url % task02.id, data={'parents': '[%d]' % task01.id}))
+        # url = self.ADD_TASK_PARENT_URL
+        build_url = self._build_add_parent_task_url
+        # self.assertNoFormError(self.client.post(url % task02.id, data={'parents': '[%d]' % task01.id}))
+        self.assertNoFormError(self.client.post(build_url(task02), data={'parents': '[%d]' % task01.id}))
         self.assertEqual({task01, task02}, set(task01.get_subtasks()))
 
-        self.assertNoFormError(self.client.post(url % task03.id, data={'parents': '[%d]' % task02.id}))
+        # self.assertNoFormError(self.client.post(url % task03.id, data={'parents': '[%d]' % task02.id}))
+        self.assertNoFormError(self.client.post(build_url(task03), data={'parents': '[%d]' % task02.id}))
         self.assertEqual({task01, task02, task03}, set(task01.get_subtasks()))
 
-        response = self.client.post(url % task01.id, data={'parents': '[%d]' % task03.id})
+        # response = self.client.post(url % task01.id, data={'parents': '[%d]' % task03.id})
+        response = self.client.post(build_url(task01), data={'parents': '[%d]' % task03.id})
         self.assertFormError(response, 'form', 'parents',
                              _(u'This entity does not exist.')
                             )
@@ -938,7 +954,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertFalse(project.is_closed)
         self.assertIsNone(project.effective_end_date)
 
-        url = '/projects/project/%s/close' % project.id
+        # url = '/projects/project/%s/close' % project.id
+        url = reverse('projects__close_project', args=(project.id,))
         self.assertGET404(url)
         self.assertPOST200(url, follow=True)
 
@@ -1052,7 +1069,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
 
     def _delete_project_status(self, status):
-        return self.client.post('/creme_config/projects/projectstatus/delete', data={'id': status.pk})
+        # return self.client.post('/creme_config/projects/projectstatus/delete', data={'id': status.pk})
+        return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'projectstatus')),
+                                data={'id': status.pk}
+                               )
 
     def test_delete_project_status01(self):
         self.login()
@@ -1074,7 +1094,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(status, project.status)
 
     def _delete_task_status(self, status):
-        return self.client.post('/creme_config/projects/taskstatus/delete', data={'id': status.pk})
+        # return self.client.post('/creme_config/projects/taskstatus/delete', data={'id': status.pk})
+        return self.client.post(reverse('creme_config__delete_instance', args=('projects', 'taskstatus')),
+                                data={'id': status.pk}
+                               )
 
     def test_delete_task_status01(self):
         self.login()
@@ -1264,7 +1287,8 @@ class ProjectsTestCase(CremeTestCase):
         self.create_activity(resource)
         activity = task.related_activities[0]
 
-        response = self.client.post('/creme_core/entity/delete/%s' % task.id)
+        # response = self.client.post('/creme_core/entity/delete/%s' % task.id)
+        response = self.client.post(task.get_delete_absolute_url())
         self.assertDoesNotExist(task)
         self.assertDoesNotExist(resource)
         self.assertStillExists(activity)
