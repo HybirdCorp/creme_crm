@@ -20,6 +20,7 @@
 
 import logging
 
+from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import smart_str
@@ -84,6 +85,7 @@ def preview(request, report_id):
                   },
                  )
 
+
 @login_required
 @permission_required('reports')
 def filter(request, report_id):
@@ -96,7 +98,10 @@ def filter(request, report_id):
     if request.method == 'POST':
         form = ReportExportFilterForm(report=report, user=user, data=request.POST)
         if form.is_valid():
-            callback_url = '/reports/export/%s?%s' % (report_id, form.export_url_data())
+            # callback_url = '/reports/export/%s?%s' % (report_id, form.export_url_data())
+            callback_url = '%s?%s' % (reverse('reports__export_report', args=(report_id,)),
+                                      form.export_url_data(),
+                                     )
     else:
         form = ReportExportFilterForm(report=report, user=user)
 

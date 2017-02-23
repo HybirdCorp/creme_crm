@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,15 +23,18 @@
 if (!creme.reports) creme.reports = {};
 
 
-creme.reports.load = function(options) {
+//creme.reports.load = function(options) {
+creme.reports.load = function(options, hfilters_url, efilters_url) {
     if (!options || options == undefined) return;
 
     var ct_id = $(options.ct).val();
     var $hf = $(options.hf);
-    this.loadHeaderFilters(ct_id, $hf);
+//    this.loadHeaderFilters(ct_id, $hf);
+    this.loadHeaderFilters(hfilters_url, ct_id, $hf);
 
     var $filter = $(options.filter);
-    this.loadFilters(ct_id, $filter);
+//    this.loadFilters(ct_id, $filter);
+    this.loadEntityFilters(efilters_url, ct_id, $filter);
 }
 
 //TODO: Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
@@ -79,24 +82,26 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
     creme.ajax.json.get(url, {}, success_cb, error_cb, false, this.loading_options);
 }
 
-creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
-    var url = '/creme_core/header_filter/get_for_ctype/' + ct_id;
+//creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
+creme.reports.loadHeaderFilters = function(url, ct_id, $target_select) {
+//    var url = '/creme_core/header_filter/get_for_ctype/' + ct_id;
+    var url = url + '?' + $.param({ct_id: ct_id});
     var params = {
         'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
     };
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
 
-creme.reports.loadFilters = function(ct_id, $target_select) {
-    var url = '/creme_core/entity_filter/get_for_ctype/' + ct_id;
+//creme.reports.loadFilters = function(ct_id, $target_select) {
+creme.reports.loadEntityFilters = function(url, ct_id, $target_select) {
+//    var url = '/creme_core/entity_filter/get_for_ctype/' + ct_id;
+    var url = url + '?' + $.param({ct_id: ct_id});
     var $all_opt = $('<option value="">' + gettext("All") + '</option>');
-
     var params = {
         'empty_option' : $all_opt,
         'always_option': $all_opt,
         'error_option' : $all_opt
     };
-
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
 
@@ -123,16 +128,20 @@ creme.reports.doAjaxAction = function(url, options, data) {
     return query;
 }
 
-creme.reports.unlink_report = function(field_id, block_url) {
-    creme.reports.doAjaxAction('/reports/report/field/unlink_report', {
+//creme.reports.unlink_report = function(field_id, block_url) {
+creme.reports.unlink_report = function(url, field_id, block_url) {
+//    creme.reports.doAjaxAction('/reports/report/field/unlink_report', {
+    creme.reports.doAjaxAction(url, {
                                    blockReloadUrl: block_url
                                }, {
                                    'field_id': field_id
                                });
 }
 
-creme.reports.changeOrder = function(field_id, direction, block_url) {
-    return creme.reports.doAjaxAction('/reports/report/field/change_order', {
+//creme.reports.changeOrder = function(field_id, direction, block_url) {
+creme.reports.changeOrder = function(url, field_id, direction, block_url) {
+//    return creme.reports.doAjaxAction('/reports/report/field/change_order', {
+    return creme.reports.doAjaxAction(url, {
                                           blockReloadUrl: block_url
                                       }, {
                                           'field_id': field_id,
@@ -140,8 +149,10 @@ creme.reports.changeOrder = function(field_id, direction, block_url) {
                                       });
 }
 
-creme.reports.setSelected = function(checkbox, field_id, block_url) {
-    return creme.reports.doAjaxAction('/reports/report/field/set_selected', {
+//creme.reports.setSelected = function(checkbox, field_id, block_url) {
+creme.reports.setSelected = function(url, checkbox, field_id, block_url) {
+//    return creme.reports.doAjaxAction('/reports/report/field/set_selected', {
+    return creme.reports.doAjaxAction(url, {
                                           blockReloadUrl: block_url
                                       }, {
                                           'field_id': field_id,
@@ -186,20 +197,22 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
 });
 
 
-creme.reports.exportReport = function(link, report_id, title) {
-    var filterform_url = '/reports/export/filter/%d'.format(report_id)
+//creme.reports.exportReport = function(link, report_id, title) {
+creme.reports.exportReport = function(title, filterform_url, export_preview_url, export_url) {
+//    var filterform_url = '/reports/export/filter/%d'.format(report_id)
 
     // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
     // Emulate it for this case.
     // TODO : filterform should be used as select and redirection url build in js.
     creme.dialogs.form(filterform_url, {'title': title || ''})
                  .on('frame-update', function(event, frame) {
-                      new creme.reports.PreviewController(report_id).bind(frame.delegate());
+//                      new creme.reports.PreviewController(report_id).bind(frame.delegate());
+                      new creme.reports.PreviewController(export_preview_url, export_url).bind(frame.delegate());
                   })
                  .onFormSuccess(function(event, data, statusText, dataType) {
                       creme.utils.goTo($(data).attr('redirect'));
                   })
-                 .open({width:1024});
+                 .open({width: 1024});
 }
 
 creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
@@ -210,10 +223,13 @@ creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
 }
 
 creme.reports.PreviewController = creme.component.Component.sub({
-    _init_: function(report)
+//    _init_: function(report)
+    _init_: function(preview_url, export_url)
     {
-        this._redirectUrl = '/reports/export/preview/' + report + '?%s';
-        this._downloadUrl = '/reports/export/' + report + '?%s';
+//        this._redirectUrl = '/reports/export/preview/' + report + '?%s';
+//        this._downloadUrl = '/reports/export/' + report + '?%s';
+        this._redirectUrl = preview_url + '?%s';
+        this._downloadUrl = export_url + '?%s';
 
         this._listeners = {
             update:   $.proxy(this._updateHeader, this),

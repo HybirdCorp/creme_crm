@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from future_builtins import map
 
+from django.core.urlresolvers import reverse
 from django.db.models import FieldDoesNotExist, DateTimeField, DateField, ForeignKey
 from django.forms.fields import ChoiceField, BooleanField
 from django.forms.utils import ValidationError # ErrorList
@@ -131,7 +132,8 @@ class ReportGraphForm(CremeEntityForm):
 
         # TODO: we could build the complete map fields/allowed_types, instead of doing AJAX queries...
         abscissa_field_f.choices = abscissa_choices
-        abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id  # Meh
+        # abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id  # Meh
+        abscissa_field_f.widget.target_url = reverse('reports__graph_types', args=(report_ct.id,))  # Meh
 
         # Ordinate -------------------------------------------------------------
         def agg_field_excluder(field, deep):

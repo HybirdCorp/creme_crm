@@ -9,7 +9,8 @@
                     'hf': '#{{form.hf.auto_id}}',
                     'filter': '#{{form.filter.auto_id}}',
                 };
-                creme.reports.load(opts);
+{#                creme.reports.load(opts); #}
+                creme.reports.load(opts, '{% url 'creme_core__hfilters' %}', '{% url 'creme_core__efilters' %}');
             });
 
             $('#{{form.ct.auto_id}}').change();
