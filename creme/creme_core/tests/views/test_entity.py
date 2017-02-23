@@ -10,13 +10,13 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth import get_user_model
     from django.core.exceptions import ValidationError
+    from django.core.urlresolvers import reverse
     from django.db.models import Max
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
-    from ..fake_models import (FakeContact as Contact, FakeOrganisation as Organisation,
-            FakePosition as Position, FakeSector as Sector, FakeAddress as Address,
-            FakeImage as Image, FakeImageCategory as MediaCategory)
+    from ..fake_models import (FakeContact, FakeOrganisation, FakePosition, FakeSector,
+               FakeAddress, FakeImage, FakeImageCategory)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (CremeEntity, RelationType, Relation, SetCredentials,
             CremePropertyType, CremeProperty, HistoryLine, FieldsConfig, history,
@@ -34,10 +34,14 @@ except Exception as e:
 
 
 class EntityViewsTestCase(ViewsTestCase):
-    CLONE_URL        = '/creme_core/entity/clone'
-    DEL_ENTITIES_URL = '/creme_core/entity/delete/multi'
-    EMPTY_TRASH_URL  = '/creme_core/entity/trash/empty'
-    SEARCHNVIEW_URL  = '/creme_core/entity/search_n_view'
+    # CLONE_URL        = '/creme_core/entity/clone'
+    CLONE_URL        = reverse('creme_core__clone_entity')
+    # DEL_ENTITIES_URL = '/creme_core/entity/delete/multi'
+    DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
+    # EMPTY_TRASH_URL  = '/creme_core/entity/trash/empty'
+    EMPTY_TRASH_URL  = reverse('creme_core__empty_trash')
+    # SEARCHNVIEW_URL  = '/creme_core/entity/search_n_view'
+    SEARCHNVIEW_URL  = reverse('creme_core__search_n_view_entities')
 
     # @classmethod
     # def setUpClass(cls):
@@ -45,18 +49,21 @@ class EntityViewsTestCase(ViewsTestCase):
     #     cls.populate('creme_core')
 
     def _build_delete_url(self, entity):
-        return '/creme_core/entity/delete/%s' % entity.id
+        # return '/creme_core/entity/delete/%s' % entity.id
+        return reverse('creme_core__delete_entity', args=(entity.id,))
 
     def _build_restore_url(self, entity):
-        return '/creme_core/entity/restore/%s' % entity.id
+        # return '/creme_core/entity/restore/%s' % entity.id
+        return reverse('creme_core__restore_entity', args=(entity.id,))
 
     def test_json_entity_get01(self):
         user = self.login()
-        url_fmt = '/creme_core/relation/entity/%s/json'
-        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        nerv = Organisation.objects.create(user=user, name='Nerv')
+        # url_fmt = '/creme_core/relation/entity/%s/json'
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        url = url_fmt % rei.id
+        # url = url_fmt % rei.id
+        url = reverse('creme_core__entity_as_json', args=(rei.id,))
         self.assertGET(400, url)
 
         response = self.assertGET200(url, data={'fields': ['id']})
@@ -65,17 +72,22 @@ class EntityViewsTestCase(ViewsTestCase):
         response = self.assertGET200(url, data={'fields': ['unicode']})
         self.assertEqual([[unicode(rei)]], load_json(response.content))
 
-        response = self.assertGET200(url_fmt % nerv.id, data={'fields': ['id', 'unicode']})
+        # response = self.assertGET200(url_fmt % nerv.id, data={'fields': ['id', 'unicode']})
+        response = self.assertGET200(reverse('creme_core__entity_as_json', args=(nerv.id,)),
+                                     data={'fields': ['id', 'unicode']}
+                                    )
         self.assertEqual([[nerv.id, unicode(nerv)]], load_json(response.content))
 
-        self.assertGET(400, url_fmt % 1024)
+        # self.assertGET(400, url_fmt % 1024)
+        self.assertGET(400, reverse('creme_core__entity_as_json', args=(1024,)))
         self.assertGET403(url, data={'fields': ['id', 'unknown']})
 
     def test_json_entity_get02(self):
         self.login(is_superuser=False)
 
-        nerv = Organisation.objects.create(user=self.other_user, name='Nerv')
-        self.assertGET(400, '/creme_core/relation/entity/%s/json' % nerv.id)
+        nerv = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
+        # self.assertGET(400, '/creme_core/relation/entity/%s/json' % nerv.id)
+        self.assertGET(400, reverse('creme_core__entity_as_json', args=(nerv.id,)))
 
     def test_json_entity_get03(self):
         "No credentials for the basic CremeEntity, but real entity is viewable"
@@ -89,7 +101,8 @@ class EntityViewsTestCase(ViewsTestCase):
                                      )
 
         e = FakeConfigEntity.objects.create(user=user, name='Nerv')
-        response = self.assertGET200('/creme_core/relation/entity/%s/json' % e.id,
+        # response = self.assertGET200('/creme_core/relation/entity/%s/json' % e.id,
+        response = self.assertGET200(reverse('creme_core__entity_as_json', args=(e.id,)),
                                      data={'fields': ['unicode']},
                                     )
         self.assertEqual([[unicode(e)]], load_json(response.content))
@@ -100,7 +113,8 @@ class EntityViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             entity = CremeEntity.objects.create(user=user)
 
-        response = self.assertGET200('/creme_core/entity/get_repr/%s' % entity.id)
+        # response = self.assertGET200('/creme_core/entity/get_repr/%s' % entity.id)
+        response = self.assertGET200(reverse('creme_core__entities_summaries', args=(entity.id,)))
         self.assertEqual('text/javascript', response['Content-Type'])
 
         self.assertEqual([{'id':   entity.id,
@@ -114,12 +128,12 @@ class EntityViewsTestCase(ViewsTestCase):
         "Several entities, several ContentTypes, credentials"
         user = self.login(is_superuser=False)
 
-        create_c = Contact.objects.create
+        create_c = FakeContact.objects.create
         rei   = create_c(user=user,            first_name='Rei',   last_name='Ayanami')
         asuka = create_c(user=user,            first_name='Asuka', last_name='Langley')
         mari  = create_c(user=self.other_user, first_name='Mari',  last_name='Makinami')
 
-        nerv = Organisation.objects.create(user=user, name='Nerv')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         self.assertTrue(user.has_perm_to_view(rei))
         self.assertFalse(user.has_perm_to_view(mari))
@@ -127,10 +141,15 @@ class EntityViewsTestCase(ViewsTestCase):
         unknown_id = 1024
         self.assertFalse(CremeEntity.objects.filter(id=unknown_id))
 
-        response = self.assertGET200('/creme_core/entity/get_repr/%s,%s,%s,%s,%s' % (
-                                            mari.id, rei.id, nerv.id, unknown_id, asuka.id
-                                        )
+        # response = self.assertGET200('/creme_core/entity/get_repr/%s,%s,%s,%s,%s' % (
+        #                                     mari.id, rei.id, nerv.id, unknown_id, asuka.id
+        #                                 )
+        #                             )
+        response = self.assertGET200(reverse('creme_core__entities_summaries',
+                                             args=('%s,%s,%s,%s,%s' % (mari.id, rei.id, nerv.id, unknown_id, asuka.id),)
+                                            )
                                     )
+
         self.assertEqual([{'id': mari.id,  'text': _(u'Entity #%s (not viewable)') % mari.id},
                           {'id': rei.id,   'text': unicode(rei)},
                           {'id': nerv.id,  'text': unicode(nerv)},
@@ -141,18 +160,20 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_get_sanitized_html_field(self):
         user = self.login()
-        entity = Organisation.objects.create(user=user, name='Nerv')
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
-        self.assertGET409(url_fmt % (entity.id, 'unknown'))
-        self.assertGET409(url_fmt % (entity.id, 'name'))  # Not an UnsafeHTMLField
+        # url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
+        # self.assertGET409(url_fmt % (entity.id, 'unknown'))
+        # self.assertGET409(url_fmt % (entity.id, 'name'))  # Not an UnsafeHTMLField
+        self.assertGET409(reverse('creme_core__sanitized_html_field', args=(entity.id, 'unknown')))
+        self.assertGET409(reverse('creme_core__sanitized_html_field', args=(entity.id, 'name')))  # Not an UnsafeHTMLField
         # NB: test with valid field in 'emails' app.
 
     def test_delete_entity01(self):
         "is_deleted=False -> trash"
         user = self.login()
 
-        entity = Organisation.objects.create(user=user, name='Nerv')
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
         self.assertTrue(hasattr(entity, 'is_deleted'))
         self.assertIs(entity.is_deleted, False)
         self.assertGET200(entity.get_edit_absolute_url())
@@ -184,7 +205,7 @@ class EntityViewsTestCase(ViewsTestCase):
         user = self.login()
 
         # To get a get_lv_absolute_url() method
-        entity = Organisation.objects.create(user=user, name='Nerv', is_deleted=True)
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
 
         url = self._build_delete_url(entity)
         self.assertGET404(url)
@@ -195,7 +216,7 @@ class EntityViewsTestCase(ViewsTestCase):
         "No DELETE credentials"
         self.login(is_superuser=False)
 
-        entity = Organisation.objects.create(user=self.other_user, name='Nerv')
+        entity = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
 
         self.assertPOST403(self._build_delete_url(entity))
         self.assertStillExists(entity)
@@ -204,7 +225,7 @@ class EntityViewsTestCase(ViewsTestCase):
         "Relations (not internal ones) & properties are deleted correctly"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity01 = create_orga(name='Nerv', is_deleted=True)
         entity02 = create_orga(name='Seele')
         entity03 = create_orga(name='Neo tokyo')
@@ -254,7 +275,7 @@ class EntityViewsTestCase(ViewsTestCase):
         "Dependencies problem (with internal Relations)"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity01 = create_orga(name='Nerv', is_deleted=True)
         entity02 = create_orga(name='Seele')
 
@@ -273,7 +294,7 @@ class EntityViewsTestCase(ViewsTestCase):
         "is_deleted=False -> trash (AJAX version)"
         user = self.login()
 
-        entity = Organisation.objects.create(user=user, name='Nerv')
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
         self.assertPOST200(self._build_delete_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         with self.assertNoException():
@@ -369,11 +390,12 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_trash_view(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity1 = create_orga(name='Nerv', is_deleted=True)
         entity2 = create_orga(name='Seele')
 
-        response = self.assertGET200('/creme_core/entity/trash')
+        # response = self.assertGET200('/creme_core/entity/trash')
+        response = self.assertGET200(reverse('creme_core__trash'))
         self.assertTemplateUsed(response, 'creme_core/trash.html')
         self.assertContains(response, 'id="%s"' % trash_block.id_)
         self.assertContains(response, unicode(entity1))
@@ -383,7 +405,7 @@ class EntityViewsTestCase(ViewsTestCase):
         "No trashed"
         user = self.login()
 
-        entity = Organisation.objects.create(user=user, name='Nerv')
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
         url = self._build_restore_url(entity)
         self.assertGET404(url)
         self.assertPOST404(url)
@@ -391,28 +413,28 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_restore_entity02(self):
         user = self.login()
 
-        entity = Organisation.objects.create(user=user, name='Nerv', is_deleted=True)
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
         url = self._build_restore_url(entity)
 
         self.assertGET404(url)
         self.assertRedirects(self.client.post(url), entity.get_absolute_url())
 
-        entity = self.get_object_or_fail(Organisation, pk=entity.pk)
+        entity = self.get_object_or_fail(FakeOrganisation, pk=entity.pk)
         self.assertFalse(entity.is_deleted)
 
     def test_restore_entity03(self):
         user = self.login()
 
-        entity = Organisation.objects.create(user=user, name='Nerv', is_deleted=True)
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
         self.assertPOST200(self._build_restore_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-        entity = self.get_object_or_fail(Organisation, pk=entity.pk)
+        entity = self.get_object_or_fail(FakeOrganisation, pk=entity.pk)
         self.assertFalse(entity.is_deleted)
 
     def test_empty_trash01(self):
         user = self.login(is_superuser=False, allowed_apps=('creme_core',))  # 'persons'
 
-        create_contact = partial(Contact.objects.create, user=user, is_deleted=True)
+        create_contact = partial(FakeContact.objects.create, user=user, is_deleted=True)
         contact1 = create_contact(first_name='Lawrence', last_name='Kraft')
         contact2 = create_contact(first_name='Holo',     last_name='Wolf')
         contact3 = create_contact(first_name='Nora',     last_name='Alend', user=self.other_user)
@@ -423,7 +445,7 @@ class EntityViewsTestCase(ViewsTestCase):
         url = self.EMPTY_TRASH_URL
         self.assertGET404(url)
         self.assertPOST200(url)
-        self.assertFalse(Contact.objects.filter(id__in=[contact1.id, contact2.id]))
+        self.assertFalse(FakeContact.objects.filter(id__in=[contact1.id, contact2.id]))
         self.assertStillExists(contact3)
 
     def test_empty_trash02(self):
@@ -458,16 +480,16 @@ class EntityViewsTestCase(ViewsTestCase):
                                             EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_ALL,
-                                      ctype=ContentType.objects.get_for_model(Organisation),
-                                     )
+                                      ctype=ContentType.objects.get_for_model(FakeOrganisation),
+                                      )
 
-        create_contact = partial(Contact.objects.create, user=user, is_deleted=True)
+        create_contact = partial(FakeContact.objects.create, user=user, is_deleted=True)
         contact1 = create_contact(first_name='Lawrence', last_name='Kraft')
         contact2 = create_contact(first_name='Holo',     last_name='Wolf', user=other_user)
         self.assertTrue(user.has_perm_to_delete(contact1))
         self.assertFalse(user.has_perm_to_delete(contact2))
 
-        create_orga = partial(Organisation.objects.create, user=user, is_deleted=True)
+        create_orga = partial(FakeOrganisation.objects.create, user=user, is_deleted=True)
         orga1 = create_orga(name='Nerv')
         orga2 = create_orga(name='Seele', is_deleted=False)
         orga3 = create_orga(name='Neo tokyo', user=other_user)
@@ -486,12 +508,13 @@ class EntityViewsTestCase(ViewsTestCase):
     def _build_test_get_info_fields_url(self, model):
         ct = ContentType.objects.get_for_model(model)
 
-        return '/creme_core/entity/get_info_fields/%s/json' % ct.id
+        # return '/creme_core/entity/get_info_fields/%s/json' % ct.id
+        return reverse('creme_core__entity_info_fields', args=(ct.id,))
 
     def test_get_info_fields01(self):
         self.login()
 
-        response = self.assertGET200(self._build_test_get_info_fields_url(Contact))
+        response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
         json_data = load_json(response.content)
         self.assertIsInstance(json_data, list)
         self.assertTrue(all(isinstance(elt, list) for elt in json_data))
@@ -513,7 +536,7 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_get_info_fields02(self):
         self.login()
 
-        response = self.client.get(self._build_test_get_info_fields_url(Organisation))
+        response = self.client.get(self._build_test_get_info_fields_url(FakeOrganisation))
         json_data = load_json(response.content)
 
         names = ['created', 'modified', 'name', 'description', 'url_site',
@@ -532,11 +555,11 @@ class EntityViewsTestCase(ViewsTestCase):
         "With FieldsConfig"
         self.login()
 
-        FieldsConfig.create(Contact,
+        FieldsConfig.create(FakeContact,
                             descriptions=[('birthday', {FieldsConfig.HIDDEN: True})],
-                           )
+                            )
 
-        response = self.assertGET200(self._build_test_get_info_fields_url(Contact))
+        response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
         json_data = load_json(response.content)
         names = ['created', 'modified', 'first_name', 'last_name', 'description',
                  'phone', 'mobile', 'email', 'url_site', 'is_a_nerd',
@@ -548,7 +571,7 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_clone01(self):
         user = self.login()
         url = self.CLONE_URL
-        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
+        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
 
         self.assertPOST200(url, data={'id': mario.id}, follow=True)
         self.assertPOST404(url, data={})
@@ -557,36 +580,36 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_clone02(self):
         self.login(is_superuser=False)
 
-        mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
+        mario = FakeContact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
         self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
 
     def test_clone03(self):
-        self.login(is_superuser=False, creatable_models=[Contact])
+        self.login(is_superuser=False, creatable_models=[FakeContact])
         self._set_all_creds_except_one(EntityCredentials.VIEW)
 
-        mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
+        mario = FakeContact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
         self.assertPOST403(self.CLONE_URL, data={'id': mario.id}, follow=True)
 
     def test_clone04(self):
-        user = self.login(is_superuser=False, creatable_models=[Contact])
+        user = self.login(is_superuser=False, creatable_models=[FakeContact])
         self._set_all_creds_except_one(None)
 
-        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
+        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
         self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
 
     def test_clone05(self):
         self.login()
 
         first_name = "Mario"
-        mario = Contact.objects.create(user=self.other_user, first_name=first_name, last_name="Bros")
+        mario = FakeContact.objects.create(user=self.other_user, first_name=first_name, last_name="Bros")
 
-        count = Contact.objects.count()
+        count = FakeContact.objects.count()
         response = self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
-        self.assertEqual(count + 1, Contact.objects.count())
+        self.assertEqual(count + 1, FakeContact.objects.count())
 
         with self.assertNoException():
-            mario = Contact.objects.filter(first_name=first_name).order_by('created')[0]
-            oiram = Contact.objects.filter(first_name=first_name).order_by('created')[1]
+            mario = FakeContact.objects.filter(first_name=first_name).order_by('created')[0]
+            oiram = FakeContact.objects.filter(first_name=first_name).order_by('created')[1]
 
         self.assertEqual(mario.last_name, oiram.last_name)
         self.assertRedirects(response, oiram.get_absolute_url())
@@ -595,7 +618,7 @@ class EntityViewsTestCase(ViewsTestCase):
         """Not clonable entity type"""
         user = self.login()
 
-        image = Image.objects.create(user=user, name='Img1')
+        image = FakeImage.objects.create(user=user, name='Img1')
         self.assertPOST404(self.CLONE_URL, data={'id': image.id}, follow=True)
 
     def _assert_detailview(self, response, entity):
@@ -613,7 +636,7 @@ class EntityViewsTestCase(ViewsTestCase):
                }
         self.assertGET404(url, data=data)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         onizuka = create_contact(first_name='Eikichi', last_name='Onizuka')
         create_contact(first_name='Ryuji', last_name='Danma', phone='987654', mobile=phone)
         self.assertGET404(url, data=data)
@@ -633,7 +656,7 @@ class EntityViewsTestCase(ViewsTestCase):
                }
         self.assertGET404(url, data=data)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         onizuka  = create_contact(first_name='Eikichi', last_name='Onizuka', mobile=phone)
         create_contact(first_name='Ryuji', last_name='Danma', phone='987654')
         self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
@@ -649,11 +672,11 @@ class EntityViewsTestCase(ViewsTestCase):
                }
         self.assertGET404(url, data=data)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         onizuka = create_contact(first_name='Eikichi', last_name='Onizuka', mobile='55555')
         create_contact(first_name='Ryuji',   last_name='Danma',   phone='987654')
 
-        onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone)
+        onibaku = FakeOrganisation.objects.create(user=user, name='Onibaku', phone=phone)
         self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
 
         onizuka.mobile = phone
@@ -669,10 +692,10 @@ class EntityViewsTestCase(ViewsTestCase):
                      'fields': 'mobile,phone',
                      'value':  '696969',
                     }
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         create_contact(first_name='Eikichi', last_name='Onizuka', mobile='55555')
         create_contact(first_name='Ryuji',   last_name='Danma', phone='987654')
-        Organisation.objects.create(user=user, name='Onibaku', phone='54631357')
+        FakeOrganisation.objects.create(user=user, name='Onibaku', phone='54631357')
 
         self.assertGET404(url, data=dict(base_data, models='foo-bar'))
         self.assertGET404(url, data=dict(base_data, models='foobar'))
@@ -692,13 +715,13 @@ class EntityViewsTestCase(ViewsTestCase):
                 'value':  phone,
                }
 
-        create_contact = Contact.objects.create
+        create_contact = FakeContact.objects.create
         # Phone is OK and but not readable
         onizuka = create_contact(user=self.other_user, first_name='Eikichi', last_name='Onizuka', mobile=phone)
         # Phone is KO
         ryuji = create_contact(user=user, first_name='Ryuji', last_name='Danma', phone='987654')
 
-        onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone)  # Phone OK and readable
+        onibaku = FakeOrganisation.objects.create(user=user, name='Onibaku', phone=phone)  # Phone OK and readable
 
         has_perm = user.has_perm_to_view
         self.assertFalse(has_perm(onizuka))
@@ -716,16 +739,16 @@ class EntityViewsTestCase(ViewsTestCase):
                 'value':  phone,
                }
         # Would match if apps was allowed
-        Contact.objects.create(user=user, first_name='Eikichi', last_name='Onizuka', phone=phone)
+        FakeContact.objects.create(user=user, first_name='Eikichi', last_name='Onizuka', phone=phone)
         self.assertGET403(self.SEARCHNVIEW_URL, data=data)
 
     def test_search_and_view07(self):
         "FieldsConfig"
         self.login()
 
-        FieldsConfig.create(Contact,
+        FieldsConfig.create(FakeContact,
                             descriptions=[('phone',  {FieldsConfig.HIDDEN: True})],
-                           )
+                            )
 
         self.assertGET409(self.SEARCHNVIEW_URL,
                           data={'models': 'creme_core-fakecontact',
@@ -736,13 +759,13 @@ class EntityViewsTestCase(ViewsTestCase):
 
 
 class _BulkEditTestCase(ViewsTestCase):
-    GET_WIDGET_URL = '/creme_core/entity/get_widget/%s'
+    # GET_WIDGET_URL = '/creme_core/entity/get_widget/%s'
 
     def get_cf_values(self, cf, entity):
         return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
 
     def create_image(self, name, user, categories=()):
-        image = Image.objects.create(user=user, name=name)
+        image = FakeImage.objects.create(user=user, name=name)
         image.categories = categories
 
         return image
@@ -753,34 +776,40 @@ class BulkEditTestCase(_BulkEditTestCase):
     def setUpClass(cls):
         # _BulkEditTestCase.setUpClass()
         super(BulkEditTestCase, cls).setUpClass()
-        cls.contact_ct = ContentType.objects.get_for_model(Contact)
-        cls.contact_bulk_status = bulk_update_registry.status(Contact)
+        cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
+        cls.contact_bulk_status = bulk_update_registry.status(FakeContact)
 
     def setUp(self):
         super(BulkEditTestCase, self).setUp()
-        contact_status = bulk_update_registry.status(Contact)
+        contact_status = bulk_update_registry.status(FakeContact)
 
         self._contact_innerforms = contact_status._innerforms
-        bulk_update_registry.status(Contact)._innerforms = {}
+        bulk_update_registry.status(FakeContact)._innerforms = {}
 
         self._contact_excludes = contact_status.excludes
-        bulk_update_registry.status(Contact).excludes = set()
+        bulk_update_registry.status(FakeContact).excludes = set()
 
     def tearDown(self):
         super(BulkEditTestCase, self).tearDown()
-        contact_status = bulk_update_registry.status(Contact)
+        contact_status = bulk_update_registry.status(FakeContact)
         contact_status._innerforms = self._contact_innerforms
         contact_status.excludes = self._contact_excludes
 
     def _build_contact_url(self, field_name, *contact_ids):
-        url = '/creme_core/entity/edit/bulk/%(ct)s/%(id)s/field/%(field)s'
-        return url % {'ct': self.contact_ct.id,
-                      'id': ','.join(str(id) for id in contact_ids),
-                      'field': field_name,
-                     }
+        # url = '/creme_core/entity/edit/bulk/%(ct)s/%(id)s/field/%(field)s'
+        # return url % {'ct': self.contact_ct.id,
+        #               'id': ','.join(str(id) for id in contact_ids),
+        #               'field': field_name,
+        #              }
+        return reverse('creme_core__bulk_edit_field_legacy',
+                       args=(self.contact_ct.id,
+                             ','.join(str(id) for id in contact_ids),
+                             field_name,
+                            )
+                      )
 
     def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=self.user)
         mario = create_contact(first_name="Mario", last_name="Bros", **(mario_kwargs or {}))
         luigi = create_contact(first_name="Luigi", last_name="Bros", **(luigi_kwargs or {}))
 
@@ -790,14 +819,14 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.login()
 
         build_url = self._build_contact_url
-        self.assertGET404('/creme_core/entity/bulk_update/%s/' % self.contact_ct.id)
+        # self.assertGET404('/creme_core/entity/bulk_update/%s/' % self.contact_ct.id)
         self.assertGET404(build_url('first_name', 0))
         self.assertGET404(build_url('first_name', *range(1024, 1034)))
 
     def test_regular_field01(self):
         user = self.login()
 
-        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
+        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
         build_url = self._build_contact_url
         url = build_url('first_name', mario.id)
         response = self.assertGET200(url)
@@ -826,7 +855,7 @@ class BulkEditTestCase(_BulkEditTestCase):
     def test_regular_field02(self):
         self.login()
 
-        create_pos = Position.objects.create
+        create_pos = FakePosition.objects.create
         unemployed   = create_pos(title='unemployed')
         plumber      = create_pos(title='plumber')
         ghost_hunter = create_pos(title='ghost hunter')
@@ -845,14 +874,14 @@ class BulkEditTestCase(_BulkEditTestCase):
     def test_regular_field03(self):
         user = self.login()
 
-        plumbing = Sector.objects.create(title='Plumbing')
-        games    = Sector.objects.create(title='Games')
+        plumbing = FakeSector.objects.create(title='Plumbing')
+        games    = FakeSector.objects.create(title='Games')
 
-        create_contact = partial(Contact.objects.create, user=user, sector=games)
+        create_contact = partial(FakeContact.objects.create, user=user, sector=games)
         mario = create_contact(first_name='Mario', last_name='Bros')
         luigi = create_contact(first_name='Luigi', last_name='Bros')
 
-        nintendo = Organisation.objects.create(user=user, name='Nintendo', sector=games)
+        nintendo = FakeOrganisation.objects.create(user=user, name='Nintendo', sector=games)
 
         url = self._build_contact_url('sector', mario.id, luigi.id, nintendo.id)
         self.assertGET200(url)
@@ -874,10 +903,10 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.login()
 
         fname = 'position'
-        bulk_update_registry.register(Contact, exclude=[fname])
-        self.assertFalse(bulk_update_registry.is_updatable(Contact, 'position'))
+        bulk_update_registry.register(FakeContact, exclude=[fname])
+        self.assertFalse(bulk_update_registry.is_updatable(FakeContact, 'position'))
 
-        unemployed = Position.objects.create(title='unemployed')
+        unemployed = FakePosition.objects.create(title='unemployed')
         mario, luigi, url = self.create_2_contacts_n_url(field=fname)
         self.assertPOST(400, url, data={'field_value': unemployed.id})
 
@@ -897,7 +926,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         user = self.login(is_superuser=False)
 
         mario_desc = u"Luigi's brother"
-        create_bros = partial(Contact.objects.create, last_name='Bros')
+        create_bros = partial(FakeContact.objects.create, last_name='Bros')
         mario = create_bros(user=self.other_user, first_name='Mario', description=mario_desc)
         luigi = create_bros(user=user,            first_name='Luigi', description="Mario's brother")
 
@@ -925,11 +954,11 @@ class BulkEditTestCase(_BulkEditTestCase):
         user = self.login(is_superuser=False)
         other_user = self.other_user
 
-        create_bros = partial(Contact.objects.create, last_name='Bros')
+        create_bros = partial(FakeContact.objects.create, last_name='Bros')
         mario = create_bros(user=other_user, first_name='Mario')
         luigi = create_bros(user=user,       first_name='Luigi')
 
-        create_img = Image.objects.create
+        create_img = FakeImage.objects.create
         unallowed = create_img(user=other_user, name='unallowed')
         allowed   = create_img(user=user,       name='allowed')
         self.assertFalse(user.has_perm_to_view(unallowed))
@@ -954,7 +983,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         class _InnerEditBirthday(BulkDefaultEditForm):
             pass
 
-        bulk_update_registry.register(Contact, innerforms={'birthday': _InnerEditBirthday})
+        bulk_update_registry.register(FakeContact, innerforms={'birthday': _InnerEditBirthday})
 
         mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
         response = self.client.post(url, data={'field_value': '31-01-2000'})
@@ -970,7 +999,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         """
         user = self.login()
 
-        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
+        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
         build_url = self._build_contact_url
         url = build_url('user', mario.id)
         response = self.assertGET200(url)
@@ -984,7 +1013,7 @@ class BulkEditTestCase(_BulkEditTestCase):
     def test_regular_field_many2many(self):
         user = self.login()
 
-        categories = [MediaCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
+        categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
 
         image1 = self.create_image('image1', user, categories)
         image2 = self.create_image('image2', user, categories[:1])
@@ -1007,7 +1036,7 @@ class BulkEditTestCase(_BulkEditTestCase):
     def test_regular_field_many2many_invalid(self):
         user = self.login()
 
-        categories = [MediaCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
+        categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
 
         image1 = self.create_image('image1', user, categories)
         image2 = self.create_image('image2', user, categories[:1])
@@ -1016,7 +1045,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
         url = self.build_bulkedit_url([image1, image2], 'categories')
-        invalid_pk = (MediaCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
+        invalid_pk = (FakeImageCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
         self.assertFormError(response, 'form', 'field_value',
                              _('Select a valid choice. %(value)s is not one of the available choices.') % {
@@ -1214,7 +1243,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         empty_user1 = create_empty_user(username='empty1')
         empty_user2 = create_empty_user(username='empty2')
 
-        create_contact = partial(Contact.objects.create, user=user, first_name='', last_name='')
+        create_contact = partial(FakeContact.objects.create, user=user, first_name='', last_name='')
         empty_contact1 = create_contact(is_user=empty_user1)
         empty_contact2 = create_contact(is_user=empty_user2)
         mario          = create_contact(first_name="Mario", last_name="Bros")
@@ -1232,35 +1261,36 @@ class BulkUpdateTestCase(_BulkEditTestCase):
     def setUpClass(cls):
         # _BulkEditTestCase.setUpClass()
         super(BulkUpdateTestCase, cls).setUpClass()
-        cls.contact_ct = ContentType.objects.get_for_model(Contact)
-        cls.contact_bulk_status = bulk_update_registry.status(Contact)
+        cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
+        cls.contact_bulk_status = bulk_update_registry.status(FakeContact)
 
     def setUp(self):
         super(BulkUpdateTestCase, self).setUp()
-        contact_status = bulk_update_registry.status(Contact)
+        contact_status = bulk_update_registry.status(FakeContact)
 
         self._contact_innerforms = contact_status._innerforms
-        bulk_update_registry.status(Contact)._innerforms = {}
+        bulk_update_registry.status(FakeContact)._innerforms = {}
 
         self._contact_excludes = contact_status.excludes
-        bulk_update_registry.status(Contact).excludes = set()
+        bulk_update_registry.status(FakeContact).excludes = set()
 
     def tearDown(self):
         super(BulkUpdateTestCase, self).tearDown()
-        contact_status = bulk_update_registry.status(Contact)
+        contact_status = bulk_update_registry.status(FakeContact)
         contact_status._innerforms = self._contact_innerforms
         contact_status.excludes = self._contact_excludes
 
     def _build_update_url(self, field_name):
-        url = '/creme_core/entity/update/bulk/%(ct)s/field/%(field)s'
-        return url % {'ct': self.contact_ct.id,
-                      'field': field_name,
-                     }
+        # url = '/creme_core/entity/update/bulk/%(ct)s/field/%(field)s'
+        # return url % {'ct': self.contact_ct.id,
+        #               'field': field_name,
+        #              }
+        return reverse('creme_core__bulk_update', args=(self.contact_ct.id, field_name))
 
     def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
-        create_contact = partial(Contact.objects.create, user=self.user)
-        mario = create_contact(first_name="Mario", last_name="Bros", **(mario_kwargs or {}))
-        luigi = create_contact(first_name="Luigi", last_name="Bros", **(luigi_kwargs or {}))
+        create_contact = partial(FakeContact.objects.create, user=self.user)
+        mario = create_contact(first_name='Mario', last_name='Bros', **(mario_kwargs or {}))
+        luigi = create_contact(first_name='Luigi', last_name='Bros', **(luigi_kwargs or {}))
 
         return mario, luigi, self._build_update_url(field)
 
@@ -1268,18 +1298,19 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.login()
 
         build_url = self._build_update_url
-        self.assertGET404(build_url(''))
+        # self.assertGET404(build_url(''))
 
         response = self.assertGET(400, build_url('unknown'))
-        self.assertContains(response, _(u'The field "%s" doesn\'t exist or cannot be edited') % 'unknown', status_code=400)
+        msg = _(u'The field "%s" doesn\'t exist or cannot be edited')
+        self.assertContains(response, msg % 'unknown', status_code=400)
 
         response = self.assertGET(400, build_url(_CUSTOMFIELD_FORMAT % 44500124))
-        self.assertContains(response, _(u'The field "%s" doesn\'t exist or cannot be edited') % (_CUSTOMFIELD_FORMAT % 44500124), status_code=400)
+        self.assertContains(response, msg % (_CUSTOMFIELD_FORMAT % 44500124), status_code=400)
 
     def test_regular_field01(self):
         user = self.login()
 
-        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
+        mario = FakeContact.objects.create(user=user, first_name='Mario', last_name='Bros')
         build_url = self._build_update_url
         url = build_url('first_name')
         response = self.assertGET200(url)
@@ -1287,21 +1318,25 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['_bulk_fieldname'].choices
 
-        self.assertIn((url, _('First name')), choices)
-        self.assertIn((build_url('user'), _('Owner user')), choices)
+        self.assertIn((url, _(u'First name')), choices)
+        self.assertIn((build_url('user'), _(u'Owner user')), choices)
 
         baddr_choices = dict(choices)[_(u'Billing address')]
         self.assertIn((build_url('address__city'), _('City')), baddr_choices)
 
         first_name = 'Marioooo'
-        self.assertNoFormError(self.assertPOST200(url, data={'field_value': first_name,
-                                                             'entities': [mario.pk]}))
+        self.assertNoFormError(self.assertPOST200(url,
+                                                  data={'field_value': first_name,
+                                                        'entities': [mario.pk],
+                                                       }
+                                                 )
+                              )
         self.assertEqual(first_name, self.refresh(mario).first_name)
 
     def test_regular_field_fk(self):
         self.login()
 
-        create_pos = Position.objects.create
+        create_pos = FakePosition.objects.create
         unemployed   = create_pos(title='unemployed')
         plumber      = create_pos(title='plumber')
         ghost_hunter = create_pos(title='ghost hunter')
@@ -1321,14 +1356,14 @@ class BulkUpdateTestCase(_BulkEditTestCase):
     def test_regular_field_ignore_missings(self):
         user = self.login()
 
-        plumbing = Sector.objects.create(title='Plumbing')
-        games    = Sector.objects.create(title='Games')
+        plumbing = FakeSector.objects.create(title='Plumbing')
+        games    = FakeSector.objects.create(title='Games')
 
-        create_contact = partial(Contact.objects.create, user=user, sector=games)
+        create_contact = partial(FakeContact.objects.create, user=user, sector=games)
         mario = create_contact(first_name='Mario', last_name='Bros')
         luigi = create_contact(first_name='Luigi', last_name='Bros')
 
-        nintendo = Organisation.objects.create(user=user, name='Nintendo', sector=games)
+        nintendo = FakeOrganisation.objects.create(user=user, name='Nintendo', sector=games)
 
         url = self._build_update_url('sector')
         self.assertGET200(url)
@@ -1344,10 +1379,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.login()
 
         fname = 'position'
-        bulk_update_registry.register(Contact, exclude=[fname])
-        self.assertFalse(bulk_update_registry.is_updatable(Contact, 'position'))
+        bulk_update_registry.register(FakeContact, exclude=[fname])
+        self.assertFalse(bulk_update_registry.is_updatable(FakeContact, 'position'))
 
-        unemployed = Position.objects.create(title='unemployed')
+        unemployed = FakePosition.objects.create(title='unemployed')
         mario, luigi, url = self.create_2_contacts_n_url(field=fname)
         self.assertPOST(400, url, data={'field_value': unemployed.id,
                                         'entities': [mario.id, luigi.id]
@@ -1381,7 +1416,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         user = self.login(is_superuser=False)
 
         mario_desc = u"Luigi's brother"
-        create_bros = partial(Contact.objects.create, last_name='Bros')
+        create_bros = partial(FakeContact.objects.create, last_name='Bros')
         mario = create_bros(user=self.other_user, first_name='Mario', description=mario_desc)
         luigi = create_bros(user=user,            first_name='Luigi', description="Mario's brother")
 
@@ -1417,11 +1452,11 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         user = self.login(is_superuser=False)
         other_user = self.other_user
 
-        create_bros = partial(Contact.objects.create, last_name='Bros')
+        create_bros = partial(FakeContact.objects.create, last_name='Bros')
         mario = create_bros(user=other_user, first_name='Mario')
         luigi = create_bros(user=user,       first_name='Luigi')
 
-        create_img = Image.objects.create
+        create_img = FakeImage.objects.create
         unallowed = create_img(user=other_user, name='unallowed')
         allowed   = create_img(user=user,       name='allowed')
         self.assertFalse(user.has_perm_to_view(unallowed))
@@ -1452,7 +1487,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         class _InnerEditBirthday(BulkDefaultEditForm):
             pass
 
-        bulk_update_registry.register(Contact, innerforms={'birthday': _InnerEditBirthday})
+        bulk_update_registry.register(FakeContact, innerforms={'birthday': _InnerEditBirthday})
 
         mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
         response = self.client.post(url, data={'field_value': '31-01-2000',
@@ -1471,7 +1506,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         """
         user = self.login()
 
-        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
+        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
         build_url = self._build_update_url
         url = build_url('user')
         response = self.assertGET200(url)
@@ -1485,7 +1520,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
     def test_regular_field_many2many(self):
         user = self.login()
 
-        categories = [MediaCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
+        categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
 
         image1 = self.create_image('image1', user, categories)
         image2 = self.create_image('image2', user, categories[:1])
@@ -1509,7 +1544,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
     def test_regular_field_many2many_invalid(self):
         user = self.login()
 
-        categories = [MediaCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
+        categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
 
         image1 = self.create_image('image1', user, categories)
         image2 = self.create_image('image2', user, categories[:1])
@@ -1518,7 +1553,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
         url = self.build_bulkedit_url([image1, image2], 'categories')
-        invalid_pk = (MediaCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
+        invalid_pk = (FakeImageCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
 
         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk],
                                                'entities': [image1.id, image2.id],
@@ -1767,7 +1802,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         empty_user1 = create_empty_user(username='empty1')
         empty_user2 = create_empty_user(username='empty2')
 
-        create_contact = partial(Contact.objects.create, user=user, first_name='', last_name='')
+        create_contact = partial(FakeContact.objects.create, user=user, first_name='', last_name='')
         empty_contact1 = create_contact(is_user=empty_user1)
         empty_contact2 = create_contact(is_user=empty_user2)
         mario          = create_contact(first_name='Mario', last_name='Bros')
@@ -1785,10 +1820,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
 class InnerEditTestCase(_BulkEditTestCase):
     def create_contact(self):
-        return Contact.objects.create(user=self.user, first_name='Mario', last_name='Bros')
+        return FakeContact.objects.create(user=self.user, first_name='Mario', last_name='Bros')
 
     def create_orga(self):
-        return Organisation.objects.create(user=self.user, name='Mushroom kingdom')
+        return FakeOrganisation.objects.create(user=self.user, name='Mushroom kingdom')
 
     def test_regular_field_01(self):
         self.login()
@@ -1818,7 +1853,7 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_regular_field_03(self):
         "No permission"
-        self.login(is_superuser=False, creatable_models=[Contact], allowed_apps=['documents'])
+        self.login(is_superuser=False, creatable_models=[FakeContact], allowed_apps=['documents'])
         self._set_all_creds_except_one(EntityCredentials.CHANGE)
 
         mario = self.create_contact()
@@ -1844,11 +1879,11 @@ class InnerEditTestCase(_BulkEditTestCase):
         hidden_subfname = 'zipcode'
 
         create_fconf = FieldsConfig.create
-        create_fconf(Contact, descriptions=[(hidden_fname,  {FieldsConfig.HIDDEN: True}),
-                                            (hidden_fkname, {FieldsConfig.HIDDEN: True}),
-                                           ],
-                    )
-        create_fconf(Address, descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})])
+        create_fconf(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True}),
+                                                (hidden_fkname, {FieldsConfig.HIDDEN: True}),
+                                                ],
+                     )
+        create_fconf(FakeAddress, descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})])
 
         mario = self.create_contact()
 
@@ -1860,7 +1895,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_regular_field_many2many(self):
         user = self.login()
 
-        create_cat = MediaCategory.objects.create
+        create_cat = FakeImageCategory.objects.create
         categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
         image = self.create_image('image', user, categories)
@@ -1876,14 +1911,14 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_regular_field_many2many_invalid(self):
         user = self.login()
 
-        create_cat = MediaCategory.objects.create
+        create_cat = FakeImageCategory.objects.create
         categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
         image = self.create_image('image', user, categories)
         self.assertEqual(set(image.categories.all()), set(categories))
 
         invalid_pk = 1024
-        self.assertFalse(MediaCategory.objects.filter(id=invalid_pk))
+        self.assertFalse(FakeImageCategory.objects.filter(id=invalid_pk))
 
         url = self.build_inneredit_url(image, 'categories')
         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
@@ -1903,7 +1938,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             def clean(self):
                 raise ValidationError('invalid name')
 
-        bulk_update_registry.register(Contact, innerforms={'last_name': _InnerEditName})
+        bulk_update_registry.register(FakeContact, innerforms={'last_name': _InnerEditName})
 
         mario = self.create_contact()
         url = self.build_inneredit_url(mario, 'last_name')
@@ -1920,7 +1955,7 @@ class InnerEditTestCase(_BulkEditTestCase):
                 BulkDefaultEditForm._bulk_clean_entity(self, entity, values)
                 raise ValidationError('invalid name')
 
-        bulk_update_registry.register(Contact, innerforms={'last_name': _InnerEditName})
+        bulk_update_registry.register(FakeContact, innerforms={'last_name': _InnerEditName})
 
         mario = self.create_contact()
         url = self.build_inneredit_url(mario, 'last_name')
@@ -1959,7 +1994,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_related_subfield(self):
         self.login()
         orga = self.create_orga()
-        orga.address = Address.objects.create(entity=orga, value='address 1')
+        orga.address = FakeAddress.objects.create(entity=orga, value='address 1')
         orga.save()
 
         url = self.build_inneredit_url(orga, 'address__city')
@@ -1973,7 +2008,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_related_field(self):
         self.login()
         orga = self.create_orga()
-        orga.address = Address.objects.create(entity=orga, value='address 1')
+        orga.address = FakeAddress.objects.create(entity=orga, value='address 1')
         orga.save()
 
         url = self.build_inneredit_url(orga, 'address')
@@ -1982,7 +2017,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_manytomany_field(self):
         "Edition of a manytomany field (needs a special hack with initial values for this case)"
         user = self.login()
-        image = Image.objects.create(user=user, name='Konoha by night')
+        image = FakeImage.objects.create(user=user, name='Konoha by night')
 
         url = self.build_inneredit_url(image, 'categories')
         self.assertGET(200, url)
@@ -1994,9 +2029,9 @@ class InnerEditTestCase(_BulkEditTestCase):
                                                           last_name='',
                                                           email='',
                                                          )
-        empty_contact = Contact.objects.create(user=user, first_name='',
-                                               last_name='', is_user=empty_user,
-                                              )
+        empty_contact = FakeContact.objects.create(user=user, first_name='',
+                                                   last_name='', is_user=empty_user,
+                                                   )
 
         url = self.build_inneredit_url(empty_contact, 'last_name')
         self.assertGET200(url)
@@ -2013,9 +2048,9 @@ class InnerEditTestCase(_BulkEditTestCase):
                                                           last_name='',
                                                           email='',
                                                          )
-        empty_contact = Contact.objects.create(user=user, first_name="",
-                                               last_name="", is_user=empty_user,
-                                              )
+        empty_contact = FakeContact.objects.create(user=user, first_name="",
+                                                   last_name="", is_user=empty_user,
+                                                   )
 
         url = self.build_inneredit_url(empty_contact, 'last_name')
         self.assertGET200(url)

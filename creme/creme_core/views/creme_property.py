@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
 from django.utils.translation import ugettext_lazy as _, ungettext
@@ -73,7 +74,7 @@ def add_properties_bulk(request, ct_id):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form':  form,
                         'title': _(u'Multiple adding of properties'),
-                        'submit_label': _('Add the properties'),
+                        'submit_label': _(u'Add the properties'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -85,7 +86,7 @@ def add_properties_bulk(request, ct_id):
 def add_to_entity(request, entity_id):
     return generic_add_to_entity(request, entity_id, AddPropertiesForm,
                                  _(u'New properties for «%s»'),
-                                 submit_label=_('Add the properties'),
+                                 submit_label=_(u'Add the properties'),
                                 )
 
 
@@ -113,7 +114,7 @@ def add_type(request):
     return render(request, 'creme_core/generics/blockform/add.html',
                   {'form':         form,
                    'title':        CremePropertyType.creation_label,
-                   'submit_label': _('Save the type of property'),
+                   'submit_label': _(u'Save the type of property'),
                    'cancel_url':   cancel_url,
                   }
                  )
@@ -145,7 +146,7 @@ def edit_type(request, ptype_id):
     return render(request, 'creme_core/generics/blockform/edit.html',
                   {'form': form,
                    'object': ptype,
-                   'submit_label': _('Save the modifications'),
+                   'submit_label': _(u'Save the modifications'),
                    'cancel_url': cancel_url,
                   }
                  )
@@ -195,7 +196,8 @@ class PropertyTypeInfoBlock(Block):
 
         return self._render(self.get_block_template_context(
                     context,
-                    update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ctypes=self.ctypes,
                     count_stat=CremeEntity.objects.filter(properties__type=ptype).count(),
                 ))
@@ -237,7 +239,8 @@ class TaggedEntitiesBlock(QuerysetBlock):
         btc = self.get_block_template_context(
                     context,
                     model.objects.filter(properties__type=ptype),
-                    update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ptype_id=ptype.id,
                     ctype=ctype,  # If the model is inserted in the context,
                                   #  the template call it and create an instance...
@@ -270,7 +273,8 @@ class TaggedMiscEntitiesBlock(QuerysetBlock):
                     context,
                     CremeEntity.objects.filter(properties__type=ptype)
                                        .exclude(entity_type__in=self.excluded_ctypes),
-                    update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ptype_id=ptype.id,
                     ctype=None,
                 )

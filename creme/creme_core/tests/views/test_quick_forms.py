@@ -4,6 +4,7 @@ try:
     from json import dumps as json_dump
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from .base import CremeTestCase
@@ -38,7 +39,8 @@ class QuickFormTestCase(CremeTestCase):
                })
 
     def _build_quickform_url(self, model, count=1):
-        return '/creme_core/quickforms/%d/%d' % (ContentType.objects.get_for_model(model).pk, count)
+        # return '/creme_core/quickforms/%d/%d' % (ContentType.objects.get_for_model(model).pk, count)
+        return reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(model).pk, count))
 
     def test_add_unknown_ctype(self):
         self.login()
@@ -46,7 +48,8 @@ class QuickFormTestCase(CremeTestCase):
         invalid_id = 10000
         self.assertFalse(ContentType.objects.filter(id=invalid_id))
 
-        url = '/creme_core/quickforms/%s/1' % invalid_id
+        # url = '/creme_core/quickforms/%s/1' % invalid_id
+        url = reverse('creme_core__quick_forms', args=(invalid_id, 1))
         self.assertGET404(url)
 
         data = self.quickform_data(1)
@@ -100,9 +103,10 @@ class QuickFormTestCase(CremeTestCase):
         self.quickform_data_append(data, 2)
 
         response = self.assertPOST200(self._build_quickform_url(Contact, 3), data)
-        self.assertFormsetError(response, 'formset', 0, 'last_name', _(u'This field is required.'))
-        self.assertFormsetError(response, 'formset', 1, 'last_name', _(u'This field is required.'))
-        self.assertFormsetError(response, 'formset', 2, 'last_name', _(u'This field is required.'))
+        msg = _(u'This field is required.')
+        self.assertFormsetError(response, 'formset', 0, 'last_name', msg)
+        self.assertFormsetError(response, 'formset', 1, 'last_name', msg)
+        self.assertFormsetError(response, 'formset', 2, 'last_name', msg)
 
         self.assertEqual(count, Contact.objects.count())
 
@@ -178,12 +182,20 @@ class QuickFormTestCase(CremeTestCase):
     def test_add_from_widget(self):
         user = self.login()
         count = Contact.objects.count()
+        ct_id = ContentType.objects.get_for_model(Contact).id
+
+        # Deprecated
+        self.assertGET200(reverse('creme_core__quick_form', args=(ct_id, 1)))
+
+        url = reverse('creme_core__quick_form', args=(ct_id,))
+        self.assertGET200(url)
 
         last_name = 'Kirika'
         email = 'admin@hello.com'
-        # response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/1' %
-        response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/' %
-                                        ContentType.objects.get_for_model(Contact).pk,
+        # # response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/1' %
+        # response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/' %
+        #                                 ContentType.objects.get_for_model(Contact).pk,
+        response = self.assertPOST200(url,
                                       data={'last_name': last_name,
                                             'email':     email,
                                             'user':      user.id,
@@ -193,8 +205,8 @@ class QuickFormTestCase(CremeTestCase):
 
         contact = self.get_object_or_fail(Contact, last_name=last_name, email=email)
         self.assertEqual('<json>%s</json>' % json_dump({
-                                "added": [[contact.id, unicode(contact)]], 
-                                "value": contact.id
+                                'added': [[contact.id, unicode(contact)]],
+                                'value': contact.id,
                             }),
                          response.content
                         )

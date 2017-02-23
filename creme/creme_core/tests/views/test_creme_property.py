@@ -5,6 +5,7 @@ try:
     import json
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
@@ -16,7 +17,8 @@ except Exception as e:
 
 
 class PropertyViewsTestCase(ViewsTestCase):
-    ADD_TYPE_URL = '/creme_core/property/type/add'
+    # ADD_TYPE_URL = '/creme_core/property/type/add'
+    ADD_TYPE_URL = reverse('creme_core__create_ptype')
 
     @classmethod
     def setUpClass(cls):
@@ -32,10 +34,14 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertFalse(entity.properties.filter(type=ptype).exists())
 
     def _build_bulk_url(self, ct, *entities):
-        return '/creme_core/property/add_to_entities/%s/?persist=ids&ids=%s' % (
-                    ct.id,
-                    '&ids='.join(str(e.id) for e in entities)
-                )
+        # return '/creme_core/property/add_to_entities/%s/?persist=ids&ids=%s' % (
+        #             ct.id,
+        #             '&ids='.join(str(e.id) for e in entities)
+        #         )
+        return (reverse('creme_core__add_properties_bulk', args=(ct.id,)) +
+                '?persist=ids&ids=' +
+                '&ids='.join(str(e.id) for e in entities)
+               )
 
     def test_add(self):
         self.login()
@@ -48,7 +54,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         entity  = CremeEntity.objects.create(user=self.user)
         self.assertFalse(entity.properties.all())
 
-        url = '/creme_core/property/add/%s' % entity.id
+        # url = '/creme_core/property/add/%s' % entity.id
+        url = reverse('creme_core__add_properties', args=(entity.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -69,9 +76,9 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual({ptype01, ptype02}, {p.type for p in properties})
 
         # ----------------------------------------------------------------------
-        response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]}) # One new and one old property
+        response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]})  # One new and one old property
         self.assertFormError(response, 'form', 'types',
-                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': ptype01.id,
                                 }
                             )
@@ -158,7 +165,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
         ct     = ContentType.objects.get_for_model(CremeProperty)
 
-        response = self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id, 
+        # response = self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id,
+        response = self.assertPOST200(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                                       follow=True, data={'id': prop.id},
                                      )
         self.assertRedirects(response, entity.get_absolute_url())
@@ -177,7 +185,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         prop1 = create_prop(creme_entity=entity1)
         prop2 = create_prop(creme_entity=entity2)
 
-        response = self.assertPOST200('/creme_core/property/delete_from_type', follow=True,
+        # response = self.assertPOST200('/creme_core/property/delete_from_type', follow=True,
+        response = self.assertPOST200(reverse('creme_core__remove_property'), follow=True,
                                       data={'ptype_id': ptype.id, 'entity_id': entity1.id},
                                      )
         self.assertRedirects(response, ptype.get_absolute_url())
@@ -411,9 +420,10 @@ class PropertyViewsTestCase(ViewsTestCase):
         rita = Contact.objects.create(user=self.user, last_name='Vrataski', first_name='Rita')
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
-        url_fmt = '/creme_core/property/type/%s/reload_block/%s/'
+        # url_fmt = '/creme_core/property/type/%s/reload_block/%s/'
         block_id = 'block_creme_core-tagged-creme_core-fakecontact'
-        response = self.assertGET200(url_fmt % (ptype.id, block_id))
+        # response = self.assertGET200(url_fmt % (ptype.id, block_id))
+        response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, block_id)))
 
         with self.assertNoException():
             result = json.loads(response.content)
@@ -430,9 +440,12 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertIn(' id="%s"' % block_id, block_html)
         self.assertIn(unicode(rita), block_html)
 
-        self.assertGET404(url_fmt % (ptype.id, 'invalid_blockid'))
-        self.assertGET404(url_fmt % (ptype.id, 'block_creme_core-tagged-persons-invalidmodel'))
-        self.assertGET404(url_fmt % (ptype.id, 'block_creme_core-tagged-persons-civility'))
+        # self.assertGET404(url_fmt % (ptype.id, 'invalid_blockid'))
+        # self.assertGET404(url_fmt % (ptype.id, 'block_creme_core-tagged-persons-invalidmodel'))
+        # self.assertGET404(url_fmt % (ptype.id, 'block_creme_core-tagged-persons-civility'))
+        self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'invalid_blockid')))
+        self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'block_creme_core-tagged-persons-invalidmodel')))
+        self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'block_creme_core-tagged-persons-civility')))
 
     def test_reload_block02(self):
         "Misc block + info block"
@@ -447,9 +460,10 @@ class PropertyViewsTestCase(ViewsTestCase):
         misc_block_id = 'block_creme_core-misc_tagged_entities'
         info_block_id = 'block_creme_core-property_type_info'
 
-        response = self.assertGET200('/creme_core/property/type/%s/reload_block/%s/' % (
-                                            ptype.id, misc_block_id,
-                                        ),
+        # response = self.assertGET200('/creme_core/property/type/%s/reload_block/%s/' % (
+        #                                     ptype.id, misc_block_id,
+        #                                 ),
+        response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, misc_block_id)),
                                      data={misc_block_id + '_deps': info_block_id},
                                     )
 
@@ -466,9 +480,10 @@ class PropertyViewsTestCase(ViewsTestCase):
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american')
 
         block_id = 'block_creme_core-tagged-persons-contact'
-        response = self.assertGET200('/creme_core/property/type/%s/reload_block/%s/' % (
-                                            ptype.id, block_id,
-                                        ),
+        # response = self.assertGET200('/creme_core/property/type/%s/reload_block/%s/' % (
+        #                                     ptype.id, block_id,
+        #                                 ),
+        response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, block_id)),
                                      HTTP_X_REQUESTED_WITH='XMLHttpRequest',
                                     )
 

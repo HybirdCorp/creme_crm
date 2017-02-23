@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
@@ -128,7 +129,8 @@ def delete(request, job_id):
     if request.is_ajax():
         return HttpResponse()
 
-    return HttpResponseRedirect('/creme_core/job/all')
+    # return HttpResponseRedirect('/creme_core/job/all')
+    return HttpResponseRedirect(reverse('creme_core__jobs'))
 
 
 @login_required

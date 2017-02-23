@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,6 +49,7 @@ from ..models import (CremePropertyType, CremeProperty,
         CustomField, CustomFieldValue, CustomFieldEnumValue, MassImportJobResult)
 from ..utils.meta import ModelFieldEnumerator
 # from ..utils.collections import LimitedList
+from ..utils.url import TemplateURLBuilder
 from .base import CremeForm, CremeModelForm, FieldBlockManager, _CUSTOM_NAME
 from .fields import MultiRelationEntityField, CreatorEntityField
 # from .validators import validate_linkable_entities
@@ -64,7 +65,7 @@ def get_backend(filedata):
     pathname, extension = splitext(filename)
     backend = import_backend_registry.get_backend(extension.replace('.', ''))
 
-    error_msg = ugettext("Error reading document, unsupported file type: %(file)s.") % {
+    error_msg = ugettext(u'Error reading document, unsupported file type: %(file)s.') % {
                                     'file': filename,
                         } if backend is None else None
 
@@ -686,13 +687,21 @@ class RelationExtractorSelector(SelectorList):
         value = value or {}
         self.selector = chained_input = ChainedInput(attrs)
 
+        # TODO: use GET args instead of using TemplateURLBuilders ?
         add = partial(chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True})
-        add("rtype",       options=self.relation_types, label=ugettext(u"The entity"))
-        add("ctype",       options='/creme_core/relation/type/${rtype}/content_types/json')
-        add("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json',
-            label=ugettext(u"which field"),
+        add('rtype',       options=self.relation_types, label=ugettext(u'The entity'))
+        # add('ctype',       options='/creme_core/relation/type/${rtype}/content_types/json')
+        add('ctype',
+            options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))
+                                      .resolve('creme_core__ctypes_compatible_with_rtype')
            )
-        add("column",      options=self.columns, label=ugettext(u"equals to"))
+        # add('searchfield', options='/creme_core/entity/get_info_fields/${ctype}/json',
+        add('searchfield',
+            options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))\
+                                      .resolve('creme_core__entity_info_fields'),
+            label=ugettext(u'which field'),
+           )
+        add('column',      options=self.columns, label=ugettext(u'equals to'))
 
         return mark_safe('<input type="checkbox" name="%(name)s_can_create" %(checked)s/>%(label)s'
                          '%(super)s' % {
@@ -717,7 +726,7 @@ class RelationExtractorField(MultiRelationEntityField):
     widget = RelationExtractorSelector
     default_error_messages = {
         'fielddoesnotexist': _(u"This field doesn't exist in this ContentType."),
-        'invalidcolunm':     _(u"This column is not a valid choice."),
+        'invalidcolunm':     _(u'This column is not a valid choice.'),
     }
 
     def __init__(self, columns=(), *args, **kwargs):

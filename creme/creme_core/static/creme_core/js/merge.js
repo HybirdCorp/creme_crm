@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,16 +22,30 @@
 
 creme.merge = creme.merge || {};
 
-creme.merge.selectOtherEntityNRedirect = function(model_id) {
-    var url = '/creme_core/entity/merge/select_other/' + model_id;
-    var action = creme.lv_widget.listViewAction(url, {multiple:false});
+creme.merge.selectOtherEntityNRedirect = function(model_id, selection_url, merge_url) {
+    var selection_url = selection_url;
+    if (selection_url === undefined) {
+        console.warn('creme.lv_widget.selectOtherEntityNRedirect(): implicit "selection_url" argument is deprecated ; give the URL as second argument.');
+        selection_url = '/creme_core/entity/merge/select_other/';
+    }
+
+    var merge_url = merge_url;
+    if (merge_url === undefined) {
+        console.warn('creme.lv_widget.selectOtherEntityNRedirect(): implicit "merge_url" argument is deprecated ; give the URL as third argument.');
+        merge_url = '/creme_core/entity/merge/';
+    }
+
+//    var url = '/creme_core/entity/merge/select_other/' + model_id;
+//    var action = creme.lv_widget.listViewAction(url, {multiple: false});
+    var action = creme.lv_widget.listViewAction(selection_url + '?' + $.param({id1: model_id}), {multiple: false});
 
     action.onDone(function(event, data) {
-        window.location.href = '/creme_core/entity/merge/' + model_id + ',' + data[0];
+//        window.location.href = '/creme_core/entity/merge/' + model_id + ',' + data[0];
+        window.location.href = merge_url + '?' + $.param({id1: model_id, id2: data[0]});
     });
 
     return action.start();
-}
+};
 
 creme.merge.initializeMergeForm = function(form) {
     var getter = function(input) {
@@ -79,4 +93,4 @@ creme.merge.initializeMergeForm = function(form) {
             })));
         });
     });
-}
+};

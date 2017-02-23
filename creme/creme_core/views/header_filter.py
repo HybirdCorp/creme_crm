@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,17 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from .. import utils
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..forms.header_filter import HeaderFilterForm
 from ..gui.listview import ListViewState
 from ..models import HeaderFilter, CremeEntity
-from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify
 from .generic import add_entity
 from .utils import build_cancel_path
 
@@ -42,7 +44,7 @@ def _set_current_hf(request, path, hf_instance):
 
 @login_required
 def add(request, content_type_id, extra_template_dict=None):
-    ct_entity = get_ct_or_404(content_type_id)
+    ct_entity = utils.get_ct_or_404(content_type_id)
 
     if not request.user.has_perm(ct_entity.app_label):
         raise PermissionDenied(ugettext(u"You are not allowed to access to this app"))
@@ -108,7 +110,7 @@ def edit(request, header_filter_id):
 
 @login_required
 def delete(request):
-    hf           = get_object_or_404(HeaderFilter, pk=get_from_POST_or_404(request.POST, 'id'))
+    hf           = get_object_or_404(HeaderFilter, pk=utils.get_from_POST_or_404(request.POST, 'id'))
     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
     allowed, msg = hf.can_delete(request.user)
 
@@ -128,12 +130,20 @@ def delete(request):
 
 
 @login_required
-@jsonify
-def get_for_ctype(request, ct_id):
-    ct = get_ct_or_404(ct_id)
+@utils.jsonify
+def get_for_ctype(request, ct_id=None):
+    if ct_id is None:
+        ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
+    else:
+        warnings.warn('header_filter.get_for_ctype(): the URL argument "ct_id" is deprecated ; '
+                      'use the GET parameter instead.',
+                      DeprecationWarning
+                     )
+
+    ct = utils.get_ct_or_404(ct_id)
     user = request.user
 
     if not user.has_perm(ct.app_label):  # TODO: helper in auth.py ??
-        raise PermissionDenied(ugettext(u"You are not allowed to access to this app"))
+        raise PermissionDenied(ugettext(u'You are not allowed to access to this app'))
 
     return list(HeaderFilter.get_for_user(user, ct).values_list('id', 'name'))

@@ -7,6 +7,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
@@ -21,7 +22,8 @@ except Exception as e:
 
 
 class HeaderFilterViewsTestCase(ViewsTestCase):
-    DELETE_URL = '/creme_core/header_filter/delete'
+    # DELETE_URL = '/creme_core/header_filter/delete'
+    DELETE_URL = reverse('creme_core__delete_hfilter')
 
     @classmethod
     def setUpClass(cls):
@@ -48,13 +50,17 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             self.assertEqual(cell1.value, cell2.value)
 
     def _build_add_url(self, ctype):
-        return '/creme_core/header_filter/add/%s' % ctype.id
+        # return '/creme_core/header_filter/add/%s' % ctype.id
+        return reverse('creme_core__create_hfilter', args=(ctype.id,))
 
     def _build_edit_url(self, hf):
-        return '/creme_core/header_filter/edit/%s' % hf.id
+        # return '/creme_core/header_filter/edit/%s' % hf.id
+        return reverse('creme_core__edit_hfilter', args=(hf.id,))
 
-    def _build_get4ctype_url(self, ctype):
-        return '/creme_core/header_filter/get_for_ctype/%s' % ctype.id
+    def _build_get4ctype_url(self, ctype, use_GET=False):
+        # return '/creme_core/header_filter/get_for_ctype/%s' % ctype.id
+        return reverse('creme_core__hfilters', args=(ctype.id,)) if not use_GET else \
+               reverse('creme_core__hfilters') + '?ct_id=%s' % ctype.id
 
     def test_create01(self):
         self.login()
@@ -509,6 +515,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual([], load_json(response.content))
 
+        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
+        self.assertEqual([], load_json(response.content))
+
     def test_hfilters_for_ctype02(self):
         user = self.login()
 
@@ -523,12 +532,14 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf03 = create_hf(pk=pk_fmt % 3, name=name03,      model=Contact,      is_custom=True, is_private=True, user=user)
         create_hf(pk=pk_fmt % 4,        name='Private',   model=Contact,      is_custom=True, is_private=True, user=self.other_user)
 
+        expected = [[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]]
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual([[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]],
-                         load_json(response.content)
-                        )
+        self.assertEqual(expected, load_json(response.content))
+
+        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
+        self.assertEqual(expected, load_json(response.content))
 
     def test_hfilters_for_ctype03(self):
         "No app credentials"
         self.login(is_superuser=False, allowed_apps=['documents'])
-        self.assertGET403(self._build_get4ctype_url(self.contact_ct))
+        self.assertGET403(self._build_get4ctype_url(self.contact_ct, use_GET=True))

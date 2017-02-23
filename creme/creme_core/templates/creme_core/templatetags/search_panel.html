@@ -1,6 +1,7 @@
 {% load i18n creme_core_tags %}
 <div class="research_box">
-    <form method="GET" action="/creme_core/search">
+{#    <form method="GET" action="/creme_core/search"> #}
+    <form method="GET" action="{% url 'creme_core__search' %}">
         <span>{% trans "Search" context "creme_core-verb" as label %}
             <img border="0" title="{{label}}" alt="{{label}}" src="{% creme_media_url 'images/search_22.png' %}" align="top">
             <select name="ct_id">

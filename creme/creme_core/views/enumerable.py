@@ -60,15 +60,16 @@ def json_list_enumerable(request, ct_id):
         try:
             config_registry.get_app(app_name).get_model_conf(model=model)
         except (KeyError, NotRegisteredInConfig):
-            raise Http404(u"Content type is not registered in config")
+            raise Http404(u'Content type is not registered in config')
 
     return [(e.id, unicode(e)) for e in model.objects.all()]
 
 
+# TODO: move to entity_filter.py ?
 @login_required
 @jsonify
 def json_list_userfilter(request):
-    return list(chain((('__currentuser__', _('Current user')),),
+    return list(chain((('__currentuser__', _(u'Current user')),),
                       ((e.id, unicode(e)) for e in get_user_model().objects.all()),
                      )
                )

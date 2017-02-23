@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,19 +19,19 @@
 ################################################################################
 
 from functools import partial
-import logging
+import logging, warnings
 
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 from django.template.context import make_context
 from django.template.engine import Engine
-from django.shortcuts import get_object_or_404
 
 from ..auth.decorators import login_required
 from ..blocks import relations_block
 from ..gui.block import block_registry, str2list, BlocksManager
 from ..models import CremeEntity
 from ..models.block import BlockState
-from ..utils import jsonify, get_ct_or_404
+from ..utils import jsonify, get_ct_or_404, get_from_POST_or_404
 
 
 logger = logging.getLogger(__name__)
@@ -168,6 +168,7 @@ def reload_basic(request, block_id):
                                 check_permission=True
                                )
 
+
 @login_required
 @jsonify
 def reload_relations_block(request, entity_id, relation_type_ids=''):
@@ -184,10 +185,24 @@ def reload_relations_block(request, entity_id, relation_type_ids=''):
                                 lambda block: block.detailview_display(context)
                                )
 
+
 @login_required
 @jsonify
-def set_state(request, block_id):
-    POST_get = request.POST.get
+# def set_state(request, block_id):
+def set_state(request, block_id=None):
+    POST = request.POST
+
+    # TODO: check that block ID is valid ?
+    if block_id is None:
+        block_id = get_from_POST_or_404(POST, 'id')
+    else:
+        warnings.warn('creme_core.views.blocks.set_state(): '
+                      'the URL argument "block_id" is deprecated ; '
+                      'use the POST parameter "id" instead.',
+                      DeprecationWarning
+                     )
+
+    POST_get = POST.get
     is_open           = POST_get('is_open')
     show_empty_fields = POST_get('show_empty_fields')
     state_changed = False

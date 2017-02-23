@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,7 @@ from ..creme_jobs.batch_process import batch_process_type
 from ..gui import bulk_update_registry
 from ..models import CremeEntity, EntityFilter, Job
 from ..utils.unicode_collation import collator
+from ..utils.url import TemplateURLBuilder
 from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
@@ -52,12 +53,15 @@ class BatchActionsWidget(SelectorList):
         sub_attrs = {'auto': False}
 
         # TODO: improve SelectorList.add_* to avoid attribute 'auto'
-        chained_input.add_dselect('name', attrs=sub_attrs,
-                                   options=self.fields,
-                                 )
+        chained_input.add_dselect('name', attrs=sub_attrs, options=self.fields)
         chained_input.add_dselect('operator', attrs=sub_attrs,
-                                  options='/creme_core/list_view/batch_process/%s/get_ops/${name}' %
-                                                ContentType.objects.get_for_model(self.model).id
+                                  # options='/creme_core/list_view/batch_process/%s/get_ops/${name}' %
+                                  #               ContentType.objects.get_for_model(self.model).id
+                                  # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+                                  options=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${name}'))\
+                                            .resolve('creme_core__batch_process_ops',
+                                                     kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id}
+                                                    ),
                                  )
 
         pinput = PolymorphicInput(key='${operator}', attrs=sub_attrs)
@@ -76,10 +80,10 @@ class BatchActionsWidget(SelectorList):
 class BatchActionsField(JSONField):
     widget = BatchActionsWidget  # Should have 'model' & 'fields' attributes
     default_error_messages = {
-        'invalidfield':    _(u"This field is invalid with this model."),
-        'reusedfield':     _(u"The field «%(field)s» can not be used twice."),
-        'invalidoperator': _(u"This operator is invalid."),
-        'invalidvalue':    _(u"Invalid value => %(error)s"),
+        'invalidfield':    _(u'This field is invalid with this model.'),
+        'reusedfield':     _(u'The field «%(field)s» can not be used twice.'),
+        'invalidoperator': _(u'This operator is invalid.'),
+        'invalidvalue':    _(u'Invalid value => %(error)s'),
     }
 
     value_type = list

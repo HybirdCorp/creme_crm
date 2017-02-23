@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from json import loads as json_load, dumps as json_dump
-import logging
+import logging, warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -37,14 +37,32 @@ from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.utils.queries import get_q_from_dict
+
 from .popup import inner_popup
 
 
 logger = logging.getLogger(__name__)
 
+# MODE_NORMAL = 0  # TODO ? (no selection)
+MODE_SINGLE_SELECTION = 1
+MODE_MULTIPLE_SELECTION = 2
+
 
 class NoHeaderFilterAvailable(Exception):
     pass
+
+
+def str_to_mode(value):
+    """Convert a string to list-view mode.
+    Useful to convert a GET parameter.
+    """
+    if value == 'single':
+        return MODE_SINGLE_SELECTION
+
+    if value == 'multiple':
+        return MODE_MULTIPLE_SELECTION
+
+    raise ValueError('Must be "single" or "multiple"')
 
 
 def _clean_value(value, converter, default=None):
@@ -192,13 +210,14 @@ def _select_entityfilter(request, entity_filters, default_filter):
     return entity_filters.select_by_id(efilter_id)
 
 
+# TODO: use mode=MODE_* instead of "o2m"
 def list_view_content(request, model, hf_pk='', extra_dict=None,
                       template='creme_core/generics/list_entities.html',
                       show_actions=True, extra_q=None, o2m=False, post_process=None,
                       content_template='creme_core/frags/list_view_content.html',
                      ):
     """ Generic list_view wrapper / generator
-    Accept only CremeEntity model and subclasses
+    Accepts only CremeEntity model and subclasses.
     @param post_process: Function that takes the template context and the
                          request as parameters (so you can modify the context).
     """
@@ -318,45 +337,71 @@ def list_view(request, model, *args, **kwargs):
     try:
         template_name, template_dict = list_view_content(request, model, *args, **kwargs)
     except NoHeaderFilterAvailable:
-        from creme.creme_core.views.header_filter import add as add_header_filter
+        from ..header_filter import add as add_header_filter
         return add_header_filter(request, ContentType.objects.get_for_model(model).id,
-                                 {'help_message': _(u"The desired list does not have any view, please create one.")}
+                                 {'help_message': _(u'The desired list does not have any view, please create one.')}
                                 )
 
     return render(request, template_name, template_dict)
 
 
 def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
-    """@param kwargs See list_view_content()"""
+    """ Displays a list-view selector in an inner popup.
+    @param ct_id: ContentType ID of te wanted model.
+    @param o2m: True means single selection model (OneToMany) ; False means multiple selection mode
+    @param kwargs: See list_view_content()
+    """
+    warnings.warn('creme_core.views.generic.listview.list_view_popup_from_widget(): is deprecated. '
+                  'If you want a final view, use creme_core.views.entity.list_view_popup() instead. '
+                  'If you want a generic view, use creme_core.views.generic.listview.list_view_popup() instead.',
+                  DeprecationWarning
+                 )
+
     ct = get_ct_or_404(ct_id)
 
-    if not request.user.has_perm(ct.app_label):
-        raise Http404(_(u"You are not allowed to access to this app"))
+    return list_view_popup(request, ct.model_class(),
+                           mode=MODE_SINGLE_SELECTION if int(o2m) else MODE_MULTIPLE_SELECTION,
+                           **kwargs
+                          )
 
+
+# TODO: add a no-selection mode ??
+def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, **kwargs):
+    """ Displays a list-view selector in an inner popup.
+    @param model: Class inheriting CremeEntity.
+    @param mode: Selection mode, in (MODE_SINGLE_SELECTION, MODE_MULTIPLE_SELECTION).
+    @param kwargs: See list_view_content()
+    """
+    assert mode in (MODE_SINGLE_SELECTION, MODE_MULTIPLE_SELECTION)
+
+    if not request.user.has_perm(model._meta.app_label):
+        raise Http404(_(u'You are not allowed to access to this app'))
+
+    # TODO: only use GET of GET request etc...
     req_get = lambda k, default=None: request.POST.get(k, default) or request.GET.get(k, default)
-    o2m = bool(int(o2m))
     kwargs['show_actions'] = bool(int(req_get('sa', False)))
     extra_dict = {
-                  'js_handler':    req_get('js_handler'),
-                  'js_arguments':  req_get('js_arguments'),
-                  'whoami':        req_get('whoami'),
-                  'is_popup_view': True,
-                 }
+        'js_handler':    req_get('js_handler'),
+        'js_arguments':  req_get('js_arguments'),
+        'whoami':        req_get('whoami'),
+        'is_popup_view': True,
+    }
 
     extra_dict.update(kwargs.pop('extra_dict', None) or {})
 
     extra_q = kwargs.pop('extra_q', None)
 
     try:
-        template_name, template_dict = list_view_content(request, ct.model_class(), extra_dict=extra_dict,
+        template_name, template_dict = list_view_content(request, model=model, extra_dict=extra_dict,
                                                          template='creme_core/frags/list_view.html',
-                                                         extra_q=extra_q, o2m=o2m,
+                                                         extra_q=extra_q,
+                                                         o2m=True if mode == MODE_SINGLE_SELECTION else False,
                                                          **kwargs
                                                         )
     except NoHeaderFilterAvailable:
         # TODO: true HeaderFilter creation in inner popup
         return inner_popup(request, '', {}, is_valid=False,
-                           html=_(u"The desired list does not have any view, please create one.")
+                           html=_(u'The desired list does not have any view, please create one.')
                           )
 
     return inner_popup(request, template_name, template_dict, is_valid=False)

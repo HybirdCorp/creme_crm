@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="search-form">
-    <form method="GET" action="/creme_core/search">
+    <form method="GET" action="{% url 'creme_core__search' %}">
     {% trans "Search" context "creme_core-verb" as label %}
         <input type="text" name="research" value="{{search_terms}}" required />
         <select name="ct_id">

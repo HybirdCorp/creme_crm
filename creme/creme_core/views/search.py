@@ -22,6 +22,7 @@ from time import time
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _  # ungettext
@@ -93,7 +94,8 @@ class FoundEntitiesBlock(QuerysetBlock):
 
         btc = self.get_block_template_context(
                     context, qs,
-                    update_url='/creme_core/search/reload_block/%s/%s' % (self.id_, research),
+                    # update_url='/creme_core/search/reload_block/%s/%s' % (self.id_, research),
+                    update_url=reverse('creme_core__reload_search_block', args=(self.id_, research)),
                     sfields=searcher.get_fields(model),
                     # If the model is inserted in the context, the template call it and create an instance...
                     ctype=self.ctype,

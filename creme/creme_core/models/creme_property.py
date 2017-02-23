@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
 
 from ..signals import pre_merge_related, pre_replace_related
 from .base import CremeModel
@@ -36,8 +37,8 @@ class CremePropertyType(CremeModel):
     # If True, the properties with this type can be copied (ie: when cloning or converting an entity).
     is_copiable    = BooleanField(default=True)
 
-    creation_label = _('Create a type of property')
-    save_label     = _('Save the type of property')
+    creation_label = _(u'Create a type of property')
+    save_label     = _(u'Save the type of property')
 
     class Meta:
         app_label = 'creme_core'
@@ -49,17 +50,21 @@ class CremePropertyType(CremeModel):
         return self.text
 
     def get_absolute_url(self):
-        return '/creme_core/property/type/%s' % self.id
+        # return '/creme_core/property/type/%s' % self.id
+        return reverse('creme_core__ptype', args=(self.id,))
 
     @staticmethod
     def get_create_absolute_url():
-        return '/creme_core/property/type/add'
+        # return '/creme_core/property/type/add'
+        return reverse('creme_core__create_ptype')
 
     def get_delete_absolute_url(self):
-        return '/creme_core/property/type/%s/delete' % self.id
+        # return '/creme_core/property/type/%s/delete' % self.id
+        return reverse('creme_core__delete_ptype', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return '/creme_core/property/type/%s/edit' % self.id
+        # return '/creme_core/property/type/%s/edit' % self.id
+        return reverse('creme_core__edit_ptype', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():

@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2009-2015  Hybird
+ Copyright (C) 2009-2017  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,12 @@ creme.blocks.fill = function(block, content) {
 // TODO : make a generic method for deferred save. something like:
 //        deferredAction(element, action_name, action_func, action_delay)
 creme.blocks.saveState = function(block) {
-    var state = {
+//    var state = {
+//            is_open:           $(block).hasClass('collapsed') ? 0 : 1,
+//            show_empty_fields: $(block).hasClass(this.hide_fields_class) ? 0 : 1
+//    };
+    var post_data = {
+            id:                block.attr('id'),
             is_open:           $(block).hasClass('collapsed') ? 0 : 1,
             show_empty_fields: $(block).hasClass(this.hide_fields_class) ? 0 : 1
     };
@@ -56,8 +61,18 @@ creme.blocks.saveState = function(block) {
 
     $.when(deferred.promise()).then(function(status) {
         block.removeData('block-deferred-save');
-        creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block.attr('id') + '/',
-                             state, null, null, true);
+//        creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block.attr('id') + '/',
+//                             state, null, null, true);
+
+        var url = $('body').attr('data-block-state-url');
+
+        if (url === undefined) {
+            console.warn('creme.blocks.saveState(): hard-coded URL is deprecated ; set the URL as the <body> attribute "data-block-state-url" (see base.html).');
+            url = '/creme_core/blocks/reload/set_state/';
+        }
+
+        creme.ajax.json.post(url, post_data, null, null, true);
+
     }, null, null);
 
     block.data('block-deferred-save', deferred);
@@ -69,7 +84,7 @@ creme.blocks.saveState = function(block) {
 
 creme.blocks.initEmptyFields = function(block) {
     // if there are no buttons toggling the 'empty field hiding', we should do nothing with the block lines
-    if (block.find ('.block_header .buttons').find ('a.view_less, a.view_more').length == 0)
+    if (block.find('.block_header .buttons').find('a.view_less, a.view_more').length == 0)
         return;
 
     $('tbody > tr.content', block).not(':has(> td:not(.edit_inner):not(:empty))').addClass('collapsable-field');
@@ -93,7 +108,7 @@ creme.blocks.updateFieldsColors = function(block) {
         $('tbody > tr.content:not(.collapsable-field):even th', block).toggleClass('block_header_line_light', true).toggleClass('block_header_line_dark', false);
         $('tbody > tr.content:not(.collapsable-field):odd th', block).toggleClass('block_header_line_light', false).toggleClass('block_header_line_dark', true);
     }
-}
+};
 
 creme.blocks.updateToggleButton = function(block, collapsed) {
     var button = $('table.block_header th.actions a.view_more, table.block_header th.actions a.view_less', block);
@@ -103,7 +118,7 @@ creme.blocks.updateToggleButton = function(block, collapsed) {
     button.toggleClass('view_less', !collapsed).toggleClass('view_more', collapsed);
     button.attr('title', button_title)
           .attr('alt', button_title);
-}
+};
 
 creme.blocks.toggleEmptyFields = function(button) {
     var $block = $(button).parents('table[id].table_detail_view:not(.collapsed)');
@@ -202,7 +217,7 @@ creme.blocks.initPager = function(pager) {
             input.removeClass('active');
         });
     });
-}
+};
 
 creme.blocks.initialize = function(block) {
     block.bind('creme-table-collapse', function(e, params) {
@@ -241,7 +256,7 @@ creme.blocks.bindEvents = function(root) {
 
 creme.blocks.scrollToError = function(block) {
     creme.utils.scrollTo($('.errorlist:first'));
-}
+};
 
 creme.blocks.form = function(url, options, data) {
     var options = options || {};
@@ -258,7 +273,7 @@ creme.blocks.form = function(url, options, data) {
 
 creme.blocks.confirmPOSTQuery = function(url, options, data) {
     return creme.blocks.confirmAjaxQuery(url, $.extend({action: 'post'}, options), data);
-}
+};
 
 creme.blocks.confirmAjaxQuery = function(url, options, data) {
     var action = creme.utils.confirmAjaxQuery(url, options, data);
@@ -309,6 +324,8 @@ creme.blocks.massAction = function(url, selector, block_url, values_post_process
 };
 
 creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_url) {
+    console.warn('creme.blocks.massRelation() is deprecated ; use creme.blocks.massRelating() instead.');
+
     var values = $(selector).getValues();
     if (values.length == 0) {
         creme.dialogs.warning(gettext("Please select at least one entity.")).open();
@@ -316,20 +333,31 @@ creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_u
     }
 
     url = '/creme_core/relation/add_to_entities/%s/%s/'.format(subject_ct_id, rtype_ids.join(','));
-    url += '?' + $.param({persist: 'id', ids: values})
+    url += '?' + $.param({persist: 'id', ids: values});
 
     creme.blocks.form(url, {blockReloadUrl: block_url}).open();
 };
 
+creme.blocks.massRelating = function(url, rtype_ids, selector, block_url) {
+    var entities_ids = $(selector).getValues();
+    if (entities_ids.length == 0) {
+        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
+        return false;
+    }
+
+    creme.blocks.form(url + '?' + $.param({persist: 'id', ids: entities_ids, rtype: rtype_ids}),
+                      {blockReloadUrl: block_url}
+                     ).open();
+};
+
 creme.blocks.tableExpandState = function($self, state, trigger) {
     var $table = $self.parents('table[id]');
-    var $collapsable = $table.find('.collapsable');
-
     var old_state = !$table.hasClass('collapsed');
 
     if (state === old_state)
         return;
 
+    var $collapsable = $table.find('.collapsable');
     $table.toggleClass('collapsed faded', !state);
 
     if (trigger === undefined || trigger) {
@@ -340,15 +368,15 @@ creme.blocks.tableExpandState = function($self, state, trigger) {
                                             .trigger('resizestop');
         }
     }
-}
+};
 
 creme.blocks.tableIsCollapsed = function($self) {
     return $self.parents('table[id]').hasClass('collapsed');
-}
+};
 
 creme.blocks.tableExpand = function($self, trigger) {
     creme.blocks.tableExpandState($self, true, trigger);
-}
+};
 
 creme.blocks.bindTableToggle = function($self) {
     $self.click(function(e) {
@@ -359,4 +387,4 @@ creme.blocks.bindTableToggle = function($self) {
 
         creme.blocks.tableExpandState($self, creme.blocks.tableIsCollapsed($self));
     });
-}
+};

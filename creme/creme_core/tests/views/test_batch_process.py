@@ -7,6 +7,7 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
+    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
@@ -40,10 +41,13 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     # def build_url(self, model):
     def _build_add_url(self, model):
-        return '/creme_core/list_view/batch_process/%s?list_url=%s' % (
-                        ContentType.objects.get_for_model(model).id,
-                        model.get_lv_absolute_url(),
-                     )
+        # return '/creme_core/list_view/batch_process/%s?list_url=%s' % (
+        #                 ContentType.objects.get_for_model(model).id,
+        #                 model.get_lv_absolute_url(),
+        #              )
+        return reverse('creme_core__batch_process',
+                       args=(ContentType.objects.get_for_model(model).id,),
+                      ) + '?list_url=' + model.get_lv_absolute_url()
 
     def _get_job(self, response):
         with self.assertNoException():
@@ -69,7 +73,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                           )
 
         response = self.assertGET200(self._build_add_url(Organisation), follow=True)
-        self.assertRedirects(response, '/creme_core/job/all')
+        # self.assertRedirects(response, '/creme_core/job/all')
+        self.assertRedirects(response, reverse('creme_core__jobs'))
 
     def test_batching_upper01(self):
         queue = JobManagerQueue.get_main_queue()
@@ -543,10 +548,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                         )
 
     def build_ops_url(self, ct_id, field):
-        return '/creme_core/list_view/batch_process/%(ct_id)s/get_ops/%(field)s' % {
-                        'ct_id': ct_id,
-                        'field': field,
-                    }
+        # return '/creme_core/list_view/batch_process/%(ct_id)s/get_ops/%(field)s' % {
+        #                 'ct_id': ct_id,
+        #                 'field': field,
+        #             }
+        return reverse('creme_core__batch_process_ops', args=(ct_id, field))
 
     def test_get_ops01(self):
         "Unknown ContentType"
@@ -658,7 +664,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
         response = self.assertGET200(self._build_add_url(Organisation), follow=True)
-        self.assertRedirects(response, '/creme_core/job/all')
+        # self.assertRedirects(response, '/creme_core/job/all')
+        self.assertRedirects(response, reverse('creme_core__jobs'))
 
     def test_fatalerror(self):
         self.login()

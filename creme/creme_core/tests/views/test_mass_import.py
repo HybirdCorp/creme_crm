@@ -7,6 +7,7 @@ try:
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.template.defaultfilters import slugify
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
@@ -85,7 +86,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         cls.ct = ContentType.objects.get_for_model(Contact)
 
     def _build_dl_errors_url(self, job):
-        return '/creme_core/mass_import/dl_errors/%s' % job.id
+        # return '/creme_core/mass_import/dl_errors/%s' % job.id
+        return reverse('creme_core__dl_mass_import_errors', args=(job.id,))
 
     def _dyn_relations_value(self, rtype, model, column, subfield):
         return '[{"rtype":"%(rtype)s","ctype":"%(ctype)s",' \
@@ -100,8 +102,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         user = self.login()
 
         count = Contact.objects.count()
-        lines = [("Rei",   "Ayanami"),
-                 ("Asuka", "Langley"),
+        lines = [('Rei',   'Ayanami'),
+                 ('Asuka', 'Langley'),
                 ]
 
         doc = builder(lines)
@@ -188,10 +190,10 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
                                     u'%(counter)s «%(type)s» have been created.',
-                                   lines_count
-                                  ) % { 'counter': lines_count,
+                                    lines_count
+                                   ) % {'counter': lines_count,
                                         'type':    'Test Contacts',
-                                      },
+                                       },
                           ungettext('%s line in the file.', '%s lines in the file.',
                                     lines_count,
                                    ) % lines_count,
@@ -200,9 +202,10 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                         )
 
         # Reload block -----------
-        url_fmt = '/creme_core/job/%s/reload/%s'
+        # url_fmt = '/creme_core/job/%s/reload/%s'
         block_id = massimport_job_errors_block.id_
-        response = self.assertGET200(url_fmt % (job.id, block_id))
+        # response = self.assertGET200(url_fmt % (job.id, block_id))
+        response = self.assertGET200(reverse('creme_core__reload_job_block', args=(job.id, block_id)))
         with self.assertNoException():
             result = json.loads(response.content)
 
@@ -215,7 +218,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(block_id, result[0])
         self.assertIn(' id="%s"' % block_id, result[1])
 
-        self.assertGET404(url_fmt % (job.id, job_errors_block.id_))
+        # self.assertGET404(url_fmt % (job.id, job_errors_block.id_))
+        self.assertGET404(reverse('creme_core__reload_job_block', args=(job.id, job_errors_block.id_)))
 
     def _test_import02(self, builder):
         "Use header, default value, model search and create, properties, fixed and dynamic relations"
@@ -857,7 +861,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                    capital_colselect=1,
                                                   ),
                                    )
-        self.assertFormError(response, 'form', 'name', _('This field is required.'))
+        self.assertFormError(response, 'form', 'name', _(u'This field is required.'))
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_import_error04(self):
@@ -869,7 +873,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                           )
 
         response = self.assertGET200(self._build_import_url(Contact), follow=True)
-        self.assertRedirects(response, '/creme_core/job/all')
+        # self.assertRedirects(response, '/creme_core/job/all')
+        self.assertRedirects(response, reverse('creme_core__jobs'))
 
     def test_credentials01(self):
         "Creation credentials for imported model"

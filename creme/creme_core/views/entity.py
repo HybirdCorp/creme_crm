@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,8 +46,9 @@ from ..utils.translation import get_model_verbose_name
 # from ..utils.chunktools import iter_as_slices
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
+
 from .decorators import POST_only
-from .generic import inner_popup, list_view_popup_from_widget
+from .generic import inner_popup, listview
 from .utils import build_cancel_path
 
 
@@ -169,7 +170,7 @@ def search_and_view(request):
             raise Http404(u'This model does not exist: %s' % model_id)
 
         if not has_perm(ct.app_label):
-            raise PermissionDenied(_(u"You are not allowed to access to this app"))
+            raise PermissionDenied(_(u'You are not allowed to access to this app'))
 
         model = ct.model_class()
 
@@ -213,7 +214,7 @@ def _bulk_has_perm(entity, user):
 def inner_edit_field(request, ct_id, id, field_name):
     user   = request.user
     model  = get_ct_or_404(ct_id).model_class()
-    entity = get_object_or_404(model, pk=id)  # TODO: rename (& 'entities' arg too ?) because not always an entity...
+    entity = get_object_or_404(model, pk=id)  # TODO: rename because not always an entity...
 
     if not _bulk_has_perm(entity, user):
         raise PermissionDenied(_(u'You are not allowed to edit this entity'))
@@ -241,7 +242,8 @@ def inner_edit_field(request, ct_id, id, field_name):
 
 
 @login_required
-def bulk_update_field(request, ct_id, field_name):
+# def bulk_update_field(request, ct_id, field_name):
+def bulk_update_field(request, ct_id, field_name=None):
     user = request.user
     model = get_ct_or_404(ct_id).model_class()
 
@@ -328,17 +330,20 @@ def bulk_update_field(request, ct_id, field_name):
                       )
 
 
+# TODO: remove in creme 1.8 (see hack in BulkForm too)
 @login_required
 def bulk_edit_field(request, ct_id, id, field_name):
     warnings.warn("/creme_core/entity/edit/bulk/{{ct}}/{{ids...}}/field/{{fieldname}} is now deprecated."
-                  "Use /creme_core/entity/update/bulk/{{ct}}/field/{{fieldname}} view instead.",
+                  "Use /creme_core/entity/update/bulk/{{ct}}/field/{{fieldname}} view instead"
+                  "[ie: reverse('creme_core__bulk_update', args=(ct.id, 'my_field')) ].",
                   DeprecationWarning
                  )
 
-    user   = request.user
-    model  = get_ct_or_404(ct_id).model_class()
+    user = request.user
+    model = get_ct_or_404(ct_id).model_class()
     entities = get_list_or_404(model, pk__in=id.split(','))
-    edit_url = '/creme_core/entity/edit/bulk/%(ct)s/%(entities)s/field/%(field)s'
+    # edit_url = '/creme_core/entity/edit/bulk/%(ct)s/%(entities)s/field/%(field)s'
+    viewname = 'creme_core__bulk_edit_field_legacy'
 
     filtered = [e for e in entities if _bulk_has_perm(e, user)]
 
@@ -353,7 +358,8 @@ def bulk_edit_field(request, ct_id, id, field_name):
 
         if request.method == 'POST':
             form = form_class(entities=filtered, user=user, data=request.POST, is_bulk=True)
-            form.bulk_url = edit_url
+            # form.bulk_url = edit_url
+            form.bulk_viewname = viewname
 
             if form.is_valid():
                 form.save()
@@ -364,7 +370,8 @@ def bulk_edit_field(request, ct_id, id, field_name):
                              )
         else:
             form = form_class(entities=filtered, user=user, is_bulk=True)
-            form.bulk_url = edit_url
+            # form.bulk_url = edit_url
+            form.bulk_viewname = viewname
 
     except (FieldDoesNotExist, FieldNotAllowed):
         return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited') % field_name)
@@ -379,7 +386,17 @@ def bulk_edit_field(request, ct_id, id, field_name):
 
 
 @login_required
-def select_entity_for_merge(request, entity1_id):
+# def select_entity_for_merge(request, entity1_id):
+def select_entity_for_merge(request, entity1_id=None):
+    if entity1_id is None:
+        entity1_id = get_from_GET_or_404(request.GET, 'id1', cast=int)
+    else:
+        warnings.warn('creme_core.views.entity.select_entity_for_merge(): '
+                      'the URL argument "entity1_id" is deprecated ; '
+                      'use the GET parameter "id1" instead.',
+                      DeprecationWarning
+                     )
+
     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
 
     if merge_form_factory(entity1.entity_type.model_class()) is None:
@@ -389,14 +406,37 @@ def select_entity_for_merge(request, entity1_id):
     user.has_perm_to_view_or_die(entity1); user.has_perm_to_change_or_die(entity1)
 
     # TODO: filter viewable & deletable entities + (manage swapping ?)
-    # TODO: change list_view_popup_from_widget code (o2m should be '1', but True works)
-    return list_view_popup_from_widget(request, entity1.entity_type_id, o2m=True,
-                                       extra_q=~Q(pk=entity1_id)
-                                      )
+    # return listview.list_view_popup_from_widget(request, entity1.entity_type_id, o2m=True,
+    #                                             extra_q=~Q(pk=entity1_id)
+    #                                            )
+    return listview.list_view_popup(request,
+                                    model=entity1.entity_type.model_class(),  # NB: avoid retrieving real entity...
+                                    mode=listview.MODE_SINGLE_SELECTION,
+                                    extra_q=~Q(pk=entity1_id),
+                                   )
 
 
 @login_required
-def merge(request, entity1_id, entity2_id):
+# def merge(request, entity1_id, entity2_id):
+def merge(request, entity1_id=None, entity2_id=None):
+    GET = request.GET
+
+    if entity1_id is None:
+        entity1_id = get_from_GET_or_404(GET, 'id1', cast=int)
+    else:
+        warnings.warn('creme_core.views.entity.merge(): the URL argument "entity1_id" is deprecated ; '
+                      'use the GET parameter "id1" instead.',
+                      DeprecationWarning
+                     )
+
+    if entity2_id is None:
+        entity2_id = get_from_GET_or_404(GET, 'id2', cast=int)
+    else:
+        warnings.warn('creme_core.views.entity.merge(): the URL argument "entity2_id" is deprecated ; '
+                      'use the GET parameter "id2" instead.',
+                      DeprecationWarning
+                     )
+
     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
     entity2 = get_object_or_404(CremeEntity, pk=entity2_id)
 
@@ -447,7 +487,7 @@ def merge(request, entity1_id, entity2_id):
 
     return render(request, 'creme_core/merge.html',
                   {'form':   merge_form,
-                   'title': _('Merge <%(entity1)s> with <%(entity2)s>') % {
+                   'title': _(u'Merge «%(entity1)s» with «%(entity2)s»') % {
                                    'entity1': entity1,
                                    'entity2': entity2,
                                 },
@@ -458,7 +498,7 @@ def merge(request, entity1_id, entity2_id):
                                       'with any of old entities will be automatically '
                                       'available in the new merged entity.'
                                      ),
-                   'submit_label': _('Merge'),
+                   'submit_label': _(u'Merge'),
                    'cancel_url': cancel_url,
                   }
                  )
@@ -616,7 +656,7 @@ def delete_entities(request):
         return HttpResponse('Bad POST argument', content_type='text/javascript', status=400)
 
     if not entity_ids:
-        return HttpResponse(_('No selected entities'), content_type='text/javascript', status=400)
+        return HttpResponse(_(u'No selected entities'), content_type='text/javascript', status=400)
 
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
@@ -637,7 +677,7 @@ def delete_entities(request):
 
     if not errors:
         status = 200
-        message = _('Operation successfully completed')
+        message = _(u'Operation successfully completed')
     else:
         status = min(errors.iterkeys())
         message = json_dumps({'count': len(entity_ids),
@@ -701,3 +741,20 @@ def delete_related_to_entity(request, ct_id):
         return HttpResponse(content_type='text/javascript')
 
     return redirect(entity)
+
+
+@login_required
+def list_view_popup(request):
+    """ Displays a list-view selector in an inner popup.
+
+    GET arguments are:
+      - 'ct_id': the ContentType ID of the model we want. Required (if not given in the URL -- which is deprecated).
+      - 'selection': The selection mode, which can be "single" or "multiple". Optional (default is "single").
+    """
+    GET = request.GET
+    ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
+    mode  = get_from_GET_or_404(GET, 'selection', cast=listview.str_to_mode, default='single')
+
+    ct = get_ct_or_404(ct_id)
+
+    return listview.list_view_popup(request, model=ct.model_class(), mode=mode)

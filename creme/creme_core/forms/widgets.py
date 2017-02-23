@@ -28,6 +28,7 @@ from types import GeneratorType
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db.models.query import Q
 from django.forms.utils import flatatt
 from django.forms import widgets
@@ -39,6 +40,7 @@ from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy
 
 from ..utils.date_range import date_range_registry
 from ..utils.media import creme_media_themed_url as media_url
+from ..utils.url import TemplateURLBuilder
 
 
 def widget_render_input(renderer, widget, name, value, context, **kwargs):
@@ -159,7 +161,7 @@ class EnhancedSelectOptions(object):
 
 class DynamicSelect(widgets.Select, EnhancedSelectOptions):
     def __init__(self, attrs=None, options=None, url='', label=None):
-        super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
+        super(DynamicSelect, self).__init__(attrs, ())  # TODO: options or ()
         self.url = url
         self.label = label
         self.from_python = None
@@ -180,7 +182,7 @@ class DynamicSelect(widgets.Select, EnhancedSelectOptions):
 
 class DynamicSelectMultiple(widgets.SelectMultiple, EnhancedSelectOptions):
     def __init__(self, attrs=None, options=None, url='', label=None):
-        super(DynamicSelectMultiple, self).__init__(attrs, ()) #TODO: options or ()
+        super(DynamicSelectMultiple, self).__init__(attrs, ())  # TODO: options or ()
         self.url = url
         self.label = label
         self.from_python = None
@@ -509,16 +511,29 @@ class SelectorList(widgets.TextInput):
 
 class EntitySelector(widgets.TextInput):
     def __init__(self, content_type=None, attrs=None):
+        """ Constructor.
+        @param content_type: Template variable which represent the ContentType ID in the URL. Default is '${ctype}'.
+        @param attrs: see Widget.
+        """
         super(EntitySelector, self).__init__(attrs)
-        self.url = '/creme_core/list_view/popup/' + content_type + '/${selection}?q_filter=${qfilter}'\
-                   if content_type else \
-                   '/creme_core/list_view/popup/${ctype}/${selection}?q_filter=${qfilter}'
-        self.text_url = '/creme_core/relation/entity/${id}/json'
+        # self.url = '/creme_core/list_view/popup/' + content_type + '/${selection}?q_filter=${qfilter}'\
+        #            if content_type else \
+        #            '/creme_core/list_view/popup/${ctype}/${selection}?q_filter=${qfilter}'
+        self.url = '%s?ct_id=%s&selection=${selection}&q_filter=${qfilter}' % (
+                        reverse('creme_core__listview_popup'),
+                        content_type or '${ctype}',
+        )
+
+        # TODO: use a GET parameter instead of using a TemplateURLBuilder ?
+        # self.text_url = '/creme_core/relation/entity/${id}/json'
+        self.text_url = TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))\
+                                          .resolve('creme_core__entity_as_json')
         self.from_python = None
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
-        selection_mode = '0' if attrs.pop('multiple', False) else '1'
+        # selection_mode = '0' if attrs.pop('multiple', False) else '1'
+        selection_mode = 'multiple' if attrs.pop('multiple', False) else 'single'
         autoselect_mode = 'popupAuto' if attrs.pop('autoselect', False) else ''
 
         context = widget_render_context('ui-creme-entityselector', attrs,
@@ -547,9 +562,9 @@ class EntitySelector(widgets.TextInput):
         context['qfilter'] = escape(json_dump(qfilter)) if qfilter else ''
 
         return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" '
-                            'labelURL="%(text_url)s" label="%(label)s" '
-                            'popupURL="%(url)s" popupSelection="%(selection)s" %(autoselect)s '
-                            'qfilter="%(qfilter)s">'
+                               'labelURL="%(text_url)s" label="%(label)s" '
+                               'popupURL="%(url)s" popupSelection="%(selection)s" %(autoselect)s '
+                               'qfilter="%(qfilter)s">'
                             '%(input)s'
                             '<button type="button">%(label)s</button>'
                          '</span>' % context
@@ -612,9 +627,10 @@ class MultiCTEntitySelector(SelectorList):
 
 
 class RelationSelector(ChainedInput):
-    _CTYPES_URL_FMT = '/creme_core/relation/type/${rtype}/content_types/json'
+    # _CTYPES_URL_FMT = '/creme_core/relation/type/${rtype}/content_types/json'
 
-    def __init__(self, relation_types=(), content_types=_CTYPES_URL_FMT,
+    # def __init__(self, relation_types=(), content_types=_CTYPES_URL_FMT,
+    def __init__(self, relation_types=(), content_types=None,  # TODO: rename 'ctypes_url' ?
                  attrs=None, multiple=False, autocomplete=False,
                 ):
         super(RelationSelector, self).__init__(attrs)
@@ -626,10 +642,14 @@ class RelationSelector(ChainedInput):
     def render(self, name, value, attrs=None):
         dselect_attrs = {'auto': False, 'autocomplete': True} if self.autocomplete else \
                         {'auto': False}
+        ct_url = self.content_types or \
+                 TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))\
+                                   .resolve('creme_core__ctypes_compatible_with_rtype')
 
-        self.add_dselect("rtype", options=self.relation_types, attrs=dselect_attrs)
-        self.add_dselect("ctype", options=self.content_types,  attrs=dselect_attrs)
-        self.add_input("entity", widget=EntitySelector,
+        self.add_dselect('rtype', options=self.relation_types, attrs=dselect_attrs)
+        # self.add_dselect('ctype', options=self.content_types,  attrs=dselect_attrs)
+        self.add_dselect('ctype', options=ct_url,  attrs=dselect_attrs)
+        self.add_input('entity', widget=EntitySelector,
                        attrs={'auto': False, 'multiple': self.multiple},
                       )
 
@@ -637,7 +657,8 @@ class RelationSelector(ChainedInput):
 
 
 class MultiRelationSelector(SelectorList):
-    def __init__(self, relation_types=(), content_types=RelationSelector._CTYPES_URL_FMT,
+    # def __init__(self, relation_types=(), content_types=RelationSelector._CTYPES_URL_FMT,
+    def __init__(self, relation_types=(), content_types=None,
                  attrs=None, autocomplete=False,
                 ):
         super(MultiRelationSelector, self).__init__(None, attrs=attrs)
@@ -647,10 +668,10 @@ class MultiRelationSelector(SelectorList):
 
     def render(self, name, value, attrs=None):
         self.selector = RelationSelector(relation_types=self.relation_types,
-                                          content_types=self.content_types,
-                                          multiple=True,
-                                          autocomplete=self.autocomplete,
-                                         )
+                                         content_types=self.content_types,
+                                         multiple=True,
+                                         autocomplete=self.autocomplete,
+                                        )
 
         return super(MultiRelationSelector, self).render(name, value, attrs)
 
@@ -712,7 +733,7 @@ class MultiEntityCreatorWidget(SelectorList):
                                        'qfilter':    self.q_filter,
                                        'multiple':   True,
                                        'autoselect': True,
-                                       },
+                                      },
                                      )
 
             def add_action(name, label, enabled=True, **kwargs):
@@ -743,11 +764,11 @@ class FilteredEntityTypeWidget(ChainedInput):
         ctype_name = 'ctype'
         add_dselect(ctype_name, options=self.content_types)
 
-        # TODO: 'all' as GET parameter ??
         # TODO: allow to omit the 'All' filter ??
         # TODO: do not make a request for ContentType ID == '0'
         add_dselect('efilter',
-                    options='/creme_core/entity_filter/get_for_ctype/${%s}/all' % ctype_name,
+                    # options='/creme_core/entity_filter/get_for_ctype/${%s}/all' % ctype_name,
+                    options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
                    )
 
         return super(FilteredEntityTypeWidget, self).render(name, value, attrs)
@@ -1048,7 +1069,7 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
         filter = checkall = ''
 
         if filtertype:
-            filtername = _('Filter') if filtertype == 'filter' else pgettext('creme_core-noun', 'Search')
+            filtername = _(u'Filter') if filtertype == 'filter' else pgettext('creme_core-noun', u'Search')
             filter = '<input type="search" class="checklist-filter" placeholder="%s">' % filtername.upper()
 
         if has_checkall:
@@ -1238,7 +1259,7 @@ class DatePeriodWidget(widgets.MultiWidget):
 
     def format_output(self, rendered_widgets):
         return u'<ul class="ui-layout hbox">%s</ul>' % (
-                    _('%(dateperiod_value)s%(dateperiod_type)s') % {
+                    _(u'%(dateperiod_value)s%(dateperiod_type)s') % {
                             'dateperiod_type':  u'<li>%s</li>' % rendered_widgets[0],
                             'dateperiod_value': u'<li>%s</li>' % rendered_widgets[1],
                         }

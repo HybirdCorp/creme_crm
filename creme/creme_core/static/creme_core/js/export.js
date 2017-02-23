@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,14 +22,21 @@
 
 creme.exports = creme.exports || {};
 
-creme.exports.exportAs = function(url, formats) {
+creme.exports.exportAs = function(url, formats, argument_name) {
     var formats = !Object.isEmpty(formats) ? formats : [['', 'No backend found']];
 
-    return creme.dialogs.choice(gettext("Select the export format"), {
-                      title: gettext("Export"),
-                      choices: formats.map(function(item) {return {value:item[0], label:item[1]}})
-                  })
-                 .onOk(function(event, data) {
-                      window.location.href = url.format(data);
-                  }).open();
+    return creme.dialogs
+                .choice(gettext("Select the export format"), {
+                    title: gettext("Export"),
+                    choices: formats.map(function(item) {return {value:item[0], label:item[1]}})
+                })
+                .onOk(function(event, data) {
+                    if (argument_name === undefined) {
+                        console.warn('creme.exports.exportAs(): URL as format string is deprecated ; use the the "argument_name" parameter instead.');
+                        window.location.href = url.format(data);
+                    } else {
+                        window.location.href = url + '&' + argument_name + '=' + data;
+                    }
+                })
+                .open();
 }

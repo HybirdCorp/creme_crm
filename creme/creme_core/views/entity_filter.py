@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import logging, warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
@@ -27,12 +27,12 @@ from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
+from .. import utils
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
 from ..gui.listview import ListViewState
 from ..models import EntityFilter, RelationType, CremeEntity
-from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
 from .generic import add_entity
 from .utils import build_cancel_path
 
@@ -50,7 +50,7 @@ def _set_current_efilter(request, path, filter_instance):
 
 @login_required
 def add(request, ct_id):
-    ct = get_ct_or_404(ct_id)
+    ct = utils.get_ct_or_404(ct_id)
 
     if not request.user.has_perm(ct.app_label):
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
@@ -105,14 +105,14 @@ def edit(request, efilter_id):
     return render(request, 'creme_core/entity_filter_form.html',
                   {'form': efilter_form,
                    'cancel_url': cancel_url,
-                   'submit_label': _('Save the modified filter'),
+                   'submit_label': _(u'Save the modified filter'),
                   }
                  )
 
 
 @login_required
 def delete(request):
-    efilter      = get_object_or_404(EntityFilter, pk=get_from_POST_or_404(request.POST, 'id'))
+    efilter      = get_object_or_404(EntityFilter, pk=utils.get_from_POST_or_404(request.POST, 'id'))
     callback_url = efilter.entity_type.model_class().get_lv_absolute_url()
     allowed, msg = efilter.can_delete(request.user)
     status = 400  # TODO: 409 ??
@@ -135,17 +135,17 @@ def delete(request):
         return_msg = msg
 
     if request.is_ajax():
-        return HttpResponse(return_msg, content_type="text/javascript", status=status)
+        return HttpResponse(return_msg, content_type='text/javascript', status=status)
 
     return HttpResponseRedirect(callback_url)
 
 
-# TODO: factorise with views.relations.json_predicate_content_types  ???
+# TODO: factorise with views.relations.json_rtype_ctypes  ???
 @login_required
-@jsonify
+@utils.jsonify
 def get_content_types(request, rtype_id):
     content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or \
-                    creme_entity_content_types()
+                    utils.creme_entity_content_types()
 
     choices = [(0, _(u'All'))]
     choices.extend((ct.id, unicode(ct)) for ct in content_types)
@@ -154,13 +154,32 @@ def get_content_types(request, rtype_id):
 
 
 @login_required
-@jsonify
-def get_for_ctype(request, ct_id, include_all=False):
-    ct = get_ct_or_404(ct_id)
+@utils.jsonify
+# def get_for_ctype(request, ct_id, include_all=False):
+def get_for_ctype(request, ct_id=None, include_all=None):
+    GET = request.GET
+
+    if ct_id is None:
+        ct_id = utils.get_from_GET_or_404(GET, 'ct_id', int)
+    else:
+        warnings.warn('entity_filter.get_for_ctype(): the URL argument "ct_id" is deprecated ; '
+                      'use the GET parameter instead.',
+                      DeprecationWarning
+                     )
+
+    if include_all is None:
+        include_all = utils.get_from_GET_or_404(GET, 'all', cast=utils.bool_from_str_extended, default='0')
+    else:
+        warnings.warn('entity_filter.get_for_ctype(): the URL argument "include_all" is deprecated ; '
+                      'use the GET parameter "all" instead.',
+                      DeprecationWarning
+                     )
+
+    ct = utils.get_ct_or_404(ct_id)
     user = request.user
 
     if not user.has_perm(ct.app_label):  # TODO: helper in auth.py ??
-        raise PermissionDenied(_(u"You are not allowed to access to this app"))
+        raise PermissionDenied(_(u'You are not allowed to access to this app'))
 
     choices = [('', _(u'All'))] if include_all else []
     choices.extend(EntityFilter.get_for_user(user, ct).values_list('id', 'name'))

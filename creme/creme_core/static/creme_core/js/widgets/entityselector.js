@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,13 +20,15 @@ creme.widget.ENTITY_SELECT_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.
                                                                  {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
 
 creme.widget.EntitySelectorMode = {
-    MULTIPLE: 0,
-    SINGLE: 1
+//    MULTIPLE: 0,
+//    SINGLE: 1
+    MULTIPLE: 'multiple',
+    SINGLE: 'single'
 };
 
 creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
-    options : {
+    options: {
         popupURL: '',
         popupSelection: creme.widget.EntitySelectorMode.SINGLE,
         labelURL: '',
@@ -58,7 +60,11 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
             }
         });
 
-        var selection = this._popupSelectMode = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
+        // TODO: "_popupSelectMode" useful ??
+//        var selection = this._popupSelectMode = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
+        var selection = this._popupSelectMode = options.popupSelection === creme.widget.EntitySelectorMode.MULTIPLE ?
+                                                creme.widget.EntitySelectorMode.MULTIPLE :
+                                                creme.widget.EntitySelectorMode.SINGLE;
 
         this._popupURL = new creme.utils.Template(options.popupURL, {
                                                        qfilter: options.qfilter,
@@ -148,13 +154,15 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
                             {dataType:'json', sync:sync});
     },
 
+    // TODO: remove 'element' ?
     isMultiple: function(element) {
         return this._popupURL.parameters().selection === creme.widget.EntitySelectorMode.MULTIPLE;
     },
 
+    // TODO: useful ?
     multiple: function(element, value) {
         var value = value ? creme.widget.EntitySelectorMode.MULTIPLE : creme.widget.EntitySelectorMode.SINGLE;
-        this._popupURL.update({selection:value});
+        this._popupURL.update({selection: value});
     },
 
     parentSelectorList: function(element) {
@@ -162,7 +170,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     },
 
     qfilter: function(element, value) {
-        this._popupURL.update({qfilter:value});
+        this._popupURL.update({qfilter: value});
     },
 
     popupURL: function(element) {

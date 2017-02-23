@@ -23,6 +23,7 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.models import (Model, CharField, TextField, DateTimeField,
         PositiveIntegerField, PositiveSmallIntegerField, BooleanField,
         ForeignKey, F)
@@ -123,10 +124,15 @@ class Job(Model):
         return u'<Job type="%s" id="%s">' % (self.type.id, self.id)
 
     def get_absolute_url(self):
-        return '/creme_core/job/%s' % self.id
+        # return '/creme_core/job/%s' % self.id
+        return reverse('creme_core__job', args=(self.id,))
+
+    def get_delete_absolute_url(self):
+        return reverse('creme_core__delete_job', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return '/creme_core/job/%s/edit' % self.id
+        # return '/creme_core/job/%s/edit' % self.id
+        return reverse('creme_core__edit_job', args=(self.id,))
 
     @property
     def data(self):

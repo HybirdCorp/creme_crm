@@ -7,12 +7,12 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _, ungettext
 
     from .base import ViewsTestCase
-    from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeCivility as Civility,
-            FakeImage as Image, FakeDocument as Document)
+    from ..fake_models import (FakeContact, FakeOrganisation, FakeCivility,
+            FakeImage, FakeDocument)
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             EntityFilterVariable, CustomField, RelationType, CremePropertyType)
 except Exception as e:
@@ -34,20 +34,24 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         super(EntityFilterViewsTestCase, cls).setUpClass()
 
         get_ct = ContentType.objects.get_for_model
-        cls.ct_contact = get_ct(Contact)
-        cls.ct_orga    = get_ct(Organisation)
+        cls.ct_contact = get_ct(FakeContact)
+        cls.ct_orga    = get_ct(FakeOrganisation)
 
     def _build_add_url(self, ct):
-        return '/creme_core/entity_filter/add/%s' % ct.id
+        # return '/creme_core/entity_filter/add/%s' % ct.id
+        return reverse('creme_core__create_efilter', args=(ct.id,))
 
-    def _build_edit_url(self, efilter):
-        return '/creme_core/entity_filter/edit/%s' % efilter.id  # TODO: get_edit_absolute_url ?
+    # def _build_edit_url(self, efilter):
+    #     return '/creme_core/entity_filter/edit/%s' % efilter.id
 
     def _build_get_ct_url(self, rtype):
-        return '/creme_core/entity_filter/rtype/%s/content_types' % rtype.id
+        # return '/creme_core/entity_filter/rtype/%s/content_types' % rtype.id
+        return reverse('creme_core__ctypes_compatible_with_rtype_as_choices', args=(rtype.id,))
 
-    def _build_get_filter_url(self, ct):
-        return '/creme_core/entity_filter/get_for_ctype/%s' % ct.id
+    def _build_get_filter_url(self, ct, all_filter=False, use_GET=False):
+        # return '/creme_core/entity_filter/get_for_ctype/%s' % ct.id
+        return reverse('creme_core__efilters', args=(ct.id,)) if not use_GET else \
+               reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
 
     def test_create01(self):
         "Check app credentials"
@@ -61,7 +65,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         self.role.allowed_apps = ['documents', 'creme_core']
         self.role.save()
-        response = self.assertGET200(uri)
+        # response = \
+        self.assertGET200(uri)
 
         # TODO: test widgets instead
 #        with self.assertNoException():
@@ -108,20 +113,20 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                                condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-        self.assertRedirects(response, Contact.get_lv_absolute_url())
+        self.assertRedirects(response, FakeContact.get_lv_absolute_url())
 
     def test_create02(self):
         user = self.login()
         ct = self.ct_orga
 
         # Can not be a simple subfilter (bad content type)
-        relsubfilfer = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
+        relsubfilfer = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
 
-        subfilter = EntityFilter.create('test-filter02', 'Filter 02', Organisation, is_custom=True)
-        subfilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+        subfilter = EntityFilter.create('test-filter02', 'Filter 02', FakeOrganisation, is_custom=True)
+        subfilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeOrganisation,
                                                                       operator=EntityFilterCondition.GT,
                                                                       name='capital', values=[10000]
-                                                                     )
+                                                                      )
                                  ])
 
         rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
@@ -254,7 +259,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         name = 'Filter img'
         field_name = 'image__created'
         daterange_type = 'previous_year'
-        callback_url = Organisation.get_lv_absolute_url()
+        callback_url = FakeOrganisation.get_lv_absolute_url()
         response = self.client.post(self._build_add_url(ct), follow=True,
                                     data={'name':                  name,
                                           'use_or':                'False',
@@ -341,15 +346,15 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         team = get_user_model().objects.create(username='A-team', is_team=True)
         team.teammates = [user]
 
-        subfilter = EntityFilter.create('creme_core-subfilter', 'Misato', model=Contact,
+        subfilter = EntityFilter.create('creme_core-subfilter', 'Misato', model=FakeContact,
                                         user=team, is_private=True, is_custom=True,
                                         conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Contact,
+                                                        model=FakeContact,
                                                         operator=EntityFilterCondition.EQUALS,
                                                         name='first_name', values=['Misato'],
                                                     ),
                                                    ],
-                                       )
+                                        )
         self.assertTrue(subfilter.can_view(user)[0])
         self.assertFalse(subfilter.can_view(self.other_user)[0])
 
@@ -425,35 +430,35 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_edit_filter_with_integer_values(self):
         self.login()
 
-        civility = Civility.objects.create(title='Other')
+        civility = FakeCivility.objects.create(title='Other')
 
         efilter = EntityFilter.create('test-filter01',
                                       name='Filter 01',
-                                      model=Contact,
+                                      model=FakeContact,
                                       conditions=[EntityFilterCondition.build_4_field(
-                                                      model=Contact,
+                                                      model=FakeContact,
                                                       operator=EntityFilterCondition.EQUALS,
                                                       name='civility',
                                                       values=[civility.pk],
                                                   ),
                                                  ]
-                                     )
+                                      )
 
-        self.assertGET200(self._build_edit_url(efilter))
+        self.assertGET200(efilter.get_edit_absolute_url())
 
     def test_create_subfilters_n_private01(self):
         "Cannot choose a private sub-filter which belongs to another user"
         user = self.login()
 
-        subfilter = EntityFilter.create('creme_core-subfilter', 'Misato', model=Contact,
+        subfilter = EntityFilter.create('creme_core-subfilter', 'Misato', model=FakeContact,
                                         user=self.other_user, is_private=True, is_custom=True,
                                         conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Contact,
+                                                        model=FakeContact,
                                                         operator=EntityFilterCondition.EQUALS,
                                                         name='first_name', values=['Misato'],
                                                     ),
                                                    ],
-                                       )
+                                        )
 
         name = 'Misato Katsuragi'
         data = {'name':       name,
@@ -505,24 +510,24 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         team = get_user_model().objects.create(username='A-team', is_team=True)
         team.teammates = [user, self.other_user]
 
-        subfilter1 = EntityFilter.create('creme_core-subfilter1', 'Misato', model=Contact,
+        subfilter1 = EntityFilter.create('creme_core-subfilter1', 'Misato', model=FakeContact,
                                          user=user, is_private=True, is_custom=True,
                                          conditions=[EntityFilterCondition.build_4_field(
-                                                         model=Contact,
+                                                         model=FakeContact,
                                                          operator=EntityFilterCondition.EQUALS,
                                                          name='first_name', values=['Misato'],
                                                      ),
                                                     ],
-                                        )
-        subfilter2 = EntityFilter.create('creme_core-subfilter2', 'Katsuragi', model=Contact,
+                                         )
+        subfilter2 = EntityFilter.create('creme_core-subfilter2', 'Katsuragi', model=FakeContact,
                                          user=team, is_private=True, is_custom=True,
                                          conditions=[EntityFilterCondition.build_4_field(
-                                                         model=Contact,
+                                                         model=FakeContact,
                                                          operator=EntityFilterCondition.EQUALS,
                                                          name='last_name', values=['Katsuragi'],
                                                      ),
                                                     ],
-                                        )
+                                         )
 
         name = 'Misato Katsuragi'
 
@@ -571,21 +576,21 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         other_team = User.objects.create(username='TeamTitan', is_team=True)
         other_team.teammates = [user, other_user]
 
-        subfilter1 = EntityFilter.create('creme_core-subfilter1', 'Miss', model=Contact,
+        subfilter1 = EntityFilter.create('creme_core-subfilter1', 'Miss', model=FakeContact,
                                          is_private=False, is_custom=True,
-                                        )
+                                         )
 
         def create_subfilter(idx, owner):
             return EntityFilter.create('creme_core-subfilter%s' % idx,
-                                       'Misato #%s' % idx, model=Contact,
+                                       'Misato #%s' % idx, model=FakeContact,
                                        user=owner, is_private=True, is_custom=True,
                                        conditions=[EntityFilterCondition.build_4_field(
-                                                    model=Contact,
+                                                    model=FakeContact,
                                                     operator=EntityFilterCondition.EQUALS,
                                                     name='first_name', values=['Misato'],
                                                    ),
                                                   ],
-                                      )
+                                       )
 
         subfilter2 = create_subfilter(2, team)
         subfilter3 = create_subfilter(4, other_team)
@@ -628,9 +633,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         with self.assertNoException():
-            Document._meta.get_field('filedata')
+            FakeDocument._meta.get_field('filedata')
 
-        ct = ContentType.objects.get_for_model(Document)
+        ct = ContentType.objects.get_for_model(FakeDocument)
         response = self.assertPOST200(self._build_add_url(ct),
                                       follow=True,
                                       data={'name':              'Filter 01',
@@ -651,7 +656,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         with self.assertNoException():
-            Image._meta.get_field('filedata')
+            FakeImage._meta.get_field('filedata')
 
         response = self.assertPOST200(self._build_add_url(self.ct_contact),
                                       follow=True,
@@ -672,9 +677,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         # Cannot be a simple subfilter (bad content type)
-        relsubfilfer = EntityFilter.create('test-filter01', 'Filter 01', Organisation, is_custom=True)
+        relsubfilfer = EntityFilter.create('test-filter01', 'Filter 01', FakeOrganisation, is_custom=True)
 
-        subfilter = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True)
+        subfilter = EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True)
 
         rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
                                             ('test-object_love',  u'Is loved by')
@@ -686,7 +691,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         datecfield   = create_cf(name='First meeting', field_type=CustomField.DATETIME)
 
         name = 'Filter 03'
-        efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
+        efilter = EntityFilter.create('test-filter03', name, FakeContact, is_custom=True)
         cf_cond = EntityFilterCondition.build_4_customfield(custom_field=custom_field,
                                                             operator=EntityFilterCondition.ICONTAINS,
                                                             value=['Ed'],
@@ -695,18 +700,18 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                     start=date(year=2010, month=1, day=1),
                                                                    )
         efilter.set_conditions(
-            [EntityFilterCondition.build_4_field(model=Contact,
+            [EntityFilterCondition.build_4_field(model=FakeContact,
                                                  operator=EntityFilterCondition.CONTAINS,
                                                  name='first_name', values=['Atom']
-                                                ),
-             EntityFilterCondition.build_4_field(model=Contact,
+                                                 ),
+             EntityFilterCondition.build_4_field(model=FakeContact,
                                                  operator=EntityFilterCondition.ISEMPTY,
                                                  name='description', values=[False]
-                                                ),
-             EntityFilterCondition.build_4_date(model=Contact, name='birthday',
+                                                 ),
+             EntityFilterCondition.build_4_date(model=FakeContact, name='birthday',
                                                 start=date(year=2001, month=1, day=1),
                                                 end=date(year=2010, month=12, day=31),
-                                               ),
+                                                ),
              cf_cond, datecf_cond,
              EntityFilterCondition.build_4_relation(rtype=rtype, has=True),
              EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True,
@@ -716,17 +721,17 @@ class EntityFilterViewsTestCase(ViewsTestCase):
              EntityFilterCondition.build_4_subfilter(subfilter),
             ])
 
-        parent_filter = EntityFilter.create('test-filter04', 'Filter 04', Contact, is_custom=True)
+        parent_filter = EntityFilter.create('test-filter04', 'Filter 04', FakeContact, is_custom=True)
         parent_filter.set_conditions([EntityFilterCondition.build_4_subfilter(efilter)])
 
-        url = self._build_edit_url(efilter)
+        url = efilter.get_edit_absolute_url()
         response = self.assertGET200(url)
 
         formfields = response.context['form'].fields
-        self.assertEqual(Contact,        formfields['fields_conditions'].model)
-        self.assertEqual(Contact,        formfields['relations_conditions'].model)
-        self.assertEqual(Contact,        formfields['relsubfilfers_conditions'].model)
-        self.assertEqual(Contact,        formfields['properties_conditions'].model)
+        self.assertEqual(FakeContact, formfields['fields_conditions'].model)
+        self.assertEqual(FakeContact, formfields['relations_conditions'].model)
+        self.assertEqual(FakeContact, formfields['relsubfilfers_conditions'].model)
+        self.assertEqual(FakeContact, formfields['properties_conditions'].model)
         self.assertEqual([subfilter.id], [f.id for f in formfields['subfilters_conditions'].queryset])
         self.assertEqual([cf_cond],      formfields['customfields_conditions'].initial)
         self.assertEqual([datecf_cond],  formfields['datecustomfields_conditions'].initial)
@@ -836,29 +841,29 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
         self.assertEqual(subfilter.id,                        condition.name)
 
-        self.assertRedirects(response, Contact.get_lv_absolute_url())
+        self.assertRedirects(response, FakeContact.get_lv_absolute_url())
 
     def test_edit02(self):
         "Not custom -> edit owner & conditions, but not the name + callback_url"
         user = self.login()
 
         name = 'Filter01'
-        efilter = EntityFilter.create('test-filter01', name, Contact, is_custom=False,
+        efilter = EntityFilter.create('test-filter01', name, FakeContact, is_custom=False,
                                       conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Contact,
+                                                        model=FakeContact,
                                                         operator=EntityFilterCondition.EQUALS,
                                                         name='first_name', values=['Misato'],
                                                     )
                                                  ]
-                                     )
+                                      )
 
-        url = self._build_edit_url(efilter)
+        url = efilter.get_edit_absolute_url()
         self.assertGET200(url)
 
         field_operator = EntityFilterCondition.IEQUALS
         field_name = 'last_name'
         field_value = 'Ikari'
-        callback_url = Organisation.get_lv_absolute_url()
+        callback_url = FakeOrganisation.get_lv_absolute_url()
         response = self.client.post(url, follow=True,
                                     data={'name':               'Filter01 edited',  # Should not be used
                                           'user':               user.id,
@@ -892,15 +897,15 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Can not edit Filter that belongs to another user"
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
-        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.other_user, is_custom=True)
-        self.assertGET403(self._build_edit_url(efilter))
+        efilter = EntityFilter.create('test-filter01', 'Filter01', FakeContact, user=self.other_user, is_custom=True)
+        self.assertGET403(efilter.get_edit_absolute_url())
 
     def test_edit04(self):
         "User do not have the app credentials"
         self.login(is_superuser=False, allowed_apps=['documents'])
 
-        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.user, is_custom=True)
-        self.assertGET403(self._build_edit_url(efilter))
+        efilter = EntityFilter.create('test-filter01', 'Filter01', FakeContact, user=self.user, is_custom=True)
+        self.assertGET403(efilter.get_edit_absolute_url())
 
     def test_edit05(self):
         "Cycle error"
@@ -910,18 +915,18 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                             ('test-object_love',  u'Is loved by')
                                            )
 
-        efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
+        efilter = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                        model=Contact,
+                                        model=FakeContact,
                                         operator=EntityFilterCondition.EQUALS,
                                         name='first_name', values=['Misato'],
                                     ),
                                ])
 
-        parent_filter = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True)
+        parent_filter = EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True)
         parent_filter.set_conditions([EntityFilterCondition.build_4_subfilter(efilter)])
 
-        response = self.client.post(self._build_edit_url(efilter), follow=True,
+        response = self.client.post(efilter.get_edit_absolute_url(), follow=True,
                                     data={'name':                     efilter.name,
                                           'use_or':                   'False',
                                           'relsubfilfers_conditions': self.RELSUBFILTER_CONDS_FMT % {
@@ -941,24 +946,23 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         create_ef = partial(EntityFilter.objects.create, name='My filter',
                             entity_type=self.ct_contact,
                            )
-        build_url = self._build_edit_url
-        self.assertGET200(build_url(create_ef(pk=base_pk)))
-        self.assertGET200(build_url(create_ef(pk=base_pk + '[1.5]')))
-        self.assertGET200(build_url(create_ef(pk=base_pk + '[1.10.2 rc2]')))
-        self.assertGET200(build_url(create_ef(pk=base_pk + '[1.10.2 rc2]3')))
+        self.assertGET200(create_ef(pk=base_pk).get_edit_absolute_url())
+        self.assertGET200(create_ef(pk=base_pk + '[1.5]').get_edit_absolute_url())
+        self.assertGET200(create_ef(pk=base_pk + '[1.10.2 rc2]').get_edit_absolute_url())
+        self.assertGET200(create_ef(pk=base_pk + '[1.10.2 rc2]3').get_edit_absolute_url())
 
     def test_edit07(self):
         "Staff users can edit all EntityFilters + private filters must be assigned"
         self.login(is_staff=True)
 
-        efilter = EntityFilter.create('test-filter', 'My Filter', Contact,
+        efilter = EntityFilter.create('test-filter', 'My Filter', FakeContact,
                                       is_custom=True,
                                       is_private=True, user=self.other_user,
                                      )
-        url = self._build_edit_url(efilter)
+        url = efilter.get_edit_absolute_url()
         self.assertGET200(url)
 
-        response = self.client.post(self._build_edit_url(efilter), follow=True,
+        response = self.client.post(efilter.get_edit_absolute_url(), follow=True,
                                     data={'name':              efilter.name,
                                           'is_private':        'on',
                                           'use_or':            'False',
@@ -970,37 +974,37 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', None,
-                             _('A private filter must be assigned to a user/team.')
+                             _(u'A private filter must be assigned to a user/team.')
                             )
 
     def test_edit08(self):
         "Private filter -> cannot be edited by another user (even a super-user)"
         self.login()
 
-        efilter = EntityFilter.create('test-filter', 'My Filter', Contact,
+        efilter = EntityFilter.create('test-filter', 'My Filter', FakeContact,
                                       is_custom=True,
                                       is_private=True, user=self.other_user,
-                                     )
-        self.assertGET403(self._build_edit_url(efilter))
+                                      )
+        self.assertGET403(efilter.get_edit_absolute_url())
 
     def test_edit09(self):
         "Not custom filter cannot be private"
-        self.login()
+        user = self.login()
 
-        efilter = EntityFilter.create('test-filter01', 'Misatos', Contact, is_custom=False,
+        efilter = EntityFilter.create('test-filter01', 'Misatos', FakeContact, is_custom=False,
                                       conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Contact,
+                                                        model=FakeContact,
                                                         operator=EntityFilterCondition.EQUALS,
                                                         name='first_name', values=['Misato'],
                                                     ),
                                                  ],
-                                     )
-        url = self._build_edit_url(efilter)
+                                      )
+        url = efilter.get_edit_absolute_url()
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
                                     data={'name':              efilter.name,
-                                          'user':              self.user.id,
+                                          'user':              user.id,
                                           'is_private':        'on',  # Should not be used
                                           'use_or':            'False',
                                           'fields_conditions': self.FIELDS_CONDS_FMT % {
@@ -1016,7 +1020,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def _aux_edit_subfilter(self, efilter, user=None, is_private=''):
         user = user or self.user
 
-        return self.client.post(self._build_edit_url(efilter), follow=True,
+        return self.client.post(efilter.get_edit_absolute_url(), follow=True,
                                 data={'name':              efilter.name,
                                       'user':              user.id,
                                       'is_private':        is_private,
@@ -1033,10 +1037,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Edit a filter which is a sub-filter for another one -> both are public"
         user = self.login()
 
-        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
-        EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
+        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
+        EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True,
                             conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
-                           )
+                            )
 
         response = self._aux_edit_subfilter(efilter1)
         self.assertNoFormError(response)
@@ -1046,13 +1050,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "The sub-filter becomes public"
         user = self.login()
 
-        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True,
+        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True,
                                        is_private=True, user=user,
-                                      )
-        EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
+                                       )
+        EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True,
                             is_private=True, user=user,
                             conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
-                           )
+                            )
 
         response = self._aux_edit_subfilter(efilter1)
         self.assertNoFormError(response)
@@ -1062,10 +1066,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "The sub-filter becomes private + public parent => error"
         self.login()
 
-        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
-        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
+        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
+        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True,
                                        conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
-                                      )
+                                       )
 
         response = self._aux_edit_subfilter(efilter1, is_private='on')
         msg = _(u'This filter cannot be private because it is a sub-filter for '
@@ -1093,11 +1097,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         """
         self.login()
 
-        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
-        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
+        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
+        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True,
                                        is_private=True, user=self.other_user,
                                        conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
-                                      )
+                                       )
 
         response = self._aux_edit_subfilter(efilter1, is_private='on')
         self.assertFormError(response, 'form', None,
@@ -1124,11 +1128,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         team = User.objects.create(username='A-team', is_team=True)
         team.teammates = [user, self.other_user]
 
-        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
-        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
+        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
+        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True,
                                        is_private=True, user=team,
                                        conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
-                                      )
+                                       )
 
         response = self._aux_edit_subfilter(efilter1, is_private='on')
         self.assertFormError(response, 'form', None,
@@ -1163,11 +1167,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         team = get_user_model().objects.create(username='A-team', is_team=True)
         team.teammates = [user]
 
-        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
-        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
+        efilter1 = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
+        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True,
                                        is_private=True, user=self.other_user,
                                        conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
-                                      )
+                                       )
 
         response = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
         self.assertFormError(response, 'form', None,
@@ -1185,15 +1189,16 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
     def _delete(self, efilter, **kwargs):
-        return self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id}, **kwargs)
+        # return self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id}, **kwargs)
+        return self.client.post(reverse('creme_core__delete_efilter'), data={'id': efilter.id}, **kwargs)
 
     def test_delete01(self):
         self.login()
 
-        efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
+        efilter = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
         response = self._delete(efilter, follow=True)
         self.assertEqual(200, response.status_code)
-        self.assertRedirects(response, Contact.get_lv_absolute_url())
+        self.assertRedirects(response, FakeContact.get_lv_absolute_url())
         self.assertEqual(0, EntityFilter.objects.filter(pk=efilter.id).count())
 
     def test_delete02(self):
@@ -1201,14 +1206,14 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01',
-                                      model=Contact, is_custom=False,
+                                      model=FakeContact, is_custom=False,
                                       conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Contact,
+                                                        model=FakeContact,
                                                         operator=EntityFilterCondition.EQUALS,
                                                         name='last_name', values=['Ikari'],
                                                     ),
                                                  ],
-                                     )
+                                      )
         self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
@@ -1216,9 +1221,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Belongs to another user"
         self.login(is_superuser=False)
 
-        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact,
+        efilter = EntityFilter.create('test-filter01', 'Filter01', FakeContact,
                                       is_custom=True, user=self.other_user,
-                                     )
+                                      )
         self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
@@ -1229,9 +1234,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [user]
 
-        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact,
+        efilter = EntityFilter.create('test-filter01', 'Filter01', FakeContact,
                                       is_custom=True, user=my_team,
-                                     )
+                                      )
         self._delete(efilter)
         self.assertFalse(EntityFilter.objects.filter(pk=efilter.id))
 
@@ -1246,7 +1251,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         a_team = User.objects.create(username='TeamTitan', is_team=True)
         a_team.teammates = [self.other_user]
 
-        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=a_team)
+        efilter = EntityFilter.create('test-filter01', 'Filter01', FakeContact, is_custom=True, user=a_team)
         self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
@@ -1254,7 +1259,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Logged as superuser"
         self.login()
 
-        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
+        efilter = EntityFilter.create('test-filter01', 'Filter01', FakeContact, is_custom=True, user=self.other_user)
         self._delete(efilter)
         self.assertDoesNotExist(efilter)
 
@@ -1262,8 +1267,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Can not delete if used as subfilter"
         self.login()
 
-        efilter01 = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True)
-        efilter02 = EntityFilter.create('test-filter02', 'Filter02', Contact, is_custom=True)
+        efilter01 = EntityFilter.create('test-filter01', 'Filter01', FakeContact, is_custom=True)
+        efilter02 = EntityFilter.create('test-filter02', 'Filter02', FakeContact, is_custom=True)
         efilter02.set_conditions([EntityFilterCondition.build_4_subfilter(efilter01)])
 
         self._delete(efilter01)
@@ -1277,8 +1282,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                      ('test-object_love',  u'Is loved by')
                                     )[1]
 
-        efilter01 = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True)
-        efilter02 = EntityFilter.create('test-filter02', 'Filter02', Contact, is_custom=True)
+        efilter01 = EntityFilter.create('test-filter01', 'Filter01', FakeContact, is_custom=True)
+        efilter02 = EntityFilter.create('test-filter02', 'Filter02', FakeContact, is_custom=True)
         efilter02.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=srtype,
                                                                                    has=True,
                                                                                    subfilter=efilter01
@@ -1308,7 +1313,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         rtype, srtype = RelationType.create(('test-subject_love', u'Is loving',),
-                                            ('test-object_love',  u'Is loved by', (Contact,))
+                                            ('test-object_love',  u'Is loved by', (FakeContact,))
                                            )
 
         response = self.assertGET200(self._build_get_ct_url(rtype))
@@ -1321,7 +1326,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_filters_for_ctype01(self):
         self.login()
 
-        response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
+        response = self.assertGET200(self._build_get_filter_url(self.ct_contact, use_GET=True))
 
         content = load_json(response.content)
         self.assertIsInstance(content, list)
@@ -1335,45 +1340,68 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         name3 = 'Filter 03'
 
         pk_fmt = 'test-contact_filter%s'
-        efilter01 = EntityFilter.create(pk_fmt % 1, name1, Contact, is_custom=True)
-        efilter02 = EntityFilter.create(pk_fmt % 2, name2, Contact, is_custom=False,
+        efilter01 = EntityFilter.create(pk_fmt % 1, name1, FakeContact, is_custom=True)
+        efilter02 = EntityFilter.create(pk_fmt % 2, name2, FakeContact, is_custom=False,
                                         conditions=[EntityFilterCondition.build_4_field(
-                                                            model=Contact,
+                                                            model=FakeContact,
                                                             operator=EntityFilterCondition.EQUALS,
                                                             name='first_name', values=['Misato'],
                                                         ),
                                                    ]
-                                       )
-        EntityFilter.create('test-orga_filter', 'Orga Filter', Organisation, is_custom=True)
-        efilter03 = EntityFilter.create(pk_fmt % 3, name3, Contact, is_custom=True,
+                                        )
+        EntityFilter.create('test-orga_filter', 'Orga Filter', FakeOrganisation, is_custom=True)
+        efilter03 = EntityFilter.create(pk_fmt % 3, name3, FakeContact, is_custom=True,
                                         is_private=True, user=user,
-                                       )
-        EntityFilter.create(pk_fmt % 4, 'Private', Contact, is_custom=True,
+                                        )
+        EntityFilter.create(pk_fmt % 4, 'Private', FakeContact, is_custom=True,
                             is_private=True, user=self.other_user,
-                           )
+                            )
+        exepcted = [[efilter01.id, name1], [efilter02.id, name2], [efilter03.id, name3]]
 
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
-        self.assertEqual([[efilter01.id, name1], [efilter02.id, name2], [efilter03.id, name3]],
-                         load_json(response.content)
-                        )
+        self.assertEqual(exepcted, load_json(response.content))
+
+        url = self._build_get_filter_url(self.ct_contact, use_GET=True)
+        response = self.assertGET200(url)
+        self.assertEqual(exepcted, load_json(response.content))
+
+        response = self.assertGET200(url + '&all=0')
+        self.assertEqual(exepcted, load_json(response.content))
+
+        response = self.assertGET200(url + '&all=false')
+        self.assertEqual(exepcted, load_json(response.content))
+
+        self.assertGET404(url + '&all=invalid')
 
     def test_filters_for_ctype03(self):
         self.login(is_superuser=False, allowed_apps=['documents'])
-        self.assertGET403('/creme_core/entity_filter/get_for_ctype/%s' % self.ct_contact.id)
+        # self.assertGET403('/creme_core/entity_filter/get_for_ctype/%s' % self.ct_contact.id)
+        self.assertGET403(self._build_get_filter_url(self.ct_contact))
 
     def test_filters_for_ctype04(self):
         "Include 'All' fake filter"
         self.login()
 
         create_filter = EntityFilter.create
-        efilter01 = create_filter('test-filter01', 'Filter 01', Contact, is_custom=True)
-        efilter02 = create_filter('test-filter02', 'Filter 02', Contact, is_custom=True)
-        create_filter('test-filter03', 'Filter 03', Organisation, is_custom=True)
+        efilter01 = create_filter('test-filter01', 'Filter 01', FakeContact, is_custom=True)
+        efilter02 = create_filter('test-filter02', 'Filter 02', FakeContact, is_custom=True)
+        create_filter('test-filter03', 'Filter 03', FakeOrganisation, is_custom=True)
 
-        response = self.assertGET200('/creme_core/entity_filter/get_for_ctype/%s/all' % self.ct_contact.id)
-        self.assertEqual([['',           _(u'All')],
-                          [efilter01.id, 'Filter 01'],
-                          [efilter02.id, 'Filter 02'],
-                         ],
-                         load_json(response.content)
-                        )
+        expected = [['',           _(u'All')],
+                    [efilter01.id, 'Filter 01'],
+                    [efilter02.id, 'Filter 02'],
+                   ]
+
+        # response = self.assertGET200('/creme_core/entity_filter/get_for_ctype/%s/all' % self.ct_contact.id)
+        response = self.assertGET200(reverse('creme_core__efilters_n_all', args=(self.ct_contact.id,)))
+        self.assertEqual(expected, load_json(response.content))
+
+        url = self._build_get_filter_url(self.ct_contact, use_GET=True)
+        response = self.assertGET200(url + '&all=1')
+        self.assertEqual(expected, load_json(response.content))
+
+        response = self.assertGET200(url + '&all=true')
+        self.assertEqual(expected, load_json(response.content))
+
+        response = self.assertGET200(url + '&all=True')
+        self.assertEqual(expected, load_json(response.content))

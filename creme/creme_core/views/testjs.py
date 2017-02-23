@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ from re import compile as re_compile
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
@@ -125,10 +126,11 @@ class DummyListBlock(PaginatedBlock):
 
         context['min_block_count'] = min_count
 
-        return self._render(self.get_block_template_context(context, self.data,
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+                    context, self.data,
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+                    update_url=reverse('creme_core__set_block_state', args=(self.id_,)),
+        ))
 
 dummy_list_block = DummyListBlock()
 

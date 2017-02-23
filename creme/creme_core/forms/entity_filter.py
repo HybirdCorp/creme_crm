@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelDateField,
         IntegerField as ModelIntegerField, FloatField as ModelFloatField,
         DecimalField as ModelDecimalField, BooleanField as ModelBooleanField,
@@ -42,6 +43,7 @@ from ..utils.date_range import date_range_registry
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import is_date_field
 from ..utils.unicode_collation import collator
+from ..utils.url import TemplateURLBuilder
 from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import (DynamicInput, SelectorList, ChainedInput,
@@ -102,11 +104,16 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         add_input = pinput.add_input
         add_input('^enum(__null)?.(%d|%d)$' % EQUALS_OPS,
                   widget=DynamicSelectMultiple, attrs=field_attrs,
-                  url='/creme_core/enumerable/${field.ctype}/json',
+                  # url='/creme_core/enumerable/${field.ctype}/json',
+                  # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+                  url=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${field.ctype}'))
+                                        .resolve('creme_core__list_enumerable'),
                  )
 
         pinput.add_dselect('^user(__null)?.(%d|%d)$' % EQUALS_OPS,
-                           '/creme_core/enumerable/userfilter/json', attrs=field_attrs,
+                           # '/creme_core/enumerable/userfilter/json',
+                           reverse('creme_core__efilter_user_choices'),
+                           attrs=field_attrs,
                           )
         add_input('^fk(__null)?.(%d|%d)$' % EQUALS_OPS,
                   widget=EntitySelector, attrs={'auto': False},
@@ -276,17 +283,21 @@ class CustomFieldConditionSelector(FieldConditionWidget):
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
         pinput.add_input('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
-                          widget=DynamicSelectMultiple,
-                          url='/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs,
+                         widget=DynamicSelectMultiple,
+                         # url='/creme_core/enumerable/custom/${field.id}/json',
+                         # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+                         url=TemplateURLBuilder(cf_id=(TemplateURLBuilder.Int, '${field.id}'))
+                                               .resolve('creme_core__cfield_enums'),
+                         attrs=field_attrs,
                         )
         pinput.add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
                          NullableDateRangeSelect, attrs={'auto': False},
                         )
         pinput.add_input('^boolean(__null)?.*',
-                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
+                         DynamicSelect, options=((TRUE, _(u'True')), (FALSE, _(u'False'))), attrs=field_attrs,
                         )
         pinput.add_input('(string|.*__null)?.(%d)$' % EntityFilterCondition.ISEMPTY,
-                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
+                         DynamicSelect, options=((TRUE, _(u'True')), (FALSE, _(u'False'))), attrs=field_attrs,
                         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
 
@@ -366,18 +377,21 @@ class RelationsConditionsWidget(SelectorList):
 
     def render(self, name, value, attrs=None):
         self.selector = chained_input = ChainedInput()
-        # datatype = json => boolean are retuned as json boolean, not strings
+        # datatype = json => boolean are returned as json boolean, not strings
         attrs_json = {'auto': False, 'datatype': 'json'}
 
         rtype_name = 'rtype'
-        ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
+        # ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
+        # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+        ctype_url  = TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))\
+                                       .resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
 
         add_dselect = chained_input.add_dselect
         add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
         add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
-        add_dselect("ctype", options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
+        add_dselect('ctype', options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
 
-        chained_input.add_input("entity", widget=RelationTargetWidget,
+        chained_input.add_input('entity', widget=RelationTargetWidget,
                                 attrs={'auto': False}, key='${ctype}', multiple=True,
                                )
 
@@ -400,11 +414,15 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
         add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect(ctype_name, attrs=dict(attrs_json, autocomplete=True),
-                    options='/creme_core/relation/type/${%s}/content_types/json' % rtype_name,
+                    # options='/creme_core/relation/type/${%s}/content_types/json' % rtype_name,
+                    # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+                    options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))
+                                              .resolve('creme_core__ctypes_compatible_with_rtype'),
                    )
         add_dselect('filter',
-                    options='/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name,
-                    attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _('Select')},
+                    # options='/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name,
+                    options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
+                    attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _(u'Select')},
                    )
 
         return super(RelationSubfiltersConditionsWidget, self).render(name, value, attrs)

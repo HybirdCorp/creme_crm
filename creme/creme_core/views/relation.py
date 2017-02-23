@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,8 @@
 ################################################################################
 
 from collections import defaultdict
+from functools import partial
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
@@ -26,12 +28,13 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, get_list_or_404, redirect
 from django.utils.translation import ugettext as _
 
+from .. import utils
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
 from ..models import Relation, RelationType, CremeEntity  # EntityCredentials
-from ..utils import get_from_POST_or_404, get_ct_or_404, creme_entity_content_types, jsonify
-from .generic import inner_popup, list_view_popup_from_widget
+
+from .generic import inner_popup, listview
 
 
 def _fields_values(instances, getters, range, sort_getter=None, user=None):
@@ -85,9 +88,10 @@ JSON_ENTITY_FIELDS = {'unicode':     lambda e, user: e.allowed_unicode(user),
                      }
 
 
-# TODO: move to entity.py, (rename ?) & change also url
+# TODO: move to entity.py (rename ?) & change also url
+# TODO: factorise with entity.get_creme_entities_repr() ?
 @login_required
-@jsonify
+@utils.jsonify
 def json_entity_get(request, entity_id):
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_ENTITY_FIELDS)
     # query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=entity_id))
@@ -104,12 +108,12 @@ def json_entity_get(request, entity_id):
 
 
 JSON_PREDICATE_FIELDS = {'unicode': lambda e, user: unicode(e),
-                         'id':      lambda e, user: e.id
+                         'id':      lambda e, user: e.id,
                         }
 
 
 @login_required
-@jsonify
+@utils.jsonify
 def json_entity_rtypes(request, entity_id):  # TODO: seems unused
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     request.user.has_perm_to_view_or_die(entity)
@@ -127,20 +131,19 @@ def json_entity_rtypes(request, entity_id):  # TODO: seems unused
     return _fields_values(rtypes, *_clean_fields_values_args(request.GET, JSON_PREDICATE_FIELDS))
 
 
-JSON_CONTENT_TYPE_FIELDS = {'unicode':  lambda e, user: unicode(e),
-                            # 'name':     lambda e: e.name, #deprecated field
-                            'id':       lambda e, user: e.id
+JSON_CONTENT_TYPE_FIELDS = {'unicode': lambda e, user: unicode(e),
+                            'id':      lambda e, user: e.id
                            }
 
 
 @login_required
-@jsonify
+@utils.jsonify
 def json_rtype_ctypes(request, rtype_id):
     content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all()
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_CONTENT_TYPE_FIELDS)
 
     if not content_types:
-        content_types = list(creme_entity_content_types())
+        content_types = list(utils.creme_entity_content_types())
 
     return _fields_values(content_types, getters, range, sort)
 
@@ -175,7 +178,7 @@ def add_relations(request, subject_id, rtype_id=None):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form':  form,
                         'title': _(u'Relationships for «%s»') % subject,
-                        'submit_label': _('Save the relationships'),
+                        'submit_label': _(u'Save the relationships'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -186,8 +189,24 @@ def add_relations(request, subject_id, rtype_id=None):
 # TODO: Factorise with add_properties_bulk and bulk_update?
 @login_required
 def add_relations_bulk(request, model_ct_id, relations_types=None):
+    rtype_ids = None
+
+    if relations_types is not None:
+        warnings.warn('creme_core.views.relation.add_relations_bulk(): '
+                      'the URL argument "relations_types" is deprecated ; '
+                      'use the GET parameter "rtype" instead.',
+                      DeprecationWarning
+                     )
+        rtype_ids = [rt for rt in relations_types.split(',') if rt]
+    else:
+        if request.method == 'GET':
+            rtype_ids = request.GET.getlist('rtype') or None
+
     user = request.user
-    model = get_ct_or_404(model_ct_id).model_class()
+    model = utils.get_ct_or_404(model_ct_id).model_class()
+
+    # TODO: rename 'ids' -> 'entity' ?
+    # TODO: do not use GET args on POST request.
     entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or request.GET.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
@@ -197,15 +216,12 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):
     for entity in entities:
         filtered[has_perm_to_link(entity)].append(entity)
 
-    if relations_types is not None:
-        relations_types = [rt for rt in relations_types.split(',') if rt]
-
     if request.method == 'POST':
         form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
                                                forbidden_subjects=filtered[False],
                                                user=request.user,
                                                data=request.POST,
-                                               relations_types=relations_types,
+                                               relations_types=rtype_ids,
                                               )
 
         if form.is_valid():
@@ -214,13 +230,13 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):
         form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
                                                forbidden_subjects=filtered[False],
                                                user=request.user,
-                                               relations_types=relations_types,
+                                               relations_types=rtype_ids,
                                               )
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form':  form,
                         'title': _(u'Multiple adding of relationships'),
-                        'submit_label': _('Save the relationships'),
+                        'submit_label': _(u'Save the relationships'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -230,7 +246,7 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):
 
 @login_required
 def delete(request):
-    relation = get_object_or_404(Relation, pk=get_from_POST_or_404(request.POST, 'id'))
+    relation = get_object_or_404(Relation, pk=utils.get_from_POST_or_404(request.POST, 'id'))
     subject  = relation.subject_entity
     user = request.user
 
@@ -242,7 +258,7 @@ def delete(request):
     relation.get_real_entity().delete()
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(subject.get_real_entity())
 
@@ -250,10 +266,10 @@ def delete(request):
 @login_required
 def delete_similar(request):
     "Delete relations with the same type between 2 entities"
-    POST = request.POST
-    subject_id = get_from_POST_or_404(POST, 'subject_id')
-    rtype_id   = get_from_POST_or_404(POST, 'type')
-    object_id  = get_from_POST_or_404(POST, 'object_id')
+    get = partial(utils.get_from_POST_or_404, request.POST)
+    subject_id = get('subject_id', int)
+    rtype_id   = get('type')
+    object_id  = get('object_id', int)
 
     user = request.user
     subject = get_object_or_404(CremeEntity, pk=subject_id)
@@ -269,14 +285,14 @@ def delete_similar(request):
         relation.get_real_entity().delete()
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(subject.get_real_entity())
 
 
 @login_required
 def delete_all(request):
-    subject_id = get_from_POST_or_404(request.POST, 'subject_id')
+    subject_id = utils.get_from_POST_or_404(request.POST, 'subject_id')
     user = request.user
     subject = get_object_or_404(CremeEntity, pk=subject_id)
     user.has_perm_to_unlink_or_die(subject)
@@ -292,7 +308,7 @@ def delete_all(request):
 
     if not errors:
         status = 200
-        message = _(u"Operation successfully completed")
+        message = _(u'Operation successfully completed')
     else:
         status = min(errors.iterkeys())
         message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
@@ -306,9 +322,13 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     @param rtype_id RelationType id of the future relations.
     @param subject_id Id of the entity used as subject for relations.
     @param object_ct_id Id of the ContentType of the future relations' objects.
-    @param o2m One-To-Many ; if false, it seems Manay-To-Many => multi selection.
-    Tip: see the js function creme.relations.handleAddFromPredicateEntity()
+    @param o2m One-To-Many ; if false, it seems Many-To-Many => multi selection.
     """
+    warnings.warn('creme_core.views.relation.objects_to_link_selection() is deprecated ; '
+                  'use creme_core.views.select_relations_objects() instead.',
+                  DeprecationWarning
+                 )
+
     subject = get_object_or_404(CremeEntity, pk=subject_id)
     request.user.has_perm_to_link_or_die(subject)
 
@@ -329,11 +349,59 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     if prop_types:
         extra_q &= Q(properties__type__in=prop_types)
 
+    # TODO: seems unused
     extra_q_kw = kwargs.get('extra_q')
     if extra_q_kw is not None:
         extra_q &= extra_q_kw
 
-    return list_view_popup_from_widget(request, object_ct_id, o2m, extra_q=extra_q)
+    return listview.list_view_popup_from_widget(request, object_ct_id, o2m, extra_q=extra_q)
+
+
+@login_required
+def select_relations_objects(request):
+    """Display an inner popup to select entities to link as relations' objects for a given subject entity.
+
+    GET parameters:
+     - rtype_id: RelationType ID of the future relations. Required.
+     - subject_id: ID of the entity used as subject for relations. Integer. Required.
+     - object_ct_id: ID of the ContentType of the future relations' objects. Integer. Required.
+     - selection: 'single'/'multiple'. Optional. Default to 'single'.
+
+    Tip: use the JS function creme.relations.addRelationTo().
+    """
+    get = partial(utils.get_from_GET_or_404, request.GET)
+    subject_id    = get('subject_id', int)
+    rtype_id      = get('rtype_id')
+    objects_ct_id = get('objects_ct_id', int)
+    mode          = get('selection', cast=listview.str_to_mode, default='single')
+
+    objects_ct = utils.get_ct_or_404(objects_ct_id)
+
+    subject = get_object_or_404(CremeEntity, pk=subject_id)
+    request.user.has_perm_to_link_or_die(subject)
+
+    rtype = get_object_or_404(RelationType, pk=rtype_id)
+    rtype.is_not_internal_or_die()
+
+    # TODO: filter with relation creds too ?
+    # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
+    extra_q = ~Q(pk__in=list(CremeEntity.objects
+                                        .filter(relations__type=rtype.symmetric_type_id,
+                                                relations__object_entity=subject_id,
+                                               )
+                                        .values_list('id', flat=True)
+                            )
+                )
+
+    prop_types = list(rtype.object_properties.all())
+    if prop_types:
+        extra_q &= Q(properties__type__in=prop_types)
+
+    return listview.list_view_popup(request,
+                                    model=objects_ct.model_class(),
+                                    mode=mode,
+                                    extra_q=extra_q,
+                                   )
 
 
 # TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?
@@ -341,13 +409,13 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
 def add_relations_with_same_type(request):
     """Allow to create from a POST request several relations with the same
     relation type, between a subject and several other entities.
-    Tip: see the js function creme.relations.handleAddFromPredicateEntity()
+    Tip: see the JS function creme.relations.addRelationTo()
     """
     user = request.user
     POST = request.POST
-    subject_id = get_from_POST_or_404(POST, 'subject_id', int)
-    rtype_id   = get_from_POST_or_404(POST, 'predicate_id') #TODO: rename POST arg
-    entity_ids = POST.getlist('entities')
+    subject_id = utils.get_from_POST_or_404(POST, 'subject_id', int)
+    rtype_id   = utils.get_from_POST_or_404(POST, 'predicate_id')  # TODO: rename POST arg
+    entity_ids = POST.getlist('entities')  # TODO: rename 'entity' ?
 
     if not entity_ids:
         raise Http404('Void "entities" parameter.')
@@ -411,7 +479,7 @@ def add_relations_with_same_type(request):
 
     if not errors:
         status = 200
-        message = _(u"Operation successfully completed")
+        message = _(u'Operation successfully completed')
     else:
         status = min(errors.iterkeys())
         message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)

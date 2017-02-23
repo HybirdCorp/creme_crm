@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from future_builtins import filter, map
 from collections import defaultdict
 import logging
 
+from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.template.loader import get_template
 from django.conf import settings
@@ -127,10 +128,13 @@ class Block(object):
         """Helper method to build a basic detailview_display() method for classes that inherit Block."""
         return self._render(self.get_block_template_context(
                                 context,
-                                update_url='/creme_core/blocks/reload/%s/%s/' % (
-                                                    self.id_,
-                                                    context['object'].pk,
-                                                ),
+                                # update_url='/creme_core/blocks/reload/%s/%s/' % (
+                                #                     self.id_,
+                                #                     context['object'].pk,
+                                #                 ),
+                                update_url=reverse('creme_core__reload_detailview_blocks',
+                                                   args=(self.id_, context['object'].pk),
+                                                  ),
                            ))
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
@@ -344,7 +348,10 @@ class SpecificRelationsBlock(QuerysetBlock):
                     context,
                     entity.relations.filter(type=relation_type)
                                     .select_related('type', 'object_entity'),
-                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks',
+                                       args=(self.id_, entity.pk),
+                                      ),
                     relation_type=relation_type,
                    )
         relations = btc['page'].object_list
@@ -398,11 +405,13 @@ class CustomBlock(Block):
         entity = context['object']
 
         return self._render(self.get_block_template_context(
-                                    context,
-                                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                    config_item=self.config_item,
-                                   )
-                           )
+                    context,
+                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    update_url=reverse('creme_core__reload_detailview_blocks',
+                                       args=(self.id_, entity.pk),
+                                      ),
+                    config_item=self.config_item,
+        ))
 
 
 class BlocksManager(object):
