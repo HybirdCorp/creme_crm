@@ -28,7 +28,8 @@ Activity = get_activity_model()
 
 class CTITestCase(CremeTestCase):
 #    ADD_PCALL_URL = '/cti/add_phonecall'
-    RESPOND_URL = '/cti/respond_to_a_call'
+#     RESPOND_URL = '/cti/respond_to_a_call'
+    RESPOND_URL = reverse('cti__respond_to_a_call')
 
     @classmethod
     def setUpClass(cls):
@@ -41,8 +42,8 @@ class CTITestCase(CremeTestCase):
     def _buid_add_pcall_url(self, contact):
         return reverse('cti__create_phonecall', args=(contact.id,))
 
-    def login(self):
-        user = super(CTITestCase, self).login()
+    def login(self, *args, **kwargs):
+        user = super(CTITestCase, self).login(*args, **kwargs)
 
         other_user = self.other_user
         self.contact = user.linked_contact
@@ -68,7 +69,9 @@ class CTITestCase(CremeTestCase):
         # self.assertIn('creme_core', admin_choices)
         # self.assertIn('persons',    admin_choices)
         # self.assertNotIn('cti',    admin_choices) #<==
-        response = self.assertGET200('/creme_config/role/wizard/')
+
+        # response = self.assertGET200('/creme_config/role/wizard/')
+        response = self.assertGET200(reverse('creme_config__create_role'))
 
         with self.assertNoException():
             app_labels = {c[0] for c in response.context['form'].fields['allowed_apps'].choices}
