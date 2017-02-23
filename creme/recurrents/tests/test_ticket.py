@@ -56,7 +56,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         recurrents_gendocs_type.execute(job or self._get_job())
 
     def test_portal(self):
-        self.assertGET200('/recurrents/')
+        # self.assertGET200('/recurrents/')
+        self.assertGET200(reverse('recurrents__portal'))
 
     def test_populate(self):
         self.assertTrue(HeaderFilter.objects.filter(entity_type=ContentType.objects.get_for_model(RecurrentGenerator)))

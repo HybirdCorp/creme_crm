@@ -7,7 +7,7 @@ from .views import portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal),
+    url(r'^$', portal.portal, name='recurrents__portal'),
 ]
 
 if not rgenerator_model_is_custom():

@@ -58,7 +58,8 @@ class RecurrentsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('recurrents', '/recurrents/').register_item
-            reg_item('/recurrents/',                          _(u'Portal of recurrent documents'), 'recurrents')
+            # reg_item('/recurrents/',                          _(u'Portal of recurrent documents'), 'recurrents')
+            reg_item(reverse('recurrents__portal'),           _(u'Portal of recurrent documents'), 'recurrents')
             reg_item(reverse('recurrents__list_generators'),  _(u'All recurrent generators'),      'recurrents')
             reg_item(reverse('recurrents__create_generator'), RGenerator.creation_label,           build_creation_perm(RGenerator))
         else:
