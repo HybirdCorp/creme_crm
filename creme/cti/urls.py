@@ -8,7 +8,7 @@ from creme.cti import views
 
 
 urlpatterns = [
-    url(r'^respond_to_a_call$', views.respond_to_a_call),
+    url(r'^respond_to_a_call$', views.respond_to_a_call, name='cti__respond_to_a_call'),
 ]
 
 if not persons.contact_model_is_custom():

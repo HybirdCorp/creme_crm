@@ -38,7 +38,6 @@
                     <td class="{{row_color}}">{% blocktrans %}No contact/organisation corresponds to this number : {{number}}{% endblocktrans %}</td>
                     <td class="{{row_color}} action">{% trans "Create a contact" as label %}
                         {% if can_create_contact %}
-                            {% comment %}<a href="/cti/contact/add/{{number}}">{% endcomment %}
                             <a href="{% url 'cti__create_contact' number %}">
                                 <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
                             </a>
@@ -49,7 +48,6 @@
                         {% endif %}
                         &nbsp;&nbsp;&nbsp;
                         {% if can_create_orga %}
-                            {% comment %}<a href="/cti/organisation/add/{{number}}">{% trans "Create an organisation" as label %}{% endcomment %}
                             <a href="{% url 'cti__create_organisation' number %}">{% trans "Create an organisation" as label %}
                                 <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
                             </a>
