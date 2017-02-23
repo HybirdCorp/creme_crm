@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey  # ManyToManyField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
@@ -37,8 +38,8 @@ class EmailSignature(CremeModel):
                                         help_text=_(u'Images embedded in emails (but not as attached).'),
                                        )
 
-    creation_label = pgettext_lazy('emails', 'Create a signature')
-    save_label     = pgettext_lazy('emails', 'Save the signature')
+    creation_label = pgettext_lazy('emails', u'Create a signature')
+    save_label     = pgettext_lazy('emails', u'Save the signature')
 
     def __unicode__(self):
         return self.name
@@ -53,4 +54,5 @@ class EmailSignature(CremeModel):
         return self.user_id == user.id or user.is_superuser
 
     def get_edit_absolute_url(self):
-        return '/emails/signature/edit/%s' % self.id
+        # return '/emails/signature/edit/%s' % self.id
+        return reverse('emails__edit_signature', args=(self.id,))

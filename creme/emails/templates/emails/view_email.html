@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
 <table class="table_detail_view ui-corner-all">
     <thead>
         <tr>
@@ -49,7 +48,8 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Body (HTML)" %}</th>
-            <td class="{% cycle row_color %} td_info"><iframe frameborder="0" src="/emails/mail/get_body/{{mail.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td>
+{#            <td class="{% cycle row_color %} td_info"><iframe frameborder="0" src="/emails/mail/get_body/{{mail.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td> #}
+            <td class="{% cycle row_color %} td_info"><iframe frameborder="0" src="{% url 'emails__lw_mail_body' mail.id %}" width="100%" height="100%" style="min-height:350px"></iframe></td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Sending date" %}</th>

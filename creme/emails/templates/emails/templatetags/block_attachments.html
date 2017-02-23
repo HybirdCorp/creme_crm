@@ -6,7 +6,8 @@
         <th class="label">{% get_block_title _('%s Attachment') _('%s Attachments') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/emails/template/{{object.pk}}/attachment/add' with_label _("Add documents") with_perms has_perm %}
+{#                {% get_line_linker at_url '/emails/template/{{object.pk}}/attachment/add' with_label _("Add documents") with_perms has_perm %} #}
+                {% url 'emails__add_attachments_to_template' object.id as add_attachments_url %}{% get_line_linker at_url add_attachments_url with_label _("Add documents") with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -16,11 +17,12 @@
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
+            {% url 'emails__remove_attachment_from_template' object.id as rm_attachment_url %}
             {% for attachment in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink attachment user %}</td>
                     <td class="{{row_color}} action">
-                        {% get_line_unlinker at_url '/emails/template/{{object.pk}}/attachment/delete' with_args "{'id':{{attachment.pk}} }" with_perms has_perm %}
+                        {% get_line_unlinker at_url rm_attachment_url with_args "{'id':{{attachment.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

@@ -17,6 +17,7 @@
                     <th class="block_header_line_dark">{% trans "Received on" %}</th>
                     <th class="block_header_line_dark action">{% trans "Actions" %}</th>
                 </tr>
+                {% url 'creme_core__delete_entities' as delete_multi_url %}
                 {% for mail in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
                         <td class="{{row_color}} selectable">
@@ -32,7 +33,8 @@
                                 {% trans "See the entity" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                             </a>
                             {% has_perm_to delete mail as delete_perm %}
-                            {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids': ['{{mail.pk}}'] }" with_perms delete_perm %}
+{#                            {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids': ['{{mail.pk}}'] }" with_perms delete_perm %} #}
+                            {% get_line_deletor at_url delete_multi_url with_args "{'ids': ['{{mail.pk}}'] }" with_perms delete_perm %}
                             {% block mail_action %}{% endblock %}
                         </td>
                     </tr>

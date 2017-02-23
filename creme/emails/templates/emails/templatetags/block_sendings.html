@@ -6,7 +6,8 @@
         <th class="label">{% get_block_title  _('%s Sending') _('%s Sendings') 'email_48.png' _('Sendings') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_adder at_url '/emails/campaign/{{object.pk}}/sending/add' with_label _("New sending") with_perms has_perm %}
+{#                {% get_line_adder at_url '/emails/campaign/{{object.pk}}/sending/add' with_label _("New sending") with_perms has_perm %} #}
+                {% url 'emails__create_sending' object.id as create_url %}{% get_line_adder at_url create_url with_label _('New sending') with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -20,19 +21,22 @@
                 <th class="block_header_line_dark action">{% trans "Details" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
+            {% url 'creme_core__delete_related_to_entity' ct_id as delete_sending_url %}
             {% for sending in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{sending.sending_date}}</td>
                     <td class="{{row_color}}">{{sending.get_type_display}}</td>
                     <td class="{{row_color}}">{{sending.get_state_display}}</td>
-                    <td class="{{row_color}}">{{sending.get_mails.count}}{% if sending.get_unsent_mails_count %} / <span class="errorlist">{{ sending.get_unsent_mails_count }} {% trans "not sent" %}{% endif %}</span></td>
+                    <td class="{{row_color}}">{{sending.get_mails.count}}{% if sending.get_unsent_mails_count %} / <span class="errorlist">{{sending.get_unsent_mails_count}} {% trans "not sent" %}{% endif %}</span></td>
                     <td class="{{row_color}} action">
-                        <a class="button_link" onclick="creme.dialogs.url('/emails/campaign/sending/{{sending.pk}}').open();">
+{#                        <a class="button_link" onclick="creme.dialogs.url('/emails/campaign/sending/{{sending.pk}}').open();"> #}
+                        <a class="button_link" onclick="creme.dialogs.url('{% url 'emails__view_sending' sending.pk %}').open();">
                             {% trans "Details" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         </a>
                     </td>
                     <td class="{{row_color}} action">
-                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':{{sending.pk}} }" with_perms has_perm %}
+{#                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':{{sending.pk}} }" with_perms has_perm %} #}
+                        {% get_line_deletor at_url delete_sending_url with_args "{'id':{{sending.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

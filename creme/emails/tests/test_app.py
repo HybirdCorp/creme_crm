@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import SettingValue, FieldsConfig
@@ -30,7 +31,8 @@ class EmailsTestCase(_EmailsTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertGET200('/emails/')
+        # self.assertGET200('/emails/')
+        self.assertGET200(reverse('emails__portal'))
 
     @skipIfCustomContact
     def test_fieldconfigs_warning(self):

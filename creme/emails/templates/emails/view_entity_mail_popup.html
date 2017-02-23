@@ -56,10 +56,6 @@
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='attachments' %}</td>
         </tr>
         <tr class="content">
-            {% comment %}
-                <th class="th_info {% cycle header_color %}">{% trans "Email body" %}</th>
-                <td class="td_info {% cycle row_color %}"><iframe frameborder="0" src="/emails/mail/get_entity_body/{{object.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td>
-            {% endcomment %}
             {% if object.body_html %}
                 <th class="th_info {% cycle header_color %}">{% trans "Email body (HTML)" %}
                     <div class="buttons">
@@ -69,7 +65,8 @@
                         </a>
                     </div>
                 </th>
-                <td class="td_info {% cycle row_color %}"><iframe frameborder="0" src="/creme_core/entity/get_sanitized_html/{{object.id}}/body_html" width="100%" height="100%" style="min-height:350px"></iframe></td>
+{#                <td class="td_info {% cycle row_color %}"><iframe frameborder="0" src="/creme_core/entity/get_sanitized_html/{{object.id}}/body_html" width="100%" height="100%" style="min-height:350px"></iframe></td> #}
+                <td class="td_info {% cycle row_color %}"><iframe frameborder="0" src="{% url 'creme_core__sanitized_html_field' object.id 'body_html' %}" width="100%" height="100%" style="min-height:350px"></iframe></td>
             {% else %}
                 <th class="th_info {% cycle header_color %}">{% trans "Email body" %}</th>
                 <td class="td_info {% cycle row_color %}">{% print_field object=object field='body' %}</td>

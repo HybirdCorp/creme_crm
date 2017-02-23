@@ -9,6 +9,8 @@ try:
     from functools import partial
     from unittest import skipIf
 
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.documents import get_document_model, get_folder_model
@@ -64,7 +66,8 @@ class _EmailsTestCase(CremeTestCase):
     #     cls.populate('creme_core', 'emails')
 
     def _build_create_entitymail_url(self, entity):
-        return '/emails/mail/add/%s' % entity.id
+        # return '/emails/mail/add/%s' % entity.id
+        return reverse('emails__create_email', args=(entity.id,))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation

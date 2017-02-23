@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,10 @@
 
 creme.emails = {};
 
-creme.emails.confirmResend = function(message, ids, block_url) {
-    return creme.blocks.confirmPOSTQuery('/emails/mail/resend',
+//creme.emails.confirmResend = function(message, ids, block_url) {
+creme.emails.confirmResend = function(message, resend_url, ids, block_url) {
+//    return creme.blocks.confirmPOSTQuery('/emails/mail/resend',
+    return creme.blocks.confirmPOSTQuery(resend_url,
                                          {blockReloadUrl: block_url,
                                           messageOnSuccess: gettext('Process done'),
                                           confirm: message
@@ -33,8 +35,10 @@ creme.emails.confirmResend = function(message, ids, block_url) {
                        .start();
 }
 
-creme.emails.resend = function(ids, block_url) {
-    return creme.blocks.ajaxPOSTQuery('/emails/mail/resend',
+//creme.emails.resend = function(ids, block_url) {
+creme.emails.resend = function(resend_url, ids, block_url) {
+//    return creme.blocks.ajaxPOSTQuery('/emails/mail/resend',
+    return creme.blocks.ajaxPOSTQuery(resend_url,
                                       {blockReloadUrl: block_url,
                                        messageOnSuccess: gettext('Process done')
                                       })

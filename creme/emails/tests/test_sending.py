@@ -2,11 +2,12 @@
 
 try:
     from functools import partial
-    from datetime import timedelta # datetime
+    from datetime import timedelta
     from pickle import loads
 
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail as django_mail
+    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils.timezone import now, make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
@@ -39,7 +40,8 @@ class SendingsTestCase(_EmailsTestCase):
             return loads(data.encode('utf-8'))
 
     def _build_add_url(self, campaign):
-        return '/emails/campaign/%s/sending/add' % campaign.id
+        # return '/emails/campaign/%s/sending/add' % campaign.id
+        return reverse('emails__create_sending', args=(campaign.id,))
 
     def _get_job(self):
         return self.get_object_or_fail(Job, type_id=campaign_emails_send_type.id)
@@ -242,7 +244,6 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertTrue(all(c.id in related_set for c in contacts))
         self.assertTrue(all(o.id in related_set for o in orgas))
 
-
         self.assertEqual('', sending.mails_set.filter(recipient_entity=None)[0].body)
         self.assertEqual('', sending.mails_set.get(recipient_entity=contacts[0].id).body)
         self.assertEqual('', sending.mails_set.get(recipient_entity=orgas[0].id).body)
@@ -250,19 +251,23 @@ class SendingsTestCase(_EmailsTestCase):
         mail = mails[0]
         self.assertEqual(0, mail.reads)
         self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
-        self.assertGET200('/emails/mails_history/%s' % mail.id)
+        # self.assertGET200('/emails/mails_history/%s' % mail.id)
+        self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
 
-        response = self.assertGET200('/emails/mail/get_body/%s' % mail.id)
+        # response = self.assertGET200('/emails/mail/get_body/%s' % mail.id)
+        response = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
         self.assertEqual(u'', response.content)
 
-        #popup detail view -----------------------------------------------------
-        response = self.assertPOST200('/emails/campaign/sending/%s' % sending.id)
+        # Popup detail view -----------------------------------------------------
+        # response = self.assertPOST200('/emails/campaign/sending/%s' % sending.id)
+        response = self.assertPOST200(reverse('emails__view_sending', args=(sending.id,)))
         self.assertContains(response, contacts[0].email)
         self.assertContains(response, orgas[0].email)
 
-        #test delete campaign --------------------------------------------------
+        # Test delete campaign --------------------------------------------------
         camp.trash()
-        response = self.assertPOST(302, '/creme_core/entity/delete/%s' % camp.id)
+        # self.assertPOST(302, '/creme_core/entity/delete/%s' % camp.id)
+        self.assertPOST(302, camp.get_delete_absolute_url())
         self.assertFalse(EmailCampaign.objects.exists())
         self.assertFalse(EmailSending.objects.exists())
         self.assertFalse(LightWeightEmail.objects.exists())
@@ -311,11 +316,13 @@ class SendingsTestCase(_EmailsTestCase):
         html = '<p>Your last name is: %s !</p>' % last_name
         # self.assertEqual(html, mail.get_body_html())
         self.assertEqual(html, mail.rendered_body_html)
-        self.assertEqual(html, self.client.get('/emails/mail/get_body/%s' % mail.id).content)
+        # self.assertEqual(html, self.client.get('/emails/mail/get_body/%s' % mail.id).content)
+        self.assertEqual(html, self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
 
         # test delete sending --------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)
-        self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': sending.pk})
+        # self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': sending.pk})
+        self.assertPOST(302, reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': sending.pk})
         self.assertDoesNotExist(sending)
         self.assertDoesNotExist(mail)
 
