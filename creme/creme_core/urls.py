@@ -26,8 +26,8 @@ entity_patterns = [
     url(r'^get_info_fields/(?P<ct_id>\d+)/json$',                                entity.get_info_fields,          name='creme_core__entity_info_fields'),
 
     url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)$', entity.inner_edit_field,  name='creme_core__inner_edition'),
-    url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)$',                              entity.bulk_edit_field, name='creme_core__bulk_edit_field_legacy'),  # TODO: remove in 1.8
-    url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)/field/(?P<field_name>[\w-]+)$', entity.bulk_edit_field, name='creme_core__bulk_edit_field_legacy'),  # TODO: remove in 1.8
+    url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)$',                              entity.bulk_edit_field, name='creme_core__bulk_edit_field_legacy'),  # DEPRECATED # TODO: remove in 1.8
+    url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)/field/(?P<field_name>[\w-]+)$', entity.bulk_edit_field, name='creme_core__bulk_edit_field_legacy'),  # DEPRECATED # TODO: remove in 1.8
     url(r'^update/bulk/(?P<ct_id>\d+)$',                                         entity.bulk_update_field, name='creme_core__bulk_update'),
     url(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)$',            entity.bulk_update_field, name='creme_core__bulk_update'),
 

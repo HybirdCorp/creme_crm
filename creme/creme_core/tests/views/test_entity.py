@@ -823,6 +823,20 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertGET404(build_url('first_name', 0))
         self.assertGET404(build_url('first_name', *range(1024, 1034)))
 
+    def test_regular_field_error02(self):
+        "Neither an entity & neither related to an entity"
+        self.login()
+
+        sector = FakeSector.objects.all()[0]
+        # TODO: a 404/409 would be better ?
+        self.assertGET403(reverse('creme_core__bulk_edit_field_legacy',
+                                  args=(ContentType.objects.get_for_model(FakeSector).id,
+                                        sector.id,
+                                        'title',
+                                       )
+                                 )
+                         )
+
     def test_regular_field01(self):
         user = self.login()
 
@@ -1306,6 +1320,12 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         response = self.assertGET(400, build_url(_CUSTOMFIELD_FORMAT % 44500124))
         self.assertContains(response, msg % (_CUSTOMFIELD_FORMAT % 44500124), status_code=400)
+
+    def test_regular_field_error02(self):
+        "Not entities"
+        self.login()
+        self.assertGET404(self.build_bulkupdate_url(FakeSector))
+        self.assertGET404(self.build_bulkupdate_url(FakeSector, 'title'))
 
     def test_regular_field01(self):
         user = self.login()
@@ -1930,6 +1950,14 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         image = self.refresh(image)
         self.assertEqual(set(image.categories.all()), set(categories))
+
+    def test_regular_field_invalid_model(self):
+        "Neither an entity & neither related to an entity"
+        self.login()
+
+        sector = FakeSector.objects.all()[0]
+        # TODO: a 404/409 would be better ?
+        self.assertGET403(self.build_inneredit_url(sector, 'title'))
 
     def test_regular_field_innerform(self):
         self.login()
