@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -262,7 +262,7 @@ class SemiFixedRelationType(CremeModel):
     relation_type = ForeignKey(RelationType)
     object_entity = ForeignKey(CremeEntity)
 
-    creation_label = _(u'New semi-fixed type of relationship')
+    creation_label = _(u'Create a semi-fixed type of relationship')
     save_label     = _(u'Save the type')
 
     class Meta:

@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'ACTIVITIES' APP
-# Copyright (C) 2016 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,284 +8,301 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-24 14:54+0100\n"
+"POT-Creation-Date: 2017-02-23 11:51+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 apps.py:40 models/activity.py:78
-#: templates/activities/portal.html:6
+#: apps.py:30 apps.py:105 apps.py:131 models/activity.py:77
+#: templates/activities/portal.html:5
 msgid "Activities"
 msgstr "Activités"
 
-#: apps.py:84
+#: apps.py:90
 msgid "Portal of activities"
 msgstr "Portail des activités"
 
-#: apps.py:85 forms/calendar.py:63 models/calendar.py:44
+#: apps.py:92 apps.py:110 forms/calendar.py:72 models/calendar.py:43
 #: templates/activities/portal.html:11
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: apps.py:87 constants.py:23
-msgid "Add a meeting"
-msgstr "Ajouter un rendez-vous"
+#: apps.py:94 constants.py:23
+msgid "Create a meeting"
+msgstr "Créer un rendez-vous"
 
-#: apps.py:88
-msgid "Add a phone call"
-msgstr "Ajouter un appel téléphonique"
+#: apps.py:95 constants.py:24
+msgid "Create a phone call"
+msgstr "Créer un appel téléphonique"
 
-#: apps.py:89 constants.py:22
-msgid "Add a task"
-msgstr "Ajouter une tâche"
+#: apps.py:96 constants.py:22
+msgid "Create a task"
+msgstr "Créer une tâche"
 
-#: apps.py:90 constants.py:28
-msgid "Add an indisponibility"
-msgstr "Ajouter une indisponibilité"
+#: apps.py:97 constants.py:28
+msgid "Create an unavailability"
+msgstr "Créer une indisponibilité"
 
-#: apps.py:91
+#: apps.py:98
 msgid "All activities"
 msgstr "Lister les activités"
 
-#: apps.py:92
+#: apps.py:99
 msgid "All phone calls"
 msgstr "Lister les appels téléphoniques"
 
-#: apps.py:93
+#: apps.py:100
 msgid "All meetings"
 msgstr "Lister les rendez-vous"
 
-#: blocks.py:49 forms/activity.py:297 forms/activity.py:479 forms/blocks.py:60
-#: forms/lv_import.py:585
+#: apps.py:119 populate.py:116
+msgid "Phone calls"
+msgstr "Appels téléphoniques"
+
+#: apps.py:125 populate.py:115
+msgid "Meetings"
+msgstr "Rendez-vous"
+
+#: apps.py:132 populate.py:83
+msgid "Phone call"
+msgstr "Appel téléphonique"
+
+#: apps.py:133 populate.py:81 populate.py:89
+msgid "Meeting"
+msgstr "Rendez-vous"
+
+#: apps.py:134 models/activity.py:76
+msgid "Activity"
+msgstr "Activité"
+
+#: apps.py:135 populate.py:79
+msgid "Task"
+msgstr "Tâche"
+
+#: apps.py:136
+msgid "Unavailability"
+msgstr "Indisponibilité"
+
+#: apps.py:161
+#, python-format
+msgid "%s meeting"
+msgid_plural "%s meetings"
+msgstr[0] "%s rendez-vous"
+msgstr[1] "%s rendez-vous"
+
+#: apps.py:165
+#, python-format
+msgid "%s phone call"
+msgid_plural "%s phone calls"
+msgstr[0] "%s appel téléphonique"
+msgstr[1] "%s appels téléphoniques"
+
+#: apps.py:169
+#, python-format
+msgctxt "activities-stats"
+msgid "%s in all"
+msgstr "%s en tout"
+
+#: blocks.py:48 forms/activity.py:294 forms/activity.py:556 forms/blocks.py:59
+#: forms/mass_import.py:589
 msgid "Participants"
 msgstr "Participants"
 
-#: blocks.py:87 forms/activity.py:274 forms/blocks.py:182
+#: blocks.py:87 forms/activity.py:271 forms/blocks.py:175
 msgid "Subjects"
 msgstr "Sujets"
 
-#: blocks.py:107
+#: blocks.py:113
 #: templates/activities/templatetags/block_future_activities.html:8
 #: templates/activities/templatetags/block_future_activities.html:10
 msgid "Future activities"
 msgstr "Activités futures"
 
-#: blocks.py:193
+#: blocks.py:190
 #: templates/activities/templatetags/block_past_activities.html:10
 #: templates/activities/templatetags/block_past_activities.html:12
 msgid "Past activities"
 msgstr "Activités passées"
 
-#: blocks.py:231
+#: blocks.py:229
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
 
-#: buttons.py:38
-msgid "Add a related activity"
-msgstr "Ajouter une activité liée"
+#: buttons.py:36
+msgid "Create a related activity"
+msgstr "Créer une activité liée"
 
-#: buttons.py:50
-msgid "Add a related meeting"
-msgstr "Ajouter un rendez-vous lié"
+#: buttons.py:47
+msgid "Create a related meeting"
+msgstr "Créer un rendez-vous lié"
 
-#: buttons.py:56
-msgid "Add a related phone call"
-msgstr "Ajouter un appel téléphonique lié"
+#: buttons.py:53
+msgid "Create a related phone call"
+msgstr "Créer un appel téléphonique lié"
 
-#: buttons.py:62
-msgid "Add a related task"
-msgstr "Ajouter une tâche liée"
-
-#: constants.py:24
-msgid "Add a phonecall"
-msgstr "Ajouter un appel téléphonique"
+#: buttons.py:59
+msgid "Create a related task"
+msgstr "Créer une tâche liée"
 
 #: constants.py:25
-msgid "Add a gathering"
-msgstr "Ajouter une assemblée"
+msgid "Create a gathering"
+msgstr "Créer une assemblée"
 
 #: constants.py:26
-msgid "Add a show"
-msgstr "Ajouter un salon"
+msgid "Create a show"
+msgstr "Créer un salon"
 
 #: constants.py:27
-msgid "Add a demo"
-msgstr "Ajouter une démo"
+msgid "Create a demo"
+msgstr "Créer une démo"
 
-#: forms/activity.py:58 forms/activity_type.py:157 forms/lv_import.py:569
+#: forms/activity.py:52 forms/activity_type.py:186 forms/mass_import.py:571
 msgid "Type"
 msgstr "Type"
 
-#: forms/activity.py:60 models/activity.py:44
-msgid "Start"
-msgstr "Début"
-
-#: forms/activity.py:61
+#: forms/activity.py:57
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:62 models/activity.py:45
-msgid "End"
-msgstr "Fin"
-
-#: forms/activity.py:63
-msgid "Default duration of the type will be used if you leave blank."
-msgstr "La durée par défaut du type sera utilisée si vous laissez vide."
-
-#: forms/activity.py:65
+#: forms/activity.py:61
 msgid "End time"
 msgstr "Heure de fin"
 
-#: forms/activity.py:68
+#: forms/activity.py:64
 msgid "A floating on the day activity can't busy its participants"
 msgstr ""
 "Une activité flottante dans une journée ne peut marquer comme 'occupés' ses "
 "participants"
 
-#: forms/activity.py:69
+#: forms/activity.py:65
 msgid "You can't set the end of your activity without setting its start"
 msgstr "Vous en pouvez préciser la fin de l'activité sans préciser son début"
 
-#: forms/activity.py:70 forms/lv_import.py:657
+#: forms/activity.py:66 forms/mass_import.py:652
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
 
-#: forms/activity.py:85
+#: forms/activity.py:73
+msgid "Default duration of the type will be used if you leave blank."
+msgstr "La durée par défaut du type sera utilisée si vous laissez vide."
+
+#: forms/activity.py:81
 msgid "It is only informative and is not used to compute the end time."
 msgstr "Seulement informative et pas utilisée pour calculer l'heure de fin."
 
-#: forms/activity.py:199 forms/activity.py:296 forms/activity.py:478
+#: forms/activity.py:194 forms/activity.py:293 forms/activity.py:555
 msgid "When"
 msgstr "Quand"
 
-#: forms/activity.py:230 forms/blocks.py:56 forms/lv_import.py:581
+#: forms/activity.py:226 forms/blocks.py:54 forms/mass_import.py:584
 msgid "Other participating users"
 msgstr "Autres utilisateurs participants"
 
-#: forms/activity.py:268 forms/blocks.py:50 forms/lv_import.py:574
+#: forms/activity.py:268 forms/blocks.py:53 forms/mass_import.py:582
 msgid "Do I participate to this activity?"
 msgstr "Est-ce que je participe à cette activité ?"
 
-#: forms/activity.py:270 forms/lv_import.py:577
-msgid "On which of my calendar this activity will appears?"
-msgstr "Sur lequel de mes calendriers cette activité doit apparaître ?"
-
-#: forms/activity.py:273
+#: forms/activity.py:270
 msgid "Other participants"
 msgstr "Autres participants"
 
-#: forms/activity.py:275
+#: forms/activity.py:272
 msgid "Entities linked to this activity"
 msgstr "Fiches reliées à l'activité"
 
-#: forms/activity.py:277
-msgid "Alert day"
-msgstr "Jour de l'alerte"
-
-#: forms/activity.py:278
-msgid "Alert time"
-msgstr "Heure de l'alerte"
-
-#: forms/activity.py:279
-msgid "Value"
-msgstr "Valeur"
-
-#: forms/activity.py:280
-msgid ""
-"Your alert will be raised X units (X = Value) before the start of the "
-"activity"
-msgstr ""
-"Votre alerte sera déclenchée X unité(s) (X = Valeur) avant le début de "
-"l'activité"
-
-#: forms/activity.py:282
-msgid "Unit"
-msgstr "Unité"
-
-#: forms/activity.py:283
-msgid "Minute"
-msgstr "Minute"
-
-#: forms/activity.py:284
-msgid "Hour"
-msgstr "Heure"
-
-#: forms/activity.py:285
-msgid "Day"
-msgstr "Jour"
-
-#: forms/activity.py:286
-msgid "Week"
-msgstr "Semaine"
-
-#: forms/activity.py:291
+#: forms/activity.py:288
 msgid "No participant"
 msgstr "Aucun Participant"
 
-#: forms/activity.py:292
-msgid "If you want this alert you must specify date and time"
-msgstr ""
-"Si vous souhaitez une alerte vous devez spécifier une date et une heure"
-
-#: forms/activity.py:299
+#: forms/activity.py:297 forms/activity.py:343
 msgid "Generate an alert on a specific date"
 msgstr "Générer une alerte à une date spécifique"
 
-#: forms/activity.py:300
+#: forms/activity.py:298 forms/activity.py:347
 msgid "Generate an alert in a while"
 msgstr "Générer une alerte dans un certain temps"
 
-#: forms/activity.py:327 forms/blocks.py:86
+#: forms/activity.py:299 forms/activity.py:368
+msgid "Users to keep informed"
+msgstr "Utilisateurs à tenir informés"
+
+#: forms/activity.py:326 forms/blocks.py:81
 msgid ""
 "The organisations of the participants will be automatically added as subjects"
 msgstr ""
 "Les sociétés des participants seront ajoutées automatiquement en tant que "
 "sujets"
 
-#: forms/activity.py:368 forms/blocks.py:153 forms/lv_import.py:639
-msgid "If you participate, you have to choose one of your calendars."
-msgstr "Si vous participez, vous devez choisir un de vos calendriers."
+#: forms/activity.py:349
+msgid "How long before the activity's start the alert is raised?"
+msgstr "Combien de temps avant le début de l'activité l'alerte est-elle déclenchée ?"
 
-#: forms/activity.py:405
+#: forms/activity.py:446
 msgid "Alert of activity"
 msgstr "Alerte d'activité"
 
-#: forms/activity.py:406
+#: forms/activity.py:447
 #, python-format
 msgid "Alert related to %s"
 msgstr "Alerte en rapport avec %s"
 
-#: forms/activity.py:467
-msgid "Indisponibility type"
+#: forms/activity.py:487
+#, python-format
+msgid "[Creme] Activity created: %s"
+msgstr "[Creme] Activité créée : %s"
+
+#: forms/activity.py:488
+#, python-format
+msgid ""
+"A new activity has been created: %(activity)s.\n"
+"    Description: %(description)s.\n"
+"    Start: %(start)s.\n"
+"    End: %(end)s.\n"
+"    Subjects: %(subjects)s.\n"
+"    Participants: %(participants)s."
+msgstr ""
+"Une nouvelle activité a été créée : %(activity)s.\n"
+"    Description : %(description)s.\n"
+"    Début : %(start)s.\n"
+"    Fin : %(end)s.\n"
+"    Sujets : %(subjects)s.\n"
+"    Participants : %(participants)s."
+
+#: forms/activity.py:496 forms/activity.py:497
+msgid "not specified"
+msgstr "non renseigné"
+
+#: forms/activity.py:544
+msgid "Unavailability type"
 msgstr "Type d'indisponibilité"
 
-#: forms/activity.py:494
+#: forms/activity.py:571
 msgid "Unavailable users"
 msgstr "Utilisateurs non-disponibles"
 
-#: forms/activity_type.py:36
+#: forms/activity_type.py:40
 msgid "Duration"
 msgstr "Durée"
 
-#: forms/activity_type.py:85
+#: forms/activity_type.py:98
 msgid "This type causes constraint error."
 msgstr "Ce type cause une erreur de contrainte"
 
-#: forms/activity_type.py:86
+#: forms/activity_type.py:99
 msgid "Sub-type is required."
 msgstr "Le sous-type est obligatoire"
 
-#: forms/activity_type.py:151
+#: forms/activity_type.py:180
 msgid "The type of an indisponibility cannot be changed."
 msgstr "Le type d'une indisponibilité ne peut pas être modifié."
 
-#: forms/activity_type.py:169
+#: forms/activity_type.py:200
 msgid "Beware !"
 msgstr "Attention !"
 
-#: forms/activity_type.py:171
+#: forms/activity_type.py:202
 #, python-format
 msgid ""
 "The type of %s activity cannot be changed because it is an indisponibility."
@@ -299,66 +316,62 @@ msgstr[1] ""
 "Le type de %s activités ne peut pas être modifié parce que ce sont des "
 "indisponibilités."
 
-#: forms/blocks.py:54
-msgid "On which of my calendar this activity will appear?"
-msgstr "Sur lequel de mes calendriers cette activité doit apparaître ?"
-
-#: forms/blocks.py:203
+#: forms/blocks.py:196
 #, python-format
 msgid "This entity is already a subject: %(duplicates)s"
 msgid_plural "These entities are already subjects: %(duplicates)s"
 msgstr[0] "Cette fiche est déjà un sujet: %(duplicates)s"
 msgstr[1] "Ces fiches sont déjà des sujets: %(duplicates)s"
 
-#: forms/calendar.py:33 models/calendar.py:38
-msgid "Color"
-msgstr "Couleur"
-
-#: forms/calendar.py:51
+#: forms/calendar.py:60
 msgid "User"
 msgstr "Utilisateur"
 
-#: forms/lv_import.py:102
+#: forms/fields.py:29
+msgid "Appears on the calendar:"
+msgstr "Apparaît sur le calendrier :"
+
+#: forms/mass_import.py:100
 #, python-format
 msgid "Too many contacts were found for the search «%s»"
 msgstr "Trop de contacts ont été trouvés pour la recherche «%s»"
 
-#: forms/lv_import.py:106
+#: forms/mass_import.py:104
 #, python-format
 msgid "Several contacts were found for the search «%s»"
 msgstr "Plusieurs contacts ont été trouvés pour la recherche «%s»"
 
-#: forms/lv_import.py:111
+#: forms/mass_import.py:109
 #, python-format
 msgid "No linkable contact found for the search «%s»"
 msgstr "Aucun contact reliable n'a été trouvé pour la recherche «%s»"
 
-#: forms/lv_import.py:126
+#: forms/mass_import.py:124
 #, python-format
 msgid "The participant «%s» is unfoundable"
 msgstr "Le participant «%s» est introuvable"
 
-#: forms/lv_import.py:143
+#: forms/mass_import.py:142
 msgid "Civility FirstName LastName"
 msgstr "Civilité Prénom Nom"
 
-#: forms/lv_import.py:157
+#: forms/mass_import.py:157
 msgid "Civility LastName FirstName"
 msgstr "Civilité Nom Prénom"
 
-#: forms/lv_import.py:177
+#: forms/mass_import.py:178
 msgid "FirstName LastName"
 msgstr "Prénom Nom"
 
-#: forms/lv_import.py:185
+#: forms/mass_import.py:187
 msgid "LastName FirstName"
 msgstr "Nom Prénom"
 
-#: forms/lv_import.py:287
+#: forms/mass_import.py:289
 msgid "Create the Contacts who are not found?"
 msgstr "Créer les Contacts qui ne sont pas trouvés ?"
 
-#: forms/lv_import.py:294
+#: forms/mass_import.py:296
 msgid ""
 "Method #1: first name & last name are in separated cells (first name is "
 "optional)"
@@ -367,16 +380,16 @@ msgstr ""
 "facultatif)"
 
 # Already in 'persons'
-#: forms/lv_import.py:297
+#: forms/mass_import.py:299
 msgid "First name"
 msgstr ""
 
 # Already in 'persons'
-#: forms/lv_import.py:301
+#: forms/mass_import.py:303
 msgid "Last name"
 msgstr ""
 
-#: forms/lv_import.py:305
+#: forms/mass_import.py:307
 msgid ""
 "Method #2: several contacts in one cell (in all patterns the last name is "
 "the only required element)"
@@ -384,43 +397,43 @@ msgstr ""
 "Méthode n°2: plusieurs contacts dans une cellule (dans tous les motifs le "
 "nom est le seul élément obligatoire)"
 
-#: forms/lv_import.py:308 forms/lv_import.py:502
+#: forms/mass_import.py:310 forms/mass_import.py:504
 msgid "Separator"
 msgstr "Séparateur"
 
-#: forms/lv_import.py:314
+#: forms/mass_import.py:316
 msgid "Contact pattern"
 msgstr "Motif de contact"
 
-#: forms/lv_import.py:454
+#: forms/mass_import.py:456
 #, python-format
 msgid "Too many «%(type)s» were found for the search «%(search)s»"
 msgstr "Trop de «%(type)s» ont été trouvés pour la recherche «%(search)s»"
 
-#: forms/lv_import.py:461
+#: forms/mass_import.py:463
 #, python-format
 msgid "Several «%(type)s» were found for the search «%(search)s»"
 msgstr "Plusieurs «%(type)s» ont été trouvés pour la recherche «%(search)s»"
 
-#: forms/lv_import.py:477
+#: forms/mass_import.py:479
 #, python-format
 msgid "No linkable entity found for the search «%s»"
 msgstr "Aucune fiche reliable touvée pour la recherche «%s»"
 
-#: forms/lv_import.py:479
+#: forms/mass_import.py:481
 #, python-format
 msgid "The subject «%s» is unfoundable"
 msgstr "Le sujet «%s» est introuvable"
 
-#: forms/lv_import.py:509
+#: forms/mass_import.py:511
 msgid "Create the Organisations which are not found?"
 msgstr "Créer les Sociétés qui ne sont pas trouvées ?"
 
-#: forms/lv_import.py:587
+#: forms/mass_import.py:591
 msgid "Subjects (organisations only)"
 msgstr "Sujets (sociétés seulement)"
 
-#: forms/lv_import.py:593
+#: forms/mass_import.py:597
 msgid "Participants & subjects"
 msgstr "Participants et sujets"
 
@@ -428,7 +441,15 @@ msgstr "Participants et sujets"
 msgid "Title"
 msgstr "Titre"
 
-#: models/activity.py:46 models/other_models.py:74
+#: models/activity.py:44
+msgid "Start"
+msgstr "Début"
+
+#: models/activity.py:45
+msgid "End"
+msgstr "Fin"
+
+#: models/activity.py:46 models/other_models.py:77
 msgid "Description"
 msgstr "Description"
 
@@ -440,73 +461,77 @@ msgstr "Bilan"
 msgid "Activity place"
 msgstr "Lieu de l'activité"
 
-#: models/activity.py:51
+#: models/activity.py:50
 msgid "Duration (in hour)"
 msgstr "Durée (en heures)"
 
-#: models/activity.py:52
+#: models/activity.py:51
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: models/activity.py:55
+#: models/activity.py:54
 msgid "Activity sub-type"
 msgstr "Sous-type d'activité"
 
-#: models/activity.py:58
+#: models/activity.py:57
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:61 models/calendar.py:45
-#: templates/activities/calendar.html:4
-#: templates/activities/templatetags/block_related_calendar.html:12
+#: models/activity.py:60 models/calendar.py:44
+#: templates/activities/calendar.html:3
+#: templates/activities/templatetags/block_related_calendar.html:6
 #: templates/activities/templatetags/block_user_calendars.html:8
 msgid "Calendars"
 msgstr "Calendriers"
 
-#: models/activity.py:64
+#: models/activity.py:63
 msgid "All day?"
 msgstr "Toute la journée ?"
 
-#: models/activity.py:65
+#: models/activity.py:64
 msgid "Busy?"
 msgstr "Occupé ?"
 
-#: models/activity.py:67
+#: models/activity.py:66
 msgid "Floating type"
 msgstr "Type flottant"
 
-#: models/activity.py:72
-msgid "Add an activity"
-msgstr "Ajouter une activité"
+#: models/activity.py:70
+msgid "Create an activity"
+msgstr "Créer une activité"
 
-#: models/activity.py:77
-msgid "Activity"
-msgstr "Activité"
+#: models/activity.py:71
+msgid "Save the activity"
+msgstr "Enregistrer l'activité"
 
-#: models/calendar.py:33 models/other_models.py:33 models/other_models.py:58
-#: models/other_models.py:73
-#: templates/activities/templatetags/block_related_calendar.html:26
-#: templates/activities/templatetags/block_user_calendars.html:23
+#: models/calendar.py:31 models/other_models.py:34 models/other_models.py:60
+#: models/other_models.py:76
+#: templates/activities/templatetags/block_related_calendar.html:21
+#: templates/activities/templatetags/block_user_calendars.html:24
 msgid "Name"
 msgstr "Nom"
 
-#: models/calendar.py:34
-#: templates/activities/templatetags/block_related_calendar.html:27
-#: templates/activities/templatetags/block_user_calendars.html:24
+#: models/calendar.py:32
+#: templates/activities/templatetags/block_related_calendar.html:22
+#: templates/activities/templatetags/block_user_calendars.html:25
 msgid "Is default?"
 msgstr "Par défaut ?"
 
-#: models/calendar.py:36
-#: templates/activities/templatetags/block_related_calendar.html:28
-#: templates/activities/templatetags/block_user_calendars.html:25
+#: models/calendar.py:34
+#: templates/activities/templatetags/block_related_calendar.html:23
+#: templates/activities/templatetags/block_user_calendars.html:26
 msgid "Is public?"
 msgstr "Est public ?"
 
-#: models/calendar.py:37
+#: models/calendar.py:35
 msgid "Calendar owner"
 msgstr "Propriétaire du calendrier"
 
-#: models/calendar.py:71
+#: models/calendar.py:37
+msgid "Color"
+msgstr "Couleur"
+
+#: models/calendar.py:73
 #, python-format
 msgid "%s's calendar"
 msgstr "Calendrier de %s"
@@ -519,155 +544,146 @@ msgstr "Durée en jours par défaut"
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
 
-#: models/other_models.py:44 models/other_models.py:59
+#: models/other_models.py:45 models/other_models.py:61
 msgid "Type of activity"
 msgstr "Type d'activité"
 
-#: models/other_models.py:45
+#: models/other_models.py:46
 msgid "Types of activity"
 msgstr "Types d'activité"
 
-#: models/other_models.py:67
+#: models/other_models.py:70
 msgid "Sub-type of activity"
 msgstr "Sous-type d'activité"
 
-#: models/other_models.py:68
+#: models/other_models.py:71
 msgid "Sub-types of activity"
 msgstr "Sous-types d'activité"
 
-#: models/other_models.py:82
+#: models/other_models.py:80
+msgctxt "activities-status"
+msgid "Create a status"
+msgstr "Créer un statut"
+
+#: models/other_models.py:87
+msgctxt "activities-singular"
 msgid "Status of activity"
 msgstr "Statut d'activité"
 
-#: models/other_models.py:83
-msgid "Statuses of activity"
+#: models/other_models.py:88
+msgctxt "activities-plural"
+msgid "Status of activity"
 msgstr "Statuts d'activité"
 
-#: populate.py:64
+#: populate.py:58
 msgid "related to the activity"
 msgstr "relié à l'activité"
 
-#: populate.py:65
+#: populate.py:59
 msgid "(activity) related to"
 msgstr "(activité) relié à"
 
-#: populate.py:68
+#: populate.py:62
 msgid "is subject of the activity"
 msgstr "est sujet de l'activité"
 
-#: populate.py:69
+#: populate.py:63
 msgid "(activity) is to subject"
 msgstr "(activité) a pour sujet"
 
-#: populate.py:72
+#: populate.py:66
 msgid "participates to the activity"
 msgstr "participe à l'activité"
 
-#: populate.py:73
+#: populate.py:67
 msgid "(activity) has as participant"
 msgstr "(activité) a comme participant"
 
-#: populate.py:78
+#: populate.py:72
 msgctxt "activities-status"
 msgid "Planned"
 msgstr "Prévue"
 
-#: populate.py:79
+#: populate.py:73
 msgctxt "activities-status"
 msgid "In progress"
 msgstr "En cours"
 
-#: populate.py:80
+#: populate.py:74
 msgctxt "activities-status"
 msgid "Done"
 msgstr "Finie"
 
-#: populate.py:81
+#: populate.py:75
 msgctxt "activities-status"
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:82
+#: populate.py:76
 msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
-#: populate.py:85
-msgid "Task"
-msgstr "Tâche"
-
-#: populate.py:87 populate.py:95
-msgid "Meeting"
-msgstr "Rendez-vous"
-
-#: populate.py:89
-msgid "Phone call"
-msgstr "Appel téléphonique"
-
-#: populate.py:90
+#: populate.py:84
 msgid "Gathering"
 msgstr "Réunion"
 
-#: populate.py:91
+#: populate.py:85
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:92
+#: populate.py:86
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: populate.py:93
+#: populate.py:87
 msgid "Indisponibility"
 msgstr "Indisponibilité"
 
-#: populate.py:96
+#: populate.py:90
 msgid "Qualification"
 msgstr "Qualification"
 
-#: populate.py:97
+#: populate.py:91
 msgid "Revival"
 msgstr "Relance"
 
-#: populate.py:98
+#: populate.py:92
 msgid "Network"
 msgstr "Réseau"
 
-#: populate.py:99
+#: populate.py:93
 msgctxt "activities-meeting"
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:101
+#: populate.py:95
 msgid "Incoming"
 msgstr "Entrant"
 
-#: populate.py:102
+#: populate.py:96
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: populate.py:103
+#: populate.py:97
 msgid "Conference"
 msgstr "Conférence"
 
-#: populate.py:104
+#: populate.py:98
 msgid "Outgoing - Failed"
 msgstr "Sortant - Échoué"
 
-#: populate.py:106
+#: populate.py:101
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
 #: populate.py:117
-msgid "Meetings"
-msgstr "Rendez-vous"
-
-#: populate.py:118
-msgid "Phone calls"
-msgstr "Appels téléphoniques"
-
-#: populate.py:119
 msgid "Tasks"
 msgstr "Tâches"
+
+#: populate.py:128
+msgid "In which I participate"
+msgstr "Auxquelles je participe"
 
 #: setting_keys.py:11
 msgid "Display minutes information in activities blocks"
@@ -681,40 +697,44 @@ msgstr ""
 "Ajouter automatiquement les sociétés des participants en tant que sujets des "
 "activités"
 
-#: templates/activities/calendar.html:22
+#: setting_keys.py:21
+msgid "In the activities form, propose to keep users informed."
+msgstr "Dans le formulaire des activités, proposer de tenir les utilisateurs informés."
+
+#: templates/activities/calendar.html:20
 msgid "Floating activities"
 msgstr "Activités flottantes"
 
-#: templates/activities/calendar.html:25
+#: templates/activities/calendar.html:23
 msgid "FILTER FLOATING ACTIVITIES"
 msgstr "FILTRER LES ACTIVITES FLOTTANTES"
 
-#: templates/activities/calendar.html:41
+#: templates/activities/calendar.html:39
 msgid "My calendars"
 msgstr "Mes calendriers"
 
-#: templates/activities/calendar.html:51 templates/activities/calendar.html:77
+#: templates/activities/calendar.html:49 templates/activities/calendar.html:75
 msgid "No calendars"
 msgstr "Aucun calendrier"
 
-#: templates/activities/calendar.html:59
+#: templates/activities/calendar.html:57
 msgid "Collaborators calendars"
 msgstr "Calendriers des collaborateurs"
 
-#: templates/activities/calendar.html:62
+#: templates/activities/calendar.html:60
 msgid "FILTER CALENDARS OR COLLABORATORS"
 msgstr "FILTRER LES CALENDRIERS OU LES COLLABORATEURS"
 
-#: templates/activities/frags/ical_list_view_button.html:3
+#: templates/activities/frags/ical_list_view_button.html:4
 msgid "Download in iCalendar format"
 msgstr "Télécharger au format iCalendar"
 
-#: templates/activities/portal.html:7
+#: templates/activities/portal.html:6
 msgid "Activities portal"
 msgstr "Portail Activités"
 
 #: templates/activities/portal.html:12
-#: templates/activities/view_activity.html:6
+#: templates/activities/view_activity.html:7
 msgid "Go to the calendar"
 msgstr "Aller au calendrier"
 
@@ -760,19 +780,19 @@ msgstr "%s Activités futures liées"
 msgid "Link to an activity"
 msgstr "Lier à une activité"
 
-#: templates/activities/templatetags/block_future_activities.html:52
+#: templates/activities/templatetags/block_future_activities.html:54
 msgid "Subject(s)"
 msgstr "Sujet(s)"
 
-#: templates/activities/templatetags/block_future_activities.html:60
+#: templates/activities/templatetags/block_future_activities.html:62
 msgid "Participant(s)"
 msgstr "Participant(s)"
 
-#: templates/activities/templatetags/block_future_activities.html:68
+#: templates/activities/templatetags/block_future_activities.html:70
 msgid "Related to"
 msgstr "Relié(s)"
 
-#: templates/activities/templatetags/block_future_activities.html:83
+#: templates/activities/templatetags/block_future_activities.html:85
 msgid "No future related activity for the moment"
 msgstr "Aucune activité future liée pour le moment"
 
@@ -786,11 +806,11 @@ msgstr "%s Participant"
 msgid "%s Participants"
 msgstr "%s Participants"
 
-#: templates/activities/templatetags/block_participants.html:9
+#: templates/activities/templatetags/block_participants.html:10
 msgid "Add contacts"
 msgstr "Ajouter des contacts"
 
-#: templates/activities/templatetags/block_participants.html:33
+#: templates/activities/templatetags/block_participants.html:36
 msgid "No participant for the moment"
 msgstr "Aucun participant enregistré pour le moment"
 
@@ -818,16 +838,16 @@ msgstr "%s Activités passées liées"
 msgid "No past related activity for the moment"
 msgstr "Aucune activité passée liée pour le moment"
 
-#: templates/activities/templatetags/block_related_calendar.html:12
+#: templates/activities/templatetags/block_related_calendar.html:6
 #, python-format
 msgid "Present in %s of my Calendars"
 msgstr "Présent dans %s de mes Calendriers"
 
-#: templates/activities/templatetags/block_related_calendar.html:18
+#: templates/activities/templatetags/block_related_calendar.html:13
 msgid "Change calendar"
 msgstr "Changer de calendrier"
 
-#: templates/activities/templatetags/block_related_calendar.html:42
+#: templates/activities/templatetags/block_related_calendar.html:37
 msgid ""
 "The activity is not present in any of your calendars, you don't participate "
 "to it"
@@ -845,11 +865,11 @@ msgstr "%s Sujet"
 msgid "%s Subjects"
 msgstr "%s Sujets"
 
-#: templates/activities/templatetags/block_subjects.html:9
+#: templates/activities/templatetags/block_subjects.html:10
 msgid "Add entities"
 msgstr "Ajouter des fiches"
 
-#: templates/activities/templatetags/block_subjects.html:28
+#: templates/activities/templatetags/block_subjects.html:30
 msgid "No subject for the moment"
 msgstr "Aucun sujet enregistré pour le moment"
 
@@ -863,27 +883,27 @@ msgstr "%s Calendrier"
 msgid "%s Calendars"
 msgstr "%s Calendriers"
 
-#: templates/activities/templatetags/block_user_calendars.html:16
+#: templates/activities/templatetags/block_user_calendars.html:17
 msgid "New calendar"
 msgstr "Nouveau calendrier"
 
-#: templates/activities/templatetags/block_user_calendars.html:26
+#: templates/activities/templatetags/block_user_calendars.html:27
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/activities/templatetags/block_user_calendars.html:27
+#: templates/activities/templatetags/block_user_calendars.html:28
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/activities/templatetags/block_user_calendars.html:39
+#: templates/activities/templatetags/block_user_calendars.html:42
 msgid "Edit calendar"
 msgstr "Modifier calendrier"
 
-#: templates/activities/templatetags/block_user_calendars.html:52
+#: templates/activities/templatetags/block_user_calendars.html:56
 msgid "No calendar for the moment"
 msgstr "Aucun calendrier pour le moment"
 
-#: templates/activities/templatetags/button_add_related.html:9
+#: templates/activities/templatetags/button_add_related.html:7
 msgid "forbidden"
 msgstr "interdit"
 
@@ -891,11 +911,11 @@ msgstr "interdit"
 msgid "Full detailview"
 msgstr "Fiche complète"
 
-#: templatetags/activities_tags.py:51
+#: templatetags/activities_tags.py:52
 msgid "Error"
 msgstr "Erreur"
 
-#: utils.py:87
+#: utils.py:94
 #, python-format
 msgid ""
 "%(participant)s already participates to the activity «%(activity)s» between "
@@ -904,29 +924,25 @@ msgstr ""
 "%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
 "et %(end)s."
 
-#: views/activity.py:71 views/activity.py:165
-msgid "Save the activity"
-msgstr "Enregistrer l'activité"
-
-#: views/activity.py:164
+#: views/activity.py:135
 msgid "New activity"
 msgstr "Nouvelle activité"
 
-#: views/blocks.py:43
+#: views/blocks.py:40
 #, python-format
 msgid "Adding participants to activity «%s»"
 msgstr "Ajout de participants pour l'activité «%s»"
 
-#: views/blocks.py:45
+#: views/blocks.py:42
 msgid "Add the participants"
 msgstr "Ajouter les participants"
 
-#: views/blocks.py:70
+#: views/blocks.py:69
 #, python-format
 msgid "Adding subjects to activity «%s»"
 msgstr "Ajout de sujets pour l'activité «%s»"
 
-#: views/blocks.py:72
+#: views/blocks.py:71
 msgid "Add the subjects"
 msgstr "Ajouter les sujets"
 
@@ -934,38 +950,106 @@ msgstr "Ajouter les sujets"
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
 
-#: views/calendar.py:249
-msgid "Add a calendar"
-msgstr "Ajouter un calendrier"
+#: views/calendar.py:253
+msgid "Create a calendar"
+msgstr "Créer un calendrier"
 
-#: views/calendar.py:251
+#: views/calendar.py:255
 msgid "Save the calendar"
 msgstr "Enregistrer le calendrier"
 
-#: views/calendar.py:272
+#: views/calendar.py:278
 msgid "You are not allowed to delete this calendar."
 msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
 
-#: views/calendar.py:286
+#: views/calendar.py:293
 #, python-format
 msgid "Change calendar of «%s»"
 msgstr "Changer le calendrier de «%s»"
 
-#: views/portal.py:35
+#: views/portal.py:33
 msgid "Activities count"
 msgstr "Nombre d'activité(s)"
 
-#: views/portal.py:36
+#: views/portal.py:34
 msgid "Meetings count"
 msgstr "Nombre de rendez-vous"
 
-#: views/portal.py:37
+#: views/portal.py:35
 msgid "Phone calls count"
 msgstr "Nombre d'appels téléphoniques"
 
-#: views/portal.py:38
+#: views/portal.py:36
 msgid "Tasks count"
 msgstr "Nombre de tâches"
+
+#~ msgid "Add a meeting"
+#~ msgstr "Ajouter un rendez-vous"
+
+#~ msgid "Add a phone call"
+#~ msgstr "Ajouter un appel téléphonique"
+
+#~ msgid "Add a task"
+#~ msgstr "Ajouter une tâche"
+
+#~ msgid "Add an indisponibility"
+#~ msgstr "Ajouter une indisponibilité"
+
+#~ msgid "Add a phonecall"
+#~ msgstr "Ajouter un appel téléphonique"
+
+#~ msgid "On which of my calendar this activity will appears?"
+#~ msgstr "Sur lequel de mes calendriers cette activité doit apparaître ?"
+
+#~ msgid "Alert day"
+#~ msgstr "Jour de l'alerte"
+
+#~ msgid "Alert time"
+#~ msgstr "Heure de l'alerte"
+
+#~ msgid "Value"
+#~ msgstr "Valeur"
+
+#~ msgid ""
+#~ "Your alert will be raised X units (X = Value) before the start of the "
+#~ "activity"
+#~ msgstr ""
+#~ "Votre alerte sera déclenchée X unité(s) (X = Valeur) avant le début de "
+#~ "l'activité"
+
+#~ msgid "Unit"
+#~ msgstr "Unité"
+
+#~ msgid "Minute"
+#~ msgstr "Minute"
+
+#~ msgid "Hour"
+#~ msgstr "Heure"
+
+#~ msgid "Day"
+#~ msgstr "Jour"
+
+#~ msgid "Week"
+#~ msgstr "Semaine"
+
+#~ msgid "If you want this alert you must specify date and time"
+#~ msgstr ""
+#~ "Si vous souhaitez une alerte vous devez spécifier une date et une heure"
+
+#~ msgid "If you participate, you have to choose one of your calendars."
+#~ msgstr "Si vous participez, vous devez choisir un de vos calendriers."
+
+#~ msgid "On which of my calendar this activity will appear?"
+#~ msgstr "Sur lequel de mes calendriers cette activité doit apparaître ?"
+
+#~ msgid "Add an activity"
+#~ msgstr "Ajouter une activité"
+
+#~ msgid "Statuses of activity"
+#~ msgstr "Statuts d'activité"
+
+#~ msgid "Add a calendar"
+#~ msgstr "Ajouter un calendrier"
 
 #~ msgid "Add from existing contacts"
 #~ msgstr "Ajouter depuis des contacts existants"

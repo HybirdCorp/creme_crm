@@ -74,8 +74,8 @@ class CremeEntity(CremeAbstractEntity):
     # TODO: use tag instead.
     allowed_related = set()
 
-    creation_label = _('Create an entity')
-    save_label     = _('Save the entity')
+    creation_label = _(u'Create an entity')
+    save_label     = _(u'Save the entity')
     # multi_creation_label = _('Add entities')  TODO ??
     # multi_save_label = _('Save the entities')  TODO ??
 

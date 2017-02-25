@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'RECURRENTS' APP
-# Copyright (C) 2016 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,34 +8,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Recurrents 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-11 11:14+0100\n"
+"POT-Creation-Date: 2017-02-23 15:28+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 apps.py:41
+#: apps.py:28
 msgid "Recurrent documents"
 msgstr "Documents récurrents"
 
-#: apps.py:60
+#: apps.py:62
 msgid "Portal of recurrent documents"
 msgstr "Portail des documents récurrents"
 
-#: apps.py:61
+#: apps.py:63
 msgid "All recurrent generators"
 msgstr "Lister les générateurs récurrents"
+
+#: apps.py:69
+msgid "Management"
+msgstr "Gestion"
 
 #: creme_jobs.py:33
 msgid "Generate recurrent documents"
 msgstr "Générer les documents récurrents"
 
-#: forms/recurrentgenerator.py:33
-msgid "Date of the first generation"
-msgstr "Date de la première récurrence"
-
-#: forms/recurrentgenerator.py:48
+#: forms/recurrentgenerator.py:46
 msgid "Type of resource used as template"
 msgstr "Type de ressource utilisé en tant que modèle"
 
@@ -48,12 +48,12 @@ msgid "Description"
 msgstr "Description"
 
 #: models/recurrentgenerator.py:33
-msgid "Date of the first recurrent generation"
-msgstr "Date de première génération récurrente"
+msgid "Date of the first generation"
+msgstr "Date de la première récurrence"
 
 #: models/recurrentgenerator.py:34
-msgid "Date of the last recurrent generation"
-msgstr "Date de la dernière génération récurrente"
+msgid "Date of the last generation"
+msgstr "Date de la première récurrence"
 
 #: models/recurrentgenerator.py:35
 msgid "Periodicity of the generation"
@@ -72,14 +72,18 @@ msgid "Active ?"
 msgstr "Actif ?"
 
 #: models/recurrentgenerator.py:42
-msgid "Add a generator"
-msgstr "Ajouter un générateur"
+msgid "Create a generator"
+msgstr "Créer un générateur"
 
-#: models/recurrentgenerator.py:47
+#: models/recurrentgenerator.py:43
+msgid "Save the generator"
+msgstr "Enregistrer le générateur"
+
+#: models/recurrentgenerator.py:48
 msgid "Recurrent generator"
 msgstr "Générateur récurrent"
 
-#: models/recurrentgenerator.py:48
+#: models/recurrentgenerator.py:49
 msgid "Recurrent generators"
 msgstr "Générateurs récurrents"
 
@@ -87,15 +91,15 @@ msgstr "Générateurs récurrents"
 msgid "Generator view"
 msgstr "Vue des générateurs"
 
-#: templates/recurrents/portal.html:4
+#: templates/recurrents/portal.html:3
 msgid "Recurrent doc"
 msgstr "Doc récurrent"
 
-#: templates/recurrents/portal.html:5
+#: templates/recurrents/portal.html:4
 msgid "Recurrent documents portal"
 msgstr "Portail Documents Récurrents"
 
-#: templates/recurrents/portal.html:9
+#: templates/recurrents/portal.html:6
 msgid "List of recurrent generators"
 msgstr "Liste des générateurs récurrents"
 
@@ -103,9 +107,11 @@ msgstr "Liste des générateurs récurrents"
 msgid "Number of generators"
 msgstr "Nombre de générateur(s)"
 
-#: views/recurrentgenerator.py:66
-msgid "Save the generator"
-msgstr "Enregistrer le générateur"
+#~ msgid "Date of the first recurrent generation"
+#~ msgstr "Date de première génération récurrente"
+
+#~ msgid "Date of the last recurrent generation"
+#~ msgstr "Date de la dernière génération récurrente"
 
 #~ msgid "Daily"
 #~ msgstr "Quotidienne"

@@ -317,7 +317,7 @@ creme.menu.openCreateAnyDialog = function(a_tag) {
     }
 
     creme.menu.currentPopup = creme.dialogs.html($content[0].outerHTML,
-                                                 {title: gettext('Choisir le type de fiche à créer'),
+                                                 {title: gettext('Chose the type of entity to create'),
                                                   width: Math.max(550, max_col * 200)
                                                  }
                                                 ).open();

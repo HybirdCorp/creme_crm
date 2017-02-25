@@ -6,6 +6,7 @@ try:
 
     from django.core.urlresolvers import reverse
     from django.test.html import parse_html, Element
+    from django.utils.encoding import smart_unicode
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
@@ -13,17 +14,18 @@ try:
     # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.activities.models import Activity
     from creme.activities.constants import (REL_SUB_ACTIVITY_SUBJECT,
             REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY,
             ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL)
+    from creme.activities.models import Activity
     from creme.activities.tests.base import skipIfCustomActivity
+
+    from ..blocks import NeglectedOrganisationsBlock, address_block
+    from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT,
+            REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES,REL_SUB_INACTIVE)
 
     from .base import (skipIfCustomOrganisation, skipIfCustomContact,
             Contact, Organisation, Address)
-    from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT,
-            REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES,REL_SUB_INACTIVE)
-    from ..blocks import NeglectedOrganisationsBlock, address_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -90,7 +92,7 @@ class BlocksTestCase(CremeTestCase):
         create_rel(subject_entity=customer02, object_entity=mng_orga,
                    type=RelationType.objects.get(pk=REL_SUB_PROSPECT),
                   )
-        neglected_orgas =  self._get_neglected_orgas()
+        neglected_orgas = self._get_neglected_orgas()
         self.assertEqual(2, len(neglected_orgas))
         self.assertEqual({customer01.id, customer02.id}, {orga.id for orga in neglected_orgas})
 
@@ -255,13 +257,16 @@ class BlocksTestCase(CremeTestCase):
 
     def _get_address_block_content(self, entity, no_titles=False):
         response = self.assertGET200(entity.get_absolute_url())
-        content = response.content
+
+        try:
+            content = smart_unicode(response.content)
+        except Exception as e:
+            self.fail(e)
 
         try:
             html = parse_html(content)
         except Exception as e:
-            from django.utils.encoding import smart_unicode
-            self.fail(u'%s\n----\n%s' % (e, smart_unicode(content)))
+            self.fail(u'%s\n----\n%s' % (e, content))
 
         block_node = find_node_by_attr(html, 'table', 'id', address_block.id_)
         self.assertIsNotNone(block_node, 'Block content not found')

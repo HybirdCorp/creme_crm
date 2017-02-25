@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'ACTIVITIES' APP (JavaScript only)
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activities 1.4\n"
+"Project-Id-Version: Creme Activities 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 18:00+0100\n"
+"POT-Creation-Date: 2017-02-23 12:28+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,114 +17,114 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/activities/js/activities.js:25
+#: static/activities/js/activities.js:26
 msgid "Please select at least a line in order to export."
 msgstr "Veuillez sélectionner au moins une ligne pour pouvoir exporter."
 
-#: static/activities/js/activities.js:185
+#: static/activities/js/activities.js:201
 msgid "You do not have permission, the change will not be saved."
 msgstr "Vous n'avez pas la permission, les changements ne seront pas sauvés."
 
-#: static/activities/js/activities.js:189
+#: static/activities/js/activities.js:205
 msgid "Error, please reload the page."
 msgstr "Erreur, veuillez recharger la page."
 
-#: static/activities/js/activities.js:256
+#: static/activities/js/activities.js:278
 msgid "All day"
 msgstr "Toute la journée"
 
-#: static/activities/js/activities.js:279
+#: static/activities/js/activities.js:301
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: static/activities/js/activities.js:280
+#: static/activities/js/activities.js:302
 msgid "Month"
 msgstr "Mois"
 
-#: static/activities/js/activities.js:281
+#: static/activities/js/activities.js:303
 msgid "Week"
 msgstr "Semaine"
 
-#: static/activities/js/activities.js:282
+#: static/activities/js/activities.js:304
 msgid "Day"
 msgstr "Jour"
 
-#: static/activities/js/activities.js:285
+#: static/activities/js/activities.js:307
 msgid "January"
 msgstr "Janvier"
 
-#: static/activities/js/activities.js:286
+#: static/activities/js/activities.js:308
 msgid "February"
 msgstr "Février"
 
-#: static/activities/js/activities.js:287
+#: static/activities/js/activities.js:309
 msgid "March"
 msgstr "Mars"
 
-#: static/activities/js/activities.js:288
+#: static/activities/js/activities.js:310
 msgid "April"
 msgstr "Avril"
 
-#: static/activities/js/activities.js:289
+#: static/activities/js/activities.js:311
 msgid "May"
 msgstr "Mai"
 
-#: static/activities/js/activities.js:290
+#: static/activities/js/activities.js:312
 msgid "June"
 msgstr "Juin"
 
-#: static/activities/js/activities.js:291
+#: static/activities/js/activities.js:313
 msgid "July"
 msgstr "Juillet"
 
-#: static/activities/js/activities.js:292
+#: static/activities/js/activities.js:314
 msgid "August"
 msgstr "Août"
 
-#: static/activities/js/activities.js:293
+#: static/activities/js/activities.js:315
 msgid "September"
 msgstr "Septembre"
 
-#: static/activities/js/activities.js:294
+#: static/activities/js/activities.js:316
 msgid "October"
 msgstr "Octobre"
 
-#: static/activities/js/activities.js:295
+#: static/activities/js/activities.js:317
 msgid "November"
 msgstr "Novembre"
 
-#: static/activities/js/activities.js:296
+#: static/activities/js/activities.js:318
 msgid "December"
 msgstr "Décembre"
 
-#: static/activities/js/activities.js:299
+#: static/activities/js/activities.js:321
 msgid "Sunday"
 msgstr "Dimanche"
 
-#: static/activities/js/activities.js:300
+#: static/activities/js/activities.js:322
 msgid "Monday"
 msgstr "Lundi"
 
-#: static/activities/js/activities.js:301
+#: static/activities/js/activities.js:323
 msgid "Tuesday"
 msgstr "Mardi"
 
-#: static/activities/js/activities.js:302
+#: static/activities/js/activities.js:324
 msgid "Wesnesday"
 msgstr "Mercredi"
 
-#: static/activities/js/activities.js:303
+#: static/activities/js/activities.js:325
 msgid "Thursday"
 msgstr "Jeudi"
 
-#: static/activities/js/activities.js:304
+#: static/activities/js/activities.js:326
 msgid "Friday"
 msgstr "Vendredi"
 
-#: static/activities/js/activities.js:305
+#: static/activities/js/activities.js:327
 msgid "Saturday"
 msgstr "Samedi"
 
-#: static/activities/js/activities.js:404
+#: static/activities/js/activities.js:434
 msgid "Loading..."
 msgstr "Chargement..."

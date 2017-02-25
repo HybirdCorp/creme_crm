@@ -10,7 +10,7 @@
         {% endfor %}
     </select>
     {% if not is_popup_view %}
-{#        <a href="{% url 'creme_core__create_efilter' content_type_id %}"> #}
+{#        <a href="/creme_core/entity_filter/add/{{content_type_id}}"> #}
         <a href="{% url 'creme_core__create_efilter' content_type_id %}">
             {% trans "Create a custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
         </a>

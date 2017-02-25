@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'GRAPHS' APP
-# Copyright (C) 2015 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
@@ -7,72 +7,81 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Graphs 1.6\n"
+"Project-Id-Version: Creme Graphs 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-07 11:48+0200\n"
+"POT-Creation-Date: 2017-02-23 14:46+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:29 apps.py:39 models/graph.py:46
+#: apps.py:28 models/graph.py:48
 msgctxt "graphs"
 msgid "Graphs"
 msgstr "Graphes"
 
-#: apps.py:62
+#: apps.py:65
 msgid "Portal of graphs"
 msgstr "Portail des graphes"
 
-#: apps.py:63
+#: apps.py:66
 msgid "All graphs"
 msgstr "Liste des graphes"
+
+#: apps.py:71 apps.py:75
+msgid "Analysis"
+msgstr "Analyse"
 
 #: blocks.py:34
 msgid "Roots nodes of a graph"
 msgstr "Nœuds racines d'un graphe"
 
-#: blocks.py:53
+#: blocks.py:55
 msgid "Peripheral types of relation of a graph"
 msgstr "Types de relation périphériques d'un graphe"
 
-#: forms/graph.py:38 models/graph.py:33
+#: forms/graph.py:38 models/graph.py:36
 msgid "Types of the peripheral relations"
 msgstr "Types des relations périphériques"
 
-#: forms/root_node.py:33
+#: forms/root_node.py:39
 msgid "Root entities"
 msgstr "Fiches racines"
 
-#: forms/root_node.py:34 forms/root_node.py:57
+#: forms/root_node.py:40 forms/root_node.py:64
 msgid "Related types of relations"
 msgstr "Types de relation associés"
 
-#: models/graph.py:32
+#: models/graph.py:35
 msgctxt "graphs"
 msgid "Name of the graph"
 msgstr "Nom du graphe"
 
-# msgctxt "graphs"
-#: models/graph.py:36
-msgid "Add a graph"
-msgstr "Ajouter un graphe"
+#: models/graph.py:38
+msgctxt "graphs"
+msgid "Create a graph"
+msgstr "Enregistrer le graphe"
 
-#: models/graph.py:45 templates/graphs/portal.html:4
+#: models/graph.py:39
+msgctxt "graphs"
+msgid "Save the graph"
+msgstr "Enregistrer le graphe"
+
+#: models/graph.py:47 templates/graphs/portal.html:3
 msgctxt "graphs"
 msgid "Graph"
 msgstr "Graphe"
 
-#: populate.py:46
+#: populate.py:45
 msgid "Graph view"
 msgstr "Vue de Graphe"
 
-#: templates/graphs/portal.html:5
+#: templates/graphs/portal.html:4
 msgid "Graphs portal"
 msgstr "Portail Graphes"
 
-#: templates/graphs/portal.html:9
+#: templates/graphs/portal.html:6
 msgctxt "graphs"
 msgid "List of Graphs"
 msgstr "Liste des Graphes"
@@ -91,19 +100,19 @@ msgstr "%s Types de relations périphériques"
 msgid "Peripheral relation types"
 msgstr "Types de relation périphériques"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:9
+#: templates/graphs/templatetags/block_orbital_rtypes.html:10
 msgid "Add some existing types of relation"
 msgstr "Ajouter des types de relation existants"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:16
+#: templates/graphs/templatetags/block_orbital_rtypes.html:17
 msgid "Type of relation"
 msgstr "Type de relation"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:17
+#: templates/graphs/templatetags/block_orbital_rtypes.html:18
 msgid "Unlink"
 msgstr "Délier"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:29
+#: templates/graphs/templatetags/block_orbital_rtypes.html:32
 msgid "No type of relation for the moment"
 msgstr "Pas de type de relation pour le moment"
 
@@ -121,27 +130,27 @@ msgstr "%s Nœuds racines"
 msgid "Root nodes"
 msgstr "Nœuds racines"
 
-#: templates/graphs/templatetags/block_root_nodes.html:9
+#: templates/graphs/templatetags/block_root_nodes.html:10
 msgid "Add root nodes from existing entities"
 msgstr "Ajouter des nœuds racines depuis des fiches existantes"
 
-#: templates/graphs/templatetags/block_root_nodes.html:16
+#: templates/graphs/templatetags/block_root_nodes.html:17
 msgid "Entity"
 msgstr "Fiche"
 
-#: templates/graphs/templatetags/block_root_nodes.html:17
+#: templates/graphs/templatetags/block_root_nodes.html:18
 msgid "Types of relation"
 msgstr "Types de relation"
 
-#: templates/graphs/templatetags/block_root_nodes.html:18
+#: templates/graphs/templatetags/block_root_nodes.html:19
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/graphs/templatetags/block_root_nodes.html:23
+#: templates/graphs/templatetags/block_root_nodes.html:25
 msgid "No type of relation"
 msgstr "Pas de type de relation"
 
-#: templates/graphs/templatetags/block_root_nodes.html:34
+#: templates/graphs/templatetags/block_root_nodes.html:35
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
 
@@ -154,16 +163,11 @@ msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
 msgid "Download PNG"
 msgstr "Télécharger PNG"
 
-#: views/graph.py:40
-msgctxt "graphs"
-msgid "Save the graph"
-msgstr "Enregistrer le graphe"
-
-#: views/graph.py:56
+#: views/graph.py:77
 msgid "This graph is too big!"
 msgstr "Ce graphe est trop gros !"
 
-#: views/graph.py:78
+#: views/graph.py:103
 #, python-format
 msgid "Add relation types to «%s»"
 msgstr "Ajouter des types de relation à «%s»"
@@ -181,6 +185,10 @@ msgstr "Ajouter des nœuds racines à «%s»"
 #, python-format
 msgid "Edit root node for «%s»"
 msgstr "Modifier le nœud racine pour «%s»"
+
+# msgctxt "graphs"
+#~ msgid "Add a graph"
+#~ msgstr "Ajouter un graphe"
 
 #~ msgid "Graph"
 #~ msgstr "Graphe"

@@ -55,7 +55,7 @@ class UserRole(Model):
     raw_allowed_apps  = TextField(default='')  # Use 'allowed_apps' property
     raw_admin_4_apps  = TextField(default='')  # Use 'admin_4_apps' property
 
-    creation_label = _(u'New role')
+    creation_label = _(u'Create a role')
     save_label     = _(u'Save the role')
 
     class Meta:
@@ -573,7 +573,7 @@ class CremeUser(AbstractBaseUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'email']
 
-    creation_label = _(u'New user')
+    creation_label = _(u'Create a user')
     save_label     = _(u'Save the user')
 
     _settings = None

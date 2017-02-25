@@ -30,7 +30,7 @@ from creme.creme_core.models.fields import BasicAutoField
 class SettlementTerms(CremeModel):
     name = CharField(_(u'Settlement terms'), max_length=100)
 
-    creation_label = _('Create settlement terms')
+    creation_label = _(u'Create settlement terms')
 
     def __unicode__(self):
         return self.name
@@ -47,7 +47,7 @@ class AbstractStatus(CremeModel):
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
     order     = BasicAutoField(_('Order'))  # Used by creme_config
 
-    creation_label = pgettext_lazy('billing-status', 'Create a status')
+    creation_label = pgettext_lazy('billing-status', u'Create a status')
 
     def __unicode__(self):
         return self.name
@@ -95,7 +95,7 @@ class AdditionalInformation(CremeModel):
     description = TextField(verbose_name=_(u'Description'), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('billing-additional_info', 'Create information')
+    creation_label = pgettext_lazy('billing-additional_info', u'Create information')
 
     def __unicode__(self):
         return self.name
@@ -112,7 +112,7 @@ class PaymentTerms(CremeModel):
     description = TextField(verbose_name=_(u'Description'), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = _('Create payment terms')
+    creation_label = _(u'Create payment terms')
 
     def __unicode__(self):
         return self.name

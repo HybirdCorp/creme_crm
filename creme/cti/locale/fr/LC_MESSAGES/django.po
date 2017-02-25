@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CTI' APP
-# Copyright (C) 2016 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the PACKAGE package.
 #
 # > django-admin.py makemessages -l fr
@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme CTI 1.6\n"
+"Project-Id-Version: Creme CTI 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-13 16:46+0100\n"
+"POT-Creation-Date: 2017-02-23 14:14+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:28 apps.py:32
+#: apps.py:28
 msgid "Computer Telephony Integration"
 msgstr "Couplage Téléphonique Informatique"
 
@@ -47,42 +47,42 @@ msgstr "Actions"
 msgid "Create a phone call"
 msgstr "Créer un appel téléphonique"
 
-#: templates/cti/respond_to_a_call.html:37
+#: templates/cti/respond_to_a_call.html:38
 #, python-format
 msgid "No contact/organisation corresponds to this number : %(number)s"
 msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
 
-#: templates/cti/respond_to_a_call.html:38
+#: templates/cti/respond_to_a_call.html:39
 msgid "Create a contact"
 msgstr "Créer un contact"
 
-#: templates/cti/respond_to_a_call.html:54
+#: templates/cti/respond_to_a_call.html:51
 msgid "Create an organisation"
 msgstr "Créer une société"
 
-#: utils.py:40
+#: utils.py:41
 msgid "Call"
 msgstr "Appeler"
 
-#: views.py:64
+#: views.py:60
 msgid "Automatically created by CTI"
 msgstr "Créé automatiquement par CTI"
 
-#: views.py:77
+#: views.py:73
 #, python-format
 msgid "Call to %s"
 msgstr "Appel à %s"
 
-#: views.py:82
+#: views.py:78
 msgid "Phone call successfully created."
 msgstr "Appel téléphonique créé avec succès."
 
-#: views.py:107
+#: views.py:103
 #, python-format
 msgid "Call from %s"
 msgstr "Appel de %s"
 
-#: views.py:185
+#: views.py:172
 msgid "All phone fields are hidden ; please contact your administrator."
 msgstr ""
 "Tous les champs téléphoniques sont cachés ; veuillez contacter votre "

@@ -55,7 +55,7 @@ class CrudityConfig(CremeAppConfig):
                            priority=250,
                           ) \
                       .add(URLItem('crudity-history', reverse('crudity__history'),
-                                   label=_(u'History of automatised creation'), perm='crudity',
+                                   label=_(u'History of automatised creations'), perm='crudity',
                                   ),
                            priority=260,
                           )

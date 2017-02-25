@@ -128,6 +128,7 @@ creme.reports.doAjaxAction = function(url, options, data) {
     return query;
 }
 
+// TODO: rename 'unlinkReport'
 //creme.reports.unlink_report = function(field_id, block_url) {
 creme.reports.unlink_report = function(url, field_id, block_url) {
 //    creme.reports.doAjaxAction('/reports/report/field/unlink_report', {

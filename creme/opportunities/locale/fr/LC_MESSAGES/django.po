@@ -1,106 +1,120 @@
 # FR LOCALISATION OF 'OPPORTUNITIES' APP
-# Copyright (C) 2016 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 1.6\n"
+"Project-Id-Version: Creme Opportunities 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-29 14:49+0200\n"
+"POT-Creation-Date: 2017-02-23 14:54+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:33 apps.py:53 models/opportunity.py:139 populate.py:269
+#: apps.py:33 models/opportunity.py:147 populate.py:298
 msgid "Opportunities"
 msgstr "Opportunités"
 
-#: apps.py:84
+#: apps.py:92
 msgid "Portal of opportunities"
 msgstr "Portail des opportunités"
 
-#: apps.py:85
+#: apps.py:93
 msgid "All opportunities"
 msgstr "Lister les opportunités"
 
-#: blocks.py:85
+#: apps.py:100 apps.py:107
+msgid "Commercial"
+msgstr "Commercial"
+
+#: apps.py:135
+#, python-format
+msgctxt "opportunities-stats"
+msgid "%s won"
+msgid_plural "%s won"
+msgstr[0] "%s gagnée"
+msgstr[1] "%s gagnées"
+
+#: apps.py:140
+#, python-format
+msgctxt "opportunities-stats"
+msgid "%s in all"
+msgstr "%s en tout"
+
+#: blocks.py:80
 msgid "Linked Contacts"
 msgstr "Contacts liés"
 
-#: blocks.py:96
+#: blocks.py:91
 msgid "Linked Products"
 msgstr "Produits liés"
 
-#: blocks.py:109
+#: blocks.py:105
 msgid "Linked Services"
 msgstr "Services liés"
 
-#: blocks.py:122
-#: templates/opportunities/templatetags/block_responsibles.html:6
+#: blocks.py:119 templates/opportunities/templatetags/block_responsibles.html:6
 msgid "Responsibles"
 msgstr "Chargés d'affaire"
 
-#: blocks.py:134
+#: blocks.py:130
 msgid "Opportunities which target the organisation / contact"
 msgstr "Opportunités qui ciblent la société / le contact"
 
-#: blocks.py:170
+#: blocks.py:162
 msgid "Total"
 msgstr "Total"
 
-#: blocks.py:178 templates/opportunities/templatetags/block_target.html:10
+#: blocks.py:170 templates/opportunities/templatetags/block_target.html:10
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
-#: blocks.py:214
+#: blocks.py:205
 msgid "Quotes linked to the opportunity"
 msgstr "Devis liés à l'opportunité"
 
-#: blocks.py:232
+#: blocks.py:223
 msgid "Salesorders linked to the opportunity"
 msgstr "Bons de commande liés à l'opportunité"
 
-#: blocks.py:250
+#: blocks.py:241
 msgid "Invoices linked to the opportunity"
 msgstr "Factures liées à l'opportunité"
 
-#: buttons.py:29
-msgid "Add a linked opportunity"
-msgstr "Ajouter une opportunité liée"
+#: buttons.py:34
+#: templates/opportunities/templatetags/block_opportunities.html:10
+#: templates/opportunities/templatetags/button_linked_opp.html:7
+#: templates/opportunities/templatetags/button_linked_opp.html:12
+msgid "Create a linked opportunity"
+msgstr "Créer une opportunité reliée"
 
-#: forms/lv_import.py:37
+#: forms/mass_import.py:35
 #: templates/opportunities/templatetags/block_target.html:5
 msgid "Target"
 msgstr "Cible"
 
-#: forms/lv_import.py:39 forms/opportunity.py:64
+#: forms/mass_import.py:37 forms/opportunity.py:63
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
-#: forms/opportunity.py:41 models/opportunity.py:114
-msgid "Expected closing date"
-msgstr "Date de signature prévue"
-
-#: forms/opportunity.py:42 models/opportunity.py:116
-msgid "Actual closing date"
-msgstr "Date de signature réelle"
-
-#: forms/opportunity.py:43 models/opportunity.py:123
-msgid "Date of the first action"
-msgstr "Date de la première action"
-
-#: forms/opportunity.py:44
+#: forms/opportunity.py:42
 msgid "Target organisation / contact"
 msgstr "Société / contact cible"
 
-#: models/opportunity.py:54
+#: migrations/0007_v1_7__salesphase_lost_2.py:15 models/opportunity.py:66
+#: populate.py:160
+msgctxt "opportunities-sales_phase"
+msgid "Lost"
+msgstr "Perdue"
+
+#: models/opportunity.py:51
 msgid "Weighted sales"
 msgstr "CA pondéré"
 
-#: models/opportunity.py:66
+#: models/opportunity.py:63
 #: templates/opportunities/templatetags/block_contacts.html:16
 #: templates/opportunities/templatetags/block_invoices.html:18
 #: templates/opportunities/templatetags/block_opportunities.html:17
@@ -112,250 +126,277 @@ msgstr "CA pondéré"
 msgid "Name"
 msgstr "Nom"
 
-#: models/opportunity.py:68
+#: models/opportunity.py:64
 msgid "Order"
 msgstr "Ordre"
 
-#: models/opportunity.py:69 populate.py:131
+#: models/opportunity.py:65 populate.py:158
 msgctxt "opportunities-sales_phase"
 msgid "Won"
 msgstr "Gagnée"
 
-#: models/opportunity.py:76
+#: models/opportunity.py:68
+msgctxt "opportunities-sales_phase"
+msgid "Create a phase"
+msgstr "Créer une phase"
+
+#: models/opportunity.py:75
 msgid "Sale phase"
 msgstr "Phase de vente"
 
-#: models/opportunity.py:77
+#: models/opportunity.py:76
 msgid "Sale phases"
 msgstr "Phases de vente"
 
-#: models/opportunity.py:82 models/opportunity.py:118
+#: models/opportunity.py:83
+msgid "A phase can not be won and lost at the same time."
+msgstr "Une phase ne peut pas être gagnée et perdu à la fois."
+
+#: models/opportunity.py:87 models/opportunity.py:123
 msgid "Origin"
 msgstr "Origine"
 
 #: models/opportunity.py:89
+msgctxt "opportunities-origin"
+msgid "Create an origin"
+msgstr "Créer une origine"
+
+#: models/opportunity.py:96
 msgid "Origin of opportunity"
 msgstr "Origine d'opportunité"
 
-#: models/opportunity.py:90
+#: models/opportunity.py:97
 msgid "Origins of opportunity"
 msgstr "Origines d'opportunité"
 
-#: models/opportunity.py:96
+#: models/opportunity.py:102
 msgid "Name of the opportunity"
 msgstr "Nom de l'opportunité"
 
-#: models/opportunity.py:97
+#: models/opportunity.py:103
 msgid "Reference"
 msgstr "Référence"
 
-#: models/opportunity.py:100
+#: models/opportunity.py:105
 #: templates/opportunities/templatetags/block_opportunities.html:19
 msgid "Estimated sales"
 msgstr "CA estimé"
 
-#: models/opportunity.py:103
+#: models/opportunity.py:108
 #: templates/opportunities/templatetags/block_opportunities.html:20
 msgid "Made sales"
 msgstr "CA final"
 
-#: models/opportunity.py:105
+#: models/opportunity.py:110
 msgid "Currency"
 msgstr "Devise"
 
-#: models/opportunity.py:108
+#: models/opportunity.py:113
 #: templates/opportunities/templatetags/block_opportunities.html:18
 msgid "Sales phase"
 msgstr "Phase de vente"
 
-#: models/opportunity.py:111
+#: models/opportunity.py:116
 #, python-format
 msgid "% of chance to win"
 msgstr "% de chance d'obtention"
 
+#: models/opportunity.py:119
+msgid "Expected closing date"
+msgstr "Date de signature prévue"
+
 #: models/opportunity.py:121
+msgid "Actual closing date"
+msgstr "Date de signature réelle"
+
+#: models/opportunity.py:126
 msgid "Description"
 msgstr "Description"
 
 #: models/opportunity.py:127
-msgid "Add an opportunity"
-msgstr "Ajouter une opportunité"
+msgid "Date of the first action"
+msgstr "Date de la première action"
 
-#: models/opportunity.py:138 templates/opportunities/portal.html:4
+#: models/opportunity.py:132
+msgid "Create an opportunity"
+msgstr "Créer une opportunité"
+
+#: models/opportunity.py:133
+msgid "Save the opportunity"
+msgstr "Enregistrer l'opportunité"
+
+#: models/opportunity.py:146 templates/opportunities/portal.html:3
 #: templates/opportunities/templatetags/block_opportunities.html:7
 #: templates/opportunities/templatetags/button_linked_opp.html:3
 msgid "Opportunity"
 msgstr "Opportunité"
 
-#: models/opportunity.py:148
+#: models/opportunity.py:156
 msgid "Emitter is required."
 msgstr "Un emmeteur est requis."
 
-#: models/opportunity.py:151
+#: models/opportunity.py:159
 msgid "Target is required."
 msgstr "Une cible est requise."
 
-#: models/opportunity.py:193
+#: models/opportunity.py:200
 msgid "Error: «Estimated sales» is hidden"
 msgstr "Erreur: «CA estimé» est caché"
 
-#: models/opportunity.py:196
+#: models/opportunity.py:203
 #, python-format
 msgid "Error: «% of chance to win» is hidden"
 msgstr "Erreur: «% de chance d'obtention»"
 
-#: populate.py:64
+#: populate.py:59
 msgid "targets the organisation/contact"
 msgstr "cible la société/le contact"
 
-#: populate.py:65
+#: populate.py:60
 msgid "targeted by the opportunity"
 msgstr "est ciblé par l'opportunité"
 
-#: populate.py:68
+#: populate.py:63
 msgid "has generated the opportunity"
 msgstr "a généré l'opportunité"
 
-#: populate.py:69
+#: populate.py:64
 msgid "has been generated by"
 msgstr "a été généré par"
 
-#: populate.py:72 populate.py:74
+#: populate.py:67 populate.py:69
 msgid "is linked to the opportunity"
 msgstr "est lié à l'opportunité"
 
-#: populate.py:73
+#: populate.py:68
 msgid "concerns the product"
 msgstr "concerne le produit"
 
-#: populate.py:75
+#: populate.py:70
 msgid "concerns the service"
 msgstr "concerne le service"
 
-#: populate.py:76
+#: populate.py:71
 msgid "involves in the opportunity"
 msgstr "intervient dans l'opportunité"
 
-#: populate.py:77
+#: populate.py:72
 msgid "stages"
 msgstr "met en scène"
 
-#: populate.py:78
+#: populate.py:73
 msgid "is responsible for"
 msgstr "est chargé de l'affaire"
 
-#: populate.py:79
+#: populate.py:74
 msgid "has as responsible contact"
 msgstr "a comme responsable d'affaire"
 
-#: populate.py:100
+#: populate.py:92
 msgid "is associate with the opportunity"
 msgstr "est associé à l'opportunité"
 
-#: populate.py:101
+#: populate.py:93
 msgid "has generated the salesorder"
 msgstr "a généré le bon de commande"
 
-#: populate.py:102 populate.py:104
+#: populate.py:94 populate.py:96
 msgid "generated for the opportunity"
 msgstr "a été généré pour l'opportunité"
 
-#: populate.py:103
+#: populate.py:95
 msgid "has resulted in the invoice"
 msgstr "a donné lieu à la facture"
 
-#: populate.py:105
+#: populate.py:97
 msgid "has resulted in the quote"
 msgstr "a donné lieu au devis"
 
-#: populate.py:106
+#: populate.py:98
 msgid "is the current accounting document of"
 msgstr "est le document comptable courant de"
 
-#: populate.py:107
+#: populate.py:99
 msgid "has as current accounting document"
 msgstr "a comme document comptable courant"
 
-#: populate.py:113
+#: populate.py:109
+msgid "Opportunities won"
+msgstr "Opportunités gagnées"
+
+#: populate.py:117
+msgid "Opportunities lost"
+msgstr "Opportunités perdues"
+
+#: populate.py:125
+msgid "Neither won nor lost opportunities"
+msgstr "Opportunités ni gagnées ni perdues"
+
+#: populate.py:139
 msgid "Opportunity view"
 msgstr "Vue d'Opportunité"
 
-#: populate.py:129
+#: populate.py:155
 msgid "Forthcoming"
 msgstr "À venir"
 
-#: populate.py:130
+#: populate.py:156
 msgctxt "opportunities-sales_phase"
 msgid "Abandoned"
 msgstr "Abandonnée"
 
-#: populate.py:132
-msgctxt "opportunities-sales_phase"
-msgid "Lost"
-msgstr "Perdue"
-
-#: populate.py:133
+#: populate.py:161
 msgid "Under negotiation"
 msgstr "En négociation"
 
-#: populate.py:134
+#: populate.py:162
 msgid "In progress"
 msgstr "En cours"
 
-#: populate.py:141
+#: populate.py:166
+msgctxt "opportunities-origin"
 msgid "None"
-msgstr "Aucun"
+msgstr "Aucune"
 
-#: populate.py:142
+#: populate.py:167
 msgid "Web site"
 msgstr "Site Web"
 
-#: populate.py:143
+#: populate.py:168
 msgid "Mouth"
 msgstr "Bouche à oreille"
 
-#: populate.py:144
+#: populate.py:169
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:145
+#: populate.py:170
 msgid "Direct email"
 msgstr "E-mail direct"
 
-#: populate.py:146
-msgid "Direct phonecall"
+#: populate.py:171
+msgid "Direct phone call"
 msgstr "Appel direct"
 
-#: populate.py:147
+#: populate.py:172
 msgid "Employee"
 msgstr "Employé"
 
-#: populate.py:148
+#: populate.py:173
 msgid "Partner"
 msgstr "Partenaire"
 
-#: populate.py:149
+#: populate.py:174
+msgctxt "opportunities-origin"
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:154
-msgid "Opportunities won"
-msgstr "Opportunités gagnées"
-
-#: populate.py:166
-msgid "Opportunities lost"
-msgstr "Opportunités perdues"
-
-#: populate.py:178
-msgid "Neither won nor lost opportunities"
-msgstr "Opportunités ni gagnées ni perdues"
-
-#: populate.py:307
+#: populate.py:316
 #, python-format
 msgid "Sum %(estimated_sales)s / %(sales_phase)s"
 msgstr "Somme %(estimated_sales)s / %(sales_phase)s"
 
-#: populate.py:313
+#: populate.py:322
 #, python-format
 msgid "Sum %(estimated_sales)s / Quarter (90 days on %(closing_date)s)"
 msgstr "Somme %(estimated_sales)s / Trimestre (90 jours sur %(closing_date)s)"
@@ -368,11 +409,11 @@ msgstr ""
 "Utiliser le devis courant lié à une opportunité pour avoir une estimation du "
 "chiffre d'affaire de celle-ci ?"
 
-#: templates/opportunities/portal.html:5
+#: templates/opportunities/portal.html:4
 msgid "Opportunities portal"
 msgstr "Portail Opportunités"
 
-#: templates/opportunities/portal.html:9
+#: templates/opportunities/portal.html:6
 msgid "List of opportunities"
 msgstr "Liste des opportunités"
 
@@ -405,7 +446,7 @@ msgstr "Lier à un contact existant"
 msgid "Unlink"
 msgstr "Délier"
 
-#: templates/opportunities/templatetags/block_contacts.html:30
+#: templates/opportunities/templatetags/block_contacts.html:32
 msgid "No linked contact for the moment"
 msgstr "Aucun contact lié pour le moment"
 
@@ -437,7 +478,7 @@ msgstr "Générer une facture"
 msgid "Number"
 msgstr "Numéro"
 
-#: templates/opportunities/templatetags/block_invoices.html:33
+#: templates/opportunities/templatetags/block_invoices.html:35
 msgid "No invoice for the moment"
 msgstr "Aucune facture enregistrée pour le moment"
 
@@ -455,17 +496,11 @@ msgstr "%s Opportunité qui cible la société / le contact"
 msgid "%s Opportunities which target the organisation / the contact"
 msgstr "%s Opportunités qui ciblent la société / le contact"
 
-#: templates/opportunities/templatetags/block_opportunities.html:10
-#: templates/opportunities/templatetags/button_linked_opp.html:7
-#: templates/opportunities/templatetags/button_linked_opp.html:12
-msgid "Create a linked opportunity"
-msgstr "Créer une opportunité reliée"
-
 #: templates/opportunities/templatetags/block_opportunities.html:21
 msgid "Delete the opportunity"
 msgstr "Supprimer l'opportunité"
 
-#: templates/opportunities/templatetags/block_opportunities.html:44
+#: templates/opportunities/templatetags/block_opportunities.html:46
 msgid "No opportunity for the moment"
 msgstr "Aucune opportunité pour le moment"
 
@@ -487,7 +522,7 @@ msgstr "Produits"
 msgid "Link to an existing product"
 msgstr "Lier à un produit existant"
 
-#: templates/opportunities/templatetags/block_products.html:30
+#: templates/opportunities/templatetags/block_products.html:32
 msgid "No related product for the moment"
 msgstr "Aucun produit concerné pour le moment"
 
@@ -517,15 +552,15 @@ msgstr "Générer un nouveau devis courant"
 msgid "Current quote ?"
 msgstr "Devis courant ?"
 
-#: templates/opportunities/templatetags/block_quotes.html:32
+#: templates/opportunities/templatetags/block_quotes.html:34
 msgid "Yes"
 msgstr "Oui"
 
-#: templates/opportunities/templatetags/block_quotes.html:33
+#: templates/opportunities/templatetags/block_quotes.html:36
 msgid "No"
 msgstr "Non"
 
-#: templates/opportunities/templatetags/block_quotes.html:46
+#: templates/opportunities/templatetags/block_quotes.html:49
 msgid "No quote for the moment"
 msgstr "Aucun devis enregistré pour le moment"
 
@@ -539,7 +574,7 @@ msgstr "%s Chargé d'affaire"
 msgid "%s Responsibles"
 msgstr "%s Chargés d'affaire"
 
-#: templates/opportunities/templatetags/block_responsibles.html:30
+#: templates/opportunities/templatetags/block_responsibles.html:32
 msgid "No responsible for the moment"
 msgstr "Aucun chargé d'affaire enregistré pour le moment"
 
@@ -565,7 +600,7 @@ msgstr "Lier à un bon existant"
 msgid "Generate a salesorder"
 msgstr "Générer un bon de commande"
 
-#: templates/opportunities/templatetags/block_sales_orders.html:33
+#: templates/opportunities/templatetags/block_sales_orders.html:35
 msgid "No salesorder for the moment"
 msgstr "Aucun bon enregistré pour le moment"
 
@@ -587,7 +622,7 @@ msgstr "Service"
 msgid "Link to an existing service"
 msgstr "Lier à un service existant"
 
-#: templates/opportunities/templatetags/block_services.html:30
+#: templates/opportunities/templatetags/block_services.html:31
 msgid "No related service for the moment"
 msgstr "Aucun service concerné pour le moment"
 
@@ -616,18 +651,20 @@ msgstr "Créer une opportunité qui cible «%(object)s»"
 msgid "forbidden"
 msgstr "interdit"
 
-#: views/opportunity.py:38 views/opportunity.py:61 views/opportunity.py:65
-msgid "Save the opportunity"
-msgstr "Enregistrer l'opportunité"
-
-#: views/opportunity.py:58
+#: views/opportunity.py:50
 #, python-format
 msgid "New opportunity related to «%s»"
 msgstr "Nouvelle opportunité liée à «%s»"
 
-#: views/portal.py:36
+#: views/portal.py:32
 msgid "Number of opportunities"
 msgstr "Nombre d'opportunité(s)"
+
+#~ msgid "Add a linked opportunity"
+#~ msgstr "Ajouter une opportunité liée"
+
+#~ msgid "Add an opportunity"
+#~ msgstr "Ajouter une opportunité"
 
 #~ msgid "Add an opportunity linked to an organisation"
 #~ msgstr "Ajouter une opportunité liée à une société"
