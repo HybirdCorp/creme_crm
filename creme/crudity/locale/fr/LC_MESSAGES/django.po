@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CRUDITY' APP
-# Copyright (C) 2016 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -e py -e html -e xml
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-26 17:59+0200\n"
+"POT-Creation-Date: 2017-02-23 14:08+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,36 +16,48 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:28 apps.py:37
+#: apps.py:28
 msgid "External data management"
 msgstr "Gestion des données externes"
 
-#: apps.py:41
+#: apps.py:47 apps.py:53
 msgid "Email waiting actions"
 msgstr "Actions en attente pour les emails"
 
-#: apps.py:42 blocks.py:85 models/history.py:38 models/history.py:39
+#: apps.py:48 blocks.py:92 models/history.py:38 models/history.py:39
 #: templates/crudity/history.html:8 templates/crudity/history.html.py:15
 msgid "History"
 msgstr "Historique"
 
-#: backends/models.py:227
+#: apps.py:58
+msgid "History of automatised creations"
+msgstr "Historique des créations automatisées"
+
+#: backends/models.py:208
+msgid "External data"
+msgstr "Données externes"
+
+#: backends/models.py:212
+msgid "Imported from external data."
+msgstr "Importé depuis des données externes."
+
+#: backends/models.py:247
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
 
-#: blocks.py:39
+#: blocks.py:40
 #, python-format
 msgid "Error: you are not allowed to view this block: %s"
 msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
 
-#: blocks.py:49 models/actions.py:41
-#: templates/crudity/frags/ajax/waiting_actions.html:4
+#: blocks.py:50 models/actions.py:41
+#: templates/crudity/frags/ajax/waiting_actions.html:3
 #: templates/crudity/waiting_actions.html:4
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: builders/infopath.py:394 inputs/email.py:64
+#: builders/infopath.py:424 inputs/email.py:67
 msgid "Create"
 msgstr "Créer"
 
@@ -80,11 +92,11 @@ msgstr ""
 "Ex: l'utilisateur possédant les e-mails/dossier/documents créés pendant la "
 "synchronisation des e-mails"
 
-#: inputs/email.py:51
+#: inputs/email.py:54
 msgid "Email - Raw"
 msgstr "E-mail - Simple"
 
-#: inputs/email.py:184
+#: inputs/email.py:187
 msgid "Email - Infopath"
 msgstr "E-mail - Infopath"
 
@@ -192,43 +204,43 @@ msgid_plural "%(counter)s Waiting actions - %(ct_name)s - %(backend_source)s"
 msgstr[0] "%(counter)s action en attente - %(ct_name)s - %(backend_source)s"
 msgstr[1] "%(counter)s actions en attente - %(ct_name)s - %(backend_source)s"
 
-#: templates/crudity/templatetags/block_waiting_action.html:39
+#: templates/crudity/templatetags/block_waiting_action.html:40
 msgid "Validate"
 msgstr "Valider"
 
-#: templates/crudity/templatetags/block_waiting_action.html:40
+#: templates/crudity/templatetags/block_waiting_action.html:41
 msgid "Validate the selection"
 msgstr "Valider la sélection"
 
-#: templates/crudity/templatetags/block_waiting_action.html:43
+#: templates/crudity/templatetags/block_waiting_action.html:45
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/crudity/templatetags/block_waiting_action.html:44
+#: templates/crudity/templatetags/block_waiting_action.html:46
 msgid "Delete the selection"
 msgstr "Supprimer la sélection"
 
-#: templates/crudity/templatetags/block_waiting_action.html:53
+#: templates/crudity/templatetags/block_waiting_action.html:55
 msgid "Select all"
 msgstr "Tout sélectionner"
 
-#: templates/crudity/templatetags/block_waiting_action.html:55
+#: templates/crudity/templatetags/block_waiting_action.html:57
 msgid "Data"
 msgstr "Donnée"
 
-#: templates/crudity/templatetags/block_waiting_action.html:56
+#: templates/crudity/templatetags/block_waiting_action.html:58
 msgid "Type"
 msgstr "Type"
 
-#: templates/crudity/templatetags/block_waiting_action.html:57
+#: templates/crudity/templatetags/block_waiting_action.html:59
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/crudity/templatetags/block_waiting_action.html:62
+#: templates/crudity/templatetags/block_waiting_action.html:64
 msgid "Select this line"
 msgstr "Sélectionner cette ligne"
 
-#: templates/crudity/templatetags/block_waiting_action.html:89
+#: templates/crudity/templatetags/block_waiting_action.html:91
 #, python-format
 msgid "No waiting action for %(ct_name)s from %(backend_source)s"
 msgstr "Aucune action en attente pour %(ct_name)s venant de %(backend_source)s"

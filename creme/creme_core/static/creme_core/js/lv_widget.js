@@ -188,12 +188,6 @@ creme.lv_widget.editSelectedLines = function(list, url) {
 
 //creme.lv_widget.mergeSelectedLines = function(list) {
 creme.lv_widget.mergeSelectedLines = function(list, url) {
-    var url = url;
-    if (url === undefined) {
-        console.warn('creme.lv_widget.mergeSelectedLines(): implicit "url" argument is deprecated ; give the URL as second argument.');
-        url = '/creme_core/entity/merge/';
-    }
-
     var selection = creme.lv_widget.selectedLines(list);
 
     if (selection.length !== 2) {

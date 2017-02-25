@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ class FieldsConfig(CremeModel):
     content_type     = CTypeOneToOneField(editable=False, primary_key=True)  # verbose_name=_(u'Related type')
     raw_descriptions = TextField(editable=False)  # null=True  #TODO: JSONField ?
 
-    creation_label = _(u'New fields configuration')
+    creation_label = _(u'Create a fields configuration')
     save_label     = _(u'Save the configuration')
 
     HIDDEN = 'hidden'

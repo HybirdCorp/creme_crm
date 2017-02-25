@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -64,7 +64,7 @@ class SearchConfigItem(CremeModel):
     disabled     = BooleanField(pgettext_lazy('creme_core-search_conf', u'Disabled?'), default=False)
     field_names  = TextField(null=True)  # Do not this field directly; use 'searchfields' property
 
-    creation_label = _(u'New search configuration')
+    creation_label = _(u'Create a search configuration')
     save_label     = _(u'Save the configuration')
 
     _searchfields = None

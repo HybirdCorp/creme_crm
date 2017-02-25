@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
+from json import dumps as json_dump
 
 try:
     from django.core.exceptions import ValidationError
@@ -217,16 +218,32 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
         # No user info
-        self.assertEqual(self.DATA_FORMAT % ('',
-                                             contact.entity_type_id,
-                                             unicode(FakeContact.creation_label),
-                                             contact.pk,
-                                            ),
+        ct_id = contact.entity_type_id
+        # NB: self.DATA_FORMAT/self.build_field_data() returns str with odd encoding, so we avoid them
+        # self.assertEqual(self.DATA_FORMAT % ('',
+        #                                      contact.entity_type_id,
+        #                                      unicode(FakeContact.creation_label),
+        #                                      contact.pk,
+        #                                     ),
+        self.assertEqual(json_dump({'ctype': {
+                                        'id': ct_id,
+                                        'create': '',
+                                        'create_label': _(u'Create an entity'),
+                                      },
+                                    'entity': contact.id,
+                                   }),
                          field.from_python(contact)
                         )
 
         field.user = self.user
-        self.assertEqual(self.build_field_data(contact.entity_type_id, contact.pk),
+        # self.assertEqual(self.build_field_data(contact.entity_type_id, contact.pk),
+        self.assertEqual(json_dump({'ctype': {
+                                        'id': ct_id,
+                                        'create': reverse('creme_core__quick_form', args=(ct_id,)),
+                                        'create_label': _(u'Create an entity'),
+                                      },
+                                    'entity': contact.id,
+                                   }),
                          field.from_python(contact)
                         )
 
@@ -494,9 +511,22 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         # url_fmt = self.QUICKFORM_URL
         build_url = self._build_quick_forms_url
-        build_entry = self.build_field_entry_data
+        # build_entry = self.build_field_entry_data
+
+        def build_entry_v1(ctype_id, entity_id):
+            return {'ctype': {'create': reverse('creme_core__quick_form', args=(ctype_id,)),
+                              'id': ctype_id,
+                              'create_label': _(u'Create an entity'),
+                             },
+                    'entity': entity_id,
+                   }
+
         field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
-        self.assertEqual('[%s, %s]' % (build_entry(contact_ct_id, 1), build_entry(orga_ct_id, 5)),
+        # self.assertEqual('[%s, %s]' % (build_entry(contact_ct_id, 1), build_entry(orga_ct_id, 5)),
+        self.assertEqual(json_dump([build_entry_v1(contact_ct_id, 1),
+                                    build_entry_v1(orga_ct_id, 5),
+                                   ]
+                                  ),
                          field.from_python(
                              # [{'ctype': {'id': contact_ct_id, 'create': url_fmt % contact_ct_id, 'create_label': unicode(contact_label)}, 'entity': 1},
                              #  {'ctype': {'id': orga_ct_id,    'create': url_fmt % orga_ct_id,    'create_label': unicode(orga_label)},    'entity': 5},
@@ -516,18 +546,41 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
         # No user
-        fmt = self.DATA_FORMAT
-        self.assertEqual('[%s, %s]' % (fmt % ('', contact_ct_id, contact_label, contact.pk),
-                                       fmt % ('', orga_ct_id,    orga_label,    orga.pk),
-                                      ),
+        def build_entry_v2(ctype_id, entity_id):
+            return {'ctype': {'create': '',
+                              'id': ctype_id,
+                              'create_label': _(u'Create an entity'),
+                             },
+                    'entity': entity_id,
+                   }
+        # fmt = self.DATA_FORMAT
+        # self.assertEqual('[%s, %s]' % (fmt % ('', contact_ct_id, contact_label, contact.pk),
+        #                                fmt % ('', orga_ct_id,    orga_label,    orga.pk),
+        #                               ),
+        self.assertEqual(json_dump([build_entry_v2(contact_ct_id, contact.id),
+                                    build_entry_v2(orga_ct_id,    orga.id),
+                                   ]
+                                  ),
                          field.from_python([contact, orga])
                         )
 
         # With user
+        def build_entry_v3(ctype_id, entity_id):
+            return {'ctype': {'create': reverse('creme_core__quick_form', args=(ctype_id,)),
+                              'id': ctype_id,
+                              'create_label': _(u'Create an entity'),
+                             },
+                    'entity': entity_id,
+                   }
+
         field.user = user
-        self.assertEqual('[%s, %s]' % (build_entry(contact_ct_id, contact.pk),
-                                       build_entry(orga_ct_id,    orga.pk),
-                                      ),
+        # self.assertEqual('[%s, %s]' % (build_entry(contact_ct_id, contact.pk),
+        #                                build_entry(orga_ct_id,    orga.pk),
+        #                               ),
+        self.assertEqual(json_dump([build_entry_v3(contact_ct_id, contact.id),
+                                    build_entry_v3(orga_ct_id,    orga.id),
+                                   ]
+                                  ),
                          field.from_python([contact, orga])
                         )
 

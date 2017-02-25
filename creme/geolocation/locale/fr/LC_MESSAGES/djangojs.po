@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'GEOLOCATION' APP (JavaScript only)
-# Copyright (C) 2016 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Geolocation 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-22 14:37+0100\n"
+"POT-Creation-Date: 2017-02-23 14:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -17,43 +17,43 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/geolocation/js/block.js:24
+#: static/geolocation/js/block.js:23
 msgid "Not localized"
 msgstr "Non localisé"
 
-#: static/geolocation/js/block.js:25
+#: static/geolocation/js/block.js:24
 msgid "Manual location"
 msgstr "Localisation manuelle"
 
-#: static/geolocation/js/block.js:26
+#: static/geolocation/js/block.js:25
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
 
-#: static/geolocation/js/block.js:228
+#: static/geolocation/js/block.js:263
 msgid "No address from"
 msgstr "Aucune adresse de"
 
-#: static/geolocation/js/block.js:228
+#: static/geolocation/js/block.js:263
 msgid "%0$d address from"
 msgid_plural "%0$d addresses from"
 msgstr[0] "%0$d adresse de"
 msgstr[1] "%0$d adresses de"
 
-#: static/geolocation/js/block.js:359
+#: static/geolocation/js/block.js:431
 msgid "None of"
 msgstr "Aucune adresse de"
 
-#: static/geolocation/js/block.js:359
+#: static/geolocation/js/block.js:431
 msgid "%0$d of"
 msgid_plural "%0$d of"
 msgstr[0] "%0$d adresse de"
 msgstr[1] "%0$d adresses de"
 
-#: static/geolocation/js/geolocation.js:71
+#: static/geolocation/js/geolocation.js:70
 msgid "Map"
 msgstr "Plan"
 
-#: static/geolocation/js/geolocation.js:210
+#: static/geolocation/js/geolocation.js:254
 msgid "No matching location"
 msgstr "Non localisé"
 
