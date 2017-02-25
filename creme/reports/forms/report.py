@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,19 +30,17 @@ from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
+from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.core.entity_cell import (EntityCell, EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
 from creme.creme_core.forms import CremeEntityForm, CremeForm
-from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWidget
 from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField
+from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWidget
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import CremeEntity, HeaderFilter, EntityFilter
-from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 
-from .. import get_report_model
-from ..constants import (RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION,
-        RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
+from .. import constants, get_report_model
 from ..models import Field
 from ..report_aggregation_registry import field_aggregation_registry
 
@@ -73,13 +71,13 @@ class _EntityCellCustomAggregate(EntityCell):
 
 
 _CELL_2_HAND_MAP = {
-    EntityCellRegularField.type_id:     RFT_FIELD,
-    EntityCellCustomField.type_id:      RFT_CUSTOM,
-    EntityCellFunctionField.type_id:    RFT_FUNCTION,
-    EntityCellRelation.type_id:         RFT_RELATION,
-    _EntityCellRelated.type_id:         RFT_RELATED,
-    _EntityCellAggregate.type_id:       RFT_AGG_FIELD,
-    _EntityCellCustomAggregate.type_id: RFT_AGG_CUSTOM,
+    EntityCellRegularField.type_id:     constants.RFT_FIELD,
+    EntityCellCustomField.type_id:      constants.RFT_CUSTOM,
+    EntityCellFunctionField.type_id:    constants.RFT_FUNCTION,
+    EntityCellRelation.type_id:         constants.RFT_RELATION,
+    _EntityCellRelated.type_id:         constants.RFT_RELATED,
+    _EntityCellAggregate.type_id:       constants.RFT_AGG_FIELD,
+    _EntityCellCustomAggregate.type_id: constants.RFT_AGG_CUSTOM,
 }
 _HAND_2_CELL_MAP = {v: k for k, v in _CELL_2_HAND_MAP.iteritems()}
 
@@ -89,12 +87,13 @@ _CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
 
 
 class ReportCreateForm(CremeEntityForm):
-    hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(),
+    hf     = AjaxModelChoiceField(label=_(u'Existing view'), queryset=HeaderFilter.objects.none(),
+                                  required=False,
                                   help_text=_('If you select a view of list, '
                                               'the columns of the report will be copied from it.'
                                              ),
                                  )
-    filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=EntityFilter.objects.none(), required=False)
+    filter = AjaxModelChoiceField(label=_(u'Filter'), queryset=EntityFilter.objects.none(), required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = Report
@@ -277,7 +276,7 @@ class ReportFieldsForm(CremeForm):
             # TODO: this is a hack : EntityCellWidgets only use value & type_id to check initial data
             #       it would be better to use a method column.hand.to_entity_cell()
             if column.hand:  # Check validity
-                if column.type == RFT_FIELD:
+                if column.type == constants.RFT_FIELD:
                     # Only the non_hiddable_cells with class EntityCellRegularField are used.
                     cell = EntityCellRegularField.build(self.report.ct.model_class(), column.name)
                 else:
