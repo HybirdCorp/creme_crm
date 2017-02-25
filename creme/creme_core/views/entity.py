@@ -192,7 +192,7 @@ def search_and_view(request):
                 pass
             else:
                 if fconfigs[model].is_field_hidden(field):
-                    raise ConflictError(_('This field is hidden.'))
+                    raise ConflictError(_(u'This field is hidden.'))
 
                 query |= Q(**{field.name: value})
 
@@ -207,7 +207,7 @@ def search_and_view(request):
 
 def _bulk_has_perm(entity, user):
     owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
-    return user.has_perm_to_change(owner)
+    return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
 
 
 @login_required
@@ -247,6 +247,9 @@ def bulk_update_field(request, ct_id, field_name=None):
     user = request.user
     model = get_ct_or_404(ct_id).model_class()
 
+    if not issubclass(model, CremeEntity):
+        raise Http404('The model must be a CremeEntity')
+
     if field_name is None:
         field_name = bulk_update_registry.get_default_field(model).name
 
@@ -283,25 +286,25 @@ def bulk_update_field(request, ct_id, field_name=None):
                       }
 
             if initial_count == success_count:
-                summary = ungettext('%(success)s %(model)s has been successfully modified.',
-                                    '%(success)s %(model)s have been successfully modified.',
+                summary = ungettext(u'%(success)s %(model)s has been successfully modified.',
+                                    u'%(success)s %(model)s have been successfully modified.',
                                     success_count
                                    )
             else:
-                summary = ungettext('%(success)s of %(initial)s %(model)s has been successfully modified.',
-                                    '%(success)s of %(initial)s %(model)s have been successfully modified.',
+                summary = ungettext(u'%(success)s of %(initial)s %(model)s has been successfully modified.',
+                                    u'%(success)s of %(initial)s %(model)s have been successfully modified.',
                                     success_count
                                    )
 
                 if unallowed_count:
-                    summary += u' ' + ungettext('%(unallowed)s was not editable.',
-                                                '%(unallowed)s were not editable.',
+                    summary += u' ' + ungettext(u'%(unallowed)s was not editable.',
+                                                u'%(unallowed)s were not editable.',
                                                 unallowed_count,
                                                )
 
                 if invalid_count: 
-                    summary += u' ' + ungettext('%(invalid)s has returned an error.',
-                                                '%(invalid)s have returned an error.',
+                    summary += u' ' + ungettext(u'%(invalid)s has returned an error.',
+                                                u'%(invalid)s have returned an error.',
                                                 invalid_count,
                                                )
 
