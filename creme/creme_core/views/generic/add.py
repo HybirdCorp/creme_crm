@@ -62,7 +62,7 @@ def add_entity(request, form_class, url_redirect='',
     template_dict = {'form':  entity_form,
                      'title': model.creation_label,
                      # 'submit_label': _('Save the entity'),
-                     'submit_label': getattr(model, 'save_label', _('Save the entity')),
+                     'submit_label': getattr(model, 'save_label', _(u'Save the entity')),
                      'cancel_url': cancel_url,
                     }
 

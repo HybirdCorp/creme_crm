@@ -32,7 +32,7 @@ class Civility(CremeModel):
     title    = CharField(pgettext_lazy('persons-civility', u'Title'), max_length=100)
     shortcut = CharField(_(u'Shortcut'), max_length=100)
 
-    creation_label = _('Create a civility')
+    creation_label = _(u'Create a civility')
 
     def __unicode__(self):
         return self.title
@@ -69,8 +69,8 @@ class Sector(CremeModel):
 
     class Meta:
         app_label = 'persons'
-        verbose_name = _(u"Line of business")
-        verbose_name_plural = _(u"Lines of business")
+        verbose_name = _(u'Line of business')
+        verbose_name_plural = _(u'Lines of business')
         ordering = ('title',)
 
 
@@ -93,7 +93,7 @@ class StaffSize(CremeModel):
     size  = CharField(_(u'Size'), max_length=100)
     order = BasicAutoField(_('Order'))  # Used by creme_config
 
-    creation_label = _('Create a staff size')
+    creation_label = _(u'Create a staff size')
 
     def __unicode__(self):
         return self.size
