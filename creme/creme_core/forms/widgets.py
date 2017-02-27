@@ -639,16 +639,17 @@ class RelationSelector(ChainedInput):
         self.multiple = multiple
         self.autocomplete = autocomplete
 
+    def _build_ctypes_url(self):
+        return TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))\
+                                 .resolve('creme_core__ctypes_compatible_with_rtype')
+
     def render(self, name, value, attrs=None):
         dselect_attrs = {'auto': False, 'autocomplete': True} if self.autocomplete else \
                         {'auto': False}
-        ct_url = self.content_types or \
-                 TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))\
-                                   .resolve('creme_core__ctypes_compatible_with_rtype')
 
         self.add_dselect('rtype', options=self.relation_types, attrs=dselect_attrs)
         # self.add_dselect('ctype', options=self.content_types,  attrs=dselect_attrs)
-        self.add_dselect('ctype', options=ct_url,  attrs=dselect_attrs)
+        self.add_dselect('ctype', options=self.content_types or self._build_ctypes_url(), attrs=dselect_attrs)
         self.add_input('entity', widget=EntitySelector,
                        attrs={'auto': False, 'multiple': self.multiple},
                       )
