@@ -99,8 +99,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     search_score = 101
 
-    creation_label = _('Create a contact')
-    save_label     = _('Save the contact')
+    creation_label = _(u'Create a contact')
+    save_label     = _(u'Save the contact')
 
     class Meta:
         abstract = True
@@ -114,14 +114,14 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         civ = self.civility
 
         if civ and civ.shortcut:
-            return ugettext('%(civility)s %(first_name)s %(last_name)s') % {
+            return ugettext(u'%(civility)s %(first_name)s %(last_name)s') % {
                         'civility':   civ.shortcut,
                         'first_name': self.first_name,
                         'last_name':  self.last_name,
                     }
 
         if self.first_name:
-            return ugettext('%(first_name)s %(last_name)s') % {
+            return ugettext(u'%(first_name)s %(last_name)s') % {
                             'first_name': self.first_name,
                             'last_name':  self.last_name,
                         }
@@ -137,10 +137,10 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     def clean(self):
         if self.is_user_id:
             if not self.first_name:
-                raise ValidationError(ugettext('This Contact is related to a user and must have a first name.'))
+                raise ValidationError(ugettext(u'This Contact is related to a user and must have a first name.'))
 
             if not self.email:
-                raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))
+                raise ValidationError(ugettext(u'This Contact is related to a user and must have an e-mail address.'))
 
     def get_employers(self):
         return get_organisation_model().objects.filter(relations__type=REL_OBJ_EMPLOYED_BY,
@@ -190,8 +190,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         # TODO: assert user is not a team + enforce non team clean() ?
         return get_contact_model().objects.create(user=user, is_user=user,
                                                   last_name=user.last_name or user.username.title(),
-                                                  first_name=user.first_name or _('N/A'),
-                                                  email=user.email or _('replaceMe@byYourAddress.com'),
+                                                  first_name=user.first_name or _(u'N/A'),
+                                                  email=user.email or _(u'replaceMe@byYourAddress.com'),
                                                   **kwargs
                                                  )
 

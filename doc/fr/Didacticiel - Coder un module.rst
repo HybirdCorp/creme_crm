@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-11-2016 pour la version 1.7 de Creme
+:Version: 27-02-2017 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -135,7 +135,7 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
         birthday = DateField(_(u'Birthday'))
 
         class Meta:
-            app_label = "beavers"
+            app_label = 'beavers'
             verbose_name = _(u'Beaver')
             verbose_name_plural = _(u'Beavers')
             ordering = ('name',)
@@ -413,9 +413,7 @@ ramener les ``import`` au début, avec les autres directives ``import`` bien sû
     @permission_required('beavers')
     @permission_required('beavers.add_beaver')
     def add(request):
-        return generic.add_entity(request, BeaverForm,
-                                  extra_template_dict={'submit_label': _('Save the beaver')},
-                                 )
+        return generic.add_entity(request, BeaverForm)
 
 
 Rajoutons l'entrée qui référence ``beaver.add`` dans ``beavers/urls.py`` : ::
@@ -427,8 +425,8 @@ Rajoutons l'entrée qui référence ``beaver.add`` dans ``beavers/urls.py`` : ::
 
 
 Il reste à mettre une méthode ``get_create_absolute_url()`` dans notre modèle,
-ainsi que le champ ``creation_label`` qui permet de nommer correctement les
-éléments d'interface (bouton, menu etc…) qui permettent de créer un castor : ::
+ainsi que les champ ``creation_label`` et  ``save_label``, qui permettent de
+nommer correctement les éléments d'interface (bouton, menu etc…) : ::
 
     # -*- coding: utf-8 -*-
 
@@ -436,7 +434,8 @@ ainsi que le champ ``creation_label`` qui permet de nommer correctement les
     class Beaver(CremeEntity):
         [...]
 
-        creation_label = _('Add a beaver')
+        creation_label = _(u'Create a beaver')  # Intitulé du formulaire de création
+        save_label	   = _(u'Save the beaver')  # Intitulé du bouton de sauvegarde
 
         [...]
 
@@ -445,7 +444,7 @@ ainsi que le champ ``creation_label`` qui permet de nommer correctement les
             return reverse('beavers__create_beaver')
 
 
-Si nous rechargeons la vue des castors, un bouton 'Add a beaver' est apparu.
+Si nous rechargeons la vue des castors, un bouton 'Create a beaver' est apparu.
 Quand nous cliquons dessus, nous obtenons bien le formulaire attendu. Mais quand
 nous validons notre formulaire correctement rempli, nous générons une erreur 404
 à nouveau. Pas de panique : la vue ``add_entity`` a juste demandé à
@@ -531,6 +530,9 @@ Ainsi que la méthode ``get_edit_absolute_url`` : ::
 La vue de portail
 ~~~~~~~~~~~~~~~~~
 
+**Note** : cette partie est obsolète avec le nouveau menu. À moins d'utiliser
+explicitement le vieux menu, vous pouvez sautez cette partie.
+
 La plupart des apps possède un portail ; il sert notamment à afficher les blocs
 relatifs aux entités de l'app en question (par exemple tous les ToDos attachés
 à des castors dans notre cas), ainsi que des statistiques. C'est très simple à
@@ -550,7 +552,7 @@ statistiques. Ajouter le fichier ``views/portal.py`` suivant : ::
 
     def portal(request):
         stats = (
-                    (_('Number of beavers'), Beaver.objects.count()),
+                    (_(u'Number of beavers'), Beaver.objects.count()),
                 )
 
         return app_portal(request, 'beavers', 'beavers/portal.html', Beaver,
@@ -567,7 +569,7 @@ Il faut mettre à jour le fichier ``beavers/urls.py`` : ::
 
 
     urlpatterns = [
-        url(r'^$', portal.portal),  # <- NEW
+        url(r'^$', portal.portal, name='beavers__portal'),  # <- NEW
 
         [...]
     ]
@@ -623,7 +625,7 @@ une pour la liste des castors, et une pour créer un nouveau castor : ::
             from django.core.urlresolvers import reverse_lazy
 
             reg_item = creme_menu.register_app('beavers', '/beavers/').register_item
-            reg_item('/beavers/', _(u'Portal'), 'beavers')
+            reg_item(reverse_lazy('beavers__portal'),        _(u'Portal'),          'beavers')
             reg_item(reverse_lazy('beavers__list_beavers'),  _(u'All beavers'),     'beavers')
             reg_item(reverse_lazy('beavers__create_beaver'), Beaver.creation_label, 'beavers.add_beaver')
 
@@ -799,7 +801,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2015-12-08 18:24+0100\n"
+    "POT-Creation-Date: 2017-02-27 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -817,7 +819,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
 
     #: apps.py:24
-    msgid "Add a beaver"
+    msgid "Create a beaver"
     msgstr ""
 
     #: populate.py:17
@@ -851,7 +853,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2015-10-22 18:24+0100\n"
+    "POT-Creation-Date: 2017-02-27 18:24+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -869,8 +871,8 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr "Lister les castors"
 
     #: apps.py:24
-    msgid "Add a beaver"
-    msgstr "Ajouter un castor"
+    msgid "Create a beaver"
+    msgstr "Créer un castor"
 
     #: populate.py:17
     msgid "Beaver view"
@@ -922,7 +924,7 @@ Créez un fichier ``models/status.py`` : ::
     # -*- coding: utf-8 -*-
 
     from django.db.models import CharField, BooleanField
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
     from creme.creme_core.models import CremeModel
 
@@ -931,13 +933,15 @@ Créez un fichier ``models/status.py`` : ::
         name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
         is_custom = BooleanField(default=True).set_tags(viewable=False)
 
+        creation_label = pgettext_lazy('beavers-status', u'Create a status')
+
         def __unicode__(self):
             return self.name
 
         class Meta:
             app_label = 'beavers'
             verbose_name = _(u'Beaver status')
-            verbose_name_plural  = _(u'Beaver status')
+            verbose_name_plural = _(u'Beaver status')
             ordering = ('name',)
 
 
@@ -949,6 +953,13 @@ Donner un ordre par défaut (attribut ``ordering`` de la classe ``Meta``) agréa
 pour l'utilisateur est important, puisque c'est cet ordre qui sera utilisé par
 exemple dans les formulaires (à moins que vous n'en précisiez un autre
 explicitement, évidemment).
+
+**Notes** : nous avons utilisé la fonction de traduction pgettext_lazy qui prend
+un paramètre de contexte. Cela va permettre d'éviter les éventuelles collisions
+avec des chaînes de texte dans autres applications. Le terme "status" étant vague,
+il se retroue dans d'autres apps, et ont pourraient imaginer que dans certaines langues
+(ou traductions personnalisées), la traduction soit différentes selon le cas.
+Dans Creme, nous préfixons les contextes avec le nom de l'app plus '-'.
 
 
 Modifiez *models/__init__.py* : ::
@@ -1083,11 +1094,11 @@ Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
     def populate(self):
         [...]
 
-		already_populated = Status.objects.exists()
+        already_populated = Status.objects.exists()
 
-		if not already_populated:
-	        Status.objects.create(id=STATUS_HEALTHY, name=_(u'Healthy'), is_custom=False)
-    	    Status.objects.create(id=STATUS_SICK,    name=_(u'Sick'),    is_custom=False)
+        if not already_populated:
+            Status.objects.create(id=STATUS_HEALTHY, name=_(u'Healthy'), is_custom=False)
+            Status.objects.create(id=STATUS_SICK,    name=_(u'Sick'),    is_custom=False)
 
 
 En mettant l'attribut ``is_custom`` à ``False``, on rend ces 2 ``Status`` non
@@ -1109,9 +1120,9 @@ maintenant le fichier ``beavers/creme_config_register.py`` tel que : ::
 
     # -*- coding: utf-8 -*-
 
-    from models import Status
+    from . import models
 
-    to_register = ((Status, 'status'),)
+    to_register = ((models.Status, 'status'),)
 
 
 Ce fichier va être chargé par le module de configuration générale de Creme,
@@ -1133,8 +1144,7 @@ vous devez rajouter un champ ``order`` comme ceci : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.db.models import CharField, BooleanField
-    from django.utils.translation import ugettext_lazy as _
+    [...]
 
     from creme.creme_core.models import CremeModel
     from creme.creme_core.models.fields import BasicAutoField  # <- NEW
@@ -1143,10 +1153,9 @@ vous devez rajouter un champ ``order`` comme ceci : ::
     class Status(CremeModel):
         name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
         is_custom = BooleanField(default=True).set_tags(viewable=False)
-        order     = BasicAutoField(_(u"Order"))  # <- NEW
+        order     = BasicAutoField(_(u'Order'))  # <- NEW
 
-        def __unicode__(self):
-            return self.name
+        [...]
 
         class Meta:
             app_label = 'beavers'
@@ -1176,6 +1185,50 @@ généralement être affichés ou non selon la configuration.
 Utilisons donc cette fonctionnalité pour créer un ``Ticket`` (venant de l'app
 *tickets*) à destination des vétérinaires, que l'on pourra créer lorsqu'un
 castor est malade.
+
+Nous commençons par faire la vue de création de ``Ticket``. Puisque le bouton sera
+présent sur la vue détaillée des castors, et que lorsque l'on créera un ticket
+depuis la fiche d'un castor malade, ce ticket fera référence automatiquement à ce
+castor, nous passons l'identifiant du castor dans l'URL, pour que la vue puisse le retrouver.
+Dans ``beavers/urls.py`` : ::
+
+    [...]
+
+    from .views import beaver, portal, ticket  # <- UPDATE
+
+    [...]
+
+        url(r'^ticket/add/(?P<beaver_id>\d+)$', ticket.add, name='beavers__create_ticket'),  # <- NEW
+
+    [...]
+
+Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
+
+    # -*- coding: utf-8 -*-
+
+    from django.shortcuts import get_object_or_404
+    from django.utils.translation import ugettext as _
+
+    from creme.creme_core.auth.decorators import login_required, permission_required
+    from creme.creme_core.views.generic import add_entity
+
+    from creme.tickets.forms.ticket import TicketCreateForm
+
+    from ..models import Beaver
+
+
+    @login_required
+    @permission_required('tickets')
+    @permission_required('tickets.add_ticket')
+    def add(request, beaver_id):
+        beaver = get_object_or_404(Beaver, pk=beaver_id)
+
+        return add_entity(request, TicketCreateForm,
+                          extra_initial={'title':       _(u'Need a veterinary'),
+                                         'description': _(u'%s is sick.') % beaver,
+                                        },
+                         )
+
 
 Créons le ficher ``beavers/buttons.py`` (ce nom n'est pas une obligation, mais
 une convention) : ::
@@ -1229,7 +1282,7 @@ Maintenant au tour du fichier template associé, ``beavers/templates/beavers/tem
     {% load i18n %}
     {% load creme_core_tags %}
     {% if has_perm %}
-        <a class="menu_button" href="/beavers/ticket/add/{{object.pk}}">
+        <a class="menu_button" href="{% url 'beavers__create_ticket' object.id %}">
             <img src="{% creme_media_url 'images/ticket_32.png' %}" border="0" title="{% trans "Linked ticket" %}" alt="{% trans "Linked ticket" %}" />
             {% trans "Notify a veterinary" %}
         </a>
@@ -1244,7 +1297,6 @@ La variable ``has_perm`` est renseignée grâce à l'attribut ``permission`` de
 notre bouton ; nous en faisons usage pour n'afficher qu'un bouton inactif si
 l'utilisateur n'a pas les droits suffisants. Notez que la balise ``<a>`` fait
 référence à une URL à laquelle nous n'avons pas (encore) associé de vue.
-
 
 Il faut enregistrer notre bouton avec les autres boutons de Creme, afin que
 *creme_config* puisse proposer notre bouton. Pour ça, nous rajoutons dans
@@ -1261,67 +1313,35 @@ Il faut enregistrer notre bouton avec les autres boutons de Creme, afin que
             button_registry.register(create_ticket_button)
 
 
-Si nous allons dans le menu 'Configuration générale', puis 'Gestion du menu bouton',
+Si nous allons dans le menu de configuration (le petit rouage), puis 'Menu bouton',
+(note: 'Configuration générale' puis 'Gestion du menu bouton' dans le vieux menu)
 et que nous éditons la configuration d'un type autre que Castor, notre bouton
 n'est pas proposé (c'est ce que nous voulions). En revanche, il est bien proposé
-s'il l'on créé une configuration pour le type Castor. Ajoutons le afin de pouvoir
-continuer.
+s'il l'on créé une configuration pour le type Castor. Ajoutons le sur cette
+configuration nouvellement créée.
 
 En nous rendant sur la fiche d'un castor malade (avec le statut "Sick"), le
-bouton est bien apparu. Il provoque une erreur 404 comme on s'y attendait. Nous
-n'avons plus qu'à faire la vue de création de ``Ticket``.
-Dans ``beavers/urls.py`` : ::
-
-    [...]
-
-    from .views import beaver, portal, ticket  # <- UPDATE
-
-    [...]
-
-        url(r'^ticket/add/(?P<beaver_id>\d+)$',  ticket.add),
-
-    [...]
-
-Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
-
-    # -*- coding: utf-8 -*-
-
-    from django.contrib.auth.decorators import login_required, permission_required
-    from django.shortcuts import get_object_or_404
-    from django.utils.translation import ugettext as _
-
-    from creme.creme_core.views.generic import add_entity
-
-    from creme.tickets.forms.ticket import TicketCreateForm
-
-    from ..models import Beaver
-
-
-    @login_required
-    @permission_required('tickets')
-    @permission_required('tickets.add_ticket')
-    def add(request, beaver_id):
-        beaver = get_object_or_404(Beaver, pk=beaver_id)
-
-        return add_entity(request, TicketCreateForm,
-                          extra_initial={'title':       _(u'Need a veterinary'),
-                                         'description': _(u'%s is sick.') % beaver,
-                                        }
-                         )
-
-Maintenant notre vue nous affiche bien un formulaire pré-rempli en partie.
+bouton est bien apparu. Lorsque l'on clique dessus nous avons bien un
+formulaire partiellement pré-rempli.
 
 
 Utilisation de la création rapide
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-En haut de chaque page se trouve le panneau de création rapide, qui permet de
-créer entre 1 et 9 fiches du même type, en même temps. Les formulaires de création
-rapide sont en général, et pour des raisons évidentes, des versions simplifiées
-des formulaires desdites entités. Par exemple, le formulaire de création rapide
-des Sociétés n'a que 2 champs ("nom" et "propriétaire"). Ces formulaires sont
-aussi utilisés dans certains *widgets* de sélection de fiche, qui permettent de
-créer des fiches à la volée.
+Dans l'éntrée de menu '+ Création', se trouve la section 'Création rapide'
+qui permet de créer des nouvelles fiche via une petite popup (et pas en
+allant sur une nouvelle page avec un gros formulaire).
+
+**Notes** : dans le vieux menu, c'est en haut de chaque page que se trouve
+le panneau de création rapide, qui permet de créer entre 1 et 9 fiches du
+même type, en même temps.
+
+Les formulaires de création rapide sont en général, et pour des raisons évidentes,
+des versions simplifiées des formulaires desdites entités. Par exemple, le formulaire
+de création rapide des Sociétés n'a que 2 champs ("nom" et "propriétaire").
+
+Ces formulaires sont aussi utilisés dans certains *widgets* de sélection de fiche,
+qui permettent de créer des fiches à la volée.
 
 Si vous souhaitez ajouter la possibilité de création rapide à vos castors, c'est
 très simple. Dans votre ``apps.py``, ajoutez la méthode ``register_quickforms()``
@@ -1365,11 +1385,13 @@ les blocs personnalisés. ::
     [...]
     from datetime import date
 
+    from django.utils.translation import ugettext
+
     from creme.creme_core.core.function_field import FunctionField
 
 
     class _BeaverAgeField(FunctionField):
-        name         = "get_age"
+        name         = 'get_age'
         verbose_name = _(u'Age')
 
 
@@ -1384,9 +1406,9 @@ les blocs personnalisés. ::
             birthday = self.birthday
 
             if not birthday:
-                return 'N/A
+                return ugettext(u'N/A')
 
-            return '%s year(s)' % (date.today().year - birthday.year)
+            return ugettext(u'%s year(s)') % (date.today().year - birthday.year)
 
 
 **Notes** Dans le cas le plus simple, le *name* du FunctionField, qui lui sert
@@ -1405,9 +1427,9 @@ d'une app dont vous ne voulez pas toucher le code) : ::
             birthday = entity.birthday
 
             if not birthday:
-                age = 'N/A
+                age = ugettext(u'N/A)
             else:
-                age = '%s year(s)' % (date.today().year - birthday.year)
+                age = ugettext(u'%s year(s)') % (date.today().year - birthday.year)
 
             return FunctionFieldResult(age)
 
@@ -1454,7 +1476,7 @@ utiliser ce champ ; cet exercice est laissé au lecteur) : ::
             from creme.persons.forms.contact import ContactForm
 
             def add_my_field(form):
-                form.fields['loves_beavers'] = BooleanField(required=False, label=_(u"Loves beavers?"))
+                form.fields['loves_beavers'] = BooleanField(required=False, label=_(u'Loves beavers?'))
 
             ContactForm.add_post_init_callback(add_my_field)
 
@@ -1646,9 +1668,9 @@ Si vous souhaitez gérer finement ce qui se passe lors d'un clonage, en plus du
 *tag* ``clonable`` vu précédemment, vous pouvez surcharger les méthodes
 suivantes :
 
- - ``_pre_save_clone(self, source)`` (à préferer)
- - ``_post_save_clone(self, source)`` (à préferer)
- - ``_post_clone(self, source)`` (à préferer)
+ - ``_pre_save_clone(self, source)`` (à préférer)
+ - ``_post_save_clone(self, source)`` (à préférer)
+ - ``_post_clone(self, source)`` (à préférer)
  - ``_clone_m2m(self, source)``
  - ``_clone_object(self)``
  - ``_copy_properties(self, source)``
@@ -2092,7 +2114,7 @@ Créez un fichier ``beavers/tests.py`` : ::
             user = self.login()
 
             self.assertEqual(0, Beaver.objects.count())
-            url = '/beavers/beaver/add'
+            url = Beaver.get_create_absolute_url()
             self.assertGET200(url)
 
             name   = 'Hector'
