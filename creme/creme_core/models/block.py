@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -240,10 +240,12 @@ class RelationBlockItem(CremeModel):
     def __unicode__(self):  # NB: useful for creme_config titles
         return self.relation_type.predicate
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, using=None):
         BlockDetailviewLocation.objects.filter(block_id=self.block_id).delete()
 
-        super(RelationBlockItem, self).delete()
+        # super(RelationBlockItem, self).delete()
+        super(RelationBlockItem, self).delete(using=using)
 
     @property
     def all_ctypes_configured(self):
@@ -339,12 +341,14 @@ class InstanceBlockConfigItem(CremeModel):
     def __unicode__(self):
         return self.block.verbose_name
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, using=None):
         block_id = self.block_id
         BlockDetailviewLocation.objects.filter(block_id=block_id).delete()
         BlockState.objects.filter(block_id=block_id).delete()
 
-        super(InstanceBlockConfigItem, self).delete()
+        # super(InstanceBlockConfigItem, self).delete()
+        super(InstanceBlockConfigItem, self).delete(using=using)
 
     @property
     def block(self):
@@ -404,12 +408,14 @@ class CustomBlockConfigItem(CremeModel):
     def __unicode__(self):
         return self.name
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, using=None):
         block_id = self.generate_id()
         BlockDetailviewLocation.objects.filter(block_id=block_id).delete()
         BlockState.objects.filter(block_id=block_id).delete()
 
-        super(CustomBlockConfigItem, self).delete()
+        # super(CustomBlockConfigItem, self).delete()
+        super(CustomBlockConfigItem, self).delete(using=using)
 
     def generate_id(self):
         return 'customblock-%s' % self.id
