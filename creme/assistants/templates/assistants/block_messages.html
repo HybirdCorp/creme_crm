@@ -7,10 +7,12 @@
         <th class="actions">
             <div class="buttons">
                 {% if object %}
-                    {% has_perm_to change object as has_perm %}
-                    {% get_line_adder at_url '/assistants/message/add/{{object.id}}/' with_label _("Send a new message") with_perms has_perm %}
-                {% else %}
-                    {% get_line_adder at_url '/assistants/message/add/' with_label _("New message") with_perms 1 %}
+                    {% has_perm_to change object as has_perm %}{% url 'assistants__create_related_message' object.id as create_url %}
+{#                    {% get_line_adder at_url '/assistants/message/add/{{object.id}}/' with_label _("Send a new message") with_perms has_perm %} #}
+                    {% get_line_adder at_url create_url with_label _('Send a new message') with_perms has_perm %}
+                {% else %}{% url 'assistants__create_message' as create_url %}
+{#                    {% get_line_adder at_url '/assistants/message/add/' with_label _("New message") with_perms 1 %} #}
+                    {% get_line_adder at_url create_url with_label _('New message') with_perms 1 %}
                 {% endif %}
             </div>
         </th>
@@ -25,6 +27,7 @@
                 {% get_column_header _('Body') 'body' %}
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
+            {% url 'assistants__delete_message' as delete_url %}
             {% for message in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     {% if not object %}
@@ -43,7 +46,8 @@
                     <td class="{{row_color}}">{% print_field object=message field='title' %}</td>
                     <td class="{{row_color}}">{% print_field object=message field='body' %}</td>
                     <td class="{{row_color}} action">
-                        {% get_line_deletor at_url '/assistants/message/delete' with_args "{'id' : {{message.id}} }" with_perms 1 %}
+{#                        {% get_line_deletor at_url '/assistants/message/delete' with_args "{'id' : {{message.id}} }" with_perms 1 %} #}
+                        {% get_line_deletor at_url delete_url with_args "{'id' : {{message.id}} }" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}
