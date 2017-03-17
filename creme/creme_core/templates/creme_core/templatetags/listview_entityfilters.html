@@ -17,7 +17,7 @@
         {% comment %}{% if can_edit_or_delete %}{% endcomment %}
         {% if can_edit %}
 {#            <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit"> #}
-            <a href="{{efilter.get_edit_absolute_url}}" id="filter_edit">
+            <a href="{{entity_filters.selected.get_edit_absolute_url}}" id="filter_edit">
                 {% trans "Edit custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/edit_22_button.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
             </a>
         {% endif %}
