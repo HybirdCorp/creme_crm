@@ -523,7 +523,10 @@ creme.forms.initialize = function(form)
 
             if (html5Valid && jqueryValid)
             {
-                this.submit();
+                // When the submit button/input of a form is named "submit",
+                // the native function "submit()" of <form> element is replaced by the <input> element and will cause a crash.
+                // HACK : call directly the native function extracted from a newly created empty <form> element.
+                document.createElement('form').submit.call(this);
                 $("[type=submit]").prop("disabled", true);
                 return false;
             }
