@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import SettingValue
+# from creme.creme_core.models import SettingValue
 
 from . import constants as as_constants
 from . import setting_keys
@@ -199,7 +199,7 @@ class Synchronization(object):
         folders_append = folders.append
         client = self.client
 
-        self._data['debug']['info'].append("Begin with policy_key :%s" % policy_key)
+        self._data['debug']['info'].append("Begin with policy_key: %s" % policy_key)
 
         _fs = self._folder_sync(policy_key, folder_sync_key)  # Try to sync server folders
         fs  = self._handle_folder_sync(_fs)
@@ -261,7 +261,12 @@ class Synchronization(object):
         @returns : A FolderSync instance
         """
         fs = FolderSync(*self.params)
-        fs.send(policy_key, sync_key)
+
+        try:
+            fs.send(policy_key, sync_key)
+        except CremeActiveSyncError:
+            self._data['debug']['errors'].extend(fs._data['debug']['errors'])
+            raise
 
         self.merge_command_messages(fs)
 

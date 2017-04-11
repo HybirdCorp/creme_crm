@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,9 @@ from django.utils.translation import ugettext as _
 
 ################################################################################
 # Creme active sync constants
+SYNC_ERR = 'sync_err'
+SYNC_ERR_REQUEST = 'sync_err_request'
+
 SYNC_ERR_FORBIDDEN                    = 'sync_err_forbidden'
 SYNC_ERR_WRONG_CFG_NO_SERVER_URL      = 'sync_err_wrong_cfg_no_server_url'
 SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL = 'sync_err_wrong_cfg_invalid_server_url'
@@ -32,14 +35,17 @@ SYNC_ERR_ABORTED                      = 'sync_err_aborted'
 SYNC_ERR_CONNECTION                   = 'sync_err_connection'
 SYNC_ERR_NOT_FOUND                    = 'sync_err_not_found'
 
-SYNC_ERR_CREME_PERMISSION_DENIED_CREATE          =  'sync_err_creme_permission_denied_create'
-SYNC_ERR_CREME_PERMISSION_DENIED_CREATE_SPECIFIC =  'sync_err_creme_permission_denied_create_specific'
-SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE          =  'sync_err_creme_permission_denied_change'
-SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC =  'sync_err_creme_permission_denied_change_specific'
+SYNC_ERR_CREME_PERMISSION_DENIED_CREATE          = 'sync_err_creme_permission_denied_create'
+SYNC_ERR_CREME_PERMISSION_DENIED_CREATE_SPECIFIC = 'sync_err_creme_permission_denied_create_specific'
+SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE          = 'sync_err_creme_permission_denied_change'
+SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC = 'sync_err_creme_permission_denied_change_specific'
 SYNC_ERR_CREME_PERMISSION_DENIED_DELETE          = 'sync_err_creme_permission_denied_delete'
 SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC = 'sync_err_creme_permission_denied_delete_specific'
 
 SYNC_ERR_VERBOSE = {
+    SYNC_ERR:         _(u'Unknown error'),
+    SYNC_ERR_REQUEST: _(u'The request is malformed'),
+
     SYNC_ERR_FORBIDDEN:                    _(u"Wrong username and/or password"),
     SYNC_ERR_WRONG_CFG_NO_SERVER_URL:      _(u"No server URL, please fill in information in global settings configuration or in your own settings"),
     SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL: _(u"Invalid server URL, please check it in your settings"),
@@ -49,7 +55,7 @@ SYNC_ERR_VERBOSE = {
     SYNC_ERR_CONNECTION:                   _(u"It seems there no available connection"),
     SYNC_ERR_NOT_FOUND:                    _(u"Wrong configuration (wrong server URL?)"),
 
-    #TODO:%s/contact/entity
+    # TODO: %s/contact/entity
     SYNC_ERR_CREME_PERMISSION_DENIED_CREATE:          _(u"You haven't the right to create contacts in Creme"),
     SYNC_ERR_CREME_PERMISSION_DENIED_CREATE_SPECIFIC: _(u"You haven't the right to create contact <%s> in Creme"),#Useful?
     SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE:          _(u"You haven't the right to change contacts in Creme"),

@@ -27,8 +27,8 @@ import restkit.errors
 from django.conf import settings
 from django.template.loader import render_to_string
 
+from creme.activesync import errors
 from creme.activesync.connection import Connection
-from creme.activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
 from creme.activesync.messages import _INFO, _ERROR, _SUCCESS, MessageInfo, MessageSucceed, MessageError
 from creme.activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
 from creme.activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, prettify
@@ -88,7 +88,7 @@ class Base(object):
         return self._messages[_ERROR]
     ###### End UI helpers #######
 
-    #History helpers
+    # History helpers
     def _add_history(self, entity, where, type, entity_changes=None):
         return UserSynchronizationHistory._add(self.user, entity, where, type, entity_changes)
 
@@ -131,7 +131,7 @@ class Base(object):
             decoded = self.decoder(content)
         except Exception as e:
             logger.warn('Error while decoding reponse (%s)', e)
-            raise CremeActiveSyncError(SYNC_ERR_NOT_FOUND)
+            raise errors.CremeActiveSyncError(errors.SYNC_ERR_NOT_FOUND)
 #        return fromstring(str(self.decoder(content)))#Trick to use ElementTree instead of libxml2 in waiting for own ElementTree parser
 
         if settings.ACTIVE_SYNC_DEBUG:
@@ -147,13 +147,19 @@ class Base(object):
             return self.connection.send(self.command, encoded_content, self.device_id, *args, **kwargs)
         except restkit.errors.Unauthorized as e:
             self._data['debug']['errors'].append(e.msg)
-            raise CremeActiveSyncError(SYNC_ERR_FORBIDDEN)
+            raise errors.CremeActiveSyncError(errors.SYNC_ERR_FORBIDDEN)
         except (socket.gaierror, socket.error) as e:
             self._data['debug']['errors'].append(e.strerror)
-            raise CremeActiveSyncError(SYNC_ERR_CONNECTION)
+            raise errors.CremeActiveSyncError(errors.SYNC_ERR_CONNECTION)
         except restkit.errors.ResourceNotFound as e:
             self._data['debug']['errors'].append(e.msg)
-            raise CremeActiveSyncError(SYNC_ERR_NOT_FOUND)
+            raise errors.CremeActiveSyncError(errors.SYNC_ERR_NOT_FOUND)
+        except restkit.errors.RequestError as e:
+            self._data['debug']['errors'].append(str(e))
+            raise errors.CremeActiveSyncError(errors.SYNC_ERR_REQUEST)
+        except Exception as e:
+            self._data['debug']['errors'].append(str(e))
+            raise errors.CremeActiveSyncError(errors.SYNC_ERR)
 
     def send(self, template_dict, *args, **kwargs):
         content = render_to_string(self.template_name, template_dict)
