@@ -96,15 +96,35 @@
         {% endfor %}
     </tbody>
 </table>
+
 {% if ACTIVE_SYNC_DEBUG %}
-    {% for x in xml %}
-        {{x}}<br/><br/>
-    {% endfor %}
-    <br/>
-    <br/>
-    {% for x in debug_info %}
-        {{x}}<br/><br/>
-    {% endfor %}
+<table class="table_detail_view ui-corner-all">
+    <thead>
+        <tr>
+            <th class="th_info collapser" colspan="2">Debug info</th>
+        </tr>
+    </thead>
+    <tbody class="collapsable">
+        <tr class="content">
+            <th class="block_header_line_light th_info">From XML</th>
+            <td class="block_line_light td_info">
+                <ul>{% for x in xml %}<li>{{x}}</li>{% endfor %}</ul>
+            </td>
+        </tr>
+        <tr class="content">
+            <th class="block_header_line_dark th_info">Info</th>
+            <td class="block_line_dark td_info">
+                <ul>{% for x in debug_info %}<li>{{x}}</li>{% endfor %}</ul>
+            </td>
+        </tr>
+        <tr class="content">
+            <th class="block_header_line_light th_info">Errors</th>
+            <td class="block_line_light td_info">
+                <ul>{% for x in debug_errors %}<li>{{x}}</li>{% endfor %}</ul>
+            </td>
+        </tr>
+    </tbody>
+</table>
 {% endif %}
 
 {% import_block from_app 'activesync' named 'user_synchronization_history' as 'user_synchronization_history_block' %}

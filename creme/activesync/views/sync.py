@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,8 +37,6 @@ def main_sync(request):
     try:
         sync = Synchronization(request.user)
     except CremeActiveSyncError as e:
-#        raise Exception(e)
-        #tpl_dict = {'all_messages': {_ERROR: [MessageError(message=e)]}.iteritems()}
         tpl_dict = {'all_messages': [(_ERROR, [MessageError(message=e)])],
                     'fatal_error':  True,
                    }
@@ -59,9 +57,10 @@ def main_sync(request):
             'sync_calendars': sync.is_user_sync_calendars,
             'sync_contacts':  sync.is_user_sync_contacts,
 
-            #DEBUG
-            'xml':        sync._data['debug']['xml'],
-            'debug_info': sync._data['debug']['info'],
+            # DEBUG
+            'xml':          sync._data['debug']['xml'],
+            'debug_info':   sync._data['debug']['info'],
+            'debug_errors': sync._data['debug']['errors'],
             'ACTIVE_SYNC_DEBUG': settings.ACTIVE_SYNC_DEBUG,
         }
 
@@ -73,7 +72,7 @@ def main_sync(request):
 #                                             context_instance=context,
 #                                            )
 #                           )
-        #TODO: template in a var
+        # TODO: template in a var
         return render(request, 'activesync/frags/ajax/main_sync.html', tpl_dict)
 
 #    return render_to_response('activesync/main_sync.html', tpl_dict, context_instance=context)
