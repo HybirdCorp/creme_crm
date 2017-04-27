@@ -32,6 +32,7 @@ from creme.creme_core.apps import creme_app_configs
 # from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.dependence_sort import dependence_sort
+from creme.creme_core.utils import safe_unicode_error, safe_unicode
 
 
 def _checked_app_label(app_label, app_labels):
@@ -164,10 +165,10 @@ class Command(BaseCommand):
             try:
                 populator.populate()
             except Exception as e:
-                self.stderr.write(' Populate "%s" failed (%s)' % (populator.app, e))
+                self.stderr.write(' Populate "%s" failed (%s)' % (populator.app, safe_unicode_error(e)))
                 if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    self.stderr.write(''.join(format_exception(exc_type, exc_value, exc_traceback)))
+                    self.stderr.write(safe_unicode(''.join(format_exception(exc_type, exc_value, exc_traceback))))
 
             if verbosity >= 1:
                 self.stdout.write(' OK', self.style.MIGRATE_SUCCESS)
