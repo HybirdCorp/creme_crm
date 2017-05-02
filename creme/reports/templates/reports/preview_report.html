@@ -1,6 +1,5 @@
-{% extends "creme_core/detailview.html" %}
-{% load i18n %}
-{% load creme_core_tags creme_queryset reports_tags %}
+{% extends 'creme_core/detailview.html' %}
+{% load i18n creme_core_tags creme_queryset reports_tags %}
 
 {% block page_title %}{% blocktrans %}Preview {{object}}{% endblocktrans %} - {% endblock %}
 
@@ -8,7 +7,7 @@
     {{block.super}}
     <script type='text/javascript'>
         $(document).ready(function() {
-            var controller = new creme.reports.PreviewController({{object.id}});
+            var controller = new creme.reports.PreviewController('{% url 'reports__export_report_preview' object.id %}', '{% url 'reports__export_report' object.id %}');
             controller.bind($('.report-preview'));
         });
     </script>
