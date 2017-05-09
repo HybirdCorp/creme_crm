@@ -2,6 +2,6 @@
 
 from . import models
 
-to_register = ((models.FolderCategory, 'category'),
-               (models.Document,       'doc_category'),
+to_register = ((models.FolderCategory,   'category'),
+               (models.DocumentCategory, 'doc_category'),
               )
