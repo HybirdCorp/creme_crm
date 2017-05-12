@@ -57,16 +57,17 @@ class EmailsConfig(CremeAppConfig):
         block_registry.register(*blocks_list)
 
     def register_bulk_update(self, bulk_update_registry):
-        from .models import EmailSending
+        from .models import EmailSending, LightWeightEmail
 
         register = bulk_update_registry.register
-        register(self.MailingList,   exclude=('children', 'contacts', 'organisations',))
+        register(self.MailingList,   exclude=('children', 'contacts', 'organisations'))
         register(self.EmailCampaign, exclude=('mailing_lists',))
         register(EmailSending,       exclude=('sender', 'type', 'sending_date'))  # TODO: tags modifiable=False ??
         register(self.EntityEmail,   exclude=('sender', 'recipient', 'subject',
                                               'body', 'body_html', 'signature', 'attachments',
                                              )  # TODO: idem
                 )
+        register(LightWeightEmail,   exclude=('sender', 'recipient', 'subject', 'body'))  # TODO: idem
 
     def register_buttons(self, button_registry):
         from .buttons import entityemail_link_button
