@@ -262,9 +262,9 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertFalse(f_image.required)
         self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
-        self.assertEqual({(image1.id, unicode(image1)), (image2.id, unicode(image2))},  # not image #3 !
-                         set(f_image._original_field.choices)
-                        )
+
+        self.assertEqual(user, f_image._original_field.user)
+        self.assertEqual(FakeImage, f_image._original_field.model)
 
         response = self.client.post(url, follow=True,
                                     data={'user_1':      user.id,
@@ -326,9 +326,9 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertFalse(f_image.required)
         self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
-        self.assertEqual({(image1.id, unicode(image1)), (image2.id, unicode(image2))},  # not image #3 !
-                         set(f_image._original_field.choices)
-                        )
+
+        self.assertEqual(user, f_image._original_field.user)
+        self.assertEqual(FakeImage, f_image._original_field.model)
 
         response = self.client.post(url, follow=True,
                                     data={'user_1':      user.id,
@@ -396,10 +396,8 @@ class MergeViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             f_image = response.context['form'].fields['image']
 
-        self.assertEqual([image.id,  None,  image.id],  f_image.initial)
-        self.assertEqual({(image.id, unicode(image)), ('', '---------')},
-                         set(f_image._original_field.choices)
-                        )
+        self.assertEqual(user, f_image._original_field.user)
+        self.assertEqual(FakeImage, f_image._original_field.model)
 
     def test_merge05(self):
         "Unregistered model"
@@ -453,6 +451,10 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual([500,  510,  500],  f_cf_01.initial)
         self.assertEqual([100,  None, 100],  f_cf_02.initial)
         self.assertEqual([None, enum_val1_1.id, enum_val1_1.id], f_cf_03.initial)
+
+        self.assertEqual(user, f_cf_01._original_field.user)
+        self.assertEqual(user, f_cf_02._original_field.user)
+        self.assertEqual(user, f_cf_03._original_field.user)
 
         response = self.client.post(url, follow=True,
                                     data={'user_1':      user.id,

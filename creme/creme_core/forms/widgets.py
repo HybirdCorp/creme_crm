@@ -245,6 +245,8 @@ class ActionButtonList(widgets.Widget):
             if enabled is False or (callable(enabled) and not enabled()):
                 kwargs['disabled'] = u''
 
+        title = kwargs.pop('title', label)
+
         return ('<li>'
                     '<button class="ui-creme-actionbutton" name="%(name)s" title="%(title)s" alt="%(title)s" type="button" %(attr)s>'
                        '%(label)s'
@@ -252,7 +254,7 @@ class ActionButtonList(widgets.Widget):
                 '</li>' % {'name':  name,
                            'attr':  flatatt(kwargs),
                            'label': label,
-                           'title': kwargs.pop('title', label),
+                           'title': title,
                           }
                )
 
@@ -516,19 +518,20 @@ class EntitySelector(widgets.TextInput):
         @param attrs: see Widget.
         """
         super(EntitySelector, self).__init__(attrs)
-        # self.url = '/creme_core/list_view/popup/' + content_type + '/${selection}?q_filter=${qfilter}'\
-        #            if content_type else \
-        #            '/creme_core/list_view/popup/${ctype}/${selection}?q_filter=${qfilter}'
-        self.url = '%s?ct_id=%s&selection=${selection}&q_filter=${qfilter}' % (
-                        reverse('creme_core__listview_popup'),
-                        content_type or '${ctype}',
+        self.url = self._build_listview_url(content_type)
+        self.text_url = self._build_text_url()
+        self.from_python = None
+
+    def _build_listview_url(self, content_type):
+        return '%s?ct_id=%s&selection=${selection}&q_filter=${qfilter}' % (
+            reverse('creme_core__listview_popup'),
+            content_type or '${ctype}',
         )
 
+    def _build_text_url(self):
         # TODO: use a GET parameter instead of using a TemplateURLBuilder ?
-        # self.text_url = '/creme_core/relation/entity/${id}/json'
-        self.text_url = TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))\
-                                          .resolve('creme_core__entity_as_json')
-        self.from_python = None
+        return TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))\
+                                 .resolve('creme_core__entity_as_json')
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
@@ -544,6 +547,8 @@ class EntitySelector(widgets.TextInput):
                                         style=attrs.pop('style', ''),
                                         label=_(u'Select…'),
                                        )
+
+        context['disabled'] = 'disabled' if attrs.pop('disabled', False) else ''
 
         value = self.from_python(value) if self.from_python is not None else value
         context['input'] = widget_render_hidden_input(self, name, value, context)
@@ -566,7 +571,7 @@ class EntitySelector(widgets.TextInput):
                                'popupURL="%(url)s" popupSelection="%(selection)s" %(autoselect)s '
                                'qfilter="%(qfilter)s">'
                             '%(input)s'
-                            '<button type="button">%(label)s</button>'
+                            '<button type="button" %(disabled)s>%(label)s</button>'
                          '</span>' % context
                         )
 
@@ -685,26 +690,46 @@ class EntityCreatorWidget(ActionButtonList):
         self.creation_url = creation_url
         self.creation_allowed = creation_allowed
 
+    def _is_disabled(self, attrs):
+        if attrs is not None:
+            return 'disabled' in attrs or 'readonly' in attrs
+
+        return False
+
+    def _build_actions(self, model, attrs):
+        is_disabled = self._is_disabled(attrs)
+
+        self.clear_actions()
+
+        if not is_disabled:
+            if not self.is_required:
+                clear_label = _(u'Clear')
+                self.add_action('reset', clear_label, title=clear_label, action='reset', value='')
+
+            url = self.creation_url
+
+            if url:
+                allowed = self.creation_allowed
+                self.add_action('create', model.creation_label, enabled=allowed, popupUrl=url,
+                                title=_(u'Create') if allowed else _(u"Can't create"),
+                               )
+
     def render(self, name, value, attrs=None):
         model = self.model
 
         if model is None:
             self.delegate = Label(empty_label='Model is not set')
         else:
+            selector_attrs = {'auto': False, 'disabled': self._is_disabled(attrs)}
+
+            if self.q_filter is not None:
+                selector_attrs['qfilter'] = self.q_filter
+
             self.delegate = EntitySelector(unicode(ContentType.objects.get_for_model(model).id),
-                                           {'auto': False, 'qfilter': self.q_filter},
+                                           selector_attrs
                                           )
 
-            if not self.is_required:
-                clear_label = _(u'Clear')
-                self.add_action('reset', clear_label, title=clear_label, action='reset', value='')
-
-            url = self.creation_url
-            if url:
-                allowed = self.creation_allowed
-                self.add_action('create', model.creation_label, enabled=allowed, popupUrl=url,
-                                title=_(u'Create') if allowed else _(u"Can't create"),
-                               )
+            self._build_actions(model, attrs)
 
         return super(EntityCreatorWidget, self).render(name, value, attrs)
 
@@ -724,7 +749,7 @@ class MultiEntityCreatorWidget(SelectorList):
         self.selector = button_list = ActionButtonList(delegate=None)
 
         if model is None:
-            delegate = Label(empty_label='Model is not set')
+            delegate = Label(empty_label=_(u'Model is not set'))
         else:
             self.clear_actions()  # TODO: indicate that we do not want actions in __init__
             self.add_action('add', getattr(model, 'selection_label', _(u'Select')))
