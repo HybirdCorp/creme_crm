@@ -59,12 +59,14 @@ creme.merge.initializeMergeForm = function(form) {
     }
 
     var setter = function(input, value) {
-        if (input.is('input[type="checkbox"]')) {
+        if (input.is('.ui-creme-widget')) {
+            input.creme().widget().val(value);
+        } else if (input.is('.ui-creme-input')) {
+            input.parents('.ui-creme-widget:first').creme().widget().val(value);
+        } else if (input.is('input[type="checkbox"]')) {
             input.prop('checked', value);
         } else if (input.is('input, select, textarea')) {
             input.val(value).change();
-        } else if (input.is('.ui-creme-widget')) {
-            input.creme().widget().val(value);
         }
     }
 

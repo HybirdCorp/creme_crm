@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 # from django.db.models import ForeignKey
 from django.db.transaction import atomic
@@ -101,34 +102,46 @@ class MergeWidget(Widget):
 
 
 class MergeField(Field):
-    def __init__(self, modelform_field, model_field, *args, **kwargs):
+    def __init__(self, modelform_field, model_field, user=None, *args, **kwargs):
         super(MergeField, self).__init__(self, widget=MergeWidget(modelform_field.widget), *args, **kwargs)
 
         self.required = modelform_field.required
         self._original_field = modelform_field
         self._restricted_queryset = None
 
+        self.user = user
+
         # if isinstance(model_field, ForeignKey) and issubclass(model_field.rel.to, CremeEntity):
         #     qs = modelform_field.queryset
         #     self._restricted_queryset = qs
         #     modelform_field.queryset = qs.none()
-        if model_field and model_field.is_relation and issubclass(model_field.rel.to, CremeEntity):
+#         if model_field and model_field.is_relation and issubclass(model_field.rel.to, CremeEntity):
             # TODO: use (Multi)CreatorEntityField when the widgets are fixed
             #       (ie: manage disabling, not multiple 'clean' buttons)
-            from django.forms import ModelChoiceField, ModelMultipleChoiceField
+#             from django.forms import ModelChoiceField, ModelMultipleChoiceField
+# 
+#             self._restricted_queryset = qs = model_field.rel.to.objects.all()
+# 
+#             field_cls = ModelMultipleChoiceField if model_field.many_to_many else ModelChoiceField
+#             self._original_field = modelform_field = field_cls(queryset=qs.none(), label=model_field.rel.to._meta,
+#                                                                required=not model_field.blank,
+#                                                               )
+#             self.widget = MergeWidget(modelform_field.widget)
 
-            self._restricted_queryset = qs = model_field.rel.to.objects.all()
+    @property
+    def user(self):
+        return self._user
 
-            field_cls = ModelMultipleChoiceField if model_field.many_to_many else ModelChoiceField
-            self._original_field = modelform_field = field_cls(queryset=qs.none(), label=model_field.rel.to._meta,
-                                                               required=not model_field.blank,
-                                                              )
-            self.widget = MergeWidget(modelform_field.widget)
+    @user.setter
+    def user(self, user):
+        self._user = user
+        self._original_field.user = user
 
     def clean(self, value):
         return self._original_field.clean(value[2])
 
     def set_merge_initial(self, initial):
+        warnings.warn('MergeField.set_merge_initial: this method is deprecated, simply use initial property instead.', DeprecationWarning)
         self.initial = initial
         qs = self._restricted_queryset
 
@@ -151,6 +164,7 @@ class MergeEntitiesBaseForm(CremeForm):
         self.entity1 = entity1
         self.entity2 = entity2
 
+        user = self.user
         fields = self.fields
 
         build_initial = self._build_initial_dict
@@ -167,7 +181,7 @@ class MergeEntitiesBaseForm(CremeForm):
                 initial = [entity1_initial[name], entity2_initial[name]]
                 # We try to initialize with preferred one, but we use the other if it is empty.
                 initial.append(initial[initial_index] or initial[1 - initial_index])
-                field.set_merge_initial(initial)
+                field.initial = initial
 
         # Custom fields --------------------------------------------------------
         # TODO: factorise (CremeEntityForm ? get_custom_fields_n_values ? ...)
@@ -184,13 +198,14 @@ class MergeEntitiesBaseForm(CremeForm):
             fields[_CUSTOM_NAME % i] = merge_field = MergeField(formfield1,
                                                                 model_field=None,
                                                                 label=cfield.name,
+                                                                user=user,
                                                                )
 
             initial = [formfield1.initial,
                        cfield.get_formfield(cvalue2).initial,
                       ]
             initial.append(initial[initial_index] or initial[1 - initial_index])
-            merge_field.set_merge_initial(initial)
+            merge_field.initial = initial
 
     def _build_initial_dict(self, entity):
         return model_to_dict(entity)
@@ -209,7 +224,7 @@ class MergeEntitiesBaseForm(CremeForm):
         if not self._errors:
             entity1 = self.entity1
 
-            for name, value in self.fields.iteritems():
+            for name in self.fields.iterkeys():
                 setattr(entity1, name, cdata[name])
 
             entity1.full_clean()
