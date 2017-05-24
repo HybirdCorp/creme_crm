@@ -33,6 +33,16 @@
 
                 select.model().reset(data);
             })
+
+            $('#sector-selector').on('creme-widget-create', function(e, widget) {
+                creme.ajax.query('{% url "creme_core__list_enumerable" TEST_CONTENTTYPES.sector %}')
+                          .onDone(function(e, data) {
+                               widget.model().reset(creme.utils.JSON.clean(data).map(function(item) {
+                                   return {value: item[0], label: item[1], visible: true, selected: false};
+                               }));
+                           })
+                          .start();
+            }).creme().create();
         });
     </script>
 {% endblock %}
@@ -54,7 +64,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <div class="checklist-body">
@@ -78,7 +88,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <div class="checklist-body">
@@ -102,7 +112,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <div class="checklist-body">
@@ -126,7 +136,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <div class="checklist-body">
@@ -151,7 +161,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <div class="checklist-body">
@@ -192,12 +202,15 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="filter">
             </div>
             <div class="checklist-body">
                 <ul class="checklist-content filter wide"></ul>
+            </div>
+            <div class="checklist-footer">
+                <a class="checklist-toggle-less">More</a>
             </div>
         </div>
     </li>
@@ -224,7 +237,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="search">
             </div>
@@ -233,6 +246,54 @@
             </div>
             <div class="checklist-footer">
                 <a class="checklist-toggle-less">More</a>
+            </div>
+        </div>
+    </li>
+    <li>
+        <h3>No group - create (empty)</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget ui-creme-checklistselect" id="sector-selector">
+            <select class="ui-creme-input" multiple>
+            </select>
+            <div class="checklist-counter"></div>
+            <div class="checklist-header">
+                <a class="checklist-create" href="{% url 'creme_config__create_instance_from_widget' 'persons' 'sector' %}">Créer</a>
+                <a class="checklist-check-all hidden">Tout sélectionner</a>
+                <a class="checklist-check-none hidden">Tout déselectionner</a>
+            </div>
+            <div class="checklist-body">
+                <ul class="checklist-content"></ul>
+            </div>
+        </div>
+    </li>
+    <li>
+        <h3>No group - create</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+            <select class="ui-creme-input" multiple>
+                <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
+                <option value='activities-object_linked_2_activity'>(activité) relié à</option>
+                <option value='activities-object_participates_to_activity'>(activité) a comme participant</option>
+                <option value='activities-subject_activity_subject'>est sujet de l'activité</option>
+                <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                <option value='activities-subject_participates_to_activity'>participe à l'activité</option>
+                <option value='commercial-object_complete_goal'>est remplie grace à</option>
+                <option value='commercial-object_sold_by'>a été vendu par</option>
+                <option value='commercial-subject_complete_goal'>remplit un but de l'action commerciale</option>
+                <option value='commercial-subject_sold_by'>a vendu</option>
+                <option value='email-object_mail_received'>a reçu l'e-mail</option>
+                <option value='email-object_mail_sended'>a envoyé l'e-mail</option>
+                <option value='email-object_related_to'>relatif à l'e-mail</option>
+                <option value='email-subject_mail_received'>(e-mail) a été reçu par</option>
+                <option value='email-subject_mail_sended'>(e-mail) a été envoyé</option>
+                <option value='email-subject_related_to'>(e-mail) relatif à</option>
+            </select>
+            <div class="checklist-counter"></div>
+            <div class="checklist-header">
+                <a class="checklist-create" href="{% url 'creme_config__create_instance_from_widget' 'persons' 'sector' %}">Créer</a>
+                <a class="checklist-check-all">Tout sélectionner</a>
+                <a class="checklist-check-none">Tout déselectionner</a>
+            </div>
+            <div class="checklist-body">
+                <ul class="checklist-content"></ul>
             </div>
         </div>
     </li>
@@ -257,7 +318,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <div class="checklist-body">
@@ -294,7 +355,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <div class="checklist-body">
@@ -343,7 +404,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="filter">
             </div>
@@ -384,7 +445,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="search">
             </div>
@@ -406,7 +467,7 @@
             </select>
             <div class="checklist-counter"></div>
             <div class="checklist-header">
-                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-all">Tout sélectionner</a>
                 <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="search" class="checklist-filter" placeholder="search">
             </div>

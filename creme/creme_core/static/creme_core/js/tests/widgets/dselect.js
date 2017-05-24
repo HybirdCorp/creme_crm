@@ -483,11 +483,11 @@ test('creme.widget.DynamicSelect.update (add/remove)', function() {
 
     creme.widget.create(element);
 
-    element.creme().widget().update({added:[[5, 'bb']], removed:[5]})
+    element.creme().widget().update({added:[[6, 'bb']], removed:[5]})
     equal(3, $('option', element).length);
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('3', $('option:nth(1)', element).attr('value'));
-    equal('5', $('option:nth(2)', element).attr('value'));
+    equal('6', $('option:nth(2)', element).attr('value'));
     equal('bb', $('option:nth(2)', element).text());
 });
 

@@ -390,6 +390,8 @@ class CremeCoreConfig(CremeAppConfig):
         from .forms.fields import MultiCreatorEntityField
         from .models import CremeEntity
 
+        from creme.creme_config.forms.fields import CreatorModelMultipleChoiceField
+
         original_m2m_formfield = ManyToManyField.formfield
 
         def new_m2m_formfield(self, **kwargs):
@@ -400,9 +402,10 @@ class CremeCoreConfig(CremeAppConfig):
                                                q_filter=self.rel.limit_choices_to,
                                               )
 
-            # TODO: creme_config MultiCreatorModelChoiceField
+            defaults = {'form_class': CreatorModelMultipleChoiceField}
+            defaults.update(kwargs)
 
-            return original_m2m_formfield(self, **kwargs)
+            return original_m2m_formfield(self, **defaults)
 
         ManyToManyField.formfield = new_m2m_formfield
 

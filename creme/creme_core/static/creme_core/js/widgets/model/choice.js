@@ -72,8 +72,22 @@ creme.model.ChoiceRenderer.parse = function(element, converter) {
             tags:     option.is('[tags]') && option.attr('tags') ? option.attr('tags').split(' ') : []
         };
     }).get();
-}
+};
 
+creme.model.ChoiceRenderer.choicesFromTuples = function(data) {
+    var data = data || [];
+    var istuple = data ? Array.isArray(data[0]) : false;
+
+    if (istuple) {
+        return data.map(function(entry) {
+            return {value: entry[0], label: entry[1], visible: true, disabled: false, selected: false};
+        });
+    } else {
+        return data.map(function(entry) {
+            return {value: entry, label: '' + entry, visible: true, disabled: false, selected: false};
+        });
+    }
+};
 
 creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
     insertGroup: function(target, before, groupname)
@@ -185,8 +199,26 @@ creme.model.ChoiceGroupRenderer.parse = function(element, converter) {
             tags:     option.is('[tags]') && option.attr('tags') ? option.attr('tags').split(' ') : []
         };
     }).get();
-}
+};
 
+creme.model.ChoiceGroupRenderer.choicesFromTuples = function(data) {
+    var data = data || [];
+    var istuple = data ? Array.isArray(data[0]) : false;
+
+    if (istuple) {
+        return data.map(function(entry) {
+            if (entry.length > 2) {
+                return {value: entry[0], label: entry[1], group: entry[2], visible: true, disabled: false, selected: false};
+            } else {
+                return {value: entry[0], label: entry[1], group: undefined, visible: true, disabled: false, selected: false};
+            }
+        });
+    } else {
+        return data.map(function(entry) {
+            return {value: entry, label: '' + entry, group: undefined, visible: true, disabled: false, selected: false};
+        });
+    }
+};
 
 creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
     _init_: function(options)
@@ -320,7 +352,6 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
 
         return group;
     },
-    
 
     insertItem: function(target, before, data, index)
     {

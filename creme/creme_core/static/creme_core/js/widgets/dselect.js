@@ -131,23 +131,16 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     _modelConverter: function(data)
     {
-        return data ? data.map(function(entry) {
-            if (Array.isArray(entry)) {
-                if (entry.length > 2) {
-                    return {value: entry[0], label: entry[1], group: entry[2]};
-                } else {
-                    return {value: entry[0], label: entry[1]};
-                }
-            } else if (entry.value && entry.label) {
-                if (entry.help) {
-                    entry.label = '<span>%s</span><span class="group-help">%s</span>'.format(entry.label, entry.help);
-                }
+        var data = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 
-                return entry;
-            } else {
-                return {value: entry, label: '' + entry}
-            };
-        }) : [];
+        // HACK : render helptext as label.
+        return data.map(function(entry) {
+            if (entry.help) {
+                entry.label = '<span>%s</span><span class="group-help">%s</span>'.format(entry.label, entry.help);
+            }
+
+            return entry;
+        });
     },
 
     _modelComparator: function(a, b) {

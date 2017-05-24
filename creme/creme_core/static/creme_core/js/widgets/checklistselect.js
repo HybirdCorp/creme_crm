@@ -36,12 +36,17 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         this._initializeController(element, options);
 
-        $('.checklist-check-all:not([disabled])', element).click(function() {
-            if (!this._disabled) self.selectAll(element);
+        $('.checklist-create', element).click(function(e) {
+            e.preventDefault();
+            if (!self._disabled) self.createItem(element, $(this));
         });
 
-        $('.checklist-check-none:not([disabled])', element).click(function() {
-            if (!this._disabled) self.unselectAll(element);
+        $(element).delegate('.checklist-check-all:not([disabled])', 'click', function() {
+            if (!self._disabled) self.selectAll(element);
+        });
+
+        $(element).delegate('.checklist-check-none:not([disabled])', 'click', function() {
+            if (!self._disabled) self.unselectAll(element);
         });
 
         $('.checklist-filter', element).bind('propertychange keyup input paste', function() {
@@ -126,6 +131,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         counter.toggleClass('visible', messages.length > 0)
                .html(messages.join('&nbsp;‒&nbsp;') + '&nbsp;');
 
+        $('.checklist-check-all, .checklist-check-none', element).toggleClass('hidden', model_count < 3);
         this._updateViewLessCounter(element);
     },
 
@@ -197,6 +203,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         var renderer = new creme.model.CheckGroupListRenderer();
         var controller = this._controller = new creme.model.CollectionController();
         var selections = this._selections = new creme.model.SelectionController();
+        var input_renderer = new creme.model.ChoiceGroupRenderer();
 
         var choices = creme.model.ChoiceGroupRenderer.parse(input);
         var model = this._model = new creme.model.Array(choices);
@@ -216,6 +223,9 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
                   .model(model)
                   .redraw();
 
+        input_renderer.target(input)
+                      .model(model);
+
         input.bind('change', function() {
                        self._updateViewSelection(element);
                    });
@@ -223,6 +233,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         model.bind('add remove', function() {
                        self._updateViewCounter(element);
                        self._updateViewLess(element);
+                       input_renderer.redraw();
                    });
 
         this._updateViewCounter(element);
@@ -327,6 +338,27 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         return this.val(element).map(function(value) {
             creme.utils.convert('string', this.options.datatype.toLowerCase(), value, value);
         });
+    },
+
+    createItem: function(element, link)
+    {
+        if ($(this).is('[disabled]'))
+            return this;
+
+        var action = new creme.dialog.FormDialogAction();
+        var model = this._model;
+
+        action.onDone(function(event, data) {
+                          var data = creme.utils.JSON.clean(data);
+                          var choices = creme.model.ChoiceGroupRenderer.choicesFromTuples(data.added || []);
+                          model.patch({
+                              add: choices
+                          });
+                      })
+              .start({
+                  url: link.attr('href'),
+                  title: link.attr('title')
+               });
     },
 
     reset: function(element) {
