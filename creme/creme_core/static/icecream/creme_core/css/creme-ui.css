@@ -405,6 +405,11 @@ span.ui-creme-datepicker-trigger {
             transition: none;
 }
 
+.checklist-header a+a {
+    border-left: 1px solid #777;
+    padding-left: 4px;
+}
+
 .checklist-header a:hover {
     cursor: pointer;
 }
@@ -413,6 +418,10 @@ span.ui-creme-datepicker-trigger {
     opacity: 0.5;
     text-decoration: none;
     cursor: default;
+}
+
+.checklist-header a.hidden {
+    display: none;
 }
 
 .checklist-header .checklist-filter {

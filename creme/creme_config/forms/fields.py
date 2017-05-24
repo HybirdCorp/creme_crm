@@ -19,27 +19,25 @@
 ################################################################################
 
 from django.core.urlresolvers import reverse
-from django.forms.models import ModelChoiceField
+from django.forms.models import ModelChoiceField, ModelMultipleChoiceField
+
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from .widgets import CreatorModelChoiceWidget
 
 
-class CreatorModelChoiceField(ModelChoiceField):
-    widget = CreatorModelChoiceWidget
-
-    def __init__(self, queryset, create_action_url='', user=None, *args, **kwargs):
-        super(CreatorModelChoiceField, self).__init__(queryset, *args, **kwargs)
-        self._user = user
-        self.create_action_url = create_action_url
+class CreatorModelChoiceMixin(object):
+    _create_action_url = None
+    _user = None
 
     @property
     def creation_url_n_allowed(self):
         """Get the creation URL & if the creation is allowed.
         @rtype : tuple (string, boolean)
         """
-        url = self._create_action_url
         allowed = False
         user = self._user
+        url = self._create_action_url
 
         if user:
             model = self.queryset.model
@@ -64,13 +62,10 @@ class CreatorModelChoiceField(ModelChoiceField):
 
         return url, allowed
 
-    def _update_creation_info(self):
-        widget = self.widget
-        widget.creation_url, widget.creation_allowed = self.creation_url_n_allowed
-
-        label = getattr(self.queryset.model, 'creation_label', None)
-        if label is not None:
-            widget.creation_label = label
+    def creation_info(self, create_action_url, user):
+        self._create_action_url = create_action_url
+        self._user = user
+        self._update_creation_info()
 
     @property
     def create_action_url(self):
@@ -81,6 +76,11 @@ class CreatorModelChoiceField(ModelChoiceField):
         self._create_action_url = url
         self._update_creation_info()
 
+    def _update_creation_info(self):
+        widget = self.widget
+        widget.creation_url, widget.creation_allowed = self.creation_url_n_allowed
+        widget.creation_label = getattr(self.queryset.model, 'creation_label', widget.creation_label)
+
     @property
     def user(self):
         return self._user
@@ -89,3 +89,20 @@ class CreatorModelChoiceField(ModelChoiceField):
     def user(self, user):
         self._user = user
         self._update_creation_info()
+
+
+class CreatorModelChoiceField(ModelChoiceField, CreatorModelChoiceMixin):
+    widget = CreatorModelChoiceWidget
+
+    def __init__(self, queryset, create_action_url='', user=None, *args, **kwargs):
+        super(CreatorModelChoiceField, self).__init__(queryset, *args, **kwargs)
+        self.creation_info(create_action_url, user)
+
+
+class CreatorModelMultipleChoiceField(ModelMultipleChoiceField, CreatorModelChoiceMixin):
+    widget = UnorderedMultipleChoiceWidget
+
+    def __init__(self, queryset, create_action_url='', user=None, *args, **kwargs):
+        super(CreatorModelMultipleChoiceField, self).__init__(queryset, *args, **kwargs)
+        self.creation_info(create_action_url, user)
+

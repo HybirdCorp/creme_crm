@@ -11,7 +11,7 @@ try:
 
 #    from creme.persons.models import Position
 
-    from ..forms.fields import CreatorModelChoiceField
+    from ..forms.fields import CreatorModelChoiceField, CreatorModelMultipleChoiceField
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -207,11 +207,8 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 #                         field._build_create_action_url('persons', 'position')
 #                        )
 
-        url = '/persons/config/position/from_widget/add/'
-        field.create_action_url = url
-        self.assertEqual(url, field.create_action_url)
+        field.create_action_url = url = self.ADD_URL
         self.assertEqual((url, False), field.creation_url_n_allowed)
-#        self.assertEqual(url, field._build_create_action_url('persons', 'position'))
 
         field.user = self._create_superuser()
         self.assertEqual((url, True), field.creation_url_n_allowed)
@@ -222,4 +219,162 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(('', False), field.creation_url_n_allowed)
 
         field.user = self._create_superuser()
+        self.assertEqual((self.ADD_URL, True), field.creation_url_n_allowed)
+
+
+class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
+    ADD_URL = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_position'))
+
+    def test_actions_not_admin(self):
+        user = self.login(is_superuser=False, allowed_apps=('persons',))
+
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.all())
+
+        self.assertEqual('', field.widget.creation_url)
+        self.assertFalse(field.widget.creation_allowed)
+        self.assertEqual(_(u'Create'), unicode(field.widget.creation_label))
+
+        field.user = user
+
+        self.assertEqual(self.ADD_URL, field.widget.creation_url)
+        self.assertFalse(field.widget.creation_allowed)
+        self.assertEqual(_(u"Create"), unicode(field.widget.creation_label))
+
+        field.user = None
+
+        self.assertEqual('', field.widget.creation_url)
+        self.assertFalse(field.widget.creation_allowed)
+        self.assertEqual(_(u"Create"), unicode(field.widget.creation_label))
+
+    def test_actions_admin(self):
+        admin = self.login(is_superuser=False, admin_4_apps=('creme_core',))
+
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.all())
+        field.user = admin
+
+        self.assertEqual(self.ADD_URL, field.widget.creation_url)
+        self.assertTrue(field.widget.creation_allowed)
+        self.assertEqual(Position.creation_label, field.widget.creation_label)
+
+    def test_actions_superuser(self):
+        admin = self.login()
+
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.all())
+        field.user = admin
+
+        self.assertEqual(self.ADD_URL, field.widget.creation_url)
+        self.assertTrue(field.widget.creation_allowed)
+        self.assertEqual(Position.creation_label, field.widget.creation_label)
+
+    def test_queryset_no_action(self):
+        "No action"
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.all())
+
+        positions = [(p.pk, unicode(p)) for p in Position.objects.all()]
+        self.assertEqual(positions, list(field.choices))
+
+        render_str = field.widget.render('position', None)
+        self.assertNotIn(unicode(Position.creation_label), render_str)
+
+    def test_queryset(self):
+        "With action"
+        user = self.login()
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.all())
+        field.user = user
+
+        positions = [(p.pk, unicode(p)) for p in Position.objects.all()]
+        self.assertEqual(positions, list(field.choices))
+
+        render_str = field.widget.render('position', None)
+        self.assertIn(unicode(Position.creation_label), render_str)
+
+    def test_filtered_queryset_no_action(self):
+        "No action"
+        first_position = Position.objects.first()
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.filter(pk=first_position.pk))
+
+        positions = [(first_position.pk, first_position.title)]
+        self.assertEqual(positions, list(field.choices))
+
+        render_str = field.widget.render('position', None)
+        self.assertNotIn(unicode(Position.creation_label), render_str)
+
+    def test_filtered_queryset(self):
+        "With action"
+        user = self.login()
+        first_position = Position.objects.first()
+
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.filter(pk=first_position.pk))
+        field.user = user
+
+        positions = [(first_position.pk, first_position.title)]
+        self.assertEqual(positions, list(field.choices))
+
+        render_str = field.widget.render('position', None)
+        self.assertIn(unicode(Position.creation_label), render_str)
+
+    def test_set_queryset_property_no_action(self):
+        "No action"
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.none())
+
+        self.assertFalse(hasattr(field.widget, 'actions'))
+        self.assertEqual([], list(field.widget.choices))
+
+        render_str = field.widget.render('position', None)
+        self.assertNotIn(unicode(Position.creation_label), render_str)
+
+        field.queryset = Position.objects.all()
+
+        positions = [(p.pk, unicode(p)) for p in Position.objects.all()]
+        self.assertEqual(positions, list(field.choices))
+
+        render_str = field.widget.render('position', None)
+        self.assertNotIn(unicode(Position.creation_label), render_str)
+
+    def test_set_queryset_property(self):
+        "With action"
+        user = self.login()
+
+        field = CreatorModelMultipleChoiceField(queryset=Position.objects.none())
+        field.user = user
+
+        self.assertEqual([], list(field.widget.choices))
+        self.assertTrue(field.widget.creation_allowed)
+
+        render_str = field.widget.render('position', None)
+        self.assertIn(unicode(Position.creation_label), render_str)
+
+        field.queryset = Position.objects.all()
+
+        positions = [(p.pk, unicode(p)) for p in Position.objects.all()]
+        self.assertEqual(positions, list(field.choices))
+
+        render_str = field.widget.render('position', None)
+        self.assertIn(unicode(Position.creation_label), render_str)
+
+    def test_create_action_url(self):
+        user = self.login()
+        field = CreatorModelMultipleChoiceField(Position.objects.all())
+
+#        self.assertIsNone(field.create_action_url)
+        self.assertEqual('', field.create_action_url)
+        self.assertEqual(('', False), field.creation_url_n_allowed)
+#        self.assertEqual('/creme_config/persons/position/add_widget/',
+#                         field._build_create_action_url('persons', 'position')
+#                        )
+
+        url = '/other_url'
+        field.create_action_url = url
+        self.assertEqual((url, False), field.creation_url_n_allowed)
+
+        field.user = user
+        self.assertEqual((url, True), field.creation_url_n_allowed)
+
+    def test_creation_url_n_allowed(self):
+        user = self.login()
+        field = CreatorModelMultipleChoiceField(Position.objects.all())
+
+        self.assertEqual(('', False), field.creation_url_n_allowed)
+
+        field.user = user
         self.assertEqual((self.ADD_URL, True), field.creation_url_n_allowed)

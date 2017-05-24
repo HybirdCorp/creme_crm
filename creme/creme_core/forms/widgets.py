@@ -1018,18 +1018,27 @@ class ColorPickerWidget(widgets.TextInput):
 
 
 class UnorderedMultipleChoiceWidget(widgets.SelectMultiple, EnhancedSelectOptions):
-    def __init__(self, attrs=None, choices=(), columntype='', filtertype=None, viewless=None):
+    MIN_SEARCH_COUNT = 10
+    MIN_FILTER_COUNT = 30
+    MIN_CHECKALL_COUNT = 3
+
+    def __init__(self, attrs=None, choices=(),
+                 columntype='', filtertype=None, viewless=None,
+                 creation_url='', creation_allowed=False, creation_label=ugettext_lazy(u'Create')):
         super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
         self.columntype = columntype
         self.filtertype = filtertype
         self.viewless = viewless
+        self.creation_url = creation_url
+        self.creation_allowed = creation_allowed
+        self.creation_label = creation_label
 
     def render_option(self, selected_choices, option_value, option_label):
         return self.render_enchanced_option(selected_choices, option_value, option_label)
 
     def render(self, name, value, attrs=None, choices=()):
-        if not self.choices:
-            return _('No choice available.')
+        if not self.choices and not self.creation_allowed:
+            return _(u'No choice available.')
 
         count = self._choice_count()
         attrs = self.build_attrs(attrs, name=name)
@@ -1061,13 +1070,12 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
         if self.filtertype:
             return self.filtertype
 
-        if count < 10:
+        if count < self.MIN_SEARCH_COUNT:
             return None
-
-        if 10 < count < 30:
+        elif count < self.MIN_FILTER_COUNT:
             return 'search'
-
-        return 'filter'
+        else:
+            return 'filter'
 
     def _render_viewless(self, attrs, viewless):
         if not viewless:
@@ -1082,33 +1090,40 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
         if not viewless:
             return ''
 
-        return '<div class="checklist-footer">'\
+        return u'<div class="checklist-footer">'\
                '    <a class="checklist-toggle-less">%s</a>'\
                '</div>' % _(u'More')
 
-    def _render_header(self, attrs, filtertype, count):
-        has_checkall = attrs.get('checkall', True) and count > 2
-
-        if not has_checkall and not filtertype:
+    def _render_header_filter(self, filtertype):
+        if not filtertype:
             return ''
 
-        filter = checkall = ''
+        filtername = _('Filter') if filtertype == 'filter' else pgettext('creme_core-noun', 'Search')
+        return u'<input type="search" class="checklist-filter" placeholder="%s">' % filtername.upper()
 
-        if filtertype:
-            filtername = _(u'Filter') if filtertype == 'filter' else pgettext('creme_core-noun', u'Search')
-            filter = '<input type="search" class="checklist-filter" placeholder="%s">' % filtername.upper()
+    def _render_header(self, attrs, filtertype, count):
+        has_checkall = attrs.get('checkall', True)
+        checkall_hidden = ' hidden' if count < self.MIN_CHECKALL_COUNT else ''
+        url = self.creation_url
+
+        filter = self._render_header_filter(filtertype)
+        buttons = []
 
         if has_checkall:
-            checkall = '<a type="button" class="checklist-check-all">%s</a>'\
-                       ' | <a type="button" class="checklist-check-none">%s</a>' % (_(u'Check all'), _(u'Check none'))
+            buttons.extend([u'<a type="button" class="checklist-check-all%s">%s</a>' % (checkall_hidden, _(u'Check all')),
+                            u'<a type="button" class="checklist-check-none%s">%s</a>' % (checkall_hidden, _(u'Check none'))])
 
-        return '<div class="checklist-header">%(checkall)s%(filter)s</div>' % {
+        if url:
+            disabled = 'disabled' if not self.creation_allowed else ''
+            buttons.append(u'<a type="button" class="checklist-create" href="%s" %s>%s</a>' % (url, disabled, self.creation_label))
+
+        return u'<div class="checklist-header">%(buttons)s%(filter)s</div>' % {
                    'filter': filter, 
-                   'checkall': checkall,
+                   'buttons': u''.join(buttons),
                }
 
     def _render_body(self, attrs, filtertype):
-        return '<div class="checklist-body"><ul class="checklist-content %s %s"></ul></div>' % (
+        return u'<div class="checklist-body"><ul class="checklist-content %s %s"></ul></div>' % (
                     filtertype or '', self.columntype,
                 )
 

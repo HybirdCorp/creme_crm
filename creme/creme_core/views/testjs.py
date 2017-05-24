@@ -96,7 +96,8 @@ class Dummy(object):
         self.date = mark_safe(print_date(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(self, '%d:%d:%d' % (randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
         # self.foreignkey = mark_safe(print_foreignkey(self, CremeProperty.objects.all()[0], user, None))
-        self.foreignkey = mark_safe(print_foreignkey_html(self, CremeProperty.objects.all()[0], user, None))
+        property = CremeProperty.objects.first()
+        self.foreignkey = mark_safe(print_foreignkey_html(self, property, user, None)) if property is not None else None
         # self.manytomany = mark_safe(print_many2many(self, MockManyToMany(CremeProperty), user, None))
         self.manytomany = mark_safe(print_many2many_html(self, MockManyToMany(CremeProperty), user, None))
 
