@@ -23,6 +23,7 @@ import logging
 import re
 
 from django.apps import apps
+from django.core.urlresolvers import reverse
 # from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist  # Max
 from django.forms.models import modelform_factory
@@ -259,6 +260,22 @@ class _ConfigRegistry(object):
     def userblocks(self):
         return iter(self._userblocks)
 
+    def get_model_creation_info(self, model, user):
+        app_name = model._meta.app_label
+        allowed = user.has_perm_to_admin(app_name)
+        url = None
+
+        try:
+            model_name = self.get_app(app_name)\
+                             .get_model_conf(model=model) \
+                             .name_in_url
+        except (KeyError, NotRegisteredInConfig):
+            allowed = False
+        else:
+            #url = '/creme_config/%s/%s/add_widget/' % (app_name, model_name)
+            url = reverse('creme_config__create_instance_from_widget', args=(app_name, model_name))
+
+        return url, allowed
 
 config_registry = _ConfigRegistry()
 

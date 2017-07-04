@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
 from django.forms.models import ModelChoiceField, ModelMultipleChoiceField
 
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
@@ -42,23 +41,16 @@ class CreatorModelChoiceMixin(object):
         if user:
             model = self.queryset.model
             app_name = model._meta.app_label
-            allowed = user.has_perm_to_admin(app_name)
 
-            if not url:
+            if url:
+                app_name = model._meta.app_label
+                allowed = user.has_perm_to_admin(app_name)
+            else:
                 # config_registry import here, in order to avoid  initialisation issues :
                 # creme_config's registration could be done before the creme_core's one is over,
                 # and so fails because not all apps are registered.
-                from ..registry import config_registry, NotRegisteredInConfig
-
-                try:
-                    model_name = config_registry.get_app(app_name) \
-                                                .get_model_conf(model=model) \
-                                                .name_in_url
-                except (KeyError, NotRegisteredInConfig):
-                    allowed = False
-                else:
-                    # url = '/creme_config/%s/%s/add_widget/' % (app_name, model_name)
-                    url = reverse('creme_config__create_instance_from_widget', args=(app_name, model_name))
+                from ..registry import config_registry
+                url, allowed = config_registry.get_model_creation_info(model, user)
 
         return url, allowed
 

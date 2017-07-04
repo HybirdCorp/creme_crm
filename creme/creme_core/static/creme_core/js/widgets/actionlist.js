@@ -32,9 +32,9 @@ creme.widget.ActionButton = creme.component.Action.sub({
         if (Object.isEmpty(delegate))
             return;
 
-        var item = creme.utils.JSON.clean(data, null);
+        var data = creme.utils.JSON.clean(data, null);
 
-        if (item != null) {
+        if (data !== null) {
             delegate.update(data);
         } else {
             delegate.reload();
@@ -76,8 +76,13 @@ creme.widget.CreateActionButton = creme.widget.ActionButton.sub({
                                                            popupUrl: '',
                                                            popupTitle: ''});
 
-        options.url = new creme.utils.Template(options.popupUrl).render(this._context);
-        options.title = new creme.utils.Template(options.popupTitle).render(this._context);
+        var delegate = this._delegate;
+
+        var context = Object.isFunc(delegate.context) ? {_delegate_: delegate.context()} : {};
+        context = $.extend(context, this._context);
+
+        options.url = new creme.utils.Template(options.popupUrl).render(context);
+        options.title = new creme.utils.Template(options.popupTitle).render(context);
         return options;
     },
 

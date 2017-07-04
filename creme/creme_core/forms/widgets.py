@@ -1412,3 +1412,4 @@ class CremeRadioFieldRenderer(widgets.RadioFieldRenderer):
 
 class CremeRadioSelect(widgets.RadioSelect):
     renderer = CremeRadioFieldRenderer
+

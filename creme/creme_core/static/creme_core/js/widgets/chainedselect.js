@@ -190,6 +190,38 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         });
     },
 
+    update: function(element, data)
+    {
+        var data = creme.widget.cleanval(data, {});
+        var added = data.added || [];
+        var removed = data.removed || [];
+        var notempty = function(item) {return Object.isEmpty(item) === false;};
+
+        this.selectors(element).each(function() {
+            var selector = $(this);
+            var name = selector.parent().attr('chained-name');
+            var widget = selector.creme().widget();
+
+            if (Object.isFunc(widget.update))
+            {
+                var getter = function(item) {return item[name]};
+                var selector_added = added.map(getter).filter(notempty);
+                var selector_removed = removed.map(getter).filter(notempty);
+
+                widget.update({
+                    added: selector_added,
+                    removed: selector_removed
+                });
+            }
+        });
+
+        return this.val(element, data.value);
+    },
+
+    context: function(element) {
+        return $.extend({}, this._context);
+    },
+
     val: function(element, value)
     {
         if (value === undefined)

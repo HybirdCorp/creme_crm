@@ -223,7 +223,7 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def assertWidgetResponse(self, response, instance):
         # TODO: json.dumps
-        self.assertEqual(u'<json>%s</json>' % json_dump({
+        self.assertEqual(json_dump({
                             'added': [[instance.id, unicode(instance)]], 
                             'value': instance.id
                          }), 

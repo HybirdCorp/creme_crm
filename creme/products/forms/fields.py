@@ -19,20 +19,26 @@
 ################################################################################
 
 from functools import partial
+import warnings
 
 from django.db.models.query import QuerySet
 from django.forms.utils import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.fields import JSONField, ChoiceModelIterator
-from creme.creme_core.forms.widgets import ChainedInput
+from creme.creme_core.forms.widgets import ChainedInput, ActionButtonList
 from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..models import Category, SubCategory
 
 
+# TODO: deprecated remove it in next version.
 class CategorySelector(ChainedInput):
     def __init__(self, categories=(), attrs=None, creation_allowed=True):
+        warnings.warn("CategorySelector is deprecated, use CreatorCategorySelector instead.",
+                      DeprecationWarning
+                     )
+
         super(CategorySelector, self).__init__(attrs)
         self.creation_allowed = creation_allowed  # TODO: useless at the moment...
         self.categories = categories
@@ -50,8 +56,50 @@ class CategorySelector(ChainedInput):
         return super(CategorySelector, self).render(name, value, attrs)
 
 
+class CreatorCategorySelector(ActionButtonList):
+    def __init__(self, categories=(), attrs=None, creation_url='', creation_allowed=False):
+        super(CreatorCategorySelector, self).__init__(attrs)
+        self.categories = categories
+        self.creation_allowed = creation_allowed
+        self.creation_url = creation_url
+
+    def _is_disabled(self, attrs):
+        if attrs is not None:
+            return 'disabled' in attrs or 'readonly' in attrs
+
+        return False
+
+    def _build_actions(self, attrs):
+        is_disabled = self._is_disabled(attrs)
+
+        self.clear_actions()
+
+        if not is_disabled:
+            allowed = self.creation_allowed and bool(self.creation_url)
+            url = self.creation_url + '?category=${_delegate_.category}'
+
+            self.add_action('create', SubCategory.creation_label, enabled=allowed, popupUrl=url,
+                            title=_(u'Create') if allowed else _(u"Can't create"),
+                            popupTitle=SubCategory.creation_label,
+                           )
+
+    def render(self, name, value, attrs=None):
+        selector = ChainedInput(self.attrs)
+        add = partial(selector.add_dselect, attrs={'auto': False})
+        add('category', options=self.categories, label=_(u'Category'))
+        add('subcategory', options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
+                                                     .resolve('products__subcategories'),
+            label=_(u'Sub-category')
+           )
+
+        self.delegate = selector
+        self._build_actions(attrs)
+
+        return super(CreatorCategorySelector, self).render(name, value, attrs)
+
+
 class CategoryField(JSONField):
-    widget = CategorySelector  # need 'categories' "attribute"
+    widget = CreatorCategorySelector  # need 'categories' "attribute"
     default_error_messages = {
         'doesnotexist':          _(u"This category doesn't exist."),
         'categorynotallowed':    _(u'This category causes constraint error.'),
@@ -111,6 +159,21 @@ class CategoryField(JSONField):
 
         self._categories = categories
         self.widget.categories = ChoiceModelIterator(categories)
+
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        self._update_creation_info()
+
+    def _update_creation_info(self):
+        from creme.creme_config.registry import config_registry
+
+        widget = self.widget
+        widget.creation_url, widget.creation_allowed = config_registry.get_model_creation_info(SubCategory, self.user)
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, SubCategory):

@@ -8,6 +8,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import CremeTestCase
+
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeCivility as Civility)
 except Exception as e:
@@ -28,7 +29,7 @@ class QuickFormTestCase(CremeTestCase):
                 'whoami':              '1335517612234535305',
                }
 
-    def quickform_data_append(self, data, id, first_name='', last_name='', email='', organisation='', phone=''):
+    def quickform_data_append_contact(self, data, id, first_name='', last_name='', email='', organisation='', phone=''):
         return data.update({
                  'form-%d-email' % id:        email,
                  'form-%d-last_name' % id:    last_name,
@@ -53,7 +54,7 @@ class QuickFormTestCase(CremeTestCase):
         self.assertGET404(url)
 
         data = self.quickform_data(1)
-        self.quickform_data_append(data, 0, last_name='Kirika')
+        self.quickform_data_append_contact(data, 0, last_name='Kirika')
 
         self.assertPOST404(url, data)
 
@@ -62,7 +63,7 @@ class QuickFormTestCase(CremeTestCase):
         self.assertGET404(self._build_quickform_url(Civility))
 
         data = self.quickform_data(1)
-        self.quickform_data_append(data, 0, last_name='Kirika')
+        self.quickform_data_append_contact(data, 0, last_name='Kirika')
 
         self.assertPOST404(self._build_quickform_url(Civility), data)
 
@@ -75,7 +76,7 @@ class QuickFormTestCase(CremeTestCase):
         self.assertGET200(self._build_quickform_url(Organisation))
 
         data = self.quickform_data(1)
-        self.quickform_data_append(data, 0, last_name='Kirika')
+        self.quickform_data_append_contact(data, 0, last_name='Kirika')
 
         self.assertPOST403(self._build_quickform_url(Contact), data)
         self.assertPOST200(self._build_quickform_url(Organisation), data)
@@ -85,7 +86,7 @@ class QuickFormTestCase(CremeTestCase):
         count = Contact.objects.count()
 
         data = self.quickform_data(1)
-        self.quickform_data_append(data, 0)
+        self.quickform_data_append_contact(data, 0)
 
         response = self.assertPOST200(self._build_quickform_url(Contact), data)
         self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
@@ -98,9 +99,9 @@ class QuickFormTestCase(CremeTestCase):
         count = Contact.objects.count()
 
         data = self.quickform_data(3)
-        self.quickform_data_append(data, 0)
-        self.quickform_data_append(data, 1)
-        self.quickform_data_append(data, 2)
+        self.quickform_data_append_contact(data, 0)
+        self.quickform_data_append_contact(data, 1)
+        self.quickform_data_append_contact(data, 2)
 
         response = self.assertPOST200(self._build_quickform_url(Contact, 3), data)
         msg = _(u'This field is required.')
@@ -115,7 +116,7 @@ class QuickFormTestCase(CremeTestCase):
         count = Contact.objects.count()
 
         data = self.quickform_data(1)
-        self.quickform_data_append(data, 0, email='invalid')
+        self.quickform_data_append_contact(data, 0, email='invalid')
 
         response = self.assertPOST200(self._build_quickform_url(Contact), data)
         self.assertFormError(response, 'form', 'last_name', _(u'This field is required.'))
@@ -129,9 +130,9 @@ class QuickFormTestCase(CremeTestCase):
         count = Contact.objects.count()
 
         data = self.quickform_data(3)
-        self.quickform_data_append(data, 0, last_name='Kirika', email='admin@hello.com')
-        self.quickform_data_append(data, 1, email='invalid')
-        self.quickform_data_append(data, 2, last_name='Mireille', email='invalid')
+        self.quickform_data_append_contact(data, 0, last_name='Kirika', email='admin@hello.com')
+        self.quickform_data_append_contact(data, 1, email='invalid')
+        self.quickform_data_append_contact(data, 2, last_name='Mireille', email='invalid')
 
         response = self.assertPOST200(self._build_quickform_url(Contact, 3), data)
         self.assertNoFormsetError(response, 'formset', 0)
@@ -151,7 +152,7 @@ class QuickFormTestCase(CremeTestCase):
         data = self.quickform_data(1)
         last_name = 'Kirika'
         email = 'admin@hello.com'
-        self.quickform_data_append(data, 0, last_name=last_name, email=email)
+        self.quickform_data_append_contact(data, 0, last_name=last_name, email=email)
 
         self.assertPOST200(self._build_quickform_url(Contact), data)
         self.assertEqual(count + 1, Contact.objects.count())
@@ -171,7 +172,7 @@ class QuickFormTestCase(CremeTestCase):
         data = self.quickform_data(length)
 
         for i, kwargs in enumerate(contacts):
-            self.quickform_data_append(data, i, **kwargs)
+            self.quickform_data_append_contact(data, i, **kwargs)
 
         self.assertPOST200(self._build_quickform_url(Contact, length), data)
         self.assertEqual(count + length, Contact.objects.count())
@@ -204,11 +205,13 @@ class QuickFormTestCase(CremeTestCase):
         self.assertEqual(count + 1, Contact.objects.count())
 
         contact = self.get_object_or_fail(Contact, last_name=last_name, email=email)
-        self.assertEqual('<json>%s</json>' % json_dump({
-                                'added': [[contact.id, unicode(contact)]],
-                                'value': contact.id,
-                            }),
+        self.assertEqual(json_dump({
+                             "added": [[contact.id, unicode(contact)]],
+                             "value": contact.id
+                         }),
                          response.content
                         )
+
+    # TODO : test_quickform_with_custom_sync_data
 
     # TODO : test_add_multiple_from_widget(self)

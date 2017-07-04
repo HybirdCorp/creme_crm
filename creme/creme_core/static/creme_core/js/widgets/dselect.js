@@ -246,9 +246,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     update: function(element, data)
     {
         var data = creme.widget.cleanval(data, {});
+        var model = this._model;
+        var duplicates = function(item) {return model.indexOf(item) === -1};
 
         this._model.patch({
-                            add:    this._modelConverter(data.added),
+                            add:    this._modelConverter(data.added).filter(duplicates),
                             remove: this._modelConverter(data.removed)
                           });
 
@@ -396,7 +398,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         // IE8 strange behavior (jquery bug ?) that returns key instead of undefined when choice doesn't exist.
         // Fix it with jquery result length check.
-        return choices.length === 1 ? [key, choices.text()] : undefined;
+        return choices.length > 0 ? [key, choices.first().text()] : undefined;
     },
 
     choices: function(element)
