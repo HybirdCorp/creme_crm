@@ -234,16 +234,45 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         return Object.property(this, '_disabled', disabled);
     },
 
+    _getItemValue: function(data) {
+        var value = Object.isNone(data.value) ? '' : data.value;
+
+        if (typeof data.value === 'object') {
+            value = new creme.utils.JSON().encode(data.value);
+        }
+
+        return value;
+    },
+
     createItem: function(target, before, data, index)
     {
-        var item = $(('<%s class="checkbox-field">' +
-                         '<input type="checkbox" />' +
+        var disabled = data.disabled || this._disabled;
+        var value = this._getItemValue(data);
+
+        var context = {
+            tag: this._itemtag,
+            disabled: disabled ? 'disabled' : '',
+            value: value,
+            index: index,
+            checked: data.checked ? 'checked': '',
+            label: data.label || '',
+            help: data.help || '',
+            hidden: !data.visible ? 'hidden' : '',
+            tags: (data.tags || []).join(' ')
+        };
+
+        var item = $(('<${tag} class="checkbox-field" tags="${tags}" checklist-index="${index}" ${hidden} ${disabled}>' +
+                         '<input type="checkbox" value="${value}" checklist-index="${index}" ${disabled} ${checked}/>' +
                          '<div class="checkbox-label">' +
-                             '<span class="checkbox-label-text"></span>' +
-                             '<span class="checkbox-label-help"></span>' +
+                             '<span class="checkbox-label-text" ${disabled}>${label}</span>' +
+                             '<span class="checkbox-label-help" ${disabled}>${help}</span>' +
                          '</div>' +
-                      '</%s>').format(this._itemtag));
-        this.updateItem(target, item, data, undefined, index);
+                      '</${tag}>').template(context));
+
+        var checkbox = $('input[type="checkbox"]', item);
+        checkbox.data('checklist-item', {data: data, index:index});
+
+        // this.updateItem(target, item, data, undefined, index);
         return item;
     },
 
@@ -252,12 +281,9 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         if (action === 'select')
             return this.selectItem(target, item, data, previous, index);
 
-        var value = Object.isNone(data.value) ? '' : data.value;
+        var value = this._getItemValue(data);
         var checkbox = $('input[type="checkbox"]', item);
         var disabled = data.disabled || this._disabled;
-
-        if (typeof data.value === 'object')
-            value = new creme.utils.JSON().encode(data.value)
 
         checkbox.toggleAttr('disabled', data.disabled || disabled)
                 .attr('value', value)
@@ -340,9 +366,12 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
             return group;
         }
 
-        group = $('<' + this._grouptag + '>').addClass('checkbox-group')
-                                             .attr('label', groupname)
-                                             .append($('<li>').addClass('checkbox-group-header').html(groupname));
+        group = $(('<${tag} class="checkbox-group" label="${name}">' +
+                   '   <li class="checkbox-group-header">${name}</li>' +
+                   '</${tag}>').template({
+                       tag: this._grouptag,
+                       name: groupname
+                   }));
 
         if (before && before.length) {
             before.parent().before(group);
@@ -410,7 +439,7 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
                 prev_group.remove();
         }
 
-        return this._super_(creme.model.CheckListRenderer, 'updateItem', target, item, data, previous, index);
+        return this._super_(creme.model.CheckListRenderer, 'updateItem', target, item, data, previous, index, action);
     },
 
     parseItem: function(target, item, index)
