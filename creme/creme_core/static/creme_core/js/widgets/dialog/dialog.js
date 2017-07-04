@@ -477,8 +477,9 @@ creme.dialog.redirect = function(url, from) {
 }
 
 creme.dialog.DialogAction = creme.component.Action.sub({
-    _init_: function(options) {
+    _init_: function(options, listeners) {
         this._super_(creme.component.Action, '_init_', this._openPopup, options);
+        this._listeners = listeners || {};
     },
 
     dialog: function() {
@@ -499,10 +500,10 @@ creme.dialog.DialogAction = creme.component.Action.sub({
         var options = $.extend(this.options(), options || {});
 
         this._dialog = new creme.dialog.Dialog(options).onClose(function() {self._onClose();})
+                                                       .on(this._listeners)
                                                        .open();
     }
 });
-
 
 creme.dialogs = creme.dialogs || {};
 

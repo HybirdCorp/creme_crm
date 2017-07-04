@@ -255,8 +255,9 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
 
 creme.dialog.FormDialogAction = creme.component.Action.sub({
-    _init_: function(options) {
+    _init_: function(options, listeners) {
         this._super_(creme.component.Action, '_init_', this._openPopup, options);
+        this._listeners = listeners || {};
     },
 
     _onSubmit: function(data, statusText, dataType)
@@ -275,6 +276,7 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
 
         new creme.dialog.FormDialog(options).onFormSuccess(function(event, data) {self._onSubmit(data);})
                                             .onClose(function() {self.cancel();})
+                                            .on(this._listeners)
                                             .open();
     }
 });
