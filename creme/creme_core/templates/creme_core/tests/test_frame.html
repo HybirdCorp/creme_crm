@@ -174,23 +174,52 @@
             var content = '<center><h2>%s</h2></center><div>%s</div>'.format('Static Popup', randomParagraphs(LOREM_IPSUM, count));
             var minWidth = parseSize($('#popup .popup-minwidth').val());
             var minHeight = parseSize($('#popup .popup-minheight').val());
+            var stackCount = parseInt($('#popup .popup-html-stackcount').val());
 
-            var dialog = creme.dialogs.html(content, {
-                minHeight: minHeight,
-                minWidth: minWidth,
-                title: 'Static',
-                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
-                defaultButtonLabels: {'close': '%d paragraph(s)'.format(count)}
-            });
+            var scroll = $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame';
+            var closeOnEscape = $('#popup input.popup-closeonescape').is(':checked');
+            var defaultButtonLabels = {'close': '%d paragraph(s)'.format(count)};
 
-            openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
+            if (stackCount == 1) {
+                var dialog = creme.dialogs.html(content, {
+                    minHeight: minHeight,
+                    minWidth: minWidth,
+                    maxHeight: 480,
+                    title: 'Static',
+                    scroll: scroll,
+                    closeOnEscape: closeOnEscape,
+                    defaultButtonLabels: defaultButtonLabels
+                });
+
+                openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
+            } else {
+                var dialogs = [];
+
+                for(var index = 0; index < stackCount; ++index) {
+                    var content = '<center><h2>%s</h2></center><div>%s</div>'.format('Stacked', randomParagraphs(LOREM_IPSUM, count));
+                    dialogs.push(creme.dialogs.html(content, {
+                        minHeight: minHeight,
+                        minWidth: minWidth,
+                        maxHeight: 480,
+                        title: 'Stacked popup #%d'.format(index + 1),
+                        scroll: scroll,
+                        closeOnEscape: closeOnEscape,
+                        defaultButtonLabels: defaultButtonLabels
+                    }));
+                }
+
+                dialogs.forEach(function(d, index) {
+                    d.open();
+                });
+            }
         });
 
         $('#popup .popup-block').click(function() {
             var dialog = creme.dialogs.html($('#mock-blocklist').text(), {
                 width: '80%',
                 title: 'Static',
-                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame'
+                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
+                closeOnEscape: $('#popup input.popup-closeonescape').is(':checked')
             });
 
             dialog.onOpen(function() {
@@ -217,6 +246,8 @@
                                            compatible:false,
                                            minWidth: parseSize($('#popup .popup-minwidth').val()),
                                            minHeight: parseSize($('#popup .popup-minheight').val()),
+                                           closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
+                                           scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
                                            autoFocus: $('#popup .popup-form [name="autofocus"]').is(':checked'),
                                            submitOnKey: $('#popup .popup-form [name="submitkey"]').is(':checked') ? 13 : false
                                        })
@@ -231,6 +262,8 @@
             var dialog = creme.dialogs.url(url, {
                                            backend: mockbackend,
                                            title: url,
+                                           closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
+                                           scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
                                            minWidth: parseSize($('#popup .popup-minwidth').val()),
                                            minHeight: parseSize($('#popup .popup-minheight').val())
                                        });
@@ -244,6 +277,8 @@
                 title: url,
                 minWidth: parseSize($('#popup .popup-minwidth').val()),
                 minHeight: parseSize($('#popup .popup-minheight').val()),
+                closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
+                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame'
             });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
@@ -251,14 +286,23 @@
 
         $('#popup button.popup-image').click(function() {
             var url = '{% creme_media_url logo_url %}';
-            var dialog = creme.dialogs.image(url, {title:url});
+            var dialog = creme.dialogs.image(url, {
+                title: url,
+                closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
+                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame'
+            });
+
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
         $('#popup button.popup-select').click(function() {
             var choices = [{label:'A', value:1}, {label:'B', value:2}, {label:'C', value:3}];
-            var dialog = creme.dialogs.choice('Choose a value', {choices: choices, selected: 2})
-                                      .onOk(function(e, value) {console.log('selected > ', value);});
+            var dialog = creme.dialogs.choice('Choose a value', {
+                choices: choices,
+                selected: 2,
+                closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
+                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame'
+            }).onOk(function(e, value) {console.log('selected > ', value);});
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
@@ -380,6 +424,7 @@
             <div>
                 Options:&nbsp;<label><input type="checkbox" value="1" class="popup-confirm"/>Confirm</label>
                 &nbsp;<label><input type="checkbox" value="1" class="popup-scroll-background"/>Scroll background</label>
+                &nbsp;<label><input type="checkbox" value="1" class="popup-closeonescape"/>Close on ESC</label>
                 &nbsp;|&nbsp;Minimum&nbsp;<select class="popup-minwidth">
                     <option value="150">150</option>
                     <option value="300">300</option>
@@ -404,6 +449,11 @@
                         <option value="10">10 paragraphes</option>
                         <option value="15">15 paragraphes</option>
                     </options>
+                </select>
+                <select class="popup-html-stackcount">
+                    <option value="1">1 stacked</option>
+                    <option value="2">2 stacked</option>
+                    <option value="5">5 stacked</option>
                 </select>
             </div>
             <div>

@@ -193,8 +193,8 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
                                                                );
                                                 $me.dialog('option', 'buttons', buttons);
                                             }
-                                       }
-                                       //closeOnEscape: true
+                                       },
+                                       closeOnEscape: options.closeOnEscape
                                        //help_text : "Tape Escape to close."
                                    },options), div_id
            );
@@ -556,7 +556,8 @@ creme.utils.innerPopupFormAction = function(url, options, data) {
                                        close: function(event, ui) {
                                            creme.utils.closeDialog($(this), false);
                                            self.done();
-                                       }
+                                       },
+                                       closeOnEscape: options.closeOnEscape
                                    },
                                    null,
                                    {
