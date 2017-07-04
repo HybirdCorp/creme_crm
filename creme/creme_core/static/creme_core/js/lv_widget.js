@@ -303,7 +303,8 @@ creme.lv_widget.listViewAction = function(url, options, data) {
                },
                validator: function(data) {
                    return data !== null;
-               }
+               },
+               closeOnEscape: options.closeOnEscape
            }, data);
 };
 

@@ -102,7 +102,10 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         var url = this.popupURL(element);
         var listeners = listeners || {};
 
-        creme.lv_widget.listViewAction(url, {multiple:multiple})
+        creme.lv_widget.listViewAction(url, {
+                            multiple: multiple,
+                            closeOnEscape: true
+                        })
                        .onDone(function(event, data) {
                             self.val(element, data[0]);
 

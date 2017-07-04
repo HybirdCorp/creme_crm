@@ -34,7 +34,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
             scroll:     'frame',
             fitFrame:    true,
             useFrameActions: true,
-            compatible: false
+            compatible: false,
+            closeOnEscape: false
         }, options || {});
 
         this._initFrame(this.options);
@@ -123,8 +124,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         this._dialog = dialog;
 
-        if (options.scroll === 'background')
-        {
+        if (options.scroll === 'background') {
             this._dialog.css('overflow-y', 'hidden');
             this._dialogBackground().toggleClass('ui-dialog-scrollbackground', true);
         }
@@ -135,9 +135,16 @@ creme.dialog.Dialog = creme.component.Component.sub({
             this.fill(options.html);
         }
 
+        // If the dialog content is loaded before opening, activation has been deferred.
+        // activate it NOW !
         if (this._deferFrameActivation) {
             this._activateFrameContent();
             this._deferFrameActivation = false;
+        }
+
+        // HACK : force focus in order to enable escape handling.
+        if (options.closeOnEscape && !options.autoFocus) {
+            this.focus();
         }
 
         this._events.trigger('open', [options], this);
@@ -365,6 +372,11 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this._dialog;
     },
 
+    focus: function() {
+        var container = $(this._dialog).parent('.ui-dialog:first');
+        container.focus();
+    },
+
     onClose: function(closed) {
         this._events.bind('close', closed);
         return this;
@@ -416,7 +428,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
                                        minHeight: options.minHeight,
                                        minWidth:  options.minWidth,
                                        position:  position,
-                                       closeOnEscape: false,
+                                       closeOnEscape: options.closeOnEscape,
                                        open:      function() {self._onOpen($(this), frame, options);},
                                        resize:    function() {self._onResize($(this), frame);},
                                        close:     function() {self._onClose($(this), frame, options);}
@@ -490,7 +502,7 @@ creme.dialogs = $.extend(creme.dialogs, {
     {
         if (Object.isType(source, 'string'))
         {
-            var dialog = this.html('');
+            var dialog = this.html('', options);
             var image = document.createElement("img");
 
             image.onload = function() {dialog.fill($(image)).fitToFrameSize();}
