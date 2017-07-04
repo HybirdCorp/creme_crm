@@ -121,10 +121,10 @@
             };
         };
 
-        mockbackend.POST = {'mock/form': mockPOST('value'),
+        mockbackend.POST = {'mock/form': mockPOST('name'),
                             'mock/wizard/A': mockPOST('', 'mock/wizard/B'),
                             'mock/wizard/B': mockPOST('', 'mock/wizard/C'),
-                            'mock/wizard/C': mockPOST('value'),
+                            'mock/wizard/C': mockPOST('value')
                            };
 
         var parseSize = function(value) {
@@ -243,6 +243,9 @@
         $('#popup .popup-form button').click(function() {
             var confirm = $('#popup input.popup-confirm').val();
             var url = $(this).attr('data-url') || 'mock/form';
+            var reloadOnSuccess = $('#popup .popup-form [name="formreload"]').is(':checked');
+            var redirectOnSuccess = $('#popup .popup-form [name="formredirect"]').is(':checked');
+            var redirectOnSuccessUrl = $('#popup .popup-form [name="formredirecturl"]').val();
 
             var dialog = creme.dialogs.form(url, {
                                            backend: mockbackend, 
@@ -254,7 +257,9 @@
                                            scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
                                            autoFocus: $('#popup .popup-form [name="autofocus"]').is(':checked'),
                                            submitOnKey: $('#popup .popup-form [name="submitkey"]').is(':checked') ? 13 : false,
-                                           scrollbackOnClose: $('#popup input.popup-scrollbackonclose').is(':checked')
+                                           scrollbackOnClose: $('#popup input.popup-scrollbackonclose').is(':checked'),
+                                           reloadOnSuccess: reloadOnSuccess,
+                                           redirectOnSuccess: !Object.isEmpty(redirectOnSuccessUrl) ? redirectOnSuccessUrl : redirectOnSuccess
                                        })
                                       .onFormSuccess(function(event, data) {console.log('submitted >', data);})
                                       .onClose(function() {console.log('canceled');});
@@ -311,7 +316,9 @@
                 closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
                 scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
                 scrollbackOnClose: $('#popup input.popup-scrollbackonclose').is(':checked')
-            }).onOk(function(e, value) {console.log('selected > ', value);});
+            }).onOk(function(e, value) {
+            	console.log('selected > ', value);
+            });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
@@ -480,6 +487,12 @@
                 <button type="button" data-url="mock/wizard/A">Wizard</button>
                 <label><input type="checkbox" value="1" name="autofocus" checked/>Auto focus</label>&nbsp;
                 <label><input type="checkbox" value="1" name="submitkey" checked/>Submit on enter</label>
+                <label><input type="checkbox" value="1" name="formreload"/>Reload</label>
+                <label><input type="checkbox" value="1" name="formredirect"/>Redirect to</label>
+                <select name="formredirecturl">
+                    <option value="">response URL</option>
+                    <option value="/test_widget/checklistselect">test_widget/checklistselect</option>
+                </select>
             </div>
             <div class="popup-fetch">
                 <button>Dynamic</button>

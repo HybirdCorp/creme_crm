@@ -544,7 +544,21 @@ creme.dialogs = $.extend(creme.dialogs, {
         dialog.fetch(url, {}, data);
 
         if (options.reloadOnSuccess) {
-            dialog.onFormSuccess(function() {creme.utils.reload();});
+            dialog.onFormSuccess(function() {
+            	creme.utils.reload();
+            });
+        } else if (options.redirectOnSuccess) {
+        	dialog.onFormSuccess(function(event, data , statusText, dataType) {
+        		if (options.redirectOnSuccess === true) {
+        			if (creme.utils.isHTMLDataType(dataType)) {
+        				creme.utils.goTo($(data).attr('redirect') || data);
+        			} else {
+        				creme.utils.goTo(data);
+        			}
+        		} else {
+        			creme.utils.goTo(options.redirectOnSuccess);
+        		}
+        	});
         }
 
         return dialog;
