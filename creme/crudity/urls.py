@@ -10,8 +10,11 @@ urlpatterns = [
     url(r'^waiting_actions/delete$',   actions.delete,   name='crudity__delete_actions'),
     url(r'^waiting_actions/validate$', actions.validate, name='crudity__validate_actions'),
 
-    url(r'^waiting_actions_blocks/block_crudity-(?P<ct_id>\d+)-(?P<backend_subject>\w+)/reload$',
-        actions.reload, name='crudity__reload_actions_block',
+    # url(r'^waiting_actions_blocks/block_crudity-(?P<ct_id>\d+)-(?P<backend_subject>\w+)/reload$',
+    #     actions.reload, name='crudity__reload_actions_block',
+    #    ),
+    url(r'^waiting_actions_blocks/(?P<block_id>[\w\-\|]+)/reload$',
+        actions.reload_block, name='crudity__reload_actions_block',
        ),
 
     url(r'^history$',                                           history.history, name='crudity__history'),

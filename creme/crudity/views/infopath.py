@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,9 @@ from django.http import Http404
 
 from creme.creme_core.auth.decorators import permission_required, login_required
 
+from .. import registry
 from ..backends.models import CrudityBackend
-from ..registry import crudity_registry
+# from ..registry import crudity_registry
 from ..builders.infopath import InfopathFormBuilder
 
 
@@ -33,7 +34,7 @@ def create_form(request, subject):
     subject = CrudityBackend.normalize_subject(subject)
     backend = None
 
-    for fetcher in crudity_registry.get_fetchers():
+    for fetcher in registry.crudity_registry.get_fetchers():
         input = fetcher.get_input('infopath', 'create')
         if input is not None:
             backend = input.get_backend(subject)

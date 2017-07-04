@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.documents import get_document_model
 
 from ..backends.models import CrudityBackend
-from ..buttons import infopath_create_form_button, email_template_create_button
+from ..buttons import EmailTemplateCreateButton, InfopathCreateFormButton, infopath_create_form_button, email_template_create_button
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..models import WaitingAction
 from ..utils import strip_html, strip_html_, decode_b64binary
@@ -65,6 +65,11 @@ class CreateEmailInput(EmailInput):
     method = "create"
 
     verbose_method = _(u"Create")
+
+    def __init__(self, template_creation_button=EmailTemplateCreateButton):
+        super(CreateEmailInput, self).__init__()
+        if template_creation_button:
+            self.register_buttons(template_creation_button())
 
     def create(self, email):
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) # or self.get_backend("*")
@@ -136,7 +141,7 @@ class CreateEmailInput(EmailInput):
         self._pre_process_data(backend, data)
 
         if backend.in_sandbox:
-            # TODO: WaitingAction.objects.create()
+            # TODO: action = WaitingAction(action='create' ....)
             action         = WaitingAction()
             action.data    = action.set_data(data)
             action.action  = "create"
@@ -188,6 +193,9 @@ class CreateInfopathInput(CreateEmailInput):
 
     MIME_TYPES = ['application/x-microsoft-infopathform']
 
+    def __init__(self, template_creation_button=InfopathCreateFormButton):
+        super(CreateInfopathInput, self).__init__(template_creation_button=template_creation_button)
+
     def _pre_process_data(self, backend, data):
         model_get_field = backend.model._meta.get_field
 
@@ -231,7 +239,7 @@ class CreateInfopathInput(CreateEmailInput):
 
     def get_data_from_infopath_file(self, backend, xml_file):
         content = xml_file.read()
-        data = {}
+        # data = {}
         content = re.sub(remove_pattern, '', content.strip(), re.U)
         content = re.sub('>[\s]*<', '><', content, re.U)
 
@@ -261,8 +269,10 @@ class CreateInfopathInput(CreateEmailInput):
         return data
 
 
+# DEPRECATED
 create_email_input = CreateEmailInput()
 create_email_input.register_buttons(email_template_create_button)
 
+# DEPRECATED
 create_infopath_input = CreateInfopathInput()
 create_infopath_input.register_buttons(infopath_create_form_button)

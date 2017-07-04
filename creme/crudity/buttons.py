@@ -33,5 +33,6 @@ class EmailTemplateCreateButton(Button):
     template_name = 'crudity/templatetags/button_email_template_create.html'
 
 
+# DEPRECATED
 infopath_create_form_button  = InfopathCreateFormButton()
 email_template_create_button = EmailTemplateCreateButton()
