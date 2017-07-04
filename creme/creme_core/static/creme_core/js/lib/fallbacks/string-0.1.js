@@ -322,6 +322,11 @@ String.prototype.format = function() {
         return this.match(/^[\s]+$/) !== null;
     });
 
+    append('template', function(data, pattern) {
+        var pattern = pattern || /\$\{([^\}]+)\}/g;
+        return this.replace(pattern, function(match, key) {var value = data[key]; return value !== undefined ? value : match});
+    });
+
     __decodeEntity = function(x) {
         if (x.charAt(2) == 'x') {
             return String.fromCharCode(parseInt(x.substr(3, x.length - 4), 16));
