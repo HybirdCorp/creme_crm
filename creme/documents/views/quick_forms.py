@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views.generic import inner_popup
-from creme.creme_core.views.quick_forms import json_quickform_response
+from creme.creme_core.views.utils import json_update_from_widget_response
 
 from .. import get_document_model
 from ..forms.quick import CSVDocumentWidgetQuickForm, ImageQuickForm
@@ -59,8 +59,7 @@ def abstract_add_doc_from_widget(request, count=None, form=CSVDocumentWidgetQuic
 
         if form_instance.is_valid():
             form_instance.save()
-
-            return json_quickform_response(form_instance.instance)
+            return json_update_from_widget_response(form_instance.instance)
     else:
         form_instance = form(user=user)  # initial=None
 

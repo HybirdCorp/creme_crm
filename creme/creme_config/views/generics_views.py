@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-from json import dumps as json_dump
 
 from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
@@ -34,6 +33,7 @@ from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
+from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..blocks import generic_models_block
 from ..registry import config_registry
@@ -77,15 +77,19 @@ def add_model(request, app_name, model_name):
                                )
 
 
+
 @login_required
 def add_model_from_widget(request, app_name, model_name):
-    if request.method == 'GET':
-        return add_model(request, app_name, model_name)
-
     model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
-    form = model_conf.model_form(user=request.user, data=request.POST,
-                                 files=request.FILES or None, initial=None,
-                                )
+
+    if request.method == 'GET':
+        initial = request.GET.dict()
+        return add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
+                                    template='creme_core/generics/form/add_innerpopup.html',
+                                    initial=initial
+                                   )
+
+    form = model_conf.model_form(user=request.user, data=request.POST, files=request.FILES or None)
 
     if not form.is_valid():
         return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
@@ -99,12 +103,15 @@ def add_model_from_widget(request, app_name, model_name):
 
     form.save()
 
-    instance = form.instance
-    response = {'value': instance.id, 'added': [(instance.id, unicode(instance))]}
+    if callable(getattr(form, 'update_from_widget_response_data', None)):
+        data = form.update_from_widget_response_data()
+    else:
+        data = form.instance
 
-    return HttpResponse(u'<json>%s</json>' % json_dump(response),
-                        content_type="text/html",
-                       )
+    return json_update_from_widget_response(data)
+#     return HttpResponse(u'<json>%s</json>' % json_dump(response),
+#                         content_type="text/html",
+#                        )
 
 
 @login_required

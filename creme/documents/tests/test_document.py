@@ -610,7 +610,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.folder)
 
-        self.assertEqual(u'<json>%s</json>' % json_dump({
+        self.assertEqual(json_dump({
                                 'added': [[doc.id, unicode(doc)]],
                                 'value': doc.id,
                             }),
@@ -656,7 +656,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         self.assertTrue(filecmp.cmp(path, doc.filedata.path))
 
-        self.assertEqual(u'<json>%s</json>' % json_dump({
+        self.assertEqual(json_dump({
                                 'added': [[doc.id, unicode(doc)]],
                                 'value': doc.id,
                             }),

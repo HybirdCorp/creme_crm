@@ -2,7 +2,11 @@
 
 try:
     from functools import partial
+    from json import dumps as json_dump
 
+    from creme.creme_config.registry import config_registry
+
+    from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.forms.base import FieldTestCase
 
     from ..models import Category, SubCategory
@@ -29,6 +33,35 @@ class CategoryFieldTestCase(FieldTestCase):
             field = CategoryField()
 
         self.assertEqual(cat11, field.clean(self.format_str % (cat1.id, cat11.id)))
+
+    def test_no_user(self):
+        field = CategoryField()
+
+        self.assertIsNone(field.user)
+        self.assertFalse(field.widget.creation_allowed)
+        self.assertEqual('', field.widget.creation_url)
+
+    def test_user(self):
+        user = self.login()
+
+        field = CategoryField()
+        field.user = user
+
+        url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
+        self.assertEqual(user, field.user)
+        self.assertTrue(field.widget.creation_allowed)
+        self.assertEqual(url, field.widget.creation_url)
+
+    def test_user_not_allowed(self):
+        user = self.login(is_superuser=False)
+
+        field = CategoryField()
+        field.user = user
+
+        url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
+        self.assertEqual(user, field.user)
+        self.assertFalse(field.widget.creation_allowed)
+        self.assertEqual(url, field.widget.creation_url)
 
     def test_categories01(self):
         create_cat = partial(Category.objects.create, description='description')
@@ -164,3 +197,61 @@ class CategoryFieldTestCase(FieldTestCase):
         field = CategoryField()
         field.categories = [cat1.id]
         self.assertEqual(cat11, field.clean(self.format_str % (cat1.id, cat11.id)))
+
+
+class CreateCategoryTestCase(CremeTestCase):
+    def test_create_subcategory_from_widget(self):
+        user = self.login()
+
+        cat1 = Category.objects.create(name='cat1', description='description')
+        count = SubCategory.objects.count()
+
+        url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'name': 'sub12', 'description': 'sub12', 'category': cat1.id})
+        self.assertNoFormError(response)
+        self.assertEqual(count + 1, SubCategory.objects.count())
+
+        cat12 = self.get_object_or_fail(SubCategory, name='sub12')
+
+        self.assertEqual(json_dump({
+                            'added': [{
+                                 'category': [str(cat1.id), unicode(cat1)],
+                                 'subcategory': [str(cat12.id), unicode(cat12)],
+                             }],
+                            'value': {
+                                'category': str(cat1.id),
+                                'subcategory': str(cat12.id)
+                            }
+                         }),
+                         response.content
+                        )
+
+    def test_create_subcategory_from_widget__unknown_category(self):
+        user = self.login()
+
+        url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
+        self.assertGET200(url)
+
+        count = SubCategory.objects.count()
+
+        self.client.post(url, data={'name': 'sub12', 'description': 'sub12', 'category': 99999})
+        self.assertEqual(count, SubCategory.objects.count())
+
+    def test_create_category_from_widget(self):
+        user = self.login()
+
+        url, _allowed = config_registry.get_model_creation_info(Category, user)
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'name': 'cat1', 'description': 'cat1', 'category': 'unknown'})
+        self.assertNoFormError(response)
+        cat1 = self.get_object_or_fail(Category, name='cat1')
+
+        self.assertEqual(json_dump({
+                            'added': [[cat1.id, unicode(cat1)]],
+                            'value': cat1.id
+                         }),
+                         response.content
+                        )

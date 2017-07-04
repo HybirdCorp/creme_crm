@@ -29,13 +29,31 @@ from django.utils.translation import ugettext as _
 from ..auth.decorators import login_required
 from ..gui.quick_forms import quickforms_registry
 from ..utils import get_ct_or_404
+
 from .generic import inner_popup
+from .utils import json_update_from_widget_response
 
 
 # TODO: it seems there is a problem with formsets : if the 'user' field is empty
 #       it does not raise a Validation exception, but it causes a SQL integrity
 #       error ; we are saved by the 'empty_label=None' of user field, but it is
 #       not really perfect...
+
+def json_quickform_response(instance):
+    warnings.warn('creme_core.views.quick_forms.json_quickform_response(): is deprecated. '
+                  'The <json> tag need for compatibility with (very) old versions of IE is no longer needed. '
+                  'Use creme.creme_core.views.utils.json_update_from_widget_response(form.instance) instead.',
+                  DeprecationWarning
+                 )
+
+    response = {'value': instance.id,
+                'added': [(instance.id, unicode(instance))],
+               }
+
+    return HttpResponse(u'<json>%s</json>' % json_dump(response),
+                        content_type="text/html",
+                       )
+
 
 @login_required
 def add(request, ct_id, count):
@@ -86,16 +104,6 @@ def add(request, ct_id, count):
                       )
 
 
-def json_quickform_response(instance):
-    response = {'value': instance.id,
-                'added': [(instance.id, unicode(instance))],
-               }
-
-    return HttpResponse(u'<json>%s</json>' % json_dump(response),
-                        content_type="text/html",
-                       )
-
-
 @login_required
 def add_from_widget(request, ct_id, count=None):
 # def add_from_widget(request, ct_id):  TODO: in creme 1.8
@@ -121,7 +129,7 @@ def add_from_widget(request, ct_id, count=None):
         if form.is_valid():
             form.save()
 
-            return json_quickform_response(form.instance)
+            return json_update_from_widget_response(form.instance)
     else:
         form = form_class(user=user, initial=None)
 

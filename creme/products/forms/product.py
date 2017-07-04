@@ -40,15 +40,13 @@ class ProductEditForm(_BaseEditForm):
 
 
 class ProductInnerEditCategory(BulkForm):
+    sub_category = CategoryField(label=_(u'Sub-category'))
+
     def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
         super(ProductInnerEditCategory, self).__init__(model, field, user, entities, is_bulk, **kwargs)
 
-        sub_category = CategoryField(label=_(u'Sub-category'))
-
         if not is_bulk:
-            sub_category.initial = entities[0].sub_category
-
-        self.fields['sub_category'] = sub_category
+            self.fields['sub_category'].initial = entities[0].sub_category
 
     def clean(self):
         cleaned_data = super(ProductInnerEditCategory, self).clean()
