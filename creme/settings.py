@@ -866,7 +866,9 @@ CREME_GET_EMAIL_JOB_USER_ID = 1
 #    {
 #        "fetcher": "email",                # The name of the fetcher (which is registered with). Available choices: 'email'
 #        "input": "infopath",               # The name of the input (which is registered with). Available choices: 'raw', 'infopath' (that needs "lcab" program)
+#                                           # Can be omitted if 'subject' is '*' (see below).
 #        "method": "create",                # The method of the input to call. Available choices: 'create'
+#                                           # Can be omitted if 'subject' is '*' (see below).
 #        "model": "activities.activity",    # The targeted model
 #        "password": "meeting",             # Password to be authorized in the input
 #        "limit_froms": (),                 # A white list of sender (Example with an email:
@@ -878,14 +880,16 @@ CREME_GET_EMAIL_JOB_USER_ID = 1
 #        },
 #        "subject": u"CREATEACTIVITYIP"     # Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase.
 #                                           #  You can specify * as a fallback (no previous backend handle the data returned by the fetcher,
-#                                           #  but be careful your backend has to have the method:'fetcher_fallback').
+#                                           #  but be careful your backend has to have the method: 'fetcher_fallback').
 #    },
 #]
 CRUDITY_BACKENDS = [
     {
         'fetcher': 'email',
-        'input': 'raw',
-        'method': 'create',
+        # 'input': 'raw',
+        'input': '',
+        # 'method': 'create',
+        'method': '',
         'model': 'emails.entityemail',
         'password': '',
         'limit_froms': (),

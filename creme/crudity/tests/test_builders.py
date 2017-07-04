@@ -20,9 +20,9 @@ try:
 
     from creme.persons.tests.base import skipIfCustomContact
 
+    from .. import registry
     from ..backends.models import CrudityBackend
     from ..builders.infopath import InfopathFormBuilder, InfopathFormField
-    from ..registry import crudity_registry
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend,
             FakeFetcher, FakeInput, Contact, Document)
 except Exception as e:
@@ -41,8 +41,23 @@ except OSError as e:
 # TODO use test models instead of skipping
 
 
+# TODO: factorise with CrudityViewsTestCase
 @skipIfCustomContact
 class InfopathFormBuilderTestCase(CrudityTestCase):
+    _original_crudity_registry = None
+
+    @classmethod
+    def setUpClass(cls):
+        super(InfopathFormBuilderTestCase, cls).setUpClass()
+
+        cls._original_crudity_registry = registry.crudity_registry
+
+    @classmethod
+    def tearDownClass(cls):
+        super(InfopathFormBuilderTestCase, cls).tearDownClass()
+
+        registry.crudity_registry = cls._original_crudity_registry
+
     def setUp(self):
         super(InfopathFormBuilderTestCase, self).setUp()
         self.request = request = RequestFactory().get('/')  # Url doesn't matter
@@ -725,6 +740,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertGET404(reverse('crudity__dl_infopath_form', args=(subject,)))
 
     def test_get_create_form_view02(self):
+        crudity_registry = registry.crudity_registry
+
         subject = 'create_contact'
         backend = self._get_backend(ContactFakeBackend, subject=subject, body_map={})
 

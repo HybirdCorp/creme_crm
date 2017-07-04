@@ -58,7 +58,13 @@ class WaitingActionBlock(CrudityQuerysetBlock):
         self.buttons = backend.get_rendered_buttons()
 
     def generate_id(self):
-        return 'block_crudity-%s-%s' % (self.ct.id, CrudityBackend.normalize_subject(self.backend.subject))
+        # return 'block_crudity-%s-%s' % (self.ct.id, CrudityBackend.normalize_subject(self.backend.subject))
+        be = self.backend
+        subject = be.subject
+        name = be.fetcher_name if subject == '*' else \
+               '%s|%s|%s' % (be.fetcher_name, be.input_name, be.subject)
+
+        return CrudityQuerysetBlock.generate_id('crudity', 'waiting_actions-' + name)
 
     def detailview_display(self, context):
         # Credentials are OK: block is not registered in block registry,
@@ -79,11 +85,7 @@ class WaitingActionBlock(CrudityQuerysetBlock):
                     buttons=self.buttons,
                     backend=backend,
                     # update_url='/crudity/waiting_actions_blocks/%s/reload' % self.id_,
-                    update_url=reverse('crudity__reload_actions_block',
-                                       args=(self.ct.id,
-                                             CrudityBackend.normalize_subject(self.backend.subject),
-                                            )
-                                      ),
+                    update_url=reverse('crudity__reload_actions_block', args=(self.id_,)),
         ))
 
 

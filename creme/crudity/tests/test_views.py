@@ -3,6 +3,7 @@
 try:
     import poplib
 
+    from django.conf import settings
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
@@ -14,13 +15,14 @@ try:
 
     from creme.persons.tests.base import skipIfCustomContact
 
+    from .. import registry
     from ..backends.models import CrudityBackend
     from ..creme_jobs import crudity_synchronize_type
     from ..fetchers.base import CrudityFetcher
     from ..inputs.base import CrudityInput
     # from ..management.commands.crudity_synchronize import Command as SyncCommand
     from ..models import WaitingAction, History
-    from ..registry import FetcherInterface, crudity_registry
+    # from ..registry import FetcherInterface, crudity_registry
     from .base import CrudityTestCase, FakeFetcher, FakeInput  # ContactFakeBackend Contact
     from .fake_crudity_register import Swallow
 except Exception as e:
@@ -92,11 +94,12 @@ class FakePOP3_SSL(FakePOP3):
 
 
 class CrudityViewsTestCase(CrudityTestCase):
-    _original_fetchers = None
-    _original_backends = None
+    # _original_fetchers = None
+    # _original_backends = None
 
     _original_POP3 = None
     _original_POP3_SSL = None
+    _original_crudity_registry = None
 
     @classmethod
     def setUpClass(cls):
@@ -109,6 +112,14 @@ class CrudityViewsTestCase(CrudityTestCase):
         poplib.POP3 = FakePOP3
         poplib.POP3_SSL = FakePOP3_SSL
 
+        cls._original_crudity_registry = registry.crudity_registry
+
+    def setUp(self):
+        super(CrudityViewsTestCase, self).setUp()
+
+        registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
+        crudity_registry.autodiscover()
+
     @classmethod
     def tearDownClass(cls):
         # CrudityTestCase.tearDownClass()
@@ -117,24 +128,30 @@ class CrudityViewsTestCase(CrudityTestCase):
         poplib.POP3     = cls._original_POP3
         poplib.POP3_SSL = cls._original_POP3_SSL
 
+        registry.crudity_registry = cls._original_crudity_registry
+
     def tearDown(self):
         super(CrudityViewsTestCase, self).tearDown()
 
-        if self._original_fetchers is not None:
-            crudity_registry._fetchers = self._original_fetchers
-            crudity_registry._backends = self._original_backends
+        # if self._original_fetchers is not None:
+        #     crudity_registry._fetchers = self._original_fetchers
+        #     crudity_registry._backends = self._original_backends
 
         FakePOP3.instances[:] = ()
 
-    def _build_test_registry(self):
-        self._original_fetchers = crudity_registry._fetchers
-        self._original_backends = crudity_registry._backends
-
-        crudity_registry._fetchers = {}
-        crudity_registry._backends = {}
-
-        crudity_registry.autodiscover()
-        crudity_registry.dispatch()
+    # def _build_test_registry(self):
+    def _build_test_registry(self, backend_configs=None):
+        # self._original_fetchers = crudity_registry._fetchers
+        # self._original_backends = crudity_registry._backends
+        #
+        # crudity_registry._fetchers = {}
+        # crudity_registry._backends = {}
+        #
+        # crudity_registry.autodiscover()
+        # crudity_registry.dispatch()
+        registry.crudity_registry.dispatch(backend_configs if backend_configs is not None else
+                                           settings.CRUDITY_BACKENDS
+                                          )
 
     # @skipIfCustomContact
     def test_validate01(self):
@@ -143,7 +160,8 @@ class CrudityViewsTestCase(CrudityTestCase):
         first_name = 'Haruhi'
         last_name  = 'Suzumiya'
 
-        subject = 'test_create_contact'
+        # subject = 'test_create_contact'
+        subject = CrudityBackend.normalize_subject('test_create_contact')
         wa = WaitingAction()
         # wa.ct = ContentType.objects.get_for_model(Contact)
         wa.ct = ContentType.objects.get_for_model(FakeContact)
@@ -152,23 +170,28 @@ class CrudityViewsTestCase(CrudityTestCase):
                                'user_id':    self.user.id,
                               })
         wa.subject = subject
+        wa.source = 'test_f - test_i'
         wa.save()
 
         crudity_input = FakeInput()
-        crudity_input.name = 'test'
+        crudity_input.name = 'test_i'
         crudity_input.method = 'create'
 
-        fetcher = FetcherInterface([FakeFetcher()])
+        fetcher = registry.FetcherInterface([FakeFetcher()])
         fetcher.add_inputs(crudity_input)
 
         # backend = ContactFakeBackend({'subject': subject})
         backend = self.FakeContactBackend({'subject': subject})
         crudity_input.add_backend(backend)
-        crudity_registry.register_fetchers('test', [fetcher])
-        crudity_registry.register_inputs('test', [crudity_input])
+
+        crudity_registry = registry.crudity_registry
+        crudity_registry.register_fetchers('test_f', [fetcher])
+        crudity_registry.register_inputs('test_f', [crudity_input])
         crudity_registry.register_backends([backend])
 
-        self.assertTrue(crudity_registry.get_configured_backend(subject))
+        # self.assertTrue(crudity_registry.get_configured_backend(subject))
+        retrieved_be = crudity_registry.get_configured_backend('test_f', 'test_i', subject)
+        self.assertEqual(backend, retrieved_be)
 
         # c_count = Contact.objects.count()
         c_count = FakeContact.objects.count()
@@ -199,12 +222,14 @@ class CrudityViewsTestCase(CrudityTestCase):
         crudity_input.name = 'raw'
         crudity_input.method = 'create'
 
-        fetcher = FetcherInterface([FakeFetcher()])
+        fetcher = registry.FetcherInterface([FakeFetcher()])
         fetcher.add_inputs(crudity_input)
 
         # backend = ContactFakeBackend({'subject': subject})
         backend = self.FakeContactBackend({'subject': subject})
         crudity_input.add_backend(backend)
+
+        crudity_registry = registry.crudity_registry
         crudity_registry.register_fetchers('email', [fetcher])
         crudity_registry.register_inputs('email', [crudity_input])
         crudity_registry.register_backends([backend])
@@ -354,7 +379,7 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertGET200(reverse('crudity__actions'))
         # TODO: complete
 
-    @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
+    # @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
     def test_actions_fetch03(self):
         "Test Job"
         # self._aux_test_actions_fetch(lambda: SyncCommand().execute(verbosity=0))
@@ -378,7 +403,8 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertEqual([], queue.refreshed_jobs)
 
         # self._aux_test_actions_fetch(lambda: crudity_synchronize_type.execute(job))
-        self._build_test_registry()
+        # self._build_test_registry()
+        self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         crudity_synchronize_type.execute(job)
 
         self.assertGET200(job.get_absolute_url())
@@ -394,7 +420,7 @@ class CrudityViewsTestCase(CrudityTestCase):
 
         self.get_object_or_fail(FakeContact, last_name=last_name)
 
-    @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
+    # @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
     def test_actions_fetch04(self):
         "Default backend + job configuration"
         other_user = self.other_user
@@ -403,7 +429,8 @@ class CrudityViewsTestCase(CrudityTestCase):
         queue.clear()
 
         self.SwallowInput.force_not_handle = True
-        self._build_test_registry()
+        # self._build_test_registry()
+        self._build_test_registry(FAKE_CRUDITY_BACKENDS)
 
         # -----------------------------
         job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)

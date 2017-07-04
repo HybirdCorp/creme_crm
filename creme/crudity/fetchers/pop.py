@@ -190,4 +190,4 @@ class PopFetcher(CrudityFetcher):
 
         return emails
 
-pop_fetcher = PopFetcher()
+pop_fetcher = PopFetcher()  # DEPRECATED

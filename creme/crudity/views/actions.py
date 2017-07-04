@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
+from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_list_or_404
 from django.template.loader import render_to_string
@@ -28,9 +29,10 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_ct_or_404, jsonify
 from creme.creme_core.views import blocks as blocks_views
 
+from .. import registry
 from ..blocks import WaitingActionBlock
 from ..models import WaitingAction
-from ..registry import crudity_registry
+# from ..registry import crudity_registry
 
 
 def _retrieve_actions_ids(request):
@@ -72,35 +74,79 @@ def validate(request):
         if not allowed:
             raise PermissionDenied(message)
 
-        backend = crudity_registry.get_configured_backend(action.subject)
+        # backend = crudity_registry.get_configured_backend(action.subject)
+        source_parts = action.source.split(' - ', 1)
 
-        is_created = backend.create(action)
+        try:
+            if len(source_parts) == 1:
+                backend = registry.crudity_registry.get_default_backend(source_parts[0])
+            elif len(source_parts) == 2:
+                backend = registry.crudity_registry.get_configured_backend(*source_parts, norm_subject=action.subject)
+            else:
+                raise ValueError('Malformed source')
+        except (KeyError, ValueError) as e:
+            raise Http404('Invalid backend for WaitingAction(id=%s, source=%s): %s' % (
+                                action.id, action.source, e,
+                            )
+                         )
 
-        if is_created:
-            action.delete()
-        #else: Add a message for the user
+        with atomic():
+            is_created = backend.create(action)
+
+            if is_created:
+                action.delete()
+            # else: Add a message for the user
 
     return {}
 
 
+# @jsonify
+# @permission_required('crudity')
+# def reload(request, ct_id, backend_subject):
+#     get_ct_or_404(ct_id)  # TODO: useless ??
+#     backend = crudity_registry.get_configured_backend(backend_subject)
+#     if not backend:
+#         raise Http404()
+#
+#     block = WaitingActionBlock(backend)
+#     ctx = blocks_views.build_context(request)
+#
+#     return [(block.id_, block.detailview_display(ctx))]
 @jsonify
 @permission_required('crudity')
-def reload(request, ct_id, backend_subject):
-    get_ct_or_404(ct_id)  # TODO: useless ??
-    backend = crudity_registry.get_configured_backend(backend_subject)
-    if not backend:
-        raise Http404()
+def reload_block(request, block_id):
+    prefix = 'block_crudity-waiting_actions-'
+
+    if not block_id.startswith(prefix):
+        raise Http404('Invalid block ID (bad prefix)')
+
+    block_id = block_id[len(prefix):]
+    parts = block_id.split('|', 2)
+    length = len(parts)
+
+    if length == 3:
+        try:
+            # NB: arguments are fetcher_name, input_name, norm_subject
+            backend = registry.crudity_registry.get_configured_backend(*parts)
+        except KeyError as e:
+            raise Http404(e)
+    elif length == 1:
+        try:
+            backend = registry.crudity_registry.get_default_backend(parts[0])
+        except KeyError as e:
+            raise Http404(e)
+    else:
+        raise Http404('Invalid block ID (bad backend info)')
 
     block = WaitingActionBlock(backend)
-    ctx = blocks_views.build_context(request)
 
-    return [(block.id_, block.detailview_display(ctx))]
+    return [(block.id_, block.detailview_display(blocks_views.build_context(request)))]
 
 
 def _fetch(user):
     count = 0
 
-    for fetcher in crudity_registry.get_fetchers():
+    for fetcher in registry.crudity_registry.get_fetchers():
         all_data = fetcher.fetch()
         inputs = fetcher.get_inputs()
 
@@ -142,7 +188,7 @@ def fetch(request, template='crudity/waiting_actions.html',
 
     context['blocks'] = [''.join(block(backend).detailview_display(context) for block in backend.blocks)
                          or WaitingActionBlock(backend).detailview_display(context)
-                            for backend in crudity_registry.get_configured_backends()
+                            for backend in registry.crudity_registry.get_configured_backends()
                                 if backend.in_sandbox
                       ]
 

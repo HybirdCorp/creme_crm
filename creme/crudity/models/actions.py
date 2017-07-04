@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,10 @@ from creme.creme_core.models.fields import CremeUserForeignKey, CTypeForeignKey
 
 class WaitingAction(CremeModel):
     action  = CharField(_(u"Action"), max_length=100)  # Action (i.e: create, update...) #TODO: int instead ??
-    source  = CharField(_(u"Source"), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)
+    # TODO: split into 2 CharFields 'fetcher' & 'input' ?
+    # NB: - If default backend (subject="*"): fetcher_name.
+    #     - If not  'fetcher_name - input_name'  (i.e: email - raw, email - infopath, sms - raw...).
+    source  = CharField(_(u'Source'), max_length=100)
     data    = TextField(blank=True, null=True)
     ct      = CTypeForeignKey(verbose_name=_(u"Ressource's type"))  # Redundant, but faster bd recovery
     subject = CharField(_(u"Subject"), max_length=100)
@@ -50,6 +53,7 @@ class WaitingAction(CremeModel):
 
         return data
 
+    # TODO: rename VS set effectively data....
     def set_data(self, data):
         return dumps(data)
 

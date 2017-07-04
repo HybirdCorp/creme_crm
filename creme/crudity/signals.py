@@ -33,10 +33,10 @@ def post_save_setting_value(sender, instance, **kwargs):
     """Set is_sandbox_by_user value on CreateFromEmailBackend subclasses
     because they are singletons.
     """
-    from .registry import crudity_registry # lazy loading
-
     if instance.key_id == SETTING_CRUDITY_SANDBOX_BY_USER:
-        fetchers = crudity_registry.get_fetchers()
+        from . import registry  # lazy loading (crudity_registry)
+
+        fetchers = registry.crudity_registry.get_fetchers()
         inputs = []
         for fetcher in fetchers:
             for inputs_dict in fetcher.get_inputs():

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,9 @@ from django.template.loader import render_to_string
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 
+from .. import registry
 from ..backends.models import CrudityBackend
-from ..registry import crudity_registry
+# from ..registry import crudity_registry
 
 
 @login_required
@@ -36,7 +37,7 @@ def download_email_template(request, subject):
     subject = CrudityBackend.normalize_subject(subject)
     backend = None
 
-    input = crudity_registry.get_fetcher('email').get_input('raw', 'create')
+    input = registry.crudity_registry.get_fetcher('email').get_input('raw', 'create')
     if input is not None:
         backend = input.get_backend(subject)
 

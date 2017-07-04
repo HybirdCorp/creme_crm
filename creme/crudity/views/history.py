@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,8 +25,9 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_ct_or_404, jsonify
 from creme.creme_core.views.blocks import build_context
 
+from .. import registry
 from ..blocks import HistoryBlock
-from ..registry import crudity_registry
+# from ..registry import crudity_registry
 
 
 @login_required
@@ -34,7 +35,7 @@ from ..registry import crudity_registry
 def history(request):
     get_ct = ContentType.objects.get_for_model
     blocks = [HistoryBlock(get_ct(backend.model))
-                  for backend in crudity_registry.get_backends()
+                  for backend in registry.crudity_registry.get_backends()
                       if backend.model
              ]
 

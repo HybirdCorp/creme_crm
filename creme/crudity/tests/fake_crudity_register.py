@@ -68,9 +68,11 @@ class FakeDocumentBackend(CrudityBackend):
     model = FakeDocument
 
 
-mock_fetcher = SwallowFetcher()
-mock_input = SwallowInput()
+# mock_fetcher = SwallowFetcher()
+# mock_input = SwallowInput()
 
-fetchers = {'swallow': [mock_fetcher]}
-inputs = {'swallow': [mock_input]}
+# fetchers = {'swallow': [mock_fetcher]}
+fetchers = {'swallow': [SwallowFetcher]}
+# inputs = {'swallow': [mock_input]}
+inputs = {'swallow': [SwallowInput]}
 backends = [FakeContactBackend, FakeOrganisationBackend]
