@@ -127,6 +127,15 @@
                             'mock/wizard/C': mockPOST('value'),
                            };
 
+        var parseSize = function(value) {
+            if (value.endsWith('%')) {
+                return value;
+            }
+
+            var res = parseInt(value);
+            return isNaN(res) ? null : res;
+        }
+
         $('.ui-creme-frame').each(function() {
             $(this).creme().create({backend: mockbackend});
         });
@@ -163,8 +172,12 @@
         $('#popup .popup-html').click(function() {
             var count = parseInt($('#popup .popup-html-paragraph').val());
             var content = '<center><h2>%s</h2></center><div>%s</div>'.format('Static Popup', randomParagraphs(LOREM_IPSUM, count));
+            var minWidth = parseSize($('#popup .popup-minwidth').val());
+            var minHeight = parseSize($('#popup .popup-minheight').val());
+
             var dialog = creme.dialogs.html(content, {
-                maxHeight: 480,
+                minHeight: minHeight,
+                minWidth: minWidth,
                 title: 'Static',
                 scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
                 defaultButtonLabels: {'close': '%d paragraph(s)'.format(count)}
@@ -202,6 +215,8 @@
                                            backend: mockbackend, 
                                            title:'Form', 
                                            compatible:false,
+                                           minWidth: parseSize($('#popup .popup-minwidth').val()),
+                                           minHeight: parseSize($('#popup .popup-minheight').val()),
                                            autoFocus: $('#popup .popup-form [name="autofocus"]').is(':checked'),
                                            submitOnKey: $('#popup .popup-form [name="submitkey"]').is(':checked') ? 13 : false
                                        })
@@ -213,14 +228,23 @@
 
         $('#popup .popup-fetch button').click(function() {
             var url = 'mock/' + ($('#popup .popup-fetch .popup-url').val() || '');
-            var dialog = creme.dialogs.url(url, {backend: mockbackend, title:url});
+            var dialog = creme.dialogs.url(url, {
+                                           backend: mockbackend,
+                                           title: url,
+                                           minWidth: parseSize($('#popup .popup-minwidth').val()),
+                                           minHeight: parseSize($('#popup .popup-minheight').val())
+                                       });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
         $('#popup button.popup-error-url').click(function() {
             var url = '/test_http_response?status=' + ($('#popup .popup-error-status').val() || '');
-            var dialog = creme.dialogs.url(url, {title:url});
+            var dialog = creme.dialogs.url(url, {
+                title: url,
+                minWidth: parseSize($('#popup .popup-minwidth').val()),
+                minHeight: parseSize($('#popup .popup-minheight').val()),
+            });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
@@ -356,6 +380,19 @@
             <div>
                 Options:&nbsp;<label><input type="checkbox" value="1" class="popup-confirm"/>Confirm</label>
                 &nbsp;<label><input type="checkbox" value="1" class="popup-scroll-background"/>Scroll background</label>
+                &nbsp;|&nbsp;Minimum&nbsp;<select class="popup-minwidth">
+                    <option value="150">150</option>
+                    <option value="300">300</option>
+                    <option value="800">800</option>
+                    <option value="1024">1024</option>
+                </select>&nbsp;x&nbsp;<select class="popup-minheight">
+                    <option value="150">150</option>
+                    <option value="300">300</option>
+                    <option value="800">800</option>
+                    <option value="1024">1024</option>
+                </select>
+            </div>
+            <div>
             </div>
             <div>
                 <button type="button" class="popup-html">Static</button>
