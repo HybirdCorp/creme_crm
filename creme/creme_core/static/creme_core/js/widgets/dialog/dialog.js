@@ -238,16 +238,25 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var maxWidth = this._dialog.dialog('option', 'maxWidth');
         var maxHeight = this._dialog.dialog('option', 'maxHeight');
 
-        var width = maxWidth > 0 ? Math.min(width, maxWidth) : width;
-        var height = maxHeight > 0 ? Math.min(height, maxHeight) : height;
+        var minWidth = this._dialog.dialog('option', 'minWidth');
+        var minHeight = this._dialog.dialog('option', 'minHeight');
 
-//        if (this._dialog.dialog('option', 'width') < width)
-            this._dialog.dialog('option', 'width', width) 
+        var width = minWidth > 0 ? Math.max(width, minWidth) : width;
+        var height = minHeight > 0 ? Math.max(height, minHeight) : height;
 
-//        if (this._dialog.dialog('option', 'height') < height)
-            this._dialog.dialog('option', 'height', height);
+        width = maxWidth > 0 ? Math.min(width, maxWidth) : width;
+        height = maxHeight > 0 ? Math.min(height, maxHeight) : height;
 
-        this._frame.delegate().css('min-height', this._frame.preferredSize()[1])
+        this._dialog.dialog('option', 'width', width);
+        this._dialog.dialog('option', 'height', height);
+
+        var framePreferredHeight = this._frame.preferredSize()[1];
+
+        if (minHeight > 0) {
+            framePreferredHeight = Math.max(minHeight, framePreferredHeight);
+        }
+
+        this._frame.delegate().css('min-height', framePreferredHeight)
                               .css('width', 'auto');
 
         this._frame.overlay().resize();
@@ -392,16 +401,20 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var position = {my: "center center", at: "center center", of: window};
         var resizable = options.scroll === 'frame' ? options.resizable : false;
         var draggable = options.scroll === 'frame' ? options.draggable : false;
+        var width = options.minWidth > 0 ? Math.max(options.minWidth, options.width) : options.width;
+        var height = options.minHeight > 0 ? Math.max(options.minHeight, options.height) : options.height;
 
         this._dialog = content.dialog({buttons:   Object.values(buttons),
                                        title:     options.title,
                                        modal:     true,
                                        resizable: resizable,
                                        draggable: draggable,
-                                       width:     options.width,
-                                       height:    options.height,
+                                       width:     width,
+                                       height:    height,
                                        maxHeight: options.scroll === 'frame' ? options.maxHeight : false,
                                        maxWidth:  options.maxWidth,
+                                       minHeight: options.minHeight,
+                                       minWidth:  options.minWidth,
                                        position:  position,
                                        closeOnEscape: false,
                                        open:      function() {self._onOpen($(this), frame, options);},
