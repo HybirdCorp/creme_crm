@@ -35,7 +35,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
             fitFrame:    true,
             useFrameActions: true,
             compatible: false,
-            closeOnEscape: false
+            closeOnEscape: false,
+            scrollbackOnClose: false
         }, options || {});
 
         this._initFrame(this.options);
@@ -116,6 +117,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
         frame.clear();
         this._destroyDialog();
         this._events.trigger('close', [options], this);
+
+        if (options.scrollbackOnClose) {
+            $('body').animate({scrollTop: this._openingScrollPosition}, 'slow');
+        }
     },
 
     _onOpen: function(dialog, frame, options)
@@ -145,6 +150,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
         // HACK : force focus in order to enable escape handling.
         if (options.closeOnEscape && !options.autoFocus) {
             this.focus();
+        }
+
+        if (options.scrollbackOnClose) {
+            this._openingScrollPosition = $('body').get(0).scrollTop;
         }
 
         this._events.trigger('open', [options], this);
