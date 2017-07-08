@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.layout = creme.layout || {}
 
 creme.layout.TextAreaAutoSize = creme.component.Component.sub({
@@ -76,3 +78,5 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         return this;
     }
 });
+
+}(jQuery));

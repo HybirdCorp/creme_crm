@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselect', {
     options: {
         key: null,
@@ -203,3 +205,5 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         }
     }
 });
+
+}(jQuery));

@@ -20,6 +20,8 @@
  * Requires : jQuery
  */
 
+(function($) {"use strict";
+
 creme.jobs = {};
 
 creme.jobs.decorateJobStatus = function(block, job_id, status, ack_errors) {
@@ -30,7 +32,7 @@ creme.jobs.decorateJobStatus = function(block, job_id, status, ack_errors) {
         must_reload = true;
 
         block.find('[data-job-ack-errors][data-job-id=' + job_id + ']').each(function(i, e) {
-            elt = $(e);
+            var elt = $(e);
 
             if (!elt.find('.ack-errors').length) {
                 elt.append('<span class="ack-errors">' +
@@ -48,7 +50,7 @@ creme.jobs.decorateJobStatus = function(block, job_id, status, ack_errors) {
         must_reload = true;
 
         block.find('[data-job-status][data-job-id=' + job_id + ']').each(function(i, e) {
-            elt = $(e);
+            var elt = $(e);
 
             if (!elt.find('.progress').length) {
                 elt.append('<img class="progress" src="' + creme_media_url("images/wait.gif") + '" />');
@@ -128,3 +130,4 @@ creme.jobs.checkJobManager = function(url, block_id, reload_page) {
             }
     });
 };
+}(jQuery));

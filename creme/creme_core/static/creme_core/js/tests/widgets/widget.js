@@ -1,4 +1,4 @@
-module("creme.widgets.widget.js", {
+QUnit.module("creme.widgets.widget.js", {
   setup: function() {
   },
   teardown: function() {

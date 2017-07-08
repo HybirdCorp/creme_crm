@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 /*
  * CacheBackendEntry
  *
@@ -41,7 +43,7 @@ creme.ajax.CacheBackendEntry = function(key, url, data, dataType, response) {
  */
 creme.ajax.CacheBackendCondition = function(cb) {
     this._expired_cb = Object.isFunc(cb) ? cb : function() {return false;};
-}
+};
 
 creme.ajax.CacheBackendCondition.prototype = {
     expired: function(entry, options)
@@ -55,7 +57,7 @@ creme.ajax.CacheBackendCondition.prototype = {
     reset: function(entry) {
         entry.state = {};
     }
-}
+};
 
 /*
  * CacheBackendTimeout
@@ -64,7 +66,7 @@ creme.ajax.CacheBackendCondition.prototype = {
  */
 creme.ajax.CacheBackendTimeout = function(max) {
     this.maxdelay = (max || 0);
-}
+};
 
 creme.ajax.CacheBackendTimeout.prototype = new creme.ajax.CacheBackendCondition();
 creme.ajax.CacheBackendTimeout.prototype.constructor = creme.ajax.CacheBackendCondition;
@@ -96,7 +98,7 @@ creme.ajax.CacheBackend = function(backend, options) {
     this.delegate = backend || new creme.ajax.Backend();
     this.condition = this.options.condition || new creme.ajax.CacheBackendCondition();
     this.entries  = {};
-}
+};
 
 creme.ajax.CacheBackend.prototype = new creme.ajax.Backend();
 creme.ajax.CacheBackend.prototype.constructor = creme.ajax.Backend;
@@ -168,3 +170,5 @@ $.extend(creme.ajax.CacheBackend.prototype, {
         }
     }
 });
+
+}(jQuery));

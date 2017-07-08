@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.ENTITY_SELECT_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
                                                                  {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
 
@@ -200,3 +202,5 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         return Object.isEmpty(value) ? null : value;
     }
 });
+
+}(jQuery));

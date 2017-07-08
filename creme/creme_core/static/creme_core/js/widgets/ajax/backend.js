@@ -16,13 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.ajax.Backend = function(options) {
     this.options = $.extend({
         dataType: 'html',
         sync: false,
         debug: false
     }, options || {});
-}
+};
 
 creme.ajax.Backend.prototype = {
     get:function(url, data, on_success, on_error, options)
@@ -69,14 +71,14 @@ creme.ajax.LOCALIZED_ERROR_MESSAGES = {
     '406': gettext('Not Acceptable'),
     '409': gettext('Conflict'),
     '500': gettext('Internal Error')
-}
+};
 
 creme.ajax.localizedErrorMessage = function(xhr) {
     var status = Object.isEmpty(xhr) ? '200' : (['number', 'string'].indexOf(typeof xhr) !== -1 ? xhr : (xhr.status || '200'));
     var message = creme.ajax.LOCALIZED_ERROR_MESSAGES[status];
 
     return message ? message : gettext('Error') + (status && status !== '200' ? ' (' + status + ')' : '');
-}
+};
 
 // mock XHR object (thanks to jquery.form author)
 creme.ajax.XHR = function(options) {
@@ -92,7 +94,7 @@ creme.ajax.XHR = function(options) {
         setRequestHeader: function() {},
         abort: function(status) {}
     }, options || {});
-}
+};
 
 creme.ajax.AjaxResponse = function(status, data, xhr) {
     return {
@@ -120,11 +122,11 @@ creme.ajax.cookieAttr = function(name) {
     }
 
     return cookieValue;
-}
+};
 
 creme.ajax.cookieCSRF = function() {
     return creme.ajax.cookieAttr('csrftoken');
-}
+};
 
 creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
 {
@@ -174,7 +176,7 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
     }
 
     $(form).ajaxSubmit(submit_options);
-}
+};
 
 // TODO : This code is duplicated from creme.ajax.json.send and will replace it in the future
 // TODO : replace success_cb/error_cb by listeners.
@@ -206,5 +208,6 @@ creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options)
     }
 
     $.ajax(ajax_options);
-}
+};
 
+}(jQuery));

@@ -517,7 +517,6 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/cookie.js',
                     'creme_core/js/jquery/extensions/fg-menu-3.0/fg.menu.js',
                     'creme_core/js/jquery/extensions/fg-menu-3.0/jquery.hotkeys-0.8.js',
-                    'activities/js/jquery/extensions/fullcalendar-1.6.7.js', # TODO: move with activities.js (beware it causes errors for now)
                     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
                     'creme_core/js/jquery/extensions/json-2.2.js',
                     'creme_core/js/jquery/extensions/highlight.js',
@@ -620,9 +619,11 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/merge.js',
                     'creme_core/js/relations.js',
 
-                    # OTHER APPS (mandatory ones)
                     'assistants/js/assistants.js',
+                    'activities/js/jquery/extensions/fullcalendar-1.6.7.js',
                     'activities/js/activities.js',
+
+                    # OTHER APPS (mandatory ones)
                     'persons/js/persons.js',
                 )
 
@@ -656,7 +657,6 @@ TEST_CREME_CORE_JS = (  # JS Unit test files
     'creme_core/js/tests/model/query.js',
     'creme_core/js/tests/model/controller.js',
     'creme_core/js/tests/dialog/dialog.js',
-    'creme_core/js/tests/utils.js',
     'creme_core/js/tests/fallbacks.js',
     'creme_core/js/tests/generators.js',
     'creme_core/js/tests/widgets/base.js',

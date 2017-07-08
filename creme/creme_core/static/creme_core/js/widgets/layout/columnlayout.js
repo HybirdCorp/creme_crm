@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.layout = creme.layout || {}
 
 creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
@@ -75,7 +77,7 @@ creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
         var column_item_count = Math.ceil(sortables.length / column_count);
 
         try {
-            sorted = sortables.sort(this._comparator);
+            sortables = sortables.sort(this._comparator);
         } catch(e) {}
 
         for(var index = 0; index < column_count; ++index) {
@@ -184,3 +186,5 @@ creme.layout.CSSColumnLayout = creme.layout.Layout.sub({
                                 '-column-width:' + column_width);
     }
 });
+
+}(jQuery));

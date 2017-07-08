@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.utils = creme.utils || {};
 
 creme.utils.comparator = function() {
@@ -39,8 +41,10 @@ creme.utils.comparator = function() {
 
         return 0;
     }
-}
+};
 
 creme.utils.compareTo = function(a, b) {
     return a < b ? -1 : (a > b ? 1 : 0);
 };
+
+}(jQuery));

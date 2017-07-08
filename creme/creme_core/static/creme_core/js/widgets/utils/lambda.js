@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.utils = creme.utils || {};
 
 creme.utils.Lambda = creme.component.Component.sub({
@@ -42,7 +44,7 @@ creme.utils.Lambda = creme.component.Component.sub({
     },
 
     invoke: function() {
-        return this._lambda ? this._lambda.apply(this._context || this, arguments) : undefined;
+        return this._lambda ? this._lambda.apply(this._context || {}, arguments) : undefined;
     },
 
     constant: function(value)
@@ -68,22 +70,28 @@ creme.utils.Lambda = creme.component.Component.sub({
             throw Error('empty lambda script');
 
         var parameters = Array.isArray(parameters) ? parameters.join(',') : (parameters || '');
-        var uuid = $.uidGen({prefix: '__lambda_', mode:'random'});
+        var body = callable.indexOf('return') !== -1 ? callable : 'return ' + callable + ';';
 
-        var script = 'creme.utils["' + uuid + '"] = function(' + parameters + ') {';
-        script += callable.indexOf('return') != -1 ? callable : 'return ' + callable + ';';
-        script += '};';
+        if (!Object.isNone(window['Function'])) {
+            this._lambda = new Function(parameters, body);
+        } else {
+            // HACK : compatibiliy for older browsers
+            var uuid = $.uidGen({prefix: '__lambda_', mode:'random'});
+            var script = 'creme.utils["' + uuid + '"] = function(' + parameters + ') {' + body + "};"
 
-        eval(script);
+            eval(script);
 
-        this._lambda = creme.utils[uuid];
-        delete creme.utils[uuid];
+            this._lambda = creme.utils[uuid];
+            delete creme.utils[uuid];
+        }
 
         return this;
     },
 
     callable: function() {
-        return this._context ? this._lambda.bind(this._context) : this._lambda;
+        if (this._lambda) {
+            return this._context ? this._lambda.bind(this._context) : this._lambda;
+        }
     },
 
     bind: function(context)
@@ -103,4 +111,6 @@ creme.utils.lambda = function(callable, parameters, defaults)
 
         throw e;
     }
-}
+};
+
+}(jQuery));

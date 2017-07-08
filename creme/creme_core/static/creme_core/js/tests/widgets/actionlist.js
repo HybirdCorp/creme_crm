@@ -31,7 +31,7 @@ function assertAction(action, name, label, type, url, enabled)
     equal(action.is(':not([disabled])'), enabled, 'action disabled ' + name)
 }
 
-module("creme.widgets.actionlist.js", {
+QUnit.module("creme.widgets.actionlist.js", {
   setup: function() {
       this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/options': this.backend.response(200, [[15, 'a'], [5, 'b'], [3, 'c'], [14, 't'], [42, 'y']]),

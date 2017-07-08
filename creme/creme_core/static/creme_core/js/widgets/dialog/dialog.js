@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.dialog = creme.dialog || {};
 
 creme.dialog.Dialog = creme.component.Component.sub({
@@ -289,8 +291,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         // set frame to default size
         frame.css('width', (Math.round(this.options.width - (container.outerWidth() - body.width()))))
-        frame_width_padding = frame.position().left + (frame.outerWidth() - frame.width());
-        frame_height_padding = frame.position().top + (frame.outerHeight() - frame.height());
+        var frame_width_padding = frame.position().left + (frame.outerWidth() - frame.width());
+        var frame_height_padding = frame.position().top + (frame.outerHeight() - frame.height());
 
         // eval preferred size of frame elements
         var size = this._frame.preferredSize();
@@ -651,3 +653,5 @@ $.widget("ui.dialog", $.ui.dialog, {
         return this._super(event);
     }
 });
+
+}(jQuery));

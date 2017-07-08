@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-selector', {
     options: {
           date_format: 'dd-mm-yy'
@@ -126,3 +128,5 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
         this._update_inputs(element, value);
     }
 });
+
+}(jQuery));

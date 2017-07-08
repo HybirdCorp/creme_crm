@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.ActionButton = creme.component.Action.sub({
     _init_: function(delegate, button, options) {
         this._super_(creme.component.Action, '_init_', this._run, options);
@@ -282,3 +284,5 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         return new creme.widget.CreateActionButton(selector, button);
     }
 });
+
+}(jQuery));

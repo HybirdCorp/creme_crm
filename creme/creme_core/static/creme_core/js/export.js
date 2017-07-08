@@ -20,6 +20,8 @@
  * Requires : creme declaration
  */
 
+(function($) {"use strict";
+
 creme.exports = creme.exports || {};
 
 creme.exports.exportAs = function(url, formats, argument_name) {
@@ -39,4 +41,5 @@ creme.exports.exportAs = function(url, formats, argument_name) {
                     }
                 })
                 .open();
-}
+};
+}(jQuery));

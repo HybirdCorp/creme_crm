@@ -23,7 +23,7 @@ function mock_checklistselect_add_choice(element, label, value) {
     return choice;
 }
 
-assertCheckListEntries = function(element, expected) {
+function assertCheckListEntries(element, expected) {
     var options = $('.checkbox-field', element);
 
     equal(options.length, expected.length, 'checkbox count');
@@ -34,9 +34,9 @@ assertCheckListEntries = function(element, expected) {
         var label = $('.checkbox-label', this);
 
         var expected_label = ('<span class=\"checkbox-label-text\"%s>%s</span>' +
-                              '<span class=\"checkbox-label-help\"%s></span>').format(expected_entry.disabled ? ' disabled="disabled"' : '',
+                              '<span class=\"checkbox-label-help\"%s></span>').format(expected_entry.disabled ? ' disabled=""' : '',
                                                                                       expected_entry.label,
-                                                                                      expected_entry.disabled ? ' disabled="disabled"' : '');
+                                                                                      expected_entry.disabled ? ' disabled=""' : '');
 
         equal(label.html(), expected_label, 'checkbox %d label'.format(index));
 
@@ -45,7 +45,8 @@ assertCheckListEntries = function(element, expected) {
         equal(input.get()[0].checked, expected_entry.selected || false, 'checkbox %d check status'.format(index));
     });
 }
-module("creme.widgets.checklistselect.js", {
+
+QUnit.module("creme.widgets.checklistselect.js", {
     setup: function() {},
     teardown: function() {}
 });

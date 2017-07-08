@@ -16,13 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.forms = {};
 
 /*
  * Select input tools
  */
 
-creme.forms.Select = {}
+creme.forms.Select = {};
 creme.forms.Select.optionsFromData = function(data, option_label, option_value) {
     var options = [];
 
@@ -51,7 +53,7 @@ creme.forms.Select.optionsFromData = function(data, option_label, option_value) 
     }
 
     return options;
-}
+};
 
 creme.forms.Select.fill = function(self, options, selected) {
     if ((self == undefined) || (options == undefined)) {
@@ -67,7 +69,7 @@ creme.forms.Select.fill = function(self, options, selected) {
          var entry_value = entry[0];
          var entry_label = entry[1];
 
-         option = $('<option/>').val(entry_value).text(entry_label);
+         var option = $('<option/>').val(entry_value).text(entry_label);
 
          if (entry_value == selected) {
              option.attr('selected', 'selected');
@@ -95,12 +97,12 @@ creme.forms.Select.fill = function(self, options, selected) {
      self.val(value);
      self.change();
      return self;
-}
+};
 
 /*
  * TimePicker widget
  */
-creme.forms.TimePicker = {}
+creme.forms.TimePicker = {};
 creme.forms.TimePicker.init = function(self) {
     var time = creme.forms.TimePicker.timeval(self);
 
@@ -115,7 +117,7 @@ creme.forms.TimePicker.init = function(self) {
             var now = new Date();
             creme.forms.TimePicker.set(self, now.getHours(), now.getMinutes());
         });
-}
+};
 
 creme.forms.TimePicker.parseTime = function(value) {
     var values = (value != undefined) ? value.split(':') : [];
@@ -123,38 +125,38 @@ creme.forms.TimePicker.parseTime = function(value) {
     var minute = (values.length > 1) ? values[1] : '';
 
     return {hour:hour, minute:minute};
-}
+};
 
 creme.forms.TimePicker.val = function(self) {
     return $('input[type="hidden"]', self).val();
-}
+};
 
 creme.forms.TimePicker.timeval = function(self) {
     return creme.forms.TimePicker.parseTime($('input[type="hidden"]', self).val());
-}
+};
 
 creme.forms.TimePicker.update = function(self) {
     var hour = $('li.hour input[type="text"]', self).val();
     var minute = $('li.minute input[type="text"]', self).val();
     $('input[type="hidden"]', self).val(hour + ':' + minute);
-}
+};
 
 creme.forms.TimePicker.clear = function(self) {
     $('li.hour input[type="text"]', self).val('');
     $('li.minute input[type="text"]', self).val('');
     $('input[type="hidden"]', self).val('');
-}
+};
 
 creme.forms.TimePicker.set = function(self, hour, minute) {
     $('li.hour input[type="text"]', self).val(hour);
     $('li.minute input[type="text"]', self).val(minute);
     $('input[type="hidden"]', self).val(hour + ':' + minute);
-}
+};
 
 /*
  * DateTimePicker widget
  */
-creme.forms.DateTimePicker = {}
+creme.forms.DateTimePicker = {};
 creme.forms.DateTimePicker.init = function(self, format) {
     var datetime = creme.forms.DateTimePicker.datetimeval(self);
     var format = format || 'yy-mm-dd';
@@ -184,36 +186,36 @@ creme.forms.DateTimePicker.init = function(self, format) {
             buttonImage:     creme_media_url("images/icon_calendar.gif"),
             buttonImageOnly: true
         });
-}
+};
 
 creme.forms.DateTimePicker.val = function(self) {
     return $('input[type="hidden"]', self).val();
-}
+};
 
 creme.forms.DateTimePicker.datetimeval = function(self) {
     return creme.forms.DateTimePicker.parseDateTime($('input[type="hidden"]', self).val());
-}
+};
 
 creme.forms.DateTimePicker.parseDateTime = function(value) {
     var values = (value != undefined) ? value.split(' ') : [];
     var date = (values.length > 1) ? values[0] : '';
     var time = creme.forms.TimePicker.parseTime((values.length > 1) ? values[1] : '');
     return $.extend({date:date}, time);
-}
+};
 
 creme.forms.DateTimePicker.update = function(self) {
     var date = $('li.date input[type="text"]', self).val();
     var hour = $('li.hour input[type="text"]', self).val();
     var minute = $('li.minute input[type="text"]', self).val();
     $('input[type="hidden"]', self).val(date + ' ' + hour + ':' + minute);
-}
+};
 
 creme.forms.DateTimePicker.clear = function(self) {
     $('li.date input[type="text"]', self).val('');
     $('li.hour input[type="text"]', self).val('');
     $('li.minute input[type="text"]', self).val('');
     $('input[type="hidden"]', self).val('');
-}
+};
 
 creme.forms.DateTimePicker.setDate = function(self, date) {
     var hour = date.getHours();
@@ -224,11 +226,11 @@ creme.forms.DateTimePicker.setDate = function(self, date) {
     $('li.minute input[type="text"]', self).val(minute);
 
     creme.forms.DateTimePicker.update(self);
-}
+};
 
 creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) {
     creme.forms.DateTimePicker.setDate(self, new Date(year, month, day, hour, minute));
-}
+};
 
 //TODO: refactor in order the widget can be properly reload (see report.js)
 creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumns, refreshStore, reduced) {
@@ -436,7 +438,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
     if (reduced === true)
         toggleRow();
-}
+};
 
 creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
     function buildColumns($table, addAvailableLi, addChosenLi) {
@@ -485,7 +487,7 @@ creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
     }
 
     creme.forms._toDualColumnMultiSelect(table_id, true, buildColumns, refreshTable, reduced);
-}
+};
 
 creme.forms.toImportField = function(table_id) {
     var $table = $('#' + table_id);
@@ -509,7 +511,7 @@ creme.forms.toImportField = function(table_id) {
     }
 
     $csv_select.change(handleColChange);
-}
+};
 
 creme.forms.initialize = function(form)
 {
@@ -518,8 +520,8 @@ creme.forms.initialize = function(form)
         form.addClass('.is-form-active');
 
         form.onFirst('submit', function() {
-            html5Valid = Object.isFunc(this.checkValidity) ? this.checkValidity() : true;
-            jqueryValid = Object.isFunc(this.valid) ? this.valid() : true;
+            var html5Valid = Object.isFunc(this.checkValidity) ? this.checkValidity() : true;
+            var jqueryValid = Object.isFunc(this.valid) ? this.valid() : true;
 
             if (html5Valid && jqueryValid)
             {
@@ -534,4 +536,5 @@ creme.forms.initialize = function(form)
 
         creme.utils.scrollTo($('.errorlist:first, .non_field_errors', form));
     }
-}
+};
+}(jQuery));

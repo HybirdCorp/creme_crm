@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
     options: {
     },
@@ -47,3 +49,5 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
         element.addClass('widget-ready');
     }
 });
+
+}(jQuery));

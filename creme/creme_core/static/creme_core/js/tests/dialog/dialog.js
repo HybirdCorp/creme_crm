@@ -6,7 +6,7 @@ var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value:1, added:[1, 'Jo
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value:1, added:[1, 'John Doe']});
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
-module("creme.dialog.js", {
+QUnit.module("creme.dialog.js", {
     setup: function() {
         var self = this;
         this.backend = new creme.ajax.MockAjaxBackend({delay:150, sync:true});

@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.PLOT_SELECTOR_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
                                                                  {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
 
@@ -192,3 +194,5 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         return null;
     }
 });
+
+}(jQuery));

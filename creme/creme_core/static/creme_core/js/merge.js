@@ -20,16 +20,16 @@
  * Requires : jQuery lib, creme.utils
  */
 
+(function($) {"use strict";
+
 creme.merge = creme.merge || {};
 
 creme.merge.selectOtherEntityNRedirect = function(model_id, selection_url, merge_url) {
-    var selection_url = selection_url;
     if (selection_url === undefined) {
         console.warn('creme.lv_widget.selectOtherEntityNRedirect(): implicit "selection_url" argument is deprecated ; give the URL as second argument.');
         selection_url = '/creme_core/entity/merge/select_other/';
     }
 
-    var merge_url = merge_url;
     if (merge_url === undefined) {
         console.warn('creme.lv_widget.selectOtherEntityNRedirect(): implicit "merge_url" argument is deprecated ; give the URL as third argument.');
         merge_url = '/creme_core/entity/merge/';
@@ -96,3 +96,4 @@ creme.merge.initializeMergeForm = function(form) {
         });
     });
 };
+}(jQuery));

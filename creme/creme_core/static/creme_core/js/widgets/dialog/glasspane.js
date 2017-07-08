@@ -16,6 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
+(function($) {"use strict";
 
 creme.dialogs = creme.dialogs || {}
 
@@ -80,7 +81,7 @@ creme.dialogs.GlassPane = creme.component.Component.sub({
         var pane = this._pane;
 
         if (anchor) {
-            zindex = anchor.css('z-index') - 1;
+            var zindex = anchor.css('z-index') - 1;
 
             if (zindex > 0) {
                 pane.css('z-index', zindex);
@@ -120,3 +121,5 @@ creme.dialogs.GlassPane = creme.component.Component.sub({
         }
     }
 });
+
+}(jQuery));

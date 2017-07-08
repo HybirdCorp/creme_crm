@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.ajax.Query = creme.component.Action.sub({
     _init_: function(options, backend)
     {
@@ -106,5 +108,6 @@ creme.ajax.Query = creme.component.Action.sub({
 creme.ajax.query = function(url, options, data, backend) {
     var options = options || {};
     return new creme.ajax.Query(options, backend).url(url).data(data || {});
-}
+};
 
+}(jQuery));

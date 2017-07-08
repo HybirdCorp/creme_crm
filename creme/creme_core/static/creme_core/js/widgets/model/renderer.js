@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.model = creme.model || {};
 
 creme.model.Renderer = creme.component.Component.sub({
@@ -152,3 +154,5 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
         });
     }
 });
+
+}(jQuery));

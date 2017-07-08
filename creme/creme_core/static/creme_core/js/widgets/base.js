@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.component= {};
+(function($) {"use strict";
 
 creme.object = {
     isnone: function(obj) {
@@ -137,7 +137,7 @@ creme.object = {
     isTrue: function(value) {
         return !Object.isNone(value) && value !== false;
     }
-}
+};
 
 creme.widget = {};
 
@@ -478,3 +478,5 @@ $.fn.creme = function() {
 $(document).ready(function() {
     creme.widget.ready();
 });
+
+}(jQuery));

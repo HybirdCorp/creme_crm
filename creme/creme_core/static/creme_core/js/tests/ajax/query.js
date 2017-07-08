@@ -1,4 +1,4 @@
-module("creme.ajax.query.js", {
+QUnit.module("creme.ajax.query.js", {
     setup: function()
     {
         var self = this;

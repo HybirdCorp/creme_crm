@@ -1,4 +1,4 @@
-module("creme.utils.template.js", {
+QUnit.module("creme.utils.template.js", {
   setup: function() {},
   teardown: function() {}
 });

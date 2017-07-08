@@ -1,4 +1,4 @@
-module("creme.utils.converters.js", {
+QUnit.module("creme.utils.converters.js", {
     setup: function() {
         this.str2int = function(data) {
             var res = parseInt(data);

@@ -16,12 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
     options: {
         'ontoggle': undefined
     },
 
-    _create: function(element, options, cb, sync, arguments)
+    _create: function(element, options, cb, sync, attributes)
     {
         var self = this;
 
@@ -168,3 +170,5 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
         }
     }
 });
+
+}(jQuery));

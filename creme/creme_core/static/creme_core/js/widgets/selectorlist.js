@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     options: {
         cloneLast: undefined
@@ -209,3 +211,5 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         this._update(element);
     }
 });
+
+}(jQuery));

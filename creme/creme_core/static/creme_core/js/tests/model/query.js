@@ -1,4 +1,4 @@
-module("creme.model.query.js", {
+QUnit.module("creme.model.query.js", {
     setup: function()
     {
         this.backend = new creme.ajax.MockAjaxBackend({sync:true});

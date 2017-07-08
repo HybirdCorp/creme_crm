@@ -21,9 +21,10 @@
  *            creme
  */
 
+(function($) {"use strict";
+
 creme.menu = {};
 creme.menu.actions = {};
-
 
 // Old menu API ----------------------------------------------------------------
 creme.menu.NavIt = function(trigger_selector, options, listeners) {
@@ -62,7 +63,7 @@ creme.menu.NavIt = function(trigger_selector, options, listeners) {
 
 creme.menu.HNavIt = function(trigger_selector, options, listeners) {
     creme.menu.NavIt(trigger_selector, $.extend({ArrowSideOnRight: false}, options || {}), listeners);
-}
+};
 
 creme.menu.sideMenu = function(options) {
     var document_width_onload  = $(document).width();
@@ -220,7 +221,7 @@ creme.menu.sideMenu = function(options) {
             }
         }
     });
-}
+};
 
 
 // New menu API ----------------------------------------------------------------
@@ -253,7 +254,7 @@ creme.menu.bindEvents = function() {
 //          menu.addClass ('ui-creme-navigation-activated'); // for the different background color on hovered items effect, when there is one activated submenu already
         }
     });
-}
+};
 
 creme.menu.openQuickForm = function(element) {
 //    var uri = '/creme_core/quickforms/%s/%s';
@@ -321,4 +322,5 @@ creme.menu.openCreateAnyDialog = function(a_tag) {
                                                   width: Math.max(550, max_col * 200)
                                                  }
                                                 ).open();
-}
+};
+}(jQuery));

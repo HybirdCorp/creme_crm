@@ -20,6 +20,8 @@
  * Requires : creme.utils
  */
 
+(function($) {"use strict";
+
 creme.dialog = creme.dialog || {};
 
 creme.dialog.Frame = creme.component.Component.sub({
@@ -292,3 +294,5 @@ creme.dialog.Frame = creme.component.Component.sub({
         return this._delegate ? creme.layout.preferredSize(this._delegate, 2) : {width: 0, height: 0};
     }
 });
+
+}(jQuery));

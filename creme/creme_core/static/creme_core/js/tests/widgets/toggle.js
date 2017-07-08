@@ -29,7 +29,7 @@ function append_mock_toggle_trigger(element, options)
     return target;
 }
 
-module("creme.widgets.toggle.js", {
+QUnit.module("creme.widgets.toggle.js", {
   setup: function() {
   },
   teardown: function() {

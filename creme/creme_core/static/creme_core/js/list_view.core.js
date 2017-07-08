@@ -21,7 +21,7 @@
 
 //TODO : To be deleted and all console.log in code also
 
-(function($) {
+(function($) {"use strict";
     $.fn.list_view = function(options) {
         var isMethodCall = (typeof options == 'string'),
             args = Array.prototype.slice.call(arguments, 1);

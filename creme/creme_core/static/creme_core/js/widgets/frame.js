@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
 
     options: {
@@ -95,3 +97,5 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         this._frame.submit(url, {}, form, listeners);
     }
 });
+
+}(jQuery));

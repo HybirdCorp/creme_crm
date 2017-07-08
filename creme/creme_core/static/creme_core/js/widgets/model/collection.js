@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.model = creme.model || {};
 
 creme.model.Collection = creme.component.Component.sub({
@@ -229,3 +231,5 @@ creme.model.Filter = creme.model.Delegate.sub({
         this.fetch();
     }
 });
+
+}(jQuery));

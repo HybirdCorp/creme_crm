@@ -1,6 +1,6 @@
 var MOCK_AJAX_FORM_CONTENT = '<form action="mock/add"><input id="name" type="text"/></form>';
 
-module("creme.mockajax.js", {
+QUnit.module("creme.mockajax.js", {
     setup: function() {
         var self = this;
 

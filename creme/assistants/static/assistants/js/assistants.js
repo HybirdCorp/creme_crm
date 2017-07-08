@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.assistants = creme.assistants || {};
 
 // TODO : a simple checkbox change with confirmation may do the same work ?
@@ -24,6 +26,10 @@ creme.assistants.validateEntity = function(form, checkbox_id, reload_url) {
         creme.dialogs.warning(gettext("Check the box if you consider as treated"))
                      .open();
     } else {
-        creme.ajax.jqueryFormSubmit($(form), function() {creme.blocks.reload(reload_url);});
+        creme.ajax.jqueryFormSubmit($(form), function() {
+            creme.blocks.reload(reload_url);
+        });
     }
-}
+};
+
+}(jQuery));

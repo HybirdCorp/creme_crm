@@ -16,6 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+
+(function($) {"use strict";
+
 creme.activities = {};
 
 //creme.activities.exportAsICal = function(list) {
@@ -33,13 +36,13 @@ creme.activities.exportAsICal = function(list, url) {
     } else {
         document.location.href = url + '?' + $.param({'id': selection.split(',')});
     }
-}
+};
 
 creme.activities.calendar = {};
 
 creme.activities.calendar.loading = function(loading_done) {
   $('.calendar .loading-indicator').css('visibility', loading_done ? 'hidden' : 'visible');
-}
+};
 
 creme.activities.calendar.filterEvents = function(widget, calendar, events) {
     console.warn('activities.calendar.filterEvents() is deprecated.');
@@ -56,7 +59,7 @@ creme.activities.calendar.filterEvents = function(widget, calendar, events) {
     }
 
     creme.activities.calendar.resizeSidebar();
-}
+};
 
 creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
     input.data('oldVal', input.val());
@@ -71,7 +74,7 @@ creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
 
         filter_callable(val.toUpperCase());
     });
-}
+};
 
 creme.activities.calendar.loadCalendarEventListeners = function(user, creme_calendars_by_user) {
     creme.activities.calendar.floatingEventFilter = function(input_value) {
@@ -180,12 +183,12 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
         });
     });
 
-}
+};
 
 creme.activities.calendar.chooseForeground = function(target, bgColor) {
     var rgb = creme.color.HEXtoRGB(bgColor);
     target.css('color', creme.color.maxContrastingColor(rgb.r, rgb.g, rgb.b));
-}
+};
 
 //creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
 creme.activities.calendar.updater = function(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
@@ -242,7 +245,7 @@ creme.activities.calendar.updater = function(update_url, event, dayDelta, minute
         },
     });
 */
-}
+};
 
 creme.activities.calendar.resizeSidebar = function() {
     var calendar = $('.calendar');
@@ -252,11 +255,10 @@ creme.activities.calendar.resizeSidebar = function() {
     var sidebarMargin = parseInt(sidebar.css('margin-top'));
 
     sidebar.css('height', (calendarHeight - sidebarMargin) + 'px');
-}
+};
 
 //creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
 creme.activities.calendar.fullCalendar = function(events_url, creation_url, update_url) {
-    var update_url = update_url;
     if (update_url === undefined) {
         console.warn('creme.activities.calendar.fullCalendar(): implicit "update_url" argument is deprecated ; give the URL as last argument.');
         update_url = '/activities/calendar/activity/update';
@@ -372,7 +374,7 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
             $('.calendar').fullCalendar('renderEvent', event);
             elem.hide();
 
-            cancel_drop = function() {
+            var cancel_drop = function() {
                 elem.show();
                 $('.calendar').fullCalendar('removeEvents', event.id);
             }
@@ -433,4 +435,6 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
     var loadingImage = $('<img>').attr ('src', creme_media_url('images/wait.gif'));
     $('<div class="loading-indicator">').append(loadingImage, '<div class="loading-label">' + gettext("Loading...") + '</div>')
                                         .insertBefore('.fc-content');
-}
+};
+
+}(jQuery));

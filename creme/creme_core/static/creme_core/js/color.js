@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
 
 creme.color = creme.color || {};
 
@@ -46,3 +47,4 @@ creme.color.maxContrastingColor = function(r, g, b) {
         return 'white';
     return 'black'; //TODO: ? 'white': 'black';
 };
+}(jQuery));
