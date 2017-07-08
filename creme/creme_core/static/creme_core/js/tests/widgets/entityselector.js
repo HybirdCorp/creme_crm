@@ -16,7 +16,7 @@ function mock_entityselector_create(options, noauto) {
 
 var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
 
-module("creme.widgets.entityselector.js", {
+QUnit.module("creme.widgets.entityselector.js", {
   setup: function() {
       this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/label/1': this.backend.response(200, [['John Doe']]),
@@ -211,10 +211,10 @@ test('creme.widget.EntitySelector.reload (template url, multiple)', function() {
     creme.widget.create(element);
     deepEqual(['selection'], element.creme().widget().dependencies());
 
-    equal("mock/popup/1", element.creme().widget().popupURL());
+    equal("mock/popup/single", element.creme().widget().popupURL());
 
     element.creme().widget().multiple(true);
-    equal("mock/popup/0", element.creme().widget().popupURL());
+    equal("mock/popup/multiple", element.creme().widget().popupURL());
 
     element.creme().widget().reload({selection:2});
     equal("mock/popup/2", element.creme().widget().popupURL());
@@ -226,17 +226,17 @@ test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', fun
     creme.widget.create(element);
     deepEqual(['selection', 'qfilter'], element.creme().widget().dependencies());
 
-    equal("mock/popup/1?q_filter=", element.creme().widget().popupURL());
+    equal("mock/popup/single?q_filter=", element.creme().widget().popupURL());
 
-    element.creme().widget().reload({selection:0});
-    equal("mock/popup/0?q_filter=", element.creme().widget().popupURL());
+    element.creme().widget().reload({selection: creme.widget.EntitySelectorMode.MULTIPLE});
+    equal("mock/popup/multiple?q_filter=", element.creme().widget().popupURL());
 
     element.creme().widget().reload({qfilter:$.toJSON({"~pk__in":[1, 2]})});
-    equal("mock/popup/0?q_filter=" + $.toJSON({"~pk__in":[1, 2]}), element.creme().widget().popupURL());
+    equal("mock/popup/multiple?q_filter=" + $.toJSON({"~pk__in":[1, 2]}), element.creme().widget().popupURL());
 
     element.creme().widget().reload('mock/popup/${ctype}/${selection}?q_filter=${qfilter}');
     deepEqual(['ctype', 'selection', 'qfilter'], element.creme().widget().dependencies());
-    equal("mock/popup/${ctype}/0?q_filter=" + $.toJSON({"~pk__in":[1, 2]}), element.creme().widget().popupURL());
+    equal("mock/popup/${ctype}/multiple?q_filter=" + $.toJSON({"~pk__in":[1, 2]}), element.creme().widget().popupURL());
 });
 
 test('creme.widget.EntitySelector.reset', function() {

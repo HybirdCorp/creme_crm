@@ -3,7 +3,7 @@ var MOCK_PLOT_CONTENT_JSON_EMPTY_DATA = '{"options": {}, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_DEFAULT = '{"options": {}, "data":[[[1, 2],[3, 4],[5, 12]]]}';
 var MOCK_PLOT_CONTENT_DEFAULT = {options: {}, data: [[[1, 2],[3, 4],[5, 12]]]};
 
-module("creme.widget.plot.js", {
+QUnit.module("creme.widget.plot.js", {
     setup: function() {
         this.resetMockEvents();
         this.resetMockPlots();

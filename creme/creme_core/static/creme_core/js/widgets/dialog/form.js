@@ -20,6 +20,8 @@
  * Requires : creme.utils
  */
 
+(function($) {"use strict";
+
 creme.dialog = creme.dialog || {};
 
 creme.dialog.FormDialog = creme.dialog.Dialog.sub({
@@ -280,3 +282,5 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
                                             .open();
     }
 });
+
+}(jQuery));

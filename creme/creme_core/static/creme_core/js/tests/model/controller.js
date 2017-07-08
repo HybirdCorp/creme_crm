@@ -1,4 +1,4 @@
-module("creme.model.controller.js", {
+QUnit.module("creme.model.controller.js", {
     setup: function() {
         this.resetMockCalls();
     },

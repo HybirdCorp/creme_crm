@@ -16,12 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.utils = creme.utils || {};
 
 creme.utils.TemplateRenderer = creme.component.Component.sub({
     tags: function(template) {return [];},
     render: function(template, values) {return template;}
-})
+});
 
 creme.utils.TemplateDefaultRenderer = creme.utils.TemplateRenderer.sub({
     _matches: function(template) {
@@ -229,4 +231,6 @@ creme.utils.templatize = function(value, context) {
     }
 
     return Object.isNone(context) ? template : template.parameters(context);
-}
+};
+
+}(jQuery));

@@ -1,4 +1,4 @@
-module("creme.cacheajax.js", {
+QUnit.module("creme.cacheajax.js", {
     setup: function() {
         var self = this;
 

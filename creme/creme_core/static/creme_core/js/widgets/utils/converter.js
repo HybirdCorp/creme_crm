@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.utils = creme.utils || {};
 
 creme.utils.ConverterRegistry = function() {
@@ -101,3 +103,4 @@ creme.utils.converters.register('string', 'int', function(value) {
     return num;
 });
 
+}(jQuery));

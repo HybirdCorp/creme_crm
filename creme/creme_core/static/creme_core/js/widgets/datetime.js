@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
     options: {
         format:'dd-mm-yy',
@@ -137,3 +139,5 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
         $('input[type="hidden"]', element).val(value).change();
     }
 });
+
+}(jQuery));

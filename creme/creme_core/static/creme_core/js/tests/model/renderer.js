@@ -1,4 +1,4 @@
-module("creme.model.renderer.js", {
+QUnit.module("creme.model.renderer.js", {
     setup: function() {
     },
 

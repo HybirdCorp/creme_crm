@@ -1,4 +1,4 @@
-module("creme.component.js", {
+QUnit.module("creme.component.js", {
     setup: function() {
     },
 

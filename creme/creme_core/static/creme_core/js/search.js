@@ -21,7 +21,9 @@
  *            creme.utils.js
  */
 
-creme.search = {};
+(function($) {"use strict";
+
+creme.search = creme.search || {};
 
 creme.search.SearchBox = function (element, searchUrl, advancedSearchUrl) {
     this.$element = $(element);
@@ -44,7 +46,7 @@ creme.search.SearchBox = function (element, searchUrl, advancedSearchUrl) {
     this.state = 'default';
     this.searchUrl = searchUrl;
     this.advancedSearchUrl = advancedSearchUrl;
-}
+};
 
 creme.search.SearchBox.prototype= {
     _onShow: function(e) {
@@ -249,3 +251,4 @@ creme.search.SearchBox.prototype= {
         }
     },
 };
+}(jQuery));

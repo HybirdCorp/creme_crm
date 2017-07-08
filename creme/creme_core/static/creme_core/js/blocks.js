@@ -16,6 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.blocks = {
     collapsed_class:    'collapsed',
     hide_fields_class:  'hide_empty_fields',
@@ -332,7 +334,7 @@ creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_u
         return false;
     }
 
-    url = '/creme_core/relation/add_to_entities/%s/%s/'.format(subject_ct_id, rtype_ids.join(','));
+    var url = '/creme_core/relation/add_to_entities/%s/%s/'.format(subject_ct_id, rtype_ids.join(','));
     url += '?' + $.param({persist: 'id', ids: values});
 
     creme.blocks.form(url, {blockReloadUrl: block_url}).open();
@@ -388,3 +390,4 @@ creme.blocks.bindTableToggle = function($self) {
         creme.blocks.tableExpandState($self, creme.blocks.tableIsCollapsed($self));
     });
 };
+}(jQuery));

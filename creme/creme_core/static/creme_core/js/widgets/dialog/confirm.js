@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.dialog = creme.dialog || {};
 
 creme.dialog.ConfirmDialog = creme.dialog.Dialog.sub({
@@ -77,3 +79,5 @@ creme.dialog.ConfirmAction = creme.component.Action.sub({
                             .open();
     }
 });
+
+}(jQuery));

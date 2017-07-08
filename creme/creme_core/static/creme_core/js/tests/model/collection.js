@@ -1,4 +1,4 @@
-module("creme.model.collection.js", {
+QUnit.module("creme.model.collection.js", {
     setup: function() {
         this.resetMockCalls();
     },
@@ -1025,8 +1025,9 @@ test('creme.model.Filter (lambda filter)', function() {
     deepEqual([1, 2, 4, 5, 16, 18], filter.all());
 
     filter.filter(lambda.bind({divide: 2}));
-    equal(false, lambda.invoke(1));
-    equal(true, lambda.invoke(2));
+    deepEqual({divide: 2}, lambda._context);
+    equal(false, lambda.invoke(1), '1 is odd');
+    equal(true, lambda.invoke(2), '2 is even');
 
     deepEqual([1, 2, 4, 5, 16, 18], model.all());
     deepEqual([2, 4, 16, 18], filter.all(), 'filtered (%2)');

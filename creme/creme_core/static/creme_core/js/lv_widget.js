@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 // if(!creme.relations) creme.relations = {}  ???
 creme.lv_widget = {};
 
@@ -72,7 +74,6 @@ creme.lv_widget.selectedLines = function(list) {
 
 //creme.lv_widget.deleteSelectedLines = function(list) {
 creme.lv_widget.deleteSelectedLines = function(list, url) {
-    var url = url;
     if (url === undefined) {
         console.warn('creme.lv_widget.deleteSelectedLines(): implicit "url" argument is deprecated ; give the URL as second argument.');
         url = '/creme_core/entity/delete/multi';
@@ -314,7 +315,7 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
         whoami:   '',
     },
 
-    _create: function(element, options, cb, sync, arguments)
+    _create: function(element, options, cb, sync)
     {
         var dialog = options.whoami ? $('#' + options.whoami) : undefined;
         var multiple = element.is('[multiple]') || options.multiple
@@ -323,3 +324,4 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
         element.addClass('widget-ready');
     }
 });
+}(jQuery));

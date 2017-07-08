@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.dialog = creme.dialog || {};
 
 creme.dialog.Overlay = creme.component.Component.sub({
@@ -170,3 +172,5 @@ creme.dialog.Overlay = creme.component.Component.sub({
         return this._overlay.attr('status');
     }
 });
+
+}(jQuery));

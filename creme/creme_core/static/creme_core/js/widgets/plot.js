@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.PlotEventHandlerRegistry = function() {
     this._handlers = {}
 }
@@ -81,7 +83,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         'resize-delay': 200
     },
 
-    _create: function(element, options, cb, sync, arguments)
+    _create: function(element, options, cb, sync, attributes)
     {
         var self = this;
         var can_raster = !$.matchIEVersion(7, 8);
@@ -413,3 +415,5 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         return this._preprocess();
     }
 });
+
+}(jQuery));

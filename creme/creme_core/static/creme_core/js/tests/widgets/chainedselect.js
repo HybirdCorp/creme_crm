@@ -76,7 +76,7 @@ function assertEntitySelect(select, value, dependencies, url)
     equal(select.creme().widget().popupURL(), url);
 }
 
-module("creme.widgets.chainedselect.js", {
+QUnit.module("creme.widgets.chainedselect.js", {
   setup: function() {
       this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/entity/label/123': this.backend.response(200, [['John Doe']]),

@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.dialog.SelectionDialog = creme.dialog.Dialog.sub({
     _init_: function(options) {
         var options = $.extend({
@@ -71,3 +73,4 @@ creme.dialog.SelectionDialog = creme.dialog.Dialog.sub({
     }
 });
 
+}(jQuery));

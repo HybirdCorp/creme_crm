@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.model = creme.model || {};
 
 creme.model.AjaxArray = creme.model.Array.sub({
@@ -94,3 +96,5 @@ creme.model.AjaxArray = creme.model.Array.sub({
         return this;
     }
 });
+
+}(jQuery));

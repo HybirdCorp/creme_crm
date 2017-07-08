@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.entity_cell = creme.entity_cell || {};
 
 creme.entity_cell.EntityCellsWidget = function(div_id, samples) {
@@ -71,7 +73,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         if (sep_index != -1) { //this is a sub-field
             var selector;
             var fk_fieldname = column.slice(0, sep_index);
-            underlay = this.underlays[fk_fieldname];
+            var underlay = this.underlays[fk_fieldname];
 
             if (!underlay) { //the underlay model is not in the cache
                 selector = this.div.find('.selector_list .selector[data-column=' + fk_fieldname + ']');
@@ -510,3 +512,4 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //         div.find('.underlay-content .content_type_toggle').change();
     }
 };
+}(jQuery));

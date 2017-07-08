@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.layout = creme.layout || {}
 
 creme.layout.SortLayout = creme.layout.Layout.sub({
@@ -63,3 +65,5 @@ creme.layout.SortLayout = creme.layout.Layout.sub({
         });
     }
 });
+
+}(jQuery));

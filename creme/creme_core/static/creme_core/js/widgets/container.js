@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.CONTAINER_LAYOUTS = {
     'column': function(options) {
         var options = options || {};
@@ -46,7 +48,7 @@ creme.widget.CONTAINER_LAYOUTS = {
             reverse: options['sort-reverse']
         });
     }
-}
+};
 
 creme.widget.Container = creme.widget.declare('ui-creme-container', {
     options: {
@@ -89,3 +91,5 @@ creme.widget.Container = creme.widget.declare('ui-creme-container', {
         this._layout.bind(element).layout();
     }
 });
+
+}(jQuery));

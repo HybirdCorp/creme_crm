@@ -379,6 +379,7 @@ span.ui-creme-datepicker-trigger {
 .checklist-header a+a {
     border-left: 1px solid #777;
     padding-left: 4px;
+    margin-left: 4px;
 }
 
 .checklist-header a:hover {

@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
 
 creme.layout = creme.layout || {}
 
@@ -381,4 +382,6 @@ creme.layout.preferredSize = function(element, depth) {
     });
 
     return [Math.round(width), Math.round(height)];
-}
+};
+
+}(jQuery));

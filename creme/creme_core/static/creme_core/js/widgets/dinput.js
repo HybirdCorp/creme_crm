@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.DynamicInput = creme.widget.declare('ui-creme-dinput', {
     options: {
         datatype: 'string'
@@ -75,3 +77,5 @@ creme.widget.DynamicInput = creme.widget.declare('ui-creme-dinput', {
         return creme.widget.cleanval(value, value);
     }
 });
+
+}(jQuery));

@@ -1,4 +1,4 @@
-module("creme.generators.js", {
+QUnit.module("creme.generators.js", {
     setup: function() {
     },
 

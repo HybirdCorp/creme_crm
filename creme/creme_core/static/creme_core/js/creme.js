@@ -1,2 +1,2 @@
-creme = this.creme || {};
+creme = window.creme || {};
 

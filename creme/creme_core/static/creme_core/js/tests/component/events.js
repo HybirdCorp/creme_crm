@@ -1,4 +1,4 @@
-module("creme.component.EventHandler.js", {
+QUnit.module("creme.component.EventHandler.js", {
   setup: function() {
       this.resetMockCalls();
   },

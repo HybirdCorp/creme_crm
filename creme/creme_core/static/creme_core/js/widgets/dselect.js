@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget = creme.widget || {};
 
 creme.widget.DYNAMIC_SELECT_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
@@ -85,6 +87,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     {
         if (Object.isNone(options.autocomplete))
             return;
+
+        var chosen_options = {};
 
         try {
             chosen_options = options['autocomplete-options'] || '';
@@ -428,3 +432,4 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     }
 });
 
+}(jQuery));

@@ -16,13 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget.PluginLauncher = creme.widget.declare('ui-creme-jqueryplugin', {
     options: {
         plugin: '',
         plugin_options: {}
     },
 
-    _create: function(element, options, cb, sync, arguments)
+    _create: function(element, options, cb, sync, attributes)
     {
         var plugin_name = options.plugin || '';
         var plugin_options = this._pluginOptions = creme.utils.JSON.clean(options.plugin_options, {});
@@ -45,3 +47,5 @@ creme.widget.PluginLauncher = creme.widget.declare('ui-creme-jqueryplugin', {
         return this._plugin;
     }
 });
+
+}(jQuery));

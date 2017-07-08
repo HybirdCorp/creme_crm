@@ -16,7 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-ArrayTools = {
+(function() {"use strict";
+
+window.ArrayTools = {
     get: function(data, index, default_value)
     {
         var value = null;
@@ -85,7 +87,7 @@ ArrayTools = {
     }
 }
 
-Generator = function() {
+window.Generator = function() {
     this._getter = undefined;
     this._processor = undefined;
 };
@@ -143,7 +145,7 @@ Generator.prototype = {
     }
 };
 
-GeneratorTools = {
+window.GeneratorTools = {
     array: {
         swap: function(prev, next)
         {
@@ -180,3 +182,5 @@ GeneratorTools = {
         }
     }
 };
+
+}());

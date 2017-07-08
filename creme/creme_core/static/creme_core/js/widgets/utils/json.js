@@ -16,10 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.utils = creme.utils || {};
 
-creme.utils.JSON = function() {}
-
+creme.utils.JSON = function() {};
 creme.utils.JSON.prototype = {
     encode: function(data)
     {
@@ -76,7 +77,7 @@ creme.utils.JSON.prototype = {
             throw 'JSON parse error (fallback): ' + err;
         }
     }
-}
+};
 
 creme.utils.JSON.decoder = function(defaults) {
     var codec = new creme.utils.JSON();
@@ -84,12 +85,14 @@ creme.utils.JSON.decoder = function(defaults) {
     return function(data, value) {
         return codec.decode(data, value || defaults);
     };
-}
+};
 
 creme.utils.JSON.encoder = function() {
     return new creme.utils.JSON().encode;
-}
+};
 
 creme.utils.JSON.clean = function(data, defaults) {
     return Object.isType(data, 'string') ? new creme.utils.JSON().decode(data, defaults) : data;
-}
+};
+
+}(jQuery));

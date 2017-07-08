@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.widget = creme.widget || {};
 
 creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', {
@@ -382,3 +384,4 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     }
 });
 
+}(jQuery));

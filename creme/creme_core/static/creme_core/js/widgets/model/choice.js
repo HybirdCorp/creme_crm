@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.model = creme.model || {};
 
 creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
@@ -254,7 +256,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
             disabled: disabled ? 'disabled' : '',
             value: value,
             index: index,
-            checked: data.checked ? 'checked': '',
+            checked: data.selected ? 'checked': '',
             label: data.label || '',
             help: data.help || '',
             hidden: !data.visible ? 'hidden' : '',
@@ -451,3 +453,5 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
         return data;
     }
 });
+
+}(jQuery));

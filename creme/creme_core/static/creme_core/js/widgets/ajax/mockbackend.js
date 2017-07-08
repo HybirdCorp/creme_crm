@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.ajax.MockAjaxBackend = function(options) {
     $.extend(this.options, {
         delay: 500
@@ -25,7 +27,7 @@ creme.ajax.MockAjaxBackend = function(options) {
     this.POST = {};
 
     this.counts = {GET: 0, POST: 0, SUBMIT:0};
-}
+};
 
 creme.ajax.MockAjaxBackend.prototype = new creme.ajax.Backend();
 creme.ajax.MockAjaxBackend.prototype.constructor = creme.ajax.Backend;
@@ -106,3 +108,5 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         this.counts = {GET: 0, POST: 0, SUBMIT:0};
     }
 });
+
+}(jQuery));

@@ -20,13 +20,16 @@
  * Requires : jQuery, creme
  */
 
+(function($) {"use strict";
+
 creme.persons = {};
 
 // Copy only in the same order
 creme.persons.copyTo = function (from_id, to_id) {
     var $from = $('#' + from_id);
     var $to = $('#' + to_id);
-    if($from.size() > 0 && $to.size() > 0) {
+
+    if ($from.size() > 0 && $to.size() > 0) {
         var $to_fill = $to.find('input, textarea, select');
 
         //TODO: use ':input' selector ??
@@ -34,11 +37,12 @@ creme.persons.copyTo = function (from_id, to_id) {
             $($to_fill[ind]).val($(this).val());
         });
     }
-}
+};
 
 creme.persons.become = function(url, organisations) {
-    if (Object.isEmpty(organisations))
+    if (Object.isEmpty(organisations)) {
         return;
+    }
 
     if (organisations && organisations.length > 1) {
         creme.dialogs.choice(gettext('Select the concerned organisation.'), 
@@ -50,4 +54,6 @@ creme.persons.become = function(url, organisations) {
     } else {
         creme.utils.ajaxQuery(url, {action: 'post', reloadOnSuccess: true, warnOnFail: true}, {id: organisations[0].value}).start();
     }
-}
+};
+
+}(jQuery));

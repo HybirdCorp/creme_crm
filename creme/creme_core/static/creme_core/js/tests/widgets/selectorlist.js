@@ -50,7 +50,7 @@ function mock_ctype_rtype_model()
     return model;
 }
 
-module("creme.widgets.selectorlist.js", {
+QUnit.module("creme.widgets.selectorlist.js", {
   setup: function() {
       this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/entity/label/123': this.backend.response(200, [['John Doe']]),

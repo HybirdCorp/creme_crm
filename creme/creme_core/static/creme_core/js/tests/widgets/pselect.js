@@ -29,7 +29,7 @@ function assertSelector(widget, type, value, query)
     }
 }
 
-module("creme.widgets.pselect.js", {
+QUnit.module("creme.widgets.pselect.js", {
   setup: function() {
   },
   teardown: function() {

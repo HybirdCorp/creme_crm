@@ -18,6 +18,8 @@
 
 
 (function() {
+    "use strict";
+
     function appendStatic(name, method)
     {
         if(!Object[name])
@@ -148,4 +150,4 @@
 
         return Object.isNone(object.constructor) ? null : object.constructor.prototype;
     });
-})();
+}());

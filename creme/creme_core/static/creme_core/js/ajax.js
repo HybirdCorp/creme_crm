@@ -21,6 +21,8 @@
  *            creme.utils.js
  */
 
+(function($) {"use strict";
+
 //Code from Django doc: http://docs.djangoproject.com/en/1.2/ref/contrib/csrf/#csrf-ajax
 //jQuery 1.9x compatibility : call ajaxSend from document
 $(document).ajaxSend(function(event, xhr, settings) {
@@ -212,7 +214,7 @@ creme.ajax.json.isvalid = function(data) {
            /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
                                     .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
                                     .replace(/(?:^|:|,)(?:\s*\[)+/g, ""));
-}
+};
 
 // Code copied from JQuery 1.4.*
 creme.ajax.json.parse = function(data) {
@@ -251,4 +253,5 @@ creme.ajax.json.ajaxFormSubmit = function($form, success_cb, error_cb, sync, par
                          success_cb || function(data) {$form.html(data.form);},
                          error_cb, sync, parameters
     );
-}
+};
+}(jQuery));

@@ -20,11 +20,13 @@
  * Requires : creme, jQuery
  */
 
+(function($) {"use strict";
+
 creme.relations = creme.relations || {};
 
-//creme.relations.addRelationTo = function(subject, predicate, ctype, options, data) {
+//    creme.relations.addRelationTo = function(subject, predicate, ctype, options, data) {
 creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options, data) {
-//    var query = new creme.ajax.Backend().query().url('/creme_core/relation/add_from_predicate/save');
+//        var query = new creme.ajax.Backend().query().url('/creme_core/relation/add_from_predicate/save');
     var $body = $('body');
 
     var save_url = $body.attr('data-save-relations-url');
@@ -48,8 +50,8 @@ creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options
         query.onDone(function(event, data) {creme.utils.reload(window);});
     }
 
-//    var selection_url = '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s%s'.format(predicate, subject, ctype,
-//                                                                                 options.multiple ? '' : '/simple');
+//        var selection_url = '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s%s'.format(predicate, subject, ctype,
+//                                                                                               options.multiple ? '' : '/simple');
     var get_data = $.extend({
         subject_id:    subject_id,
         rtype_id:      rtype_id,
@@ -61,12 +63,13 @@ creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options
     action.onDone(function(event, data) {
         query.post({
                   entities: data,
-//                  subject_id: subject,
+//                      subject_id: subject,
                   subject_id: subject_id,
-//                  predicate_id: predicate
+//                      predicate_id: predicate
                   predicate_id: rtype_id
               });
     });
 
     return action.start();
 };
+}(jQuery));

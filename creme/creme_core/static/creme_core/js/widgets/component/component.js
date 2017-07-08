@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {"use strict";
+
 creme.component = {}
 
 creme.component.extend = function(parent, content)
@@ -38,10 +40,10 @@ creme.component.extend = function(parent, content)
     // convenient static method for subclass
     constructor.sub = function(content) {
         return creme.component.extend(constructor, content);
-    }
+    };
 
     return constructor;
-}
+};
 
 creme.component.is = function(constructor, parent)
 {
@@ -60,7 +62,7 @@ creme.component.is = function(constructor, parent)
         return false;
 
     return (constructor.__super__ !== undefined) && creme.component.is(constructor.__super__.constructor, parent);
-}
+};
 
 creme.component.Component = creme.component.extend(Object, {
     _init_: function() {},
@@ -79,3 +81,4 @@ creme.component.Component = creme.component.extend(Object, {
     }
 });
 
+}(jQuery));

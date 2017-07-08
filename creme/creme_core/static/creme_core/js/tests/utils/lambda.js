@@ -1,4 +1,4 @@
-module("creme.utils.lambda.js", {
+QUnit.module("creme.utils.lambda.js", {
   setup: function() {},
   teardown: function() {}
 });
@@ -160,26 +160,26 @@ test('creme.utils.Lambda (bind)', function() {
 
     this.a = 47;
 
-    equal(-1, lambda.call(f, 1), 'call');
-    equal(-3, lambda.call(f, 3), 'call');
-    equal(-4, lambda.callable()(4), 'callable.call');
+    equal(-1, lambda.callable()(1), 'callable none');
+    equal(-2, lambda.invoke(2), 'invoke none');
 
-    equal(47 - 1, lambda.apply(this, [1]));
-    equal(47 - 3, lambda.apply(this, [3]));
-    equal(47 - 4, lambda.callable().apply(this, [4]), 'callable.apply');
+    equal(-1, lambda.call({}, 1), 'call {}');
+    equal(47 - 1, lambda.call(this, 1), 'call this');
+    equal(-2, lambda.callable().call({}, 2), 'callable.call {}');
+    equal(47 - 2, lambda.callable().call(this, 2), 'callable.call this');
 
-    lambda.a = 12;
-    equal(12 - 1, lambda.invoke(1));
-    equal(12 - 3, lambda.invoke(3));
-    equal(12 - 4, lambda.callable().call(lambda, 4), 'callable.call');
+    equal(-1, lambda.apply({}, [1]), 'apply {}');
+    equal(47 - 1, lambda.apply(this, [1]), 'apply this');
+    equal(-2, lambda.callable().apply({}, [2]), 'callable.apply {}');
+    equal(47 - 2, lambda.callable().apply(this, [2]), 'callable.apply this');
 
     lambda.bind(this);
     equal(f, lambda._lambda);
     notEqual(f, lambda.callable());
 
-    equal(47 - 1, lambda.invoke(1));
+    equal(47 - 1, lambda.invoke(1), 'invoke this');
     equal(47 - 3, lambda.invoke(3));
-    equal(47 - 4, lambda.callable().call(lambda, 4), 'callable.call');
+    equal(47 - 4, lambda.callable().call({}, 4), 'callable.call already bound');
 
     equal(47 - 1, lambda.apply(this, [1]));
     equal(47 - 3, lambda.apply(this, [3]));

@@ -1,4 +1,4 @@
-module("creme.fallbacks.js", {
+QUnit.module("creme.fallbacks.js", {
     setup: function() {
     },
 

@@ -61,7 +61,7 @@ PLOTSELECTOR_BARGRAPH = {
 PLOTSELECTOR_PLOT_01_DATA = [[[1, 2],   [3, 4],   [5, 12]]];
 PLOTSELECTOR_PLOT_02_DATA = [[[1, 2.58],[3, 40.5],[5, 121.78]]];
 
-module("creme.widgets.plotselector.js", {
+QUnit.module("creme.widgets.plotselector.js", {
     setup: function() {
         this.resetMockEvents();
         this.resetMockPlotSelectors();

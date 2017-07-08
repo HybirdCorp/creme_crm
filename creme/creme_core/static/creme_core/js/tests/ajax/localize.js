@@ -1,4 +1,4 @@
-module("creme.ajax.backend.js", {
+QUnit.module("creme.ajax.backend.js", {
     setup: function() {
     },
 

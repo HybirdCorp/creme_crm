@@ -16,31 +16,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.utils = {};
+(function($) {"use strict";
+
+creme.utils = creme.utils || {};
 
 creme.utils.openWindow = function (url, name, params) {
     window[name] = window.open(url, name, params || 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600');
-}
+};
 
 creme.utils.reload = function (target) {
     var target = target || window;
     target.location.href = target.location.href;
-}
+};
 
 creme.utils.goTo = function(url, target) {
     var target = target || window;
     target.location.href = url;
-}
+};
 
 creme.utils.showPageLoadOverlay = function() {
     //console.log('show loading overlay');
     creme.utils.loading('', false);
-} 
+};
 
 creme.utils.hidePageLoadOverlay = function() {
     //console.log('hide loading overlay');
     creme.utils.loading('', true);
-} 
+};
 
 creme.utils.loading = function(div_id, is_loaded, params) {
     var overlay = creme.utils._overlay;
@@ -59,7 +61,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 
     var visible = overlay._loadstack > 0;
     overlay.update(visible, null, visible ? 100 : 0);
-}
+};
 
 // TODO : deprecate it ? (only used by creme.utils.showInnerPopup)
 creme.utils.showDialog = function(text, options, div_id) {
@@ -89,7 +91,7 @@ creme.utils.showDialog = function(text, options, div_id) {
                 $(this).remove();
         }
     }, options));
-}
+};
 
 // TODO : only used by menu, so refactor it when horizontal menu will replace old one.
 creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factorise (see ajaxDelete()) ??
@@ -115,13 +117,13 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factor
                      }
                   })
                  .open();
-}
+};
 
 creme.utils.confirmSubmit = function(atag, msg) {
     creme.dialogs.confirm(msg || gettext('Are you sure ?'))
                  .onOk(function() {$('form', $(atag)).submit();})
                  .open();
-}
+};
 
 // Avoid the re-declaration in case of reload of creme_utils.js
 if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [];
@@ -210,7 +212,7 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
     }, ajax_options));
 
     return div_id;
-}
+};
 
 creme.utils.handleDialogSubmit = function(dialog) {
     var div_id = dialog.attr('id');
@@ -229,7 +231,7 @@ creme.utils.handleDialogSubmit = function(dialog) {
               creme.utils.loading('loading', false, {});
           },
           success: function(data, status) {
-              is_closing = data.startsWith('<div class="in-popup" closing="true"');
+              var is_closing = data.startsWith('<div class="in-popup" closing="true"');
 
               if (!is_closing) {
                   data += '<input type="hidden" name="whoami" value="' + div_id + '"/>';
@@ -263,7 +265,7 @@ creme.utils.handleDialogSubmit = function(dialog) {
     });
 
     return false;
-}
+};
 
 creme.utils.scrollTo = function(element) {
     var position = $(element).position();
@@ -271,7 +273,7 @@ creme.utils.scrollTo = function(element) {
     if (Object.isNone(position) === false) {
         scrollTo(position.left, position.top);
     }
-}
+};
 
 creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url) {
     $(dial).dialog("destroy");
@@ -291,7 +293,7 @@ creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url) {
         // Get the dial's parent dialog or window
         creme.utils.reloadDialog(creme.utils.stackedPopups[creme.utils.stackedPopups.length-1] || window);
     }
-}
+};
 
 creme.utils.reloadDialog = function(dial) {
     if (dial == window) {
@@ -307,7 +309,7 @@ creme.utils.reloadDialog = function(dial) {
                                                     '?whoami=' + div_id;
 
     $.get(reload_url, function(data) { $(dial).html(data); });
-}
+};
 
 creme.utils.appendInUrl = function(url, strToAppend) {
     var index_get = url.indexOf('?');
@@ -330,7 +332,7 @@ creme.utils.appendInUrl = function(url, strToAppend) {
     } else url += strToAppend + get;
 
     return url + anchor;
-}
+};
 
 creme.utils.innerPopupNReload = function(url, reload_url) {
     console.warn('creme.utils.innerPopupNReload() is deprecated ; use creme.blocks.form() instead.');
@@ -340,7 +342,7 @@ creme.utils.innerPopupNReload = function(url, reload_url) {
             creme.blocks.reload(reload_url);
         }
     });
-}
+};
 
 creme.utils.decorateSearchResult = function(research) {
     var research = research.toLowerCase();
@@ -377,13 +379,13 @@ creme.utils.decorateSearchResult = function(research) {
         // and we want to avoid making the count() queries twice.
         var total = 0;
         root.find('[search-count]').each(function() {
-            total += parseInt(this.getAttribute('search-count'));
+            total += parseInt(this.attr('search-count'));
         });
 
         root.find('#search_results_title')
             .text(ngettext('Search results: %d entity', 'Search results: %d entities', total).format(total));
     });
-}
+};
 
 creme.utils.openQuickForms = function(element) {
     // NB: deprecated because it does not use reversed URLs
@@ -395,7 +397,7 @@ creme.utils.openQuickForms = function(element) {
     var count = $('[name="entity_count"]', element).val();
 
     creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
-}
+};
 
 creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector) {
     var $select_all = $(select_all_selector);
@@ -434,7 +436,7 @@ creme.utils.showErrorNReload = function() {
 
 creme.utils.confirmPOSTQuery = function(url, options, data) {
     return creme.utils.confirmAjaxQuery(url, $.extend({action:'post'}, options), data);
-}
+};
 
 creme.utils.confirmAjaxQuery = function(url, options, data) {
     var options = $.extend({action: 'get', warnOnFail: true}, options || {});
@@ -480,7 +482,7 @@ creme.utils.confirmAjaxQuery = function(url, options, data) {
     }
 
     return action;
-}
+};
 
 creme.utils.ajaxQuery = function(url, options, data) {
     var options = $.extend({action: 'get', warnOnFail: true}, options || {});
@@ -572,7 +574,7 @@ creme.utils.innerPopupFormAction = function(url, options, data) {
                                        data: data
                                    });
     });
-}
+};
 
 /*******************************************************************************
     Taken from Underscore.js ( http://underscorejs.org/ )
@@ -619,7 +621,7 @@ creme.utils.debounce = function(func, wait, immediate) {
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, args);
     };
-}
+};
 
 creme.utils.isHTMLDataType = function(dataType) {
     if (!dataType) {
@@ -628,4 +630,5 @@ creme.utils.isHTMLDataType = function(dataType) {
 
     var cleaned_dt = dataType.toLowerCase();
     return cleaned_dt == 'html' || cleaned_dt == 'text/html';
-}
+};
+}(jQuery));
