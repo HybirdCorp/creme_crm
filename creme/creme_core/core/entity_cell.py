@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2016  Hybird
+#    Copyright (C) 2013-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -173,6 +173,7 @@ class EntityCellRegularField(EntityCell):
         "Use build() instead of using this constructor directly."
         self._model = model
         self._field_info = field_info
+        self._printer_html = self._printer_csv = None
 
         field = field_info[0]
         has_a_filter = True
@@ -248,18 +249,24 @@ class EntityCellRegularField(EntityCell):
         populate_related(entities, [cell.value for cell in cells])
 
     def render_html(self, entity, user):
-        from ..gui.field_printers import field_printers_registry
+        printer = self._printer_html
 
-        self.render_html = printer = \
-            field_printers_registry.build_field_printer(entity.__class__, self.value, output='html')
+        if printer is None:
+            from ..gui.field_printers import field_printers_registry
+
+            self._printer_html = printer = \
+                 field_printers_registry.build_field_printer(entity.__class__, self.value, output='html')
 
         return printer(entity, user)
 
     def render_csv(self, entity, user):
-        from ..gui.field_printers import field_printers_registry
+        printer = self._printer_csv
 
-        self.render_csv = printer = \
-            field_printers_registry.build_field_printer(entity.__class__, self.value, output='csv')
+        if printer is None:
+            from ..gui.field_printers import field_printers_registry
+
+            self._printer_csv = printer = \
+                field_printers_registry.build_field_printer(entity.__class__, self.value, output='csv')
 
         return printer(entity, user)
 
