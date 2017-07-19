@@ -71,7 +71,7 @@ for app_config in apps.get_app_configs():
 
     try:
         find_module("billing_register", __import__(app_name, {}, {}, [app_name.split(".")[-1]]).__path__)
-    except ImportError:
+    except (ImportError, TypeError):
         # there is no app creme_config.py, skip it
         continue
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,12 @@
 
 from imp import find_module
 from importlib import import_module
+import logging
 
 from django.apps import apps
+
+
+logger = logging.getLogger(__name__)
 
 
 def find_n_import(filename, imports):
@@ -32,7 +36,7 @@ def find_n_import(filename, imports):
 
         try:
             find_module(filename, __import__(app_name, {}, {}, [app_name.split(".")[-1]]).__path__)
-        except ImportError:
+        except (ImportError, TypeError):
             # There is no app report_backend_register.py, skip it
             continue
 
@@ -61,4 +65,4 @@ def safe_import_object(objectpath):
     try:
         return import_object(objectpath)
     except Exception as e:
-        print 'An error occurred trying to import "%s": [%s]' % (objectpath, e)
+        logger.warn('An error occurred trying to import "%s": [%s]', objectpath, e)
