@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,8 +40,8 @@ from ..utils import round_to_2
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
 from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
-from .product_line import ProductLine
-from .service_line import ServiceLine
+# from .product_line import ProductLine
+# from .service_line import ServiceLine
 
 
 logger = logging.getLogger(__name__)
@@ -200,7 +200,11 @@ class Base(CremeEntity):
         #     logger.debug('Cache HIT for product lines in document pk=%s !!' % self.id)
         #
         # return self._productlines_cache
-        return self.get_lines(ProductLine)
+
+        # return self.get_lines(ProductLine)
+        from .. import get_product_line_model
+
+        return self.get_lines(get_product_line_model())
 
     @property
     def service_lines(self):
@@ -216,7 +220,11 @@ class Base(CremeEntity):
         #     logger.debug('Cache HIT for service lines in document pk=%s !!' % self.id)
         #
         # return self._servicelines_cache
-        return self.get_lines(ServiceLine)
+
+        # return self.get_lines(ServiceLine)
+        from .. import get_service_line_model
+
+        return self.get_lines(get_service_line_model())
 
     def get_lines(self, klass):
         assert not klass._meta.abstract, '"klass" cannot be an abstract model (use ProductLine or ServiceLine)'
