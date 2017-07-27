@@ -27,7 +27,7 @@ from django.db import IntegrityError
 from django.db.models import (FieldDoesNotExist, TextField, BooleanField,
         DateField, DateTimeField, FileField, ForeignKey, ManyToManyField)
 from django.db.transaction import atomic
-from django.template.context import Context
+# from django.template.context import Context
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import SettingValue
@@ -260,6 +260,7 @@ class CrudityBackend(object):
         self.buttons.extend(buttons)
 
     def get_rendered_buttons(self):
-        return [button.render(Context({'backend': self}))
+        # return [button.render(Context({'backend': self}))
+        return [button.render({'backend': self})
                     for button in self.buttons if self.is_configured
                ]
