@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from random import randint
 import time
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.db import models
 from django.utils import formats
@@ -72,10 +72,12 @@ def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
 
     return encoded_img
 
+
 def get_repr(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return ''
     return unicode(contact)
+
 
 def get_organisation(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
@@ -88,6 +90,7 @@ def get_organisation(contact=None, needs_attr=False, *args, **kwargs):
         organisation = unicode(relations[0].object_entity.get_real_entity())
 
     return organisation
+
 
 CREME_CONTACT_MAPPING = {
     'Contacts:': {
@@ -128,6 +131,7 @@ CREME_CONTACT_MAPPING = {
 if not settings.IS_ZPUSH:
     CREME_CONTACT_MAPPING['AirSyncBase:'].update({'description': 'Body'})
 
+
 ### Contact helpers
 def create_or_update_organisation(contact, d, user, history=None):
     organisation = d.pop('organisation', None)
@@ -147,6 +151,7 @@ def create_or_update_organisation(contact, d, user, history=None):
                                        object_entity=org,
                                        user=user,
                                       )
+
 
 def create_or_update_address(contact, prefix, data, history=None):
     pop = data.pop
@@ -190,15 +195,16 @@ def create_or_update_address(contact, prefix, data, history=None):
                             address=address_content,
                            )
 
-        #TODO: "c_address.onwer = contact"
-        c_address.content_type = ContentType.objects.get_for_model(Contact)
-        c_address.object_id = contact.id
+        # c_address.content_type = ContentType.objects.get_for_model(Contact)
+        # c_address.object_id = contact.id
+        c_address.owner = contact
         c_address.save()
         setattr(contact, '%s_address' % prefix, c_address)
         changes.append(('%s_address' % prefix, c_address))
 
     if history is not None:
         history.changes = changes
+
 
 def create_or_update_civility(contact, d, history=None):
     civility_title = d.pop('civility__title', None)
@@ -209,6 +215,7 @@ def create_or_update_civility(contact, d, history=None):
         if history is not None and contact.civility != old_civility:
             history.changes = [('civility__title', contact.civility)]
 
+
 def create_or_update_position(contact, d, history=None):
     position_title = d.pop('position__title', None)
     if position_title is not None:
@@ -217,6 +224,7 @@ def create_or_update_position(contact, d, history=None):
 
         if history is not None and contact.position != old_position:
             history.changes = [('position__title', contact.position)]
+
 
 def create_image_from_b64(contact, d, user):
     image_b64 = d.pop('image', None)
@@ -250,6 +258,8 @@ def create_image_from_b64(contact, d, user):
         img_entity.user = user
         img_entity.save()
         contact.image = img_entity
+
+
 ###
 def _format_data(model_or_entity, data):
     for field_name, value in data.iteritems():
@@ -269,12 +279,14 @@ def _format_data(model_or_entity, data):
             data[field_name] = value
 #            data[field_name] = value.decode('utf-8')
 
+
+# TODO: @atomic
 def save_contact(data, user, *args, **kwargs):
     """Save a contact from a populated data dict
         @Returns : A saved contact instance
     """
     c = Contact()
-    ct_contact = ContentType.objects.get_for_model(Contact)
+    # ct_contact = ContentType.objects.get_for_model(Contact)
     pop = data.pop
 
     pop('', None)
@@ -289,7 +301,7 @@ def save_contact(data, user, *args, **kwargs):
                         po_box=pop('billing_address__po_box', None),
                         address=pop('billing_address__address', None),
                        )
-    c.billing_address  = b_address
+    # c.billing_address = b_address
 
     #TODO:Use create_or_update_address
     s_address = Address(city=pop('shipping_address__city', None),
@@ -298,7 +310,7 @@ def save_contact(data, user, *args, **kwargs):
                         po_box=pop('shipping_address__po_box', None),
                         address=pop('shipping_address__address', None),
                        )
-    c.shipping_address = s_address
+    # c.shipping_address = s_address
 
     create_image_from_b64(c, data, user)
 
@@ -307,21 +319,26 @@ def save_contact(data, user, *args, **kwargs):
     _format_data(c, data)
 
     c.__dict__.update(data) #TODO: setattr() ??
-    c.save() #TODO: are the addresses OK (when they do not have a PK yet) ??
+    c.save()
 
     create_or_update_organisation(c, data, user)
 
-    #TODO: "b_address.owner = c" instead
-    b_address.content_type = ct_contact
-    b_address.object_id = c.id
+    # b_address.content_type = ct_contact
+    # b_address.object_id = c.id
+    b_address.owner = c
     b_address.save()
 
-    #TODO: idem
-    s_address.content_type = ct_contact
-    s_address.object_id = c.id
+    # s_address.content_type = ct_contact
+    # s_address.object_id = c.id
+    s_address.owner = c
     s_address.save()
 
+    c.billing_address = b_address
+    c.shipping_address = s_address
+    c.save()
+
     return c
+
 
 def update_contact(contact, data, user, history, *args, **kwargs):
     """Update a contact instance from a updated data dict
@@ -352,6 +369,7 @@ def update_contact(contact, data, user, history, *args, **kwargs):
 
     return contact
 
+
 def write_simple_history(history, data):
     changes = []
     for ns, fields in CREME_CONTACT_MAPPING.iteritems():
@@ -362,6 +380,7 @@ def write_simple_history(history, data):
             #else tell the attr was emptied?
 
     history.changes = changes
+
 
 def serialize_contact(contact, namespaces):
     """Serialize a contact in xml respecting namespaces prefixes
@@ -391,6 +410,7 @@ def serialize_contact(contact, namespaces):
                            )
 
     return "".join(xml)
+
 
 def pre_serialize_contact(value, c_field, xml_field, f_class, entity):
     return value
