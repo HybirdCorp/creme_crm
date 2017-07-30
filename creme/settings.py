@@ -853,6 +853,10 @@ CREME_GET_EMAIL_SSL          = False  # True or False
 CREME_GET_EMAIL_SSL_KEYFILE  = ''  # PEM formatted file that contains your private key (only used if CREME_GET_EMAIL_SSL is True).
 CREME_GET_EMAIL_SSL_CERTFILE = ''  # PEM formatted certificate chain file (only used if CREME_GET_EMAIL_SSL is True).
 
+# Path to a readable directory. Used by the fetcher 'filesystem'.
+# The contained files are used to create entity (ex: the input 'ini' used .ini files) ; used files are deleted.
+CRUDITY_FILESYS_FETCHER_DIR = ''
+
 # Only for job. Default user id which will handle the synchronization
 # User used to synchronize mails with management command.
 # This ID is only used during the installation for the crudity's job configuration.
@@ -864,18 +868,24 @@ CREME_GET_EMAIL_JOB_USER_ID = 1
 # Here a template of a crudity backend configuration:
 #CRUDITY_BACKENDS = [
 #    {
-#        "fetcher": "email",                # The name of the fetcher (which is registered with). Available choices: 'email'
-#        "input": "infopath",               # The name of the input (which is registered with). Available choices: 'raw', 'infopath' (that needs "lcab" program)
+#        "fetcher": "email",                # The name of the fetcher (which is registered with).
+#                                           #  Available choices:
+#                                           #   - 'email' (need the settings CREME_GET_EMAIL* to be filled).
+#                                           #   - 'filesystem' (see CRUDITY_FILESYS_FETCHER_DIR).
+#        "input": "infopath",               # The name of the input (which is registered with).
+#                                           #  Available choices:
+#                                           #   - for the fetcher 'email': 'raw', 'infopath' (that needs "lcab" program).
+#                                           #   - for the fetcher 'filesystem': 'ini'.
 #                                           # Can be omitted if 'subject' is '*' (see below).
 #        "method": "create",                # The method of the input to call. Available choices: 'create'
-#                                           # Can be omitted if 'subject' is '*' (see below).
+#                                           #  Can be omitted if 'subject' is '*' (see below).
 #        "model": "activities.activity",    # The targeted model
 #        "password": "meeting",             # Password to be authorized in the input
 #        "limit_froms": (),                 # A white list of sender (Example with an email:
 #                                           #  If a recipient email's address not in this drop email, let empty to allow all email addresses)
 #        "in_sandbox": True,                # True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
 #        "body_map"   : {                   # Allowed keys format : "key": "default value".
-#            "title": "",                   # Keys have to be real field names of the model
+#            "title": "",                   #  Keys have to be real field names of the model
 #            "user_id": 1,
 #        },
 #        "subject": u"CREATEACTIVITYIP"     # Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase.

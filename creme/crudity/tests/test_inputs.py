@@ -2,12 +2,15 @@
 
 try:
     from datetime import date
+    from os.path import dirname, join, exists
+    from shutil import rmtree, copy
+    from tempfile import mkdtemp, NamedTemporaryFile
 
     from django.contrib.auth import get_user_model
     from django.core.files.uploadedfile import SimpleUploadedFile
     from django.db.models.query_utils import Q
 
-    from creme.creme_core.models import Language
+    from creme.creme_core.models import Language, FakeContact
 
     from creme.documents.tests.base import skipIfCustomFolder, skipIfCustomDocument
 
@@ -19,8 +22,8 @@ try:
     from ..backends.models import CrudityBackend
     from ..fetchers.pop import PopEmail
     from ..inputs.email import CreateEmailInput, CreateInfopathInput
-    from ..models.actions import WaitingAction
-    from ..models.history import History
+    from ..inputs.filesystem import IniFileInput
+    from ..models import WaitingAction, History
     from ..utils import decode_b64binary
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, ActivityFakeBackend,
             Contact, Activity, Document, Folder)
@@ -28,7 +31,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class InputsBaseTestCase(CrudityTestCase):
+class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
     def _get_pop_email(self, body=u"", body_html=u"", senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
         return PopEmail(body=body, body_html=body_html, senders=senders, tos=tos, ccs=ccs,
                         subject=subject, dates=dates, attachments=attachments
@@ -43,7 +46,7 @@ class InputsBaseTestCase(CrudityTestCase):
         return ~Q(pk__in=list(model.objects.values_list('pk', flat=True)))
 
 
-class InputsTestCase(InputsBaseTestCase):
+class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
     def _get_email_input(self, backend, **backend_cfg):
         return self._get_input(CreateEmailInput, backend, **backend_cfg)
 
@@ -1395,3 +1398,260 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         filename, blob = decode_b64binary(img_content)
         self.assertEqual(blob, document.filedata.read())
+
+
+class FileSystemInputTestCase(CrudityTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(FileSystemInputTestCase, cls).setUpClass()
+
+        cls.tmp_dir_path = mkdtemp(prefix='creme_crudity_fsinput')
+
+    @classmethod
+    def tearDownClass(cls):
+        super(FileSystemInputTestCase, cls).tearDownClass()
+
+        rmtree(cls.tmp_dir_path)
+
+    @classmethod
+    def get_deletable_file_path(cls, name):
+        ext = '.ini'
+
+        tmpfile = NamedTemporaryFile(prefix=name, suffix=ext, delete=False, dir=cls.tmp_dir_path)
+        tmpfile.close()
+
+        copy(join(dirname(__file__), 'data', name + ext), tmpfile.name)
+
+        return tmpfile.name
+
+    def test_error01(self):
+        "Unknown file"
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+        backend = self.FakeContactBackend({'subject': subject})
+
+        inifile_input.add_backend(backend)
+
+        with self.assertNoException():
+            ok = IniFileInput().create(join(dirname(__file__), 'data', 'unknown.ini'))
+
+        self.assertIs(ok, False)
+
+    def test_error02(self):
+        "Invalid format"
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+        backend = self.FakeContactBackend({'subject': subject})
+
+        inifile_input.add_backend(backend)
+
+        with self.assertNoException():
+            ok = IniFileInput().create(self.get_deletable_file_path('test_error_01'))
+
+        self.assertIs(ok, False)
+        # TODO: assertLog
+
+    def test_error03(self):
+        "No head"
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+        backend = self.FakeContactBackend({'subject': subject})
+
+        inifile_input.add_backend(backend)
+
+        with self.assertNoException():
+            ok = IniFileInput().create(self.get_deletable_file_path('test_error_02'))
+
+        self.assertIs(ok, False)
+        # TODO: assertLog
+
+    def test_subject_dont_matches(self):
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_orga')
+        backend = self.FakeContactBackend({'subject': subject})
+
+        inifile_input.add_backend(backend)
+
+        with self.assertNoException():
+            ok = IniFileInput().create(self.get_deletable_file_path('test_ok_01'))
+
+        self.assertIs(ok, False)
+
+    def test_sandbox01(self):
+        self.assertFalse(WaitingAction.objects.all())
+
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+        backend = self.FakeContactBackend({'subject': subject,
+                                           'in_sandbox': True,
+                                           'body_map': {'user_id':     1,
+                                                        'last_name':   '',
+                                                        'first_name':  '',
+                                                        'description': '',
+                                                       },
+                                          }
+                                         )
+
+        inifile_input.add_backend(backend)
+
+        file_path = self.get_deletable_file_path('test_ok_01')
+
+        with self.assertNoException():
+            ok = inifile_input.create(file_path)
+
+        self.assertIs(ok, True)
+
+        wactions = WaitingAction.objects.all()
+        self.assertEqual(1, len(wactions))
+
+        waction = wactions[0]
+        self.assertEqual({'user_id':     '1',
+                          'first_name':  'Frodo',
+                          'last_name':   'Baggins',
+                          'description': 'this hobbit will\nsave the world',
+                         },
+                         waction.get_data()
+                        )
+
+        owner = waction.user
+        self.assertIsNotNone(owner)
+        self.assertTrue(owner.is_superuser)
+
+        self.assertFalse(exists(file_path))
+
+    def test_sandbox02(self):
+        "Smaller body_map"
+        self.assertFalse(WaitingAction.objects.all())
+
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+        backend = self.FakeContactBackend({'subject':    subject,
+                                           'in_sandbox': True,
+                                           'body_map':   {'user_id':     1,
+                                                          'last_name':   '',
+                                                          'first_name':  '',
+                                                          # 'description': '',
+                                                         },
+                                          }
+                                         )
+
+        inifile_input.add_backend(backend)
+
+        with self.assertNoException():
+            ok = inifile_input.create(self.get_deletable_file_path('test_ok_01'))
+
+        self.assertIs(ok, True)
+
+        wactions = WaitingAction.objects.all()
+        self.assertEqual(1, len(wactions))
+        self.assertEqual({'user_id':     '1',
+                          'first_name':  'Frodo',
+                          'last_name':   'Baggins',
+                          # 'description': 'this hobbit will\nsave the world',
+                         },
+                         wactions[0].get_data()
+                        )
+
+    def test_sandbox_by_user01(self):
+        self._set_sandbox_by_user()
+
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+        backend = self.FakeContactBackend({'subject':    subject,
+                                           'in_sandbox': True,
+                                           'body_map':   {'user_id':     1,
+                                                          'last_name':   '',
+                                                          'first_name':  '',
+                                                         },
+                                          }
+                                         )
+
+        inifile_input.add_backend(backend)
+
+        with self.assertNoException():
+            ok = inifile_input.create(self.get_deletable_file_path('test_ok_02'))
+
+        self.assertIs(ok, True)
+
+        wactions = WaitingAction.objects.all()
+        self.assertEqual(1, len(wactions))
+
+        waction = wactions[0]
+        self.assertEqual({'user_id':    '1',
+                          'first_name': 'Bilbo',
+                          'last_name':  'Baggins',
+                         },
+                         waction.get_data()
+                        )
+        self.assertEqual(self.other_user, waction.user)
+
+    def test_sandbox_by_user02(self):
+        "Unknown username"
+        self._set_sandbox_by_user()
+
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+        backend = self.FakeContactBackend({'subject':    subject,
+                                           'in_sandbox': True,
+                                           'body_map':   {'user_id':     1,
+                                                          'last_name':   '',
+                                                          'first_name':  '',
+                                                         },
+                                          }
+                                         )
+
+        inifile_input.add_backend(backend)
+
+        with self.assertNoException():
+            ok = inifile_input.create(self.get_deletable_file_path('test_error_03'))
+
+        self.assertIs(ok, True)
+        # TODO: assertLog
+
+        wactions = WaitingAction.objects.all()
+        self.assertEqual(1, len(wactions))
+
+        waction = wactions[0]
+        self.assertEqual({'user_id':    '1',
+                          'first_name': 'Samwise',
+                          'last_name':  'Gamgee',
+                         },
+                         waction.get_data()
+                        )
+        owner = waction.user
+        self.assertIsNotNone(owner)
+        self.assertNotEqual(self.other_user, owner)
+        self.assertTrue(owner.is_superuser)
+
+    def test_no_sandbox01(self):
+        inifile_input = IniFileInput()
+        subject = CrudityBackend.normalize_subject('test_create_contact')
+        backend = self.FakeContactBackend({'subject':    subject,
+                                           'in_sandbox': False,
+                                           'body_map':   {'user_id':     1,
+                                                          'last_name':   '',
+                                                          'first_name':  '',
+                                                          'description': '',
+                                                         },
+                                          }
+                                         )
+        backend.fetcher_name = 'fs'
+
+        inifile_input.add_backend(backend)
+
+        with self.assertNoException():
+            ok = inifile_input.create(self.get_deletable_file_path('test_ok_01'))
+
+        self.assertIs(ok, True)
+        self.assertFalse(WaitingAction.objects.all())
+
+        c = self.get_object_or_fail(FakeContact, first_name='Frodo', last_name='Baggins')
+        self.assertEqual('this hobbit will\nsave the world', c.description)
+
+        history = self.get_object_or_fail(History, entity=c.id)
+        self.assertEqual('fs - ini', history.source)
+        self.assertEqual('create',   history.action)
+
+        owner = history.user
+        self.assertIsNotNone(owner)
+        self.assertTrue(owner.is_superuser)

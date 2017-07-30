@@ -161,11 +161,12 @@ class CreateEmailInput(EmailInput):
     def get_owner(is_sandbox_by_user, sender=None):
         """Returns the owner to assign to waiting actions and history"""
         if is_sandbox_by_user:
-            #TODO: use first()
+            # TODO: use first()
             User = get_user_model()
             try:
                 return User.objects.filter(email=sender)[0]
             except IndexError:
+                # TODO: use get_admin()
                 return User.objects.filter(is_superuser=True).order_by('-pk')[0] # No need to catch IndexError
 
         return None
