@@ -105,8 +105,8 @@ class _CremeTestCase(object):
         self.role = role
 
         basic_user = CremeUser(username='mireille', email='mireille@noir.jp', role=role,
-                          first_name='Mireille', last_name='Bouquet',
-                         )
+                               first_name='Mireille', last_name='Bouquet',
+                              )
         basic_user.set_password(password)
         basic_user.save()
 

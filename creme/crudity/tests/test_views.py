@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    import ConfigParser
+    import io
     import poplib
 
     from django.conf import settings
@@ -241,6 +243,100 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertEqual('application/vnd.sealed.eml', response['Content-Type'])
         self.assertContains(response, 'Subject: CREATE_CONTACT')
         self.assertTemplateUsed(response, 'crudity/create_email_template.html')
+
+    def test_download_ini_template01(self):
+        "Error"
+        self._build_test_registry(FAKE_CRUDITY_BACKENDS)
+        self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('INVALID',)))  # No backend
+        self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('CREATECONTACT',)))  # Backend with bad type
+
+    def test_download_ini_template02(self):
+        subject = 'CREATE_CONTACT'
+        last_name = 'Suzumiya'
+        description = 'The best waifu\nis here'
+
+        self._build_test_registry([{'fetcher':     'filesystem',
+                                    'input':       'ini',
+                                    'method':      'create',
+                                    'model':       'creme_core.fakecontact',
+                                    'password':    '',
+                                    'limit_froms': (),
+                                    'in_sandbox':  True,
+                                    'body_map':    {
+                                        'user_id':     1,
+                                        'first_name':  '',
+                                        'last_name':   last_name,
+                                        'description': description,
+                                    },
+                                    'subject':     subject,
+                                   },
+                                  ]
+                                 )
+
+        response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
+        self.assertEqual('attachment; filename=%s.ini' % subject,
+                         response['Content-Disposition']
+                        )
+        self.assertEqual('text/plain', response['Content-Type'])
+
+        config = ConfigParser.RawConfigParser()
+
+        with self.assertNoException():
+            config.readfp(io.BytesIO(response.content))
+
+        with self.assertNoException():
+            action = config.get('head', 'action')
+        self.assertEqual(subject, action)
+
+        with self.assertNoException():
+            read_user_id = config.get('body', 'user_id')
+        self.assertEqual('1', read_user_id)
+
+        with self.assertNoException():
+            read_first_name = config.get('body', 'first_name')
+        self.assertEqual('', read_first_name)
+
+        with self.assertNoException():
+            read_last_name = config.get('body', 'last_name')
+        self.assertEqual(last_name, read_last_name)
+
+        with self.assertRaises(ConfigParser.NoOptionError):
+            config.get('body', 'sector')
+
+        with self.assertNoException():
+            read_desc = config.get('body', 'description')
+        self.assertEqual(description, read_desc)
+
+    def test_download_ini_template03(self):
+        "Sandbox per user"
+        self._set_sandbox_by_user()
+
+        subject = 'CREATE_CONTACT'
+        self._build_test_registry([{'fetcher':     'filesystem',
+                                    'input':       'ini',
+                                    'method':      'create',
+                                    'model':       'creme_core.fakecontact',
+                                    'password':    '',
+                                    'limit_froms': (),
+                                    'in_sandbox':  True,
+                                    'body_map':    {
+                                        'user_id':     1,
+                                        'last_name':   '',
+                                    },
+                                    'subject':     subject,
+                                   },
+                                  ]
+                                 )
+
+        response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
+        config = ConfigParser.RawConfigParser()
+
+        with self.assertNoException():
+            config.readfp(io.BytesIO(response.content))
+
+        with self.assertNoException():
+            username = config.get('head', 'username')
+        self.assertEqual(self.user.username, username)
 
     def test_history(self):
         # response = self.assertGET200('/crudity/history')

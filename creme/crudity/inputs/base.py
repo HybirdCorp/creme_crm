@@ -53,6 +53,7 @@ class CrudityInput(object):
         return False
 
     def register_buttons(self, *buttons):
+        # TODO: add buttons to existing backends ?
         self._buttons.extend(buttons)
 
     def authorize_senders(self, backend, senders):

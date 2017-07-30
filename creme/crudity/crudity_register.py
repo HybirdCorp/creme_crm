@@ -20,14 +20,19 @@
 
 from django.conf import settings
 
-from .fetchers.pop import PopFetcher  # pop_fetcher
-from .inputs import email
+# from .fetchers.pop import pop_fetcher
+from .fetchers import filesystem as fs_fetchers, pop
+from .inputs import email as email_inputs, filesystem as fs_inputs
 
 
 # fetchers = {'email': [pop_fetcher]}
-fetchers = {'email': [PopFetcher]}
+fetchers = {'email':      [pop.PopFetcher],
+            'filesystem': [fs_fetchers.FileSystemFetcher],
+           }
 # inputs = {'email': [email.create_email_input, email.create_infopath_input]}
-inputs = {'email': [email.CreateEmailInput, email.CreateInfopathInput]}
+inputs = {'email':      [email_inputs.CreateEmailInput, email_inputs.CreateInfopathInput],
+          'filesystem': [fs_inputs.IniFileInput],
+         }
 backends = []
 
 

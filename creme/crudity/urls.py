@@ -2,7 +2,7 @@
 
 from django.conf.urls import url
 
-from .views import actions, history, infopath, email
+from .views import actions, history, infopath, email, filesystem
 
 
 urlpatterns = [
@@ -20,6 +20,8 @@ urlpatterns = [
     url(r'^history$',                                           history.history, name='crudity__history'),
     url(r'^history_block/block_crudity-(?P<ct_id>\d+)/reload$', history.reload,  name='crudity__reload_history_block'),
 
-    url(r'^infopath/create_form/(?P<subject>\w+)$', infopath.create_form, name='crudity__dl_infopath_form'),
-    url(r'^download_email_template/(?P<subject>\w+)$', email.download_email_template, name='crudity__dl_email_template'),
+    # TODO: url which handles all templates ?
+    url(r'^infopath/create_form/(?P<subject>\w+)$',    infopath.create_form,             name='crudity__dl_infopath_form'),
+    url(r'^download_email_template/(?P<subject>\w+)$', email.download_email_template,    name='crudity__dl_email_template'),
+    url(r'^download_ini_template/(?P<subject>\w+)$',   filesystem.download_ini_template, name='crudity__dl_fs_ini_template'),
 ]
