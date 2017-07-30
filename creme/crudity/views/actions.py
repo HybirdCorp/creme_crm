@@ -147,8 +147,16 @@ def _fetch(user):
     count = 0
 
     for fetcher in registry.crudity_registry.get_fetchers():
-        all_data = fetcher.fetch()
+        # all_data = fetcher.fetch()
         inputs = fetcher.get_inputs()
+
+        if not any(input.backends
+                       for crud_inputs in inputs
+                           for input in crud_inputs.itervalues()
+                  ) and not fetcher.get_default_backend():
+            continue
+
+        all_data = fetcher.fetch()
 
         for data in all_data:
             handled = False

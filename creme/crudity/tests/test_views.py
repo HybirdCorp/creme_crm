@@ -96,9 +96,6 @@ class FakePOP3_SSL(FakePOP3):
 
 
 class CrudityViewsTestCase(CrudityTestCase):
-    # _original_fetchers = None
-    # _original_backends = None
-
     _original_POP3 = None
     _original_POP3_SSL = None
     _original_crudity_registry = None
@@ -135,22 +132,9 @@ class CrudityViewsTestCase(CrudityTestCase):
     def tearDown(self):
         super(CrudityViewsTestCase, self).tearDown()
 
-        # if self._original_fetchers is not None:
-        #     crudity_registry._fetchers = self._original_fetchers
-        #     crudity_registry._backends = self._original_backends
-
         FakePOP3.instances[:] = ()
 
-    # def _build_test_registry(self):
     def _build_test_registry(self, backend_configs=None):
-        # self._original_fetchers = crudity_registry._fetchers
-        # self._original_backends = crudity_registry._backends
-        #
-        # crudity_registry._fetchers = {}
-        # crudity_registry._backends = {}
-        #
-        # crudity_registry.autodiscover()
-        # crudity_registry.dispatch()
         registry.crudity_registry.dispatch(backend_configs if backend_configs is not None else
                                            settings.CRUDITY_BACKENDS
                                           )
@@ -469,11 +453,20 @@ class CrudityViewsTestCase(CrudityTestCase):
     # @skipIfCustomContact
     @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
     def test_actions_fetch02(self):
+        "Fetcher without backend are not used + not default backend"
+        self.SwallowFetcher.last_name = last_name = 'Suzumiya'
+        self.SwallowFetcher.user_id = self.user.id
+
+        self._build_test_registry()
+
         # response = self._aux_test_actions_fetch(lambda: self.client.get('/crudity/waiting_actions'))
         # self.assertEqual(200, response.status_code)
         # self.assertGET200('/crudity/waiting_actions')
         self.assertGET200(reverse('crudity__actions'))
-        # TODO: complete
+
+        self.assertFalse(FakePOP3.instances)  # Pop is not fetched because the fetcher has no configured backend.
+
+        self.get_object_or_fail(FakeContact, last_name=last_name)
 
     # @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
     def test_actions_fetch03(self):
