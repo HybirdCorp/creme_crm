@@ -724,7 +724,7 @@ def delete_entity(request, entity_id):
 def delete_related_to_entity(request, ct_id):
     """Delete a model related to a CremeEntity.
     @param request: Request with POST method ; POST data should contain an 'id'(=pk) value.
-    @param model: A django model class that implements the method get_related_entity().
+    @param ct_id: ContentType ID of a django model class which implements the method get_related_entity().
     """
     model = get_ct_or_404(ct_id).model_class()
     if issubclass(model, CremeEntity):
