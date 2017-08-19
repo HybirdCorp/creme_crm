@@ -1,19 +1,21 @@
-{% load i18n %}
-{% load creme_core_tags %}{% has_perm_to link object as link_perm %}
-{% comment %} {% trans which_document as img_title %} {% endcomment %}
+{% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}
+{# {% trans which_document as img_title %} #}
 {% if link_perm %}
 {% comment %}
     <a class="menu_button" onclick="creme.billing.linkToDocument('{{become_url}}/source/', {{managed_orga|optionize_model_iterable:'dict'|jsonify}});">
         <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
 {% endcomment %}
-    <a class="menu_button" onclick="creme.dialogs.form('{% url url_name object.id %}', {reloadOnSuccess: true}).open({width:'80%'});">
-        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{model_vname}}" alt="{{model_vname}}" />
+{#    <a class="menu_button" onclick="creme.dialogs.form('{% url url_name object.id %}', {reloadOnSuccess: true}).open({width: '80%'});"> #}
+    <a class="menu_button" onclick="creme.dialogs.form('{% url url_name object.id %}').onFormSuccess(function() {new creme.bricks.BricksReloader().dependencies(['creme_core.relation', 'creme_core.relation.{{rtype_id}}', '{{model_id}}']).action().start();}).open({width: '80%'});">
+{#        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{model_vname}}" alt="{{model_vname}}" /> #}
+        {% widget_icon name='invoice' size='instance-button' label=model_vname %}
         {{verbose_name}}
     </a>
 {% else %}
-    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-        {% comment %}<img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />{% endcomment %}
-        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{model_vname}}" alt="{{model_vname}}" />
+    <span class="menu_button forbidden" title="{% trans 'forbidden' %}">
+{#        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" /> #}
+{#        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{model_vname}}" alt="{{model_vname}}" /> #}
+        {% widget_icon name='invoice' size='instance-button' label=model_vname %}
         {{verbose_name}}
     </span>
 {% endif %}

@@ -28,11 +28,11 @@ from .other_models import QuoteStatus
 
 class AbstractQuote(Base):
     status           = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT)
-    acceptation_date = DateField(_(u"Acceptation date"), blank=True, null=True) \
+    acceptation_date = DateField(_(u'Acceptation date'), blank=True, null=True) \
                                 .set_tags(clonable=False, optional=True)
 
-    creation_label = _('Create a quote')
-    save_label     = _('Save the quote')
+    creation_label = _(u'Create a quote')
+    save_label     = _(u'Save the quote')
 
     search_score = 51
 

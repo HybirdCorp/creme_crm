@@ -1,6 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
 
+{% log 'The template file "creme/billing/templates/billing/templatetags/line.html" is deprecated.' level='WARN' %}
+
 {% comment %}
 <script type='text/javascript'>
     // init block after a json reload
@@ -12,7 +14,7 @@
         $(document).ready(function() {
             $('#content').on('block-ready', function(e, block) {
                 if (block.attr('id') == '{{block_name}}') {
-                    creme.billing.initBlockLines(block, '{{object.currency.local_symbol}}', {{object.discount}});
+                    creme.billing.initLineBrick(block, '{{object.currency.local_symbol}}', {{object.discount}});
                 }
             });
         });

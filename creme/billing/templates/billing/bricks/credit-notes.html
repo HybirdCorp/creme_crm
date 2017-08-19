@@ -1,0 +1,79 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} billing-cnotes-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Credit Note') plural=_('{count} Credit Notes') empty=_('Credit Notes') icon='invoice' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% has_perm_to link object as link_perm %}{% url 'billing__link_to_cnotes' object.id as creation_url %}
+    {% brick_header_action id='add' url=creation_url label=_('Link to existing credit notes') enabled=link_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title='#' %}
+    {% brick_table_column title=_('Name') status='primary' %}
+    {% brick_table_column title=_('Number') class='cnotes-number' %}
+    {% brick_table_column title=_('Status') class='cnotes-status' %}
+
+    {% if 'comment' not in hidden_fields %}
+    {% brick_table_column title=_('Comment') class='cnotes-comment' %}
+    {% endif %}
+
+    {% if 'issuing_date' not in hidden_fields %}
+    {% brick_table_column title=_('Issuing date') data_type='date' class='cnotes-issuing-date' %}
+    {% endif %}
+
+    {% if 'expiration_date' not in hidden_fields %}
+    {% brick_table_column title=_('Expiration date') data_type='date' class='cnotes-expiration-date' %}
+    {% endif %}
+
+    {% brick_table_column title=_('Total (exclusive of tax)') data_type='money' class='cnotes-total-no-vat' %}
+    {% brick_table_column title=_('Total (inclusive of tax)') data_type='money' class='cnotes-total-vat' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to unlink object as unlink_perm %}
+    {% for credit_note in page.object_list %}{% has_perm_to view credit_note as credit_note_view_perm %}
+    {% if credit_note_view_perm %}
+    <tr>{% has_perm_to change credit_note as credit_note_edit_perm %}{% has_perm_to unlink credit_note as credit_note_unlink_perm %}
+        <td>{{forloop.counter}}</td>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink credit_note user %}</td>
+        <td class="cnotes-number">{{credit_note.number}}</td>
+        <td class="cnotes-status">{{credit_note.status}}</td>
+        {% if 'comment' not in hidden_fields %}
+        <td {# id="comment{{credit_note.id}}" #} class="cnotes-comment">
+            <div>
+            {% if credit_note.comment %}<p>{{credit_note.comment|linebreaksbr}}</p>{% else %}<span class="empty-field">—</span>{% endif %}
+            {% url 'billing__edit_cnote_comment' credit_note.id as edit_comment_url %}
+            {% brick_table_action id='edit' url=edit_comment_url label=_('Edit this credit note') enabled=credit_note_edit_perm %}
+            </div>
+        </td>
+        {% endif %}
+        {% if 'issuing_date' not in hidden_fields %}
+        <td data-type="date" class="cnotes-issuing-date">{% print_field object=credit_note field='issuing_date' %}</td>
+        {% endif %}
+        {% if 'expiration_date' not in hidden_fields %}
+        <td data-type="date" class="cnotes-expiration-date">{% print_field object=credit_note field='expiration_date' %}</td>
+        {% endif %}
+        <td data-type="money" class="cnotes-total-no-vat">-{{credit_note.total_no_vat|format_amount:credit_note.currency}}</td>
+        <td data-type="money" class="cnotes-total-vat">-{{credit_note.total_vat|format_amount:credit_note.currency}}</td>
+        <td {% brick_table_data_status action %}>{% url 'billing__delete_related_cnote' credit_note.id object.id as unlink_url %}
+            {% brick_table_action id='delete' url=unlink_url __subject_id=object.id __type=rtype_id __object_id=credit_note.id label=_('Unlink this credit note') icon='unlink' enabled=unlink_perm|and_op:credit_note_unlink_perm %}
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td>{{forloop.counter}}</td>
+        <td {% brick_table_data_status primary %} colspan="9">{% widget_entity_hyperlink credit_note user %}</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No related credit note for the moment' %}
+{% endblock %}

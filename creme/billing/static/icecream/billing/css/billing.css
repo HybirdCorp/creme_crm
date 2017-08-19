@@ -1,11 +1,12 @@
-input[type='textbox'].creme-field-error {
+input[type='textbox'].creme-field-error {  /* used ?? */
     background-color: #f08080;
 }
 
-td.discount-functional-error {
+td.discount-functional-error { /* used ?? */
     background-color: #f08080;
 }
 
+/* TODO: prefix by .billing-lines-brick when blocks templates are removed x N */
 td.line-error {
     background-color: #f7d6d2;
 }
@@ -53,7 +54,7 @@ select.line-vat {
     background-color: #ffffff;
 }*/
 
-.linetable-container, .linetable {
+.linetable-container, .linetable {  /* <= TODO: remove with blocks */
     width: 100%;
 
     margin: 0;
@@ -63,16 +64,17 @@ select.line-vat {
     border-spacing: 0;
 }
 
+/* TODO: remove with blocks */
 .linetable-container .linetable-header {
     border-right: 1px solid #ddd;
     width: 2%;
     text-align: center;
 }
 
+/* TODO: remove with blocks */
 .linetable-separator {
     height: 13px;
 }
-
 .linetable-separator td {
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
@@ -161,3 +163,368 @@ ul.bline-error-list > li {
     text-align: center;
     width: 10%;
 }
+
+/* Bricks */
+
+/* billing counter experiment: */
+/*
+.brick.billing-list-brick {
+    counter-reset: billing-items-counter;
+}
+*/
+
+.billing-list-brick .brick-content {
+    padding: 0;
+}
+
+.billing-list-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.billing-list-brick .billing-item {
+    font-size: 13px;
+}
+
+.billing-list-brick .billing-item + .billing-item {
+    margin-top: 20px;
+    border-top: 1px solid #dedede;
+    border-top: 1px solid #ccc;
+}
+
+.billing-list-brick .billing-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.billing-list-brick .billing-group + .billing-group {
+    margin-top: 5px;
+}
+
+.billing-list-brick .billing-group-key {
+    min-width: 160px;
+
+    /* billing counter experiment: */
+/*
+    min-width: 170px;
+    margin-left: 15px;
+*/
+}
+
+.billing-list-brick .billing-group-value {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.billing-list-brick .billing-info-group .billing-group-key {
+    align-self: flex-start;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-summary-group {
+    padding-top: 4px;
+    padding-bottom: 2px;
+
+    background: #fcfcfc;
+    border-bottom: 1px solid #dedede;
+}
+
+.billing-list-brick .billing-is-default {
+    color: #22439f;
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-schedule {
+/*    margin-right: 11px;*/
+}
+
+.billing-list-brick .billing-schedule-beginning { /* Not used ? */
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-type {
+    margin-right: 3px;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-title {
+    font-weight: 600;
+}
+
+.billing-list-brick .billing-status {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    _color: #FF4136; /* red */
+    _color: #FF851B; /* orange */
+}
+
+.billing-list-brick .billing-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.billing-list-brick .billing-action:last-child {
+    padding-right: 5px;
+}
+
+.billing-list-brick .billing-action img {
+    position: relative;
+    top: 3px;
+}
+
+.billing-list-brick .billing-warning {
+    color: #FF4136; /* red */
+    color: #FF851B; /* orange */
+    cursor: default;
+}
+
+.billing-list-brick .billing-warning .billing-warning-icon {
+    width: 16px;
+    height: 16px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 4px;
+
+    fill: currentColor;
+}
+
+.billing-list-brick .billing-warning-label {
+    display: inline-block;
+
+    margin-left: 3px;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.billing-list-brick .billing-relation {
+    font-weight: 600;
+    color: #333;
+}
+
+.billing-list-brick .billing-group .billing-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+.billing-item .billing-select-account {
+    opacity: 0;
+    visibility: hidden;
+    padding: 0px 7px 0px 5px;
+    background: #fafafa;
+    margin-left: 5px;
+    outline: 1px solid #ccc;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.1s ease-in;
+    white-space: nowrap;
+    /* max-height: 16px; */
+
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+}
+
+.billing-item:hover .billing-select-account {
+    opacity: 1;
+    visibility: visible;
+}
+
+.billing-item .brick-action .brick-action-icon {
+    margin-bottom: 2px;
+    height: 16px;
+    min-width: 16px;
+    max-width: 16px;
+}
+
+
+/* billing counter experiment */
+/*
+.billing-list-brick .billing-summary-group .billing-group-key {
+    margin-left: 0;
+}
+
+.billing-list-brick .billing-summary-group::before {
+    counter-increment: billing-items-counter;
+    content: counter(billing-items-counter);
+
+    width: 15px;
+    position: relative;
+    top: 2px;
+
+    color: #333;
+    font-weight: 700;
+    font-size: 11px;
+}
+*/
+
+/* Brick billing lines */
+
+.billing-lines-brick .brick-content {
+    padding: 0;
+}
+
+.billing-lines-brick .bline-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.billing-lines-brick .bline-container .bline-buttons {
+    padding: 4px;
+
+    border-right: 1px solid #ccc;
+
+    font-weight: bold;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.billing-lines-brick .linetable {
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    border-spacing: 0;
+}
+
+.billing-lines-brick .linetable th {
+    padding-top: 5px;
+    padding-bottom: 2px;
+
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    color: #222;
+
+    cursor: default;
+}
+
+.billing-lines-brick .linetable tr.content + tr th {
+    padding-top: 10px;
+}
+
+.billing-lines-brick .linetable.readonly {
+    /* background-color: #f7f7f7; */
+    color: #666;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.billing-lines-brick .bline-fields {
+    background: #fcfcfc;
+    width: 100%;
+}
+
+.billing-lines-brick .bline-container-separator {
+    height: 13px;
+
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.billing-lines-brick input {
+    padding-right: 4px;
+}
+
+.billing-lines-brick .bline-item div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.billing-lines-brick .linetable .bline-comment {
+    text-align: left;
+}
+
+/* empty message - override */
+.billing-lines-brick .bline-empty {
+    padding: 5px 10px;
+
+    background: #fff;
+
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+    color: #777;
+}
+
+.billing-lines-brick .bline-container.hidden-form {
+    display: none;
+}
+
+/* creme override - product/service input */
+.billing-lines-brick .linetable tr.content .bline-item {
+    vertical-align: top;
+}
+
+/* creme override - 'Add to catalog' link */
+.billing-lines-brick .linetable tr.content .bline-item a {
+    display: inline-block;
+    padding-top: 3px;
+    cursor: pointer;
+}
+
+/* Brick billing lines - end */
+
+/* Brick credit notes */
+
+.billing-cnotes-brick th[data-table-primary-column] {
+    width: 20%;
+}
+
+.billing-cnotes-brick th.cnotes-number {
+    width: 5%;
+}
+
+.billing-cnotes-brick th.cnotes-status,
+.billing-cnotes-brick th.cnotes-issuing-date,
+.billing-cnotes-brick th.cnotes-expiration-date,
+.billing-cnotes-brick th.cnotes-total-vat,
+.billing-cnotes-brick th.cnotes-total-no-vat {
+    width: 10%;
+}
+
+.billing-cnotes-brick th.cnotes-comment {
+    width: 25%;
+}
+
+.billing-cnotes-brick td.cnotes-comment div {
+    display: flex;
+}
+
+.billing-cnotes-brick.brick-table .brick-table-content .brick-table-action {
+    width: initial;
+    padding: 0px 0px 0px 5px;
+}
+
+.billing-cnotes-brick td.cnotes-comment div p {
+    width: 100%;
+}
+
+/* Bricks - end */

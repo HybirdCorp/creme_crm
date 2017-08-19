@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 
+{% log 'The template file "creme/billing/templates/billing/templatetags/block_service_line.html" is deprecated.' level='WARN' %}
+
 {% block block_title %}
     {% get_block_title _('%s Service') _('%s Services') 'service_48.png' _('Service') item_count %}
 {% endblock %}

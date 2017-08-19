@@ -50,9 +50,9 @@ logger = logging.getLogger(__name__)
 class Base(CremeEntity):
     name             = CharField(_(u'Name'), max_length=100)
     number           = CharField(_(u'Number'), max_length=100, blank=True)
-    issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)\
+    issuing_date     = DateField(_(u'Issuing date'), blank=True, null=True)\
                                 .set_tags(optional=True)
-    expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)\
+    expiration_date  = DateField(_(u'Expiration date'), blank=True, null=True)\
                                 .set_tags(optional=True)
     discount         = BillingDiscountField(_(u'Overall discount'), default=DEFAULT_DECIMAL,
                                             max_digits=10, decimal_places=2,

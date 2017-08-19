@@ -1,0 +1,51 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} billing-received-invoices-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Received invoice') plural=_('{count} Received invoices') empty=_('Invoices') icon='invoice' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object %}
+        {% has_perm_to change object as has_perm %}{% url 'billing__create_related_invoice' object.id as creation_url %}
+        {% brick_header_action id='add' url=creation_url label=_('Create an invoice') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='number' %}
+
+    {% if 'expiration_date' not in hidden_fields %}
+    {% brick_table_column_for_field ctype=objects_ctype field='expiration_date' %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='status' title=_('Status') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='total_no_vat' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for invoice in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink invoice user %}</td>
+        {% has_perm_to view invoice as invoice_view_perm %}
+        {% if invoice_view_perm %}
+        <td>{{invoice.number|default:'—'}}</td>
+        {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{invoice.expiration_date|default:'—'}}</td>{% endif %}
+        <td>{{invoice.status}}</td>
+        <td data-type="money">{{invoice.total_no_vat|format_amount:invoice.currency}}</td>
+        {% else %}
+        <td>{{HIDDEN_VALUE}}</td>
+        {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
+        <td>{{HIDDEN_VALUE}}</td>
+        <td data-type="money">{{HIDDEN_VALUE}}</td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No received invoice for the moment' %}
+{% endblock %}

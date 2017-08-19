@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from creme.creme_core.gui.button_menu import Button
 from creme import persons
 
 from .. import billing
+from .constants import REL_OBJ_BILL_RECEIVED
 from .models import Base
 
 
@@ -62,8 +63,13 @@ class _AddBillingDocumentButton(Button):
 
     def render(self, context):
         context['verbose_name'] = self.verbose_name
-        context['model_vname'] = self.model_to_create._meta.verbose_name
         context['url_name'] = self.url_name
+
+        meta = self.model_to_create._meta
+        context['model_vname'] = meta.verbose_name
+        context['model_id'] = '%s.%s' % (meta.app_label, meta.model_name)
+
+        context['rtype_id'] = REL_OBJ_BILL_RECEIVED
 
         return super(_AddBillingDocumentButton, self).render(context)
 

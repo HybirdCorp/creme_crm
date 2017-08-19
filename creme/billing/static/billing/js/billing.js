@@ -28,31 +28,31 @@ creme.billing.selectDefaultPayment = function(payment_id, invoice_id, reload_url
     creme.blocks.ajaxPOSTQuery('/billing/payment_information/set_default/%s/%s'.format(payment_id, invoice_id),
                                {blockReloadUrl: reload_url})
                 .start();
-}
+};
 
 // TODO: move most of these functions in core
 
 creme.billing.checkPositiveDecimal = function(element) {
     return element.val().match(/^[0-9]+(\.[0-9]{1,2}){0,1}$/) !== null;
-}
+};
 
 creme.billing.checkPositiveInteger = function(element) {
     return element.val().match(/^[0-9]+$/) !== null;
-}
+};
 
 creme.billing.checkDecimal = function(element) {
     return element.val().match(/^[\-]{0,1}[0-9]+(\.[0-9]{1,2}){0,1}$/) !== null;
-}
+};
 
 creme.billing.checkPercent = function(element) {
     // 100[.][0-99] ou [0-99][.][0-99]
     return element.val().match(/^(100(\.[0]{1,2}){0,1}|[0-9]{1,2}(\.[0-9]{1,2}){0,1})$/) !== null;
-}
+};
 
 creme.billing.checkValue = function(element) {
 //    return element.val() !== '';
     return Boolean(element.val());
-}
+};
 
 creme.billing.checkDiscount = function(element) {
     var parent_tr      = element.closest('tr');
@@ -73,7 +73,7 @@ creme.billing.checkDiscount = function(element) {
     }
 
     return true;
-}
+};
 
 // TODO: remove 'ct_id' (useless with the modifications of 9/12/2016)
 creme.billing.markDelete = function(form_prefix, ct_id, line_id) {
@@ -98,27 +98,27 @@ creme.billing.markDelete = function(form_prefix, ct_id, line_id) {
     // TODO: remove the id of <tbody> ??
 //    var tbodyform = $('tbody[id^="form_id_' + ct_id + '"]');
 //    tbodyform.toggleClass('form_modified', to_delete);
-}
+};
 
 creme.billing.inputs = function(element) {
     return $('input, select, textarea', element);
-}
+};
 
 creme.billing.forms = function(element) {
 //    return $('tbody[id^="form_id_"]', element);
     return $('.bline-form', element);
-}
+};
 
 creme.billing.modifiedBLineForms = function() {
     return $('.bline-form').filter(function() {
         return Boolean(($('> :not(.hidden-form) .bline-input-modified, .bline-deletion-mark', $(this)).first().length));
     })
-}
+};
 
 creme.billing.formsHaveErrors = function() {
 //    return Boolean($('tbody[id^=form_id_] > :not(.empty_form) .bline-input-error').first().length);
     return Boolean($('.bline-form > :not(.hidden-form) .bline-input-error').first().length);
-}
+};
 
 creme.billing.serializeInput = function(input, for_initial) {
     var key = input.attr('name');
@@ -132,7 +132,7 @@ creme.billing.serializeInput = function(input, for_initial) {
     }
 
     return;
-}
+};
 
 creme.billing.validateInput = function(input) {
     var validator = input.attr('validator') ? creme.billing['check' + input.attr('validator')] : undefined;
@@ -149,7 +149,7 @@ creme.billing.validateInput = function(input) {
     input.toggleClass('bline-input-error', !isvalid);
 
     return isvalid;
-}
+};
 
 creme.billing.initializeForm = function(element) {
     creme.billing.inputs(element).each(function() {
@@ -177,13 +177,13 @@ creme.billing.initializeForm = function(element) {
         input.toggleClass('bline-input-modified', changed);
 //        element.toggleClass('form_modified', changed);
     });
-}
+};
 
 creme.billing.initializeForms = function(element) {
     creme.billing.forms(element).each(function() {
         creme.billing.initializeForm($(this));
     });
-}
+};
 
 creme.billing.hideEmptyForm = function(ct_id, formset_prefix, line_count) {
 //    $('.empty_form_' + ct_id).attr('style', 'display:none');
@@ -200,7 +200,7 @@ creme.billing.hideEmptyForm = function(ct_id, formset_prefix, line_count) {
     if (line_count === 0) {
         $('.empty_msg_' + ct_id).attr('style', 'display:table-row');
     }
-}
+};
 
 creme.billing.showEmptyForm = function(btn, ct_id, prefix, line_count) {
     if (btn.hasClass('forbidden')) return;
@@ -246,7 +246,7 @@ creme.billing.showEmptyForm = function(btn, ct_id, prefix, line_count) {
         $('.space_line_' + ct_id).attr('style', 'display:none');
         $('.empty_msg_' + ct_id).attr('style', 'display:none');
     }
-}
+};
 
 creme.billing.restoreValue = function(input) {
     var initial_value = input.attr('initial');
@@ -258,7 +258,7 @@ creme.billing.restoreValue = function(input) {
     }
 
     input.change();
-}
+};
 
 creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
     creme.dialogs.confirm(gettext('Do you really want to restore initial values of this line ?'))
@@ -282,7 +282,7 @@ creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
 //                      tbodyform.toggleClass('form_modified', to_delete);
                   })
                  .open();
-}
+};
 
 //TODO: it would be cool to share this code with Python (the same computing is done on Python side) (pyjamas ??)
 creme.billing.initBoundedFields = function (element, currency, global_discount) {
@@ -342,19 +342,19 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
 
         if (!vat_value_widget.val()) inclusive_of_tax.text('###');
     });
-}
+};
 
 creme.billing.checkModifiedOnUnload = function() {
 //    if ($('.item_modified').length != 0 || $('.form_modified').length != 0) {
     if (creme.billing.modifiedBLineForms().first().length) {
         return gettext("You modified your lines.")
     }
-}
+};
 
 creme.billing.reload = function(checkmodified) {
     console.warn('creme.billing.reload() is deprecated.');
     creme.billing.redirect('', checkmodified);
-}
+};
 
 creme.billing.redirect = function(url, checkmodified) {
     console.warn('creme.billing.redirect() is deprecated.');
@@ -366,32 +366,36 @@ creme.billing.redirect = function(url, checkmodified) {
     }
 
     window.location = url;
-}
+};
 
 //creme.billing.initBlockLines = function(currency, global_discount) {
-creme.billing.initBlockLines = function(block, currency, global_discount) {
+creme.billing.initLinesBrick = function(brick) {
+    var brick_element = brick._element;
+    var currency        = brick_element.attr('data-type-currency');
+    var global_discount = parseFloat(brick_element.attr('data-type-global-discount'));
+
 //    creme.billing.initializeForms();
-    creme.billing.initializeForms(block);
+    creme.billing.initializeForms(brick_element);
 
     // Commented on 03/04/2016, because it seemed useless
 //    $('a[class^="add_on_the_fly_"]').removeAttr('disabled');
 
 //    $('.linetable').each(function(index) {
-    $('.linetable', block).each(function(index) {
+    $('.linetable', brick_element).each(function(index) {
         creme.billing.initBoundedFields($(this), currency, global_discount);
     });
 
     // TODO: hack because CSS class bound is not added to joe's widget
 //    $('select[name*="vat_value"]').each(function(index) {
-    $('select[name*="vat_value"]', block).each(function(index) {
+    $('select[name*="vat_value"]', brick_element).each(function(index) {
         $(this).addClass('bound line-vat');
     });
 
 //    $('textarea.line-comment').each(function() {
-    $('textarea.line-comment', block).each(function() {
+    $('textarea.line-comment', brick_element).each(function() {
         new creme.layout.TextAreaAutoSize().bind($(this));
     });
-}
+};
 
 creme.billing.serializeForm = function(form) {
     var data = {};
@@ -405,10 +409,12 @@ creme.billing.serializeForm = function(form) {
     });
 
     return data;
-}
+};
 
-//creme.billing.multiSaveLines = function (document_id) {
-creme.billing.multiSaveLines = function (save_url) {
+//creme.billing.multiSaveLines = function(document_id) {
+creme.billing.multiSaveLines = function(save_url) {
+    console.warn('creme.billing.multiSaveLines() is deprecated ; use the new brick action "billing-line-saveall" instead.');
+
     if (creme.billing.formsHaveErrors()) {
         creme.dialogs.alert('<p>' + gettext('There are some errors in your lines.') + '</p>').open();
     } else {
@@ -426,10 +432,7 @@ creme.billing.multiSaveLines = function (save_url) {
 //        }).get();
         creme.billing.modifiedBLineForms().each(function() {
             var container = $(this);
-
             forms_data[container.attr('ct_id')] = $.toJSON(creme.billing.serializeForm(container));
-
-            // NB: all blocks SHOULD use the same base URL => in blocks V2 this URL should be stored ONCE in the page...
             blocks_reload_url = blocks_reload_url || container.attr('reload_url');
 
             var block_name = container.attr('block_name');
@@ -460,7 +463,7 @@ creme.billing.multiSaveLines = function (save_url) {
                     })
                    .start();
     }
-}
+};
 
 creme.billing.updateBlockTotals = function(currency) {
     var total_no_vat_element = $('h1[name=total_no_vat]');
@@ -480,7 +483,7 @@ creme.billing.updateBlockTotals = function(currency) {
     // TODO: use i18n/l10n formatting
     total_no_vat_element.text(total_no_vat.toFixed(2).replace('.', ',') + ' ' + currency);
     total_vat_element.text(total_vat.toFixed(2).replace('.', ',') + ' ' + currency);
-}
+};
 
 creme.billing.EXPORT_FORMATS = [
    //{value:'odt', label: gettext("Document open-office (ODT)")},
@@ -499,7 +502,7 @@ creme.billing.exportAs = function(url, formats) {
                  .onOk(function(event, data) {
                      window.location.href = url.format(data);
                  }).open();
-}
+};
 
 creme.billing.convertAs = function(billing_id, type) {
     console.warn('creme.billing.convertAs() is deprecated.');
@@ -509,12 +512,12 @@ creme.billing.convertAs = function(billing_id, type) {
                                  {action: 'post', warnOnFail: true, reloadOnSuccess: true},
                                  {type:type})
                       .start();
-}
+};
 
 creme.billing.generateInvoiceNumber = function(url) {
     return creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, reloadOnSuccess: true})
                       .start();
-}
+};
 
 //creme.billing.linkToDocument = function(url, organisations) {
 //    console.warn('This function is deprecated.');
@@ -532,4 +535,56 @@ creme.billing.generateInvoiceNumber = function(url) {
 //                     creme.dialogs.form(url + orga_id, {reloadOnSuccess: true}).open({width:'80%'});
 //                  })
 //                 .open();
-//}
+//};
+
+(function() {
+    var billingLinesActions = {
+        _action_billing_line_addonfly: function(url, options, data, e) {
+            return new creme.component.Action(function() {
+                var count = data.count ? parseInt(data.count) : 0;
+                creme.billing.showEmptyForm($(e.currentTarget), data.ctype_id, data.prefix, count);
+                this.done();
+            });
+        },
+
+        _action_billing_line_saveall: function(url, options, data, e) {
+            var brick = this;
+
+            return new creme.component.Action(function() {
+                if (creme.billing.formsHaveErrors()) {
+                    creme.dialogs.alert('<p>' + gettext('There are some errors in your lines.') + '</p>').open();
+                } else {
+                    var forms_data = {};
+
+                    creme.billing.modifiedBLineForms().each(function() {
+                        var container = $(this);
+                        forms_data[container.attr('ct_id')] = $.toJSON(creme.billing.serializeForm(container));
+                    });
+
+                    if (forms_data.length === 0) {
+                        console.log('Forms not modified !');
+                        return this.cancel();
+                    }
+
+                    creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, warnOnFailTitle: gettext('Errors report')}, forms_data)
+                               .onDone(function() {brick.refresh();})
+                               .onFail(this.fail.bind(this))
+                               .start();
+                }
+            });
+        },
+
+        _action_billing_line_clearonfly: function(url, action, data, e) {
+            var brick = this;
+
+            return new creme.component.Action(function() {
+                creme.billing.hideEmptyForm(data.ctype_id, data.prefix, data.count);
+                $('[data-action="billing-line-addonfly"]', brick._element).removeClass('forbidden');
+                this.done();
+            });
+        }
+    };
+
+    $(document).on('brick-before-bind', '.brick.billing-lines-brick', function(e, brick, options) {$.extend(brick, billingLinesActions);})
+               .on('brick-ready', function(e, brick, options) {creme.billing.initLinesBrick(brick);});
+}());

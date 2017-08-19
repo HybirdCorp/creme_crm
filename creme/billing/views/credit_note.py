@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,11 +46,11 @@ def abstract_add_credit_note(request, form=cnote_forms.CreditNoteCreateForm,
 
 def abstract_link_to_credit_notes(request, base_id, form=cnote_forms.CreditNoteRelatedForm,
                                   title=_(u'Credit notes for «%s»'),
-                                  submit_label=_('Save the credit notes')
+                                  submit_label=_(u'Save the credit notes'),
                                  ):
     return generic.add_to_entity(request, base_id, form, title, link_perm=True,
-                                  submit_label=submit_label,
-                                 )
+                                 submit_label=submit_label,
+                                )
 
 
 def abstract_edit_credit_note(request, credit_note_id, form=cnote_forms.CreditNoteEditForm):
@@ -62,10 +62,11 @@ def abstract_edit_cnote_comment(request, credit_note_id, form=cnote_forms.Credit
     return generic.edit_model_with_popup(request, {'pk': credit_note_id}, CreditNote, form)
 
 
-def abstract_view_creditnote(request, credit_note_id, template='billing/view_billing.html'):
+# def abstract_view_creditnote(request, credit_note_id, template='billing/view_billing.html'):
+def abstract_view_creditnote(request, credit_note_id, template='billing/view_credit_note.html'):
     return generic.view_entity(request, credit_note_id, CreditNote,
                                template=template,
-                               extra_template_dict={'can_download': True},
+                               # extra_template_dict={'can_download': True},
                               )
 
 

@@ -31,10 +31,10 @@ from .other_models import CreditNoteStatus
 
 
 class AbstractCreditNote(Base):
-    status = ForeignKey(CreditNoteStatus, verbose_name=_(u"Status of credit note"), on_delete=PROTECT)
+    status = ForeignKey(CreditNoteStatus, verbose_name=_(u'Status of credit note'), on_delete=PROTECT)
 
-    creation_label = _('Create a credit note')
-    save_label     = _('Save the credit note')
+    creation_label = _(u'Create a credit note')
+    save_label     = _(u'Save the credit note')
 
     class Meta(Base.Meta):
         abstract = True

@@ -1,0 +1,69 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} billing-list-brick billing-orga-payment-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Payment information') plural=_('{count} Payments information') empty=_('Payment information') icon='money_info' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}{% url 'billing__create_payment_info' object.id as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('Add a payment information') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_list_content %}
+{% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
+    {% for payment_info in page.object_list %}
+    <div class="brick-list-item billing-item">
+        <div class="billing-group billing-summary-group{% if payment_info.is_default %} billing-is-default{% endif %}">
+            <div class="billing-group-key">
+                {{payment_info.name}}
+            </div>
+            <div class="billing-group-value">
+                {% blocktrans with account=payment_info.account_number|default:'—' %}N° {{account}}{% endblocktrans %}
+            </div>
+            {% if payment_info.is_default %}
+            <div {# class="billing-group-value" #}>
+                {% trans 'Is default account' %}
+            </div>
+            {% endif %}
+            <div class="billing-action">{% url 'billing__edit_payment_info' payment_info.id as edit_url %}
+                {% brick_action id='edit' url=edit_url label=_('Edit these information') enabled=has_perm %}
+            </div>
+            <div class="billing-action">
+                {% brick_action id='delete' url=delete_url enabled=has_perm %}
+            </div>
+        </div>
+        <div class="billing-group billing-info-group">
+            <div class="billing-group-key">{% trans 'Bank code' %}</div>
+            <div class="billing-group-value">{{payment_info.bank_code|default:'—'}}</div>
+        </div>
+        <div class="billing-group billing-info-group">
+            <div class="billing-group-key">{% trans 'Counter code' %}</div>
+            <div class="billing-group-value">{{payment_info.counter_code|default:'—'}}</div>
+        </div>
+        <div class="billing-group billing-info-group">
+            <div class="billing-group-key">{% trans 'Banking domiciliation' %}</div>
+            <div class="billing-group-value">{{payment_info.banking_domiciliation|default:'—'}}</div>
+        </div>
+        <div class="billing-group billing-info-group">
+            <div class="billing-group-key">{% trans 'RIB' %}</div>
+            <div class="billing-group-value">{{payment_info.rib_key|default:'—'}}</div>
+        </div>
+        <div class="billing-group billing-info-group">
+            <div class="billing-group-key">{% trans 'IBAN' %}</div>
+            <div class="billing-group-value">{{payment_info.iban|default:'—'}}</div>
+        </div>
+        <div class="billing-group billing-info-group">
+            <div class="billing-group-key">{% trans 'BIC' %}</div>
+            <div class="billing-group-value">{{payment_info.bic|default:'—'}}</div>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% trans 'No payment information for the moment' %}
+{% endblock %}
+

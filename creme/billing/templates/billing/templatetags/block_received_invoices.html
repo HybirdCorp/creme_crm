@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags creme_block creme_widgets %}
+
+{% log 'The template file "creme/billing/templates/billing/templatetags/block_received_invoices.html" is deprecated.' level='WARN' %}
+
 {% with hidden_count=hidden_fields|length %}{% with colspan=5|sub:hidden_count %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=colspan %}
