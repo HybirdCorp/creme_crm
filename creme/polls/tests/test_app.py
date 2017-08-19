@@ -5,18 +5,19 @@ try:
     from django.core.urlresolvers import reverse
 
     from creme.creme_core.models import HeaderFilter
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
     from creme.persons.models import Contact, Organisation
 
     from .base import _PollsTestCase, PollCampaign, PollForm, PollReply
-    from ..blocks import PersonPollRepliesBlock
+    from ..bricks import PersonPollRepliesBrick
     from ..models import PollType
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class PollsAppTestCase(_PollsTestCase):
+class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_portal(self):
         self.login()
         # self.assertGET200('/polls/')
@@ -38,9 +39,11 @@ class PollsAppTestCase(_PollsTestCase):
                                        last_name='Vance',
                                       )
         response = self.assertGET200(leina.get_absolute_url())
+        # self.assertTemplateUsed(response, 'polls/templatetags/block_person_preplies.html')
+        self.assertTemplateUsed(response, 'polls/bricks/person-preplies.html')
 
-        self.assertContains(response, 'id="%s"' % PersonPollRepliesBlock.id_)
-        self.assertTemplateUsed(response, 'polls/templatetags/block_person_preplies.html')
+        # self.assertContains(response, 'id="%s"' % PersonPollRepliesBlock.id_)
+        self.get_brick_node(self.get_html_tree(response.content), PersonPollRepliesBrick.id_)
 
     @skipIfCustomOrganisation
     def test_orga_block(self):
@@ -48,4 +51,5 @@ class PollsAppTestCase(_PollsTestCase):
         gaimos = Organisation.objects.create(user=user, name='Gaimos')
         response = self.assertGET200(gaimos.get_absolute_url())
 
-        self.assertContains(response, 'id="%s"' % PersonPollRepliesBlock.id_)
+        # self.assertContains(response, 'id="%s"' % PersonPollRepliesBlock.id_)
+        self.get_brick_node(self.get_html_tree(response.content), PersonPollRepliesBrick.id_)

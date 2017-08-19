@@ -1,0 +1,11 @@
+{% extends 'creme_core/bricks/generic/hat-bar.html' %}
+{% load i18n creme_widgets %}
+
+{% block buttons %}
+    <div class='bar-action'>
+        <a class="bar-button" href="{% url 'polls__form_stats' object.id %}">
+            {% widget_icon name='view' size='brick-hat-bar-button' label=_('View statistics') %}
+        </a>
+    </div>
+    {{block.super}}
+{% endblock %}

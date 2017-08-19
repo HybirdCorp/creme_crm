@@ -7,19 +7,20 @@ try:
     from django.core.urlresolvers import reverse
 
     from creme.creme_core.models import CremePropertyType
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.commercial.models import MarketSegment
 
     from .base import (_PollsTestCase, skipIfCustomPollCampaign,
             skipIfCustomPollForm, skipIfCustomPollReply,
             PollCampaign, PollForm, PollReply)
-    from ..blocks import pcampaign_replies_block
+    from ..bricks import PollCampaignRepliesBrick
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 @skipIfCustomPollCampaign
-class PollCampaignsTestCase(_PollsTestCase):
+class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
     def setUp(self):
         self.login()
 
@@ -31,8 +32,10 @@ class PollCampaignsTestCase(_PollsTestCase):
         camp = PollCampaign.objects.create(user=self.user, name='Camp#1')
         response = self.assertGET200(camp.get_absolute_url())
         self.assertContains(response, camp.name)
-        self.assertContains(response, 'id="%s"' % pcampaign_replies_block.id_)
-        self.assertTemplateUsed(response, 'polls/templatetags/block_campaign_preplies.html')
+        # self.assertTemplateUsed(response, 'polls/templatetags/block_campaign_preplies.html')
+        self.assertTemplateUsed(response, 'polls/bricks/campaign-preplies.html')
+        # self.assertContains(response, 'id="%s"' % pcampaign_replies_block.id_)
+        self.get_brick_node(self.get_html_tree(response.content), PollCampaignRepliesBrick.id_)
 
     def test_createview01(self):
         user = self.user

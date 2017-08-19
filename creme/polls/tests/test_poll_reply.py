@@ -12,6 +12,7 @@ try:
     from creme.creme_core.auth import EntityCredentials
     from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
     from creme.creme_core.models import SetCredentials
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.persons import get_contact_model, get_organisation_model
     # from creme.persons.models import Contact, Organisation
@@ -24,7 +25,7 @@ try:
     from .base import (_PollsTestCase, skipIfCustomPollForm,
             skipIfCustomPollReply, skipIfCustomPollCampaign,
             PollCampaign, PollForm, PollReply)
-    from ..blocks import preply_lines_block
+    from ..bricks import PollReplyLinesBrick
     from ..core import PollLineType
     from ..models import (PollType,
             PollFormSection,  PollFormLine,  PollFormLineCondition,
@@ -40,7 +41,7 @@ Activity = get_activity_model()
 
 @skipIfCustomPollForm
 @skipIfCustomPollReply
-class PollRepliesTestCase(_PollsTestCase):
+class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def assertCurrentQuestion(self, response, fline, line_number=None):
         try:
             question_f = response.context['form'].fields['question']
@@ -378,17 +379,27 @@ class PollRepliesTestCase(_PollsTestCase):
 
         # ----------------------------------------------------------------------
         response = self.assertGET200(preply.get_absolute_url())
-        self.assertContains(response, 'id="%s"' % preply_lines_block.id_)
-        self.assertContains(response, line1.question)
-        self.assertContains(response, line2.question)
+        # self.assertContains(response, 'id="%s"' % preply_lines_block.id_)
+        # self.assertContains(response, line1.question)
+        # self.assertContains(response, line2.question)
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), PollReplyLinesBrick.id_)
+
+        questions = set()
+        for question_node in brick_node.findall(".//div[@class='poll-title-label']"):
+            span_node = question_node.find('span')
+            self.assertIsNotNone(span_node)
+            questions.add(span_node.text)
+
+        self.assertIn(line1.question, questions)
+        self.assertIn(line2.question, questions)
 
     def test_createview02(self):
         "Create view: validation error when no PollForm"
-        self.login()
+        user = self.login()
         response = self.assertPOST200(self.ADD_REPLY_URL, follow=True,
-                                      data={'user': self.user.id,
+                                      data={'user': user.id,
                                             'name': 'Reply#1',
-                                           }
+                                           },
                                      )
         self.assertFormError(response, 'form', 'pform', _(u'This field is required.'))
 

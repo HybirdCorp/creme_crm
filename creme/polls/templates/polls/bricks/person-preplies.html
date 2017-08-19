@@ -1,0 +1,15 @@
+{% extends 'polls/bricks/preplies.html'  %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} polls-persons-replies-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Filled form reply') plural=_('{count} Filled form replies') empty=_('Filled form replies') icon='poll' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to link object as link_perm %}{% has_perm_to create objects_ctype as creation_perm %}
+{% url 'polls__create_reply_from_person' object.id as creation_url %}{% url 'polls__link_reply_to_person' object.id as link_url %}
+    {% brick_header_action id='link' url=link_url     label=_('Link to replies') enabled=link_perm %}
+    {% brick_header_action id='add'  url=creation_url label=_('Create replies')  enabled=link_perm|and_op:creation_perm %}
+{% endblock %}

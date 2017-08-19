@@ -10,9 +10,11 @@ try:
     from django.utils.encoding import smart_unicode
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+
     from .base import _PollsTestCase, skipIfCustomPollForm, PollForm
     from ..core import PollLineType
-    from ..blocks import pform_lines_block, preplies_block
+    from ..bricks import PollFormLinesBrick, PollRepliesBrick
     from ..models import PollType, PollFormSection, PollFormLine, PollFormLineCondition
     from ..templatetags.polls_tags import print_node_number, print_node_css, print_line_condition
     from ..utils import SectionTree, NodeStyle
@@ -25,7 +27,7 @@ get_ct = ContentType.objects.get_for_model
 
 
 @skipIfCustomPollForm
-class PollFormsTestCase(_PollsTestCase):
+class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
     _CONDSFIELD_STR   = '[{"source": "%(source)s", "choice": "%(choice)s"}]'
     _CONDSFIELD_STR2X = '[{"source": "%(source1)s", "choice": "%(choice1)s"},' \
                         ' {"source": "%(source2)s", "choice": "%(choice2)s"}]'
@@ -116,8 +118,11 @@ class PollFormsTestCase(_PollsTestCase):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         response = self.assertGET200(pform.get_absolute_url())
-        self.assertContains(response, 'id="%s"' % pform_lines_block.id_)
-        self.assertContains(response, 'id="%s"' % preplies_block.id_)
+        # self.assertContains(response, 'id="%s"' % pform_lines_block.id_)
+        # self.assertContains(response, 'id="%s"' % preplies_block.id_)
+        tree = self.get_html_tree(response.content)
+        self.get_brick_node(tree, PollFormLinesBrick.id_)
+        self.get_brick_node(tree, PollRepliesBrick.id_)
 
     def test_createview01(self):
         user = self.user

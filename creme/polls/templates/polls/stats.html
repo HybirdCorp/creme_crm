@@ -1,11 +1,13 @@
-{% extends "creme_core/base.html" %}
+{% extends 'creme_core/base.html' %}
 {% load i18n %}
-{% load creme_core_tags creme_block %}
-{% load polls_tags %}
+{# {% load creme_core_tags creme_block %} #}
+{# {% load polls_tags %} #}
 
-{% block page_title %}{% trans "Poll statistics" %} - {% endblock %}
+{% block page_title %}{% trans 'Poll statistics' %} - {% endblock %}
 
 {% block content %}
+    {% include 'polls/bricks/preply-stats.html' %}
+{% comment %}
     <table class="table_detail_view ui-corner-all with-header">
         {% get_block_header colspan=1 %}
             <th class="label">{% get_basic_block_header _('Statistics') 'info_48.png' _('Statistics') %}</th>
@@ -67,4 +69,5 @@
             {% endfor %}
         </tbody>
     </table>
+{% endcomment %}
 {% endblock %}

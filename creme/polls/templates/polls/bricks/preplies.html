@@ -1,0 +1,41 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} polls-replies-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Reply') plural=_('{count} Replies') empty=_('Replies') icon='poll' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if propose_creation %}
+        {% has_perm_to change object as link_perm %}{% has_perm_to create objects_ctype as creation_perm %}
+        {% url 'polls__create_reply_from_pform' object.id as creation_url %}
+        {% brick_header_action id='add' url=creation_url label=_('Create replies') enabled=link_perm|and_op:creation_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}
+    {% for preply in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink preply user %}</td>
+        <td {% brick_table_data_status action %}>
+        {% if not preply.is_complete %}{% has_perm_to change preply as has_perm %}{% url 'polls__fill_reply' preply.id as fill_url %}
+            {% brick_table_action id='redirect' url=fill_url label=_('Fill') icon='edit' enabled=has_perm %}
+        {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    {% block poll_replies_extra_rows %}{% endblock %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No related reply for the moment' %}
+{% endblock %}
+
