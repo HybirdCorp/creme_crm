@@ -1,0 +1,28 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-brickloc-mypage-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title='{count} Block on «My page»' plural='{count} Blocks on «My page»' empty='Blocks  «My page»' icon='config' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') status='primary nowrap' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for location in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{location.brick_verbose_name}}</td>
+        <td {% brick_table_data_status action %}>
+            {% block brick_mypage_location_row_action %}{% endblock %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No block for the moment' %}
+{% endblock %}

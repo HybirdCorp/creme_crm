@@ -1,6 +1,9 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 {% load creme_config_tags %}
+
+{% log 'The template file "creme/creme_config/templates/creme_config/templatetags/block_models.html" is deprecated.' level='WARN' %}
+
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=colspan %}
         {% with count=page.paginator.count %}
@@ -67,7 +70,7 @@
                         <td class="{{row_color}} action">
                             {% if object|is_custom %}
 {#                                {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" with_perms 1 %} #}
-                                {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" with_perms 1 %}
+                                {% get_line_deletor at_url delete_url with_args "{'id':'{{object.pk}}'}" with_perms 1 %}
                             {% else %}
                                 <em>{% trans "(no deletable)" %}</em>
                             {% endif %}

@@ -1,13 +1,12 @@
-{% extends "creme_config/portal.html" %}
-{% load i18n creme_block %}
+{% extends 'creme_config/portal.html' %}
+{% load i18n creme_bricks %}
 
 {% block title %}
-    <a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% trans "Users" %}
+    <a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% trans 'Users' %}
 {% endblock %}
 
 {% block before_statistics %}
-    {% import_block from_app 'creme_config' named 'users' as 'users_block' %}
-    {% import_block from_app 'creme_config' named 'teams' as 'teams_block' %}
-    {% display_block_detailview 'users_block' %}
-    {% display_block_detailview 'teams_block' %}
+    {% brick_import app='creme_config' name='users' as users_brick %}
+    {% brick_import app='creme_config' name='teams' as teams_brick %}
+    {% brick_display users_brick teams_brick %}
 {% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-preferred-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_(' My {count} preferred menu') plural=_('My {count} preferred menus') empty=_('My preferred menus') icon='config' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% url 'creme_config__edit_my_preferred_menu' as edit_url %}
+    {% brick_header_action id='edit' url=edit_url label=_('Edit my preferred menus') enabled=1 %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') %}
+    {% brick_table_column title=_('Order') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for preferred_menu in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{preferred_menu.translated_label}}</td>
+        <td>{{page.number|sub:1|mult:page_size|add:forloop.counter}}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'You have no preferred menu for the moment' %}
+{% endblock %}

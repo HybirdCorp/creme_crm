@@ -18,12 +18,13 @@ try:
     from creme.creme_core.models import (CremeEntity, RelationType,
             EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue)  # Relation  CremeProperty
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
 
-    from ..blocks import UsersBlock, TeamsBlock, UserPreferedMenusBlock, BlockMypageLocationsBlock
+    from ..bricks import UsersBrick, TeamsBrick, UserPreferredMenusBrick, BlockMypageLocationsBrick
     # from ..constants import USER_THEME_NAME, USER_TIMEZONE
     # from ..utils import get_user_theme
 except Exception as e:
@@ -37,7 +38,7 @@ def skipIfNotCremeUser(test_func):
 
 
 @skipIfCustomOrganisation
-class UserTestCase(CremeTestCase):
+class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     # ADD_URL = '/creme_config/user/add/'
     ADD_URL = reverse('creme_config__create_user')
     # ADD_TEAM_URL = '/creme_config/team/add/'
@@ -72,8 +73,11 @@ class UserTestCase(CremeTestCase):
     def _aux_test_portal(self):
         # response = self.assertGET200('/creme_config/user/portal/')
         response = self.assertGET200(reverse('creme_config__users'))
-        self.assertContains(response, 'id="%s"' % UsersBlock.id_)
-        self.assertContains(response, 'id="%s"' % TeamsBlock.id_)
+        # self.assertContains(response, 'id="%s"' % UsersBlock.id_)
+        # self.assertContains(response, 'id="%s"' % TeamsBlock.id_)
+        doc = self.get_html_tree(response.content)
+        self.get_brick_node(doc, UsersBrick.id_)
+        self.get_brick_node(doc, TeamsBrick.id_)
 
     def test_portal01(self):
         self.login()
@@ -907,7 +911,7 @@ class UserTestCase(CremeTestCase):
         self.assertPOST403(url, data={'to_user': user.id})
 
 
-class UserSettingsTestCase(CremeTestCase):
+class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
     # @classmethod
     # def setUpClass(cls):
     #     CremeTestCase.setUpClass()
@@ -929,11 +933,14 @@ class UserSettingsTestCase(CremeTestCase):
     def test_user_settings(self):
         # response = self.assertGET200('/creme_config/my_settings/')
         response = self.assertGET200(reverse('creme_config__user_settings'))
+        doc = self.get_html_tree(response.content)
 
         if settings.OLD_MENU:
-            self.assertContains(response, 'id="%s"' % UserPreferedMenusBlock.id_)
+            # self.assertContains(response, 'id="%s"' % UserPreferedMenusBlock.id_)
+            self.get_brick_node(doc, UserPreferredMenusBrick.id_)
 
-        self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
+        # self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
+        self.get_brick_node(doc, BlockMypageLocationsBrick.id_)
 
     @override_settings(THEMES=[('icecream',  'Ice cream'),
                                ('chantilly', 'Chantilly'),

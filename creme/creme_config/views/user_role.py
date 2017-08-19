@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import warnings
 
 from django.db.transaction import atomic
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -31,13 +31,19 @@ from formtools.wizard.views import SessionWizardView
 from creme.creme_core.auth.decorators import login_required, superuser_required, _check_superuser
 from creme.creme_core.models import UserRole, SetCredentials
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms.user_role import (UserRoleCreateForm, UserRoleEditForm,
         AddCredentialsForm, EditCredentialsForm, UserRoleDeleteForm)
 from ..forms import user_role as user_role_forms
+from .portal import _config_portal
+
+
+@login_required
+def portal(request):
+    return _config_portal(request, 'creme_config/user_role_portal.html')
 
 
 @login_required
@@ -109,7 +115,7 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
 
 class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
     class _ExportableCTypesStep(user_role_forms.UserRoleExportableCTypesStep):
-        step_submit_label = _('Save the modifications')
+        step_submit_label = _(u'Save the modifications')
 
     form_list = (user_role_forms.UserRoleAppsStep,
                  user_role_forms.UserRoleAdminAppsStep,
@@ -178,7 +184,7 @@ def add_credentials(request, role_id):
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  add_form,
                         'title': _(u'Add credentials to «%s»') % role,
-                        'submit_label': _('Add the credentials'),
+                        'submit_label': _(u'Add the credentials'),
                        },
                        is_valid=add_form.is_valid(),
                        reload=False,
@@ -203,7 +209,7 @@ def edit_credentials(request, cred_id):
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  edit_form,
                         'title': _(u'Edit credentials for «%s»') % creds.role,
-                        'submit_label': _('Save the modifications'),
+                        'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=edit_form.is_valid(),
                        reload=False,
@@ -220,11 +226,6 @@ def delete_credentials(request):
 
 
 @login_required
-def portal(request):
-    return render(request, 'creme_config/user_role_portal.html')
-
-
-@login_required
 @superuser_required
 def delete(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
@@ -232,5 +233,5 @@ def delete(request, role_id):
     return add_model_with_popup(request, UserRoleDeleteForm,
                                 _(u'Delete role «%s»') % role,
                                 initial={'role_to_delete': role},
-                                submit_label=_('Delete the role'),
+                                submit_label=_(u'Delete the role'),
                                )

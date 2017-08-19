@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -28,11 +28,12 @@ from creme.creme_core.views.generic import add_model_with_popup, inner_popup
 from creme.creme_core.utils import get_from_POST_or_404
 
 from ..forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm, SemiFixedRelationTypeCreateForm
+from .portal import _config_portal
 
 
 @login_required
 def portal(request):
-    return render(request, 'creme_config/relation_type_portal.html')
+    return _config_portal(request, 'creme_config/relation_type_portal.html')
 
 
 @login_required
@@ -74,7 +75,7 @@ def edit(request, relation_type_id):
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
                         'title': ugettext(u'Edit the type «%s»') % relation_type, # TODO: lazy interpolation
-                        'submit_label': _('Save the modifications'),
+                        'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,

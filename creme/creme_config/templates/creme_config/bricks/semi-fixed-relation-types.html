@@ -1,0 +1,38 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-semifixed-rtypes-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Semi-fixed type of relationship') plural=_('{count} Semi-fixed types of relationship') empty=_('Semi-fixed types of relationship') icon='relations' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_semifixed_rtype' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New semi-fixed type') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Predicate') status='nowrap' %}
+    {% brick_table_column title=_('Object') %}
+    {% brick_table_column title=_('Type of relationship') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_semifixed_rtype' as delete_url %}
+    {% for sf_rtype in page.object_list %}
+    <tr>
+        <td>{{sf_rtype.predicate}}</td>
+        <td>{% widget_entity_hyperlink sf_rtype.object_entity.get_real_entity user %}</td>
+        <td>{{sf_rtype.relation_type}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=sf_rtype.id label=_('Delete this type') enabled=admin_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No semi-fixed type of relationship for the moment' %}
+{% endblock %}

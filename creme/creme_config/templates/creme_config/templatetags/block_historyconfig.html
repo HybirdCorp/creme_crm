@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+
+{% log 'The template file "creme/creme_config/templates/creme_config/templatetags/block_historyconfig.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to admin 'creme_core' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
@@ -28,7 +31,7 @@
             {% endfor %}
         {% else %}
             <tr class="content empty">
-                <td>{% trans "No relation type for the moment" %}</td>
+                <td>{% trans "No relationship type for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

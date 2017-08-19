@@ -1,0 +1,60 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-rtypebricks-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Type of relation block created') plural=_('{count} Types of relation block created') empty=_('Types of relation block created') icon='config' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_rtype_brick' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New type of block') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_list_content %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_rtype_brick' as delete_url %}
+    {% for block_type in page.object_list %}
+    <div class="brick-list-item rtypebrick-config-item">
+        <div class="rtypebrick-config-group rtypebrick-config-summary-group">
+            <div class="rtypebrick-config-group-title">{{block_type.relation_type}}</div>
+            <div class="rtypebrick-config-group-action">
+            {% if block_type.all_ctypes_configured %}
+                {% trans 'All types are configured' %}
+            {% else %}{% url 'creme_config__add_cells_to_rtype_brick' block_type.id as add_cells_url %}
+                {% brick_action id='add' url=add_cells_url label=_('New customised type') enabled=admin_perm display='text' %}
+            {% endif %}
+            </div>
+            <div class="rtypebrick-config-group-action">
+                {% brick_action id='delete' url=delete_url __id=block_type.id label=_('Delete this type of block') enabled=admin_perm %}
+            </div>
+        </div>
+        <div class="rtypebrick-config-group brick-table">
+            <table class="brick-table-content">
+                <tbody>{% trans 'Edit the configuration for «%s»' as edit_cells_label_fmt %}{% trans 'Delete the configuration for «%s»' as delete_cells_label_fmt %}
+                    {% for ctype, cells in block_type.iter_cells %}
+                    <tr>
+                        <td {% brick_table_data_status primary %} class="rtypebrick-config-relation-label">
+                            {% widget_icon ctype=ctype size='brick-table' class='rtypebrick-config-type-icon' %} {{ctype}}
+                        </td>
+                        <td>
+                        {% for cell in cells %}{% widget_join %}<span class="rtypebrick-cell-item">{{cell}}</span>{% end_widget_join %}{% empty %}{% trans 'not configured yet' %}{% endfor %}
+                        </td>
+                        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_cells_of_rtype_brick' block_type.id ctype.id as edit_cells_url %}
+                            {% brick_table_action id='edit' url=edit_cells_url label=ctype|format:edit_cells_label_fmt enabled=admin_perm %}
+                        </td>
+                        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_cells_of_rtype_brick' block_type.id as delete_cells_url %}
+                            {% brick_table_action id='delete' url=delete_cells_url __id=ctype.id label=ctype|format:delete_cells_label_fmt enabled=admin_perm %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% trans 'No type of relation block created for the moment' %}
+{% endblock %}

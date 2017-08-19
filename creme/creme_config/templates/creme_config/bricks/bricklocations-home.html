@@ -1,0 +1,34 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-brickloc-home-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Block on home') plural=_('{count} Blocks on home') empty=_('Block on home') icon='config' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__edit_portal_bricks' 'creme_core' as edit_url %}
+    {% brick_header_action id='edit' url=edit_url label=_('Edit blocks configuration') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') status='primary nowrap' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_home_brick' as delete_url %}
+    {% for loc in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{loc.block_verbose_name}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=loc.id label=_('Remove this block') enabled=admin_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No block for the moment' %}
+{% endblock %}

@@ -6,19 +6,28 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 }
 
 .theme_picker, .tz_picker {
-    padding: 2px;
+    /* padding: 2px; */
+    display: inline-block;
+    margin-bottom: 15px;
+    margin-top: 5px;
+}
+
+.tz_picker {
+    margin-left: 20px;
 }
 
 .theme_picker label, .tz_picker label {
+    font-weight: bolder;
+/*
     color: white;
     font-size: 1em;
-    font-weight: bolder;
     background-color: #94C6DB;
     padding: 3px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     -o-border-radius: 4px;
     border-radius: 4px;
+*/
 }
 
 /* Search/Blocks config */
@@ -31,4 +40,582 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     list-style: outside none none;
     margin: 0;
     padding: 0;
+}
+
+.creme_config-configurable-model-brick th.configmodel-column-order {
+    width: 50px;
+    text-align: center;
+}
+
+/* PropertyType brick */
+.creme_config-property-types-brick .property-label,
+.creme_config-property-types-brick .property-count {
+    width: 15%;
+    white-space: nowrap;
+}
+
+.creme_config-property-types-brick .property-subjects {
+    width: 100%;
+}
+
+/* Users brick */
+
+.creme_config-users-brick td.user-password {
+    white-space: nowrap;
+}
+
+/* UserRoles brick */
+.creme_config-roles-brick .role-name {
+    width: 10%;
+}
+
+.creme_config-roles-brick th.role-apps,
+.creme_config-roles-brick th.role-admin-apps,
+.creme_config-roles-brick th.role-creation-creds,
+.creme_config-roles-brick th.role-export-creds {
+    width: 15%;
+}
+
+.creme_config-roles-brick th.role-creds {
+    width: 25%;
+}
+
+.creme_config-roles-brick .role-creds > ul {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.creme_config-roles-brick .role-creds > ul span,
+.creme_config-roles-brick .brick-role-creds > ul img {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+/* Search brick */
+
+.creme_config-search-brick .brick-footer {
+    padding: 5px 0px;
+}
+
+.creme_config-search-brick td.search-config-ctype-label {
+    width: 30%;
+}
+
+.creme_config-search-brick td.search-config-fields {
+    width: 100%;
+}
+
+.creme_config-search-brick td.search-config-ctype-label.search-config-superuser {
+    font-weight: 400;
+}
+
+/*
+.creme_config-search-brick .brick-content {
+    padding: 0;
+}
+*/
+
+.creme_config-search-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.creme_config-search-brick .search-config-item {
+    font-size: 11px;
+}
+
+.creme_config-search-brick .search-config-item + .search-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-search-brick .search-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_config-search-brick .search-config-group + .search-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-search-brick .search-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-search-brick .search-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-search-brick .search-config-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_config-search-brick .brick-table thead tr {
+    background: white;
+}
+
+.creme_config-search-brick .search-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+    /*border-bottom: 1px solid #dedede;*/
+}
+
+.creme_config-search-brick .search-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-search-brick .search-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-search-brick .search-config-group .search-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+/* Buttons brick */
+
+.creme_config-buttonmenu-brick .brick-content {
+    padding: 0;
+}
+
+.creme_config-buttonmenu-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-item {
+    font-size: 11px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-item + .buttonmenu-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group + .buttonmenu-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+    /*border-bottom: 1px solid #dedede;*/
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-buttonmenu-brick .buttonmenu-config-group .buttonmenu-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+/* FieldsConfig brick */
+
+.creme_config-fields-brick td.fieldconf-label {
+    width: 15%;
+    white-space: nowrap;
+}
+
+.creme_config-fields-brick td.fieldconf-hidden-fields {
+    width: 100%;
+}
+
+/* BricksDetailViewConfig brick */
+
+.creme_config-brickloc-detail-brick .brick-footer {
+    padding: 5px 0px;
+}
+
+.creme_config-brickloc-detail-brick div.brickloc-config-item-default {
+    padding-bottom: 10px;
+}
+
+.creme_config-brickloc-detail-brick td.brickloc-config-role {
+    width: 30%;
+}
+
+.creme_config-brickloc-detail-brick td.brickloc-config-count {
+    width: 100%;
+}
+
+.creme_config-brickloc-detail-brick td.brickloc-config-role.brickloc-config-role-superuser {
+    font-weight: 400;
+}
+
+/*.creme_config-brickloc-detail-brick .brick-content {
+    padding: 0;
+} */
+
+.creme_config-brickloc-detail-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-item {
+    font-size: 11px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-item + .brickloc-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group + .brickloc-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_config-brickloc-detail-brick .brick-table thead tr {
+    background: white;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+    /*border-bottom: 1px solid #dedede;*/
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-brickloc-detail-brick .brickloc-config-group .brickloc-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+/* RelationsBricksConfig brick */
+
+.creme_config-rtypebricks-brick td .rtypebrick-cell-item {
+    font-weight: 600;
+    color: #22439f;
+}
+
+.creme_config-rtypebricks-brick .brick-footer {
+    padding: 5px 0px;
+}
+
+.creme_config-rtypebricks-brick td.rtypebrick-config-relation-label {
+    width: 30%;
+    white-space: nowrap;
+}
+
+/* .creme_config-rtypebricks-brick .brick-content {
+    padding: 0;
+} */
+
+.creme_config-rtypebricks-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 0px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-item {
+    font-size: 11px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-item + .rtypebrick-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group + .rtypebrick-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_config-rtypebricks-brick .brick-table thead tr {
+    background: white;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+    /*border-bottom: 1px solid #dedede;*/
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-rtypebricks-brick .rtypebrick-config-group .rtypebrick-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+/* InstanceBricksConfig brick */
+
+.creme_config-instances-bricks-brick .instancebrick-config-entity {
+    width: 20%;
+    white-space: nowrap;
+}
+
+.creme_config-instances-bricks-brick .instancebrick-config-errors {
+    width: 100%;
+}
+
+.creme_config-instances-bricks-brick td.instancebrick-config-error {
+    font-weight: 600;
+    color: red;
+}
+
+/* CustomBricksConfig brick */
+
+.creme_config-custombricks-brick td.custombrick-config-label {
+    width: 15%;
+    white-space: nowrap;
+}
+
+.creme_config-custombricks-brick td.custombrick-config-fields {
+    width: 100%;
+}
+
+/* CustomFields brick */
+
+.creme_config-customfields-brick td.cfields-config-name {
+    width: 30%;
+}
+
+.creme_config-customfields-brick td.cfields-config-type {
+    width: 100%;
+}
+
+.creme_config-customfields-brick .brick-content {
+    padding: 0;
+}
+
+.creme_config-customfields-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.creme_config-customfields-brick .cfields-config-item {
+    font-size: 11px;
+}
+
+.creme_config-customfields-brick .cfields-config-item + .cfields-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-customfields-brick .cfields-config-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_config-customfields-brick .cfields-config-group + .cfields-config-group {
+    margin-top: 5px;
+}
+
+.creme_config-customfields-brick .cfields-config-group-title {
+    min-width: 160px;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.creme_config-customfields-brick .cfields-config-group-action {
+    align-self: center;
+    height: 16px;
+    padding-right: 10px;
+    font-size: 13px;
+}
+
+.creme_config-customfields-brick .cfields-config-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_config-customfields-brick .brick-table thead tr {
+    background: white;
+}
+
+.creme_config-customfields-brick .cfields-config-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    background: #fcfcfc;
+    /*border-bottom: 1px solid #dedede;*/
+}
+
+.creme_config-customfields-brick .cfields-config-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_config-customfields-brick .cfields-config-action img {
+    position: relative;
+    top: 3px;
+}
+
+.creme_config-customfields-brick .cfields-config-group .cfields-config-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+/* UserSettingValues brick */
+
+.creme_config-user-settings-brick .brick-content {
+    padding: 0;
+}
+
+.creme_config-user-settings-brick .setting-values-config-item {
+    font-size: 11px;
+}
+
+.creme_config-user-settings-brick .setting-values-config-app-name {
+    padding-top: 10px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.creme_config-user-settings-brick .setting-values-config-item + .setting-values-config-item {
+    margin-top: 0px;
+    border-top: 2px solid #ccc;
 }

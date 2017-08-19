@@ -1,5 +1,5 @@
 {% extends "creme_config/portal.html" %}
-{% load i18n creme_core_tags creme_block %}
+{% load i18n creme_core_tags creme_bricks %}
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
@@ -7,6 +7,6 @@
 {% endblock %}
 
 {% block before_statistics %}
-    {% import_block from_app 'creme_config' named 'property_types' as 'property_types_block' %}
-    {% display_block_detailview 'property_types_block' %}
+    {% brick_import app='creme_config' name='property_types' as property_types_brick %}
+    {% brick_display property_types_brick %}
 {% endblock %}

@@ -44,6 +44,8 @@ class RelationTypeTestCase(CremeTestCase):
         object_pred  = 'is loved by'
         response = self.client.post(url, data={'subject_predicate': subject_pred,
                                                'object_predicate':  object_pred,
+
+                                               'subject_is_copiable': 'on',
                                               }
                                    )
         self.assertNoFormError(response)
@@ -52,11 +54,17 @@ class RelationTypeTestCase(CremeTestCase):
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertTrue(rel_type.is_custom)
-        self.assertEqual(object_pred, rel_type.symmetric_type.predicate)
+        self.assertTrue(rel_type.is_copiable)
+        self.assertFalse(rel_type.minimal_display)
         self.assertFalse(rel_type.subject_ctypes.all())
         self.assertFalse(rel_type.object_ctypes.all())
         self.assertFalse(rel_type.subject_properties.all())
         self.assertFalse(rel_type.object_properties.all())
+
+        sym_type = rel_type.symmetric_type
+        self.assertEqual(object_pred, sym_type.predicate)
+        self.assertFalse(sym_type.is_copiable)
+        self.assertFalse(sym_type.minimal_display)
 
     def test_create02(self):
         create_pt = CremePropertyType.create
@@ -73,10 +81,14 @@ class RelationTypeTestCase(CremeTestCase):
         response = self.client.post(self.ADD_URL,
                                     data={'subject_predicate':  subject_pred,
                                           'object_predicate':   'is employed by (test version)',
+
                                           'subject_ctypes':     [ct_orga.id],
-                                          'subject_properties': [pt_sub.id],
                                           'object_ctypes':      [ct_contact.id],
+
+                                          'subject_properties': [pt_sub.id],
                                           'object_properties':  [pt_obj.id],
+
+                                          'object_is_copiable': 'on',
                                          }
                                    )
         self.assertNoFormError(response)
@@ -84,8 +96,56 @@ class RelationTypeTestCase(CremeTestCase):
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
         self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
-        self.assertEqual([pt_sub.id],     [pt.id for pt in rel_type.subject_properties.all()])
-        self.assertEqual([pt_obj.id],     [pt.id for pt in rel_type.object_properties.all()])
+
+        self.assertEqual([pt_sub.id], [pt.id for pt in rel_type.subject_properties.all()])
+        self.assertEqual([pt_obj.id], [pt.id for pt in rel_type.object_properties.all()])
+
+        self.assertFalse(rel_type.is_copiable)
+        self.assertFalse(rel_type.minimal_display)
+
+        sym_type = rel_type.symmetric_type
+        self.assertTrue(sym_type.is_copiable)
+        self.assertFalse(sym_type.minimal_display)
+
+    def test_create03(self):
+        subject_pred = 'loves'
+        response = self.client.post(self.ADD_URL,
+                                    data={'subject_predicate': subject_pred,
+                                          'object_predicate':  'is loved by',
+
+                                          'subject_min_display': 'on',
+                                         },
+                                   )
+        self.assertNoFormError(response)
+
+        rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
+        self.assertTrue(rel_type.is_custom)
+        self.assertFalse(rel_type.is_copiable)
+        self.assertTrue(rel_type.minimal_display)
+
+        sym_type = rel_type.symmetric_type
+        self.assertFalse(sym_type.is_copiable)
+        self.assertFalse(sym_type.minimal_display)
+
+    def test_create04(self):
+        subject_pred = 'loves'
+        response = self.client.post(self.ADD_URL,
+                                    data={'subject_predicate': subject_pred,
+                                          'object_predicate':  'is loved by',
+
+                                          'object_min_display': 'on',
+                                         },
+                                   )
+        self.assertNoFormError(response)
+
+        rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
+        self.assertTrue(rel_type.is_custom)
+        self.assertFalse(rel_type.is_copiable)
+        self.assertFalse(rel_type.minimal_display)
+
+        sym_type = rel_type.symmetric_type
+        self.assertFalse(sym_type.is_copiable)
+        self.assertTrue(sym_type.minimal_display)
 
     def test_edit01(self):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),

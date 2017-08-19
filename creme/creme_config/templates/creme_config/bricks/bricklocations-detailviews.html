@@ -1,0 +1,73 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-brickloc-detail-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configured type of resource') plural=_('{count} Configured types of resource') icon='config' %}
+{% endblock %}
+
+{% block brick_content %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_detailview_blocks' as delete_url %}
+    {% if not page.number or page.number < 2 %}
+    <div class="brick-list-item brickloc-config-item brickloc-config-item-default">
+        <div class="brickloc-config-group brickloc-config-summary-group">
+            <div class="brickloc-config-group-title">{% trans 'Default configuration' %} - {% blocktrans count count=default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}</div>
+            <div class="brickloc-config-group-action">{% url 'creme_config__edit_detailview_bricks' 0 'default' as edit_def_url %}
+                {% brick_action id='edit' url=edit_def_url label=_('Edit the default configuration') enabled=admin_perm %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% for ctw in page.object_list %}
+        {% with ctype=ctw.ctype ctype_default_count=ctw.default_count %}
+    <div class="brick-list-item brickloc-config-item">
+        <div class="brickloc-config-group brickloc-config-summary-group">
+            <div class="brickloc-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='brickloc-config-type-icon' %} {{ctype}}</div>
+            <div class="brickloc-config-group-action">
+            {% if ctw.locations_info|length < max_conf_count %}{% url 'creme_config__create_detailviews_bricks' ctype.id as create_url %}
+                {% brick_action id='add' url=create_url label=_('Create for a role') enabled=admin_perm display='text' %}
+            {% endif %}
+            </div>
+        </div>
+        <div class="brickloc-config-group brick-table">
+            <table class="brick-table-content">
+                <tbody>
+                    <tr>
+                        <td class="brickloc-config-role">{{ctype|format:_('Default configuration for «%s»')}}</td>
+                        <td class="brickloc-config-count">
+                            {% if ctype_default_count %}
+                                {% blocktrans count count=ctype_default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                            {% else %}
+                                {% trans '(uses the default blocks configuration)' %}
+                            {% endif %}
+                        </td>
+                        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_detailview_bricks' ctype.id 'default' as edit_url %}
+                            {% brick_table_action id='edit' url=edit_url enabled=admin_perm %}
+                        </td>
+                        <td {% brick_table_data_status action %}>
+                            {% if ctype_default_count %}
+                                {% brick_table_action id='delete' url=delete_url __id=ctype.id enabled=admin_perm %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% for role_arg, role_label, role_block_count in ctw.locations_info %}
+                    <tr>
+                        <td class="brickloc-config-role {% if role_arg == 'superuser' %}brickloc-config-role-superuser{% endif %}">{{role_label}}</td>
+                        <td class="brickloc-config-count">{% blocktrans count count=role_block_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}</td>
+                        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_detailview_bricks' ctype.id role_arg as edit_role_url %}
+                            {% brick_table_action id='edit' url=edit_role_url enabled=admin_perm %}
+                        </td>
+                        <td {% brick_table_data_status action %}>
+                            {% brick_table_action id='delete' url=delete_url __id=ctype.id __role=role_arg enabled=admin_perm %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+        {% endwith %}
+    {% endfor %}
+{% endblock %}

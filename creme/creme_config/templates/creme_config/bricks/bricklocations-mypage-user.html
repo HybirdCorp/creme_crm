@@ -1,0 +1,17 @@
+{% extends 'creme_config/bricks/base/bricklocations-mypage.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-brickloc-mypage-user-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Block on «My page»') plural=_('{count} Blocks on «My page»') empty=_('Blocks on «My page»') icon='config' %}
+{% endblock %}
+
+{% block brick_header_actions %}{% url 'creme_config__edit_mypage_bricks' as edit_url %}
+    {% brick_header_action id='edit' url=edit_url label=_('Edit the configuration') %}
+{% endblock %}
+
+{% block brick_mypage_location_row_action %}
+{% url 'creme_config__delete_mypage_bricks' as delete_url %}
+    {% brick_table_action id='delete' url=delete_url __id=location.id label=_('Delete the configuration') %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-teams-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Team') plural=_('{count} Teams') empty=_('Teams') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_team' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New team') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='username' title=_('Name') status='primary' %}
+    {% brick_table_column title=_('Teammates') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% for team in page.object_list %}
+    <tr>
+        <td>{{team.username}}</td>
+        <td>{% widget_enumerator team.teammates.values|uca_sort threshold=10 empty=_('No teammate') %}</td>
+        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_team' team.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this team') enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_user' team.id as delete_url %}
+            {% brick_table_action id='edit' url=delete_url label=_('Delete this team') icon='delete' enabled=admin_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No team for the moment' %}
+{% endblock %}

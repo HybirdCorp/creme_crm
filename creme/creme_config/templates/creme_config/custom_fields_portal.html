@@ -1,0 +1,12 @@
+{% extends "creme_config/portal.html" %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block title %}
+    {% has_perm_to access 'creme_config' as conf_perm %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% endif %}{% trans "Custom fields" %}
+{% endblock %}
+
+{% block before_statistics %}
+    {% brick_import app='creme_config' name='custom_fields' as cfields_brick %}
+    {% brick_display cfields_brick %}
+{% endblock %}

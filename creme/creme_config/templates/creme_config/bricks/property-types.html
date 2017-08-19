@@ -1,0 +1,55 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-property-types-brick{% endblock %}
+
+{% block brick_before %}
+{% if not request.is_ajax %}
+    <div class="help_box">{% trans 'Deleting a property type will delete the associated properties' %}</div>
+{% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Type of property') plural=_('{count} Types of property') empty=_('Types of property') icon='property' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_ptype' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New custom type of property') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='text'           status='primary nowrap' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='subject_ctypes' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='is_copiable'    status='nowrap' %}
+    {% brick_table_column title=_('Statistics') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_ptype' as delete_url %}
+    {% for prop_type in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} class="property-label">{% widget_hyperlink prop_type %}</td>
+        <td class="property-subjects">
+            {% widget_enumerator prop_type.subject_ctypes.all|uca_sort threshold=10 empty=_('No related type of resource') %}
+        </td>
+        <td class="property-copiable">{% print_field object=prop_type field='is_copiable' %}</td>
+        <td class="property-count">
+            {% blocktrans count prop_type.stats as count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktrans %}
+        </td>
+        {% with action_enabled=admin_perm|and_op:prop_type.is_custom %}
+        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_ptype' prop_type.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this property type') enabled=action_enabled %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=prop_type.id label=_('Delete this property type') enabled=action_enabled %}
+        </td>
+        {% endwith %}
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No type of property for the moment' %}
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-relation-types-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% if custom %}
+        {% brick_header_title title=_('{count} Custom type of relation') plural=_('{count} Custom types of relation') empty=_('Relation types') icon='relations' %}
+    {% else %}
+        {% brick_header_title title=_('{count} Standard type of relation') plural=_('{count} Standard types of relation') empty=_('Relation types') icon='relations' %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% if custom %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_rtype' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New custom type') enabled=admin_perm %}
+{% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Subject(s)') class='relation-subject'   colspan=4 %}
+    {% brick_table_column title=_('Predicate')  class='relation-predicate' status='nowrap' %}
+    {% brick_table_column title=_('Object(s)')  class='relation-object'    colspan=4 %}
+    {% if custom %}
+        {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_rtype' as delete_url %}
+    {% for relation_type in page.object_list %}
+    {% with sym_type=relation_type.symmetric_type %}
+    <tr>
+        <td class="relation-subject-ctypes">{% widget_enumerator relation_type.subject_ctypes.all|uca_sort threshold=5 empty=_('No type') %}</td>
+        <td class="relation-subject-properties">{% widget_enumerator relation_type.subject_properties.all|uca_sort threshold=5 empty=_('No property') %}</td>
+        <td class="relation-subject-copiable">{% if not relation_type.is_copiable %}<span title="{% trans 'The relationships are not copied when the subject entity is cloned' %}">{% trans 'No copy' %}</span>{% endif %}</td>
+        <td class="relation-subject-display">{% if relation_type.minimal_display %}<span title="{% trans 'The relationships are not displayed in the «Relationships» block (detail-view of subject) when they are already displayed by another block.' %}">{% trans 'Display once' %}</span>{% endif %}</td>
+        <td class="relation-predicate">{{relation_type.predicate}} — {{sym_type.predicate}}</td>
+        <td class="relation-object-ctypes">{% widget_enumerator relation_type.object_ctypes.all|uca_sort threshold=5 empty=_('No type') %}</td>
+        <td class="relation-object-properties">{% widget_enumerator relation_type.object_properties.all|uca_sort threshold=5 empty=_('No property') %}</td>
+        <td class="relation-object-copiable">{% if not sym_type.is_copiable %}<span title="{% trans 'The relationships are not copied when the object entity is cloned' %}">{% trans 'No copy' %}</span>{% endif %}</td>
+        <td class="relation-subject-display">{% if sym_type.minimal_display %}<span title="{% trans 'The relationships are not displayed in the «Relationships» block (detail-view of object) when they are already displayed by another block.' %}">{% trans 'Display once' %}</span>{% endif %}</td>
+        {% if custom %}
+        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_rtype' relation_type.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this relation type') enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=relation_type.id label=_('Delete this relation type') enabled=admin_perm %}
+        </td>
+        {% endif %}
+    </tr>
+    {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% if custom %}{% trans 'No custom type of relation for the moment' %}{% endif %}
+{% endblock %}

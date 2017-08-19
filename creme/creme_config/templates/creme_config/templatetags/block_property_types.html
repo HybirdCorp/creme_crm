@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_widgets creme_block %}
+
+{% log 'The template file "creme/creme_config/templates/creme_config/templatetags/block_property_types.html" is deprecated.' level='WARN' %}
+
 {% if not request.is_ajax %}
     <div class="help_box">{% trans 'Deleting a property type will delete the associated properties' %}</div>
 {% endif %}

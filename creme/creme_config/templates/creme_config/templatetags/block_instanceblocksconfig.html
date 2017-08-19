@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+
+{% log 'The template file "creme/creme_config/templates/creme_config/templatetags/block_instanceblocksconfig.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to admin 'creme_core' as admin_perm %}
 {% with colspan=3 %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
@@ -14,7 +17,7 @@
                 <th class="block_header_line_light">{% trans "Errors" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
-            {% url 'creme_config__delete_instance_block' as delete_url %}
+            {% url 'creme_config__delete_instance_brick' as delete_url %}
             {% for block_type in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}}">
