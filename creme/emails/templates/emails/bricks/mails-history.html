@@ -1,0 +1,60 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} emails-mails-history-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Email in the history') plural=_('{count} Emails in the history') empty=_('Emails') icon='email' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% has_perm_to link object as link_perm %}
+    {% with create_linked_perm=creation_perm|and_op:link_perm %}
+        {% url 'emails__create_email' object.id as creation_url %}
+        {% brick_header_action id='add' url=creation_url label=_('Send a new related email') enabled=create_linked_perm %}
+
+        {% url 'emails__create_email_from_template' object.id as creation_from_tpl_url %}
+        {% brick_header_action id='add' url=creation_from_tpl_url label=_('Send a email (with a template)') enabled=create_linked_perm %}
+
+        {% url 'creme_core__create_relations_bulk' object.entity_type_id as link_url %}
+        {% url_join link_url ids=object.id persist='ids' rtype=rtype_ids as link_uri %}
+        {% brick_header_action id='link' url=link_uri label=_('Link to an existing email') enabled=link_perm %}
+    {% endwith %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='sender' status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='recipient' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='subject' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='status' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='sending_date' status='nowrap' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for mail in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} class="email-sender" data-type="email">{% print_field object=mail field='sender' %}</td>
+        <td class="email-recipient" data-type="email">{% print_field object=mail field='recipient' %}</td>
+        <td class="email-subject">{{mail.subject}}</td>
+        <td class="email-status">{{mail.get_status_display}}</td>
+        <td class="email-sending-date" data-type="date">{% print_field object=mail field='sending_date' %}</td>
+        <td {% brick_table_data_status action %}>{% url 'emails__view_email_popup' mail.id as email_view_url %}
+            {% brick_table_action id='view' url=email_view_url label=_('Details') __title=_('Email') %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% if mail.status != sent_status %}{% url 'emails__resend_emails' as resend_url %}
+                {% if mail.status in sync_statuses %}
+                    {% brick_table_action id='update' url=resend_url __ids=mail.id label=_('Re-send') icon='refresh' confirm=_('This mail was synchronized. Are you sure you want to send it ?') %}
+                {% else %}
+                    {% brick_table_action id='update' url=resend_url __ids=mail.id label=_('Re-send') icon='refresh' %}
+                {% endif %}
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No email in the history for the moment' %}
+{% endblock %}

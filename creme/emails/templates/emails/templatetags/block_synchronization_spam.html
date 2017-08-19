@@ -1,6 +1,8 @@
 {% extends "emails/templatetags/_block_synchronization.html" %}
 {% load i18n creme_block creme_core_tags %}
 
+{% log 'The template file "creme/emails/templates/emails/templatetags/block_synchronization_spam.html" is deprecated.' level='WARN' %}
+
 {% block top_header %}
     {% get_block_header colspan=7 %}
         <th class="label">{% get_block_title  _('%s Incoming email marked as spam') _('%s Incoming emails marked as spam') 'spam_48.png' _('Spam') %}</th>

@@ -1,0 +1,51 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} brick-selectable emails-emailsync-brick{% endblock %}
+
+{% block brick_extra_attributes %}data-crudity-backend="{{backend.get_id}}"{% endblock %}
+
+{% block brick_header_actions %}
+{% url 'creme_core__delete_entities' as del_multi_url %}
+    {% brick_header_action id='emailsync-delete' url=del_multi_url type='delete' icon='cancel' __selector='.row-selector:checked' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    <th data-selectable-selector-column>
+        <input class="row-selector-all" type="checkbox" title="{% trans 'Select all' %}"/>
+    </th>
+    {% brick_table_column title=_('Status') status='primary' %}
+    {% brick_table_column title=_('Sender(s)') %}
+    {% brick_table_column title=_('Recipient(s)') %}
+    {% brick_table_column title=_('Subject') %}
+    {% brick_table_column title=_('Received on') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=5 %}{# TODO: pass rigth colspan #}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% url 'creme_core__delete_entities' as delete_multi_url %}
+    {% for mail in page.object_list %}
+    <tr>
+        <td data-selectable-selector-column>
+            <input class="row-selector" value="{{mail.pk}}" title="{% trans 'Select this line' %}" type="checkbox"/>
+        </td>
+        <td {% brick_table_data_status primary %}>{{MAIL_STATUS|get_value:mail.status}}</td>
+        <td>{{mail.sender}}</td>
+        <td>{{mail.recipient}}</td>
+        <td>{{mail.subject}}</td>
+        <td data-type="date">{{mail.reception_date|default:'—'}}</td>
+        {% block mail_sync_actions %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='redirect' url=mail.get_absolute_url label=_('See the entity') icon='view' %}
+        </td>
+        <td {% brick_table_data_status action %}>{% has_perm_to delete mail as delete_perm %}
+            {% brick_table_action id='delete' url=delete_multi_url __ids=mail.id label=_('Delete this email') enabled=delete_perm %}
+        </td>
+        {% endblock %}
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No received email to synchronize' %}
+{% endblock %}

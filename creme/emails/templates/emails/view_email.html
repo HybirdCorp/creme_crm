@@ -1,67 +1,48 @@
-{% load i18n creme_core_tags %}
-<table class="table_detail_view ui-corner-all">
-    <thead>
-        <tr>
-            <th colspan="11">
-                <center>
-                    <table class="block_header" cellspacing="0" cellpadding="0">
-                        <tbody>
-                            <tr>
-                                <td><img src="{% creme_media_url 'images/email_48.png' %}" alt="" title="Email" /></td>
-                                <td>&nbsp;{{title}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </center>
-            </th>
-        </tr>
-    </thead>
-    <tbody class="collapsable"><!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Recipient" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='recipient' %}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Sender" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='sender' %}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Status" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='status' %}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Related sending" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='sending' %}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Number of reads" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='reads' %}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Subject" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail.sending field='subject' %}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Body" %}</th>
-            {# <td class="{% cycle row_color %} td_info">{{mail.get_body}}</td> #}
-            <td class="{% cycle row_color %} td_info">{{mail.rendered_body|force_escape|linebreaksbr}}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Body (HTML)" %}</th>
-{#            <td class="{% cycle row_color %} td_info"><iframe frameborder="0" src="/emails/mail/get_body/{{mail.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td> #}
-            <td class="{% cycle row_color %} td_info"><iframe frameborder="0" src="{% url 'emails__lw_mail_body' mail.id %}" width="100%" height="100%" style="min-height:350px"></iframe></td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Sending date" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='sending_date' %}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Signature" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail.sending field='signature' %}</td>
-        </tr>
-        <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Attachments" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail.sending field='attachments' %}</td>
-        </tr>
-    </tbody>
-</table>
+{% extends 'creme_core/bricks/base/tiles.html' %}
+{% load i18n creme_core_tags creme_bricks creme_cells %}
+
+{% block brick_extra_class %}{{block.super}} brick-detailview-popup{% endblock %}
+
+{% block brick_header %}
+    {% with campaign=mail.sending.campaign %}
+{#    {% brick_action id='redirect' url=campaign.get_absolute_url label=_('Full detailview') class='brick-dialog-action' display='text' %} #}
+    {# NB: 'view' credentials checked in the view function #}
+    <a class="complete-detailview" href="{{campaign.get_absolute_url}}">{% blocktrans %}Full detailview of the campaign «{{campaign}}»{% endblocktrans %}</a>
+    {% endwith %}
+{% endblock %}
+
+{% block brick_content %}
+{% with sending=mail.sending %}
+    {% cell_4_regularfield instance=mail    field='reads'        as reads_cell   %}{% brick_tile_for_cell reads_cell   mail    user %}
+    {% cell_4_regularfield instance=mail    field='status'       as status_cell  %}{% brick_tile_for_cell status_cell  mail    user %}
+    {% cell_4_regularfield instance=mail    field='sender'       as sender_cell  %}{% brick_tile_for_cell sender_cell  mail    user %}
+    {% cell_4_regularfield instance=mail    field='recipient'    as recip_cell   %}{% brick_tile_for_cell recip_cell   mail    user %}
+    {% cell_4_regularfield instance=sending field='subject'      as subject_cell %}{% brick_tile_for_cell subject_cell sending user %}
+    {% cell_4_regularfield instance=mail    field='sending_date' as sdate_cell   %}{% brick_tile_for_cell sdate_cell   mail    user %}
+
+{% comment %}
+    <div class="brick-tile brick-tile-multiline-value {% if not object.attachments.count %}brick-tile-empty-value{% endif %}" data-field="attachments">
+        <span class="brick-tile-name">{% trans 'Attachments' %}</span>
+        <span class="brick-tile-value">
+            {% for attachment in sending.attachments.all %}{% widget_join %}{% widget_entity_hyperlink attachment user %}{% end_widget_join %}{% empty %}—{% endfor %}
+        </span>
+    </div>
+{% endcomment %}
+    {% cell_4_regularfield instance=sending field='attachments' as attachments_cell %}{% brick_tile_for_cell attachments_cell sending user %}
+
+    {% if sending.body_html %}
+    <div class="brick-tile brick-tile-multiline-value" data-type="html" data-key="regular_field-body_html">
+        <span class="brick-tile-name">{% get_field_verbose_name sending 'body_html' %}</span>
+        <span class="brick-tile-value">
+            <iframe src="{% url 'emails__lw_mail_body' mail.id %}" frameborder="0" width="100%" {#height="100%"#} {#style="min-height:350px"#}></iframe>
+        </span>
+    </div>
+    {% else %}
+    {% cell_4_regularfield instance=sending field='body_html' as body_cell %}
+    {% brick_tile label=body_cell.title value=mail.rendered_body|force_escape|linebreaksbr multiline=True %}
+    {% endif %}
+
+    {% cell_4_regularfield instance=sending field='signature' as sign_cell    %}{% brick_tile_for_cell sign_cell    sending user %}
+    {% cell_4_regularfield instance=mail    field='sending'   as sending_cell %}{% brick_tile_for_cell sending_cell mail    user %}
+{% endwith %}
+{% endblock %}

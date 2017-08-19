@@ -1,0 +1,46 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} emails-organisations-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Organisation recipient') plural=_('{count} Organisations recipients') empty=_('Organisations recipients') icon='organisation' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}
+{% url 'emails__add_orgas_to_mlist_from_filter' object.id as add_orga_filter_url %}{% url 'emails__add_orgas_to_mlist' object.id as add_orgas_url %}
+    {% brick_header_action id='link' url=add_orga_filter_url label=_('Add from a filter') enabled=has_perm %}
+    {% brick_header_action id='link' url=add_orgas_url       label=_('Add organisations') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+{% if not field_hidden %}
+    {% brick_table_column title=_('Address') status='primary' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% if field_hidden %}
+    <tr>
+        <td class="td_error">{% trans 'The field «Email address» of Organisation is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator).' %}</td>
+    </tr>
+{% else %}{% has_perm_to change object as has_perm %}
+    {% for orga in page.object_list %}{% has_perm_to view orga as view_perm %}{% url 'emails__remove_orga_from_mlist' object.id as rm_orga_url %}
+    <tr>
+        <td {% brick_table_data_status primary %}>
+            {% widget_entity_hyperlink orga user %}
+            {% if view_perm %}&nbsp;:&nbsp;{{orga.email|default:_('no email address')}}{% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=rm_orga_url __id=orga.pk label=_('Remove this organisation') icon='unlink' enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No organisation recipient for the moment' %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}emails-email-brick emails-html-body-brick{% if not object.body_html %} is-empty{% endif %}{% endblock %}
+
+{% comment %} TODO: toggle images as menu action when its state is saved (must improve BlockState system
+{% block brick_menu_actions %}
+    {{block.super}}
+    {% brick_menu_action id='email-toggle-images' label=_('View external images') __inlabel=_('View external images') __outlabel=_('Hide external images') icon='view' %}
+{% endblock %}
+{% endcomment %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('HTML body') icon='info' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='email-toggle-images' label=_('View external images') __inlabel=_('View external images') __outlabel=_('Hide external images') icon='view' %}
+{% endblock %}
+
+{% block brick_content %}
+    {% if object.body_html %}
+        <iframe sandbox data-html-field="body_html" src="{% url 'creme_core__sanitized_html_field' object.id 'body_html' %}" frameborder="0" width="100%" {#height="100%"#} style="min-height:350px"></iframe>
+    {% endif %}
+{% endblock %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerFie
         EmailField, CharField, TextField, ManyToManyField, SET_NULL)
 from django.db.transaction import atomic
 from django.template import Template, Context
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy  # activate
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy  # activate
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
@@ -74,7 +74,7 @@ class EmailSending(CremeModel):
                                               choices=SENDING_TYPES.items(),
                                               default=SENDING_TYPE_IMMEDIATE,
                                              )
-    sending_date  = DateTimeField(_(u'Sending date of emails'))
+    sending_date  = DateTimeField(_(u'Sending date'))
     state         = PositiveSmallIntegerField(verbose_name=_(u'Sending state'),
                                               editable=False,
                                               choices=SENDING_STATES.items(),
@@ -91,8 +91,8 @@ class EmailSending(CremeModel):
                                   verbose_name=_(u'Attachments'), editable=False,
                                  )
 
-    creation_label = pgettext_lazy('emails', 'Create a sending')
-    save_label     = pgettext_lazy('emails', 'Save the sending')
+    creation_label = pgettext_lazy('emails', u'Create a sending')
+    save_label     = pgettext_lazy('emails', u'Save the sending')
 
     class Meta:
         app_label = 'emails'
@@ -100,10 +100,9 @@ class EmailSending(CremeModel):
         verbose_name_plural = _(u'Email campaign sendings')
 
     def __unicode__(self):
-        return ugettext(u'Sending of «%(campaign)s» on %(date)s') % {
-                            'campaign': self.campaign,
-                            'date':     self.sending_date,
-                        }
+        return pgettext('emails', u'Sending of «{campaign}» on {date}').format(campaign=self.campaign,
+                                                                               date=self.sending_date,
+                                                                              )
 
     def get_mails(self):
         return self.mails_set.all()
@@ -166,7 +165,7 @@ class EmailSending(CremeModel):
             if sender.send(mail, connection=connection):
                 mails_count += 1
                 one_mail_sent = True
-                logger.debug("Mail sent to %s", mail.recipient)
+                logger.debug('Mail sent to %s', mail.recipient)
 
             if mails_count > SENDING_SIZE:
                 logger.debug('Sending: waiting timeout')
@@ -185,13 +184,13 @@ class LightWeightEmail(_Email):
     id is a unique generated string in order to avoid stats hacking.
     """
     id               = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
-    sending          = ForeignKey(EmailSending, verbose_name=_(u"Related sending"),
+    sending          = ForeignKey(EmailSending, verbose_name=_(u'Related sending'),
                                   related_name='mails_set', editable=False,
                                  )
     recipient_entity = ForeignKey(CremeEntity, null=True, related_name='received_lw_mails', editable=False)
 
     class Meta:
-        app_label = "emails"
+        app_label = 'emails'
         verbose_name = _(u'Email of campaign')
         verbose_name_plural = _(u'Emails of campaign')
 
@@ -202,7 +201,7 @@ class LightWeightEmail(_Email):
             return Template(sending_body).render(Context(loads(body.encode('utf-8')) if body else {}))
         except Exception as e:  # Pickle raises too much different exceptions... Catch'em all ?
             logger.debug('Error in LightWeightEmail._render_body(): %s', e)
-            return ""
+            return ''
 
     # def get_body(self):
     #     warnings.warn("LightWeightEmail.get_body() method is deprecated ; use 'rendered_body' instead",

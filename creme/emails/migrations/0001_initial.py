@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('sender', models.EmailField(max_length=100, verbose_name='Sender address')),
                 ('type', models.PositiveSmallIntegerField(verbose_name='Sending type')),
-                ('sending_date', models.DateTimeField(verbose_name='Sending date of emails')),
+                ('sending_date', models.DateTimeField(verbose_name='Sending date')),
                 ('state', models.PositiveSmallIntegerField(verbose_name='Sending state', editable=False)),
                 ('subject', models.CharField(verbose_name='Subject', max_length=100, editable=False)),
                 ('body', models.TextField(verbose_name='Body', editable=False)),

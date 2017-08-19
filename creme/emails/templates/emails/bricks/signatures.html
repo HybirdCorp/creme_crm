@@ -1,0 +1,43 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} emails-signatures-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('My signature ({count})') plural=_('My signatures ({count})') empty=_('My signatures') icon='email' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% url 'emails__create_signature' as create_url %}
+{% trans 'New signature' context 'emails' as new_label %}
+    {% brick_header_action id='add' url=create_url label=new_label enabled=has_app_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='body' %}
+    {% brick_table_column title=_('Images') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% url 'emails__delete_signature' as delete_url %}
+{% trans 'Edit this signature' context 'emails' as edit_label %}{% trans 'Delete this signature' context 'emails' as del_label %}
+    {% for signature in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{signature.name}}</td>
+        <td>{{signature.body}}</td>
+        <td>{{signature.images.count}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=signature.get_edit_absolute_url label=edit_label %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=signature.id label=del_label %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No signature for the moment' %}
+{% endblock %}

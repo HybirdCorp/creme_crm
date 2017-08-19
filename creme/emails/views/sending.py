@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.blocks import build_context
+from creme.creme_core.views.bricks import build_context, bricks_render_info
 from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.utils import jsonify
 
 from .. import get_emailcampaign_model
-from ..blocks import mails_block
+from ..bricks import MailsBrick
 from ..forms.sending import SendingCreateForm
 from ..models import EmailSending
 
@@ -56,16 +58,32 @@ def _get_sending(request, sending_id):
 @permission_required('emails')
 def detailview(request, sending_id):
     return render(request, 'emails/popup_sending.html',
-                  {'object': _get_sending(request, sending_id)},
+                  context={'object': _get_sending(request, sending_id)},
                  )
 
 
-# Useful method because EmailSending is not a CremeEntity (should be ?)
 @jsonify
 @login_required
 @permission_required('emails')
 def reload_block_mails(request, sending_id):
-    context = build_context(request)
-    context['object'] = _get_sending(request, sending_id)
+    warnings.warn('emails.views.sending.reload_block_mails() is deprecated ; use reload_mails_brick() instead.',
+                  DeprecationWarning
+                 )
 
-    return [(mails_block.id_, mails_block.detailview_display(context))]
+    from creme.creme_core.views import blocks
+
+    context = blocks.build_context(request)
+    context['object'] = _get_sending(request, sending_id)
+    block = MailsBrick()
+
+    return [(block.id_, block.detailview_display(context))]
+
+
+# Useful method because EmailSending is not a CremeEntity (should be ?)
+@login_required
+@permission_required('emails')
+@jsonify
+def reload_mails_brick(request, sending_id):
+    return bricks_render_info(request, bricks=[MailsBrick()],
+                              context=build_context(request, object=_get_sending(request, sending_id)),
+                             )

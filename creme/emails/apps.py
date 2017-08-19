@@ -50,11 +50,30 @@ class EmailsConfig(CremeAppConfig):
                                               self.EntityEmail,
                                              )
 
-    def register_blocks(self, block_registry):
-        from .blocks import blocks_list  # EntityEmailBlock
+    def register_bricks(self, brick_registry):
+        # from .blocks import blocks_list  # EntityEmailBlock
+        from . import bricks
 
         # block_registry.register_4_model(self.EntityEmail, EntityEmailBlock())
-        block_registry.register(*blocks_list)
+        # block_registry.register(*blocks_list)
+        # brick_registry.register(*bricks.bricks_list)
+        brick_registry.register(bricks.EmailHTMLBodyBrick,
+                                bricks.TemplateHTMLBodyBrick,
+                                bricks.MailingListsBrick,
+                                bricks.EmailRecipientsBrick,
+                                bricks.ContactsBrick,
+                                bricks.OrganisationsBrick,
+                                bricks.ChildListsBrick,
+                                bricks.ParentListsBrick,
+                                bricks.AttachmentsBrick,
+                                bricks.SendingsBrick,
+                                bricks.MailsBrick,
+                                bricks.MailsHistoryBrick,
+                                bricks.MailPopupBrick,
+                                bricks.LwMailsHistoryBrick,
+                                bricks.SignaturesBrick,
+                                bricks.MySignaturesBrick,
+                               )
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import EmailSending, LightWeightEmail
@@ -75,11 +94,11 @@ class EmailsConfig(CremeAppConfig):
         button_registry.register(entityemail_link_button)
 
     def register_fields_config(self, fields_config_registry):
-        from creme.persons import get_contact_model, get_organisation_model
+        from creme import persons
 
         reg_fields = fields_config_registry.register_needed_fields
-        reg_fields('emails', get_contact_model(),      'email')
-        reg_fields('emails', get_organisation_model(), 'email')
+        reg_fields('emails', persons.get_contact_model(),      'email')
+        reg_fields('emails', persons.get_organisation_model(), 'email')
 
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register
