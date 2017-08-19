@@ -496,6 +496,7 @@ CREME_OPT_CSS = (  # APPS
      ('creme.projects',         'projects/css/projects.css'),
      ('creme.reports',          'reports/css/reports.css'),
      ('creme.tickets',          'tickets/css/tickets.css'),
+     ('creme.mobile',           'mobile/css/mobile.css'),
      ('creme.cti',              'cti/css/cti.css'),
 )
 

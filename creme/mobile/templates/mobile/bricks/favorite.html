@@ -1,0 +1,43 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} mobile-favorite-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% if is_contact %}
+        {% brick_header_title title=_('This contact is a favorite for {count} user') plural=_('This contact is a favorite for {count} users') empty=_('Favorite contacts') icon='contact' %}
+    {% elif is_orga %}
+        {% brick_header_title title=_('This organisation is a favorite for {count} user') plural=_('This organisation is a favorite for {count} users') empty=_('Favorite organisations') icon='contact' %}
+    {% else %}
+        {% brick_header_title title=_('This entity is a favorite for {count} user') plural=_('This entity is a favorite for {count} users') empty=_('Favorite entities') icon='contact' %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if not current_user_fav %}{% url 'mobile__mark_as_favorite' object.id as mark_url %}
+        {% brick_header_action id='update' url=mark_url type='link' label=_('Mark as favorite') %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_list_content %}
+    {% for fav_user in page.object_list %}
+    <div class="brick-list-item mobile-item">
+        <div class="mobile-favorite mobile-favorite-name">{{fav_user}}</div>
+        {% if user == fav_user %}
+        <div class="mobile-favorite mobile-favorite-actions">{% url 'mobile__unmark_favorite' object.id as unmark_url %}
+            {% brick_action id='delete' url=unmark_url label=_('Remove from your favorite contacts') icon='unlink' %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% if is_contact %}
+        {% trans 'This contact is not a favorite for the moment' %}
+    {% elif is_orga %}
+        {% trans 'This organisation is not a favorite for the moment' %}
+    {% else %}
+        {% trans 'This entity is not a favorite for the moment' %}
+    {% endif %}
+{% endblock %}
