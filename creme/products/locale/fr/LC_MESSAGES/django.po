@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 15:16+0100\n"
+"POT-Creation-Date: 2017-08-12 15:13+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,49 +19,59 @@ msgstr ""
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: apps.py:87
+#: apps.py:89
 msgid "Portal of products and services"
 msgstr "Portail des produits et services"
 
-#: apps.py:88
+#: apps.py:90
 msgid "All products"
 msgstr "Lister les produits"
 
-#: apps.py:90
+#: apps.py:92
 msgid "All services"
 msgstr "Lister les services"
 
-#: apps.py:96 apps.py:101
+#: apps.py:98 apps.py:103
 msgid "Management"
 msgstr "Gestion"
 
-#: blocks.py:36
+#: bricks.py:36
 msgid "Images of product/service"
 msgstr "Images du produit/service"
 
-#: forms/base.py:34 forms/fields.py:47 forms/product.py:46 models/product.py:49
-#: models/service.py:43
+#: forms/base.py:34 forms/fields.py:53 forms/fields.py:92 forms/product.py:43
+#: models/product.py:49 models/service.py:43
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
 #: forms/base.py:70 models/product.py:56 models/service.py:54
-#: templates/products/block_images.html:6
+#: templates/products/block_images.html:9
+#: templates/products/bricks/images.html:7
 msgid "Images"
 msgstr "Images"
 
-#: forms/fields.py:42 models/product.py:48 models/service.py:42
+#: forms/fields.py:48 forms/fields.py:89 models/product.py:48
+#: models/service.py:42
 msgid "Category"
 msgstr "Catégorie"
 
-#: forms/fields.py:56
+#: forms/fields.py:82
+msgid "Create"
+msgstr ""
+
+#: forms/fields.py:82
+msgid "Can't create"
+msgstr ""
+
+#: forms/fields.py:104
 msgid "This category doesn't exist."
 msgstr "Cette catégorie n'existe pas."
 
-#: forms/fields.py:57
+#: forms/fields.py:105
 msgid "This category causes constraint error."
 msgstr "Cette catégorie cause une erreur de contrainte."
 
-#: forms/fields.py:58
+#: forms/fields.py:106
 msgid "This sub-category causes constraint error."
 msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
@@ -80,7 +90,8 @@ msgstr "La sous-catégorie «%s» n'existe pas."
 msgid ""
 "The category «%(cat)s» and the sub-category «%(sub_cat)s are not matching."
 msgstr ""
-"La catégorie «%(cat)s» et la ssous-catégorie «%(sub_cat)s ne correspondent pas."
+"La catégorie «%(cat)s» et la ssous-catégorie «%(sub_cat)s ne correspondent "
+"pas."
 
 #: forms/mass_import.py:184
 msgid "Create the Categories/Sub-Categories which are not found?"
@@ -114,7 +125,8 @@ msgstr "Sélectionnez une sous-catégorie valide."
 msgid ""
 "Select a column for the sub-category if you select a column for the category."
 msgstr ""
-"Sélectionnez une colonne pour la sous-catégorie si sous sélectionnez une colonne pour la catégorie."
+"Sélectionnez une colonne pour la sous-catégorie si sous sélectionnez une "
+"colonne pour la catégorie."
 
 #: forms/mass_import.py:295
 msgid "Categories"
@@ -373,17 +385,33 @@ msgstr "Femmes"
 msgid "Kids"
 msgstr "Enfants"
 
-#: templates/products/block_images.html:10
+#: templates/products/block_images.html:13
+#: templates/products/bricks/images.html:12
 msgid "Add images"
 msgstr "Ajouter des images"
 
-#: templates/products/block_images.html:29
+#: templates/products/block_images.html:32
 msgid "Viewing is not allowed"
 msgstr "Visionnage interdit"
 
-#: templates/products/block_images.html:44
+#: templates/products/block_images.html:47
+#: templates/products/bricks/images.html:37
 msgid "No image for the moment"
 msgstr "Pas d'image pour le moment"
+
+#: templates/products/bricks/images.html:7
+#, python-brace-format
+msgid "{count} Image"
+msgstr "{count} Image"
+
+#: templates/products/bricks/images.html:7
+#, python-brace-format
+msgid "{count} Images"
+msgstr "{count} Images"
+
+#: templates/products/bricks/images.html:33
+msgid "Remove this image"
+msgstr "Enlever cette image"
 
 #: templates/products/portal.html:4
 msgid "Products & Services portal"

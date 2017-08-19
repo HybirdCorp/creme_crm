@@ -55,8 +55,8 @@ class AbstractProduct(CremeEntity):
     #                                    )
     images = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True)
 
-    creation_label = _('Create a product')
-    save_label     = _('Save the product')
+    creation_label = _(u'Create a product')
+    save_label     = _(u'Save the product')
 
     class Meta:
         abstract = True

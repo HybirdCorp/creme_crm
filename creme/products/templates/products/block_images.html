@@ -1,5 +1,8 @@
-{% load i18n %}
-{% load creme_core_tags creme_block %}{% has_perm_to change object as edit_perm %}
+{% load i18n creme_core_tags creme_block %}
+{% has_perm_to change object as edit_perm %}
+
+{% log 'The template file 'creme/products/templates/products/block_images.html' is deprecated.' level='WARN' %}
+
 {% with images=object.images.all %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=images|length|or_op:1 %}
