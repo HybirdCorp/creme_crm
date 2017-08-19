@@ -4,12 +4,11 @@
 #
 # > django-admin.py makemessages -l fr
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme CTI 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 14:14+0100\n"
+"POT-Creation-Date: 2017-08-12 14:49+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -21,72 +20,73 @@ msgstr ""
 msgid "Computer Telephony Integration"
 msgstr "Couplage Téléphonique Informatique"
 
-#: templates/cti/respond_to_a_call.html:10
-#, python-format
-msgid "%s Potential caller"
-msgstr "%s Appelant possible"
-
-#: templates/cti/respond_to_a_call.html:10
-#, python-format
-msgid "%s Potential callers"
-msgstr "%s Appelants possibles"
-
-#: templates/cti/respond_to_a_call.html:10
-msgid "Caller"
-msgstr "Appelant"
-
-#: templates/cti/respond_to_a_call.html:17
-msgid "Entity"
-msgstr "Fiche"
-
-#: templates/cti/respond_to_a_call.html:18
-msgid "Actions"
-msgstr "Actions"
-
-#: templates/cti/respond_to_a_call.html:23
-msgid "Create a phone call"
-msgstr "Créer un appel téléphonique"
-
-#: templates/cti/respond_to_a_call.html:38
-#, python-format
-msgid "No contact/organisation corresponds to this number : %(number)s"
-msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
-
-#: templates/cti/respond_to_a_call.html:39
-msgid "Create a contact"
-msgstr "Créer un contact"
-
-#: templates/cti/respond_to_a_call.html:51
-msgid "Create an organisation"
-msgstr "Créer une société"
-
-#: utils.py:41
-msgid "Call"
-msgstr "Appeler"
-
-#: views.py:60
-msgid "Automatically created by CTI"
-msgstr "Créé automatiquement par CTI"
-
-#: views.py:73
-#, python-format
-msgid "Call to %s"
-msgstr "Appel à %s"
-
-#: views.py:78
-msgid "Phone call successfully created."
-msgstr "Appel téléphonique créé avec succès."
-
-#: views.py:103
-#, python-format
-msgid "Call from %s"
-msgstr "Appel de %s"
-
-#: views.py:172
+#: bricks.py:61
 msgid "All phone fields are hidden ; please contact your administrator."
 msgstr ""
 "Tous les champs téléphoniques sont cachés ; veuillez contacter votre "
 "administrateur."
+
+#: templates/cti/bricks/callers.html:7
+#, python-brace-format
+msgid "{count} Potential caller"
+msgstr "{count} Appelant possible"
+
+#: templates/cti/bricks/callers.html:7
+#, python-brace-format
+msgid "{count} Potential callers"
+msgstr "{count} Appelants possibles"
+
+#: templates/cti/bricks/callers.html:7
+msgid "Potential callers"
+msgstr "Appelants possibles"
+
+#: templates/cti/bricks/callers.html:19
+msgid "Entity"
+msgstr "Fiche"
+
+#: templates/cti/bricks/callers.html:20
+msgid "Actions"
+msgstr "Actions"
+
+#: templates/cti/bricks/callers.html:24
+msgid "Create a phone call"
+msgstr "Créer un appel téléphonique"
+
+#: templates/cti/bricks/callers.html:36
+#, python-format
+msgid "No contact/organisation corresponds to this number : %(number)s"
+msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
+
+#: utils.py:45
+msgid "Call"
+msgstr "Appeler"
+
+#: views.py:62
+msgid "Automatically created by CTI"
+msgstr "Créé automatiquement par CTI"
+
+#: views.py:75
+#, python-format
+msgid "Call to %s"
+msgstr "Appel à %s"
+
+#: views.py:80
+msgid "Phone call successfully created."
+msgstr "Appel téléphonique créé avec succès."
+
+#: views.py:105
+#, python-format
+msgid "Call from %s"
+msgstr "Appel de %s"
+
+#~ msgid "Caller"
+#~ msgstr "Appelant"
+
+#~ msgid "Create a contact"
+#~ msgstr "Créer un contact"
+
+#~ msgid "Create an organisation"
+#~ msgstr "Créer une société"
 
 #~ msgid "Phone call"
 #~ msgstr "Appel téléphonique"

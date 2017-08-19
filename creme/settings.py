@@ -495,6 +495,7 @@ CREME_OPT_CSS = (  # APPS
      ('creme.projects',         'projects/css/projects.css'),
      ('creme.reports',          'reports/css/reports.css'),
      ('creme.tickets',          'tickets/css/tickets.css'),
+     ('creme.cti',              'cti/css/cti.css'),
 )
 
 CREME_I18N_JS = ('l10n.js',

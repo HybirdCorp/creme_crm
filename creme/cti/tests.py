@@ -2,11 +2,13 @@
 
 try:
     from datetime import timedelta
+    from json import loads as load_json
 
     from django.core.urlresolvers import reverse
     from django.utils.timezone import now
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.gui.field_printers import field_printers_registry
     from creme.creme_core.models import FieldsConfig
 
@@ -17,6 +19,8 @@ try:
     from creme.activities.models import Calendar, ActivityType, ActivitySubType
     from creme.activities import constants as a_constants
     from creme.activities.tests.base import skipIfCustomActivity
+
+    from creme.cti.bricks import CallersBrick
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -26,7 +30,7 @@ Organisation = get_organisation_model()
 Activity = get_activity_model()
 
 
-class CTITestCase(CremeTestCase):
+class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 #    ADD_PCALL_URL = '/cti/add_phonecall'
 #     RESPOND_URL = '/cti/respond_to_a_call'
     RESPOND_URL = reverse('cti__respond_to_a_call')
@@ -151,6 +155,7 @@ class CTITestCase(CremeTestCase):
 
     @skipIfCustomContact
     def test_respond_to_a_call01(self):
+        "Contact"
         user = self.login()
 
         phone = '558899'
@@ -159,29 +164,62 @@ class CTITestCase(CremeTestCase):
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertTemplateUsed(response, 'cti/respond_to_a_call.html')
 
-        with self.assertNoException():
-            callers = response.context['callers']
+        # with self.assertNoException():
+        #     callers = response.context['callers']
+        #
+        # self.assertEqual(1, len(callers))
+        # self.assertEqual(contact.id, callers[0].id)
+        brick_id = CallersBrick.id_
+        # self.assertContains(response, 'id="%s"' % brick_id)
+        # self.assertContains(response, unicode(contact))
+        # self.assertNotContains(response, unicode(user.linked_contact))
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), brick_id)
+        self.assertInstanceLink(brick_node, contact)
+        self.assertNoInstanceLink(brick_node, user.linked_contact)
 
-        self.assertEqual(1, len(callers))
-        self.assertEqual(contact.id, callers[0].id)
+        # Reload
+        response = self.assertGET200(reverse('cti__reload_callers_brick', args=(phone,)))
+        content = load_json(response.content)
+        self.assertIsInstance(content, list)
+        self.assertEqual(1, len(content))
+
+        sub_content = content[0]
+        self.assertIsInstance(sub_content, list)
+        self.assertEqual(2, len(sub_content))
+        self.assertEqual(brick_id, sub_content[0])
+
+        # brick_content = sub_content[1]
+        # self.assertIn('id="%s"' % brick_id, brick_content)
+        # self.assertIn(unicode(contact), brick_content)
+        # self.assertNotIn(unicode(user.linked_contact), brick_content)
+        l_brick_node = self.get_brick_node(self.get_html_tree(sub_content[1]), brick_id)
+        self.assertInstanceLink(l_brick_node, contact)
+        self.assertNoInstanceLink(l_brick_node, user.linked_contact)
 
     @skipIfCustomContact
     def test_respond_to_a_call02(self):
+        "Contact's other field (mobile)"
         user = self.login()
 
         phone = '558899'
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', mobile=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
-        self.assertEqual([contact.id], [c.id for c in response.context['callers']])
+        # self.assertEqual([contact.id], [c.id for c in response.context['callers']])
+        self.assertContains(response, unicode(contact))
+        self.assertNotContains(response, unicode(user.linked_contact))
 
     @skipIfCustomOrganisation
     def test_respond_to_a_call03(self):
+        "Organisation"
         user = self.login()
 
         phone = '558899'
-        orga = Organisation.objects.create(user=user, name='Gunsmith Cats', phone=phone)
+        orga1 = Organisation.objects.all()[0]
+        orga2 = Organisation.objects.create(user=user, name='Gunsmith Cats', phone=phone)
         response = self.client.get(self.RESPOND_URL, data={'number': phone})
-        self.assertEqual([orga.id], [o.id for o in response.context['callers']])
+        # self.assertEqual([orga2.id], [o.id for o in response.context['callers']])
+        self.assertContains(response, unicode(orga2))
+        self.assertNotContains(response, unicode(orga1))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -211,9 +249,10 @@ class CTITestCase(CremeTestCase):
                            )
 
         phone = '558899'
-        Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
+        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
-        self.assertFalse(response.context['callers'])
+        # self.assertFalse(response.context['callers'])
+        self.assertNotContains(response, unicode(contact))
 
     @skipIfCustomContact
     def test_create_contact(self):
