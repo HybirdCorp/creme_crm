@@ -43,8 +43,8 @@ class AbstractReportGraph(CremeEntity):
     is_count = BooleanField(_(u'Make a count instead of aggregate?'), default=False)  # TODO: 'count' function instead ?
     chart    = CharField(_(u'Chart type'), max_length=100, null=True)
 
-    creation_label = _("Create a report's graph")
-    save_label     = pgettext_lazy('reports-graphs', 'Save the graph')
+    creation_label = _(u"Create a report's graph")
+    save_label     = pgettext_lazy('reports-graphs', u'Save the graph')
 
     _hand = None
 
@@ -125,7 +125,7 @@ class AbstractReportGraph(CremeEntity):
         pass
 
     def create_instance_block_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
-        from ..blocks import ReportGraphBlock
+        from ..bricks import ReportGraphBrick
         from ..core.graph import RegularFieldLinkedGraphFetcher
 
         if volatile_field:
@@ -145,7 +145,7 @@ class AbstractReportGraph(CremeEntity):
         else:
             key = ''
 
-        block_id = InstanceBlockConfigItem.generate_id(ReportGraphBlock, self, key)
+        block_id = InstanceBlockConfigItem.generate_id(ReportGraphBrick, self, key)
 
         if InstanceBlockConfigItem.objects.filter(block_id=block_id).exists():
             raise self.InstanceBlockConfigItemError(

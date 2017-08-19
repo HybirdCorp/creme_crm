@@ -1,35 +1,36 @@
-{% extends "creme_core/detailview.html" %}
-{% load i18n %}
-{% load creme_core_tags creme_widgets %}
-{% load reports_tags %}
+{% extends 'creme_core/detailview.html' %}
+{% load i18n creme_core_tags creme_widgets %}
 
 {% block page_title %}{% blocktrans %}Rendered {{object}}{% endblocktrans %} - {% endblock %}
 
-{% block bodyclass %}{% if object.report.is_deleted %}class="is_deleted"{% endif %}{% endblock %}
+{# {% block bodyclass %}{% if object.report.is_deleted %}class="is_deleted"{% endif %}{% endblock %} #}
+{% block body_classes %}{% if object.report.is_deleted %}is_deleted{% endif %}{% endblock %}
 
 {% block before_content_1 %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td class="logo">{% get_image_for_object object 'big' %}</td>
-            <td class="title">
-                <h1>
-                    {% blocktrans with verbose_name=object|get_meta_value:"verbose_name"|capfirst title=object|capfirst %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}
-                    {% if object.report.is_deleted %} [{% trans "deleted" %}]{% endif %}
-                </h1>
-            </td>
-            <td class="actions">
-                <span>
-                    {% with report=object.report %}
-                        <a href="{{report.get_absolute_url}}">
-                            <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans %}Back to the detailview: '{{report}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
-                        </a>&nbsp;
-                    {% endwith %}
-                </span>
-            </td>
-        </tr>
-    </table>
+    <div class="buttons-list global-buttons">
+        <ul>
+            <li>
+                <a class="menu_button" href="{{report.get_absolute_url}}">{% trans 'Back to the report' as back_label %}
+                    {% widget_icon name='previous' size='global-button' label=back_label %}
+                    {{back_label}}
+                </a>
+            </li>
+        </ul>
+    </div>
 {% endblock %}
 
 {% block content %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{% widget_icon instance=object size='brick-hat-bar' %}</div>
+            <div class="bar-title">
+                <h1>
+                    {% blocktrans with verbose_name=object|get_meta_value:'verbose_name'|capfirst title=object|capfirst %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}
+                    {% if object.report.is_deleted %} [{% trans "deleted" %}]{% endif %}
+                </h1>
+            </div>
+        </div>
+    </div>
+
     {% include 'reports/templatetags/report_chart.html' %}
 {% endblock %}

@@ -1,0 +1,108 @@
+/* block types - graph type */
+
+.brick svg.brick-header-icon {
+    fill: currentColor;
+    height: 14px;
+/*    margin-right: -3px;*/
+    position: relative;
+    top: 1px;
+}
+
+.brick.reports-graph-brick .brick-content {
+    padding: 0;
+}
+
+.reports-graph-brick .brick-graph-header {
+    padding: 3px 10px;
+    background: #fcfcfc;
+    border-bottom: 1px solid #dedede;
+}
+
+.reports-graph-brick .brick-graph-container {
+    padding: 0 10px;
+}
+
+.reports-graph-brick .brick-graph-header .graph-controls {
+    float: left;
+    cursor: default;
+}
+
+.reports-graph-brick .brick-graph-header .graph-controls-sort {
+    margin-left: 15px;
+}
+
+.reports-graph-brick .brick-graph-header .graph-control-name {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+}
+
+/* ? */
+.reports-graph-brick .brick-graph-header .graph-control-value {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.reports-graph-brick .brick-graph-header .graph-controls:hover .graph-control-value {
+    text-decoration: underline;
+}
+
+/* ? - end */
+
+.reports-graph-brick .brick-graph-header .graph-relation {
+    float: right;
+}
+
+.reports-graph-brick .brick-graph-header .graph-action {
+    float: right;
+}
+
+.reports-graph-brick .brick-graph-header .graph-relation-name {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+}
+
+.reports-graph-brick .brick-graph-header .graph-relation-entity {
+    font-weight: 600;
+}
+
+.reports-graph-brick .brick-empty {
+    text-transform: uppercase;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    padding: 5px 10px;
+}
+
+/* block types - graph type - end */
+
+/* graphs inside tables */
+
+.graph-row-header.graph-row-collapsed .graph-row-collapse {
+    display: none;
+}
+
+.graph-row-header:not(.graph-row-collapsed) .graph-row-expand {
+    display: none;
+}
+
+.graph-row-header .graph-row-toggle-icon:hover {
+    cursor: pointer;
+}
+
+.graph-row.graph-row-collapsed {
+    display: none;
+}
+
+.brick-table tr.graph-row > td.reports-graph-brick {
+    padding: 0;
+    margin: 0;
+}
+
+/* graphs inside tables - end */

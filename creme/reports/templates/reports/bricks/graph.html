@@ -1,0 +1,92 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_bricks reports_tags %}
+
+{% block brick_extra_class %}reports-graph-brick{% endblock %}
+
+{% block brick_script %}
+    {% if x %}
+    <script type="text/javascript">
+         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
+             var properties = {
+                 charts: {
+                     {% for name, chart in report_charts %}
+                     {{name}}: '{{chart.label}}'{% if not forloop.last %},{% endif %}
+                     {% endfor %}
+                 },
+                 sorts: {
+                     'ASC':  "{% trans 'Ascending' %}",
+                     'DESC': "{% trans 'Descending' %}"
+                 }
+             };
+
+             var initial = {
+                 chart: '{{rgraph.chart}}' || Object.keys(properties.charts)[0],
+                 sort:  '{{rgraph.sort}}' || Object.keys(properties.sorts)[0]
+             };
+
+             var controller = new creme.reports.ChartController(properties);
+             controller.initialize(this, initial);
+
+             brick.on('state-update', function(e, state) {
+                 controller.reset();
+             });
+         });
+    </script>
+    {% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% trans "Graph" context "reports-graphs" as title_prefix %}{% templatize '{{title_prefix}} — {{graph}}' as title %}
+    {% brick_header_title title=title icon='graph' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='redirect' url=graph.get_absolute_url label=_('View') icon='goto' %}
+    {% brick_header_action id='refresh' label=_('Reload') icon='reload' %}
+{% endblock %}
+
+{% block brick_content %}
+    {% if x %}
+    <div class="brick-graph-header clearfix">
+        <div class="graph-controls graph-controls-type">
+            <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}<span class="typography-colon">:</span></span>
+            <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
+                {{rgraph.chart|default:_('Histogram')}}
+            </a>
+        </div>
+        <div class="graph-controls graph-controls-sort">
+            <span class="graph-control-name">{% trans 'Sorting' %} <span class="typography-colon">:</span></span>
+            <a class="graph-control-value" title="{% trans 'Select the sort order' %}">
+                {% trans 'Ascending' %}
+            </a>
+        </div>
+        {% if volatile_column %}
+        <div class="graph-relation">
+            <span class="graph-relation-name">{% trans 'Volatile column' %} <span class="typography-colon">:</span></span>
+            <span class="graph-relation-entity">{{volatile_column}}</span>
+        </div>
+        {% endif %}
+    </div>
+    <div class="brick-graph-container graph_global_container_{{instance_block_id}}">
+        <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"
+             {% if object %}
+             plot-data-url="{% url 'reports__fetch_graph_from_block' instance_block_id object.id %}?order=${sort}"
+             {% else %}
+             plot-data-url="{% url 'reports__fetch_graph' graph.id %}?order=${sort}"
+             {% endif %}
+             plot-name="${chart}"
+             style="width:100%;margin:0px;padding:0px;border:0px;">
+             {% for name, chart in report_charts %}
+                <script name="{{name}}" type="text/json">{% report_chart_json graph chart %}</script>
+             {% endfor %}
+            <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable" widget="ui-creme-jqueryplot"
+                 savable="false" style="height:300px;padding:5px;border:0px;" format="creme.graphael.BargraphData">
+            </div>
+        </div>
+    </div>
+    {% elif error %}
+    <div class="brick-graph-container brick-empty">{{error}}</div>
+    {% else %}
+    <div class="brick-graph-container brick-empty">{% trans 'No values or graph is not applicable here' %}</div>
+    {% endif %}
+{% endblock %}

@@ -44,11 +44,14 @@ class ReportsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Report)
 
-    def register_blocks(self, block_registry):
-        from .blocks import report_fields_block, report_graphs_block, ReportGraphBlock
+    def register_bricks(self, brick_registry):
+        from . import bricks
 
-        block_registry.register(report_fields_block, report_graphs_block)
-        block_registry.register_4_instance(ReportGraphBlock)
+        brick_registry.register(bricks.ReportFieldsBrick,
+                                bricks.ReportGraphsBrick,
+                               )
+        brick_registry.register_4_instance(bricks.ReportGraphBrick)
+        brick_registry.register_hat(self.Report, main_brick_cls=bricks.ReportBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.bulk import ReportFilterBulkForm

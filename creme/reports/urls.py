@@ -17,9 +17,10 @@ urlpatterns = [
     # Fields block
     # TODO: put field_id even on POST urls (instead of POST arg)
     url(r'^report/field/unlink_report$',                   report.unlink_report,      name='reports__unlink_report'),
-    url(r'^report/field/change_order$',                    report.change_field_order, name='reports__change_field_order'),
-    url(r'^report/field/set_selected$',                    report.set_selected,       name='reports__set_selected_field'),
+    url(r'^report/field/change_order$',                    report.change_field_order, name='reports__change_field_order'),  # DEPRECATED
+    url(r'^report/field/(?P<field_id>\d+)/reorder$',       report.reorder_field,      name='reports__reorder_field'),
     url(r'^report/field/(?P<field_id>\d+)/link_report$',   report.link_report,        name='reports__link_report'),
+    url(r'^report/field/set_selected$',                    report.set_selected,       name='reports__set_selected_field'),
     url(r'^report/(?P<report_id>\d+)/edit_fields$',        report.edit_fields,        name='reports__edit_fields'),
 
     url(r'^graph/get_available_types/(?P<ct_id>\d+)$', graph.get_available_report_graph_types, name='reports__graph_types'),

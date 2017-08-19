@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import logging, warnings
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -28,6 +28,8 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils.db import reorder_instances
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import (add_entity, edit_entity,
         view_entity, list_view, inner_popup, add_to_entity)
 
@@ -164,6 +166,10 @@ _order_direction = {
 @login_required
 @permission_required('reports')
 def change_field_order(request):
+    warnings.warn('reports.views.report.change_field_order() is deprecated ; use reorder_field() instead.',
+                  DeprecationWarning
+                 )
+
     POST = request.POST
     field = get_object_or_404(Field, pk=get_from_POST_or_404(POST, 'field_id'))
     direction = POST.get('direction', 'up')
@@ -185,7 +191,24 @@ def change_field_order(request):
     return HttpResponse(status=200, content_type='text/javascript')
 
 
-# TODO: jsonify ?
+@POST_only
+@login_required
+@permission_required('reports')
+def reorder_field(request, field_id):
+    new_order = get_from_POST_or_404(request.POST, 'target', int)
+    rfield = get_object_or_404(Field, pk=field_id)
+
+    report = rfield.report
+    request.user.has_perm_to_change_or_die(report)
+
+    try:
+        reorder_instances(moved_instance=rfield, new_order=new_order, queryset=report.fields)
+    except Exception as e:
+        return HttpResponse(e, status=409, content_type='text/javascript')
+
+    return HttpResponse(content_type='text/javascript')
+
+
 @login_required
 @permission_required('reports')
 def set_selected(request):
