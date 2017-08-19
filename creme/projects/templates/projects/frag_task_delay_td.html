@@ -1,5 +1,7 @@
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
+
+{% log 'The template file "creme/projects/templates/projects/frag_task_delay_td.html" is deprecated.' level='WARN' %}
+
 {% with task.get_delay as delay %}
     {% if delay > 0 %}
         <td class="td_error" align="center">

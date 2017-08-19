@@ -1,0 +1,74 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} projects-tasks-activities-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Related activity') plural=_('{count} Related activities') empty=_('Related activities') icon='calendar' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object.is_alive %}
+        {% has_perm_to change object as has_perm %}{% url 'projects__create_activity' object.id as creation_url %}
+        {% brick_header_action id='add' url=creation_url label=_('New activity') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Type') class='task-activities-type' %}
+    {% brick_table_column title=_('When') class='task-activities-interval' %}
+    {% brick_table_column title=_('Duration (hours)') class='task-activities-duration' %}
+    {% brick_table_column title=_('Concerned resource(s)') class='task-activities-resource' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}{% url 'projects__delete_activity' as delete_url %}
+    {% for activity in page.object_list %}{% has_perm_to view activity as act_view_perm %}
+    <tr>
+        <td class="task-activities-type">
+        {% if act_view_perm %}
+            {% widget_icon instance=activity size='brick-table' %} {% print_field object=activity field='type' %}
+        {% else %}
+            {{HIDDEN_VALUE}}
+        {% endif %}
+        </td>
+        <td class="task-activities-interval">
+        {% if act_view_perm %}
+            {% with start_date=activity.start|date:'SHORT_DATE_FORMAT' end_date=activity.end|date:'SHORT_DATE_FORMAT' start_hour=activity.start|date:"H\hi" end_hour=activity.end|date:"H\hi" %}
+            <a href="{{activity.get_absolute_url}}">
+                {% if start_date == end_date %}
+                {% blocktrans %}On <span class="start-date">{{start_date}}</span> from <span class="start-hour">{{start_hour}}</span> to <span class="end-hour">{{end_hour}}</span>{% endblocktrans %}
+                {% else %}
+                {% blocktrans %}From <span class="start-date">{{start_date}}</span> at <span class="start-hour">{{start_hour}}</span> to <span class="end-date">{{end_date}}</span> at <span class="end-hour">{{end_hour}}</span>{% endblocktrans %}
+                {% endif %}
+            </a>
+            {% endwith %}
+        {% else %}
+            {{HIDDEN_VALUE}}
+        {% endif %}
+        </td>
+        <td class="task-activities-duration">{{activity.duration}} h</td>
+        <td class="task-activities-resource">{% widget_entity_hyperlink activity.projects_resource.linked_contact user %}</td>
+        <td {% brick_table_data_status action %}>{% url 'projects__edit_activity' activity.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this activity') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=activity.id label=_('Delete this activity') enabled=has_perm|and_op:object.is_alive %}
+        </td>
+    </tr>
+    {% endfor %}
+    {% if not object.is_alive %}
+    <tr class="task-activities-subtitle">
+        <td colspan="6">{% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}</td>
+    </tr>
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% if not object.is_alive %}
+        {% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}
+    {% else %}
+        {% trans 'No related activity for this task' %}
+    {% endif %}
+{% endblock %}

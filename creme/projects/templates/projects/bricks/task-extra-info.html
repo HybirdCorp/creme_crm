@@ -1,0 +1,29 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}brick-kv-list projects-task-extra-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Other information') icon='info' %}
+{% endblock %}
+
+{% block brick_content %}
+<div class='brick-kv-group'>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans 'Effective duration (in hours)' %}</div>
+        <div class='brick-kv-value'>{{object.get_effective_duration}}h</div>
+    </div>
+    <div class='brick-kv-item' data-type='date'>
+        <div class='brick-kv-key'>{% trans 'Additional or remaining hours' %}</div>
+        {% if object.get_delay > 0 %}
+        <div class='brick-kv-value task-delay-value -overtime'>
+            {% blocktrans with duration=object.get_effective_duration delay=object.get_delay %}{{duration}}h: overtime of {{delay}}h{% endblocktrans %}
+        </div>
+        {% else %}
+        <div class='brick-kv-value task-delay-value'>
+            {% blocktrans with duration=object.get_effective_duration abs_delay=object.get_delay|absolute %}{{duration}}h: remaining time of {{abs_delay}}h{% endblocktrans %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

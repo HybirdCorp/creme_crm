@@ -1,8 +1,16 @@
-{% extends "creme_core/generics/view_entity.html" %}
-{% load i18n creme_core_tags %}
+{% extends 'creme_core/generics/view_entity.html' %}
+{% load i18n creme_widgets %}
 
-{# {% block add_new_button %}{% endblock %} #}
+{% block global_buttons %}
+    <li>
+        <a class="menu_button" href="{{object.project.get_absolute_url}}">{% trans 'Back to the project' as back_label %}
+            {% widget_icon name='previous' size='global-button' label=back_label %}
+            {{back_label}}
+        </a>
+    </li>
+{% endblock %}
 
+{% comment %}
 {% block entity_buttons %}
     {% with project=object.project %}
         <a href="{{project.get_absolute_url}}">
@@ -11,3 +19,4 @@
     {% endwith %}
     {{block.super}}
 {% endblock %}
+{% endcomment %}

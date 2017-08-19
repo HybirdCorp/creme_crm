@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets activities_tags %}
+
+{% log 'The template file "creme/projects/templates/projects/templatetags/block_activities.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object as task_change_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=6 %}
@@ -17,7 +20,7 @@
         {% if not object.is_alive %}
             <tr>
                 <th colspan="11" class="block_header_line_dark" align="left">
-                    <em>{% blocktrans with object.tstatus.name as status %}You can't add a working périod because this task is {{status}}{% endblocktrans %}</em>
+                    <em>{% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}</em>
                 </th>
             </tr>
         {% endif %}

@@ -1,0 +1,53 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} projects-tasks-resources-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Resource assigned to this task') plural=_('{count} Resources assigned to this task') empty=_('Resources assigned to this task') icon='contact' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object.is_alive %}
+        {% has_perm_to change object as has_perm %}{% url 'projects__create_resource' object.id as create_url %}
+        {% brick_header_action id='add' url=create_url label=_('Create a resource') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+{#        {% brick_table_column title=_('Contact') width='20%' %} #}
+        {% brick_table_column title=_('Contact') %}
+        {% brick_table_column title=_('Hourly cost') %}
+        {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}{% url 'projects__delete_resource' as delete_url %}
+{% with currency=object.project.currency %}
+    {% for resource in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink resource.linked_contact user %}</td>
+        <td>{% blocktrans with cost=resource.hourly_cost|format_amount:currency %}{{cost}} / hour{% endblocktrans %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=resource.get_edit_absolute_url label=_('Edit this resource') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=resource.id label=_('Delete this resource') enabled=has_perm|and_op:object.is_alive %}
+        </td>
+    </tr>
+    {% endfor %}
+    {% if not object.is_alive %}
+    <tr class="task-activities-subtitle">
+        <td colspan="4">{% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}</th>
+    </tr>
+    {% endif %}
+{% endwith %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% if not object.is_alive %}
+        {% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}
+    {% else %}
+        {% trans 'No resource assigned to this task' %}
+    {% endif %}
+{% endblock %}

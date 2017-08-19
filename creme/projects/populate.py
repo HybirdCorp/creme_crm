@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,8 +23,7 @@ import logging
 from django.apps import apps
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.blocks import (properties_block, relations_block,
-        customfields_block, history_block)
+from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SearchConfigItem,
@@ -35,8 +34,7 @@ from creme.persons import get_contact_model
 
 from creme.activities import get_activity_model
 
-from . import get_project_model, get_task_model
-from . import blocks, constants
+from . import bricks, constants, get_project_model, get_task_model
 from .models import ProjectStatus, TaskStatus, Resource
 
 
@@ -61,6 +59,7 @@ class Populator(BasePopulator):
         create_rtype((constants.REL_SUB_LINKED_2_PTASK, _(u'is related to the task of project'), [Activity]),
                      (constants.REL_OBJ_LINKED_2_PTASK, _(u'includes the activity'),             [ProjectTask]),
                      is_internal=True,
+                     minimal_display=(False, True),
                     )
         create_rtype((constants.REL_SUB_PART_AS_RESOURCE, _(u'is a resource of'),  [Contact]),
                      (constants.REL_OBJ_PART_AS_RESOURCE, _(u'has as a resource'), [Activity]),
@@ -103,7 +102,7 @@ class Populator(BasePopulator):
         # ---------------------------
         create_searchconf = SearchConfigItem.create_if_needed
         create_searchconf(Project,     ['name', 'description', 'status__name'])
-        create_searchconf(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
+        create_searchconf(Resource,    ['linked_contact__last_name', 'linked_contact__first_name', 'hourly_cost'])
         create_searchconf(ProjectTask, ['project__name', 'duration', 'tstatus__name'])
 
         # ---------------------------
@@ -122,39 +121,39 @@ class Populator(BasePopulator):
             LEFT  = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
-            create_bdl(block_id=blocks.project_tasks_block.id_, order=2,   zone=TOP,   model=Project)
-            BlockDetailviewLocation.create_4_model_block(order=5,          zone=LEFT,  model=Project)
-            create_bdl(block_id=blocks.project_extra_info.id_,  order=30,  zone=LEFT,  model=Project)
-            create_bdl(block_id=customfields_block.id_,         order=40,  zone=LEFT,  model=Project)
-            create_bdl(block_id=properties_block.id_,           order=450, zone=LEFT,  model=Project)
-            create_bdl(block_id=relations_block.id_,            order=500, zone=LEFT,  model=Project)
-            create_bdl(block_id=history_block.id_,              order=20,  zone=RIGHT, model=Project)
+            create_bdl(block_id=bricks.ProjectTasksBrick.id_,      order=2,   zone=TOP,   model=Project)
+            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=Project)
+            create_bdl(block_id=bricks.ProjectExtraInfoBrick.id_,  order=30,  zone=LEFT,  model=Project)
+            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Project)
+            create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Project)
+            create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Project)
+            create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Project)
 
-            create_bdl(block_id=blocks.task_resources_block.id_,  order=2,   zone=TOP,   model=ProjectTask)
-            create_bdl(block_id=blocks.task_activities_block.id_, order=4,   zone=TOP,   model=ProjectTask)
-            BlockDetailviewLocation.create_4_model_block(order=5,            zone=LEFT,  model=ProjectTask)
-            create_bdl(block_id=blocks.task_extra_info.id_,       order=30,  zone=LEFT,  model=ProjectTask)
-            create_bdl(block_id=customfields_block.id_,           order=40,  zone=LEFT,  model=ProjectTask)
-            create_bdl(block_id=blocks.parent_tasks_block.id_,    order=50,  zone=LEFT,  model=ProjectTask)
-            create_bdl(block_id=properties_block.id_,             order=450, zone=LEFT,  model=ProjectTask)
-            create_bdl(block_id=relations_block.id_,              order=500, zone=LEFT,  model=ProjectTask)
-            create_bdl(block_id=history_block.id_,                order=20,  zone=RIGHT, model=ProjectTask)
+            create_bdl(block_id=bricks.TaskResourcesBrick.id_,     order=2,   zone=TOP,   model=ProjectTask)
+            create_bdl(block_id=bricks.TaskActivitiesBrick.id_,    order=4,   zone=TOP,   model=ProjectTask)
+            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=bricks.TaskExtraInfoBrick.id_,     order=30,  zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=bricks.ParentTasksBrick.id_,       order=50,  zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=ProjectTask)
+            create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=ProjectTask)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
-                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+                from creme.assistants import bricks as a_bricks
 
                 for model in (Project, ProjectTask):
-                    create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=model)
-                    create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=model)
-                    create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=model)
-                    create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=model)
+                    create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=model)
+                    create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=model)
+                    create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
+                    create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
 
-                from creme.documents.blocks import linked_docs_block
+                from creme.documents.bricks import LinkedDocsBrick
 
                 for model in (Project, ProjectTask):
-                    create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=model)
+                    create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=model)
