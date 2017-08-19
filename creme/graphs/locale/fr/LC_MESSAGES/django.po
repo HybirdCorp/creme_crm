@@ -4,12 +4,11 @@
 #
 # > django-admin.py makemessages -l fr -i tests.py
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 14:46+0100\n"
+"POT-Creation-Date: 2017-08-12 15:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -21,23 +20,23 @@ msgctxt "graphs"
 msgid "Graphs"
 msgstr "Graphes"
 
-#: apps.py:65
+#: apps.py:70
 msgid "Portal of graphs"
 msgstr "Portail des graphes"
 
-#: apps.py:66
+#: apps.py:71
 msgid "All graphs"
 msgstr "Liste des graphes"
 
-#: apps.py:71 apps.py:75
+#: apps.py:76 apps.py:80
 msgid "Analysis"
 msgstr "Analyse"
 
-#: blocks.py:34
+#: bricks.py:38
 msgid "Roots nodes of a graph"
 msgstr "Nœuds racines d'un graphe"
 
-#: blocks.py:55
+#: bricks.py:60
 msgid "Peripheral types of relation of a graph"
 msgstr "Types de relation périphériques d'un graphe"
 
@@ -73,9 +72,106 @@ msgctxt "graphs"
 msgid "Graph"
 msgstr "Graphe"
 
-#: populate.py:45
+#: populate.py:44
 msgid "Graph view"
 msgstr "Vue de Graphe"
+
+#: templates/graphs/bricks/graph-hat-bar.html:6
+#, python-format
+msgid "Download '%(object)s' as PNG file"
+msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
+
+#: templates/graphs/bricks/graph-hat-bar.html:6
+msgid "Download PNG"
+msgstr "Télécharger PNG"
+
+#: templates/graphs/bricks/orbital-rtypes.html:7
+#, python-brace-format
+msgid "{count} Peripheral type of relationship"
+msgstr "{count} Type de relation périphérique"
+
+#: templates/graphs/bricks/orbital-rtypes.html:7
+#, python-brace-format
+msgid "{count} Peripheral types of relationship"
+msgstr "{count} Types de relation périphériques"
+
+#: templates/graphs/bricks/orbital-rtypes.html:7
+msgid "Peripheral types of relationship"
+msgstr "Types de relations périphériques"
+
+#: templates/graphs/bricks/orbital-rtypes.html:12
+msgid "Add some types of relationship"
+msgstr "Ajouter des types de relation"
+
+#: templates/graphs/bricks/orbital-rtypes.html:16
+#: templates/graphs/templatetags/block_orbital_rtypes.html:20
+msgid "Type of relation"
+msgstr "Type de relation"
+
+#: templates/graphs/bricks/orbital-rtypes.html:17
+msgid "Action"
+msgstr "Action"
+
+#: templates/graphs/bricks/orbital-rtypes.html:26
+msgid "Remove this type"
+msgstr "Enlever ce type"
+
+#: templates/graphs/bricks/orbital-rtypes.html:33
+#: templates/graphs/templatetags/block_orbital_rtypes.html:35
+msgid "No type of relation for the moment"
+msgstr "Pas de type de relation pour le moment"
+
+#: templates/graphs/bricks/root-nodes.html:7
+#, python-brace-format
+msgid "{count} Root node"
+msgstr "{count} Nœud racine"
+
+#: templates/graphs/bricks/root-nodes.html:7
+#, python-brace-format
+msgid "{count} Root nodes"
+msgstr "{count} Nœuds racines"
+
+#: templates/graphs/bricks/root-nodes.html:7
+#: templates/graphs/templatetags/block_root_nodes.html:9
+msgid "Root nodes"
+msgstr "Nœuds racines"
+
+#: templates/graphs/bricks/root-nodes.html:12
+msgid "Add some entities"
+msgstr "Ajouter des fiches"
+
+#: templates/graphs/bricks/root-nodes.html:16
+#: templates/graphs/templatetags/block_root_nodes.html:20
+msgid "Entity"
+msgstr "Fiche"
+
+#: templates/graphs/bricks/root-nodes.html:17
+#: templates/graphs/templatetags/block_root_nodes.html:21
+msgid "Types of relation"
+msgstr "Types de relation"
+
+#: templates/graphs/bricks/root-nodes.html:18
+#: templates/graphs/templatetags/block_root_nodes.html:22
+msgid "Actions"
+msgstr "Actions"
+
+#: templates/graphs/bricks/root-nodes.html:26
+#: templates/graphs/templatetags/block_root_nodes.html:28
+msgid "No type of relation"
+msgstr "Pas de type de relation"
+
+#: templates/graphs/bricks/root-nodes.html:28
+msgid "Edit this node"
+msgstr "Modifier ce nœud"
+
+#: templates/graphs/bricks/root-nodes.html:31
+msgid "Remove this node"
+msgstr "Enlever ce nœuds"
+
+#: templates/graphs/bricks/root-nodes.html:38
+#: templates/graphs/templatetags/block_root_nodes.html:38
+msgid "No root node for the moment"
+msgstr "Pas de nœud racine pour le moment"
 
 #: templates/graphs/portal.html:4
 msgid "Graphs portal"
@@ -86,82 +182,41 @@ msgctxt "graphs"
 msgid "List of Graphs"
 msgstr "Liste des Graphes"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:6
+#: templates/graphs/templatetags/block_orbital_rtypes.html:9
 #, python-format
 msgid "%s Peripheral type of relation"
 msgstr "%s Type de relation périphérique"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:6
+#: templates/graphs/templatetags/block_orbital_rtypes.html:9
 #, python-format
 msgid "%s Peripheral types of relation"
 msgstr "%s Types de relations périphériques"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:6
+#: templates/graphs/templatetags/block_orbital_rtypes.html:9
 msgid "Peripheral relation types"
 msgstr "Types de relation périphériques"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:10
+#: templates/graphs/templatetags/block_orbital_rtypes.html:13
 msgid "Add some existing types of relation"
 msgstr "Ajouter des types de relation existants"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:17
-msgid "Type of relation"
-msgstr "Type de relation"
-
-#: templates/graphs/templatetags/block_orbital_rtypes.html:18
+#: templates/graphs/templatetags/block_orbital_rtypes.html:21
 msgid "Unlink"
 msgstr "Délier"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:32
-msgid "No type of relation for the moment"
-msgstr "Pas de type de relation pour le moment"
-
-#: templates/graphs/templatetags/block_root_nodes.html:6
+#: templates/graphs/templatetags/block_root_nodes.html:9
 #, python-format
 msgid "%s Root node"
 msgstr "%s Nœud racine"
 
-#: templates/graphs/templatetags/block_root_nodes.html:6
+#: templates/graphs/templatetags/block_root_nodes.html:9
 #, python-format
 msgid "%s Root nodes"
 msgstr "%s Nœuds racines"
 
-#: templates/graphs/templatetags/block_root_nodes.html:6
-msgid "Root nodes"
-msgstr "Nœuds racines"
-
-#: templates/graphs/templatetags/block_root_nodes.html:10
+#: templates/graphs/templatetags/block_root_nodes.html:13
 msgid "Add root nodes from existing entities"
 msgstr "Ajouter des nœuds racines depuis des fiches existantes"
-
-#: templates/graphs/templatetags/block_root_nodes.html:17
-msgid "Entity"
-msgstr "Fiche"
-
-#: templates/graphs/templatetags/block_root_nodes.html:18
-msgid "Types of relation"
-msgstr "Types de relation"
-
-#: templates/graphs/templatetags/block_root_nodes.html:19
-msgid "Actions"
-msgstr "Actions"
-
-#: templates/graphs/templatetags/block_root_nodes.html:25
-msgid "No type of relation"
-msgstr "Pas de type de relation"
-
-#: templates/graphs/templatetags/block_root_nodes.html:35
-msgid "No root node for the moment"
-msgstr "Pas de nœud racine pour le moment"
-
-#: templates/graphs/view_graph.html:7
-#, python-format
-msgid "Download '%(object)s' as PNG file"
-msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
-
-#: templates/graphs/view_graph.html:7
-msgid "Download PNG"
-msgstr "Télécharger PNG"
 
 #: views/graph.py:77
 msgid "This graph is too big!"
@@ -204,9 +259,6 @@ msgstr "Modifier le nœud racine pour «%s»"
 
 #~ msgid "Can't add"
 #~ msgstr "Ajout interdit"
-
-#~ msgid "Add types of relation"
-#~ msgstr "Ajouter des types de relation"
 
 #~ msgid "Delete"
 #~ msgstr "Supprimer"

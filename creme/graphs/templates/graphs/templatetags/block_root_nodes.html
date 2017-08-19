@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
+
+{% log 'The template file "creme/graphs/templates/graphs/templatetags/block_root_nodes.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
