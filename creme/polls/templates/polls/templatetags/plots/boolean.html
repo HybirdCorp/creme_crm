@@ -1,0 +1,59 @@
+<div class="poll-stat-chart ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="min-height: 60px;">
+    <script type="text/json">
+{
+    "options": {
+        "seriesColors": ["#ffcccc", "#ccffcc"],
+        "seriesDefaults": {
+            "shadow": false,
+            "renderer": "jqplot.BarRenderer",
+            "rendererOptions": {
+                "fillToZero": true,
+                "barDirection": "horizontal",
+                "barMargin": 0
+            },
+            "pointLabels": {
+                "show": true,
+                "hideZeros": true,
+                "location": "w",
+                "escapeHTML": false,
+                "formatString": "<b style=\"color:white;\">%s %%</b>"
+            }
+        },
+        "stackSeries": true,
+        "grid": {
+            "drawGridlines": false,
+            "shadow": false,
+            "background": "#ffffff",
+            "drawBorder": false
+        },
+        "axes": {
+            "xaxis": {
+                "numberTicks": 5,
+                "min": 0.0,
+                "max": 100.0,
+                "tickOptions": {
+                    "formatString": "%d %%",
+                    "textColor":  "black",
+                    "fontSize":   "8pt",
+                    "showMark":   false
+                },
+                "labelOptions": {
+                    "show":       false
+                }
+            },
+            "yaxis": {
+                "renderer": "jqplot.CategoryAxisRenderer",
+                "tickOptions": {
+                    "show": false
+                },
+                "ticks": [""],
+                "labelOptions": {
+                    "show": false
+                }
+            }
+        }
+    },
+    "data": {{data}}
+}
+    </script>
+</div>

@@ -38,7 +38,7 @@ _CLASS_MAPPING = {
 class NodeStyle(object):  # TODO: configurable style stored in DB
     ELEMENTS = {
             'COLOR': {
-                    'LINE':      '',  # Use normal block line color
+                    'LINE':      '',  # Use normal brick line color
                     'SECTION_0': 'BDD8E4',
                     'SECTION_1': 'D8E5EB',
                     'SECTION':   'D8E5EB',  # Default

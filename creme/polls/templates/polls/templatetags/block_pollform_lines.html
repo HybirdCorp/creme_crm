@@ -1,6 +1,9 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
 {% load polls_tags %}
+
+{% log 'The template file "creme/polls/templates/polls/templatetags/block_pollform_lines.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=1 %}
@@ -49,7 +52,8 @@
                                             {% get_line_editor at_url node.get_edit_absolute_url with_perms has_perm %}
 
                                             {% if has_perm|and_op:no_deps %}
-                                                <a class="pointer" onclick="creme.blocks.confirmPOSTQuery('/polls/pform_line/{{node.id}}/disable', {blockReloadUrl:{% get_block_reload_uri %}}).start();">
+{#                                                <a class="pointer" onclick="creme.blocks.confirmPOSTQuery('/polls/pform_line/{{node.id}}/disable', {blockReloadUrl:{% get_block_reload_uri %}}).start();"> #}
+                                                <a class="pointer" onclick="creme.blocks.confirmPOSTQuery('{% url 'polls__disable_form_line' node.id %}', {blockReloadUrl:{% get_block_reload_uri %}}).start();">
                                                     <img src="{% creme_media_url 'images/cancel_22.png' %}" border="0" title="{% trans "Disable" %}" alt="{% trans "Disable" %}">
                                                 </a>
                                             {% else %}

@@ -1,6 +1,8 @@
 {% extends 'polls/templatetags/block_preplies.html'  %}
 {% load i18n creme_core_tags creme_block %}
 
+{% log 'The template file "creme/polls/templates/polls/templatetags/block_person_preplies.html" is deprecated.' level='WARN' %}
+
 {% block title %}
     <th class="label">{% get_block_title _('%s Filled form reply') _('%s Filled form replies') 'poll_48.png' _('Form reply') %}</th>
 {% endblock %}

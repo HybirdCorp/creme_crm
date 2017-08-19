@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,18 +19,22 @@
 ################################################################################
 
 from json import dumps as json_dump
+import logging, warnings
 
-from django.template import Library
+from django import template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
+from creme.polls.core import PollLineType
 
-register = Library()
+
+logger = logging.getLogger(__name__)
+register = template.Library()
 
 
 @register.simple_tag
-def print_line_condition(nodes, condition):
+def print_line_condition(nodes, condition):  # TODO: rename 'poll_line_condition'
     # Cache to avoid additional queries (caused by 'condition.source').
     lines_map = getattr(nodes, 'tags_lines_map', None)
 
@@ -52,17 +56,22 @@ def print_line_condition(nodes, condition):
 
 
 @register.simple_tag
-def print_node_number(style, node):
+def print_node_number(style, node):  # TODO: rename 'poll_node_number'
     return style.number(node)
 
 
 @register.simple_tag
-def print_node_css(style, node):
+def print_node_css(style, node):  # TODO: rename 'poll_node_css'
     return style.css(node)
 
 
 @register.inclusion_tag('polls/templatetags/stats_pollreply_chart.html', takes_context=True)
 def print_node_chart(context, node, diameter=100):
+    warnings.warn('The templatetag {% print_node_chart %} is deprecated ; '
+                  'use {% poll_stats_chart %} instead.',
+                  DeprecationWarning
+                 )
+
     data = []
     legends = []
     max_legend_length = 0
@@ -87,3 +96,29 @@ def print_node_chart(context, node, diameter=100):
             })
 
     return context
+
+
+@register.simple_tag
+def poll_stats_chart(node):
+    try:
+        if node.type == PollLineType.BOOL:
+            chartpath = 'polls/templatetags/plots/boolean.html'
+            data = [[[percent, 1, u'%s − %s %%' % (unicode(answer), percent)]]
+                        for answer, _stat, percent in node.answer_stats
+                   ]
+        else:
+            chartpath = 'polls/templatetags/plots/number.html'
+            data = [[[percent, unicode(answer)] for answer, _stat, percent in node.answer_stats]
+                   ]
+
+        context = {
+            'node': node,
+            'data': mark_safe(json_dump(data)),
+            'count': len(node.answer_stats),
+        }
+
+        return template.loader.render_to_string(chartpath, context)
+    except Exception:
+        logger.exception('An error occured in {% poll_stats_chart %}')
+
+        return _(u'[An error occurred]')

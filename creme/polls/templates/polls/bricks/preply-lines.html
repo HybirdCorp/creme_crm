@@ -1,0 +1,63 @@
+{% extends 'creme_core/bricks/base/list.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks polls_tags %}
+
+{% block brick_extra_class %}{{block.super}} polls-list-brick polls-reply-lines-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Answers') icon='poll' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}
+    {% if not object.is_complete %}{% url 'polls__fill_reply' object.id as fill_url %}
+        {% brick_header_action id='redirect' url=fill_url label=_('Fill') icon='edit' enabled=has_perm %}
+    {% else %}{% url 'polls__clean_reply' as clean_url %}
+        {% brick_header_action id='delete' url=clean_url __id=object.id label=_('Clean') icon='cancel' enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_content %}
+    {% has_perm_to change object as has_perm %}
+    {% for node in nodes %}
+    <div class="brick-list-item poll-item poll-response-item {% if node.is_section %}poll-section{% else %}poll-question{% endif %}" style="padding-left:{{node.deep|mult:1.5}}em;">
+        {% if node.is_section %}
+        <div class="poll-group">
+            <div class="poll-title">
+                <div class="poll-title-number"><div style="{% print_node_css style node %}">{% print_node_number style node %}</div></div>
+                <div class="poll-title-label">
+                    <span>{% print_field object=node field='name' %}</span>
+                    <span class="poll-title-sub">{% print_field object=node field='body' %}</span>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="poll-group">
+            <div class="poll-title">
+                <div class="poll-title-number">{% if node.number %}<div style="{% print_node_css style node %}">{% print_node_number style node %}</div>{% endif %}</div>
+                <div class="poll-title-label">
+                    <span>{{node.question}}</span>
+                </div>
+            </div>
+            <div class="poll-response">
+                {% if not node.applicable %}
+                    {% trans "N/A" context "polls" %}
+                {% elif node.type == 101 %}{% comment %}MULTI_ENUM{% endcomment %}
+                    {% for item in node.answer %}
+                        {% widget_join %}{{item}}{% end_widget_join %}
+                    {% endfor %}
+                {% else %}
+                    {{node.answer|default:'−'}}
+                {% endif %}
+            </div>
+            {% if node.conditions_are_met %}{% url 'polls__edit_reply_line' object.id node.id as edit_line_url %}
+                {% brick_action id='edit' url=edit_line_url class='poll-action' enabled=has_perm %}
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="brick-list-item brick-list-empty">
+        {% trans 'No question or section for the moment' %}
+    </div>
+    {% endfor %}
+{% endblock %}
