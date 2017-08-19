@@ -1435,7 +1435,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = IniFileInput().create(join(dirname(__file__), 'data', 'unknown.ini'))
 
-        self.assertIs(ok, False)
+        # self.assertIs(ok, False)
+        self.assertIsNone(ok)
 
     def test_error02(self):
         "Invalid format"
@@ -1448,7 +1449,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = IniFileInput().create(self.get_deletable_file_path('test_error_01'))
 
-        self.assertIs(ok, False)
+        # self.assertIs(ok, False)
+        self.assertIsNone(ok)
         # TODO: assertLog
 
     def test_error03(self):
@@ -1462,7 +1464,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = IniFileInput().create(self.get_deletable_file_path('test_error_02'))
 
-        self.assertIs(ok, False)
+        # self.assertIs(ok, False)
+        self.assertIsNone(ok)
         # TODO: assertLog
 
     def test_subject_dont_matches(self):
@@ -1475,7 +1478,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = IniFileInput().create(self.get_deletable_file_path('test_ok_01'))
 
-        self.assertIs(ok, False)
+        # self.assertIs(ok, False)
+        self.assertIsNone(ok)
 
     def test_sandbox01(self):
         self.assertFalse(WaitingAction.objects.all())
@@ -1499,7 +1503,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = inifile_input.create(file_path)
 
-        self.assertIs(ok, True)
+        # self.assertIs(ok, True)
+        self.assertIsInstance(ok, CrudityBackend)
 
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
@@ -1540,7 +1545,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = inifile_input.create(self.get_deletable_file_path('test_ok_01'))
 
-        self.assertIs(ok, True)
+        # self.assertIs(ok, True)
+        self.assertIsNotNone(ok)
 
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
@@ -1571,7 +1577,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = inifile_input.create(self.get_deletable_file_path('test_ok_02'))
 
-        self.assertIs(ok, True)
+        # self.assertIs(ok, True)
+        self.assertIsNotNone(ok)
 
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
@@ -1605,7 +1612,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = inifile_input.create(self.get_deletable_file_path('test_error_03'))
 
-        self.assertIs(ok, True)
+        # self.assertIs(ok, True)
+        self.assertIsNotNone(ok)
         # TODO: assertLog
 
         wactions = WaitingAction.objects.all()
@@ -1642,7 +1650,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = inifile_input.create(self.get_deletable_file_path('test_ok_01'))
 
-        self.assertIs(ok, True)
+        # self.assertIs(ok, True)
+        self.assertIsNotNone(ok)
         self.assertFalse(WaitingAction.objects.all())
 
         c = self.get_object_or_fail(FakeContact, first_name='Frodo', last_name='Baggins')

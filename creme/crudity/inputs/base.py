@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from ..backends.gui import TemplateBrickHeaderAction
+
 
 class CrudityInput(object):
     name   = u''
@@ -26,9 +28,14 @@ class CrudityInput(object):
     verbose_name   = u''
     verbose_method = u''
 
+    brickheader_action_templates = ()
+
     def __init__(self):
-        self.backends = {}
-        self._buttons = []
+        self.backends = {}  # TODO: rename _backends + get_backends() becomes 'backends' property ?
+        self._buttons = []  # TODO: deprecated in 1.8
+        self._brickheader_actions = [TemplateBrickHeaderAction(template_name=tn)
+                                        for tn in self.brickheader_action_templates
+                                    ]
 
     def add_backend(self, backend):
         backend.add_buttons(*self._buttons)
@@ -42,7 +49,8 @@ class CrudityInput(object):
 
     def handle(self, data):
         """Call the method of the Input defined in subclasses
-         @return: True if data were used else False
+        # @return: True if data were used else False
+        @return: The backend used if data were used else None
         """
         # if hasattr(self, self.method):
         #     return getattr(self, self.method)(data)
@@ -50,12 +58,16 @@ class CrudityInput(object):
         if fun:
             return fun(data)
 
-        return False
+        # return False
+        return None
 
-    def register_buttons(self, *buttons):
+    def register_buttons(self, *buttons):  # TODO: deprecated in 1.8
         # TODO: add buttons to existing backends ?
         self._buttons.extend(buttons)
 
+    @property
+    def brickheader_actions(self):
+        return iter(self._brickheader_actions)
+
     def authorize_senders(self, backend, senders):
         return not backend.limit_froms or set(senders) & set(backend.limit_froms)
-

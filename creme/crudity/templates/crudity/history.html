@@ -1,26 +1,32 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_block %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_bricks %}
 
-{% comment %} {% trans "History" as title %} does not work out of blocks ... {% endcomment %}
-
-{% block page_title %}{% trans "History" %} - {% endblock %}
+{% block page_title %}{% trans 'History' %} - {% endblock %}
 
 {% block content %}
+{% comment %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="logo">{% comment %}<img src="{% media_url 'images/_64.png' %}" alt="{% trans "Waiting actions" %}"/>{% endcomment %}</td>
-            <td class="title"><h1>{% trans "History" %}</h1></td>
+            <td class="logo">{# <img src="{% media_url 'images/_64.png' %}" alt="{% trans 'Waiting actions' %}"/> #}</td>
+            <td class="title"><h1>{% trans 'History' %}</h1></td>
             <td class="actions"></td>
         </tr>
     </table>
+{% endcomment %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{# <img src="{% media_url 'images/_64.png' %}" alt="{% trans 'Waiting actions' %}"/> #}</div>
+            <div class="bar-title"><h1>{% trans 'History' %}</h1></div>
+        </div>
+    </div>
+
 {% comment %}
     {% for history_block in blocks %}
         {{history_block}}
     {% endfor %}
 {% endcomment %}
-    {% import_blocks blocks as 'sync_blocks' %}
-    {% display_blocks 'sync_blocks' %}
+    {% brick_declare bricks %}
+    {% brick_display bricks %}
 
-    {% get_blocks_dependencies %}
+    {% brick_end %}
 {% endblock %}

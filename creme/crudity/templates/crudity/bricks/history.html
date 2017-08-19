@@ -1,0 +1,32 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} crudity-history-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% widget_icon ctype=ct size='brick-header' as ct_icon %}
+    {% brick_header_title title=title icon=ct_icon %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Entity') status='primary' %}
+    {% brick_table_column title=_('Created') %}
+    {% brick_table_column title=_('Action') %}
+    {% brick_table_column title=_('Description') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for history in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink history.get_entity user %}</td>
+        <td data-type='datetime'>{{history.created}}</td>
+        <td>{{history.action}}</td>
+        <td>{{history.source}}</td>
+        <td>{{history.description}}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% blocktrans with ctype=ct %}No history for «{{ctype}}»{% endblocktrans %}
+{% endblock %}

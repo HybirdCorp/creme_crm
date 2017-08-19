@@ -3,6 +3,7 @@
 try:
     import ConfigParser
     import io
+    from json import loads as load_json
     import poplib
 
     from django.conf import settings
@@ -13,12 +14,14 @@ try:
     from django.utils.translation import ungettext
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.models import Job, JobResult, FakeContact
+    from creme.creme_core.models import Job, JobResult, FakeContact, FakeImage
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.persons.tests.base import skipIfCustomContact
 
     from .. import registry
     from ..backends.models import CrudityBackend
+    from ..bricks import CrudityHistoryBrick
     from ..creme_jobs import crudity_synchronize_type
     from ..fetchers.base import CrudityFetcher
     from ..inputs.base import CrudityInput
@@ -95,7 +98,7 @@ class FakePOP3_SSL(FakePOP3):
         self._certfile = certfile
 
 
-class CrudityViewsTestCase(CrudityTestCase):
+class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
     _original_POP3 = None
     _original_POP3_SSL = None
     _original_crudity_registry = None
@@ -326,12 +329,43 @@ class CrudityViewsTestCase(CrudityTestCase):
         # response = self.assertGET200('/crudity/history')
         response = self.assertGET200(reverse('crudity__history'))
         self.assertTemplateUsed(response, 'crudity/history.html')
-        # TODO: complete
 
-    # def test_history_reload(self): TODO
+        with self.assertNoException():
+            bricks = list(response.context['bricks'])
+
+        self.assertTrue(bricks)
+        models = set()
+
+        for brick in bricks:
+            self.assertIsInstance(brick, CrudityHistoryBrick)
+            models.add(brick.ct.model_class())
+
+        self.assertIn(FakeContact, models)
+        self.assertNotIn(FakeImage, models)
+
+    def test_history_reload01(self):
+        ct = ContentType.objects.get_for_model(FakeContact)
+        brick_id = 'block_crudity-%s' % ct.id
+        response = self.assertGET200(reverse('crudity__reload_history_bricks'), data={'brick_id': brick_id})
+
+        with self.assertNoException():
+            load_data = load_json(response.content)
+
+        self.assertEqual(load_data[0][0], brick_id)
+
+        l_document = self.get_html_tree(load_data[0][1])
+        self.get_brick_node(l_document, brick_id)
+        # TODO: complete ?
+
+    def test_history_reload02(self):
+        ct = ContentType.objects.get_for_model(FakeImage)
+        self.assertGET200(reverse('crudity__reload_history_bricks'),
+                          data={'brick_id': 'block_crudity-%s' % ct.id},
+                         )
 
     @override_settings(CRUDITY_BACKENDS=[{'fetcher': 'email',
-                                          'input': 'raw',
+                                          # 'input': 'raw',
+                                          'input': '',
                                           'method': 'create',
                                           'model': 'emails.entityemail',
                                           'password': '',
@@ -349,15 +383,77 @@ class CrudityViewsTestCase(CrudityTestCase):
                        CREME_GET_EMAIL_USERNAME='William',
                        CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
                       )
-    def test_actions_fetch01(self):
+    # def test_actions_fetch01(self):
+    def test_actions_portal01(self):
         # crudity_registry.autodiscover()
         # crudity_registry.dispatch()
         self._build_test_registry()
         # response = self.assertGET200('/crudity/waiting_actions')
         response = self.assertGET200(reverse('crudity__actions'))
-        self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization.html')
-        self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization_spam.html')
+        # self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization.html')
+        # self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization_spam.html')
+        self.assertTemplateUsed(response, 'emails/bricks/synchronization.html')
+        self.assertTemplateUsed(response, 'emails/bricks/synchronization-spam.html')
+        self.assertFalse(FakePOP3.instances)
 
+    # @skipIfCustomContact
+    # @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
+    def test_actions_portal02(self):
+        self._build_test_registry(FAKE_CRUDITY_BACKENDS)
+        response = self.assertGET200(reverse('crudity__actions'))
+
+        brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
+        document = self.get_html_tree(response.content)
+        self.get_brick_node(document, brick_id)
+        # TODO: complete
+
+    def test_actions_reload(self):
+        self._build_test_registry(FAKE_CRUDITY_BACKENDS)
+        brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
+        response = self.assertGET200(reverse('crudity__reload_actions_bricks'),
+                                     data={'brick_id': brick_id},
+                                    )
+
+        with self.assertNoException():
+            load_data = load_json(response.content)
+
+        self.assertEqual(load_data[0][0], brick_id)
+
+        l_document = self.get_html_tree(load_data[0][1])
+        self.get_brick_node(l_document, brick_id)
+        # TODO: complete
+
+    @override_settings(CRUDITY_BACKENDS=[{'fetcher':     'email',
+                                          # 'input': 'raw',
+                                          'input':       '',
+                                          'method':      'create',
+                                          'model':       'emails.entityemail',
+                                          'password':    '',
+                                          'limit_froms': (),
+                                          'in_sandbox':  True,
+                                          'body_map':    {},
+                                          'subject':     '*',
+                                         },
+                                        ],
+                       CREME_GET_EMAIL_SSL=True,
+                       CREME_GET_EMAIL_SERVER='pop.test.org',
+                       CREME_GET_EMAIL_PORT=123,
+                       CREME_GET_EMAIL_SSL_KEYFILE='key.pem',
+                       CREME_GET_EMAIL_SSL_CERTFILE='cert.pem',
+                       CREME_GET_EMAIL_USERNAME='William',
+                       CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
+                      )
+    def test_actions_fetch01(self):
+        self._build_test_registry()
+        url = reverse('crudity__refresh_actions')
+        self.assertGET404(url)
+
+        response = self.assertPOST200(url)
+
+        with self.assertNoException():
+            ldata = load_json(response.content)
+
+        self.assertEqual([], ldata)
         pop_instances = FakePOP3.instances
         self.assertEqual(1, len(pop_instances))
 
@@ -373,83 +469,6 @@ class CrudityViewsTestCase(CrudityTestCase):
 
         # TODO: complete (FakePOP3.list() => not empty)
 
-    # @override_settings(CRUDITY_BACKENDS=[{'fetcher':    'swallow',
-    #                                       'input':      'swallow',
-    #                                       'method':     'create',
-    #                                       'model':      'persons.contact',
-    #                                       'password':    '',
-    #                                       'limit_froms': (),
-    #                                       'in_sandbox':  True,
-    #                                       'body_map':    {},
-    #                                       'subject':     'CREATECONTACT',
-    #                                      },
-    #                                     ],
-    #                   )
-    # def _aux_test_actions_fetch(self, func):
-    #     original_fetchers = crudity_registry._fetchers
-    #     self.assertIsInstance(original_fetchers, dict)
-    #     self.assertTrue(original_fetchers)
-    #
-    #     original_backends = crudity_registry._backends
-    #     self.assertIsInstance(original_backends, dict)
-    #     self.assertTrue(original_backends)
-    #
-    #     last_name = 'Ayanami'
-    #
-    #     class Swallow(object):
-    #         def __init__(self, title, content):
-    #             self.title = title
-    #             self.content = content
-    #
-    #     class SwallowFetcher(CrudityFetcher):
-    #         def fetch(self, *args, **kwargs):
-    #             return [Swallow('create contact', 'last_name=%s' % last_name)]
-    #
-    #     mock_fetcher = SwallowFetcher()
-    #
-    #     class SwallowInput(CrudityInput):
-    #         name = 'swallow'
-    #         method = 'create'
-    #
-    #         def create(this, swallow):
-    #             self.assertIsInstance(swallow, Swallow)
-    #             self.assertEqual(1, len(this.get_backends()))
-    #
-    #             backend = this.get_backend(CrudityBackend.normalize_subject(swallow.title))
-    #             self.assertIsNotNone(backend)
-    #
-    #             data = {'user_id': self.user.id}
-    #             # data = {'user': self.user} TODO
-    #
-    #             for line in swallow.content.split('\n'):
-    #                 attr, value = line.split('=', 1)
-    #                 data[attr] = value
-    #
-    #             created, instance = backend._create_instance_n_history(data, source='Swallow mail')
-    #             self.assertTrue(created)
-    #             self.assertIsInstance(instance, Contact)
-    #             self.assertEqual(last_name, instance.last_name)
-    #             self.assertIsNotNone(instance.pk)
-    #
-    #             return True
-    #
-    #     mock_input = SwallowInput()
-    #
-    #     crudity_registry._fetchers = {}
-    #     crudity_registry.register_fetchers('swallow', [mock_fetcher])
-    #     crudity_registry.register_inputs('swallow', [mock_input])
-    #
-    #     crudity_registry.dispatch()
-    #
-    #     try:
-    #         result = func()
-    #     finally:
-    #         # todo: crappy hack
-    #         crudity_registry._fetchers = original_fetchers
-    #         crudity_registry._backends = original_backends
-    #
-    #     return result
-
     # @skipIfCustomContact
     @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
     def test_actions_fetch02(self):
@@ -462,15 +481,16 @@ class CrudityViewsTestCase(CrudityTestCase):
         # response = self._aux_test_actions_fetch(lambda: self.client.get('/crudity/waiting_actions'))
         # self.assertEqual(200, response.status_code)
         # self.assertGET200('/crudity/waiting_actions')
-        self.assertGET200(reverse('crudity__actions'))
+        # self.assertGET200(reverse('crudity__actions'))
+        self.assertPOST200(reverse('crudity__refresh_actions'))
 
         self.assertFalse(FakePOP3.instances)  # Pop is not fetched because the fetcher has no configured backend.
 
         self.get_object_or_fail(FakeContact, last_name=last_name)
 
     # @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
-    def test_actions_fetch03(self):
-        "Test Job"
+    # def test_actions_fetch03(self):
+    def test_job01(self):
         # self._aux_test_actions_fetch(lambda: SyncCommand().execute(verbosity=0))
         user = self.user
 
@@ -510,7 +530,7 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.get_object_or_fail(FakeContact, last_name=last_name)
 
     # @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
-    def test_actions_fetch04(self):
+    def test_job02(self):
         "Default backend + job configuration"
         other_user = self.other_user
 
@@ -570,4 +590,3 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertEqual(other_user, call_args[1])
 
     # def test_actions_delete(self): TODO
-    # def test_actions_reload(self): TODO

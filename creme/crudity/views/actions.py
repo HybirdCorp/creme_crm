@@ -18,19 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
-from django.shortcuts import render_to_response, get_list_or_404
-from django.template.loader import render_to_string
+from django.shortcuts import render, get_list_or_404  # render_to_response
+# from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import get_ct_or_404, jsonify
-from creme.creme_core.views import blocks as blocks_views
+from creme.creme_core.utils import jsonify  # get_ct_or_404
+from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404
+from creme.creme_core.views.decorators import POST_only
 
 from .. import registry
-from ..blocks import WaitingActionBlock
+from ..bricks import WaitingActionsBrick
 from ..models import WaitingAction
 # from ..registry import crudity_registry
 
@@ -39,19 +43,99 @@ def _retrieve_actions_ids(request):
     return request.POST.getlist('ids')
 
 
+def _fetch(user):
+    warnings.warn('crudity.views.actions._fetch() is deprecated ; '
+                  'use crudity_registry.fetch() instead.',
+                  DeprecationWarning
+                 )
+
+    # count = 0
+    #
+    # for fetcher in registry.crudity_registry.get_fetchers():
+    #     # all_data = fetcher.fetch()
+    #     inputs = fetcher.get_inputs()
+    #
+    #     if not any(input.backends
+    #                    for crud_inputs in inputs
+    #                        for input in crud_inputs.itervalues()
+    #               ) and not fetcher.get_default_backend():
+    #         continue
+    #
+    #     all_data = fetcher.fetch()
+    #
+    #     for data in all_data:
+    #         handled = False
+    #
+    #         for crud_inputs in inputs:
+    #             for input_type, input in crud_inputs.iteritems():
+    #                 handled = input.handle(data)
+    #
+    #                 if handled:
+    #                     break
+    #
+    #             if handled:
+    #                 count += 1
+    #                 break
+    #
+    #         if not handled:
+    #             default_backend = fetcher.get_default_backend()
+    #
+    #             if default_backend is not None:
+    #                 count += 1
+    #                 default_backend.fetcher_fallback(data, user)
+    #
+    # return count
+    return len(registry.crudity_registry.fetch(user))
+
+
+def _build_portal_bricks():
+    bricks = []
+
+    # TODO: list comprehension
+    # TODO: backend.blocks => bricks
+    for backend in registry.crudity_registry.get_configured_backends():
+        if backend.in_sandbox:
+            brick_classes = backend.blocks or (WaitingActionsBrick,)  # TODO: in backend.@bricks
+
+            for brick_class in brick_classes:
+                bricks.append(brick_class(backend))
+
+    return bricks
+
+
 @login_required
 @permission_required('crudity')
+def portal(request):
+    return render(request, template_name='crudity/waiting-actions.html',
+                  context={'bricks': _build_portal_bricks(),
+                           'bricks_reload_url': reverse('crudity__reload_actions_bricks'),
+                          },
+                 )
+
+
+@login_required
+@permission_required('crudity')
+@POST_only
+@jsonify
+def refresh(request):
+    return [backend.get_id() for backend in registry.crudity_registry.fetch(request.user)]
+
+
+@login_required
+@permission_required('crudity')
+@POST_only
 def delete(request):
     actions_ids = _retrieve_actions_ids(request)
     user = request.user
     errors = []
 
-    for action in WaitingAction.objects.filter(id__in=actions_ids):
-        allowed, message = action.can_validate_or_delete(user)
-        if allowed:
-            action.delete()
-        else:
-            errors.append(message)
+    if actions_ids:
+        for action in WaitingAction.objects.filter(id__in=actions_ids):
+            allowed, message = action.can_validate_or_delete(user)
+            if allowed:
+                action.delete()
+            else:
+                errors.append(message)
 
     if not errors:
         status = 200
@@ -65,6 +149,7 @@ def delete(request):
 
 @jsonify
 @permission_required('crudity')
+@POST_only
 def validate(request):
     actions = get_list_or_404(WaitingAction, pk__in=_retrieve_actions_ids(request))
 
@@ -103,7 +188,6 @@ def validate(request):
 # @jsonify
 # @permission_required('crudity')
 # def reload(request, ct_id, backend_subject):
-#     get_ct_or_404(ct_id)  # TODO: useless ??
 #     backend = crudity_registry.get_configured_backend(backend_subject)
 #     if not backend:
 #         raise Http404()
@@ -115,6 +199,13 @@ def validate(request):
 @jsonify
 @permission_required('crudity')
 def reload_block(request, block_id):
+    warnings.warn('crudity.views.actions.reload_block() is deprecated ; '
+                  'use crudity.views.actions.reload_bricks() instead.',
+                  DeprecationWarning
+                 )
+
+    from creme.creme_core.views.blocks import build_context as blocks_build_context
+
     prefix = 'block_crudity-waiting_actions-'
 
     if not block_id.startswith(prefix):
@@ -138,48 +229,27 @@ def reload_block(request, block_id):
     else:
         raise Http404('Invalid block ID (bad backend info)')
 
-    block = WaitingActionBlock(backend)
+    block = WaitingActionsBrick(backend)
 
-    return [(block.id_, block.detailview_display(blocks_views.build_context(request)))]
+    return [(block.id_, block.detailview_display(blocks_build_context(request)))]
 
 
-def _fetch(user):
-    count = 0
+@permission_required('crudity')
+@jsonify
+def reload_bricks(request):
+    brick_ids = get_brick_ids_or_404(request)
+    bricks = []
+    get_brick = {brick.id_: brick for brick in _build_portal_bricks()}.get
 
-    for fetcher in registry.crudity_registry.get_fetchers():
-        # all_data = fetcher.fetch()
-        inputs = fetcher.get_inputs()
+    for brick_id in brick_ids:
+        brick = get_brick(brick_id)
 
-        if not any(input.backends
-                       for crud_inputs in inputs
-                           for input in crud_inputs.itervalues()
-                  ) and not fetcher.get_default_backend():
-            continue
+        if not brick:
+            raise Http404('Invalid brick ID: ' + brick_id)
 
-        all_data = fetcher.fetch()
+        bricks.append(brick)
 
-        for data in all_data:
-            handled = False
-
-            for crud_inputs in inputs:
-                for input_type, input in crud_inputs.iteritems():
-                    handled = input.handle(data)
-
-                    if handled:
-                        break
-
-                if handled:
-                    count += 1
-                    break
-
-            if not handled:
-                default_backend = fetcher.get_default_backend()
-
-                if default_backend is not None:
-                    count += 1
-                    default_backend.fetcher_fallback(data, user)
-
-    return count
+    return bricks_render_info(request, bricks=bricks)
 
 
 @login_required
@@ -187,7 +257,14 @@ def _fetch(user):
 def fetch(request, template='crudity/waiting_actions.html',
           ajax_template='crudity/frags/ajax/waiting_actions.html',
           extra_tpl_ctx=None, extra_req_ctx=None):
-    context = blocks_views.build_context(request)
+    warnings.warn('crudity.views.actions.fetch() is deprecated.', DeprecationWarning)
+
+    from django.shortcuts import render_to_response
+    from django.template.loader import render_to_string
+
+    from creme.creme_core.views.blocks import build_context as blocks_build_context
+
+    context = blocks_build_context(request)
 
     if extra_req_ctx:
         context.update(extra_req_ctx)
@@ -195,13 +272,12 @@ def fetch(request, template='crudity/waiting_actions.html',
     _fetch(request.user)
 
     context['blocks'] = [''.join(block(backend).detailview_display(context) for block in backend.blocks)
-                         or WaitingActionBlock(backend).detailview_display(context)
+                         or WaitingActionsBrick(backend).detailview_display(context)
                             for backend in registry.crudity_registry.get_configured_backends()
                                 if backend.in_sandbox
-                      ]
+                        ]
 
     if extra_tpl_ctx:
-        # TODO: remove one argument between extra_req_ctx & extra_tpl_ctx
         context.update(extra_tpl_ctx)
 
     if request.is_ajax():

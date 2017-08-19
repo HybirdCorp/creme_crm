@@ -51,31 +51,31 @@ Document = get_document_model()
 
 
 class CrudityBackend(object):
-    model = None     # Class inheriting CremeEntity. OVERRIDE THIS ONR on your own backend.
+    model = None     # Class inheriting CremeEntity. OVERRIDE THIS IN on your own backend.
 
     # These ones are set by the registry.dispatch()
     fetcher_name = ''  # Name of the fetcher (eg: 'emails')
-    input_name   = ''  # Name of the CrudityInput (eg: 'raw')
+    input_name   = ''  # Name of the CrudityInput (eg: 'raw')  # TODO: useless with 'crud_input' attribute ?
 
-    password    = u""   # Password to check permission
+    password    = u''   # Password to check permission
     in_sandbox  = True  # Show in sandbox (if False can be shown only in history & the creation will be automatic)
     body_map    = {}    # Mapping email body's key <==> model's key, value in the dict is the default value
     limit_froms = ()    # If "recipient" doesn't the backend policy
-    subject     = u""   # Matched subject
-    blocks      = ()    # Blocks classes
-    # buttons     = None  # An (mutable) iterable of buttons
+    subject     = u''   # Matched subject
+    blocks      = ()    # Blocks classes  # TODO: rename 'bricks'
 
-    def __init__(self, config, *args, **kwargs):
+    def __init__(self, config, crud_input=None, *args, **kwargs):
         config_get = config.get
+        self.crud_input = crud_input
 
         self.password    = config_get('password')    or self.password
         self.limit_froms = config_get('limit_froms') or self.limit_froms
 
         in_sandbox = config_get('in_sandbox')
         if in_sandbox is not None:
-            self.in_sandbox  = in_sandbox
+            self.in_sandbox = in_sandbox
 
-        self.body_map = config_get('body_map')    or self.body_map
+        self.body_map = config_get('body_map') or self.body_map
         self.subject  = CrudityBackend.normalize_subject(config_get('subject') or self.subject)
 
         self.source         = config_get('source')
@@ -84,7 +84,7 @@ class CrudityBackend(object):
 
         self._sandbox_by_user = None
         self._check_configuration()
-        self.buttons = []
+        self.buttons = []  # TODO: deprecate in 1.8
 
     @property
     def is_configured(self):
@@ -107,6 +107,7 @@ class CrudityBackend(object):
                     else:
                         raise ImproperlyConfiguredBackend(e)
 
+    # TODO: factorise with CrudityQuerysetBrick.is_sandbox_by_user ?
     @property
     def is_sandbox_by_user(self):
         if self._sandbox_by_user is None:
@@ -121,7 +122,7 @@ class CrudityBackend(object):
     @staticmethod
     def normalize_subject(subject):
         """Normalize the subject for an easier retrieve by the input"""
-        return re.sub('\s', '', subject or "").upper()
+        return re.sub('\s', '', subject or '').upper()
 
     def create(self, action):
         return self._create_instance_n_history(action.get_data(), action.user, action.source, action.action)
@@ -245,10 +246,10 @@ class CrudityBackend(object):
 
                 history = History()  # TODO: History.objects.create(entity=intance [...])
                 history.entity = instance
-                history.action = "create"
+                history.action = 'create'
                 history.source = source
                 history.user = user
-                history.description = _(u"Creation of %(entity)s") % {'entity': instance}
+                history.description = _(u'Creation of %(entity)s') % {'entity': instance}
                 history.save()
         except IntegrityError as e:
             logger.error('_create_instance_n_history() : error when try to create instance [%s]', e)
@@ -256,10 +257,15 @@ class CrudityBackend(object):
 
         return is_created, instance
 
-    def add_buttons(self, *buttons):
+    def add_buttons(self, *buttons):  # TODO: deprecate in 1.8
         self.buttons.extend(buttons)
 
-    def get_rendered_buttons(self):
+    def get_id(self):
+        subject = self.subject
+        return self.fetcher_name if subject == '*' else \
+               '%s|%s|%s' % (self.fetcher_name, self.input_name, self.subject)
+
+    def get_rendered_buttons(self):  # TODO: deprecate in 1.8
         # return [button.render(Context({'backend': self}))
         return [button.render({'backend': self})
                     for button in self.buttons if self.is_configured

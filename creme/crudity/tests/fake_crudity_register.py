@@ -35,11 +35,13 @@ class SwallowInput(CrudityInput):
 
     def create(self, swallow):
         if self.force_not_handle:
-            return False
+            # return False
+            return None
 
         backend = self.get_backend(CrudityBackend.normalize_subject(swallow.title))
         if backend is None:
-            return False
+            # return False
+            return None
 
         data = {}
 
@@ -49,7 +51,8 @@ class SwallowInput(CrudityInput):
 
         backend._create_instance_n_history(data, source='Swallow mail')
 
-        return True
+        # return True
+        return backend
 
 
 class FakeContactBackend(CrudityBackend):

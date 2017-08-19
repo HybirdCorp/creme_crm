@@ -1,11 +1,13 @@
-{% load i18n %}
-{% load creme_block creme_core_tags creme_widgets %}
+{% load i18n creme_block creme_core_tags creme_widgets %}
 {% load crudity_tags %}
+
+{% log '"creme/crudity/templates/crudity/templatetags/block_waiting_action.html" is deprecated.' level='WARN' %}
+
+{% url 'crudity__delete_actions' as delete_url %}
 {% with 5 as colspan %}
     <style type="text/css">
-        {% comment %}Generify this{% endcomment %}
+        {# Generify this #}
         .type_header_block {
-            {% comment %}background: url({% get_image_path_for_ctype email_ct 'normal' %}) no-repeat;{% endcomment %}
             background: url({% creme_media_url 'images/email_48.png' %}) no-repeat;
             width: 48px;
             height: 48px;
@@ -19,7 +21,7 @@
                     <tr>
                         <th class="type_header_block">{% get_image_for_ctype waiting_ct 'small' %}
                             </th>
-                        <th>{% blocktrans count counter=page.paginator.count with waiting_ct.model_class|get_meta_value:"verbose_name" as ct_name and backend.verbose_source as backend_source %}{{counter}} Waiting action - {{ct_name}} - {{ backend_source }}{% plural %}{{counter}} Waiting actions - {{ct_name}} - {{ backend_source }}{% endblocktrans %} <span style="font-weight: normal;">(<span style="font-size:smaller;">{{ backend.subject }}</span>)</span></th>
+                        <th>{% blocktrans count counter=page.paginator.count with ct_name=waiting_ct and backend_source=backend.verbose_source %}{{counter}} Waiting action - {{ct_name}} - {{ backend_source }}{% plural %}{{counter}} Waiting actions - {{ct_name}} - {{ backend_source }}{% endblocktrans %} <span style="font-weight: normal;">(<span style="font-size:smaller;">{{ backend.subject }}</span>)</span></th>
                     </tr>
                 </tbody>
             </table>
@@ -38,7 +40,7 @@
                     {% trans "Validate the selection" %}
                 </a>
 {#                <a class="negative" onclick="creme.blocks.massAction('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});"> #}
-                <a class="negative" onclick="creme.blocks.massAction('{% url 'crudity__delete_actions' %}', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="negative" onclick="creme.blocks.massAction('{{delete_url}}', '[name=select_one]:checked', {% get_block_reload_uri %});">
                     {% trans "Delete" as img_title %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                     {% trans "Delete the selection" %}
                 </a>
@@ -58,7 +60,7 @@
                 {% for waiting_action in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
                         <td class="{{row_color}} selectable">
-                            <input name="select_one" value="{{waiting_action.pk}}" title="{% trans "Select this line" %}" type="checkbox" onclick="creme.utils.autoCheckallState (this, '#{{block_name}} [name=select_all]', '#{{block_name}} [name=select_one]');"/>
+                            <input name="select_one" value="{{waiting_action.pk}}" title="{% trans "Select this line" %}" type="checkbox" onclick="creme.utils.autoCheckallState(this, '#{{block_name}} [name=select_all]', '#{{block_name}} [name=select_one]');"/>
                         </td>
                         <td class="{{row_color}}">
                             {% for k, v in waiting_action.get_data.items %}
@@ -79,13 +81,14 @@
                         </td>
                         <td class="{{row_color}}">{{ backend.verbose_method }}</td>
                         <td class="{{row_color}} action">
-                            {% get_line_deletor at_url '/crudity/waiting_actions/delete' with_args "{'ids': ['{{waiting_action.pk}}'] }" with_perms 1 %}
+{#                            {% get_line_deletor at_url '/crudity/waiting_actions/delete' with_args "{'ids': ['{{waiting_action.pk}}'] }" with_perms 1 %} #}
+                            {% get_line_deletor at_url delete_url with_args "{'ids': ['{{waiting_action.pk}}'] }" with_perms 1 %}
                         </td>
                     </tr>
                 {% endfor %}
             {% else %}
                 <tr class="content empty">
-                    <td class="block_line_dark">{% blocktrans with ct_name=waiting_ct.model_class|get_meta_value:"verbose_name" backend_source=backend.verbose_source %}No waiting action for {{ct_name}} from {{ backend_source }}{% endblocktrans %}</td>
+                    <td class="block_line_dark">{% blocktrans with ct_name=waiting_ct backend_source=backend.verbose_source %}No waiting action for {{ct_name}} from {{ backend_source }}{% endblocktrans %}</td>
                 </tr>
             {% endif %}
         </tbody>

@@ -651,6 +651,8 @@ CREME_OPT_JS = (  # OPTIONAL APPS
 
     ('creme.reports',       'reports/js/reports.js'),
 
+    ('creme.crudity',       'crudity/js/crudity.js'),
+
     ('creme.emails',        'emails/js/emails.js'),
 
     ('creme.cti',           'cti/js/cti.js'),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,7 +65,7 @@ class PopFetcher(CrudityFetcher):
     # ssl_keyfile  = CREME_GET_EMAIL_SSL_KEYFILE,
     # ssl_certfile = CREME_GET_EMAIL_SSL_CERTFILE
 
-    def fetch(self, delete=True):
+    def fetch(self, delete=True):  # TODO: args read from configuration instead ?
         client = None
         # message_count = mailbox_size = 0
         # response = messages = total_size = ''
