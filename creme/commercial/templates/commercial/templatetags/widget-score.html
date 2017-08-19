@@ -1,0 +1,7 @@
+{% load creme_bricks %}
+<select {% if not has_perm %}disabled="true"{% else %}onchange="creme.commercial.setScore(this, '{% url view_name strategy.id %}', {{scored_instance.id}}, {{segment_desc.id}}, {{orga.id}});"{% endif %}>
+    <option value="1" {% if score == 1 %}selected{% endif %}>1</option>
+    <option value="2" {% if score == 2 %}selected{% endif %}>2</option>
+    <option value="3" {% if score == 3 %}selected{% endif %}>3</option>
+    <option value="4" {% if score == 4 %}selected{% endif %}>4</option>
+</select>

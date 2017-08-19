@@ -1,0 +1,38 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} commercial-assets-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Commercial asset') plural=_('{count} Commercial assets') empty=_('Commercial assets') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}{% url 'commercial__create_asset' object.id as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New commercial asset') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
+    {% for asset in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{asset.name}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=asset.get_edit_absolute_url label=_('Edit this asset') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=asset.id label=_('Delete this asset') enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No commercial asset for the moment' %}
+{% endblock %}
+

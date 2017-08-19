@@ -38,10 +38,10 @@ _NAME_LENGTH = 100
 
 
 class ActType(CremeModel):
-    title     = CharField(_(u"Title"), max_length=75)
+    title     = CharField(_(u'Title'), max_length=75)
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('commercial-act_type', 'Create a type')
+    creation_label = pgettext_lazy('commercial-act_type', u'Create a type')
 
     class Meta:
         app_label = 'commercial'
@@ -63,8 +63,8 @@ class AbstractAct(CremeEntity):
     act_type       = ForeignKey(ActType, verbose_name=_(u'Type'), on_delete=PROTECT)
     segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'), on_delete=PROTECT)
 
-    creation_label = _('Create a commercial action')
-    save_label     = _('Save the commercial action')
+    creation_label = _(u'Create a commercial action')
+    save_label     = _(u'Save the commercial action')
 
     _related_opportunities = None
 
@@ -113,9 +113,9 @@ class AbstractAct(CremeEntity):
 
         if relopps is None:
             relopps = list(get_opportunity_model().objects.filter(is_deleted=False,
-                                                      relations__type=REL_SUB_COMPLETE_GOAL,
-                                                      relations__object_entity=self.id,
-                                                     )
+                                                                  relations__type=REL_SUB_COMPLETE_GOAL,
+                                                                  relations__object_entity=self.id,
+                                                                 )
                           )
             self._related_opportunities = relopps
 

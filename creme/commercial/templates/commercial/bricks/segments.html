@@ -1,0 +1,44 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} commercial-segments-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Market segment') plural=_('{count} Market segments') empty=_('Market segments') %}
+{% endblock %}
+
+{% block brick_header_actions %}{% url 'commercial__create_segment' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New segment') %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' %}
+
+    {% if page.paginator.count > 1 %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% else %}
+    {% brick_table_column title=_('Action') status='action' %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for segment in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{segment.name}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=segment.get_edit_absolute_url label=_('Edit this segment') %}
+        </td>
+        {% if page.paginator.count > 1 %}
+        <td {% brick_table_data_status action %}>
+            {% if segment.property_type_id %}{% url 'commercial__delete_segment' segment.id as delete_url %}
+                {% brick_table_action id='edit' url=delete_url label=_('Delete this segment') icon='delete' %}
+            {% endif %}
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No market segment for the moment' %}
+{% endblock %}

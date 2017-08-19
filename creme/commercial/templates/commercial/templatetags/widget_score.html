@@ -1,4 +1,7 @@
-{% load creme_block %}
+{% load creme_core_tags creme_block %}
+
+{% log 'The template file "creme/commercial/templates/commercial/templatetags/widget_score.html" is deprecated.' level='WARN' %}
+
 {# <select name="{{model_name}}_score_{{model.id}}_{{segment_desc.id}}" {% if not has_perm %}disabled="true"{% else %}onchange="creme.commercial.postScore('/commercial/strategy/{{strategy.id}}/set_{{model_name}}_score', {{model.id}}, {{segment_desc.id}}, {{orga.id}}, this, {% get_block_reload_uri %});"{% endif %}> #}
 <select name="{{model_name}}_score_{{model.id}}_{{segment_desc.id}}" {% if not has_perm %}disabled="true"{% else %}onchange="creme.commercial.postScore('{% url view_name strategy.id %}', {{model.id}}, {{segment_desc.id}}, {{orga.id}}, this, {% get_block_reload_uri %});"{% endif %}>
     <option value="1" {% if score == 1 %}selected{% endif %}>1</option>

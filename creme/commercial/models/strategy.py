@@ -52,8 +52,8 @@ class AbstractStrategy(CremeEntity):
                                       editable=False,
                                      )
 
-    creation_label = _('Create a strategy')
-    save_label     = _('Save the strategy')
+    creation_label = _(u'Create a strategy')
+    save_label     = _(u'Save the strategy')
 
     class Meta:
         abstract = True

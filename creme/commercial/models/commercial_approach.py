@@ -30,7 +30,7 @@ from creme.creme_core.models.fields import CreationDateTimeField
 
 class CommercialApproach(CremeModel):
     title          = CharField(_(u'Title'), max_length=200)
-    ok_or_in_futur = BooleanField(_('Done ?'), editable=False, default=False)  # TODO: Future ?
+    ok_or_in_futur = BooleanField(_(u'Done?'), editable=False, default=False)  # TODO: Future ?
     description    = TextField(_(u'Description'), blank=True)
     creation_date  = CreationDateTimeField(_(u'Creation date'), editable=False)
 

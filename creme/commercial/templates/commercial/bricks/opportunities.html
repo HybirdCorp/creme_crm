@@ -1,0 +1,56 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks creme_ctype commercial_tags %}
+
+{% block brick_extra_class %}{{block.super}} commercial-opportunities-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Related opportunity') plural=_('{count} Related opportunities') empty=_('Opportunities') icon='opportunity' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% ctype_for_swappable 'OPPORTUNITIES_OPPORTUNITY_MODEL' as opp_ct %}
+{% has_perm_to link object as link_perm %}{% has_perm_to create opp_ct as opp_creation_perm %}{% has_perm_to link opp_ct.model_class as opp_link_perm %}
+{% url 'commercial__create_opportunity' object.id as creation_url %}
+    {% brick_header_action id='add' url=creation_url label=_('Create a linked opportunity') enabled=link_perm|and_op:opp_creation_perm|and_op:opp_link_perm %}
+    {% brick_header_action id='add-relationships' label=_('Link to an existing opportunity') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=opp_ct.id __multiple=True %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') status='primary nowrap' %}
+    {% brick_table_column title=_('Sales phase') %}
+    {% brick_table_column title=_('Estimated sales') data_type='money' %}
+    {% brick_table_column title=_('Made sales') data_type='money' %}
+    {% brick_table_column title=_('Unlink') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
+{% url 'creme_core__delete_similar_relations' as del_rel_url %}
+    {% for opp in page.object_list %}{% has_perm_to view opp as opp_view_perm %}{% has_perm_to unlink opp as opp_unlink_perm %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink opp user %}</td>
+        {% if opp_view_perm %}
+        <td>{{opp.sales_phase}}</td>
+        <td data-type="money">{{opp.estimated_sales|default:'—'}}</td>
+        <td data-type="money">{{opp.made_sales|default:'—'}}</td>
+        {% else %}
+        <td>{{HIDDEN_VALUE}}</td>
+        <td data-type="money">{{HIDDEN_VALUE}}</td>
+        <td data-type="money">{{HIDDEN_VALUE}}</td>
+        {% endif %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=del_rel_url __subject_id=object.pk __type=predicate_id __object_id=opp.id icon='unlink' enabled=unlink_perm|and_op:opp_unlink_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+    <tr class="acts-opportunities-total">
+        <td colspan="2">{% trans 'Total' %}</td>
+        <td data-type="money">{{object.get_estimated_sales}}</td>
+        <td data-type="money">{{object.get_made_sales}}</td>
+        <td>&nbsp;</td>
+    </tr>
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No related opportunity for the moment' %}
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks commercial_tags %}
+
+{% block brick_extra_class %}{{block.super}} commercial-objectives-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Objective') plural=_('{count} Objectives') empty=_('Objectives') icon='commercial' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as edition_perm %}
+{% url 'commercial__create_objective' object.id as create_url %}{% url 'commercial__create_objective_from_pattern' object.id as create_from_pattern_url %}
+    {% brick_header_action id='add' url=create_url              label=_('New objective')         enabled=edition_perm %}
+    {% brick_header_action id='add' url=create_from_pattern_url label=_('Create with a pattern') enabled=edition_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' %}
+
+    {% brick_table_column title=_('Counter') %}
+    {% brick_table_column title=_('Goal') %}
+    {% brick_table_column title=_('Reached') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as edition_perm %}{% has_perm_to link object as link_perm %}
+{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
+    {% for objective in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{objective}}</td>
+        <td>
+            {% with ctype=objective.ctype %}
+            {% if not ctype %}{% url 'commercial__incr_objective_counter' objective.id as incr_url %}
+                <div class="objective-counter">
+                {% brick_table_action id='update' url=incr_url __diff='-1' enabled=edition_perm icon='remove' label=_('Minus one') %}
+                <span>{{objective.counter}}</span>
+                {% brick_table_action id='update' url=incr_url __diff='1' enabled=edition_perm icon='add'  label=_('Plus one') %}
+                </div>
+            {% else %}
+                {% with efilter=objective.filter %}
+                    {{objective.get_count}} ({{ctype}}{% if efilter %} / {{efilter}}{% endif %})
+
+                    {% if not efilter and ctype|has_quickform %}
+                        {% has_perm_to create ctype as creation_perm %}{% has_perm_to link ctype.model_class as link_perm2 %}
+                        {% url 'commercial__create_entity_from_objective' objective.id as create_entity_url %}
+                        {% brick_table_action id='add' url=create_entity_url label=ctype.model_class.creation_label enabled=link_perm|and_op:creation_perm|and_op:link_perm2 %}
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+            {% endwith %}
+        </td>
+        <td>{{objective.counter_goal}}</td>
+        {% if objective.reached %}
+        <td class="td_valid">{% trans "Yes"%}</td>
+        {% else %}
+        <td class="td_error">{% trans "No"%}</td>
+        {% endif %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=objective.get_edit_absolute_url enabled=edition_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=objective.id enabled=edition_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No objective for the moment' %}
+{% endblock %}
