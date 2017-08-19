@@ -129,8 +129,8 @@ class AbstractOpportunity(CremeEntity):
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField())
 
-    creation_label = _('Create an opportunity')
-    submit_label   = _('Save the opportunity')
+    creation_label = _(u'Create an opportunity')
+    submit_label   = _(u'Save the opportunity')
 
     search_score = 100
 

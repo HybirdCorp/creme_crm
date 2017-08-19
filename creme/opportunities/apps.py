@@ -59,16 +59,18 @@ class OpportunitiesConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Opportunity)
 
-    def register_blocks(self, block_registry):
-        from .blocks import blocks_list, OpportunityBlock
+    def register_bricks(self, brick_registry):
+        from . import bricks
 
-        block_registry.register_4_model(self.Opportunity, OpportunityBlock())
-        block_registry.register(*blocks_list)
+        Opportunity = self.Opportunity
+        brick_registry.register(*bricks.bricks_list)
+        brick_registry.register_4_model(Opportunity, bricks.OpportunityBrick)
+        brick_registry.register_hat(Opportunity, secondary_brick_classes=(bricks.OpportunityCardHatBrick,))
 
     def register_buttons(self, button_registry):
-        from .buttons import linked_opportunity_button
+        from . import buttons
 
-        button_registry.register(linked_opportunity_button)
+        button_registry.register(buttons.linked_opportunity_button)
 
     def register_icons(self, icon_registry):
         icon_registry.register(self.Opportunity, 'images/opportunity_%(size)s.png')

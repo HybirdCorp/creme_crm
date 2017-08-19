@@ -1,0 +1,34 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} opportunities-managers-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Business manager') plural=_('{count} Business managers') empty=_('Business managers') icon='contact' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to link object as link_perm %}
+    {% brick_header_action id='add-relationships' label=_('Link to a contact') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=objects_ctype.id __multiple=True %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') status='primary nowrap' %}
+    {% brick_table_column title=_('Unlink') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to unlink object as unlink_perm %}{% url 'creme_core__delete_similar_relations' as delete_relation_url %}
+    {% for manager in page.object_list %}
+    <tr>{% has_perm_to unlink manager as mngr_unlink_perm %}
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink manager user %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=predicate_id __object_id=manager.id label=_('Unlink this contact') icon='unlink' enabled=unlink_perm|and_op:mngr_unlink_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No business manager for the moment' %}
+{% endblock %}

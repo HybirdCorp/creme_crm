@@ -1,0 +1,38 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} opportunities-sales-orders-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Related salesorder') plural=_('{count} Related salesorders') empty=_('Related salesorders') icon='invoice' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to link object as link_perm %}{% has_perm_to create objects_ctype as create_perm %}
+{% url 'opportunities__generate_billing_doc' object.id objects_ctype.id as create_url %}
+    {% brick_header_action id='update' url=create_url type='add'  label=_('Generate a salesorder') enabled=link_perm|and_op:create_perm %}
+    {% brick_header_action id='add-relationships'     icon='link' label=_('Link to a salesorder')  enabled=link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=objects_ctype.id __multiple=True %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='number' status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name'   status='nowrap' %}
+    {% brick_table_column title=_('Unlink') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to unlink object as unlink_perm %}{% url 'creme_core__delete_similar_relations' as delete_relation_url %}
+    {% for salesorder in page.object_list %}
+    <tr>{% has_perm_to unlink salesorder as salesorder_unlink_perm %}
+        <td {% brick_table_data_status primary %}>{{salesorder.number}}</td>
+        <td>{% widget_entity_hyperlink salesorder user %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=predicate_id __object_id=salesorder.id label=_('Unlink this salesorder') icon='unlink' enabled=unlink_perm|and_op:salesorder_unlink_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No salesorder for the moment' %}
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'creme_core/bricks/base/hat-card.html' %}
+{% load i18n creme_core_tags creme_widgets persons_tags %}
+
+{% block brick_extra_class %}{{block.super}} opportunities-card-brick{% endblock %}
+
+{% block card_intro_content %}
+{% include 'persons/bricks/frags/card-last-activity.html' %}
+{% endblock %}
+
+{% block card_indicators %}
+    {% if is_neglected %}
+    <div class='business-card-indicator business-card-warning-indicator' title="{% trans 'Meeting, phone call…' %}">{% trans 'No activity since 30 days' %}</div>
+    {% endif %}
+{% endblock %}
+
+{% block card_secondary %}
+    <div class="card-targets">
+        {% if target_is_organisation %}
+        <span class="card-function">{% trans 'Targets the organisation' %}</span>{% widget_entity_hyperlink target user %}
+        {% else %}
+        <span class="card-function">{% trans 'Targets the contact' %}</span>{% has_perm_to view target as target_view_perm %}
+            {% if target_view_perm %}
+            <a href='{{target.get_absolute_url}}' {% if target.is_deleted %}class="is_deleted"{% endif %}>{{target|persons_pretty_contact}}</a>{% persons_contact_first_employer contact=target user=user as employer %}
+                {% if employer %},
+                {% if employer.as_manager %}{% trans 'manager of the organisation' %}{% else %}{% trans 'employee of the organisation' %}{% endif %}
+                {% widget_entity_hyperlink employer.organisation user %}
+                {% endif %}
+            {% else %}
+                {{HIDDEN_VALUE}}
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block card_fields_title %}
+{% trans 'Details' context 'opportunities' %}
+{% endblock %}
+
+{% block card_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% trans 'Sales phase' %}</span>
+        <span class='card-info-value'>{{object.sales_phase|default:'—'}}</span>
+    </div>
+    {% if 'estimated_sales' not in hidden_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% trans 'Estimated sales' %}</span>
+        <span class='card-info-value'>
+            {% if object.estimated_sales == None %}
+            —
+            {% else %}
+            {{object.estimated_sales|format_amount:object.currency}}
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+    {% if 'made_sales' not in hidden_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% trans 'Made sales' %}</span>
+        <span class='card-info-value'>
+            {% if object.made_sales == None %}
+            —
+            {% else %}
+            {{object.made_sales|format_amount:object.currency}}
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block card_summary %}
+    {% include 'persons/bricks/frags/card-summary-acts.html' %}
+    {% with contacts=object.get_contacts %}
+        <div class="card-info-field">
+            <div class="card-info-field">
+                <span class='card-info-key'>
+                    {% if contacts|length == 0 %}
+                        {% trans 'Linked contacts' %}
+                    {% else %}
+                        {% blocktrans count count=contacts|length %}{{count}} Linked contact{% plural %}{{count}} Linked contacts{% endblocktrans %}
+                    {% endif %}
+                </span>
+                <span class='card-info-value'>
+                    {% for contact in contacts %}{% widget_join %}{% widget_entity_hyperlink contact user %}{% end_widget_join %}{% empty %}—{% endfor %}
+                </span>
+            </div>
+        </div>
+    {% endwith %}
+    {% include 'persons/bricks/frags/card-summary-next-activity.html' %}
+{% endblock %}
