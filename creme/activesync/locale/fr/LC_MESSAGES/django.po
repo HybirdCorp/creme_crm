@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activesync 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 11:41+0100\n"
+"POT-Creation-Date: 2017-08-12 14:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:30 templates/activesync/frags/ajax/main_sync.html:6
-#: templates/activesync/main_sync.html:4
+#: apps.py:30 templates/activesync/frags/ajax/main_sync.html:8
+#: templates/activesync/main_sync.html:6
+#: templates/activesync/sync-portal.html:4
+#: templates/activesync/sync-portal.html:10
 msgid "Mobile synchronization"
 msgstr "Synchronisation mobile"
 
@@ -167,11 +169,19 @@ msgstr "Erreur originale : %s"
 msgid "Synchronise data with the ActiveSync server"
 msgstr "Synchronise les données avec le serveur ActiveSync"
 
-#: errors.py:43
+#: errors.py:46
+msgid "Unknown error"
+msgstr "Erreur inconnue"
+
+#: errors.py:47
+msgid "The request is malformed"
+msgstr "La requête est mal formée"
+
+#: errors.py:49
 msgid "Wrong username and/or password"
 msgstr "Mauvais nom d'utilisateur et/ou mot de passe"
 
-#: errors.py:44
+#: errors.py:50
 msgid ""
 "No server URL, please fill in information in global settings configuration "
 "or in your own settings"
@@ -179,57 +189,57 @@ msgstr ""
 "Aucune URL de serveur, veuillez remplir les informations dans la "
 "configuration globale ou dans votre configuration"
 
-#: errors.py:45
+#: errors.py:51
 msgid "Invalid server URL, please check it in your settings"
 msgstr "URL de serveur invalide, veuillez la vérifier dans votre configuration"
 
-#: errors.py:46
+#: errors.py:52
 msgid "No login, please fill in information in your own settings"
 msgstr ""
 "Aucun nom d'utilisateur, veuillez remplir les informations dans votre "
 "configuration"
 
-#: errors.py:47
+#: errors.py:53
 msgid "No password, please fill in information in your own settings"
 msgstr ""
 "Aucun mot de passe, veuillez remplir les informations dans votre "
 "configuration"
 
-#: errors.py:48
+#: errors.py:54
 msgid "There was an error during synchronization"
 msgstr "Il y a eu une erreur pendant la synchronisation"
 
-#: errors.py:49
+#: errors.py:55
 msgid "It seems there no available connection"
 msgstr "Il semble qu'il n'y ait pas de connection internet"
 
-#: errors.py:50
+#: errors.py:56
 msgid "Wrong configuration (wrong server URL?)"
 msgstr "Mauvaise configuration (URL du serveur erronée ?)"
 
-#: errors.py:53
+#: errors.py:59
 msgid "You haven't the right to create contacts in Creme"
 msgstr "Vous n'avez pas le droit de créer des contacts dans Crème"
 
-#: errors.py:54
+#: errors.py:60
 #, python-format
 msgid "You haven't the right to create contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit de créer le contact <%s> dans Crème"
 
-#: errors.py:55
+#: errors.py:61
 msgid "You haven't the right to change contacts in Creme"
 msgstr "Vous n'avez pas le droit de modifier des contacts dans Crème"
 
-#: errors.py:56
+#: errors.py:62
 #, python-format
 msgid "You haven't the right to change the contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit de modifier le contact <%s> dans Crème"
 
-#: errors.py:57
+#: errors.py:63
 msgid "You haven't the right to delete contacts in Creme"
 msgstr "Vous n'avez pas le droit d'effacer des contacts dans Crème"
 
-#: errors.py:58
+#: errors.py:64
 #, python-format
 msgid "You haven't the right to delete the contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit d'effacer le contact <%s> dans Crème"
@@ -243,22 +253,30 @@ msgid "Some common configurations"
 msgstr "Configurations communes"
 
 #: forms/mobile_sync.py:40 forms/user_settings.py:48
-#: templates/activesync/frags/ajax/main_sync.html:32
-#: templates/activesync/templatetags/block_mobile_sync_config.html:19
-#: templates/activesync/templatetags/block_user_mobile_sync.html:17
+#: templates/activesync/bricks/default-config.html:24
+#: templates/activesync/bricks/sync-parameters.html:15
+#: templates/activesync/bricks/user-config.html:18
+#: templates/activesync/frags/ajax/main_sync.html:34
+#: templates/activesync/templatetags/block_mobile_sync_config.html:22
+#: templates/activesync/templatetags/block_user_mobile_sync.html:20
 msgid "Server URL"
 msgstr "URL du serveur"
 
 #: forms/mobile_sync.py:41 forms/user_settings.py:54
-#: templates/activesync/frags/ajax/main_sync.html:40
-#: templates/activesync/templatetags/block_mobile_sync_config.html:23
-#: templates/activesync/templatetags/block_user_mobile_sync.html:21
+#: templates/activesync/bricks/default-config.html:28
+#: templates/activesync/bricks/sync-parameters.html:23
+#: templates/activesync/bricks/user-config.html:22
+#: templates/activesync/frags/ajax/main_sync.html:42
+#: templates/activesync/templatetags/block_mobile_sync_config.html:26
+#: templates/activesync/templatetags/block_user_mobile_sync.html:24
 msgid "Domain"
 msgstr "Domaine"
 
 #: forms/mobile_sync.py:42 forms/user_settings.py:55
-#: templates/activesync/templatetags/block_mobile_sync_config.html:27
-#: templates/activesync/templatetags/block_user_mobile_sync.html:25
+#: templates/activesync/bricks/default-config.html:32
+#: templates/activesync/bricks/user-config.html:26
+#: templates/activesync/templatetags/block_mobile_sync_config.html:30
+#: templates/activesync/templatetags/block_user_mobile_sync.html:28
 msgid "Is secure"
 msgstr "Est sécurisé"
 
@@ -276,17 +294,19 @@ msgstr "Oui"
 msgid "Default"
 msgstr "Défaut"
 
-#: forms/user_settings.py:58 templates/activesync/frags/ajax/main_sync.html:36
+#: forms/user_settings.py:58
+#: templates/activesync/bricks/sync-parameters.html:19
+#: templates/activesync/frags/ajax/main_sync.html:38
 msgid "Login"
 msgstr "Nom d'utilisateur"
 
-#: forms/user_settings.py:59
-#: templates/activesync/templatetags/block_user_mobile_sync.html:33
+#: forms/user_settings.py:59 templates/activesync/bricks/user-config.html:34
+#: templates/activesync/templatetags/block_user_mobile_sync.html:36
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user_settings.py:60
-#: templates/activesync/templatetags/block_user_mobile_sync.html:38
+#: forms/user_settings.py:60 templates/activesync/bricks/user-config.html:38
+#: templates/activesync/templatetags/block_user_mobile_sync.html:41
 msgid "Synchronize activities (calendars)"
 msgstr "Synchroniser les activités (calendriers)"
 
@@ -297,8 +317,8 @@ msgstr ""
 "Choisissez si vous voulez synchroniser vos activités dans les deux sens ou "
 "non."
 
-#: forms/user_settings.py:66
-#: templates/activesync/templatetags/block_user_mobile_sync.html:42
+#: forms/user_settings.py:66 templates/activesync/bricks/user-config.html:42
+#: templates/activesync/templatetags/block_user_mobile_sync.html:45
 msgid "Synchronize contacts"
 msgstr "Synchroniser les contacts"
 
@@ -329,15 +349,15 @@ msgid "Let 'Default' to get the default configuration (currently '%s')."
 msgstr ""
 "Laissez 'Défaut' pour obtenir la configuration par défaut (actuellement '%s')"
 
-#: mappings/contact.py:141
+#: mappings/contact.py:145
 msgid "Contact's organisation created"
 msgstr "Société du contact créée"
 
-#: mappings/contact.py:245
+#: mappings/contact.py:253
 msgid "Images"
 msgstr "Images"
 
-#: mappings/contact.py:249
+#: mappings/contact.py:257
 msgid "Imported by activesync"
 msgstr "Importé par activesync"
 
@@ -384,76 +404,190 @@ msgid "Last sync"
 msgstr "Dernière synchronisation"
 
 #: models/active_sync.py:132 models/active_sync.py:204
-#: templates/activesync/templatetags/block_user_synchronization_history.html:14
+#: templates/activesync/templatetags/block_user_synchronization_history.html:17
 msgid "Creation date"
 msgstr "Date de création"
+
+#: models/active_sync.py:199
+msgid "User"
+msgstr "Utilisateur"
+
+#: models/active_sync.py:203
+#: templates/activesync/templatetags/block_user_synchronization_history.html:18
+msgid "What"
+msgstr "Quoi"
 
 #: models/active_sync.py:206
 msgid "Entity changes"
 msgstr "Changements sur la fiche"
 
+#: models/active_sync.py:207
+#: templates/activesync/templatetags/block_user_synchronization_history.html:16
+msgid "Type"
+msgstr "Type"
+
+#: models/active_sync.py:208
+#: templates/activesync/templatetags/block_user_synchronization_history.html:21
+msgid "Where"
+msgstr "Où"
+
 #: models/active_sync.py:266
 msgid "This entity doesn't exist anymore"
 msgstr "Cette fiche n'existe plus"
 
-#: sync.py:308
+#: sync.py:313
 msgid "There is a server error, please try again later…"
 msgstr "Il y a une erreur sur le serveur, veuillez essayer plus tard…"
 
-#: templates/activesync/frags/ajax/main_sync.html:5
-#: templates/activesync/templatetags/block_mobile_sync_config.html:7
-#: templates/activesync/templatetags/block_user_mobile_sync.html:5
-msgid "Phone synchronization"
-msgstr "Synchronisation de téléphone"
+#: templates/activesync/bricks/default-config.html:6
+#: templates/activesync/templatetags/block_mobile_sync_config.html:6
+msgid ""
+"Here you set the default configuration for mobile synchronization. Each user "
+"gets this config until he overrides it in his own settings."
+msgstr ""
+"Ici vous renseignez la configuration de synchronisation mobile par défaut. "
+"Chaque utilisateur héritera de cette configuration jusqu'à ce qu'il la "
+"surcharge dans ses propres paramètres"
 
-#: templates/activesync/frags/ajax/main_sync.html:11
-msgid "Edit your mobile configuration"
-msgstr "Modifier votre configuration mobile"
+#: templates/activesync/bricks/default-config.html:13
+#: templates/activesync/templatetags/block_mobile_sync_config.html:10
+msgid "Default mobile synchronization configuration"
+msgstr "Configuration de synchronisation mobile par défaut"
 
-#: templates/activesync/frags/ajax/main_sync.html:16
-msgid "Refresh"
-msgstr "Rafraîchir"
+#: templates/activesync/bricks/default-config.html:17
+#: templates/activesync/bricks/user-config.html:11
+msgid "Edit the configuration"
+msgstr "Modifier la configuration"
 
-#: templates/activesync/frags/ajax/main_sync.html:27
-msgid "Your current parameters:"
-msgstr "Vos paramètres actuels :"
+#: templates/activesync/bricks/sync-history.html:7
+#, python-brace-format
+msgid "{count} History entry"
+msgstr "{count} Entrée d'historique"
 
-#: templates/activesync/frags/ajax/main_sync.html:44
+#: templates/activesync/bricks/sync-history.html:7
+#, python-brace-format
+msgid "{count} History entries"
+msgstr "{count} Entrées d'historique"
+
+#: templates/activesync/bricks/sync-history.html:7
+msgid "History entries"
+msgstr "Entrées d'historique"
+
+#: templates/activesync/bricks/sync-history.html:14
+#: templates/activesync/templatetags/block_user_synchronization_history.html:19
+msgid "Entity"
+msgstr "Fiche"
+
+#: templates/activesync/bricks/sync-history.html:15
+#: templates/activesync/templatetags/block_user_synchronization_history.html:20
+msgid "Changes"
+msgstr "Changements"
+
+#: templates/activesync/bricks/sync-history.html:58
+#: templates/activesync/templatetags/block_user_synchronization_history.html:61
+msgid "Empty history for the moment"
+msgstr "Historique vide pour le moment"
+
+#: templates/activesync/bricks/sync-parameters.html:7
+msgid "Your current parameters"
+msgstr "Vos paramètres actuels"
+
+#: templates/activesync/bricks/sync-parameters.html:27
+#: templates/activesync/frags/ajax/main_sync.html:46
 msgid "Is secure (SSL)"
 msgstr "Est sécurisé (SSL)"
 
-#: templates/activesync/frags/ajax/main_sync.html:48
+#: templates/activesync/bricks/sync-parameters.html:31
+#: templates/activesync/frags/ajax/main_sync.html:50
 msgid "Last synchronization"
 msgstr "Dernière synchronisation"
 
-#: templates/activesync/frags/ajax/main_sync.html:49
+#: templates/activesync/bricks/sync-parameters.html:32
+#: templates/activesync/frags/ajax/main_sync.html:51
 msgid "Never"
 msgstr "Jamais"
 
-#: templates/activesync/frags/ajax/main_sync.html:57
+#: templates/activesync/bricks/sync-parameters.html:35
+#: templates/activesync/frags/ajax/main_sync.html:59
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: templates/activesync/frags/ajax/main_sync.html:59
+#: templates/activesync/bricks/sync-parameters.html:35
+#: templates/activesync/frags/ajax/main_sync.html:61
 msgid "Synchronize your calendars?"
 msgstr "Synchroniser vos calendriers ?"
 
 # Already in 'persons'
-#: templates/activesync/frags/ajax/main_sync.html:66
+#: templates/activesync/bricks/sync-parameters.html:39
+#: templates/activesync/frags/ajax/main_sync.html:68
 msgid "Contacts"
 msgstr ""
 
-#: templates/activesync/frags/ajax/main_sync.html:68
+#: templates/activesync/bricks/sync-parameters.html:39
+#: templates/activesync/frags/ajax/main_sync.html:70
 msgid "Synchronize your contacts?"
 msgstr "Synchroniser vos contacts ?"
 
-#: templates/activesync/frags/ajax/main_sync.html:79
+#: templates/activesync/bricks/sync-results.html:7
+#: templates/activesync/frags/ajax/main_sync.html:81
 msgid "Results of the synchronization"
 msgstr "Résultats de la synchronisation"
 
-#: templates/activesync/frags/ajax/main_sync.html:94
+#: templates/activesync/bricks/sync-results.html:24
+#: templates/activesync/frags/ajax/main_sync.html:96
 msgid "Nothing to synchronize…"
 msgstr "Rien à synchroniser…"
+
+#: templates/activesync/bricks/user-config.html:7
+#: templates/activesync/templatetags/block_user_mobile_sync.html:8
+msgid "Your mobile synchronization configuration"
+msgstr "Votre configuration de synchronisation mobile"
+
+#: templates/activesync/bricks/user-config.html:19
+#: templates/activesync/bricks/user-config.html:23
+#: templates/activesync/bricks/user-config.html:27
+#: templates/activesync/templatetags/block_user_mobile_sync.html:21
+#: templates/activesync/templatetags/block_user_mobile_sync.html:25
+#: templates/activesync/templatetags/block_user_mobile_sync.html:29
+msgid "Default configuration"
+msgstr "Configuration par défaut"
+
+#: templates/activesync/bricks/user-config.html:30
+#: templates/activesync/templatetags/block_user_mobile_sync.html:32
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: templates/activesync/bricks/user-config.html:31
+#: templates/activesync/bricks/user-config.html:35
+#: templates/activesync/bricks/user-config.html:39
+#: templates/activesync/bricks/user-config.html:43
+#: templates/activesync/templatetags/block_user_mobile_sync.html:33
+#: templates/activesync/templatetags/block_user_mobile_sync.html:38
+#: templates/activesync/templatetags/block_user_mobile_sync.html:42
+#: templates/activesync/templatetags/block_user_mobile_sync.html:46
+msgid "Undefined"
+msgstr "Non-défini"
+
+#: templates/activesync/frags/ajax/main_sync.html:7
+#: templates/activesync/sync-portal.html:9
+#: templates/activesync/templatetags/block_mobile_sync_config.html:10
+#: templates/activesync/templatetags/block_user_mobile_sync.html:8
+msgid "Phone synchronization"
+msgstr "Synchronisation de téléphone"
+
+#: templates/activesync/frags/ajax/main_sync.html:13
+#: templates/activesync/sync-portal.html:15
+msgid "Edit your mobile configuration"
+msgstr "Modifier votre configuration mobile"
+
+#: templates/activesync/frags/ajax/main_sync.html:18
+#: templates/activesync/sync-portal.html:21
+msgid "Refresh"
+msgstr "Rafraîchir"
+
+#: templates/activesync/frags/ajax/main_sync.html:29
+msgid "Your current parameters:"
+msgstr "Vos paramètres actuels :"
 
 #: templates/activesync/messages/message_info_contact_add.html:6
 #: templates/activesync/messages/message_succeed_contact_add.html:5
@@ -468,79 +602,21 @@ msgstr "Voir"
 msgid "View '%(contact)s' details"
 msgstr "Voir les détails de '%(contact)s'"
 
-#: templates/activesync/templatetags/block_mobile_sync_config.html:3
-msgid ""
-"Here you set the default configuration for mobile synchronization. Each user "
-"gets this config until he overrides it in his own settings."
-msgstr ""
-"Ici vous renseignez la configuration de synchronisation mobile par défaut. "
-"Chaque utilisateur héritera de cette configuration jusqu'à ce qu'il la "
-"surcharge dans ses propres paramètres"
-
-#: templates/activesync/templatetags/block_mobile_sync_config.html:7
-msgid "Default mobile synchronization configuration"
-msgstr "Configuration de synchronisation mobile par défaut"
-
 # Already in creme_core
-#: templates/activesync/templatetags/block_mobile_sync_config.html:14
-#: templates/activesync/templatetags/block_user_mobile_sync.html:12
+#: templates/activesync/templatetags/block_mobile_sync_config.html:17
+#: templates/activesync/templatetags/block_user_mobile_sync.html:15
 msgid "Edit"
 msgstr ""
 
-#: templates/activesync/templatetags/block_user_mobile_sync.html:5
-msgid "Your mobile synchronization configuration"
-msgstr "Votre configuration de synchronisation mobile"
-
-#: templates/activesync/templatetags/block_user_mobile_sync.html:18
-#: templates/activesync/templatetags/block_user_mobile_sync.html:22
-#: templates/activesync/templatetags/block_user_mobile_sync.html:26
-msgid "Default configuration"
-msgstr "Configuration par défaut"
-
-#: templates/activesync/templatetags/block_user_mobile_sync.html:29
-msgid "Username"
-msgstr "Nom d'utilisateur"
-
-#: templates/activesync/templatetags/block_user_mobile_sync.html:30
-#: templates/activesync/templatetags/block_user_mobile_sync.html:35
-#: templates/activesync/templatetags/block_user_mobile_sync.html:39
-#: templates/activesync/templatetags/block_user_mobile_sync.html:43
-msgid "Undefined"
-msgstr "Non-défini"
-
-#: templates/activesync/templatetags/block_user_synchronization_history.html:6
+#: templates/activesync/templatetags/block_user_synchronization_history.html:9
 #, python-format
 msgid "%s History entry"
 msgstr "%s Entrée d'historique"
 
-#: templates/activesync/templatetags/block_user_synchronization_history.html:6
+#: templates/activesync/templatetags/block_user_synchronization_history.html:9
 #, python-format
 msgid "%s History entries"
 msgstr "%s Entrées d'historique"
-
-#: templates/activesync/templatetags/block_user_synchronization_history.html:13
-msgid "Type"
-msgstr "Type"
-
-#: templates/activesync/templatetags/block_user_synchronization_history.html:15
-msgid "What"
-msgstr "Quoi"
-
-#: templates/activesync/templatetags/block_user_synchronization_history.html:16
-msgid "Entity"
-msgstr "Fiche"
-
-#: templates/activesync/templatetags/block_user_synchronization_history.html:17
-msgid "Changes"
-msgstr "Changements"
-
-#: templates/activesync/templatetags/block_user_synchronization_history.html:18
-msgid "Where"
-msgstr "Où"
-
-#: templates/activesync/templatetags/block_user_synchronization_history.html:58
-msgid "Empty history for the moment"
-msgstr "Historique vide pour le moment"
 
 #: views/mobile_sync.py:33
 msgid "Edit default mobile synchronization configuration"

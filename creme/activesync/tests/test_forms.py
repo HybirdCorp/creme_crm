@@ -7,17 +7,17 @@ try:
     from django.core.urlresolvers import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.models import SettingValue
 
-    from ..blocks import mobile_sync_config_block
-    from .. import setting_keys, constants
+    from .. import setting_keys, constants, bricks
     # from ..constants import *
     from ..utils import is_user_sync_calendars, is_user_sync_contacts
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class GlobalSettingsTestCase(CremeTestCase):
+class GlobalSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
     # @classmethod
     # def setUpClass(cls):
     #     CremeTestCase.setUpClass()
@@ -64,7 +64,8 @@ class GlobalSettingsTestCase(CremeTestCase):
         self.login()
         # response = self.assertGET200('/creme_config/activesync/portal/')
         response = self.assertGET200(reverse('creme_config__app_portal', args=('activesync',)))
-        self.assertContains(response, ' id="%s"' % mobile_sync_config_block.id_)
+        # self.assertContains(response, ' id="%s"' % bricks.MobileSyncConfigBlock.id_)
+        self.get_brick_node(self.get_html_tree(response.content), bricks.MobileSyncConfigBrick.id_)
 
 
 class UserSettingsTestCase(CremeTestCase):

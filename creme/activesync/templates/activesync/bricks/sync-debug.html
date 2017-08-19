@@ -1,0 +1,27 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} activesync-debug-brick{% if not ACTIVE_SYNC_DEBUG %} is-empty{% endif %}{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title='Debug info' %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+{% if ACTIVE_SYNC_DEBUG %}
+    <tr>
+        <td>From XML</td>
+        <td><ul>{% for x in xml %}<li>{{x}}</li>{% endfor %}</ul></td>
+    </tr>
+    <tr>
+        <td>Info</td>
+        <td><ul>{% for x in debug_info %}<li>{{x}}</li>{% endfor %}</ul></td>
+    </tr>
+    <tr>
+        <td>Errors</td>
+        <td><ul>{% for x in debug_errors %}<li>{{x}}</li>{% endfor %}</ul></td>
+    </tr>
+{% endif %}
+{% endblock %}

@@ -1,5 +1,5 @@
 
-* Deleted images are not sended from creme to as
+* Deleted images are not sent from creme to as
 
 * Transform IS_ZPUSH into a AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
 

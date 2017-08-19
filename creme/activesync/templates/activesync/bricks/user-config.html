@@ -1,0 +1,45 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} activesync-user-config-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Your mobile synchronization configuration') icon='phone_sync' %}
+{% endblock %}
+
+{% block brick_header_actions %}{% url 'activesync__user_settings' as edit_url %}
+    {% brick_header_action id='edit' url=edit_url label=_('Edit the configuration') %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+    <tr>
+        <td>{% trans 'Server URL' %}</td>
+        <td>{{url.as_html}}{% if url.default_config %} ({% trans "Default configuration" %}){% endif %}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Domain' %}</td>
+        <td>{{domain.as_html}}{% if domain.default_config %} ({% trans "Default configuration" %}){% endif %}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Is secure' %}</td>
+        <td>{{ssl.as_html}}{% if ssl.default_config %} ({% trans "Default configuration" %}){% endif %}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Username' %}</td>
+        <td>{% if username|is_none %}{% trans "Undefined" %}{% else %}{{username.as_html}}{% endif %}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Password' %}</td>
+        <td>{% if password|is_none %}{% trans "Undefined" %}{% else %}{% for i in password.as_html|length|xrange %}*{% endfor %}{% endif %}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Synchronize activities (calendars)' %}</td>
+        <td>{% if sync_cal|is_none %}{% trans "Undefined" %}{% else %}{{sync_cal.as_html}}{% endif %}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Synchronize contacts' %}</td>
+        <td>{% if sync_con|is_none %}{% trans "Undefined" %}{% else %}{{sync_con.as_html}}{% endif %}</td>
+    </tr>
+{% endblock %}
