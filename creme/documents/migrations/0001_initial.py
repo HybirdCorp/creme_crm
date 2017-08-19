@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
             name='Document',
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
-                ('title', models.CharField(max_length=100, verbose_name='Title')),
+                ('title', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                 ('filedata', models.FileField(upload_to=b'upload/documents', max_length=500, verbose_name='File')),
                 ('folder', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Folder', to=settings.DOCUMENTS_FOLDER_MODEL)),

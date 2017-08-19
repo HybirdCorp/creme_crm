@@ -105,7 +105,7 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
 
 # TODO: factorise
 class ImageQuickForm(CremeModelWithUserForm):
-    image = ImageField(label=_('Image file'), max_length=Document._meta.get_field('filedata').max_length)
+    image = ImageField(label=_(u'Image file'), max_length=Document._meta.get_field('filedata').max_length)
 
     class Meta:
         model = Document

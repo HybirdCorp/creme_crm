@@ -33,7 +33,7 @@ from .other_models import DocumentCategory, MimeType
 
 
 class AbstractDocument(CremeEntity):
-    title       = CharField(_(u'Title'), max_length=100)
+    title       = CharField(_(u'Name'), max_length=100)
     description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
     folder      = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
@@ -48,13 +48,13 @@ class AbstractDocument(CremeEntity):
                                   blank=True,
                                  ).set_tags(optional=True)
 
-    creation_label = _('Create a document')
-    save_label     = _('Save the document')
+    creation_label = _(u'Create a document')
+    save_label     = _(u'Save the document')
 
     class Meta:
         abstract = True
         app_label = 'documents'
-        verbose_name = _('Document')
+        verbose_name = _(u'Document')
         verbose_name_plural = _(u'Documents')
         ordering = ('title',)
 
