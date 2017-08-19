@@ -17,7 +17,7 @@
 *******************************************************************************/
 
 /*
- * Requires : creme, jQuery, creme.utils, creme.ajax
+ * Requires : creme, jQuery, creme.utils, creme.ajax, creme.dialogs
  */
 
 if (!creme.reports) creme.reports = {};
@@ -112,6 +112,8 @@ creme.reports.AJAX_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(
                                                          });
 
 creme.reports.doAjaxAction = function(url, options, data) {
+    console.warn('creme.reports.doAjaxAction() is deprecated ; use bricks & actions instead.');
+
     var options = options || {};
     var query = creme.reports.AJAX_BACKEND.query();
     var reload_cb = options.blockReloadUrl ? function() {creme.blocks.reload(options.blockReloadUrl);} : function() {};
@@ -128,10 +130,11 @@ creme.reports.doAjaxAction = function(url, options, data) {
     return query;
 }
 
-// TODO: rename 'unlinkReport'
 //creme.reports.unlink_report = function(field_id, block_url) {
 creme.reports.unlink_report = function(url, field_id, block_url) {
 //    creme.reports.doAjaxAction('/reports/report/field/unlink_report', {
+    console.warn('creme.reports.unlink_report() is deprecated ; use the new bricks action system instead.');
+
     creme.reports.doAjaxAction(url, {
                                    blockReloadUrl: block_url
                                }, {
@@ -142,6 +145,8 @@ creme.reports.unlink_report = function(url, field_id, block_url) {
 //creme.reports.changeOrder = function(field_id, direction, block_url) {
 creme.reports.changeOrder = function(url, field_id, direction, block_url) {
 //    return creme.reports.doAjaxAction('/reports/report/field/change_order', {
+    console.warn('creme.reports.changeOrder() is deprecated ; use the new bricks ordering system instead.');
+
     return creme.reports.doAjaxAction(url, {
                                           blockReloadUrl: block_url
                                       }, {
@@ -153,6 +158,8 @@ creme.reports.changeOrder = function(url, field_id, direction, block_url) {
 //creme.reports.setSelected = function(checkbox, field_id, block_url) {
 creme.reports.setSelected = function(url, checkbox, field_id, block_url) {
 //    return creme.reports.doAjaxAction('/reports/report/field/set_selected', {
+    console.warn('creme.reports.setSelected() is deprecated.');
+
     return creme.reports.doAjaxAction(url, {
                                           blockReloadUrl: block_url
                                       }, {
@@ -217,6 +224,8 @@ creme.reports.exportReport = function(title, filterform_url, export_preview_url,
 }
 
 creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
+    console.warn('creme.reports.openGraphEdition() is deprecated ; use bricks & actions instead.');
+
     creme.blocks.form(edition_url, {blockReloadUrl: reload_uri})
                 .onFormSuccess(function() {
                      $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();
@@ -312,3 +321,72 @@ creme.reports.toggleDaysField = function(operator, types) {
 
     days_field.parents('tr:first').toggleClass('hidden', !is_visible);
 };
+
+creme.reports.ChartController = creme.component.Component.sub({
+    _init_: function(properties) {
+        this._properties = properties || {};
+    },
+
+    initialize: function(element, initial)
+    {
+        var self = this;
+        var properties = this._properties || {};
+        var plot = this._plot = creme.widget.create($('.ui-creme-plotselector', element));
+        var state = $.extend({}, initial);
+
+        var setState = function(data) {
+            state = self._state = $.extend({}, state, data);
+
+            $('.graph-controls-type .graph-control-value', element).text(properties.charts[state.chart]);
+            $('.graph-controls-sort .graph-control-value', element).text(properties.sorts[state.sort]);
+
+            plot.reload(state);
+        };
+
+        var popoverContent = function(popover, choices, selected) {
+            var choices = Object.entries(choices).filter(function(e) {return e[0] !== selected;});
+
+            var choices = choices.map(function(choice) {
+                var value = choice[0], label = choice[1];
+                return $('<a class="popover-list-item" title="%s" alt="%s">%s</a>'.format(label, label, label)).click(function(e) {
+                    e.preventDefault();
+                    popover.selectAndClose(value);
+                });
+            });
+
+            return choices;
+        }
+
+        var chartPopover = new creme.dialogs.Popover()
+                                            .onOk(function(event, value) {
+                                                setState({chart: value});
+                                            });
+
+        var sortPopover = new creme.dialogs.Popover({direction: 'right'})
+                                           .onOk(function(event, value) {
+                                               setState({sort: value});
+                                           });
+
+        chartPopover.fill(popoverContent(chartPopover, properties.charts, state.chart));
+        sortPopover.fill(popoverContent(sortPopover, properties.sorts, state.sort));
+
+        $('.graph-controls-type .graph-control-value', element).click(function(e) {
+            e.stopPropagation();
+            chartPopover.fill(popoverContent(chartPopover, properties.charts, state.chart))
+                        .toggle(this);
+        });
+
+        $('.graph-controls-sort .graph-control-value', element).click(function(e) {
+            e.stopPropagation();
+            sortPopover.fill(popoverContent(sortPopover, properties.sorts, state.sort))
+                       .toggle(this);
+        });
+
+        setState(initial);
+    },
+
+    reset: function() {
+        this._plot.resetBackend();
+        this._plot.reload(this._state);
+    }
+});

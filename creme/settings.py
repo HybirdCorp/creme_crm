@@ -490,6 +490,7 @@ CREME_OPT_CSS = (  # APPS
      ('creme.crudity',          'crudity/css/crudity.css'),
      ('creme.geolocation',      'geolocation/css/geolocation.css'),
      ('creme.products',         'products/css/products.css'),
+     ('creme.reports',          'reports/css/reports.css'),
      ('creme.tickets',          'tickets/css/tickets.css'),
 )
 

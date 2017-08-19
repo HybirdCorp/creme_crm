@@ -1,0 +1,139 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks reports_tags %}
+
+{% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
+
+{% block brick_script %}
+    <script type="text/javascript">
+         $('.brick[id="{{brick_id}}"]').on('brick-ready', function() {
+             var properties = {
+                 charts: {
+                     {% for name, chart in report_charts %}
+                     {{name}}: '{{chart.label}}'{% if not forloop.last %},{% endif %}
+                     {% endfor %}
+                 },
+                 sorts: {
+                     'ASC':  "{% trans 'Ascending' %}",
+                     'DESC': "{% trans 'Descending' %}"
+                 }
+             };
+
+             var initial = {
+                 chart: Object.keys(properties.charts)[0],
+                 sort:  Object.keys(properties.sorts)[0]
+             };
+
+             var element = this;
+             var controllers = {};
+
+             $('[data-graph-chart]', this).each(function() {
+                 var controller = new creme.reports.ChartController(properties);
+                 var chart = $(this).attr('data-graph-chart') || initial.chart;
+                 var options = $.extend({}, initial, {'chart': chart});
+
+                 controller.initialize(this, options);
+                 controllers[$(this).attr('data-graph-id')] = controller;
+             });
+
+             $('.graph-row-toggle-icon').click(function(e) {
+                 e.stopPropagation();
+
+                 var graphid = $(this).parents('.graph-row-header:first').attr('data-graph-id');
+                 var expand = $(this).is('.graph-row-expand');
+
+                 $('[data-graph-id="' + graphid + '"]', element).toggleClass('graph-row-collapsed', !expand);
+
+                 if (expand) {
+                     controllers[graphid].reset();
+                 }
+             })
+         });
+    </script>
+{% endblock %}
+
+{% block brick_header_title %}
+{% trans 'Graphs' context 'reports-graphs' as empty_label %}
+    {% brick_header_title title=_('{count} Graph') plural=_('{count} Graphs') empty=empty_label icon='graph' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object.report as has_perm %}{% url 'reports__create_graph' object.id as creation_url %}
+    {% brick_header_action id='add' url=creation_url label=_('Create a new graph') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' title=_('Name') status='primary nowrap' colspan=2 %}
+    {% brick_table_column_for_field ctype=objects_ctype field='abscissa' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='ordinate' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='type' title=_('Type') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'reports' as admin_perm %}{% url 'creme_core__delete_entities' as delete_multi_url %}
+{% widget_icon name='expandme' label=_('Expand') size='brick-table-action' class='graph-row-toggle-icon graph-row-expand' as expand_icon %}
+{% widget_icon name='expandme' label=_('Close') size='brick-table-action' class='graph-row-toggle-icon graph-row-collapse' as collapse_icon %}
+    {% for graph in page.object_list %}
+    {% with hand=graph.hand %}
+    <tr class="graph-row-header graph-row-collapsed" data-graph-id="{{graph.id}}">
+        <td>{{expand_icon.render}}{{collapse_icon.render}}</td>
+        <td {% brick_table_data_status primary %}><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
+        <td {% if hand.abscissa_error %} td_error{% endif %}>{{hand.verbose_abscissa}}</td>
+        <td {% if hand.abscissa_error %} td_error{% endif %}>{{hand.verbose_ordinate}}</td>
+        <td>{{hand.verbose_name}}{% if graph.days %} ({{graph.days}}){% endif %}</td>
+        <td {% brick_table_data_status action %}>
+            {% has_perm_to change graph as graph_edit_perm %}{% url 'reports__edit_graph' graph.id as edition_url %}
+            {% brick_table_action id='edit' url=edition_url enabled=graph_edit_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% has_perm_to delete graph as graph_delete_perm %}
+            {% brick_table_action id='delete' url=delete_multi_url __ids=graph.id label=_('Delete this graph') enabled=graph_delete_perm %}
+        </td>
+    </tr>
+    <tr data-graph-chart="{{graph.chart|default:''}}" data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed">
+        <td class="reports-graph-brick" colspan="7">
+            <div class="brick-graph-header clearfix">
+                <div class="graph-controls graph-controls-type">
+                    <span class="graph-control-name">{% trans "Graph" context "reports-graphs" %}<span class="typography-colon">:</span></span>
+                    <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
+                        {% trans 'Histogram' %}
+                    </a>
+                </div>
+                <div class="graph-controls graph-controls-sort">
+                    <span class="graph-control-name">{% trans 'Sorting' %} <span class="typography-colon">:</span></span>
+                    <a class="graph-control-value" title="{% trans 'Select the sort order' %}">
+                        {% trans 'Ascending' %}
+                    </a>
+                </div>
+                {% if volatile_column %}
+                <div class="graph-relation">
+                    <span class="graph-relation-name">{% trans 'Volatile column' %} <span class="typography-colon">:</span></span>
+                    <span class="graph-relation-entity">{{volatile_column}}</span>
+                </div>
+                {% endif %}
+                <div class="graph-action">{% url 'reports__create_instance_block' graph.id as create_block_url %}
+                    {% brick_action id='add' url=create_block_url label=_('Create a block with this graph') enabled=admin_perm %}
+                </div>
+            </div>
+            <div>
+                <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"
+                     plot-data-url="{% url 'reports__fetch_graph' graph.id %}?order=${sort}"
+                     plot-name="${chart}"
+                     style="width:100%;margin:0px;padding:0px;border:0px;">
+                     {% for name, chart in report_charts %}
+                        <script name="{{name}}" type="text/json">{% report_chart_json graph chart True %}</script>
+                     {% endfor %}
+                    <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable" widget="ui-creme-jqueryplot" 
+                         savable="false" style="height:300px;padding:5px;border:0px;" format="creme.graphael.BargraphData">
+                    </div>
+                </div>
+            </div>
+         </td>
+    </tr>
+    {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No graphs registered for the moment' %}
+{% endblock %}

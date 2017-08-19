@@ -1,0 +1,38 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} reports-preview-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% if empty_message %}
+        {% brick_header_title title=_('Preview') %}
+    {% elif lines|length < limit_to %}
+        {% brick_header_title title=_('Preview ({count} line)') plural=_('Preview ({count} lines)') count=lines|length %}
+    {% else %}
+        {% brick_header_title title=_('Preview ({count} line)') plural=_('Preview of the {count} first lines') count=lines|length %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_head %}
+    <thead>
+        <tr>
+        {% if empty_message %}
+            <th>{{empty_message}}</th>
+        {% else %}
+            {% for column in flat_columns %}{% brick_table_column title=column %}{% endfor %}
+        {% endif %}
+        </tr>
+    </thead>
+{% endblock %}
+
+{% block brick_table_body %}
+    {% if not empty_message %}
+    <tbody>
+        {% for line in lines %}
+        <tr>
+            {% for val in line %}<td>{{val}}&nbsp;</td>{% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% endif %}
+{% endblock %}

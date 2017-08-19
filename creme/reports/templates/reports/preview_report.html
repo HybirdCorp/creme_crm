@@ -1,5 +1,5 @@
 {% extends 'creme_core/detailview.html' %}
-{% load i18n creme_core_tags creme_queryset reports_tags %}
+{% load i18n creme_core_tags creme_widgets reports_tags %} {# creme_queryset #}
 
 {% block page_title %}{% blocktrans %}Preview {{object}}{% endblocktrans %} - {% endblock %}
 
@@ -14,44 +14,47 @@
 {% endblock %}
 
 {% block before_content_1 %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td class="logo"><img src="{% creme_media_url 'images/report_64.png' %}" alt="{% trans "Report" %}"/></td>
-            <td class="title">
-                <h1>
-                    {% blocktrans with verbose_name=object|get_meta_value:"verbose_name"|capfirst title=object|capfirst %}Preview {{verbose_name}}: {{title}}{% endblocktrans %}
-                </h1>
-            </td>
-            <td class="actions">
-                <span>
-                    <a href="{{object.get_absolute_url}}">
-                        <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans with report=object %}Back to the detailview: '{{report}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
-                    </a>&nbsp;
-                    {% get_export_backends as export_backends %}
-                </span>
-            </td>
-        </tr>
-    </table>
+    <div class="buttons-list global-buttons">
+        <ul>
+            <li>
+                <a class="menu_button" href="{{object.get_absolute_url}}">{% trans 'Back to the report' as back_label %}
+                    {% widget_icon name='previous' size='global-button' label=back_label %}
+                    {{back_label}}
+                </a>
+            </li>
+        </ul>
+    </div>
 {% endblock %}
 
 {% block content %}
+<div class="hat-bar-container">
+    <div class="hat-bar">
+        <div class="bar-icon">{% widget_icon instance=object size='brick-hat-bar' %}</div>
+        <div class="bar-title">
+            <h1>{% blocktrans with title=object|capfirst %}Preview of the report «{{title}}»{% endblocktrans %}</h1>
+        </div>
+    </div>
+</div>
+
 <div class="report-preview">
     <div class='scrollable-block-container report-preview-header'>
         <form>
-        {% include "reports/frags/report_preview_format.html" %}
+        {% include 'reports/frags/report_preview_format.html' %}
         </form>
         <button type="button" name="generate">{% trans 'Preview' %}</button>
-        <button type="button" name="download">{% trans 'Download CSV' %}</button>
+        <button type="button" name="download">{% trans 'Download as file' %}</button>
     </div>
 
+    {% include 'reports/bricks/preview.html' %}
+
+{% comment %}
     <div class='scrollable-block-container report-preview-data'>
-        {# {% with object.get_children_fields_flat as flat_columns %} #}
         <table class="table_detail_view ui-corner-all with-header" >
             <thead>
                 <tr>
                     <th colspan="{{flat_columns|length}}">
                         {% if empty_message %}
-                            {% trans "Preview" %}
+                            {% trans 'Preview' %}
                         {% elif lines|length < limit_to %}
                             {% blocktrans count lines_count=lines|length %}Preview of {{lines_count}} line{% plural %}Preview of {{lines_count}} lines{% endblocktrans %}
                         {% else %}
@@ -81,7 +84,7 @@
                 {% endif %}
             </tbody>
         </table>
-        {# {% endwith %} #}
     </div>
+{% endcomment %}
 </div>
 {% endblock %}

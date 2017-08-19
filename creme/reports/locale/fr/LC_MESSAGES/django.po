@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 1.6\n"
+"Project-Id-Version: Creme Reports 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 15:32+0100\n"
+"POT-Creation-Date: 2017-08-12 15:17+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,23 +19,24 @@ msgstr ""
 msgid "Reports"
 msgstr "Rapports"
 
-#: apps.py:78
+#: apps.py:81
 msgid "Portal of reports"
 msgstr "Portail des rapports"
 
-#: apps.py:79
+#: apps.py:82
 msgid "All reports"
 msgstr "Liste des rapports"
 
-#: apps.py:84 apps.py:88
+#: apps.py:87 apps.py:91
 msgid "Analysis"
 msgstr "Analyse"
 
-#: blocks.py:39 templates/reports/templatetags/block_report_fields.html:6
+#: bricks.py:43 templates/reports/bricks/fields.html:24
+#: templates/reports/templatetags/block_report_fields.html:9
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
 
-#: blocks.py:59
+#: bricks.py:64
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
@@ -148,7 +149,8 @@ msgstr "Valeur agrégée (champ personnalisé)"
 msgid "Related field"
 msgstr "Champ relatif"
 
-#: forms/blocks.py:37
+#: forms/blocks.py:37 templates/reports/bricks/graph.html:65
+#: templates/reports/bricks/graphs.html:110
 msgid "Volatile column"
 msgstr "Colonne volatile"
 
@@ -174,11 +176,11 @@ msgstr "Relations"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/bulk.py:35 forms/report.py:145
+#: forms/bulk.py:35 forms/report.py:144
 msgid "All"
 msgstr "Tout"
 
-#: forms/bulk.py:55 forms/bulk.py:88 forms/report.py:153
+#: forms/bulk.py:55 forms/bulk.py:88 forms/report.py:152
 msgid "The filter cannot be changed because it is private."
 msgid_plural "The filters cannot be changed because they are private."
 msgstr[0] "Le filtre ne peut pas être changé car il est privé."
@@ -230,12 +232,12 @@ msgid "Make a count instead of aggregate ?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
 #: forms/graph.py:76 models/graph.py:39
-#: templates/reports/templatetags/block_report_graphs.html:18
+#: templates/reports/templatetags/block_report_graphs.html:21
 msgid "X axis"
 msgstr "Axe X"
 
 #: forms/graph.py:77 models/graph.py:40
-#: templates/reports/templatetags/block_report_graphs.html:19
+#: templates/reports/templatetags/block_report_graphs.html:22
 msgid "Y axis"
 msgstr "Axe Y"
 
@@ -281,11 +283,11 @@ msgstr ""
 "Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est disponible) "
 "vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
-#: forms/report.py:92
+#: forms/report.py:90
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:93
+#: forms/report.py:92
 msgid ""
 "If you select a view of list, the columns of the report will be copied from "
 "it."
@@ -293,39 +295,38 @@ msgstr ""
 "Si vous sélectionnez une vue de liste, les colonnes du rapport seront "
 "copiées depuis celle-ci."
 
-#: forms/report.py:97 models/report.py:43
-#: templates/reports/frags/report_preview_format.html:15
+#: forms/report.py:96 models/report.py:43
 msgid "Filter"
 msgstr "Filtre"
 
 # from creme_core
-#: forms/report.py:111 forms/report.py:115
+#: forms/report.py:110 forms/report.py:114
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix ne fait pas partie de ceux "
 "disponibles."
 
-#: forms/report.py:159
+#: forms/report.py:158
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:269
+#: forms/report.py:268
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/report.py:325
+#: forms/report.py:324
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:326
+#: forms/report.py:325
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:327
+#: forms/report.py:326
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:330
+#: forms/report.py:329
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -333,7 +334,7 @@ msgstr ""
 "Si vous choisisser un Champ date et sélectionnez «Personnalisé» vous devez "
 "spécifier une date de début et/ou une date de fin."
 
-#: forms/report.py:345
+#: forms/report.py:344
 msgctxt "reports-date_filter"
 msgid "None"
 msgstr "Aucun"
@@ -393,7 +394,7 @@ msgstr "Créer un rapport"
 msgid "Save the report"
 msgstr "Enregistrer le rapport"
 
-#: models/report.py:55 templates/reports/preview_report.html:20
+#: models/report.py:55
 msgid "Report"
 msgstr "Rapport"
 
@@ -409,7 +410,7 @@ msgstr "Colonne de rapport"
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
-#: populate.py:45
+#: populate.py:44
 msgid "Report view"
 msgstr "Vue de Rapport"
 
@@ -429,7 +430,8 @@ msgstr "Maximum"
 msgid "Sum"
 msgstr "Somme"
 
-#: report_chart_registry.py:51
+#: report_chart_registry.py:51 templates/reports/bricks/graph.html:54
+#: templates/reports/bricks/graphs.html:99
 msgid "Histogram"
 msgstr "Histogramme"
 
@@ -441,6 +443,205 @@ msgstr "Camembert"
 msgid "Tube"
 msgstr "Barres empilées 100%"
 
+#: templates/reports/bricks/fields.html:29
+#: templates/reports/templatetags/block_report_fields.html:13
+msgid "Edit the columns"
+msgstr "Modifier les colonnes"
+
+#: templates/reports/bricks/fields.html:35
+#: templates/reports/templatetags/block_report_fields.html:33
+msgid "Column"
+msgstr "Colonne"
+
+#: templates/reports/bricks/fields.html:36
+#: templates/reports/templatetags/block_report_fields.html:34
+msgid "Displayed in the report"
+msgstr "Affiché dans le rapport"
+
+#: templates/reports/bricks/fields.html:37
+#: templates/reports/bricks/graphs.html:68
+#: templates/reports/templatetags/block_report_fields.html:35
+msgid "Type"
+msgstr "Type"
+
+# Already in creme_core
+#: templates/reports/bricks/fields.html:38
+msgid "Action"
+msgstr ""
+
+#: templates/reports/bricks/fields.html:40
+#: templates/reports/templatetags/block_report_fields.html:37
+msgid "Expand?"
+msgstr "Développer ?"
+
+#: templates/reports/bricks/fields.html:43
+#: templates/reports/templatetags/block_report_fields.html:115
+msgid "No column set for the moment"
+msgstr "Aucune colonne définie pour le moment"
+
+#: templates/reports/bricks/fields.html:56
+#: templates/reports/templatetags/block_report_fields.html:44
+msgid "[hidden]"
+msgstr "[caché]"
+
+#: templates/reports/bricks/fields.html:60
+#: templates/reports/templatetags/block_report_fields.html:47
+msgid "Columns of"
+msgstr "Colonnes de"
+
+#: templates/reports/bricks/fields.html:62
+#: templates/reports/templatetags/block_report_fields.html:49
+msgid "Value"
+msgstr "Valeur"
+
+#: templates/reports/bricks/fields.html:70
+#: templates/reports/templatetags/block_report_fields.html:62
+#: templates/reports/templatetags/block_report_fields.html:64
+msgid "Unlink the report"
+msgstr "Délier le rapport"
+
+#: templates/reports/bricks/fields.html:72
+#: templates/reports/templatetags/block_report_fields.html:69
+#: templates/reports/templatetags/block_report_fields.html:71
+msgid "Link a report"
+msgstr "Lier un rapport"
+
+#: templates/reports/bricks/graph.html:17
+#: templates/reports/bricks/graph.html:60
+#: templates/reports/bricks/graphs.html:16
+#: templates/reports/bricks/graphs.html:105
+#: templates/reports/templatetags/report_chart_selectors.html:14
+msgid "Ascending"
+msgstr "Ascendant"
+
+#: templates/reports/bricks/graph.html:18
+#: templates/reports/bricks/graphs.html:17
+#: templates/reports/templatetags/report_chart_selectors.html:15
+msgid "Descending"
+msgstr "Descendant"
+
+#: templates/reports/bricks/graph.html:39
+#: templates/reports/bricks/graph.html:52
+#: templates/reports/bricks/graphs.html:97
+#: templates/reports/templatetags/block_report_graph.html:9
+#: templates/reports/templatetags/report_chart_selectors.html:4
+msgctxt "reports-graphs"
+msgid "Graph"
+msgstr "Graphique"
+
+#: templates/reports/bricks/graph.html:44
+msgid "View"
+msgstr "Voir"
+
+#: templates/reports/bricks/graph.html:45
+msgid "Reload"
+msgstr "Recharger"
+
+#: templates/reports/bricks/graph.html:53
+#: templates/reports/bricks/graphs.html:98
+msgid "Select the type of visualisation for this graph"
+msgstr "Sélectionner le type de visualisation du graphique"
+
+#: templates/reports/bricks/graph.html:58
+#: templates/reports/bricks/graphs.html:103
+#: templates/reports/templatetags/report_chart_selectors.html:12
+msgid "Sorting"
+msgstr "Tri"
+
+#: templates/reports/bricks/graph.html:59
+#: templates/reports/bricks/graphs.html:104
+msgid "Select the sort order"
+msgstr "Sélectionner l'ordre de tri"
+
+#: templates/reports/bricks/graph.html:90
+#: templates/reports/templatetags/block_report_graph.html:64
+msgid "No values or graph is not applicable here"
+msgstr "Aucune valeur ou le graphique n'est pas utilisable ici"
+
+#: templates/reports/bricks/graphs.html:55
+msgctxt "reports-graphs"
+msgid "Graphs"
+msgstr "Graphiques"
+
+#: templates/reports/bricks/graphs.html:56
+#, python-brace-format
+msgid "{count} Graph"
+msgstr "{count} Graphique"
+
+#: templates/reports/bricks/graphs.html:56
+#, python-brace-format
+msgid "{count} Graphs"
+msgstr "{count} Graphiques"
+
+#: templates/reports/bricks/graphs.html:61
+#: templates/reports/templatetags/block_report_graphs.html:12
+msgid "Create a new graph"
+msgstr "Créer un nouveau graphique"
+
+#: templates/reports/bricks/graphs.html:65
+#: templates/reports/templatetags/block_report_graphs.html:20
+msgid "Name"
+msgstr "Nom"
+
+#: templates/reports/bricks/graphs.html:69
+#: templates/reports/templatetags/block_report_graphs.html:23
+msgid "Actions"
+msgstr "Actions"
+
+#: templates/reports/bricks/graphs.html:74
+#: templates/reports/templatetags/block_report_graphs.html:26
+msgid "Expand"
+msgstr "Agrandir"
+
+#: templates/reports/bricks/graphs.html:75
+msgid "Close"
+msgstr "Fermer"
+
+#: templates/reports/bricks/graphs.html:90
+msgid "Delete this graph"
+msgstr "Supprimer ce graphique"
+
+#: templates/reports/bricks/graphs.html:115
+#: templates/reports/templatetags/block_report_graphs.html:27
+msgid "Create a block with this graph"
+msgstr "Créer un bloc à partir de ce graphique"
+
+#: templates/reports/bricks/graphs.html:138
+#: templates/reports/templatetags/block_report_graphs.html:101
+msgid "No graphs registered for the moment"
+msgstr "Aucun graphique enregistré pour le moment"
+
+#: templates/reports/bricks/preview.html:8
+#: templates/reports/bricks/report-hat-bar.html:7
+#: templates/reports/preview_report.html:44
+msgid "Preview"
+msgstr "Aperçu"
+
+#: templates/reports/bricks/preview.html:10
+#: templates/reports/bricks/preview.html:12
+#, python-brace-format
+msgid "Preview ({count} line)"
+msgstr "Aperçu ({count} ligne)"
+
+#: templates/reports/bricks/preview.html:10
+#, python-brace-format
+msgid "Preview ({count} lines)"
+msgstr "Aperçu ({count} lignes)"
+
+#: templates/reports/bricks/preview.html:12
+#, python-brace-format
+msgid "Preview of the {count} first lines"
+msgstr "Aperçu des {count} premières lignes"
+
+#: templates/reports/bricks/report-hat-bar.html:11
+#, python-format
+msgid "Download «%(object)s»"
+msgstr "Télécharger «%(object)s»"
+
+#: templates/reports/bricks/report-hat-bar.html:12
+msgid "Download CSV"
+msgstr "Télécharger CSV"
+
 #: templates/reports/frags/graph_errors.html:5
 #, python-format
 msgid "Invalid abscissa: %(error)s"
@@ -451,7 +652,7 @@ msgstr "Abscisse invalide : %(error)s"
 msgid "Invalid ordinate: %(error)s"
 msgstr "Ordonnée invalide : %(error)s"
 
-#: templates/reports/frags/report_preview_format.html:6
+#: templates/reports/frags/report_preview_format.html:5
 msgid "Export parameters"
 msgstr "Paramètres d'export"
 
@@ -463,49 +664,24 @@ msgstr "Portail Rapports"
 msgid "List of reports"
 msgstr "Liste des rapports"
 
-#: templates/reports/preview_report.html:5
+#: templates/reports/preview_report.html:4
 #, python-format
 msgid "Preview %(object)s"
 msgstr "Aperçu %(object)s"
 
-#: templates/reports/preview_report.html:23
+#: templates/reports/preview_report.html:20
+#: templates/reports/view_graph.html:13
+msgid "Back to the report"
+msgstr "Retour au rapport"
+
+#: templates/reports/preview_report.html:34
 #, python-format
-msgid "Preview %(verbose_name)s: %(title)s"
-msgstr "Aperçu %(verbose_name)s : %(title)s"
-
-#: templates/reports/preview_report.html:29
-#: templates/reports/view_graph.html:24
-#, python-format
-msgid "Back to the detailview: '%(report)s'"
-msgstr "Retour sur la fiche : '%(report)s'"
-
-#: templates/reports/preview_report.html:29
-#: templates/reports/view_graph.html:24
-msgid "Back"
-msgstr "Retour"
-
-#: templates/reports/preview_report.html:44
-#: templates/reports/preview_report.html:55
-#: templates/reports/view_report.html:7
-msgid "Preview"
-msgstr "Aperçu"
+msgid "Preview of the report «%(title)s»"
+msgstr "Aperçu du rapport : «%(title)s»"
 
 #: templates/reports/preview_report.html:45
-#: templates/reports/view_report.html:11
-msgid "Download CSV"
-msgstr "Télécharger CSV"
-
-#: templates/reports/preview_report.html:57
-#, python-format
-msgid "Preview of %(lines_count)s line"
-msgid_plural "Preview of %(lines_count)s lines"
-msgstr[0] "Aperçu de %(lines_count)s ligne"
-msgstr[1] "Aperçu des %(lines_count)s lignes"
-
-#: templates/reports/preview_report.html:59
-#, python-format
-msgid "Preview of the %(limit_to)s first lines"
-msgstr "Aperçu des %(limit_to)s premières lignes"
+msgid "Download as file"
+msgstr "Télécharger en tant que fichier"
 
 #: templates/reports/reports_hands_widget.html:7
 msgid "Related entities"
@@ -527,180 +703,79 @@ msgstr "Aucun champ n'est utilisable pour une agrégation."
 msgid "No custom field is usable for aggregation."
 msgstr "Aucun champ personnalisé n'est utilisable pour une agrégation."
 
-#: templates/reports/templatetags/block_report_fields.html:10
-msgid "Edit the columns"
-msgstr "Modifier les colonnes"
-
-#: templates/reports/templatetags/block_report_fields.html:19
-#: templates/reports/templatetags/block_report_graphs.html:22
+#: templates/reports/templatetags/block_report_fields.html:22
+#: templates/reports/templatetags/block_report_graphs.html:25
 msgid "Can't edit"
 msgstr "Modification interdite"
 
-#: templates/reports/templatetags/block_report_fields.html:29
+#: templates/reports/templatetags/block_report_fields.html:32
 msgid "#"
 msgstr "#"
 
-#: templates/reports/templatetags/block_report_fields.html:30
-msgid "Column"
-msgstr "Colonne"
-
-#: templates/reports/templatetags/block_report_fields.html:31
-msgid "Displayed in the report"
-msgstr "Affiché dans le rapport"
-
-#: templates/reports/templatetags/block_report_fields.html:32
-msgid "Type"
-msgstr "Type"
-
-#: templates/reports/templatetags/block_report_fields.html:33
+#: templates/reports/templatetags/block_report_fields.html:36
 msgid "Action(s)"
 msgstr "Action(s)"
 
-#: templates/reports/templatetags/block_report_fields.html:34
-msgid "Expand ?"
-msgstr "Développer ?"
-
-#: templates/reports/templatetags/block_report_fields.html:41
-msgid "[hidden]"
-msgstr "[caché]"
-
-#: templates/reports/templatetags/block_report_fields.html:44
-msgid "Columns of"
-msgstr "Colonnes de"
-
-#: templates/reports/templatetags/block_report_fields.html:46
-msgid "Value"
-msgstr "Valeur"
-
-#: templates/reports/templatetags/block_report_fields.html:59
-#: templates/reports/templatetags/block_report_fields.html:61
-msgid "Unlink the report"
-msgstr "Délier le rapport"
-
-#: templates/reports/templatetags/block_report_fields.html:66
-#: templates/reports/templatetags/block_report_fields.html:68
-msgid "Link a report"
-msgstr "Lier un rapport"
-
-#: templates/reports/templatetags/block_report_fields.html:74
+#: templates/reports/templatetags/block_report_fields.html:77
 msgid "Column up"
 msgstr "Monter la colonne"
 
-#: templates/reports/templatetags/block_report_fields.html:84
+#: templates/reports/templatetags/block_report_fields.html:87
 msgid "Column down"
 msgstr "Descendre la colonne"
 
-#: templates/reports/templatetags/block_report_fields.html:112
-msgid "No column set for the moment"
-msgstr "Aucune colonne définie pour le moment"
-
-#: templates/reports/templatetags/block_report_graph.html:8
-#: templates/reports/templatetags/report_chart_selectors.html:4
-msgctxt "reports-graphs"
-msgid "Graph"
-msgstr "Graphique"
-
-#: templates/reports/templatetags/block_report_graph.html:16
+#: templates/reports/templatetags/block_report_graph.html:17
 #, python-format
 msgid "Go to %(graph)s's file"
 msgstr "Aller sur la fiche de %(graph)s"
 
-#: templates/reports/templatetags/block_report_graph.html:21
+#: templates/reports/templatetags/block_report_graph.html:22
 #, python-format
 msgid "Volatile column : %(vc)s"
 msgstr "Colonne volatile : %(vc)s"
 
-#: templates/reports/templatetags/block_report_graph.html:63
-msgid "No values or graph is not applicable here"
-msgstr "Aucune valeur ou le graphique n'est pas utilisable ici"
-
-#: templates/reports/templatetags/block_report_graphs.html:6
+#: templates/reports/templatetags/block_report_graphs.html:9
 #, python-format
 msgid "%s Graph"
 msgstr "%s Graphique"
 
-#: templates/reports/templatetags/block_report_graphs.html:6
+#: templates/reports/templatetags/block_report_graphs.html:9
 #, python-format
 msgid "%s Graphs"
 msgstr "%s Graphiques"
 
-#: templates/reports/templatetags/block_report_graphs.html:9
-msgid "Create a new graph"
-msgstr "Créer un nouveau graphique"
-
-#: templates/reports/templatetags/block_report_graphs.html:17
-msgid "Name"
-msgstr "Nom"
-
-#: templates/reports/templatetags/block_report_graphs.html:20
-msgid "Actions"
-msgstr "Actions"
-
-#: templates/reports/templatetags/block_report_graphs.html:22
+#: templates/reports/templatetags/block_report_graphs.html:25
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/reports/templatetags/block_report_graphs.html:23
-msgid "Expand"
-msgstr "Agrandir"
-
-#: templates/reports/templatetags/block_report_graphs.html:23
+#: templates/reports/templatetags/block_report_graphs.html:26
 msgid "Reduce"
 msgstr "Réduire"
 
-#: templates/reports/templatetags/block_report_graphs.html:24
-msgid "Create a block with this graph"
-msgstr "Créer un bloc à partir de ce graphique"
-
-#: templates/reports/templatetags/block_report_graphs.html:24
+#: templates/reports/templatetags/block_report_graphs.html:27
 msgid "Can't create block"
 msgstr "Création de bloc interdite"
-
-#: templates/reports/templatetags/block_report_graphs.html:98
-msgid "No graphs registered for the moment"
-msgstr "Aucun graphique enregistré pour le moment"
-
-#: templates/reports/templatetags/report_chart_selectors.html:12
-msgid "Sorting"
-msgstr "Tri"
-
-#: templates/reports/templatetags/report_chart_selectors.html:14
-msgid "Ascending"
-msgstr "Ascendant"
-
-#: templates/reports/templatetags/report_chart_selectors.html:15
-msgid "Descending"
-msgstr "Descendant"
 
 #: templates/reports/templatetags/report_chart_selectors.html:21
 msgid "Regenerate"
 msgstr "Générer à nouveau"
 
-#: templates/reports/view_graph.html:6
+#: templates/reports/view_graph.html:4
 #, python-format
 msgid "Rendered %(object)s"
 msgstr "Aperçu %(object)s"
 
-#: templates/reports/view_graph.html:16
+#: templates/reports/view_graph.html:28
 #, python-format
 msgid "Rendered %(verbose_name)s : %(title)s"
 msgstr "Aperçu %(verbose_name)s : %(title)s"
 
-#: templates/reports/view_graph.html:17
+#: templates/reports/view_graph.html:29
 msgid "deleted"
 msgstr "supprimé"
 
-#: templates/reports/view_report.html:7
-#, python-format
-msgid "Preview of the report : '%(object)s'"
-msgstr "Aperçu du rapport : '%(object)s'"
-
-#: templates/reports/view_report.html:10 templates/reports/view_report.html:11
-#, python-format
-msgid "Download «%(object)s»"
-msgstr "Télécharger «%(object)s»"
-
 #: views/blocks.py:49
+#, python-format
 msgid "Create an instance block for «%s»"
 msgstr "Créer un bloc d'instance pour «%s»"
 
@@ -754,24 +829,36 @@ msgstr "Choisir un champ d'abscisse"
 msgid "Number of reports"
 msgstr "Nombre de rapport(s)"
 
-#: views/report.py:139
+#: views/report.py:141
 #, python-format
 msgid "Link of the column «%s»"
 msgstr "Liaison de la colonne «%s»"
 
-#: views/report.py:140
+#: views/report.py:142
 msgid "Link"
 msgstr "Lier"
 
-#: views/report.py:152
+#: views/report.py:154
 #, python-format
 msgid "Edit columns of «%s»"
 msgstr "Modifier les colonnes de «%s»"
 
 # Already in creme_core
-#: views/report.py:154
+#: views/report.py:156
 msgid "Save the modifications"
 msgstr ""
+
+#~ msgid "Preview %(verbose_name)s: %(title)s"
+#~ msgstr "Aperçu %(verbose_name)s : %(title)s"
+
+#~ msgid "Back to the detailview: '%(report)s'"
+#~ msgstr "Retour sur la fiche : '%(report)s'"
+
+#~ msgid "Back"
+#~ msgstr "Retour"
+
+#~ msgid "Preview of the {count} first line"
+#~ msgstr "Aperçu des {count} premières lignes"
 
 #~ msgid "Add new graph"
 #~ msgstr "Ajouter un nouveau graphique"
@@ -808,9 +895,6 @@ msgstr ""
 
 #~ msgid "Generate"
 #~ msgstr "Générer"
-
-#~ msgid "Download"
-#~ msgstr "Télécharger CSV"
 
 #~ msgid "Related graph"
 #~ msgstr "Graphique relatif"

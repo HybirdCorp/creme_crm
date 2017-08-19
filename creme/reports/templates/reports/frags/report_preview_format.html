@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
 <table class="table_detail_view ui-corner-all with-header">
     <thead>
         <tr>
@@ -8,11 +7,15 @@
     </thead>
     <tbody>
         <tr class="content">
-            <td width="10%">{{form.doc_type.label}}</td>
+            <td width="10%">
+                <label for="{{form.doc_type.auto_id}}">{{form.doc_type.label}}</label>
+            </td>
             <td>{{form.doc_type.errors}}{{form.doc_type}}</td>
         </tr>
         <tr class="content">
-            <td width="10%">{% trans 'Filter' %}</td>
+            <td width="10%">
+                <label for="{{form.date_filter.auto_id}}">{{form.date_filter.label}}</label>
+            </td>
             <td>
                 {{form.date_filter.errors}}
                 <ul class="ui-layout hbox">
