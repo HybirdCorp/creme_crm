@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 15:54+0100\n"
+"POT-Creation-Date: 2017-08-12 15:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,17 +18,21 @@ msgstr ""
 msgid "Tickets"
 msgstr "Tickets"
 
-#: apps.py:73
+#: apps.py:74
 msgid "Portal of tickets"
 msgstr "Portail des tickets"
 
-#: apps.py:74
+#: apps.py:75
 msgid "All tickets"
 msgstr "Lister les tickets"
 
-#: apps.py:80
+#: apps.py:81
 msgid "Tools"
 msgstr "Outils"
+
+#: bricks.py:30
+msgid "Information on the ticket"
+msgstr "Informations sur le ticket"
 
 #: buttons.py:32
 msgid "Is linked to a ticket"
@@ -102,7 +106,7 @@ msgstr "Statut de ticket"
 msgid "Ticket statuses"
 msgstr "Statuts de ticket"
 
-#: models/ticket.py:43 templates/tickets/templatetags/block_ticket.html:37
+#: models/ticket.py:43 templates/tickets/templatetags/block_ticket.html:39
 msgid "Resolving duration"
 msgstr "Temps de résolution"
 
@@ -167,63 +171,63 @@ msgstr "Patron de ticket"
 msgid "Ticket templates"
 msgstr "Patrons de ticket"
 
-#: populate.py:53
+#: populate.py:50
 msgid "is linked to the ticket"
 msgstr "est lié au ticket"
 
-#: populate.py:54
+#: populate.py:51
 msgid "(ticket) linked to the entity"
 msgstr "(ticket) lié à la fiche"
 
-#: populate.py:71
+#: populate.py:68
 msgid "Ticket view"
 msgstr "Vue de Ticket"
 
-#: populate.py:82
+#: populate.py:79
 msgid "Ticket template view"
 msgstr "Vue de patron de ticket"
 
-#: populate.py:99
+#: populate.py:96
 msgid "Low"
 msgstr "Basse"
 
-#: populate.py:99
+#: populate.py:96
 msgid "Normal"
 msgstr "Normale"
 
-#: populate.py:99
+#: populate.py:96
 msgid "High"
 msgstr "Haute"
 
-#: populate.py:99
+#: populate.py:96
 msgid "Urgent"
 msgstr "Urgente"
 
-#: populate.py:99
+#: populate.py:96
 msgid "Blocking"
 msgstr "Bloquante"
 
-#: populate.py:102
+#: populate.py:99
 msgid "Minor"
 msgstr "Mineure"
 
-#: populate.py:102
+#: populate.py:99
 msgid "Major"
 msgstr "Majeure"
 
-#: populate.py:102
+#: populate.py:99
 msgid "Feature"
 msgstr "Fonctionnalité"
 
-#: populate.py:102
+#: populate.py:99
 msgid "Critical"
 msgstr "Critique"
 
-#: populate.py:102
+#: populate.py:99
 msgid "Enhancement"
 msgstr "Amélioration"
 
-#: populate.py:102
+#: populate.py:99
 msgid "Error"
 msgstr "Erreur"
 
@@ -235,21 +239,21 @@ msgstr "Portail Ticket"
 msgid "List of tickets"
 msgstr "Liste des tickets"
 
-#: templates/tickets/templatetags/block_ticket.html:7
+#: templates/tickets/templatetags/block_ticket.html:9
 #, python-format
 msgid "Information %s"
 msgstr "Informations %s"
 
-#: templates/tickets/templatetags/block_ticket.html:8
+#: templates/tickets/templatetags/block_ticket.html:10
 msgid "Information"
 msgstr "Informations"
 
-#: templates/tickets/templatetags/button_linked.html:5
-#: templates/tickets/templatetags/button_linked.html:10
+#: templates/tickets/templatetags/button_linked.html:7
+#: templates/tickets/templatetags/button_linked.html:13
 msgid "Link to a ticket"
 msgstr "Lier à un ticket"
 
-#: templates/tickets/templatetags/button_linked.html:8
+#: templates/tickets/templatetags/button_linked.html:10
 msgid "forbidden"
 msgstr "interdit"
 

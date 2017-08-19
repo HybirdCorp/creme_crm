@@ -41,10 +41,11 @@ class TicketsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Ticket)
 
-    def register_blocks(self, block_registry):
-        from .blocks import TicketBlock
+    def register_bricks(self, brick_registry):
+        from .bricks import TicketBrick
 
-        block_registry.register_4_model(self.Ticket, TicketBlock())
+        # brick_registry.register_4_model(self.Ticket, TicketBlock())
+        brick_registry.register_4_model(self.Ticket, TicketBrick)
 
     def register_buttons(self, button_registry):
         from .buttons import linked_2_ticket_button

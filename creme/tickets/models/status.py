@@ -32,10 +32,10 @@ DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
 BASE_STATUS = ((OPEN_PK,        pgettext_lazy('tickets-status', u'Open')),
-               (CLOSED_PK,      _('Closed')),
-               (INVALID_PK,     _('Invalid')),
-               (DUPLICATED_PK,  _('Duplicated')),
-               (WONTFIX_PK,     _("Won't fix")),
+               (CLOSED_PK,      _(u'Closed')),
+               (INVALID_PK,     _(u'Invalid')),
+               (DUPLICATED_PK,  _(u'Duplicated')),
+               (WONTFIX_PK,     _(u"Won't fix")),
               )
 
 
@@ -43,7 +43,7 @@ class Status(CremeModel):
     "Status of a ticket: open, closed, invalid..."
     name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
-    order     = BasicAutoField(_('Order'))  # Used by creme_config
+    order     = BasicAutoField(_(u'Order'))  # Used by creme_config
 
     creation_label = pgettext_lazy('tickets-status', u'Create a status')
 
@@ -53,5 +53,5 @@ class Status(CremeModel):
     class Meta:
         app_label = 'tickets'
         verbose_name = _(u'Ticket status')
-        verbose_name_plural  = _(u'Ticket statuses')
+        verbose_name_plural = _(u'Ticket statuses')
         ordering = ('order',)

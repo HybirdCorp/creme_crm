@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ from .status import Status, OPEN_PK, CLOSED_PK
 
 
 class _ResolvingDurationField(FunctionField):
-    name         = "get_resolving_duration"
+    name         = 'get_resolving_duration'
     verbose_name = _(u'Resolving duration')
 
 
@@ -81,8 +81,8 @@ class AbstractTicket(TicketMixin):
 
     function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
 
-    creation_label = _('Create a ticket')
-    save_label     = _('Save the ticket')
+    creation_label = _(u'Create a ticket')
+    save_label     = _(u'Save the ticket')
 
     class Meta:
         abstract = True
@@ -152,8 +152,8 @@ class Ticket(AbstractTicket):
 
 class AbstractTicketTemplate(TicketMixin):
     """Used by 'recurrents' app if it is installed"""
-    creation_label = _('Create a ticket template')
-    save_label     = _('Save the ticket template')
+    creation_label = _(u'Create a ticket template')
+    save_label     = _(u'Save the ticket template')
 
     class Meta:
         abstract = True
