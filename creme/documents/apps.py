@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,14 +42,15 @@ class DocumentsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Document, self.Folder)
 
-    def register_blocks(self, block_registry):
-        from . import blocks
+    def register_bricks(self, brick_registry):
+        from . import bricks
 
-        block_registry.register_4_model(self.Document, blocks.DocumentBlock())
-        block_registry.register(blocks.folder_docs_block,
-                                blocks.child_folders_block,
-                                blocks.linked_docs_block,
+        brick_registry.register_4_model(self.Document, bricks.DocumentBrick)
+        brick_registry.register(bricks.FolderDocsBrick,
+                                bricks.ChildFoldersBrick,
+                                bricks.LinkedDocsBrick,
                                )
+        brick_registry.register_hat(self.Document, main_brick_cls=bricks.DocumentBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.folder import ParentFolderBulkForm

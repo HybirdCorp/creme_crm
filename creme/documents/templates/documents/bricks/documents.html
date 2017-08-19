@@ -1,0 +1,50 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} documents-documents-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Contained document') plural=_('{count} Contained documents') empty=_('Contained documents') icon='document' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% url 'creme_core__listview_popup' as lv_url %}
+{% templatize '{{lv_url}}?ct_id={{objects_ctype.id}}&q_filter={{q_filter}}' as action_uri %}
+    {% brick_header_action id='view' url=action_uri label=_('List of documents') icon='search' %} {# class='contained-doc-search' #}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='title' status='primary' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for doc in page.object_list %}
+    {% has_perm_to change doc as edit_perm %}
+    {% has_perm_to delete doc as delete_perm %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink doc user %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='redirect' url=doc.get_edit_absolute_url label=_('Edit this document') icon='edit' enabled=edit_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=doc.get_delete_absolute_url label=_('Delete this document') enabled=delete_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No document in this folder for the moment' %}
+{% endblock %}
+
+{% comment %} TODO: improve style (creme_core VS documents)
+{% block brick_script %}
+<style>
+    .documents-documents-brick .brick-header-button.contained-doc-search,
+    .documents-documents-brick .brick-header-button.contained-doc-search:hover {
+        color: orange;
+    }
+</style>
+{% endblock %}
+{% endcomment %}

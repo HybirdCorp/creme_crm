@@ -1,0 +1,11 @@
+{% extends 'creme_core/bricks/generic/hat-bar.html' %}
+{% load i18n creme_widgets %}
+
+{% block buttons %}
+    <div class='bar-action'>
+        <a href="{% url 'creme_core__dl_file' object.filedata %}" class="bar-button">
+            {% widget_icon name='download' size='brick-hat-bar-button' label=_('Download the file') %}
+        </a>
+    </div>
+    {{block.super}}
+{% endblock %}

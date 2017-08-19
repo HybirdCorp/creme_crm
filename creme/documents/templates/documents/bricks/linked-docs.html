@@ -1,0 +1,49 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks creme_ctype %}
+
+{% block brick_extra_class %}{{block.super}} documents-linked-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Linked document') plural=_('{count} Linked documents') empty=_('Linked documents') icon='document' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object %}
+        {% ctype_for_swappable 'DOCUMENTS_DOCUMENT_MODEL' as ct_doc %}
+        {% has_perm_to create ct_doc as creation_perm %}
+        {% has_perm_to link object as link_perm %}
+        {% has_perm_to link ct_doc.model_class as doc_link_perm %}
+        {% url 'documents__create_related_document' object.id as create_url %}
+        {% brick_header_action id='add' url=create_url label=_('Create a document') enabled=creation_perm|and_op:link_perm|and_op:doc_link_perm %}
+        {% brick_header_action id='add-relationships' label=_('Link to an existing document') icon='link' enabled=link_perm|and_op:doc_link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=ct_doc.id __multiple=True %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') primary=True %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to unlink object as unlink_perm %}
+{% url 'creme_core__delete_relation' as del_rel_url %}
+    {% for relation in page.object_list %}
+    {% with relation.object_entity as doc %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink doc user %}</td>
+        <td {% brick_table_data_status action %}>
+            {% has_perm_to view doc as doc_view_perm %}{% url 'creme_core__dl_file' doc.filedata as dl_url %}
+            {% brick_table_action id='redirect' url=dl_url icon='download' enabled=doc_view_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% has_perm_to unlink doc as doc_unlink_perm %}
+            {% brick_table_action id='delete' url=del_rel_url __id=relation.pk label=_('Unlink this document') icon='unlink' enabled=unlink_perm|and_op:doc_unlink_perm %}
+        </td>
+    </tr>
+    {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No linked document' %}
+{% endblock %}

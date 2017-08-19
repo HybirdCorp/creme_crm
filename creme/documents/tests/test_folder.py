@@ -5,8 +5,10 @@ try:
 
     from django.conf import settings
     from django.core.urlresolvers import reverse
-    from django.utils.encoding import smart_str, smart_unicode
+    # from django.utils.encoding import smart_str, smart_unicode
     from django.utils.translation import ugettext as _
+
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder, Folder
     from creme.documents.models import FolderCategory
@@ -16,7 +18,7 @@ except Exception as e:
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-class FolderTestCase(_DocumentsTestCase):
+class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         # _DocumentsTestCase.setUpClass()
@@ -412,11 +414,14 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertPOST403(folder.get_delete_absolute_url())
         self.assertStillExists(folder)
 
-    def test_block(self):
-        "Block which display contained docs"
-        from creme.documents.blocks import folder_docs_block
+    # def test_block(self):
+    def test_brick(self):
+        "Brick which display contained docs"
+        # from creme.documents.blocks import folder_docs_block
+        from creme.documents.bricks import FolderDocsBrick
 
-        folder_docs_block.page_size = max(4, settings.BLOCK_SIZE)
+        # folder_docs_block.page_size = max(4, settings.BLOCK_SIZE)
+        FolderDocsBrick.page_size = max(4, settings.BLOCK_SIZE)
 
         folder = Folder.objects.create(user=self.user, title='PDF',
                                        description='Contains PDF files',
@@ -432,21 +437,28 @@ class FolderTestCase(_DocumentsTestCase):
 
         doc4.trash()
 
-        content = self.assertGET200(folder.get_absolute_url()).content
-        block_start_index = content.find(smart_str('id="%s"' % folder_docs_block.id_))
-        self.assertNotEqual(-1, block_start_index)
-
-        body_start_index = content.find('<tbody class="collapsable">', block_start_index)
-        self.assertNotEqual(-1, body_start_index)
-
-        end_index = content.find('</tbody>', body_start_index)
-        self.assertNotEqual(-1, end_index)
-
-        block_str = smart_unicode(content[body_start_index:end_index])
-        self.assertIn(doc1.title, block_str)
-        self.assertIn(doc2.title, block_str)
-        self.assertNotIn(doc3.title, block_str)
-        # self.assertNotIn(doc4.title, block_str) TODO (see blocks.py)
+        # content = self.assertGET200(folder.get_absolute_url()).content
+        # block_start_index = content.find(smart_str('id="%s"' % folder_docs_block.id_))
+        # self.assertNotEqual(-1, block_start_index)
+        #
+        # # body_start_index = content.find('<tbody class="collapsable">', block_start_index)
+        # body_start_index = content.find('<tbody>', block_start_index)
+        # self.assertNotEqual(-1, body_start_index)
+        #
+        # end_index = content.find('</tbody>', body_start_index)
+        # self.assertNotEqual(-1, end_index)
+        #
+        # block_str = smart_unicode(content[body_start_index:end_index])
+        # self.assertIn(doc1.title, block_str)
+        # self.assertIn(doc2.title, block_str)
+        # self.assertNotIn(doc3.title, block_str)
+        # # self.assertNotIn(doc4.title, block_str)
+        response = self.assertGET200(folder.get_absolute_url())
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), FolderDocsBrick.id_)
+        self.assertInstanceLink(brick_node, doc1)
+        self.assertInstanceLink(brick_node, doc2)
+        self.assertInstanceLink(brick_node, doc4)  # TODO: see bricks.py
+        self.assertNoInstanceLink(brick_node, doc3)
 
     def test_merge01(self):
         user = self.user
