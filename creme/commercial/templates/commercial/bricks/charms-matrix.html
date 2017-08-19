@@ -1,0 +1,43 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_core_tags creme_bricks commercial_tags %}
+
+{% block brick_extra_class %}{{block.super}} commercial-matrix-brick commercial-charms-matrix-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Charms / Segments matrix') %}
+{% endblock %}
+
+{% block brick_content %}
+<table class="brick-table-content charm-matrix">
+    {% if segment_info and charms %}
+    <thead>
+        <tr>
+            <th>&nbsp;</th>
+            {% for segment_desc in segment_info %}
+            <th class="segment-title">{{segment_desc}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for charm in charms %}
+        <tr>
+            <td class="charm-title">{{charm}}</td>
+            {% for segment_desc in segment_info %}
+            <td class="charm-score-selector">{% commercial_widget_charm_score segment_desc charm %}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr class="charm-score-total">
+            <td class="charm-title">{% trans 'Total' %}</td>
+            {% for total in totals %}
+            <td class="strategy-cat" data-score="{{total.1}}">{{total.0}}</td>
+            {% endfor %}
+        </tr>
+    </tbody>
+    {% elif charms %}
+    <thead><tr><th>{% trans 'No market segment charm for the moment' %}</th></tr><thead>
+    {% else %}
+    <thead><tr><th>{% trans 'No market segment for the moment' %}</th></tr></thead>
+    {% endif %}
+</table>
+{% endblock %}

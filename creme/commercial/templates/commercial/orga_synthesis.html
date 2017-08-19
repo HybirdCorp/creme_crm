@@ -1,15 +1,15 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_block creme_core_tags %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_widgets creme_bricks %}
 
 {% block page_title %}{% blocktrans %}Synthesis of «{{orga}}»{% endblocktrans %} - {% endblock %}
 
 {% block before_content_1 %}
-    <div class=zone_spacer_5px>
-        <ul class="button_list hbox">
+    <div class="buttons-list global-buttons">
+        <ul>
             <li>
-                <a class="menu_button" href="{{strategy.get_absolute_url}}">
-                    {% trans "Back to the strategy" as label %}<img src="{% creme_media_url 'images/previous_32.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
+                <a class="menu_button" href="{{strategy.get_absolute_url}}">{% trans 'Back to the strategy' as back_label %}
+                    {% widget_icon name='previous' label=back_label %}
+                    {{back_label}}
                 </a>
             </li>
         </ul>
@@ -18,17 +18,17 @@
 
 {% block content %}
     {% block view_title %}
-        <table class="table_header" cellpadding="0" cellspacing="0">
-            <tr>
-                <td width="5%">{% trans "Organisation" as img_title %}<img src="{% creme_media_url 'images/organisation_64.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" /></td>
-                <td width="95%"><h1>{% blocktrans %}Synthesis of «{{orga}}» by «{{strategy}}»{% endblocktrans %}</h1></td>
-            </tr>
-        </table>
+        <div class="hat-bar-container">
+            <div class="hat-bar">
+                <div class="bar-icon">{% widget_icon name='organisation' size='brick-hat-bar' label=_('Organisation') %}</div>
+                <div class="bar-title"><h1>{% blocktrans %}Synthesis of «{{orga}}» by «{{strategy}}»{% endblocktrans %}</h1></div>
+            </div>
+        </div>
     {% endblock %}
 
-    <div class=zone_spacer_5px></div>
+{#    <div class="zone_spacer_5px"></div> #}
 
-    {% import_block from_app 'commercial' named 'assets_charms_matrix' as 'assets_charms_matrix_block' %}
-    {% display_block_detailview 'assets_charms_matrix_block' %}
-    {% get_blocks_dependencies %}
+    {% brick_import app='commercial' name='assets_charms_matrix' as assets_charms_matrix_brick %}
+    {% brick_display assets_charms_matrix_brick %}
+    {% brick_end %}
 {% endblock %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,21 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.views import bricks
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404, jsonify
 from creme.creme_core.views import generic
-from creme.creme_core.views.blocks import build_context
 
 from creme.persons import get_organisation_model
 
 from .. import get_strategy_model
 from ..constants import DEFAULT_HFILTER_STRATEGY
-from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
+from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
 from ..forms import strategy as forms
 from ..models import (MarketSegment, MarketSegmentDescription, CommercialAsset, CommercialAssetScore,
         MarketSegmentCharm, MarketSegmentCharmScore)
@@ -136,7 +139,7 @@ def add_evalorga(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
                                  ugettext(u'New organisation(s) for «%s»'),
                                  entity_class=Strategy,
-                                 submit_label=_('Link the organisation(s)'),
+                                 submit_label=_(u'Link the organisation(s)'),
                                 )
 
 
@@ -176,7 +179,7 @@ def delete_evalorga(request, strategy_id):
     MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
 
     if request.is_ajax():
-        return HttpResponse('', content_type='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(strategy)
 
@@ -202,7 +205,12 @@ def _orga_view(request, strategy_id, orga_id, template):
                             'orga': orga, 'strategy': strategy}
                      )
 
-    return render(request, template, {'orga': orga, 'strategy': strategy})
+    return render(request, template,
+                  context={'orga': orga,
+                           'strategy': strategy,
+                           'bricks_reload_url': reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+                          },
+                 )
 
 
 def orga_evaluation(request, strategy_id, orga_id):
@@ -230,7 +238,7 @@ def _set_score(request, strategy_id, method_name):
     except Exception as e:
         raise Http404(str(e))
 
-    return HttpResponse('', content_type='text/javascript')
+    return HttpResponse(content_type='text/javascript')
 
 
 def set_asset_score(request, strategy_id):
@@ -264,19 +272,65 @@ def set_segment_category(request, strategy_id):
 @permission_required('commercial')
 @jsonify
 def _reload_matrix(request, strategy_id, orga_id, block):
+    warnings.warn('commercial.views.strategy._reload_matrix() is now deprecated.', DeprecationWarning)
+
+    from creme.creme_core.views import blocks
+
     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
-    context = build_context(request, orga=orga, strategy=strategy)
+    context = blocks.build_context(request, orga=orga, strategy=strategy)
 
     return [(block.id_, block.detailview_display(context))]
 
 
 def reload_assets_matrix(request, strategy_id, orga_id):
-    return _reload_matrix(request, strategy_id, orga_id, assets_matrix_block)
+    warnings.warn("commercial.views.strategy.reload_assets_matrix() is now deprecated. "
+                  "Use commercial.views.strategy.reload_matrix_brick view instead"
+                  "[ie: reverse('commercial__reload_evaluation_brick', args=(strategy.id, orga.id)) ].",
+                  DeprecationWarning
+                 )
+
+    return _reload_matrix(request, strategy_id, orga_id, AssetsMatrixBrick())
 
 
 def reload_charms_matrix(request, strategy_id, orga_id):
-    return _reload_matrix(request, strategy_id, orga_id, charms_matrix_block)
+    warnings.warn("commercial.views.strategy.reload_charms_matrix() is now deprecated. "
+                  "Use commercial.views.strategy.reload_matrix_brick view instead"
+                  "[ie: reverse('commercial__reload_evaluation_brick', args=(strategy.id, orga.id)) ].",
+                  DeprecationWarning
+                 )
+
+    return _reload_matrix(request, strategy_id, orga_id, CharmsMatrixBrick())
 
 
 def reload_assets_charms_matrix(request, strategy_id, orga_id):
-    return _reload_matrix(request, strategy_id, orga_id, assets_charms_matrix_block)
+    warnings.warn("commercial.views.strategy.reload_assets_charms_matrix() is now deprecated. "
+                  "Use commercial.views.strategy.reload_matrix_brick view instead"
+                  "[ie: reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)) ].",
+                  DeprecationWarning
+                 )
+
+    return _reload_matrix(request, strategy_id, orga_id, AssetsCharmsMatrixBrick())
+
+
+@login_required
+@permission_required('commercial')
+@jsonify
+def reload_matrix_brick(request, strategy_id, orga_id):
+    brick_id = get_from_GET_or_404(request.GET, 'brick_id')
+
+    if brick_id == AssetsMatrixBrick.id_:
+        brick = AssetsMatrixBrick()
+    elif brick_id == CharmsMatrixBrick.id_:
+        brick = CharmsMatrixBrick()
+    elif brick_id == AssetsCharmsMatrixBrick.id_:
+        brick = AssetsCharmsMatrixBrick()
+    else:
+        raise Http404('Invalid brick ID')
+
+    strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
+    # context = bricks.build_context(request, orga=orga, strategy=strategy)
+    #
+    # return [(brick.id_, brick.detailview_display(context))]
+    return bricks.bricks_render_info(request, bricks=[brick],
+                                     context=bricks.build_context(request, orga=orga, strategy=strategy),
+                                    )

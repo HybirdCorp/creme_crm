@@ -9,10 +9,12 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import CremePropertyType
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
+    # from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
+    from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
     from ..models import (CommercialAsset, CommercialAssetScore,
             MarketSegmentCharm, MarketSegmentCharmScore,
             MarketSegment, MarketSegmentCategory, MarketSegmentDescription)
@@ -22,7 +24,7 @@ except Exception as e:
 
 
 @skipIfCustomStrategy
-class StrategyTestCase(CommercialBaseTestCase):
+class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
     def _build_link_segment_url(self, strategy):
         # return '/commercial/strategy/%s/link/segment/' % strategy.id
         return reverse('commercial__link_segment', args=(strategy.id,))
@@ -388,17 +390,35 @@ class StrategyTestCase(CommercialBaseTestCase):
         #                                 )
         #                             )
         response = self.assertGET200(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
-        # self.assertTemplateUsed(response, 'commercial/templatetags/widget_score.html') #TODO: do not work ??
-        self.assertContains(response, '<select name="asset_score_%s_%s"' % (asset.id, segment_desc.id))
-        self.assertContains(response, '<select name="charm_score_%s_%s"' % (charm.id, segment_desc.id))
+        # self.assertTemplateUsed(response, 'commercial/templatetags/widget_score.html')
+        self.assertTemplateUsed(response, 'commercial/templatetags/widget-score.html')
+        # self.assertContains(response, '<select name="asset_score_%s_%s"' % (asset.id, segment_desc.id))
+        self.assertContains(response,
+                            """<select onchange="creme.commercial.setScore(this, '{url}', {asset_id}, {segment_id}, {orga_id});">""".format(
+                                url=reverse('commercial__set_asset_score', args=(strategy.id,)),
+                                asset_id=asset.id,
+                                segment_id=segment_desc.id,
+                                orga_id=orga.id,
+                            ),
+                           )
+        # self.assertContains(response, '<select name="charm_score_%s_%s"' % (charm.id, segment_desc.id))
+        self.assertContains(response,
+                            """<select onchange="creme.commercial.setScore(this, '{url}', {asset_id}, {segment_id}, {orga_id});">""".format(
+                                    url=reverse('commercial__set_charm_score', args=(strategy.id,)),
+                                    asset_id=charm.id,
+                                    segment_id=segment_desc.id,
+                                    orga_id=orga.id,
+                            ),
+                           )
 
         # response = self.assertGET200('/commercial/strategy/%s/organisation/%s/synthesis' % (
         #                                     strategy.id, orga.id
         #                                 )
         #                             )
         response = self.assertGET200(reverse('commercial__orga_synthesis', args=(strategy.id, orga.id)))
-        # self.assertTemplateUsed(response, 'commercial/templatetags/widget_category.html') #TODO: do not work ??
-        self.assertContains(response, '<select name="segment_catselect_%s"' % segment_desc.id)
+        # self.assertTemplateUsed(response, 'commercial/templatetags/widget_category.html') #todo: do not work ??
+        # self.assertContains(response, '<select name="segment_catselect_%s"' % segment_desc.id)
+        self.assertContains(response, '<li data-segment="%s"' % segment_desc.id)
 
     @skipIfCustomOrganisation
     def test_delete_evaluated_orga(self):
@@ -776,7 +796,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertGET(400, build_url(segment_desc, 'segment'))
 
     @skipIfCustomOrganisation
-    def test_reload_assets_matrix(self):
+    def test_reload_assets_matrix_legacy(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         segment_desc = self._create_segment_desc(strategy, 'Industry')
         asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
@@ -801,11 +821,41 @@ class StrategyTestCase(CommercialBaseTestCase):
         result = result[0]
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
-        self.assertEqual(assets_matrix_block.id_, result[0])
-        self.assertIn(' id="%s"' % assets_matrix_block.id_, result[1])
+        # self.assertEqual(assets_matrix_block.id_, result[0])
+        self.assertEqual(AssetsMatrixBrick.id_, result[0])
+        # self.assertIn(' id="%s"' % assets_matrix_block.id_, result[1])
+        self.get_brick_node(self.get_html_tree(result[1]), AssetsMatrixBrick.id_)
 
     @skipIfCustomOrganisation
-    def test_reload_charms_matrix(self):
+    def test_reload_assets_matrix(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment_desc = self._create_segment_desc(strategy, 'Industry')
+        asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+        self._set_asset_score(strategy, orga, asset, segment_desc, 1)
+
+        brick_id = AssetsMatrixBrick.id_
+        response = self.assertGET200(reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+                                     data={'brick_id': brick_id},
+                                    )
+
+        with self.assertNoException():
+            result = load_json(response.content)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+
+        result = result[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+        self.assertEqual(brick_id, result[0])
+        # self.assertIn(' id="%s"' % brick_id, result[1])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+
+    @skipIfCustomOrganisation
+    def test_reload_charms_matrix_legacy(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         segment_desc = self._create_segment_desc(strategy, 'Industry')
         charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
@@ -825,11 +875,36 @@ class StrategyTestCase(CommercialBaseTestCase):
             result = load_json(response.content)
 
         result = result[0]
-        self.assertEqual(charms_matrix_block.id_, result[0])
-        self.assertIn(' id="%s"' % charms_matrix_block.id_, result[1])
+        brick_id = CharmsMatrixBrick.id_
+        self.assertEqual(brick_id, result[0])
+        # self.assertIn(' id="%s"' % brick_id, result[1])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
     @skipIfCustomOrganisation
-    def test_reload_assets_charms_matrix(self):
+    def test_reload_charms_matrix(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment_desc = self._create_segment_desc(strategy, 'Industry')
+        charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+        self._set_charm_score(strategy, orga, charm, segment_desc, 1)
+
+        brick_id = CharmsMatrixBrick.id_
+        response = self.assertGET200(reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+                                     data={'brick_id': brick_id},
+                                    )
+
+        with self.assertNoException():
+            result = load_json(response.content)
+
+        result = result[0]
+        self.assertEqual(brick_id, result[0])
+        # self.assertIn(' id="%s"' % brick_id, result[1])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+
+    @skipIfCustomOrganisation
+    def test_reload_assets_charms_matrix_legacy(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         segment_desc = self._create_segment_desc(strategy, 'Industry')
         asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
@@ -851,5 +926,33 @@ class StrategyTestCase(CommercialBaseTestCase):
             result = load_json(response.content)
 
         result = result[0]
-        self.assertEqual(assets_charms_matrix_block.id_, result[0])
-        self.assertIn(' id="%s"' % assets_charms_matrix_block.id_, result[1])
+        brick_id = AssetsCharmsMatrixBrick.id_
+        self.assertEqual(brick_id, result[0])
+        # self.assertIn(' id="%s"' % brick_id, result[1])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+
+    @skipIfCustomOrganisation
+    def test_reload_assets_charms_matrix(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment_desc = self._create_segment_desc(strategy, 'Industry')
+        asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
+        charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self._set_asset_score(strategy, orga, asset, segment_desc, 1)
+        self._set_charm_score(strategy, orga, charm, segment_desc, 1)
+
+        brick_id = AssetsCharmsMatrixBrick.id_
+        response = self.assertGET200(reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+                                     data={'brick_id': brick_id},
+                                    )
+
+        with self.assertNoException():
+            result = load_json(response.content)
+
+        result = result[0]
+        self.assertEqual(brick_id, result[0])
+        # self.assertIn(' id="%s"' % brick_id, result[1])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)

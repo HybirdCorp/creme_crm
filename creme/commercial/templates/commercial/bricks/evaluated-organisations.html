@@ -1,0 +1,42 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} brick-commercial-eval-orgas{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Evaluated organisation') plural=_('{count} Evaluated organisation') empty=_('Organisations') icon='organisation' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}{% url 'commercial__add_evaluated_orgas' object.id as add_orgas_url %}
+    {% brick_header_action id='link' url=add_orgas_url label=_('Add some organisations') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
+    {% brick_table_column title=_('See evaluation') status='action nowrap' class='orga-evaluation' %}
+    {% brick_table_column title=_('See synthesis') status='action nowrap' class='orga-synthesis' %}
+    {% brick_table_column title=_('Unlink') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}
+    {% for orga in page.object_list %}{% has_perm_to view orga as orga_view_perm %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink orga user %}</td>
+        <td {% brick_table_data_status action %}>{% url 'commercial__orga_evaluation' object.id orga.id as eval_url %}
+            {% brick_table_action id='redirect' url=eval_url icon='view' enabled=orga_view_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>{% url 'commercial__orga_synthesis' object.id orga.id as synthesis_url %}
+            {% brick_table_action id='redirect' url=synthesis_url icon='view' enabled=orga_view_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>{% url 'commercial__remove_evaluated_orga' object.id as remove_orga_url %}
+            {% brick_table_action id='delete' url=remove_orga_url __id=orga.id label=_('Remove this organisation') icon='unlink' enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No evaluated organisation for the moment' %}
+{% endblock %}

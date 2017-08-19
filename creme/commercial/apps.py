@@ -49,10 +49,24 @@ class CommercialConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Act, self.Pattern, self.Strategy)
 
-    def register_blocks(self, block_registry):
-        from .blocks import blocks_list
+    def register_bricks(self, brick_registry):
+        # from .bricks import blocks_list
+        from . import bricks
 
-        block_registry.register(*blocks_list)
+        # brick_registry.register(*blocks_list)
+        brick_registry.register(bricks.ApproachesBrick,
+                                bricks.SegmentsBrick,
+                                bricks.SegmentDescriptionsBrick,
+                                bricks.AssetsBrick,
+                                bricks.CharmsBrick,
+                                bricks.EvaluatedOrgasBrick,
+                                bricks.AssetsMatrixBrick,
+                                bricks.CharmsMatrixBrick,
+                                bricks.AssetsCharmsMatrixBrick,
+                                bricks.ActObjectivesBrick,
+                                bricks.RelatedOpportunitiesBrick,
+                                bricks.PatternComponentsBrick,
+                               )
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import ActObjectivePatternComponent, MarketSegmentDescription

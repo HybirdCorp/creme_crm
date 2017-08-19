@@ -1,0 +1,47 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} commercial-approaches-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Commercial approach') plural=_('{count} Commercial approaches') empty=_('Commercial approaches') icon='commercial' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object %}
+        {% has_perm_to change object as has_perm %}{% url 'commercial__create_approach' object.id as create_url %}
+        {% brick_header_action id='add' url=create_url label=_('New commercial approach') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='title' status='primary nowrap' class='approaches-title' %}
+
+    {% if not object %}
+    {% brick_table_column title=_('Related entity') %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='description' title=_('Details') class='approaches-details' %}
+    {% brick_table_column title=_('Generate from') status='nowrap' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for approach in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% print_field object=approach field='title' %}</td>
+        {% if not object %}
+            <td>{% widget_entity_hyperlink approach.creme_entity user %}</td>
+        {% endif %}
+        <td>{% print_field object=approach field='description' %}</td>
+        <td>
+            <a href="{{approach.related_activity.get_absolute_url|default:approach.creme_entity.get_absolute_url}}">
+                {{approach.related_activity|default:approach.creme_entity|default:_('Nothing')}}
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No commercial approach for the moment' %}
+{% endblock %}

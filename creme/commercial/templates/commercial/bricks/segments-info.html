@@ -1,0 +1,46 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} commercial-segments-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Market segment') plural=_('{count} Market segments') empty=_('Market segments') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}
+    {% url 'commercial__create_segment_desc' object.id as create_url %}{% brick_header_action id='add'  url=create_url label=_('New segment')           enabled=has_perm %}
+    {% url 'commercial__link_segment'        object.id as link_url   %}{% brick_header_action id='link' url=link_url   label=_('Add existing segments') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') status='primary nowrap' %}
+    {% brick_table_column title=_('Product') %}
+    {% brick_table_column title=_('Place') %}
+    {% brick_table_column title=_('Price') %}
+    {% brick_table_column title=_('Promotion') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' ct_id as delete_url %}
+    {% for segmentinfo in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{segmentinfo.segment.name}}</td>
+        <td>{{segmentinfo.product}}</td>
+        <td>{{segmentinfo.place}}</td>
+        <td>{{segmentinfo.price}}</td>
+        <td>{{segmentinfo.promotion}}</td>
+        <td {% brick_table_data_status action %}>{% url 'commercial__edit_segment_desc' object.id segment_desc.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this segment') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=segmentinfo.id label=_('Remove this segment') icon='unlink' enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No market segment for the moment' %}
+{% endblock %}

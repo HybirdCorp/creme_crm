@@ -13,6 +13,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeOrganisation
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
     # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (CremeEntity, Relation,
             BlockPortalLocation, SettingValue, Job, JobResult)  # CremeProperty
@@ -30,7 +31,7 @@ try:
     from creme.opportunities.models import SalesPhase
     from creme.opportunities.tests import skipIfCustomOpportunity
 
-    from ..blocks import approaches_block
+    from ..bricks import ApproachesBrick
     from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
         # IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED
     # from ..management.commands.com_approaches_emails_send import Command as EmailsSendCommand
@@ -41,7 +42,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class CommercialApproachTestCase(CremeTestCase):
+class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         # CremeTestCase.setUpClass()
@@ -58,6 +59,17 @@ class CommercialApproachTestCase(CremeTestCase):
 
     def _build_entity_field(self, entity):
         return '[{"ctype": {"id": "%s"}, "entity":"%s"}]' % (entity.entity_type_id, entity.id)
+
+    def _get_commap_brick_node(self, response):
+        tree = self.get_html_tree(response.content)
+        return self.get_brick_node(tree, ApproachesBrick.id_)
+
+    def _get_commap_titles(self, response):
+        # tree = self.get_tree(response.content)
+        # brick_node = self.get_brick_node(tree, ApproachesBlock.id_)
+        brick_node = self._get_commap_brick_node(response)
+
+        return {elt.text for elt in brick_node.findall('.//td[@data-table-primary-column]')}
 
     def test_createview(self):
         entity = CremeEntity.objects.create(user=self.user)
@@ -216,8 +228,6 @@ class CommercialApproachTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_sync_with_activity(self):
-        #self.login()
-
         user = self.user
         title = 'meeting #01'
         description = 'Stuffs about the fighting'
@@ -258,8 +268,9 @@ class CommercialApproachTestCase(CremeTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     @skipIfCustomOpportunity
-    def test_block01(self):
-        approaches_block.page_size = 5
+    # def test_block01(self):
+    def test_brick01(self):
+        ApproachesBrick.page_size = 5  # TODO: ugly (page_size has a brick instance attribute ?)
 
         sv = SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
         self.assertTrue(sv.value)
@@ -289,37 +300,55 @@ class CommercialApproachTestCase(CremeTestCase):
 
         url = orga.get_absolute_url()
         response = self.assertGET200(url)
-        self.assertContains(response, ' id="%s"' % approaches_block.id_)
-        self.assertContains(response, commapp1.title)
-        self.assertNotContains(response, commapp2.title)
-        self.assertNotContains(response, commapp3.title)
-        self.assertNotContains(response, commapp4.title)
+        # self.assertContains(response, ' id="%s"' % ApproachesBlock.id_)
+        # self.assertContains(response, commapp1.title)
+        # self.assertNotContains(response, commapp2.title)
+        # self.assertNotContains(response, commapp3.title)
+        # self.assertNotContains(response, commapp4.title)
+
+        # brick_id = ApproachesBlock.id_
+        # tree = self.get_tree(response.content)
+        # brick_node = self.get_brick_node(tree, brick_id)
+        #
+        # titles = {elt.text for elt in brick_node.findall('.//td[@data-table-primary-column]')}
+        titles = self._get_commap_titles(response)
+        self.assertIn(commapp1.title, titles)
+        self.assertNotIn(commapp2.title, titles)
+        self.assertNotIn(commapp3.title, titles)
+        self.assertNotIn(commapp4.title, titles)
 
         # -------
         sv.value = False
         sv.save()
 
         response = self.assertGET200(url)
-        self.assertContains(response, ' id="%s"' % approaches_block.id_)
-        self.assertContains(response, commapp1.title)
-        self.assertContains(response, commapp2.title)
-        self.assertContains(response, commapp3.title)
-        self.assertContains(response, commapp4.title)
+        # self.assertContains(response, ' id="%s"' % ApproachesBlock.id_)
+        # self.assertContains(response, commapp1.title)
+        # self.assertContains(response, commapp2.title)
+        # self.assertContains(response, commapp3.title)
+        # self.assertContains(response, commapp4.title)
+        titles = self._get_commap_titles(response)
+        self.assertIn(commapp1.title, titles)
+        self.assertIn(commapp2.title, titles)
+        self.assertIn(commapp3.title, titles)
+        self.assertIn(commapp4.title, titles)
 
     def test_block02(self):
         "Home"
-        BlockPortalLocation.create(app_name='creme_core', block_id=approaches_block.id_, order=100)
+        BlockPortalLocation.create(app_name='creme_core', block_id=ApproachesBrick.id_, order=100)
 
         response = self.assertGET200('/')
-        self.assertContains(response, ' id="%s"' % approaches_block.id_)
+        # self.assertContains(response, ' id="%s"' % ApproachesBlock.id_)
+        self._get_commap_brick_node(response)
 
     def test_block03(self):
         "Commercial portal"
-        BlockPortalLocation.create(app_name='commercial', block_id=approaches_block.id_, order=100)
+        BlockPortalLocation.create(app_name='commercial', block_id=ApproachesBrick.id_, order=100)
 
         # response = self.assertGET200('/commercial/')
         response = self.assertGET200(reverse('commercial__portal'))
-        self.assertContains(response, ' id="%s"' % approaches_block.id_)
+        # self.assertContains(response, ' id="%s"' % ApproachesBlock.id_)
+        self._get_commap_brick_node(response)
 
     def _send_mails(self):
         # EmailsSendCommand().execute(verbosity=0)

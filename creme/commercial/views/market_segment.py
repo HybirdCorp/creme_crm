@@ -20,6 +20,7 @@
 
 import logging
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
@@ -40,7 +41,7 @@ logger = logging.getLogger(__name__)
 def add(request):
     return generic.add_model_with_popup(request, segment_forms.MarketSegmentForm,
                                         title=_(u'New market segment'),
-                                        submit_label=_('Save the market segment'),
+                                        submit_label=_(u'Save the market segment'),
                                        )
 
 
@@ -55,7 +56,9 @@ def edit(request, segment_id):
 @login_required
 @permission_required('commercial')
 def listview(request):
-    return render(request, 'commercial/list_segments.html')
+    return render(request, 'commercial/list_segments.html',
+                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+                 )
 
 
 @login_required
@@ -73,7 +76,7 @@ def delete(request, segment_id):
         return generic.add_model_with_popup(request, segment_forms.SegmentReplacementForm,
                                             _(u'Delete and replace «%s»') % segment,
                                             initial={'segment_to_delete': segment},
-                                            submit_label=_('Replace'),
+                                            submit_label=_(u'Replace'),
                                            )
     except Exception:
         logger.exception('Error in MarketSegment deletion view')

@@ -1,0 +1,43 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_core_tags creme_bricks commercial_tags %}
+
+{% block brick_extra_class %}{{block.super}} commercial-matrix-brick commercial-assets-matrix-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Assets / Segments matrix') %}
+{% endblock %}
+
+{% block brick_content %}
+<table class="brick-table-content asset-matrix">
+    {% if segment_info and assets %}
+    <thead>
+        <tr>
+            <th>&nbsp;</th>
+            {% for segment_desc in segment_info %}
+            <th class="segment-title">{{segment_desc}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in assets %}
+        <tr>
+            <td class="asset-title">{{asset}}</td>
+            {% for segment_desc in segment_info %}
+            <td class="asset-score-selector">{% commercial_widget_asset_score segment_desc asset %}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr class="asset-score-total">
+            <td class="asset-title">{% trans 'Total' %}</td>
+            {% for total in totals %}
+            <td class="strategy-cat" data-score="{{total.1}}">{{total.0}}</td>
+            {% endfor %}
+        </tr>
+    </tbody>
+    {% elif assets %}
+    <thead><tr><th>{% trans 'No commercial asset for the moment' %}</th></tr><thead>
+    {% else %}
+    <thead><tr><th>{% trans 'No market segment for the moment' %}</th></tr></thead>
+    {% endif %}
+</table>
+{% endblock %}

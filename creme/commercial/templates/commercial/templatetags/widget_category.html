@@ -1,4 +1,7 @@
-{% load i18n creme_block %}
+{% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/commercial/templates/commercial/templatetags/widget_category.html" is deprecated.' level='WARN' %}
+
 {# <select name="segment_catselect_{{segment_desc.id}}" {% if not has_perm %}disabled="true"{% else %}onchange="creme.commercial.postCategory('/commercial/strategy/{{strategy.id}}/set_segment_cat', {{segment_desc.id}}, {{orga.id}}, this, {% get_block_reload_uri %});"{% endif %}> #}
 <select name="segment_catselect_{{segment_desc.id}}" {% if not has_perm %}disabled="true"{% else %}onchange="creme.commercial.postCategory('{% url 'commercial__set_segment_category' strategy.id %}', {{segment_desc.id}}, {{orga.id}}, this, {% get_block_reload_uri %});"{% endif %}>
     <option value="1" {% if category == 1 %}selected{% endif %}>{% trans "Priority segment" %}</option>
