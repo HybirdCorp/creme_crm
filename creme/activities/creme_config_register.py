@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import models, blocks
+from . import models, bricks
 from .forms import activity_type as type_forms
 from .forms.calendar import CalendarConfigForm
 
@@ -11,4 +11,4 @@ to_register = ((models.ActivityType,    'activity_type',     type_forms.Activity
                (models.Calendar,        'calendar',          CalendarConfigForm),
               )
 
-userblocks_to_register = (blocks.user_calendars_block,)
+userblocks_to_register = (bricks.UserCalendarsBrick,)

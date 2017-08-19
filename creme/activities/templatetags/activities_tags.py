@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django import template
 from django.utils.translation import ugettext as _
 from django.utils.html import escape
@@ -29,6 +31,9 @@ from .. import constants
 from ..models import ActivityType
 
 
+warnings.warn('The templatetag library "activities_tag" is deprecated.', DeprecationWarning)
+
+
 register = template.Library()
 
 _ICON_MAP = {constants.ACTIVITYTYPE_MEETING:      'meeting',
@@ -37,11 +42,10 @@ _ICON_MAP = {constants.ACTIVITYTYPE_MEETING:      'meeting',
             }
 
 
-# TODO : test
 @register.simple_tag
 def get_activity_icon(activity_type_id, size='big'):
-    """{% get_activity_icon activity 'big' %}"""
-    path = creme_media_themed_url("images/%s_%s.png" % (_ICON_MAP.get(activity_type_id, 'calendar'),
+    """{% get_activity_icon my_activity.type_id 'big' %}"""
+    path = creme_media_themed_url('images/%s_%s.png' % (_ICON_MAP.get(activity_type_id, 'calendar'),
                                                         ICON_SIZE_MAP[size],
                                                        )
                                  )
@@ -49,7 +53,7 @@ def get_activity_icon(activity_type_id, size='big'):
     try:
         title = escape(ActivityType.objects.get(pk=activity_type_id).name)
     except ActivityType.DoesNotExist:
-        title = _('Error')
+        title = _(u'Error')
 
     return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
                 'src':   path,

@@ -1,9 +1,9 @@
-{% load i18n %}
-{% load creme_core_tags creme_widgets creme_block activities_tags %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}{# activities_tags #}
 
+{% comment %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
-        <td width="5%">{% get_activity_icon object.type.pk %}</td>
+        <td width="5%">{% widget_icon instance=object size='big' %}</td>
         <td width="70%">
             <h1>
                 {% block title %}
@@ -15,31 +15,40 @@
         </td>
     </tr>
 </table>
+{% endcomment %}
 
-<a id="full_file" href="{{object.get_absolute_url}}">{% trans "Full detailview" %}</a>
+{% url 'creme_core__reload_detailview_bricks' object.id as bricks_reload_url %}{% url_join bricks_reload_url base_url=request.path as bricks_reload_uri %}
+<div class="activities-activity-popup-content" data-bricks-reload-url="{{bricks_reload_uri}}">
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{% widget_icon instance=object size='brick-hat-bar' %}</div>
+            <div class="bar-title">
+                <h1>
+                {% block title %}
+                    {{object.type.name}} : {{object|capfirst}}
+                {% endblock %}
+                </h1>
+            </div>
+        </div>
+    </div>
 
-{% import_object_block as 'object_block' %}
-{% import_block from_app 'creme_core' named 'customfields' as 'customfields_block' %}
-{% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
-{% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
-{% import_block from_app 'activities' named 'participants' as 'participants_block' %}
-{% import_block from_app 'activities' named 'related_calendar' as 'related_calendar_block' %}
-{% import_block from_app 'activities' named 'subjects' as 'subjects_block' %}
+    <a id="full_file" class="complete-detailview" href="{{object.get_absolute_url}}">{% trans 'Full detailview' %}</a>
 
-<table width="100%">
-    <tr>
-        <td width="50%" valign="top">
-            {% display_block_detailview 'object_block' %}
-        </td>
-        <td valign="top">
-            {% display_block_detailview 'participants_block' %}
-            {% display_block_detailview 'subjects_block' %}
-            {% display_block_detailview 'related_calendar_block' %}
-            {% display_block_detailview 'relations_block' %}
-            {% display_block_detailview 'properties_block' %}
-            {% display_block_detailview 'customfields_block' %}
-        </td>
-    </tr>
-</table>
+    {% brick_import object=object as object_brick %}
+    {% brick_import app='creme_core' name='customfields' as customfields_brick %}
+    {% brick_import app='creme_core' name='relations' as relations_brick %}
+    {% brick_import app='creme_core' name='properties' as properties_brick %}
+    {% brick_import app='activities' name='participants' as participants_brick %}
+    {% brick_import app='activities' name='related_calendar' as related_calendar_brick %}
+    {% brick_import app='activities' name='subjects' as subjects_brick %}
 
-{% get_blocks_dependencies %}
+    <div class="column column-first">
+        {% brick_display object_brick %}
+    </div>
+
+    <div class="column column-second">
+        {% brick_display participants_brick subjects_brick related_calendar_brick relations_brick properties_brick customfields_brick %}
+    </div>
+
+    {% brick_end %}
+</div>

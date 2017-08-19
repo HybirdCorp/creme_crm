@@ -1,5 +1,7 @@
-{% load i18n %}
-{% load creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
+
+{% log '"creme/activities/templates/activities/templatetags/activity_relations_field.html" is deprecated.' level='WARN' %}
+
 {% with relations|length as count %}
     {% if not count %}
         {% trans "No entity" %}

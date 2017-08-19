@@ -1,0 +1,16 @@
+{% extends 'activities/bricks/base/activities.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} activities-past-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% if is_home %}
+        {% brick_header_title title=_('{count} Past activity for me') plural=_('{count} Past activities for me') empty=_('Past activities') icon='calendar' %}
+    {% else %}
+        {% brick_header_title title=_('{count} Past related activity') plural=_('{count} Past related activities') empty=_('Past activities') icon='calendar' %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% trans 'No past related activity for the moment' %}
+{% endblock %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _, pgettext, ungettext
 
 from creme.creme_core.apps import CremeAppConfig
 
-from .constants import ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL
+from . import constants
 
 
 class ActivitiesConfig(CremeAppConfig):
@@ -44,10 +44,17 @@ class ActivitiesConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Activity)
 
-    def register_blocks(self, block_registry):
-        from .blocks import block_list
+    def register_bricks(self, brick_registry):
+        from . import bricks
 
-        block_registry.register(*block_list)
+        brick_registry.register(bricks.ParticipantsBrick,
+                                bricks.SubjectsBrick,
+                                bricks.FutureActivitiesBrick,
+                                bricks.PastActivitiesBrick,
+                                bricks.UserCalendarsBrick,
+                                bricks.RelatedCalendarBrick,
+                               )
+        brick_registry.register_hat(self.Activity, main_brick_cls=bricks.ActivityBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.activity_type import BulkEditTypeForm
@@ -60,20 +67,23 @@ class ActivitiesConfig(CremeAppConfig):
                                      )
 
     def register_buttons(self, button_registry):
-        from .buttons import (add_activity_button, add_meeting_button,
-                add_phonecall_button, add_task_button)
+        from . import buttons
 
-        button_registry.register(add_activity_button, add_meeting_button,
-                                 add_phonecall_button, add_task_button,
+        button_registry.register(buttons.add_activity_button,
+                                 buttons.add_meeting_button,
+                                 buttons.add_phonecall_button,
+                                 buttons.add_task_button,
                                 )
 
     def register_icons(self, icon_registry):
-        icon_registry.register(self.Activity, 'images/calendar_%(size)s.png')
+        Activity = self.Activity
+        icon_registry.register(Activity, 'images/calendar_%(size)s.png')
+        icon_registry.register_4_instance(Activity, lambda instance: constants.ICONS.get(instance.type_id))
 
     def register_mass_import(self, import_form_registry):
-        from .forms.mass_import import get_massimport_form_builder
+        from .forms import mass_import
 
-        import_form_registry.register(self.Activity, get_massimport_form_builder)
+        import_form_registry.register(self.Activity, mass_import.get_massimport_form_builder)
 
     def register_menu(self, creme_menu):
         from django.conf import settings
@@ -136,13 +146,11 @@ class ActivitiesConfig(CremeAppConfig):
                       .add_link('activities-create_unavailability', label=_(u'Unavailability'), url=reverse('activities__create_indispo'),                       perm=creation_perm, priority=25)
 
     def register_smart_columns(self, smart_columns_registry):
-        from .constants import REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT
-
         smart_columns_registry.register_model(self.Activity) \
                               .register_field('title') \
                               .register_field('start') \
-                              .register_relationtype(REL_OBJ_PART_2_ACTIVITY) \
-                              .register_relationtype(REL_OBJ_ACTIVITY_SUBJECT)
+                              .register_relationtype(constants.REL_OBJ_PART_2_ACTIVITY) \
+                              .register_relationtype(constants.REL_OBJ_ACTIVITY_SUBJECT)
 
     def register_setting_key(self, setting_key_registry):
         from . import setting_keys
@@ -157,11 +165,11 @@ class ActivitiesConfig(CremeAppConfig):
         act_filter = Activity.objects.filter
 
         def meetings_count():
-            count = act_filter(type=ACTIVITYTYPE_MEETING).count()
+            count = act_filter(type=constants.ACTIVITYTYPE_MEETING).count()
             return ungettext(u'%s meeting', u'%s meetings', count) % count
 
         def phone_calls_count():
-            count = act_filter(type=ACTIVITYTYPE_PHONECALL).count()
+            count = act_filter(type=constants.ACTIVITYTYPE_PHONECALL).count()
             return ungettext(u'%s phone call', u'%s phone calls', count) % count
 
         statistics_registry.register(

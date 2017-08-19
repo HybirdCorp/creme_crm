@@ -1,0 +1,95 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} activities-list-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title='{count} Activity' plural='{count} Activities for me' empty='Activities' icon='calendar' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object %}
+        {% has_perm_to link object as link_perm %}
+        {% brick_header_action id='add-relationships' label=_('Link to an activity') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=rtype_id __ctype_id=objects_ctype.id __multiple=True %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_list_content %}
+{% url 'activities__unlink_activity' as unlink_url %}
+    {% for activity in page.object_list %}
+    <div class="brick-list-item activity-item">
+        <div class="activity-group activity-summary-group">
+            <div class="activity-group-key">
+                {% with start_date=activity.start|date:'SHORT_DATE_FORMAT' end_date=activity.end|date:'SHORT_DATE_FORMAT' start_hour=activity.start|date:'H\hi' end_hour=activity.end|date:'H\hi' %}
+                <span class="activity-schedule">
+                    {% if start_date == end_date %}
+                    <span class="activity-schedule-beginning">{{start_date}} {{start_hour}}</span> – {{end_hour}}
+                    {% else %}
+                    <div class="activity-schedule-beginning">{{start_date}} {{start_hour}}</div>
+                    <div class="activity-schedule-ending">{{end_date}} {{end_hour}}</div>
+                    {% endif %}
+                </span>
+                {% endwith %}
+            </div>
+            <div class="activity-group-value">
+                <span class="activity-type">{% print_field object=activity field='type' %}</span>
+                {% widget_icon instance=activity size='brick-list' class='activity-icon activity-type-icon' %}
+                {% if activity.status %}
+                <span class="activity-status"> <span class="typography-mdash">—</span> {% print_field object=activity field='status' %}</span>
+                {% endif %}
+            </div>
+            {% if object %}
+            <div class="activity-action">{% has_perm_to unlink object as unlink_perm %}
+                {% brick_action id='delete' url=unlink_url __id=activity.id __object_id=object.id label=_('Unlink') icon='unlink' enabled=unlink_perm %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="activity-group activity-info-group">
+            <div class="activity-group-key"></div>
+            <div class="activity-group-value">
+                <span class="activity-title">
+                    <a href="{{activity.get_absolute_url}}">{{activity.title}}</a>
+                </span>
+            </div>
+        </div>
+        {% if activity.get_subject_relations %}
+        <div class="activity-group activity-info-group">
+            <div class="activity-group-key">
+                {% blocktrans count counter=activity.get_subject_relations|length %}{{counter}} Subject{% plural %}{{counter}} Subjects{% endblocktrans %}
+            </div>
+            <div class="activity-group-value">
+            {% for relation in activity.get_subject_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% if activity.get_participant_relations %}
+        <div class="activity-group activity-info-group">
+            <div class="activity-group-key">
+                {% blocktrans count counter=activity.get_participant_relations|length %}{{counter}} Participant{% plural %}{{counter}} Participants{% endblocktrans %}
+            </div>
+            <div class="activity-group-value">
+            {% for relation in activity.get_participant_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% if activity.get_linkedto_relations %}
+        <div class="activity-group activity-info-group">
+            <div class="activity-group-key">
+                {% blocktrans count counter=activity.get_linkedto_relations|length %}{{counter}} Is related to{% plural %}{{counter}} Are related to{% endblocktrans %}
+            </div>
+            <div class="activity-group-value">
+            {% for relation in activity.get_linkedto_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% if display_review and activity.minutes %}
+        <div class="activity-group activity-info-group">
+            <div class="activity-group-key">{% trans 'Minutes' %}</div>
+            <div class="activity-group-value">{{activity.minutes}}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}No related activity for the moment{% endblock %}

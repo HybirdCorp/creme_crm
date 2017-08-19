@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/activities/templates/activities/templatetags/block_related_calendar.html" is deprecated.' level='WARN' %}
+
 {% with calendar_count=page.paginator.count %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}

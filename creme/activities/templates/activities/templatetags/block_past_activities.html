@@ -1,7 +1,8 @@
 {% extends "activities/templatetags/block_future_activities.html" %}
 
-{% load creme_block %}
-{% load i18n %}
+{% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/activities/templates/activities/templatetags/block_past_activities.html" is deprecated.' level='WARN' %}
 
 {% block relation_script %}{% endblock %}
 

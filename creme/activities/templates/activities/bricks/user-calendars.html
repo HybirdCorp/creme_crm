@@ -1,0 +1,39 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} activities-user-calendars-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Calendar') plural=_('{count} Calendars') empty=_('Calendars') icon='calendar' %}
+{% endblock %}
+
+{% block brick_header_actions %}{% url 'activities__create_calendar' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New calendar') %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='is_default' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='is_public' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% url 'activities__delete_calendar' as delete_url %}
+    {% for calendar in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>
+            <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
+            <span>{{calendar.name}}</span>
+        </td>
+        <td>{% print_field object=calendar field='is_default' %}</td>
+        <td>{% print_field object=calendar field='is_public' %}</td>
+        <td {% brick_table_data_status action %}>{% url 'activities__edit_calendar' calendar.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this calendar') %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=calendar.id label=_('Delete this calendar') %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
