@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import logging, warnings
 
 from django.core.urlresolvers import reverse
 from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
@@ -180,7 +180,7 @@ END:VEVENT
         return cls.objects.filter(is_deleted=False,
                                   relations__object_entity__in=entities,
                                   relations__type__in=types,
-                                  ) \
+                                 ) \
                           .distinct()
 
     # @staticmethod
@@ -261,7 +261,9 @@ END:VEVENT
         return SettingValue.objects.get(key_id=DISPLAY_REVIEW_ACTIVITIES_BLOCKS).value
 
     def count_lines_display_block(self):
-        total=1
+        warnings.warn('AbstractActivity.count_lines_display_block() is deprecated.', DeprecationWarning)
+
+        total = 1
         if self.get_subject_relations():
             total += 1
         if self.get_participant_relations():

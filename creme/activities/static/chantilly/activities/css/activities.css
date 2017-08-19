@@ -195,3 +195,189 @@
 }
 
 /* calendar header widget repositioning - end */
+
+
+/* Bricks */
+
+/* .activities-list-brick .brick-content {
+    padding: 0;
+} */
+
+.activities-list-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+
+.activities-list-brick .activity-item {
+    font-size: 13px;
+}
+
+.activities-list-brick .activity-item + .activity-item {
+    margin-top: 20px;
+    border-top: 1px solid #dedede;
+    border-top: 1px solid #ccc;
+}
+
+.activities-list-brick .activity-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.activities-list-brick .activity-group + .activity-group {
+    margin-top: 5px;
+}
+
+.activities-list-brick .activity-group-key {
+    min-width: 160px;
+}
+
+.activities-list-brick .activity-group-value {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.activities-list-brick .activity-info-group .activity-group-key {
+    align-self: flex-start;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.activities-list-brick .activity-summary-group {
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+/*    background: #fcfcfc; */
+    background: #fff3f2;
+/*    border-bottom: 1px solid #dedede; */
+    border-bottom: 1px solid #fdedeb;
+}
+
+.activities-list-brick .activity-schedule {
+/*    margin-right: 11px;*/
+}
+
+.activities-list-brick .activity-schedule-beginning {
+    font-weight: 600;
+}
+
+.activities-list-brick .activity-type {
+    margin-right: 3px;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.activities-list-brick .activity-title {
+    font-weight: 600;
+}
+
+.activities-list-brick .activity-status {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    _color: #FF4136; /* red */
+    _color: #FF851B; /* orange */
+}
+
+.activities-list-brick .activity-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.activities-list-brick .activity-action img {
+    width: 14px;
+    height: 14px;
+    position: relative;
+    top: 3px;
+}
+
+.activities-list-brick .activity-warning {
+    color: #FF4136; /* red */
+    color: #FF851B; /* orange */
+    cursor: default;
+}
+
+.activities-list-brick .activity-warning .activity-warning-icon {
+    width: 16px;
+    height: 16px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 4px;
+
+    fill: currentColor;
+}
+
+.activities-list-brick .activity-warning-label {
+    display: inline-block;
+
+    margin-left: 3px;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.activities-list-brick .activity-relation {
+    font-weight: 600;
+    color: #333;
+}
+
+.activities-list-brick .activity-group .activity-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+
+.activities-list-brick .typography-mdash {
+    position: relative;
+    top: -1px;
+}
+
+.brick .activity-calendar-color-square {
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -3px;
+    background: white;
+}
+
+.brick .activity-calendar-default, .brick .activity-calendar-public {
+    text-align: center;
+}
+
+/* Bricks - end */
+
+/* Activity popup */
+
+.activities-activity-popup-content a.complete-detailview {
+    display: block;
+}
+
+.activities-activity-popup-content .column {
+    float: left;
+    margin-left: 0;
+
+    /* Only modern browsers will see calc() */
+    width: 49.9%;
+    width: calc(49.9% - 3px);
+}
+
+.activities-activity-popup-content .column-second {
+    float: right;
+    margin-right: 0;
+/*    padding-left: 13px; */
+}
+
+/* Activity popup - end */

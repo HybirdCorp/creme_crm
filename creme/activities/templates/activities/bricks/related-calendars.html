@@ -1,0 +1,39 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} activities-related-calendars-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Present in {count} of my calendars') plural=_('Present in {count} of my calendars') empty=_('My calendars') icon='calendar' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{# TODO: solve the problem of multi-calendar (which calendar changes ?) #}
+    {% if page.paginator.count == 1 %}{% url 'activities__link_calendar' object.id as link_url %}
+        {% brick_header_action id='edit' url=link_url label=_('Change calendar') %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name'       status='primary nowrap' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='is_default' status='action' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='is_public'  status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% has_perm_to unlink object as activity_unlink_perm %}
+    {% for calendar in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>
+            <div class="activity-calendar-color-square" style="background-color:#{{calendar.get_color}};"></div>
+            <span>{{calendar.name}}</span>
+        </td>
+        <td class="activity-calendar-default">{% print_field object=calendar field='is_default' %}</td>
+        <td class="activity-calendar-public">{% print_field object=calendar field='is_public' %}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans "The activity is not present in any of your calendars, you don't participate to it" %}
+{% endblock %}

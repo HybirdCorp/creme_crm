@@ -1,0 +1,34 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} activities-participants-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Participant') plural=_('{count} Participants') empty=_('Participants') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% has_perm_to link object as activity_link_perm %}{% url 'activities__add_participants' object.id as add_url %}
+    {% brick_header_action id='link' url=add_url label=_('Add contacts') enabled=activity_link_perm %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to unlink object as activity_unlink_perm %}{% url 'activities__remove_participant' as rm_part_url  %}
+    {% for relation in page.object_list %}
+        {% with relation.object_entity as participant %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink participant user %}</td>
+        <td>{% if participant.is_user and participant.calendar_cache %}({{participant.is_user}} ➡ {{participant.calendar_cache}}){% endif %}</td>
+        <td {% brick_table_data_status action %}>{% has_perm_to unlink participant as participant_unlink_perm %}
+            {% brick_table_action id='delete' url=rm_part_url __id=relation.pk label=_('Delete relationship') icon='unlink' enabled=activity_unlink_perm|and_op:participant_unlink_perm %}
+        </td>
+    </tr>
+        {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans "No participant for the moment" %}
+{% endblock %}

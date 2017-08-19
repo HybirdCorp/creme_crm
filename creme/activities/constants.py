@@ -19,14 +19,20 @@ ACTIVITYTYPE_SHOW      = 'activities-activitytype_show'
 ACTIVITYTYPE_DEMO      = 'activities-activitytype_demo'
 ACTIVITYTYPE_INDISPO   = 'activities-activitytype_indispo'
 
-CREATION_LABELS = {ACTIVITYTYPE_TASK:       _(u'Create a task'),
-                   ACTIVITYTYPE_MEETING:    _(u'Create a meeting'),
-                   ACTIVITYTYPE_PHONECALL:  _(u'Create a phone call'),
-                   ACTIVITYTYPE_GATHERING:  _(u'Create a gathering'),
-                   ACTIVITYTYPE_SHOW:       _(u'Create a show'),
-                   ACTIVITYTYPE_DEMO:       _(u'Create a demo'),
-                   ACTIVITYTYPE_INDISPO:    _(u'Create an unavailability'),
-                  }
+CREATION_LABELS = {
+    ACTIVITYTYPE_TASK:       _(u'Create a task'),
+    ACTIVITYTYPE_MEETING:    _(u'Create a meeting'),
+    ACTIVITYTYPE_PHONECALL:  _(u'Create a phone call'),
+    ACTIVITYTYPE_GATHERING:  _(u'Create a gathering'),
+    ACTIVITYTYPE_SHOW:       _(u'Create a show'),
+    ACTIVITYTYPE_DEMO:       _(u'Create a demo'),
+    ACTIVITYTYPE_INDISPO:    _(u'Create an unavailability'),
+}
+ICONS = {
+    ACTIVITYTYPE_MEETING:   ('meeting', _(u'Meeting')),
+    ACTIVITYTYPE_PHONECALL: ('phone',   _(u'Phone call')),
+    ACTIVITYTYPE_TASK:      ('task',    _(u'Task')),
+}
 
 ACTIVITYSUBTYPE_PHONECALL_INCOMING   = 'activities-activitysubtype_incoming'
 ACTIVITYSUBTYPE_PHONECALL_OUTGOING   = 'activities-activitysubtype_outgoing'

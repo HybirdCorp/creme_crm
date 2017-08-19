@@ -5,7 +5,7 @@ from django.conf.urls import url, include
 # from creme.creme_core.utils.imports import find_n_import
 
 from . import activity_model_is_custom, constants
-from .views import portal, activity, blocks, calendar
+from .views import portal, activity, bricks, calendar
 
 
 calendar_patterns = [
@@ -27,11 +27,11 @@ urlpatterns = [
 
     url(r'^type/(?P<type_id>[\w-]*)/json$',        activity.get_types,     name='activities__get_types'),
 
-    # Blocks
-    url(r'^activity/(?P<activity_id>\d+)/participant/add$', blocks.add_participant,    name='activities__add_participants'),
-    url(r'^activity/participant/delete$',                   blocks.delete_participant, name='activities__remove_participant'),
-    url(r'^activity/(?P<activity_id>\d+)/subject/add$',     blocks.add_subject,        name='activities__add_subjects'),
-    url(r'^linked_activity/unlink$',                        blocks.unlink_activity,    name='activities__unlink_activity'),
+    # Bricks
+    url(r'^activity/(?P<activity_id>\d+)/participant/add$', bricks.add_participant,    name='activities__add_participants'),
+    url(r'^activity/participant/delete$',                   bricks.delete_participant, name='activities__remove_participant'),
+    url(r'^activity/(?P<activity_id>\d+)/subject/add$',     bricks.add_subject,        name='activities__add_subjects'),
+    url(r'^linked_activity/unlink$',                        bricks.unlink_activity,    name='activities__unlink_activity'),
 
     url(r'^calendar/', include(calendar_patterns)),
 ]
