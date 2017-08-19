@@ -1,0 +1,3 @@
+{% extends 'creme_core/bricks/generic/hat-bar.html' %}
+
+{% block delete_button %}{% if not object.is_user %}{{block.super}}{% endif %}{% endblock %}

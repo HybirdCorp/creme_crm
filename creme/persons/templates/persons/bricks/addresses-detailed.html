@@ -1,0 +1,11 @@
+{% extends 'persons/bricks/base/addresses.html' %}
+
+{% block brick_extra_class %}{{block.super}} persons-addresses-detailed-brick{% endblock %}
+
+{% block billing_address_content %}
+    {% include 'persons/bricks/frags/address-detailed.html' with address=b_address %}
+{% endblock %}
+
+{% block shipping_address_content %}
+    {% include 'persons/bricks/frags/address-detailed.html' with address=s_address %}
+{% endblock %}

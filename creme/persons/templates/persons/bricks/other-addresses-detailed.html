@@ -1,0 +1,7 @@
+{% extends 'persons/bricks/base/other-addresses.html' %}
+
+{% block brick_extra_class %}{{block.super}} persons-other-addresses-detailed-brick{% endblock %}
+
+{% block address_content %}
+    {% include 'persons/bricks/frags/address-detailed.html' %}
+{% endblock %}

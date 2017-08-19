@@ -12,18 +12,17 @@ try:
     from creme.documents import get_document_model
     from creme.documents.tests.base import _DocumentsTestCase
 
-    from .. import (address_model_is_custom, contact_model_is_custom, organisation_model_is_custom,
-            get_address_model, get_contact_model, get_organisation_model)
+    from creme import persons
 
-    skip_address_tests = address_model_is_custom()
-    skip_contact_tests = contact_model_is_custom()
-    skip_organisation_tests = organisation_model_is_custom()
+    skip_address_tests = persons.address_model_is_custom()
+    skip_contact_tests = persons.contact_model_is_custom()
+    skip_organisation_tests = persons.organisation_model_is_custom()
 
     Document = get_document_model()
 
-    Address = get_address_model()
-    Contact = get_contact_model()
-    Organisation = get_organisation_model()
+    Address = persons.get_address_model()
+    Contact = persons.get_contact_model()
+    Organisation = persons.get_organisation_model()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

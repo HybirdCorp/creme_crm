@@ -33,11 +33,11 @@ class PersonsConfig(CremeAppConfig):
     dependencies = ['creme.creme_core']
 
     def all_apps_ready(self):
-        from . import get_contact_model, get_organisation_model, get_address_model
+        from creme import persons
 
-        self.Contact = get_contact_model()
-        self.Organisation = get_organisation_model()
-        self.Address = get_address_model()
+        self.Contact      = persons.get_contact_model()
+        self.Organisation = persons.get_organisation_model()
+        self.Address      = persons.get_address_model()
         super(PersonsConfig, self).all_apps_ready()
         self.hook_user()
         self.hook_user_form()
@@ -50,10 +50,21 @@ class PersonsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Contact, self.Organisation)
 
-    def register_blocks(self, block_registry):
-        from .blocks import block_list
+    # def register_blocks(self, block_registry):
+    def register_bricks(self, brick_registry):
+        # from .blocks import block_list
+        from . import bricks
 
-        block_registry.register(*block_list)
+        # brick_registry.register(*block_list)
+        brick_registry.register(*bricks.bricks_list)
+        brick_registry.register_hat(self.Contact,
+                                    main_brick_cls=bricks.ContactBarHatBrick,
+                                    secondary_brick_classes=(bricks.ContactCardHatBrick,),
+                                   )
+        brick_registry.register_hat(self.Organisation,
+                                    main_brick_cls=bricks.OrganisationBarHatBrick,
+                                    secondary_brick_classes=(bricks.OrganisationCardHatBrick,),
+                                   )
 
     def register_bulk_update(self, bulk_update_registry):
         register = bulk_update_registry.register
@@ -186,7 +197,9 @@ class PersonsConfig(CremeAppConfig):
 
         from .models.contact import _get_linked_contact
 
-        get_user_model().linked_contact = property(_get_linked_contact)
+        User = get_user_model()
+        User.linked_contact = property(_get_linked_contact)
+        User.get_absolute_url = lambda u: u.linked_contact.get_absolute_url()
 
     def hook_user_form(self):
         from creme.creme_config.forms.user import UserAddForm
@@ -201,12 +214,12 @@ class PersonsConfig(CremeAppConfig):
             fields = form.fields
             get_ct = ContentType.objects.get_for_model
             fields['organisation'] = ModelChoiceField(
-                                        label=_('User organisation'),
+                                        label=_(u'User organisation'),
                                         queryset=self.Organisation.get_all_managed_by_creme(),
                                         empty_label=None,
                                      )
             fields['relation'] = ModelChoiceField(
-                                    label=_('Position in the organisation'),
+                                    label=_(u'Position in the organisation'),
                                     queryset=RelationType.objects.filter(subject_ctypes=get_ct(self.Contact),
                                                                          object_ctypes=get_ct(self.Organisation),
                                                                          is_internal=False,

@@ -1,0 +1,14 @@
+{% load creme_cells %}
+
+{% block address_content %}
+    {% for cell in cells.itervalues %}
+        <div class='address-options'>
+            <div class='address-option'>
+                <span class='address-option-key'>{{cell}}</span>
+                <span class='address-option-value'>{% cell_render cell=cell instance=address user=user as cell_content %}
+                    {% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">—</span>{% endif %}
+                </span>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

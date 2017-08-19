@@ -25,8 +25,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
-from creme.creme_core import blocks as core_blocks, models as core_models
-from creme.creme_core.buttons import merge_entities_button
+from creme.creme_core import bricks as core_bricks, models as core_models
+# from creme.creme_core.buttons import merge_entities_button
 # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -34,7 +34,7 @@ from creme.creme_core.models import EntityFilter, EntityFilterCondition, EntityF
 from creme.creme_core.utils import create_if_needed
 
 from . import get_contact_model, get_organisation_model
-from . import blocks, buttons, constants
+from . import bricks, buttons, constants
 from .models import Civility, Sector, Position, StaffSize, LegalForm
 
 
@@ -144,7 +144,7 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_sci = core_models.SearchConfigItem.create_if_needed
-        create_sci(Contact, ['first_name', 'last_name', 'phone', 'mobile', 'email'])
+        create_sci(Contact, ['last_name', 'first_name', 'phone', 'mobile', 'email'])
         create_sci(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
 
         # ---------------------------
@@ -167,7 +167,7 @@ class Populator(BasePopulator):
             if not Organisation.objects.exists():
                 # orga = Organisation.objects.create(user=admin, name=_('ReplaceByYourSociety'))
                 # core_models.CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
-                Organisation.objects.create(user=admin, name=_('ReplaceByYourSociety'), is_managed=True)
+                Organisation.objects.create(user=admin, name=_(u'ReplaceByYourSociety'), is_managed=True)
 
             # ---------------------------
             create_if_needed(Position, {'pk': 1}, title=_(u'CEO'))
@@ -177,7 +177,7 @@ class Populator(BasePopulator):
             # ---------------------------
             create_if_needed(Sector, {'pk': 1}, title=_(u'Food Industry'))
             create_if_needed(Sector, {'pk': 2}, title=_(u'Industry'))
-            create_if_needed(Sector, {'pk': 3}, title=_(u'Informatic'))
+            create_if_needed(Sector, {'pk': 3}, title=_(u'Software'))
             create_if_needed(Sector, {'pk': 4}, title=_(u'Telecom'))
             create_if_needed(Sector, {'pk': 5}, title=_(u'Restoration'))
 
@@ -202,7 +202,7 @@ class Populator(BasePopulator):
             create_bmi(pk='persons-prospect_contact_button', model=Contact, button=buttons.become_prospect_button, order=21)
             create_bmi(pk='persons-suspect_contact_button',  model=Contact, button=buttons.become_suspect_button,  order=22)
             create_bmi(pk='persons-inactive_contact_button', model=Contact, button=buttons.become_inactive_button, order=24)
-            create_bmi(pk='persons-merge_contacts_button',   model=Contact, button=merge_entities_button,          order=30)
+            # create_bmi(pk='persons-merge_contacts_button',   model=Contact, button=merge_entities_button,          order=30)
 
             create_bmi(pk='persons-customer_orga_button',  model=Organisation, button=buttons.become_customer_button,    order=20)
             create_bmi(pk='persons-prospect_orga_button',  model=Organisation, button=buttons.become_prospect_button,    order=21)
@@ -210,9 +210,9 @@ class Populator(BasePopulator):
             create_bmi(pk='persons-inactive_orga_button',  model=Organisation, button=buttons.become_inactive_button,    order=23)
             create_bmi(pk='persons-supplier_button',       model=Organisation, button=buttons.become_supplier_button,    order=24)
             create_bmi(pk='persons-linked_contact_button', model=Organisation, button=buttons.add_linked_contact_button, order=25)
-            create_bmi(pk='persons-merge_orgas_button',    model=Organisation, button=merge_entities_button,             order=30)
+            # create_bmi(pk='persons-merge_orgas_button',    model=Organisation, button=merge_entities_button,             order=30)
 
-            # Populate blocks ------------------
+            # Populate bricks ------------------
             rbi_1 = core_models.RelationBlockItem.create(constants.REL_SUB_CUSTOMER_SUPPLIER)
             rbi_2 = core_models.RelationBlockItem.create(constants.REL_OBJ_CUSTOMER_SUPPLIER)
 
@@ -220,125 +220,187 @@ class Populator(BasePopulator):
             create_cbci = core_models.CustomBlockConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
-            cbci_orga_1 = create_cbci(id='persons-organisation_main_info',
-                                      name=_(u'Organisation information'),
-                                      content_type=get_ct(Organisation),
-                                      cells=[build_cell(Organisation, 'created'),
-                                             build_cell(Organisation, 'modified'),
-                                             build_cell(Organisation, 'name'),
-                                             build_cell(Organisation, 'is_managed'),
-                                             build_cell(Organisation, 'staff_size'),
-                                             build_cell(Organisation, 'legal_form'),
-                                             build_cell(Organisation, 'sector'),
-                                             build_cell(Organisation, 'capital'),
-                                             build_cell(Organisation, 'siren'),
-                                             build_cell(Organisation, 'naf'),
-                                             build_cell(Organisation, 'siret'),
-                                             build_cell(Organisation, 'rcs'),
-                                             build_cell(Organisation, 'tvaintra'),
-                                             build_cell(Organisation, 'subject_to_vat'),
-                                             build_cell(Organisation, 'user'),
-                                             build_cell(Organisation, 'annual_revenue'),
-                                             build_cell(Organisation, 'description'),
-                                             build_cell(Organisation, 'creation_date'),
-                                             build_cell(Organisation, 'image'),
-                                            ],
-                                     )
-            cbci_orga_2 = create_cbci(id='persons-organisation_details',
-                                      name=_(u'Organisation details'),
-                                      content_type=get_ct(Organisation),
-                                      cells=[build_cell(Organisation, 'phone'),
-                                             build_cell(Organisation, 'fax'),
-                                             build_cell(Organisation, 'email'),
-                                             build_cell(Organisation, 'url_site'),
-                                            ],
-                                     )
+            # cbci_orga_1 =
+            create_cbci(id='persons-organisation_main_info',
+                        name=_(u'Organisation information'),
+                        content_type=get_ct(Organisation),
+                        cells=[
+                           build_cell(Organisation, 'name'),
+                           build_cell(Organisation, 'is_managed'),
+                           build_cell(Organisation, 'staff_size'),
+                           build_cell(Organisation, 'legal_form'),
+                           build_cell(Organisation, 'sector'),
+                           build_cell(Organisation, 'capital'),
+                           build_cell(Organisation, 'siren'),
+                           build_cell(Organisation, 'naf'),
+                           build_cell(Organisation, 'siret'),
+                           build_cell(Organisation, 'rcs'),
+                           build_cell(Organisation, 'tvaintra'),
+                           build_cell(Organisation, 'subject_to_vat'),
+                           build_cell(Organisation, 'annual_revenue'),
+                           build_cell(Organisation, 'creation_date'),
+                           build_cell(Organisation, 'image'),
+                           # --
+                           build_cell(Organisation, 'description'),
+                           # --
+                           build_cell(Organisation, 'created'),
+                           build_cell(Organisation, 'modified'),
+                           build_cell(Organisation, 'user'),
+                        ],
+                       )
+            # cbci_orga_2 =
+            create_cbci(id='persons-organisation_details',
+                        name=_(u'Organisation details'),
+                        content_type=get_ct(Organisation),
+                        cells=[
+                          build_cell(Organisation, 'phone'),
+                          build_cell(Organisation, 'fax'),
+                          build_cell(Organisation, 'email'),
+                          build_cell(Organisation, 'url_site'),
+                        ],
+                       )
+            cbci_orga_extra = create_cbci(id='persons-organisation_complementary',
+                                          name=_(u'Organisation complementary information'),
+                                          content_type=get_ct(Organisation),
+                                          cells=[
+                                              build_cell(Organisation, 'staff_size'),
+                                              build_cell(Organisation, 'sector'),
+                                              build_cell(Organisation, 'capital'),
+                                              build_cell(Organisation, 'siren'),
+                                              build_cell(Organisation, 'naf'),
+                                              build_cell(Organisation, 'siret'),
+                                              build_cell(Organisation, 'rcs'),
+                                              build_cell(Organisation, 'tvaintra'),
+                                              build_cell(Organisation, 'subject_to_vat'),
+                                              build_cell(Organisation, 'annual_revenue'),
+                                              build_cell(Organisation, 'creation_date'),
+                                              build_cell(Organisation, 'image'),
+                                              # --
+                                              build_cell(Organisation, 'description'),
+                                              # --
+                                              build_cell(Organisation, 'fax'),
+                                              build_cell(Organisation, 'email'),
+                                              build_cell(Organisation, 'url_site'),
+                                          ],
+                                         )
 
+            HAT   = core_models.BlockDetailviewLocation.HAT
             LEFT  = core_models.BlockDetailviewLocation.LEFT
             RIGHT = core_models.BlockDetailviewLocation.RIGHT
 
             create_bdl = core_models.BlockDetailviewLocation.create
-            create_bdl(block_id=cbci_orga_1.generate_id(),          order=5,   zone=LEFT,  model=Organisation)
-            create_bdl(block_id=cbci_orga_2.generate_id(),          order=30,  zone=LEFT,  model=Organisation)
-            create_bdl(block_id=core_blocks.customfields_block.id_, order=40,  zone=LEFT,  model=Organisation)
-            create_bdl(block_id=blocks.address_block.id_,           order=50,  zone=LEFT,  model=Organisation)
-            create_bdl(block_id=blocks.other_address_block.id_,     order=60,  zone=LEFT,  model=Organisation)
-            create_bdl(block_id=blocks.managers_block.id_,          order=100, zone=LEFT,  model=Organisation)
-            create_bdl(block_id=blocks.employees_block.id_,         order=120, zone=LEFT,  model=Organisation)
-            create_bdl(block_id=core_blocks.properties_block.id_,   order=450, zone=LEFT,  model=Organisation)
-            create_bdl(block_id=core_blocks.relations_block.id_,    order=500, zone=LEFT,  model=Organisation)
-            create_bdl(block_id=rbi_1.block_id,                     order=5,   zone=RIGHT, model=Organisation)
-            create_bdl(block_id=rbi_2.block_id,                     order=10,  zone=RIGHT, model=Organisation)
-            create_bdl(block_id=core_blocks.history_block.id_,      order=30,  zone=RIGHT, model=Organisation)
+            create_bdl(block_id=bricks.OrganisationCardHatBrick.id_,  order=1,   zone=HAT,   model=Organisation)
+            # create_bdl(block_id=cbci_orga_1.generate_id(),            order=5,   zone=LEFT,  model=Organisation)
+            # create_bdl(block_id=cbci_orga_2.generate_id(),            order=30,  zone=LEFT,  model=Organisation)
+            create_bdl(block_id=cbci_orga_extra.generate_id(),        order=5,   zone=LEFT,  model=Organisation)
+            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Organisation)
+            # create_bdl(block_id=blocks.address_block.id_,           order=50,  zone=LEFT,  model=Organisation)
+            create_bdl(block_id=bricks.PrettyAddressesBrick.id_,      order=50,  zone=LEFT,  model=Organisation)
+            # create_bdl(block_id=blocks.other_address_block.id_,     order=60,  zone=LEFT,  model=Organisation)
+            create_bdl(block_id=bricks.PrettyOtherAddressesBrick.id_, order=60,  zone=LEFT,  model=Organisation)
+            create_bdl(block_id=bricks.ManagersBrick.id_,             order=100, zone=LEFT,  model=Organisation)
+            create_bdl(block_id=bricks.EmployeesBrick.id_,            order=120, zone=LEFT,  model=Organisation)
+            create_bdl(block_id=core_bricks.PropertiesBrick.id_,      order=450, zone=LEFT,  model=Organisation)
+            create_bdl(block_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Organisation)
+            create_bdl(block_id=rbi_1.block_id,                       order=5,   zone=RIGHT, model=Organisation)
+            create_bdl(block_id=rbi_2.block_id,                       order=10,  zone=RIGHT, model=Organisation)
+            create_bdl(block_id=core_bricks.HistoryBrick.id_,         order=30,  zone=RIGHT, model=Organisation)
 
-            cbci_contact_1 = create_cbci(id='persons-contact_main_info',
-                                         name=_(u'Contact information'),
-                                         content_type=get_ct(Contact),
-                                         cells=[build_cell(Contact, 'created'),
-                                                build_cell(Contact, 'modified'),
-                                                build_cell(Contact, 'civility'),
-                                                build_cell(Contact, 'first_name'),
-                                                build_cell(Contact, 'last_name'),
-                                                build_cell(Contact, 'sector'),
-                                                build_cell(Contact, 'position'),
-                                                build_cell(Contact, 'full_position'),
-                                                build_cell(Contact, 'user'),
-                                                build_cell(Contact, 'is_user'),
-                                                build_cell(Contact, 'birthday'),
-                                                build_cell(Contact, 'image'),
-                                                build_cell(Contact, 'description'),
-                                               ],
-                                        )
-            cbci_contact_2 = create_cbci(id='persons-contact_details',
-                                         name=_(u'Contact details'),
-                                         content_type=get_ct(Contact),
-                                         cells=[build_cell(Contact, 'phone'),
-                                                build_cell(Contact, 'mobile'),
-                                                build_cell(Contact, 'fax'),
-                                                build_cell(Contact, 'email'),
-                                                build_cell(Contact, 'url_site'),
-                                                build_cell(Contact, 'skype'),
-                                               ],
-                                        )
+            # cbci_contact_1 =
+            create_cbci(id='persons-contact_main_info',
+                        name=_(u'Contact information'),
+                        content_type=get_ct(Contact),
+                        cells=[
+                           build_cell(Contact, 'civility'),
+                           build_cell(Contact, 'first_name'),
+                           build_cell(Contact, 'last_name'),
+                           build_cell(Contact, 'sector'),
+                           build_cell(Contact, 'position'),
+                           build_cell(Contact, 'full_position'),
+                           build_cell(Contact, 'is_user'),
+                           build_cell(Contact, 'birthday'),
+                           build_cell(Contact, 'image'),
+                           # --
+                           build_cell(Contact, 'description'),
+                           # --
+                           build_cell(Contact, 'created'),
+                           build_cell(Contact, 'modified'),
+                           build_cell(Contact, 'user'),
+                        ],
+                       )
+            # cbci_contact_2 =
+            create_cbci(id='persons-contact_details',
+                        name=_(u'Contact details'),
+                        content_type=get_ct(Contact),
+                        cells=[
+                           build_cell(Contact, 'phone'),
+                           build_cell(Contact, 'mobile'),
+                           build_cell(Contact, 'fax'),
+                           build_cell(Contact, 'email'),
+                           build_cell(Contact, 'url_site'),
+                           build_cell(Contact, 'skype'),
+                        ],
+                       )
+            cbci_contact_extra = create_cbci(id='persons-contact_complementary',
+                                             name=_(u'Contact complementary information'),
+                                             content_type=get_ct(Contact),
+                                             cells=[
+                                                 build_cell(Contact, 'sector'),
+                                                 build_cell(Contact, 'full_position'),
+                                                 build_cell(Contact, 'birthday'),
+                                                 build_cell(Contact, 'image'),
+                                                 # --
+                                                 build_cell(Contact, 'description'),
+                                                 # --
+                                                 build_cell(Contact, 'fax'),
+                                                 build_cell(Contact, 'url_site'),
+                                                 build_cell(Contact, 'skype'),
+                                             ],
+                                            )
 
-            create_bdl(block_id=cbci_contact_1.generate_id(),       order=5,   zone=LEFT,  model=Contact)
-            create_bdl(block_id=cbci_contact_2.generate_id(),       order=30,  zone=LEFT,  model=Contact)
-            create_bdl(block_id=core_blocks.customfields_block.id_, order=40,  zone=LEFT,  model=Contact)
-            create_bdl(block_id=blocks.address_block.id_,           order=50,  zone=LEFT,  model=Contact)
-            create_bdl(block_id=blocks.other_address_block.id_,     order=60,  zone=LEFT,  model=Contact)
-            create_bdl(block_id=core_blocks.properties_block.id_,   order=450, zone=LEFT,  model=Contact)
-            create_bdl(block_id=core_blocks.relations_block.id_,    order=500, zone=LEFT,  model=Contact)
-            create_bdl(block_id=core_blocks.history_block.id_,      order=20,  zone=RIGHT, model=Contact)
+            create_bdl(block_id=bricks.ContactCardHatBrick.id_,       order=1,   zone=HAT,   model=Contact)
+            # create_bdl(block_id=cbci_contact_1.generate_id(),         order=5,   zone=LEFT,  model=Contact)
+            # create_bdl(block_id=cbci_contact_2.generate_id(),         order=30,  zone=LEFT,  model=Contact)
+            create_bdl(block_id=cbci_contact_extra.generate_id(),     order=30,  zone=LEFT,  model=Contact)
+            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Contact)
+            # create_bdl(block_id=bricks.address_block.id_,           order=50,  zone=LEFT,  model=Contact)
+            create_bdl(block_id=bricks.PrettyAddressesBrick.id_,      order=50,  zone=LEFT,  model=Contact)
+            # create_bdl(block_id=bricks.other_address_block.id_,     order=60,  zone=LEFT,  model=Contact)
+            create_bdl(block_id=bricks.PrettyOtherAddressesBrick.id_, order=60,  zone=LEFT,  model=Contact)
+            create_bdl(block_id=core_bricks.PropertiesBrick.id_,      order=450, zone=LEFT,  model=Contact)
+            create_bdl(block_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Contact)
+            create_bdl(block_id=core_bricks.HistoryBrick.id_,         order=20,  zone=RIGHT, model=Contact)
 
             create_bpl = core_models.BlockPortalLocation.create
-            create_bpl(app_name='persons', block_id=blocks.neglected_orgas_block.id_, order=10)
-            create_bpl(app_name='persons', block_id=core_blocks.history_block.id_,    order=30)
-
-            create_bpl(app_name='creme_core', block_id=blocks.neglected_orgas_block.id_, order=15)
+            create_bpl(app_name='persons', block_id=core_bricks.HistoryBrick.id_, order=30)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
-                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+                from creme.assistants import bricks as a_bricks
 
-                create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=Contact)
-                create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=Contact)
-                create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=Contact)
-                create_bdl(block_id=messages_block.id_, order=500, zone=RIGHT, model=Contact)
+                create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Contact)
+                create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Contact)
+                create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Contact)
+                create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=Contact)
 
-                create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=Organisation)
-                create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=Organisation)
-                create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=Organisation)
-                create_bdl(block_id=messages_block.id_, order=500, zone=RIGHT, model=Organisation)
+                create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Organisation)
+                create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Organisation)
+                create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Organisation)
+                create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=Organisation)
 
-                create_bpl(app_name='persons', block_id=memos_block.id_,    order=100)
-                create_bpl(app_name='persons', block_id=alerts_block.id_,   order=200)
-                create_bpl(app_name='persons', block_id=messages_block.id_, order=400)
+                create_bpl(app_name='persons', block_id=a_bricks.MemosBrick.id_,        order=100)
+                create_bpl(app_name='persons', block_id=a_bricks.AlertsBrick.id_,       order=200)
+                create_bpl(app_name='persons', block_id=a_bricks.UserMessagesBrick.id_, order=400)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
 
-                from creme.documents.blocks import linked_docs_block
+                from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=Contact)
-                create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=Organisation)
+                create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Contact)
+                create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Organisation)
+
+            if apps.is_installed('creme.activities'):
+                create_bpl(app_name='persons',    block_id=bricks.NeglectedOrganisationsBrick.id_, order=10)
+                create_bpl(app_name='creme_core', block_id=bricks.NeglectedOrganisationsBrick.id_, order=15)

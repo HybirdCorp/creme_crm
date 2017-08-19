@@ -1,0 +1,87 @@
+{% extends 'creme_core/bricks/base/hat-card.html' %}
+{% load i18n creme_widgets persons_tags %}
+
+{% block brick_extra_class %}{{block.super}} persons-organisation-card-brick{% endblock %}
+
+{% block card_intro_content %}
+{% include 'persons/bricks/frags/card-last-activity.html' %}
+{% endblock %}
+
+{% block card_main %}
+    <div class='card-main{% if object.is_managed or is_customer or is_supplier %} has-indicators{% endif %}'>
+        <span class="card-name">{{object.name}}{% if object.legal_form and 'legal_form' not in hidden_fields %}, {{object.legal_form}}{% endif %}
+            {% if object.is_deleted %}<div class='business-card-indicator business-card-deleted-indicator'>{% trans 'Entity in the trash' %}</div>{% endif %}
+        </span>
+        <div class='business-card-indicators'>
+        {% if object.is_managed %}
+            <div class='business-card-indicator'>{% trans 'Managed by Creme' %}</div>
+        {% endif %}
+        {% if is_customer %}
+            <div class='business-card-indicator'>{% trans 'Customer' %}</div>
+        {% endif %}
+        {% if is_supplier %}
+            <div class='business-card-indicator'>{% trans 'Supplier' %}</div>
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block card_secondary %}
+{% with managers_count=managers|length employees_count=employees|length %}
+{% with total_count=managers_count|add:employees_count %}
+    <div class="card-employees{% if total_count > 3 and total_count < 15 %} card-employees-wide{% endif %}">
+    {% if total_count >= 15 %}
+        <span class="card-function">
+        {% if managers_count %}{% blocktrans count count=managers_count %}{{count}} Manager{% plural %}{{count}} Managers{% endblocktrans %}{% endif %}
+        {% if managers_count and employees_count %}, {% endif %}
+        {% if employees_count %}{% blocktrans count count=employees_count %}{{count}} Employee{% plural %}{{count}} Employees{% endblocktrans %}{% endif %}
+        </span>
+    {% elif position_is_hidden %}
+        {% for manager in managers %}
+        <span class="card-function">{% trans 'Manager' %}</span> <a href='{{manager.get_absolute_url}}'>{{manager|persons_pretty_contact}}</a>{% if not forloop.last or employees %}, {% endif %}
+        {% endfor %}
+        {% for employee in employees %}
+        <span class="card-function">{% trans 'Employee' %}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    {% else %}
+        {% for manager in managers %}
+        <span class="card-function">{{manager.position|default:_('Manager')}}</span> <a href='{{manager.get_absolute_url}}'>{{manager|persons_pretty_contact}}</a>{% if not forloop.last or employees %}, {% endif %}
+        {% endfor %}
+        {% for employee in employees %}
+        <span class="card-function">{{employee.position|default:_('Employee')}}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    {% endif %}
+    </div>
+{% endwith %}{% endwith %}
+{% endblock %}
+
+{% block card_fields_title %}
+{% trans 'Details' context 'persons-organisation' %}
+{% endblock %}
+
+{% block card_fields %}
+    {% if 'phone' not in hidden_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% trans 'Phone' %}</span>
+        <span class='card-info-value'>{{object.phone|default:'—'}}</span>
+    </div>
+    {% endif %}
+    {% if 'billing_address' not in hidden_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% trans 'Address' %}</span>
+        {% with address=object.billing_address %}
+        {% if address %}
+        <span class='card-info-value'>{{address|persons_pretty_address|linebreaksbr}}</span>
+        {% else %}
+        <span class='card-info-value'>—</span>
+        {% endif %}
+        {% endwith %}
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block card_summary %}
+    {% include 'persons/bricks/frags/card-summary-acts.html' %}
+    {% include 'persons/bricks/frags/card-summary-opportunities.html' %}
+    {% include 'persons/bricks/frags/card-summary-next-activity.html' %}
+{% endblock %}

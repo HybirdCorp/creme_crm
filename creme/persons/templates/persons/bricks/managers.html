@@ -1,0 +1,12 @@
+{% extends 'persons/bricks/base/linked-people.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} persons-managers-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Manager') plural=_('{count} Managers') empty=_('Managers') icon='contact' %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No manager for the moment' %}
+{% endblock %}

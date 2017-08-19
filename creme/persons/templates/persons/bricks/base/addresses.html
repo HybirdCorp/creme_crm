@@ -1,0 +1,55 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_bricks persons_tags %}
+
+{% block brick_extra_class %}persons-addresses-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Addresses') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}
+    {% if b_address.display_button %}{% url 'persons__create_billing_address' object.id as create_baddr_url %}
+        {% brick_header_action id='add' url=create_baddr_url label=_('Create a billing address') enabled=has_perm %}
+    {% endif %}
+    {% if s_address.display_button %}{% url 'persons__create_shipping_address' object.id as create_saddr_url %}
+        {% brick_header_action id='add' url=create_saddr_url label=_('Create a shipping address') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_content_extra_class %}{% if not b_address.display_content and not s_address.display_content %}is-empty{% endif %}{% endblock %}
+
+{% block brick_content %}
+{% if b_address.display_content or s_address.display_content %}
+    <div class='address-group'>{% has_perm_to change object as has_perm %}
+        {% if b_address.display_content %}
+        <div class='address-map'>
+            <div class='address-container'>
+                <span class='address-title'>
+                    {% trans 'Billing address' %}{% templatize '{{b_address.get_edit_absolute_url}}?type=billing' as b_uri %}
+                    {% brick_action id='edit' url=b_uri display='both' enabled=has_perm %}
+                </span>
+                {% block billing_address_content %}{# TODO: override this #}
+                    <div class='address'>{{b_address}}</div>
+                {% endblock %}
+            </div>
+        </div>
+        {% endif %}
+        {% if s_address.display_content %}
+        <div class='address-map'>
+            <div class='address-container'>
+                <span class='address-title'>
+                    {% trans 'Shipping address' %}{% templatize '{{s_address.get_edit_absolute_url}}?type=shipping' as s_uri %}
+                    {% brick_action id='edit' url=s_uri display='both' enabled=has_perm %}
+                </span>
+                {% block shipping_address_content %}{# TODO: override this #}
+                    <div class='address'>{{s_address}}</div>
+                {% endblock %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% else %}
+    {% trans 'No address for the moment' %}
+{% endif %}
+{% endblock %}

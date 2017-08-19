@@ -1,0 +1,17 @@
+{% load i18n creme_widgets %}
+{% if opportunities != None %}
+    <div class="card-info-field">
+        <div class="card-info-field">
+            <span class='card-info-key'>
+                {% if acts|length == 0 %}
+                    {% trans 'Opportunities' %}
+                {% else %}
+                    {% blocktrans count count=opportunities|length %}{{count}} Opportunity{% plural %}{{count}} Opportunities{% endblocktrans %}
+                {% endif %}
+            </span>
+            <span class='card-info-value'>
+                {% for opp in opportunities %}{% widget_join %}{% widget_entity_hyperlink opp user %}{% end_widget_join %}{% empty %}—{% endfor %}
+            </span>
+        </div>
+    </div>
+{% endif %}
