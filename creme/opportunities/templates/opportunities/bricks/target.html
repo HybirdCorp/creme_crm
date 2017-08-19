@@ -1,0 +1,43 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_widgets creme_ctype creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} opportunities-target-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% if display_source %}
+        {% brick_header_title title=_('Target and source') %}
+    {% else %}
+        {% brick_header_title title=_('Target') %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+    {% with target=object.target source=object.emitter %}
+    <tr>
+        <td>
+            <h1 class="opportunities-target opportunities-target-label">{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}
+            {% if target.entity_type == orga_ctype %}{% trans 'Target organisation' %}{% else %}{% trans 'Target contact' %}{% endif %}
+            </h1>
+        </td>
+        <td>
+            <h1 class="opportunities-target opportunities-target-value">
+                {% if target %}{% widget_entity_hyperlink target user %}{% endif %}
+            </h1>
+        </td>
+    </tr>
+    {% if display_source %}
+    <tr>
+        <td>
+            <h2 class="opportunities-source opportunities-source-label">{% trans 'Source organisation' %}</h2>
+        </td>
+        <td>
+            <h2 class="opportunities-source opportunities-source-value">
+                {% if source %}{% widget_entity_hyperlink source user %}{% endif %}
+            </h2>
+        </td>
+    </tr>
+    {% endif %}
+    {% endwith %}
+{% endblock %}

@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/opportunities/templates/opportunities/templatetags/block_line_newdoc.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to create ct as creation_perm %}
 {% if creation_perm and link_perm %}
 {#    <a class="add" onclick="creme.blocks.ajaxPOSTQuery('/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()"> #}

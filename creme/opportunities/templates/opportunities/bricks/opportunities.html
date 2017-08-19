@@ -1,0 +1,53 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} opportunities-opportunities-brick{% endblock %}
+
+{% block brick_header_title %}
+{% if is_organisation %}
+    {% brick_header_title title=_('{count} Opportunity which targets the organisation') plural=_('{count} Opportunities which target the organisation') empty=_('Opportunities') icon='opportunity' %}
+{% elif is_contact %}
+    {% brick_header_title title=_('{count} Opportunity which targets the contact') plural=_('{count} Opportunities which target the contact') empty=_('Opportunities') icon='opportunity' %}
+{% else %}
+    {% brick_header_title title=_('{count} Opportunity which targets the entity') plural=_('{count} Opportunities which target the entity') empty=_('Opportunities') icon='opportunity' %}
+{% endif %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to link object as link_perm %}{% has_perm_to create objects_ctype as creation_perm %}
+{% url 'opportunities__create_related_opportunity_popup' object.id as creation_url %}
+    {% brick_header_action id='add' url=creation_url label=_('Create a linked opportunity') enabled=creation_perm|and_op:link_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' title=_('Name') status='primary' %}
+    {% brick_table_column title=_('Sales phase') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='estimated_sales' data_type='money' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='made_sales'      data_type='money' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to unlink object as unlink_perm %}{% url 'creme_core__delete_entities' as delete_multi_url %}
+    {% for opportunity in page.object_list %}
+    <tr>{% has_perm_to view opportunity as opp_view_perm %}{% has_perm_to unlink opportunity as opp_unlink_perm %}
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink opportunity user %}</td>
+        {% if opp_view_perm %}
+        <td>{{opportunity.sales_phase}}</td>
+        <td data-type="money">{{opportunity.estimated_sales|default:'—'}}</td>
+        <td data-type="money">{{opportunity.made_sales|default:'—'}}</td>
+        {% else %}
+        <td>{{HIDDEN_VALUE}}</td>
+        <td>{{HIDDEN_VALUE}}</td>
+        <td>{{HIDDEN_VALUE}}</td>
+        {% endif %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_multi_url __ids=opportunity.id enabled=unlink_perm|and_op:opp_unlink_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No opportunity for the moment' %}
+{% endblock %}

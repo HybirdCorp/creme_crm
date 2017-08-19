@@ -486,6 +486,7 @@ CREME_OPT_CSS = (  # APPS
      ('creme.activities',       'activities/css/fullcalendar-1.6.7.css'),
 
      ('creme.billing',          'billing/css/billing.css'),
+     ('creme.opportunities',    'opportunities/css/opportunities.css'),
      ('creme.commercial',       'commercial/css/commercial.css'),
      ('creme.crudity',          'crudity/css/crudity.css'),
      ('creme.geolocation',      'geolocation/css/geolocation.css'),
@@ -643,6 +644,8 @@ CREME_OPT_JS = (  # OPTIONAL APPS
     ('creme.activities',    'activities/js/activities.js'),
 
     ('creme.billing',       'billing/js/billing.js'),
+
+    ('creme.opportunities', 'opportunities/js/opportunities.js'),
 
     ('creme.commercial',    'commercial/js/commercial.js'),
 
