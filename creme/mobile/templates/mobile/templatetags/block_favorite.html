@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/mobile/templates/mobile/templatetags/block_favorite.html" is deprecated.' level='WARN' %}
+
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=1 %}
         <th class="label">

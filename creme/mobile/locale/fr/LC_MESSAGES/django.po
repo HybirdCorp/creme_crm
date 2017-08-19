@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 14:49+0100\n"
+"POT-Creation-Date: 2017-08-12 15:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid "Mobile"
 msgstr "Mobile"
 
-#: blocks.py:39
+#: bricks.py:39
 msgid "Favorite Contacts & Organisations (for mobile)"
 msgstr "Contacts & Sociétés favoris (pour mobile)"
 
@@ -164,6 +164,70 @@ msgstr "Ajouter cette société aux favoris"
 #: templates/mobile/add_orga.html:72
 msgid "Save the organisation"
 msgstr ""
+
+#: templates/mobile/bricks/favorite.html:8
+#, python-brace-format
+msgid "This contact is a favorite for {count} user"
+msgstr "Ce contact est un favori pour {count} utilisateur"
+
+#: templates/mobile/bricks/favorite.html:8
+#, python-brace-format
+msgid "This contact is a favorite for {count} users"
+msgstr "Ce contact est un favori pour {count} utilisateurs"
+
+#: templates/mobile/bricks/favorite.html:8
+msgid "Favorite contacts"
+msgstr "Contacts favoris"
+
+#: templates/mobile/bricks/favorite.html:10
+#, python-brace-format
+msgid "This organisation is a favorite for {count} user"
+msgstr "Cette société est une favorie pour {count} utilisateur"
+
+#: templates/mobile/bricks/favorite.html:10
+#, python-brace-format
+msgid "This organisation is a favorite for {count} users"
+msgstr "Cette société est une favorie pour {count} utilisateurs"
+
+#: templates/mobile/bricks/favorite.html:10
+msgid "Favorite organisations"
+msgstr "Aucune société favorie"
+
+#: templates/mobile/bricks/favorite.html:12
+#, python-brace-format
+msgid "This entity is a favorite for {count} user"
+msgstr "Cette fiche est une favorie pour {count} utilisateur"
+
+#: templates/mobile/bricks/favorite.html:12
+#, python-brace-format
+msgid "This entity is a favorite for {count} users"
+msgstr "Cette fiche est une favorie pour {count} utilisateurs"
+
+#: templates/mobile/bricks/favorite.html:12
+msgid "Favorite entities"
+msgstr "Fiches favories"
+
+#: templates/mobile/bricks/favorite.html:18
+#: templates/mobile/templatetags/block_favorite.html:22
+msgid "Mark as favorite"
+msgstr "Marquer comme favori"
+
+#: templates/mobile/bricks/favorite.html:28
+msgid "Remove from your favorite contacts"
+msgstr "Enlever de vos contacts favoris"
+
+#: templates/mobile/bricks/favorite.html:37
+msgid "This contact is not a favorite for the moment"
+msgstr "Ce contact n'est pas un favori pour le moment"
+
+#: templates/mobile/bricks/favorite.html:39
+msgid "This organisation is not a favorite for the moment"
+msgstr "Cette société n'est pas une favorie pour le moment"
+
+#: templates/mobile/bricks/favorite.html:41
+#: templates/mobile/templatetags/block_favorite.html:44
+msgid "This entity is not a favorite for the moment"
+msgstr "Cette fiche n'est pas une favorie pour le moment"
 
 # Already in persons
 #: templates/mobile/directory.html:44 templates/mobile/search.html:44
@@ -373,48 +437,40 @@ msgstr "Dans la journée"
 msgid "d/m/Y H:i"
 msgstr "d/m/Y H\\hi"
 
-#: templates/mobile/templatetags/block_favorite.html:6
+#: templates/mobile/templatetags/block_favorite.html:9
 #, python-format
 msgid "This contact is a favorite for %s user"
 msgstr "Ce contact est un favori pour %s utilisateur"
 
-#: templates/mobile/templatetags/block_favorite.html:6
+#: templates/mobile/templatetags/block_favorite.html:9
 #, python-format
 msgid "This contact is a favorite for %s users"
 msgstr "Ce contact est un favori pour %s utilisateurs"
 
-#: templates/mobile/templatetags/block_favorite.html:8
+#: templates/mobile/templatetags/block_favorite.html:11
 #, python-format
 msgid "This organisation is a favorite for %s user"
 msgstr "Cette société est une favorie pour %s utilisateur"
 
-#: templates/mobile/templatetags/block_favorite.html:8
+#: templates/mobile/templatetags/block_favorite.html:11
 #, python-format
 msgid "This organisation is a favorite for %s users"
 msgstr "Cette société est une favorie pour %s utilisateurs"
 
-#: templates/mobile/templatetags/block_favorite.html:10
+#: templates/mobile/templatetags/block_favorite.html:13
 #, python-format
 msgid "This entity is a favorite for %s user"
 msgstr "Cette fiche est une favorie pour %s utilisateur"
 
-#: templates/mobile/templatetags/block_favorite.html:10
+#: templates/mobile/templatetags/block_favorite.html:13
 #, python-format
 msgid "This entity is a favorite for %s users"
 msgstr "Cette fiche est une favorie pour %s utilisateurs"
 
 # Already in creme_core
-#: templates/mobile/templatetags/block_favorite.html:18
+#: templates/mobile/templatetags/block_favorite.html:21
 msgid "Link"
 msgstr ""
-
-#: templates/mobile/templatetags/block_favorite.html:19
-msgid "Mark as favorite"
-msgstr "Marquer comme favori"
-
-#: templates/mobile/templatetags/block_favorite.html:41
-msgid "This entity is not a favorite for the moment"
-msgstr "Cette fiche n'est pas une favorie pour le moment"
 
 # Already in creme_core
 #: templates/mobile/templatetags/footer.html:4
