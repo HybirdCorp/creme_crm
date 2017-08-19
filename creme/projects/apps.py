@@ -41,10 +41,18 @@ class ProjectsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Project, self.ProjectTask)
 
-    def register_blocks(self, block_registry):
-        from .blocks import block_list
+    def register_bricks(self, brick_registry):
+        # from .blocks import block_list
+        from . import bricks
 
-        block_registry.register(*block_list)
+        # brick_registry.register(*block_list)
+        brick_registry.register(bricks.ProjectExtraInfoBrick,
+                                bricks.TaskExtraInfoBrick,
+                                bricks.ProjectTasksBrick,
+                                bricks.TaskResourcesBrick,
+                                bricks.TaskActivitiesBrick,
+                                bricks.ParentTasksBrick,
+                               )
 
     def register_icons(self, icon_registry):
         from .models import Resource

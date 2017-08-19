@@ -1,0 +1,73 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} projects-tasks-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Related task') plural=_('{count} Related tasks') empty=_('Related tasks') icon='task' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% url 'projects__create_task' object.id as creation_url %}
+    {% brick_header_action id='add' url=creation_url label=_('New task') enabled=creation_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Order') %}
+    {% brick_table_column title=_('Name') status='primary' %}
+    {% brick_table_column title=_('Estimated duration (hours)') %}
+    {% brick_table_column title=_('Effective duration (hours)') %}
+    {% brick_table_column title=_('Status') %}
+    {% brick_table_column title=_('Parent tasks') %}
+    {% brick_table_column title=_('Cost') data_type='money' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% url 'projects__remove_parent_task' as remove_parent_url %}
+    {% for task in page.object_list %}
+    <tr>{% has_perm_to view task as view_perm %}{% has_perm_to change task as change_perm %}{% has_perm_to delete task as delete_perm %}
+        <td>{{task.order}}</td>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink task user %}</td>
+        {% if view_perm %}
+            <td>{{task.safe_duration}}h</td>
+            {% if task.get_delay > 0 %}
+            <td class="task-delay-value -overtime">
+                {% blocktrans with duration=task.get_effective_duration delay=task.get_delay %}{{duration}}h: overtime of {{delay}}h{% endblocktrans %}
+            </td>
+            {% else %}
+            <td class="task-delay-value">
+                {% blocktrans with duration=task.get_effective_duration abs_delay=task.get_delay|absolute %}{{duration}}h: remaining time of {{abs_delay}}h{% endblocktrans %}
+            </td>
+            {% endif %}
+            <td>{{task.tstatus}}</td>
+            <td>
+                {% for parent in task.get_parents %}
+                {% widget_join %}{% spaceless %}
+                    {% widget_entity_hyperlink parent user %}
+                    {% brick_action id='delete' url=remove_parent_url __id=task.id __parent_id=parent.id enabled=change_perm %}
+                {% endspaceless %}{% end_widget_join %}{% empty %}
+                    {% trans "No parent task" %}
+                {% endfor %}
+            </td>
+            <td data-type="money">{{task.get_task_cost|format_amount:object.currency}}</td>
+        {% else %}
+            <td>{{HIDDEN_VALUE}}</td>
+            <td>{{HIDDEN_VALUE}}</td>
+            <td>{{HIDDEN_VALUE}}</td>
+            <td>{{HIDDEN_VALUE}}</td>
+            <td data-type="money">{{HIDDEN_VALUE}}</td>
+        {% endif %}
+        <td {% brick_table_data_status action %}>{% url 'projects__edit_task_popup' task.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this task') enabled=change_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=task.get_delete_absolute_url label=_('Delete this task') enabled=delete_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No task in this project for the moment' %}
+{% endblock %}

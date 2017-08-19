@@ -1,0 +1,21 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}brick-kv-list projects-extra-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Other information') icon='info' %}
+{% endblock %}
+
+{% block brick_content %}
+<div class='brick-kv-group'>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans 'Total cost of the project' %}</div>
+        <div class='brick-kv-value'>{{object.get_project_cost|format_amount:object.currency}}</div>
+    </div>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans 'Total overtime (in hours)' %}</div>
+        <div class='brick-kv-value'>{{object.get_delay|default:'—'}}</div>
+    </div>
+</div>
+{% endblock %}
