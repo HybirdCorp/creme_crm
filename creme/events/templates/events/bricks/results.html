@@ -1,0 +1,31 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} events-results-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Results') %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+{% with object.get_stats as stats %}
+    <tr>
+        <td><h2 class="events-results-invitations-label">{% trans 'Number of invitations' %}</h2></td>
+        <td><h2 class="events-results-invitations-value">{{stats.invations_count}}</h2></td>
+    </tr>
+    <tr>
+        <td><h2 class="events-results-accepted-label">{% trans 'Number of accepted invitations' %}</h2></td>
+        <td><h2 class="events-results-accepted-value">{{stats.accepted_count}}</h2></td>
+    </tr>
+    <tr>
+        <td><h2 class="events-results-refused-label">{% trans 'Number of refused invitations' %}</h2></td>
+        <td><h2 class="events-results-refused-value">{{stats.refused_count}}</h2></td>
+    </tr>
+    <tr>
+        <td><h2 class="events-results-visitors-label">{% trans 'Number of visitors' %}</h2></td>
+        <td><h2 class="events-results-visitors-value">{{stats.visitors_count}}</h2></td>
+    </tr>
+{% endwith %}
+{% endblock %}

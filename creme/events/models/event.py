@@ -63,8 +63,8 @@ class AbstractEvent(CremeEntity):
                                blank=True, null=True,
                               ).set_tags(optional=True)
 
-    creation_label = pgettext_lazy('events', 'Create an event')
-    save_label     = pgettext_lazy('events', 'Save the event')
+    creation_label = pgettext_lazy('events', u'Create an event')
+    save_label     = pgettext_lazy('events', u'Save the event')
 
     class Meta:
         abstract = True

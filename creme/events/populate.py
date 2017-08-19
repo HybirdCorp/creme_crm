@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,8 +23,7 @@ import logging
 from django.apps import apps
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.blocks import (properties_block, relations_block,
-        customfields_block, history_block)
+from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (SearchConfigItem, RelationType, HeaderFilter,
@@ -35,9 +34,7 @@ from creme.persons import get_contact_model
 
 from creme.opportunities import get_opportunity_model
 
-from . import get_event_model
-from . import constants
-from .blocks import resuts_block
+from . import get_event_model, constants, bricks
 from .models import EventType
 
 
@@ -94,33 +91,33 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            for i, name in enumerate([_('Show'), _('Conference'), _('Breakfast'), _('Brunch')], start=1):
+            for i, name in enumerate([_(u'Show'), _(u'Conference'), _(u'Breakfast'), _(u'Brunch')], start=1):
                 create_if_needed(EventType, {'pk': i}, name=name)
 
             create_bdl = BlockDetailviewLocation.create
             LEFT  = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
-            BlockDetailviewLocation.create_4_model_block(order=5,  zone=LEFT,  model=Event)
-            create_bdl(block_id=customfields_block.id_, order=40,  zone=LEFT,  model=Event)
-            create_bdl(block_id=properties_block.id_,   order=450, zone=LEFT,  model=Event)
-            create_bdl(block_id=relations_block.id_,    order=500, zone=LEFT,  model=Event)
-            create_bdl(block_id=resuts_block.id_,       order=2,   zone=RIGHT, model=Event)
-            create_bdl(block_id=history_block.id_,      order=20,  zone=RIGHT, model=Event)
+            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=Event)
+            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Event)
+            create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Event)
+            create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Event)
+            create_bdl(block_id=bricks.ResutsBrick.id_,            order=2,   zone=RIGHT, model=Event)
+            create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Event)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
-                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+                from creme.assistants import bricks as a_bricks
 
-                create_bdl(block_id=todos_block.id_,    order=100, zone=RIGHT, model=Event)
-                create_bdl(block_id=memos_block.id_,    order=200, zone=RIGHT, model=Event)
-                create_bdl(block_id=alerts_block.id_,   order=300, zone=RIGHT, model=Event)
-                create_bdl(block_id=messages_block.id_, order=400, zone=RIGHT, model=Event)
+                create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Event)
+                create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Event)
+                create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Event)
+                create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Event)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the Documents blocks on detail view')
 
-                from creme.documents.blocks import linked_docs_block
+                from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(block_id=linked_docs_block.id_, order=600, zone=RIGHT, model=Event)
+                create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Event)
