@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,16 +34,21 @@ class CTIConfig(CremeAppConfig):
     #                                 '/cti', credentials=creme_registry.CRED_NONE,
     #                                )
 
+    def register_bricks(self, brick_registry):
+        from . import bricks
+
+        brick_registry.register(bricks.CallersBrick)
+
     def register_fields_config(self, fields_config_registry):
-        from creme.persons import get_contact_model, get_organisation_model
+        from creme import persons
 
         reg_fields = fields_config_registry.register_needed_fields
-        reg_fields('cti', get_contact_model(),      'phone', 'mobile')
-        reg_fields('cti', get_organisation_model(), 'phone')
+        reg_fields('cti', persons.get_contact_model(),      'phone', 'mobile')
+        reg_fields('cti', persons.get_organisation_model(), 'phone')
 
     def register_field_printers(self, field_printers_registry):
-        from creme.creme_core.models.fields  import PhoneField
+        from creme.creme_core.models.fields import PhoneField
 
-        from .utils import print_phone
+        from . import utils
 
-        field_printers_registry.register(PhoneField, print_phone)
+        field_printers_registry.register(PhoneField, utils.print_phone)

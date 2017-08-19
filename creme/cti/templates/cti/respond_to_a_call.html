@@ -1,8 +1,13 @@
 {% extends 'creme_core/base.html' %}
-{% load i18n %}
-{% load creme_block creme_core_tags %}
+{% load creme_bricks %}
+{# {% load i18n creme_block creme_core_tags %} #}
 
 {% block content %}
+    {% brick_import app='cti' name='callers' as callers_bricks %}
+    {% brick_display callers_bricks %}
+    {% brick_end %}
+
+{% comment %}
     <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
         {% get_block_header colspan=8 %}
             <th class="label">
@@ -61,4 +66,5 @@
             {% endfor %}
         </tbody>
     </table>
+{% endcomment %}
 {% endblock %}
