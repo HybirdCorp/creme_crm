@@ -40,10 +40,11 @@ class EventsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Event)
 
-    def register_blocks(self, block_registry):
-        from .blocks import resuts_block
+    def register_bricks(self, brick_registry):
+        from . import bricks
 
-        block_registry.register(resuts_block)
+        brick_registry.register(bricks.ResutsBrick)
+        brick_registry.register_hat(self.Event, main_brick_cls=bricks.EventBarHatBrick)
 
     def register_icons(self, icon_registry):
         icon_registry.register(self.Event, 'images/event_%(size)s.png')
