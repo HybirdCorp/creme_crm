@@ -1,0 +1,49 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} assistants-memos-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Memo') plural=_('{count} Memos') empty=_('Memos') icon='memo' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object %}
+        {% has_perm_to change object as has_perm %}{% url 'assistants__create_memo' object.id as create_url %}
+        {% brick_header_action id='add' url=create_url label=_('New memo') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% if not object %}
+    {% brick_table_column title=_('Concerned entity') %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='user'          title=_('User')       status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=_('Created on') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='content' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
+    {% for memo in page.object_list %}{% has_perm_to change memo.creme_entity as has_perm %}
+    <tr>
+        {% if not object %}
+            <td>{% widget_entity_hyperlink memo.creme_entity user %}</td>
+        {% endif %}
+        <td {% brick_table_data_status primary %}>{% print_field object=memo field='user' %}</td>
+        <td data-type="date">{{memo.creation_date|date:'DATE_FORMAT'}}</td>
+        <td>{% print_field object=memo field='content' %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=memo.get_edit_absolute_url label=_('Edit this memo') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=memo.pk label=_('Delete this memo') enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No memo for the moment' %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} assistants-actions-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title='{count} Action' plural='{count} Actions' empty=_('Action') icon='action' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='title' status='primary' %}
+
+    {% if not object %}
+    {% brick_table_column title=_('Concerned entity') %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='description'       title=_('Description') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='user'              title=_('User') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='creation_date'     title=_('Creation') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='expected_reaction' title=_('Expected action') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='deadline' %}
+    {% brick_table_column title=_('Status')  status='action' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
+    {% for action in page.object_list %}{% has_perm_to change action.creme_entity as has_perm %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% print_field object=action field='title' %}</td>
+        {% if not object %}
+        <td>{% widget_entity_hyperlink action.creme_entity user %}</td>
+        {% endif %}
+        <td>{% print_field object=action field='description' %}</td>
+        <td>{% print_field object=action field='user' %}</td>
+        <td data-type='date'>{% print_field object=action field='creation_date' %}</td>
+        <td>{% print_field object=action field='expected_reaction' %}</td>
+        <td data-type='date'>{% print_field object=action field='deadline' %}</td>
+        <td {% brick_table_data_status action %}>
+            {% if action.is_validated %}
+                {% widget_icon name='ok' label=_('Validated') size='brick-table' class='brick-table-icon' %}
+            {% else %}{% url 'assistants__validate_action' action.id as validate_url %}
+                {% brick_table_action id='update' url=validate_url confirm=_('Check the box if you consider as treated') display='text' label=_('Validate') enabled=has_perm %}
+            {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=action.get_edit_absolute_url label=_('Edit this action') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=action.pk label=_('Delete this action') enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}No action{% endblock %}

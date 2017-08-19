@@ -1,0 +1,12 @@
+{% extends 'assistants/bricks/base/actions.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} assistants-actions-notontime-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Reaction not on time') plural=_('{count} Reactions not on time') empty=_('Reactions') icon='action_not_in_time' %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No reaction not on time' %}
+{% endblock %}

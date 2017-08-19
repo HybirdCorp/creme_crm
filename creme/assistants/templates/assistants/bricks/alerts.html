@@ -1,0 +1,61 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} assistants-alerts-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Alert') plural=_('{count} Alerts') empty=_('Alerts') icon='alert' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object %}
+    {% has_perm_to change object as has_perm %}{% url 'assistants__create_alert' object.id as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New alert') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='title' status='primary' %}
+
+    {% if not object %}
+    {% brick_table_column title=_('Concerned entity') %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='user'         title=_('User') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='trigger_date' title=_('Triggering') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='description'  title=_('Details') %}
+    {% brick_table_column title=_('Status')  status='action' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
+    {% for alert in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% print_field object=alert field='title' %}</td>
+        {% if not object %}
+            <td>{% widget_entity_hyperlink alert.creme_entity user %}</td>
+        {% endif %}
+        <td>{% print_field object=alert field='user' %}</td>
+        <td data-type="date" class="{% if alert.trigger_date >= today %}td_valid{% else %}td_error{% endif %}">{% print_field object=alert field='trigger_date' %}</td>
+        <td>{% print_field object=alert field='description' %}</td>
+        {% has_perm_to change alert.creme_entity as has_perm %}
+        <td {% brick_table_data_status action %}>
+            {% if alert.is_validated %}
+                {% widget_icon name='ok' label=_('Validated') size='brick-table' class='brick-table-icon' %}
+            {% else %}{% url 'assistants__validate_alert' alert.id as validate_url %}
+                {% brick_table_action id='update' url=validate_url confirm=_('Are you sure?') label=_('Validate') display='text' enabled=has_perm %}
+            {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=alert.get_edit_absolute_url label=_('Edit this alert') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=alert.id label=_('Delete this alert') enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No alert for the moment' %}
+{% endblock %}

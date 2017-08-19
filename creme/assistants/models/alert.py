@@ -34,7 +34,7 @@ from creme.creme_core.core.function_field import (FunctionField, FunctionFieldRe
 
 
 class Alert(CremeModel):
-    title               = CharField(max_length=200)
+    title               = CharField(_(u'Title'), max_length=200)
     description         = TextField(_(u'Description'), blank=True)
     is_validated        = BooleanField(_(u'Validated'), editable=False, default=False)
     reminded            = BooleanField(_(u'Notification sent'), editable=False, default=False)  # Need by creme_core.core.reminder
@@ -45,7 +45,7 @@ class Alert(CremeModel):
     entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    user                = CremeUserForeignKey(verbose_name=_('Owner user'))
+    user                = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
     class Meta:
         app_label = 'assistants'

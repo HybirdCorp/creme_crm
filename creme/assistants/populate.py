@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SettingValue, Job, BlockDetailviewLocation, BlockPortalLocation
 from creme.creme_core.utils import create_if_needed
 
-from .blocks import alerts_block, memos_block, todos_block, messages_block
+from .bricks import AlertsBrick, MemosBrick, TodosBrick, UserMessagesBrick
 from .constants import PRIO_IMP_PK, USERMESSAGE_PRIORITIES
 from .creme_jobs import usermessages_send_type
 from .models import UserMessagePriority
@@ -50,15 +50,16 @@ class Populator(BasePopulator):
                                  )
 
         if not already_populated:
-            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT)
-            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT)
-            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT)
+            RIGHT = BlockDetailviewLocation.RIGHT
+            BlockDetailviewLocation.create(block_id=TodosBrick.id_,        order=100, zone=RIGHT)
+            BlockDetailviewLocation.create(block_id=MemosBrick.id_,        order=200, zone=RIGHT)
+            BlockDetailviewLocation.create(block_id=AlertsBrick.id_,       order=300, zone=RIGHT)
+            BlockDetailviewLocation.create(block_id=UserMessagesBrick.id_, order=400, zone=RIGHT)
 
-            BlockPortalLocation.create(block_id=memos_block.id_,    order=100)
-            BlockPortalLocation.create(block_id=alerts_block.id_,   order=200)
-            BlockPortalLocation.create(block_id=messages_block.id_, order=300)
+            BlockPortalLocation.create(block_id=MemosBrick.id_,        order=100)
+            BlockPortalLocation.create(block_id=AlertsBrick.id_,       order=200)
+            BlockPortalLocation.create(block_id=UserMessagesBrick.id_, order=300)
 
-            BlockPortalLocation.create(app_name='creme_core', block_id=memos_block.id_,    order=100)
-            BlockPortalLocation.create(app_name='creme_core', block_id=alerts_block.id_,   order=200)
-            BlockPortalLocation.create(app_name='creme_core', block_id=messages_block.id_, order=300)
+            BlockPortalLocation.create(app_name='creme_core', block_id=MemosBrick.id_,        order=100)
+            BlockPortalLocation.create(app_name='creme_core', block_id=AlertsBrick.id_,       order=200)
+            BlockPortalLocation.create(app_name='creme_core', block_id=UserMessagesBrick.id_, order=300)

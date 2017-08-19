@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,21 +36,23 @@ class AssistantsConfig(CremeAppConfig):
     # def register_creme_app(self, creme_registry):
     #     creme_registry.register_app('assistants', _(u'Assistants (Todos, Memo, ...)'), '/')
 
-    def register_blocks(self, block_registry):
-        from .blocks import (alerts_block, actions_it_block, actions_nit_block,
-                memos_block, todos_block, messages_block)
+    def register_bricks(self, brick_registry):
+        from . import bricks
 
-        block_registry.register(todos_block, memos_block, alerts_block,
-                                actions_it_block, actions_nit_block,
-                                messages_block,
+        brick_registry.register(bricks.TodosBrick,
+                                bricks.MemosBrick,
+                                bricks.AlertsBrick,
+                                bricks.ActionsOnTimeBrick,
+                                bricks.ActionsNotOnTimeBrick,
+                                bricks.UserMessagesBrick,
                                )
 
     def register_reminders(self, reminder_registry):
-        from .reminders import reminder_alert, reminder_todo
+        from . import reminders
 
         reg_reminder = reminder_registry.register
-        reg_reminder(reminder_alert)
-        reg_reminder(reminder_todo)
+        reg_reminder(reminders.reminder_alert)
+        reg_reminder(reminders.reminder_todo)
 
     def register_setting_key(self, setting_key_registry):
         from .setting_keys import todo_reminder_key
