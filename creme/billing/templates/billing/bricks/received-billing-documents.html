@@ -1,0 +1,42 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} billing-received-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=title plural=title_plural empty=empty_title icon='invoice' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
+
+    {% if 'expiration_date' not in hidden_fields %}
+    {% brick_table_column_for_field ctype=objects_ctype field='expiration_date' %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='status' title=_('Status') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='total_no_vat' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for billing_document in page.object_list %}
+    <tr>{% has_perm_to view billing_document as view_perm %}
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink billing_document user %}</td>
+        {% if view_perm %}
+            {% if 'expiration_date' not in hidden_fields %}
+        <td data-type="date">{{billing_document.expiration_date|date:'DATE_FORMAT'}}</td>
+            {% endif %}
+        <td>{{billing_document.status}}</td>
+        <td data-type="money">{{billing_document.total_no_vat|format_amount:billing_document.currency}}</td>
+        {% else %}
+        {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
+        <td>{{HIDDEN_VALUE}}</td>
+        <td data-type="money">{{HIDDEN_VALUE}}</td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {{empty_msg}}
+{% endblock %}

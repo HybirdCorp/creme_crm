@@ -1,0 +1,68 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}billing-lines-brick{% endblock %}
+
+{% block brick_extra_attributes %}
+data-type-currency="{{object.currency.local_symbol}}"
+data-type-global-discount="{{object.discount}}"
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as change_perm %}{% url 'billing__multi_save_lines' object.id as save_url %}
+    {% brick_header_action id='billing-line-saveall' url=save_url label=_('Save all lines') icon='ok' enabled=change_perm loading=_('Saving…') %}
+    {% brick_header_action id='billing-line-addonfly' __ctype_id=ct_id __prefix=formset.prefix __count=item_count label=_('Add a line on the fly') type='add' enabled=change_perm %}
+    {% block brick_line_header_actions %}{% endblock %}
+{% endblock %}
+
+{% block brick_content %}
+{% has_perm_to change object as change_perm %}
+{% trans 'Reset' context 'billing-lines' as reset_label %}
+    <div class="bline-form" ct_id="{{ct_id}}" id="form_id_{{ct_id}}" >
+        {% csrf_token %}
+        {{formset.management_form}}
+
+        {% for form in formset %}
+            <div class="bline-container">
+                <div class="bline-buttons" id="line_content_{{form.instance.id}}">
+                    <span class="bline-counter">{{forloop.counter}}</span>
+                    <a class="bline-button bline-button-delete" onclick="creme.billing.markDelete('{{form.prefix}}', '{{ct_id}}', '{{form.instance.id}}');">
+                        {% widget_icon name='delete' size='brick-action' label=_('Flag for delete') %}
+                    </a>
+                    <a class="bline-button bline-button-refresh" onclick="creme.billing.restoreInitialValues({{form.instance.id}}, '{{form.prefix}}', '{{ct_id}}');">
+                        {% widget_icon name='refresh' size='brick-action' label=reset_label %}
+                    </a>
+                </div>
+
+                <div class="bline-hidden-fields" style="display: none">{{form.user}} {{form.DELETE}} {{form.cremeentity_ptr}}</div>
+
+                <div class="bline-fields restorable_{{form.instance.id}}">
+                    {% include 'billing/bricks/frags/line-fields.html' %}
+                </div>
+            </div>
+            {% if not forloop.last %}
+            <div class="bline-container-separator"></div>
+            {% endif %}
+        {% empty %}
+            <div class="bline-empty empty_msg_{{ct_id}}">{% block empty_msg %}EMPTY{% endblock %}</div>
+        {% endfor %}
+
+        {% if formset %}
+            <div class="bline-container-separator hidden-form empty_form_{{ct_id}} space_line_{{ct_id}}"></div>
+
+            {% with formset.empty_form as form %}
+                <div class="bline-container hidden-form empty_form_{{ct_id}} empty_form_inputs_{{ct_id}}">
+                    <div style="display: none"> {{form.user}} {{form.DELETE}} {{form.cremeentity_ptr}}</div>
+
+                    <div class="bline-buttons">
+                        {% brick_action id='billing-line-clearonfly' __ctype_id=ct_id __prefix=formset.prefix __count=item_count type='delete' label=_('Flag for delete') icon_size='small' enabled=change_perm %}
+                    </div>
+
+                    <div class="bline-fields">
+                        {% include 'billing/bricks/frags/line-fields.html' %}
+                    </div>
+                </div>
+            {% endwith %}
+        {% endif %}
+    </div>
+{% endblock %}

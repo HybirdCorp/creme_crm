@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
+
+{% log 'The template file "creme/billing/templates/billing/frags/generic_billing_line_frag.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object as edit_perm %}
 {% with line=form.instance currency=object.currency %}
 <table class="linetable linetable_{{ct_id}}">

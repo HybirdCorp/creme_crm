@@ -68,11 +68,34 @@ class BillingConfig(CremeAppConfig):
         from .registry import lines_registry
         lines_registry.register(self.ProductLine, self.ServiceLine)
 
-    def register_blocks(self, block_registry):
-        from .blocks import block_list
+    def register_bricks(self, brick_registry):
+        # from .blocks import block_list
+        from . import bricks
 
-        block_registry.register(*block_list)
-        block_registry.register_invalid_models(self.ProductLine, self.ServiceLine)
+        # brick_registry.register(*block_list)
+        brick_registry.register(bricks.ProductLinesBrick,
+                                bricks.ServiceLinesBrick,
+                                bricks.CreditNotesBrick,
+                                bricks.TotalBrick,
+                                bricks.TargetBrick,
+                                bricks.ReceivedInvoicesBrick,
+                                bricks.PaymentInformationBrick,
+                                bricks.BillingPaymentInformationBrick,
+                                bricks.ReceivedQuotesBrick,
+                                bricks.ReceivedSalesOrdersBrick,
+                                bricks.ReceivedCreditNotesBrick,
+                                bricks.BillingDetailedAddressBrick,
+                                bricks.BillingPrettyAddressBrick,
+                                bricks.PersonsStatisticsBrick,
+                               )
+        brick_registry.register_invalid_models(self.ProductLine, self.ServiceLine)
+
+        register_hat = brick_registry.register_hat
+        register_hat(self.CreditNote,   main_brick_cls=bricks.CreditNoteBarHatBrick)
+        register_hat(self.Invoice,      main_brick_cls=bricks.InvoiceBarHatBrick)
+        register_hat(self.Quote,        main_brick_cls=bricks.QuoteBarHatBrick)
+        register_hat(self.SalesOrder,   main_brick_cls=bricks.SalesOrderBarHatBrick)
+        register_hat(self.TemplateBase, main_brick_cls=bricks.TemplateBaseBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import PaymentInformation

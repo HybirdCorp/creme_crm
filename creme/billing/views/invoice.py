@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,9 +65,11 @@ def abstract_edit_invoice(request, invoice_id, form=invoice_forms.InvoiceEditFor
     return generic.edit_entity(request, invoice_id, Invoice, form)
 
 
-def abstract_view_invoice(request, invoice_id, template='billing/view_billing.html'):
+# def abstract_view_invoice(request, invoice_id, template='billing/view_billing.html'):
+def abstract_view_invoice(request, invoice_id, template='billing/view_invoice.html'):
     return generic.view_entity(request, invoice_id, Invoice,
-                               template=template, extra_template_dict={'can_download': True},
+                               template=template,
+                               # extra_template_dict={'can_download': True},
                               )
 
 
@@ -123,4 +125,4 @@ def generate_number(request, invoice_id):
     else:
         raise Http404('This invoice has already a number: %s.' % invoice)
 
-    return HttpResponse('', content_type='text/javascript')
+    return HttpResponse(content_type='text/javascript')

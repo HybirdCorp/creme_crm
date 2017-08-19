@@ -43,7 +43,7 @@ ServiceLine = billing.get_service_line_model()
 def abstract_add_multiple_product_line(request, document_id,
                                        form=line_forms.ProductLineMultipleAddForm,
                                        title=_(u'Add one or more product to «%s»'),
-                                       submit_label=_('Save the lines'),
+                                       submit_label=_(u'Save the lines'),
                                       ):
     return generic.add_to_entity(request, document_id, form, title,
                                  link_perm=True, submit_label=submit_label,
@@ -53,7 +53,7 @@ def abstract_add_multiple_product_line(request, document_id,
 def abstract_add_multiple_service_line(request, document_id,
                                        form=line_forms.ServiceLineMultipleAddForm,
                                        title=_(u'Add one or more service to «%s»'),
-                                       submit_label=_('Save the lines'),
+                                       submit_label=_(u'Save the lines'),
                                       ):
     return generic.add_to_entity(request, document_id, form, title,
                                  link_perm=True, submit_label=submit_label,

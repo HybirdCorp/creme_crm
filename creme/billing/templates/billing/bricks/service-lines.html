@@ -1,0 +1,15 @@
+{% extends 'billing/bricks/base/lines.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} billing-service-lines-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Service') plural=_('{count} Services') empty=_('Services') icon='service' count=item_count %}
+{% endblock %}
+
+{% block brick_line_header_actions %}
+{% has_perm_to change object as has_perm %}{% url 'billing__create_service_lines' object.id as creation_url %}
+    {% brick_header_action id='add' url=creation_url label=_('Add some services') enabled=has_perm %}
+{% endblock %}
+
+{% block empty_msg %}{% trans 'No service in this document' %}{% endblock %}

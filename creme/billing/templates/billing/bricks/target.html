@@ -1,0 +1,27 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_widgets creme_ctype creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} billing-target-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Target and source') %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+    {% with target=object.get_target emitter=object.get_source %}
+    <tr>
+        <td>
+            <h1 class="billing-target billing-target-label">{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}
+            {% if target.entity_type == orga_ctype %}{% trans 'Target organisation' %}{% else %}{% trans 'Target contact' %}{% endif %}
+            </h1>
+        </td>
+        <td><h1 class="billing-target billing-target-value">{% if target %}{% widget_entity_hyperlink target user %}{% endif %}</h1></td>
+    </tr>
+    <tr>
+        <td><h1 class="billing-source billing-source-label">{% trans 'Source organisation' %}</h1></td>
+        <td><h1 class="billing-source billing-source-value">{% if emitter %}{% widget_entity_hyperlink emitter user %}{% endif %}</h1></td>
+    </tr>
+    {% endwith %}
+{% endblock %}

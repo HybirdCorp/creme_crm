@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing(JS) 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 13:52+0100\n"
+"POT-Creation-Date: 2017-08-12 14:38+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,19 +24,19 @@ msgstr "Voulez vous vraiment réinitialiser les valeurs de cette ligne ?"
 msgid "You modified your lines."
 msgstr "Vous avez modifié vos lignes."
 
-#: static/billing/js/billing.js:413
+#: static/billing/js/billing.js:419 static/billing/js/billing.js:555
 msgid "There are some errors in your lines."
 msgstr "Il y a des erreurs dans vos lignes."
 
-#: static/billing/js/billing.js:453
+#: static/billing/js/billing.js:456 static/billing/js/billing.js:569
 msgid "Errors report"
 msgstr "Rapport d'erreurs"
 
-#: static/billing/js/billing.js:487
+#: static/billing/js/billing.js:490
 msgid "Pdf file (PDF)"
 msgstr "Fichier Pdf (PDF)"
 
-#: static/billing/js/billing.js:498
+#: static/billing/js/billing.js:501
 msgid "Select the export format of your billing document"
 msgstr "Sélectionnez le format d'export de votre document comptable"
 

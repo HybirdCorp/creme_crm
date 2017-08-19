@@ -1,0 +1,160 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}brick-kv-list billing-persons-stats-brick{% endblock %}
+{% comment %}
+    {# version with groups as large as brick #}
+    {% block brick_content_extra_class %}-kv-full-width-groups{% endblock %}
+{% endcomment %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Billing statistics') %}
+{% endblock %}
+
+{% block brick_content %}
+<div class='brick-kv-group'>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans 'Total Won Quote Last Year' %}</div>
+        <div class='brick-kv-value'>{{total_won_quote_last_year|format_amount}}</div>
+    </div>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans 'Total Won Quote This Year' %}</div>
+        <div class='brick-kv-value'>{{total_won_quote_this_year|format_amount}}</div>
+    </div>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans 'Total Pending Payment' %}</div>
+        <div class='brick-kv-value'>{{total_pending|format_amount}}</div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %}
+{# brick_content: 1 group of k/v displayed with 1 column as large as the brick #}
+<div class='brick-kv-group'>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Won Quote Last Year" %}</div>
+        <div class='brick-kv-value'>{{total_won_quote_last_year|format_amount}}</div>
+    </div>
+
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Won Quote This Year" %}</div>
+        <div class='brick-kv-value'>{{total_won_quote_this_year|format_amount}}</div>
+    </div>
+
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Pending Payment" %}</div>
+        <div class='brick-kv-value'>{{total_pending|format_amount}}</div>
+    </div>
+</div>
+{# brick_content: 2 groups of k/v, with 2 columns #}
+<div class='brick-kv-group'>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Won Quote Last Year" %}</div>
+        <div class='brick-kv-value'>{{total_won_quote_last_year|format_amount}}</div>
+    </div>
+
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Won Quote This Year" %}</div>
+        <div class='brick-kv-value'>{{total_won_quote_this_year|format_amount}}</div>
+    </div>
+
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Pending Payment" %}</div>
+        <div class='brick-kv-value'>{{total_pending|format_amount}}</div>
+    </div>
+</div>
+<div class='brick-kv-group'>
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Won Quote Last Year" %}</div>
+        <div class='brick-kv-value'>{{total_won_quote_last_year|format_amount}}</div>
+    </div>
+
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Won Quote This Year" %}</div>
+        <div class='brick-kv-value'>{{total_won_quote_this_year|format_amount}}</div>
+    </div>
+
+    <div class='brick-kv-item' data-type='money'>
+        <div class='brick-kv-key'>{% trans "Total Pending Payment" %}</div>
+        <div class='brick-kv-value'>{{total_pending|format_amount}}</div>
+    </div>
+</div>
+{# brick_content: 2 groups of k/v with title, with 2 columns #}
+<div class='brick-kv-group'>
+    <div class='brick-kv-group-title'>Previous year</div>
+    <div class="brick-kv-items">
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Won Quote Last Year" %}</div>
+            <div class='brick-kv-value'>{{total_won_quote_last_year|format_amount}}</div>
+        </div>
+
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Won Quote This Year" %}</div>
+            <div class='brick-kv-value'>{{total_won_quote_this_year|format_amount}}</div>
+        </div>
+
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Pending Payment" %}</div>
+            <div class='brick-kv-value'>{{total_pending|format_amount}}</div>
+        </div>
+    </div>
+</div>
+<div class='brick-kv-group'>
+    <div class='brick-kv-group-title'>Current year</div>
+    <div class="brick-kv-items">
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Won Quote Last Year" %}</div>
+            <div class='brick-kv-value'>{{total_won_quote_last_year|format_amount}}</div>
+        </div>
+
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Won Quote This Year" %}</div>
+            <div class='brick-kv-value'>{{total_won_quote_this_year|format_amount}}</div>
+        </div>
+
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Pending Payment" %}</div>
+            <div class='brick-kv-value'>{{total_pending|format_amount}}</div>
+        </div>
+    </div>
+</div>
+{# block brick_content_extra_class: -kv-full-width-groups + brick_content (as the previous example) = 2 groups of k/v with title, with 1 column #}
+<div class='brick-kv-group'>
+    <div class='brick-kv-group-title'>Previous year</div>
+    <div class="brick-kv-items">
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Won Quote Last Year" %}</div>
+            <div class='brick-kv-value'>{{total_won_quote_last_year|format_amount}}</div>
+        </div>
+
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Won Quote This Year" %}</div>
+            <div class='brick-kv-value'>{{total_won_quote_this_year|format_amount}}</div>
+        </div>
+
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Pending Payment" %}</div>
+            <div class='brick-kv-value'>{{total_pending|format_amount}}</div>
+        </div>
+    </div>
+</div>
+<div class='brick-kv-group'>
+    <div class='brick-kv-group-title'>Current year</div>
+    <div class="brick-kv-items">
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Won Quote Last Year" %}</div>
+            <div class='brick-kv-value'>{{total_won_quote_last_year|format_amount}}</div>
+        </div>
+
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Won Quote This Year" %}</div>
+            <div class='brick-kv-value'>{{total_won_quote_this_year|format_amount}}</div>
+        </div>
+
+        <div class='brick-kv-item' data-type='money'>
+            <div class='brick-kv-key'>{% trans "Total Pending Payment" %}</div>
+            <div class='brick-kv-value'>{{total_pending|format_amount}}</div>
+        </div>
+    </div>
+</div>
+{% endcomment %}

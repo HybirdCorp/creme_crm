@@ -1,0 +1,29 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} billing-total-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Totals') %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+    <tr>
+        <td><h1 class="billing-total-exclusive billing-total-exclusive-label">{% trans 'Total (exclusive of tax)' %}</h1></td>
+        <td data-type="money">
+            <h1 class="billing-total-exclusive billing-total-exclusive-value" name="total_no_vat">
+                {{object.total_no_vat|format_amount:object.currency}}
+            </h1>
+        </td>
+    </tr>
+    <tr>
+        <td><h1 class="billing-total-inclusive billing-total-inclusive-label">{% trans 'Total (inclusive of tax)' %}</h1></td>
+        <td data-type="money">
+            <h1 class="billing-total-inclusive billing-total-inclusive-value" name="total_vat">
+                {{object.total_vat|format_amount:object.currency}}
+            </h1>
+        </td>
+    </tr>
+{% endblock %}

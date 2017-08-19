@@ -7,13 +7,14 @@ try:
     from django.core.urlresolvers import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (RelationType, CremeProperty, Vat,
             SettingValue, BlockDetailviewLocation)  # CremePropertyType
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from .. import blocks, constants
+    from .. import bricks, constants
     from ..models import (InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
             ConfigBillingAlgo, SimpleBillingAlgo)
     from .base import (_BillingTestCase,
@@ -24,7 +25,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class AppTestCase(_BillingTestCase, CremeTestCase):
+class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
     def test_populate(self):
         billing_classes = [Invoice, Quote, SalesOrder,
                            CreditNote, TemplateBase,
@@ -224,7 +225,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
 
     @skipIfCustomOrganisation
-    def test_block_orga01(self):
+    # def test_block_orga01(self):
+    def test_brick_orga01(self):
         self.login()
 
         sv = self._get_setting_value()
@@ -233,10 +235,13 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='NERV')
 
         response = self.assertGET200(orga.get_absolute_url())
-        payment_info_tlpt = 'billing/templatetags/block_payment_information.html'
+        # payment_info_tlpt = 'billing/templatetags/block_payment_information.html'
+        payment_info_tlpt = 'billing/bricks/orga-payment-information.html'
         self.assertTemplateNotUsed(response, payment_info_tlpt)
-        self.assertTemplateUsed(response, 'billing/templatetags/block_received_invoices.html')
-        self.assertTemplateUsed(response, 'billing/templatetags/block_received_billing_document.html')
+        # self.assertTemplateUsed(response, 'billing/templatetags/block_received_invoices.html')
+        # self.assertTemplateUsed(response, 'billing/templatetags/block_received_billing_document.html')
+        self.assertTemplateUsed(response, 'billing/bricks/received-invoices.html')
+        self.assertTemplateUsed(response, 'billing/bricks/received-billing-documents.html')
 
         sv.value = False
         sv.save()
@@ -245,7 +250,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertTemplateUsed(response, payment_info_tlpt)
 
     @skipIfCustomOrganisation
-    def test_block_orga02(self):
+    # def test_block_orga02(self):
+    def test_brick_orga02(self):
         "Managed organisation"
         self.login()
 
@@ -253,10 +259,13 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self._set_managed(orga)
 
         response = self.assertGET200(orga.get_absolute_url())
-        payment_info_tlpt = 'billing/templatetags/block_payment_information.html'
+        # payment_info_tlpt = 'billing/templatetags/block_payment_information.html'
+        payment_info_tlpt = 'billing/bricks/orga-payment-information.html'
         self.assertTemplateUsed(response, payment_info_tlpt)
-        self.assertTemplateUsed(response, 'billing/templatetags/block_received_invoices.html')
-        self.assertTemplateUsed(response, 'billing/templatetags/block_received_billing_document.html')
+        # self.assertTemplateUsed(response, 'billing/templatetags/block_received_invoices.html')
+        # self.assertTemplateUsed(response, 'billing/templatetags/block_received_billing_document.html')
+        self.assertTemplateUsed(response, 'billing/bricks/received-invoices.html')
+        self.assertTemplateUsed(response, 'billing/bricks/received-billing-documents.html')
 
         sv = self._get_setting_value()
         sv.value = False
@@ -266,17 +275,21 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertTemplateUsed(response, payment_info_tlpt)
 
     @skipIfCustomOrganisation
-    def test_block_orga03(self):
+    # def test_block_orga03(self):
+    def test_brick_orga03(self):
         "Statistics"
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='NERV')
-        block_id = blocks.persons_statistics_block.id_
+        brick_id = bricks.PersonsStatisticsBrick.id_
 
-        BlockDetailviewLocation.create(block_id=block_id, order=1000,
+        BlockDetailviewLocation.create(block_id=brick_id, order=1000,
                                        zone=BlockDetailviewLocation.LEFT, model=Organisation,
                                       )
 
         response = self.assertGET200(orga.get_absolute_url())
-        self.assertTemplateUsed(response, 'billing/templatetags/block_persons_statistics.html')
-        self.assertContains(response, 'id="%s"' % block_id)
+        # self.assertTemplateUsed(response, 'billing/templatetags/block_persons_statistics.html')
+        self.assertTemplateUsed(response, 'billing/bricks/persons-statistics.html')
+        # self.assertContains(response, 'id="%s"' % block_id)
+        tree = self.get_html_tree(response.content)
+        self.get_brick_node(tree, brick_id)

@@ -1,0 +1,13 @@
+{% extends 'creme_core/bricks/generic/hat-bar.html' %}
+{% load i18n creme_widgets %}
+
+{% block buttons %}
+    {% if download_button %}
+    <div class='bar-action'>
+        <a class="bar-button" href="{% url 'billing__export' object.id %}" onclick="event.preventDefault();creme.billing.exportAs($(this).attr('href'));">
+            {% widget_icon name='download' size='brick-hat-bar-button' label=_('Download as PDF') %}
+        </a>
+    </div>
+    {% endif %}
+    {{block.super}}
+{% endblock %}
