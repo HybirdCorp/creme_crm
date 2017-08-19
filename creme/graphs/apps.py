@@ -40,10 +40,15 @@ class GraphsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Graph)
 
-    def register_blocks(self, block_registry):
-        from .blocks import root_nodes_block, orbital_rtypes_block
+    def register_bricks(self, brick_registry):
+        # from .blocks import root_nodes_block, orbital_rtypes_block
+        from . import bricks
 
-        block_registry.register(root_nodes_block, orbital_rtypes_block)
+        # brick_registry.register(root_nodes_block, orbital_rtypes_block)
+        brick_registry.register(bricks.RootNodesBrick,
+                                bricks.OrbitalRelationTypesBrick,
+                               )
+        brick_registry.register_hat(self.Graph, main_brick_cls=bricks.GraphBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(self.Graph, exclude=('orbital_relation_types',))

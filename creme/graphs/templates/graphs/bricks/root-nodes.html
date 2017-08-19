@@ -1,0 +1,39 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} graphs-root-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Root node') plural=_('{count} Root nodes') empty=_('Root nodes') icon='graph' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}{% url 'graphs__add_roots' object.id as add_roots_url %}
+    {% brick_header_action id='add' url=add_roots_url label=_('Add some entities') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Entity') status='primary' %}
+    {% brick_table_column title=_('Types of relation') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}{% url 'graphs__remove_root' as remove_root_url %}
+    {% for rnode in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink rnode.entity user %}</td>
+        <td>{% widget_select_or_msg rnode.get_relation_types _('No type of relation') %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=rnode.get_edit_absolute_url label=_('Edit this node') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=remove_root_url __id=rnode.pk label=_('Remove this node') icon='unlink' enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No root node for the moment' %}
+{% endblock %}
