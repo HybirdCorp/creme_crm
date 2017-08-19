@@ -82,3 +82,29 @@
     margin: 1px;
     height: 300px;
 }
+
+.geolocation-brick .brick-content {
+    padding: 0;
+}
+
+.geolocation-brick .block-geoaddress-canvas {
+    margin: 0;
+}
+
+.geolocation-brick .geolocation-brick-items {
+    padding: 3px;
+}
+
+.geolocation-brick .geolocation-brick-header {
+    padding: 3px 10px;
+}
+
+.geolocation-brick .geolocation-empty-brick {
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+    padding: 5px 10px;
+}

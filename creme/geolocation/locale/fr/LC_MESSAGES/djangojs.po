@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Geolocation 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 14:43+0100\n"
+"POT-Creation-Date: 2017-08-12 15:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -17,33 +17,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/geolocation/js/block.js:23
+#: static/geolocation/js/brick.js:26
 msgid "Not localized"
 msgstr "Non localisé"
 
-#: static/geolocation/js/block.js:24
+#: static/geolocation/js/brick.js:27
 msgid "Manual location"
 msgstr "Localisation manuelle"
 
-#: static/geolocation/js/block.js:25
+#: static/geolocation/js/brick.js:28
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
 
-#: static/geolocation/js/block.js:263
+#: static/geolocation/js/brick.js:255
 msgid "No address from"
 msgstr "Aucune adresse de"
 
-#: static/geolocation/js/block.js:263
+#: static/geolocation/js/brick.js:255
 msgid "%0$d address from"
 msgid_plural "%0$d addresses from"
 msgstr[0] "%0$d adresse de"
 msgstr[1] "%0$d adresses de"
 
-#: static/geolocation/js/block.js:431
+#: static/geolocation/js/brick.js:414
 msgid "None of"
 msgstr "Aucune adresse de"
 
-#: static/geolocation/js/block.js:431
+#: static/geolocation/js/brick.js:414
 msgid "%0$d of"
 msgid_plural "%0$d of"
 msgstr[0] "%0$d adresse de"

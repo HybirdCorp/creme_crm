@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from creme.creme_core.models import BlockDetailviewLocation, BlockMypageLocation
 
 from creme.persons import get_contact_model, get_organisation_model
 
-from .blocks import persons_maps_block, persons_filter_maps_block, who_is_around_maps_block
+from . import bricks
 from .constants import DEFAULT_SEPARATING_NEIGHBOURS
 from .management.commands.geolocation import Command as GeolocationCommand
 from .setting_keys import NEIGHBOURHOOD_DISTANCE
@@ -58,15 +58,15 @@ class Populator(BasePopulator):
             Organisation = get_organisation_model()
 
             create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=persons_maps_block.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Organisation)
-            create_bdl(block_id=persons_maps_block.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Contact)
-            create_bdl(block_id=who_is_around_maps_block.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Organisation)
-            create_bdl(block_id=who_is_around_maps_block.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Contact)
+            create_bdl(block_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Organisation)
+            create_bdl(block_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Contact)
+            create_bdl(block_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Organisation)
+            create_bdl(block_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Contact)
 
-            BlockMypageLocation.create(block_id=persons_filter_maps_block.id_, order=20)
+            BlockMypageLocation.create(block_id=bricks.GoogleFilteredMapBrick.id_, order=20)
 
             # Add this bloc only if the root user exists (creme_core populated)
             root = get_user_model().objects.filter(pk=1).first()
             if root:
                 logger.info('Creme core is installed => the block PersonsFilterMap can be activated')
-                BlockMypageLocation.create(block_id=persons_filter_maps_block.id_, order=8, user=root)
+                BlockMypageLocation.create(block_id=bricks.GoogleFilteredMapBrick.id_, order=8, user=root)
